@@ -1,0 +1,59 @@
+{
+  "globalDependencies": [
+    "tsconfig.json",
+    ".npmrc",
+    "**/.env.*local"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "build/**"
+      ],
+      "cache": true
+    },
+    "dev": {
+      "dependsOn": [
+        "^build"
+      ],
+      "persistent": true,
+      "cache": false
+    },
+    "lint": {
+      "outputs": [],
+      "cache": false
+    },
+    "type-check": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ""
+      ],
+      "cache": true
+    },
+    "test": {
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "cache": true
+    },
+    "deploy": {
+      "dependsOn": [
+        "build",
+        "test"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "cache": false
+    }
+  }
+}

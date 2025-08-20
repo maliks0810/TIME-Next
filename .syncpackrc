@@ -1,0 +1,35 @@
+{
+    "sortAZ": [
+        "contributors",
+        "dependencies",
+        "devDependencies",
+        "keywords",
+        "peerDependencies",
+        "resolutions",
+        "scripts"
+    ],
+    "sortFirst": [
+        "name",
+        "description",
+        "version",
+        "author",
+        "private",
+        "license",
+        "repository",
+        "homepage",
+        "bugs",
+        "main",
+        "module",
+        "types",
+        "exports",
+        "files",
+        "scripts",
+        "dependencies",
+        "devDependencies",
+        "peerDependencies",
+        "optionalDependencies",
+        "bundledDependencies",
+        "resolutions",
+        "overrides"
+    ]
+}

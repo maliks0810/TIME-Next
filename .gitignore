@@ -1,9 +1,52 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+lib-cov
+.grunt
+bower_components
+.lock-wscript
+build/Release
+
+# Dependencies
 /node_modules
+jspm_packages/
 /.pnp
 .pnp.js
+
+# Typescript cache
+*.tsbuildinfo
+
+.npm
+.eslintcache
+.stylelintcache
+
+# Microbundle Cache
+.rpts_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+*.tgz
+.yarn-integrity
+.cache
+.parcel-cache
+.turbo
+.vscode/
+
 
 # testing
 /coverage
@@ -18,8 +61,5 @@
 .env.test.local
 .env.production.local
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 package-lock.json
