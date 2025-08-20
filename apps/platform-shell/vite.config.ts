@@ -8,6 +8,7 @@ export default defineConfig({
     css: {
         preprocessorOptions: {
             scss: {
+                // can't find import need to take a look at platform/styles to figure out why it's not inheriting. 
                 // additionalData: '@import "@platform/styles/src/index.scss";'
             }
         }

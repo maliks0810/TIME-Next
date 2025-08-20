@@ -50,6 +50,7 @@ module.exports = function (plop) {
                 templateFiles: 'plop-templates/app/**/*',
                 base: 'plop-templates/app'
             },
+            // Need to update this because it's not updating the file properly
             {
                 type: 'modify',
                 path: 'apps/platform-shell/src/config/appRegistry.ts',
