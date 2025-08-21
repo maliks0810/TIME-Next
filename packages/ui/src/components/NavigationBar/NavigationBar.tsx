@@ -10,6 +10,7 @@ import { Menu } from '@mui/material';
 // import './Navbar.module.scss';
 import { navigationData } from './navigation.ts';
 import { TopMenu } from './top-menu.js';
+import '@platform/styles'
 
 export interface NavigationBarProps {
     appName?: string;
