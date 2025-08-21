@@ -63,3 +63,6 @@ jspm_packages/
 
 
 package-lock.json
+apps/platform-shell/dist/
+apps/platform-shell/node_modules/.vite/deps/_metadata.json
+apps/platform-shell/node_modules/.vite/deps/_metadata.json

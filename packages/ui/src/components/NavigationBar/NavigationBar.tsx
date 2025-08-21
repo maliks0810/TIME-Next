@@ -3,14 +3,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu } from '@mui/material';
-// import tcwTime from '../assets/tcw-time.png';
-// import HomeSVG from '../assets/home-4-svgrepo-com.svg';
-// import SearchSVG from '../assets/search-svgrepo-com.svg';
-// import ProfileSVG from '../assets/profile-circle-svgrepo-com.svg';
-// import './Navbar.module.scss';
+import './NavigationBar.module.scss';
 import { navigationData } from './navigation.ts';
 import { TopMenu } from './top-menu.js';
-import '@platform/styles'
 
 export interface NavigationBarProps {
     appName?: string;
@@ -95,40 +90,3 @@ export const Navbar: React.FC = () => {
         </div>
     );
 }
-
-        // <nav style={{ background: '#333', color: 'white', padding: '1rem'}}>
-        //     <ul style={{ listStyle: 'none', display: 'flex', justifyContent: 'space-around', margin: 0, padding: 0 }}>
-        //         <li><Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Platform Home</Link></li>
-        //         <li><Link to="/feature-alpha" style={{ color: 'white', textDecoration: 'none' }}>Feature Alpha</Link></li>
-        //     </ul>
-
-        // </nav>
-
-
-        // const [isRiskPerformanceOpen, setIsRiskPerformanceOpen] = useState(false);
-        // const [isPerformanceSubOpen, setIsPerformanceSubOpen] = useState(false);
-        // const riskPerformanceRef = useRef<HTMLElement>(null);
-        // const performanceSubRef = useRef<HTMLElement>(null);
-    
-        // useEffect(() => {
-        //     const handleClickOutside = (event: MouseEvent) => {
-        //         if (riskPerformanceRef.current && !riskPerformanceRef.current.contains(event.target as Node)) {
-        //             setIsRiskPerformanceOpen(false);
-        //         }
-        //         if (performanceSubRef.current && !performanceSubRef.current.contains(event.target as Node)) {
-        //             setIsPerformanceSubOpen(false);
-        //         }
-        //     }
-        // })
-        
-        // return (
-        //     <div className="header-container">
-        //         <a href="/"><img src={tcwTime} alt="TcwTIME" className="main-logo" /></a>
-    
-        //         <div className="menu-container">  
-        //         <a className="header-menu-item-container" href="feature-alpha" >Portfolio Management</a>  
-        //             <a href="#research" className="header-menu-item-container">Research & Analysis</a>   
-        //             <a href="#contact" className="header-menu-item-container">Contact</a>
-        //         </div>  
-        //         </div>
-        // )

@@ -4,7 +4,7 @@
   "description": "Shared Styles and design tokens",
   "main": "src/index.scss",
   "exports": {
-    ".": "src/index.scss",
+    ".": "./src/index.scss",
     "./base/*": "./src/base/*"
   },
   "files": [
@@ -12,12 +12,11 @@
   ],
   "scripts": {
     "build": "echo 'Styles package - no build needed'",
-    "lint": "stylelint 'src/**/*.scss",
+    "lint": "stylelint src/**/**/*.scss",
     "type-check": "echo 'Styles package - no type check needed'"
   },
   "devDependencies": {
     "sass": "^1.89.2",
-    "stylelint": "^16.22.0",
     "stylelint-config-standard-scss": "^15.0.1"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@platform/ui",
+  "name": "@platform/ui-components",
   "version": "1.0.0",
   "description": "Shared UI Components",
   "main": "dist/index.js",
@@ -18,7 +18,7 @@
       "import": "./src/components/Footer.tsx",
       "types": "./dist/components/Footer.d.ts"
     },
-    "./style.css": "./dist/style.css"
+    "./style": "./src/components/NavigationBar.module.scss"
   },
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
