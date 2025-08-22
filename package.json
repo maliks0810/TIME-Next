@@ -3,11 +3,15 @@
   "private": true,
   "packageManager": "npm@10.8.2",
   "version": "1.0.0",
+  "type": "module",
   "description": "Platform Engineering Monorepo Project",
   "scripts": {
     "new:app": "plop app",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --parallel",
+    "dev:shell": "turbo run dev --filter=@platform/shell",
     "build": "turbo run build",
+    "build:dev": "turbo run build -- --mode dev",
+    "build:prod": "turbo run build -- --mode prod",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
@@ -35,5 +39,9 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "engines:": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
 }
