@@ -1,8 +1,7 @@
 {
+  "$schema": "https://turbo.build.schema.json",
   "globalDependencies": [
-    "tsconfig.json",
-    ".npmrc",
-    "**/.env.*local"
+    "**/.env.*"
   ],
   "tasks": {
     "build": {
@@ -10,43 +9,35 @@
         "^build"
       ],
       "outputs": [
-        "dist/**",
-        ".next/**",
-        "build/**"
+        "dist/**"
       ],
-      "cache": true
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
     },
     "dev": {
       "dependsOn": [
         "^build"
       ],
       "persistent": true,
-      "cache": false
+      "cache": false,
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
     },
     "lint": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [],
-      "cache": false
+      "outputs": []
     },
     "type-check": {
       "dependsOn": [
         "^build"
       ],
       "outputs": [
-        ""
-      ],
-      "cache": true
+      ]
     },
     "test": {
       "dependsOn": [
         "build"
       ],
       "outputs": [
-        "coverage/**"
       ],
-      "cache": true
+      "cache": false
     },
     "deploy": {
       "dependsOn": [
