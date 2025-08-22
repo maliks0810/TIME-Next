@@ -1,5 +1,6 @@
 // import { lazy } from 'react';
 
+//moving this over to the shared folder 
 export interface AppConfig {
     name: string;
     route: string;
