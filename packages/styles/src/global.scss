@@ -19,6 +19,7 @@ body {
     --tcw-light-gray-color: #f6f7f7;
     --tcw-dark-gray-color: #7e7f82;
     background-color: var(--tcw-gray-color);
+    --secondary-tcw-teal-color: #00B0AD;
 }
 
 
@@ -33,6 +34,7 @@ body {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    background-color: blue;
 }
 
 .content-area {
