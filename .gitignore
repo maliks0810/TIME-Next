@@ -23,6 +23,7 @@ build/Release
 
 # Dependencies
 /node_modules
+node_modules
 jspm_packages/
 /.pnp
 .pnp.js
