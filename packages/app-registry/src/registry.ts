@@ -8,11 +8,11 @@ const apps: AppMetadata[] = [
         title: 'Home',
         path: '/',
         team: 'platform',
-        component: lazy(() => import('@platform/shell/src/pages/HomePage'))
+        component: lazy(() => import('@platform/platform-shell/src/pages/HomePage'))
     }
 ]
 
-const teamList: TeamMetadata[] = [
+const teams: TeamMetadata[] = [
     {
         id: 'platform',
         name: 'platform',
@@ -26,8 +26,8 @@ class AppRegistryImpl implements AppRegistry {
     teams: Map<string, TeamMetadata>;
 
     constructor() {
-        this.apps = new Map(app.map(app => [app.id, app]));
-        this.teams = new Map(team.map(team => [team.id, team]));
+        this.apps = new Map(apps.map(app => [app.id, app]));
+        this.teams = new Map(teams.map(team => [team.id, team]));
     }
 
     getApp(id: string): AppMetadata | undefined {

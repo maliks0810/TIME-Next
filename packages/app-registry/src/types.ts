@@ -18,7 +18,7 @@ export interface TeamMetadata {
 
 export interface AppRegistry {
     apps: Map<string, AppMetadata>;
-    teams: Map<string, TeamMetadata[]>;
+    teams: Map<string, TeamMetadata>;
     getApp(id: string): AppMetadata | undefined;
     getTeamApp(teamId: string): AppMetadata[];
     getAllApps(): AppMetadata[];
