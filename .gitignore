@@ -68,3 +68,5 @@ apps/platform-shell/dist/
 apps/platform-shell/node_modules
 apps/platform-shell/node_modules/*
 
+packages/ui/dist/
+packages/app-registry/dist/

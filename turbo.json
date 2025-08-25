@@ -13,6 +13,15 @@
       ],
       "env": ["NODE_ENV", "VITE_APP_ENV"]
     },
+    "build:dev": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
+    },
     "dev": {
       "dependsOn": [
         "^build"
@@ -22,6 +31,9 @@
       "env": ["NODE_ENV", "VITE_APP_ENV"]
     },
     "lint": {
+      "outputs": []
+    },
+    "lint:fix": {
       "outputs": []
     },
     "type-check": {
