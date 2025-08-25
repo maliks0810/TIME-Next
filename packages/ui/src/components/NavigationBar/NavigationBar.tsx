@@ -13,6 +13,8 @@ export interface NavigationBarProps {
     onNavigate?: (route: string) => void;
 }
 
+// Bring in app registry for the dynamic links
+
 export const Navbar: React.FC = () => {
     // const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
