@@ -15,9 +15,10 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^6.30.0",
-    "@platform/ui": "1.0.0",
-    "@platform/styles": "1.0.0",
-    "@platform/utils": "1.0.0"
+    "@platform/ui": "*",
+    "@platform/styles": "*",
+    "@platform/utils": "*",
+    "@platform/app-registry": "*"
   },
   "devDependencies": {
     "@types/react": "^19.1.2",

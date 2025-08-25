@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import '@platform/styles/global.scss';
 import App from './App.tsx'
 
 
