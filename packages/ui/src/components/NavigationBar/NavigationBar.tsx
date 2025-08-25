@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu } from '@mui/material';
 import { navigationData } from './navigation.ts';
 import { TopMenu } from './top-menu.js';
+import tcwTime from '../../assets/tcw-time.png';
 import './NavigationBar.scss';
 
 export interface NavigationBarProps {
@@ -31,7 +32,7 @@ export const Navbar: React.FC = () => {
     return (
         <div className="header-container">
             <button onClick={handleHomeClick}>
-                {/* <img src={tcwTime} alt="TcwTIME" className="main-logo" /> */}
+                <img src={tcwTime} alt="TcwTIME" className="main-logo" />
             </button>
             <div className="menu-container">
                 {navigationData.map((header, index) => {
