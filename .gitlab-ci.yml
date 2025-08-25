@@ -14,6 +14,7 @@ include:
     ref: 'main'
     file:
       - '/html/templates/react/x1/react.install.template.yml'
+      - '/html/templates/react/x1/react.lint.template.yml'
       - '/html/templates/react/x1/react.test.template.yml'
       - '/html/templates/react/x1/react.version.template.yml'
       - '/html/templates/react/x1/react.build.template.yml'
@@ -32,6 +33,7 @@ stages:
   - dry-run
   - development
   - qa
+  - test
   - uat
   - integration
   - production
@@ -95,6 +97,26 @@ install:
       - node_modules/
     policy: pull-push
   extends: .install
+
+lint:
+  stage: validation
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull
+  extends: .lint
+  allow_failure: false
+
+test:
+  stage: validation
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull
+  extends: .test
+  allow_failure: false
 
 sast:
   stage: validation
@@ -286,6 +308,57 @@ deploy-qa:
   allow_failure: false
   rules:
     - if: $CI_COMMIT_BRANCH == 'main' && $CI_COMMIT_REF_PROTECTED == "true" && $ENABLE_QA == "true"
+
+build-test:
+  stage: test
+  cache: 
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull
+  extends: .build
+  variables:
+    TARGET_ENV: test
+    TARGET_OUTPUT: build-test
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main' && $CI_COMMIT_REF_PROTECTED == "true" && $ENABLE_TEST == "true"
+
+package-test:
+  stage: test
+  cache: 
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull-push
+  extends: .package
+  needs:
+    - build-test
+  variables:
+    TARGET_ENV: test
+    TARGET_OUTPUT: build-test
+    DOCKER_SOURCE_REF: $DEFAULT_DOCKER_SOURCE_REF
+    DOCKER_SOURCE_PATH: $DEFAULT_DOCKER_SOURCE_PATH
+    DOCKER_SOURCE_FILE: $DEFAULT_DOCKER_SOURCE_FILE
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main' && $CI_COMMIT_REF_PROTECTED == "true" && $ENABLE_TEST == "true"
+
+deploy-test:
+  stage: test
+  needs:
+    - job: package-test
+  extends: .upgrade
+  variables:
+    AGENT: $NONPROD_CICD_K8S_AGENT
+    TARGET_ENV: test
+    TARGET_NAMESPACE: test
+    TARGET_HOSTNAME: $DOMAIN-test.np.tcw.com
+    TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
+    TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
+    TLS_SECRET: $TLS_NONPROD_SECRET_NAME
+  allow_failure: false
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main' && $CI_COMMIT_REF_PROTECTED == "true" && $ENABLE_TEST == "true"
 
 build-uat:
   stage: uat
@@ -519,15 +592,3 @@ deploy-perf:
   allow_failure: false
   rules:
     - if: $CI_COMMIT_BRANCH == 'main' && $CI_COMMIT_REF_PROTECTED == "true" && $ENABLE_PERF == "true"
-
-
-variables:
-  PROJECT_NAME: time-next
-  DOMAIN: time-next
-  DEPLOYMENT_NAME: TIME-Next
-
-  ## AKS Tags ####################################################################################
-  APPLICATION_OWNER: 'engineering-solutions'
-  APPLICATION_TYPE: 'time-next-monorepo'
-  APPLICATION_SENSITIVITY: 'private'
-  ################################################################################################
