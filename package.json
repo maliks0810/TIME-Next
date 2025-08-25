@@ -8,7 +8,7 @@
   "scripts": {
     "new:app": "plop app",
     "dev": "turbo run dev --parallel",
-    "dev:shell": "turbo run dev --filter=@platform/shell",
+    "dev:shell": "turbo run dev --filter=@platform/platform-shell",
     "build": "turbo run build",
     "build:dev": "turbo run build -- --mode dev",
     "build:prod": "turbo run build -- --mode prod",
