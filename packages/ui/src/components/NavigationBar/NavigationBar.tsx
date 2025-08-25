@@ -3,10 +3,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu } from '@mui/material';
-import './NavigationBar.module.scss';
 import { navigationData } from './navigation.ts';
 import { TopMenu } from './top-menu.js';
-import '@platform/styles'
+import './NavigationBar.scss';
 
 export interface NavigationBarProps {
     appName?: string;

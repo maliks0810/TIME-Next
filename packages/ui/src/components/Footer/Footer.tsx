@@ -4,7 +4,8 @@ import React from 'react';
 // import tcwTime from '../assets/tcw-time.png';
 import { footerBottomLinksData, footerLinksData } from './footer-links-data.ts';
 import { FooterLinks } from './footer-links.js';
-import './Footer.module.scss'
+// import './Footer.module.scss'
+import './Footer.scss';
 
 
 export const Footer: React.FC = () => {
