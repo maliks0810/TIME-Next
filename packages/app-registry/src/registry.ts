@@ -8,7 +8,7 @@ const apps: AppMetadata[] = [
         title: 'Home',
         path: '/',
         team: 'platform',
-        component: lazy(() => import('@platform/platform-shell/src/pages/HomePage'))
+        component: lazy(() => import('@platform/platform-shell/src/layouts/HomePage'))
     }
 ]
 

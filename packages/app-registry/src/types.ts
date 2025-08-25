@@ -4,7 +4,7 @@ export interface AppMetadata {
     title: string;
     path: string;
     team: string;
-    component: React.LazyExoticComponent<React.ComponentType>;
+    component: any;
     description?: string;
     requiresAuth?: boolean;
 }
