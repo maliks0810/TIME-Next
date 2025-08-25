@@ -17,6 +17,9 @@ export default defineConfig(({ mode }) => ({
                 path.resolve(__dirname, '../..'),
             ],
         },
+        watch: {
+            usePolling: true,
+        }
     },
     resolve: {
         alias: {
