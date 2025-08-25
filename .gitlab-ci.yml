@@ -4,7 +4,7 @@ include:
     file: '/html/pipelines/x1/react.application.cloud.default.pipeline.yml'
 
 variables:
-  PROJECT_NAME: t-im-e--next
+  PROJECT_NAME: time-next
   DOMAIN: time-next
   DEPLOYMENT_NAME: TIME-Next
 
