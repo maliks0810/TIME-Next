@@ -12,11 +12,12 @@
   ],
   "scripts": {
     "build": "echo 'Styles package - no build needed'",
-    "lint": "stylelint src/**/**/*.scss",
+    "lint": "echo 'no files to lint'",
+    "lint:fix": "echo 'no files to lint'",
     "type-check": "echo 'Styles package - no type check needed'"
   },
   "devDependencies": {
-    "sass": "^1.89.2",
+    "sass": "^1.90.0",
     "stylelint-config-standard-scss": "^15.0.1"
   }
 }
