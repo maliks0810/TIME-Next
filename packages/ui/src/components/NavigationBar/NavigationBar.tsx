@@ -1,11 +1,14 @@
 // @ts-nocheck
-
+/// <reference types="vite-plugin-svgr/client" />
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu } from '@mui/material';
 import { navigationData } from './navigation.ts';
 import { TopMenu } from './top-menu.js';
 import tcwTime from '../../assets/tcw-time.png';
+import HomeSVG from '../../assets/HomeSVG.svg';
+import SearchSVG from '../../assets/SearchSVG.svg';
+import ProfileSVG from '../../assets/ProfileSVG.svg';
 import './NavigationBar.scss';
 
 export interface NavigationBarProps {
@@ -43,19 +46,19 @@ export const Navbar: React.FC = () => {
             </div>
 
                 <img
-                            // src={HomeSVG}
+                            src={HomeSVG}
                             alt="title icon"
-                            className="home-icon header-icon"
+                            className="header-icon"
                 />
                 <img
-                            // src={SearchSVG}
+                            src={SearchSVG}
                             alt="title icon"
-                            className="search-icon header-icon"
+                            className="header-icon"
                 />
                         <div className="profile-menu">
             <button className="profile-menu-header-button" onClick={handleClick}>
                 <img
-                            // src={ProfileSVG}
+                            src={ProfileSVG}
                             alt="title icon"
                             className="profile-icon header-icon"
                 />
