@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { Suspense } from 'react';
 import { RootLayout } from './layouts/RootLayout';
-import { appRegistry } from '@platform/app-registry';
+import { AppMetadata, appRegistry } from '@platform/app-registry';
 
 // add a circular progress for non loading items from mui materials
 export function AppRouter() {
@@ -10,7 +10,7 @@ export function AppRouter() {
     return (
         <Routes>
             <Route path="/" element={<RootLayout />}>
-                {apps.map((app) => (
+                {apps.map((app: AppMetadata) => (
                     <Route
                         key={app.id}
                         path={app.path === '/' ? undefined : app.path}
