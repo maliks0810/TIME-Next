@@ -22,6 +22,24 @@
       ],
       "env": ["NODE_ENV", "VITE_APP_ENV"]
     },
+    "build:qa": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
+    },
+    "build:prod": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
+    },
     "dev": {
       "dependsOn": [
         "^build"
