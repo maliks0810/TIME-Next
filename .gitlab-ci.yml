@@ -53,13 +53,14 @@ cache:
     - node_modules/
 
 variables:
-  PROJECT_NAME: unknown-project-name
-  DEPLOYMENT_NAME: unknown-deployment-name
+  PROJECT_NAME: time-next
+  DOMAIN: time-next
+  DEPLOYMENT_NAME: TIME-Next
 
   ## AKS Tags ####################################################################################
-  APPLICATION_OWNER: 'application-owner-not-set'
-  APPLICATION_TYPE: 'application-type-not-set'
-  APPLICATION_SENSITIVITY: 'application-sensitivity-not-set'
+  APPLICATION_OWNER: 'engineering-solutions'
+  APPLICATION_TYPE: 'time-next-monorepo'
+  APPLICATION_SENSITIVITY: 'private'
   ################################################################################################
   
   ## Environments ################################################################################
