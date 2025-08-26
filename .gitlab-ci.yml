@@ -55,7 +55,7 @@ cache:
 variables:
   PROJECT_NAME: time-next
   ENABLE_TLS: 'true'
-  DOMAIN: timeNext
+  DOMAIN: timenext
   DEPLOYMENT_NAME: time-next
 
   ## AKS Tags ####################################################################################
