@@ -138,10 +138,16 @@ build-sandbox:
     paths:
       - node_modules/
     policy: pull
-  extends: .build
   variables:
     TARGET_ENV: sandbox
-    TARGET_OUTPUT: build-sandbox
+    TARGET_OUTPUT: apps/platform-shell/dist
+  before_script:
+    - export NODE_OPTIONS="--max-old-space-size=8192"
+  script:
+    - npm run build:$TARGET_ENV
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/$TARGET_OUTPUT
   allow_failure: true
   when: manual
   rules:
@@ -152,13 +158,44 @@ package-sandbox:
   needs:
     - job: build-sandbox
       artifacts: true
-  extends: .package
+  image: docker:latest
+  services:
+    - docker:dind
   variables:
-    TARGET_ENV: sandbox
-    TARGET_OUTPUT: build-sandbox
-    DOCKER_SOURCE_REF: $DEFAULT_DOCKER_SOURCE_REF
-    DOCKER_SOURCE_PATH: $DEFAULT_DOCKER_SOURCE_PATH
-    DOCKER_SOURCE_FILE: $DEFAULT_DOCKER_SOURCE_FILE
+    TARGET_ENV: 'development'
+    TARGET_OUTPUT: 'build-dev'
+    BASE_REGISTRY: 'registry.gitlab.com'    
+    DOCKER_SOURCE_PROJECT_ID: 61389417
+    DOCKER_SOURCE_REF: 'main'
+    DOCKER_SOURCE_PATH: 'react/alpine/v1'
+    DOCKER_SOURCE_FILE: 'dockerfile.cicd'
+ 
+  before_script:
+    - docker login -u $TCW_REGISTRY_UID -p $TCW_REGISTRY_PWD $BASE_REGISTRY    
+    - apk add --update curl
+    - cd $CI_PROJECT_DIR
+    - FULL_PATH=$DOCKER_SOURCE_PATH/$DOCKER_SOURCE_FILE
+    - ENCODED=$(echo $FULL_PATH | sed 's/\//%2F/g; s/\./%2E/g')
+    - URL="https://gitlab.com/api/v4/projects/$DOCKER_SOURCE_PROJECT_ID/repository/files/$ENCODED/raw?ref=$DOCKER_SOURCE_REF"
+    - mkdir -p build-sandbox
+    - mkdir -p usr/share/nginx/html/*
+   
+  script:    
+    - export IMAGE_NAME=$CI_REGISTRY_IMAGE:$TARGET_ENV
+    - |
+      if [ $CUSTOM_DOCKERFILE = "true" ]; then
+       echo "Using custom dockerfile in the project"
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.override .
+       echo "label is being set to:$LABEL"
+      else
+       echo "Using default dockerfile"
+       curl -o dockerfile.pe -H "PRIVATE-TOKEN:$PE_CICD_DOCKER_API" --url $URL
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.pe .
+       echo "label is being set to:$LABEL"
+      fi
+    - docker push $IMAGE_NAME
+  after_script:
+    - docker logout $BASE_REGISTRY
   rules:
     - if: $CI_COMMIT_BRANCH != 'main' && $ENABLE_SANDBOX == "true"
 
