@@ -9,6 +9,11 @@ const primaryTcwBlueColor = getComputedStyle(root).getPropertyValue('--tcw-blue-
 const secondaryTcwTealColor = getComputedStyle(root).getPropertyValue('--secondary-tcw-teal-color').trim();
 
 const theme = createTheme({
+    typography: {
+        fontFamily: [
+            'Lato'
+        ].join(',')
+    },
   palette: {
     primary: {
       main: primaryTcwBlueColor,
