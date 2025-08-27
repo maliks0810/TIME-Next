@@ -22,7 +22,7 @@
       ],
       "env": ["NODE_ENV", "VITE_APP_ENV"]
     },
-    "build:dev": {
+    "build:development": {
       "dependsOn": [
         "^build"
       ],
