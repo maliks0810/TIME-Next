@@ -1,4 +1,5 @@
 import { TcwCard } from "../../../../packages/ui/src/components/Card/TcwCard";
+import { Box } from '@mui/material';
 
 const HomePage: React.FC = () => {
   return (
@@ -6,12 +7,9 @@ const HomePage: React.FC = () => {
     {/* Put in shared components here  */}
 
         <TcwCard title={'Top Performers'} width={1/2} iconPath="src/assets/snowflake-color.png">
-          <div>
-            <h1> Testing Content H1 </h1>
-            <h2> Testing Content H2 </h2>
-            <p> Testing Content P</p>
-            <p> Testing Content P</p>
-          </div>
+          <Box sx={{display: 'flex', flexDirection: 'column'}}>
+            <p> TEST </p>
+          </Box>
         </TcwCard>
 
     </div>

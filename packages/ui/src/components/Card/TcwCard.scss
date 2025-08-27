@@ -2,14 +2,19 @@
     border-radius: 10px;
 }
 
+.tcw-card-content{
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
 .tcw-card-header{
     display: flex;
     flex-direction: row;
-    column-gap: 15px;
+    column-gap: 5px;
     align-items: center;
-    height: 40px;
-    padding-left: 5px;
-    padding-right: 5px;
+    margin-left: 15px;
+    margin-right: 15px;
+    height: 50px;
 }
 
 .tcw-card-image{
