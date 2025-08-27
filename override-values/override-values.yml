@@ -4,7 +4,7 @@ useIngress: true
 useAutoScaling: false
 
 service:
-  serviceName: 'TIME-Next'
+  serviceName: 'time-next'
   ports:
     - name: 'http'
       protocol: 'TCP'
@@ -24,7 +24,7 @@ ingress:
   paths:
     - path: "/"
       pathType: "Prefix"
-      serviceName: 'TIME-Next'
+      serviceName: 'time-next'
       servicePort: 80
 
 

@@ -4,9 +4,10 @@ include:
     file: '/html/pipelines/x1/react.application.cloud.default.pipeline.yml'
 
 variables:
-  PROJECT_NAME: t-im-e--next
-  DOMAIN: time-next
-  DEPLOYMENT_NAME: TIME-Next
+  PROJECT_NAME: time-next
+  ENABLE_TLS: 'true'
+  DOMAIN: timenext
+  DEPLOYMENT_NAME: time-next
 
   ## AKS Tags ####################################################################################
   APPLICATION_OWNER: 'engineering-solutions'

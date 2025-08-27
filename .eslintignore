@@ -1,0 +1,12 @@
+
+node_modules
+dist
+build
+.turbo
+coverage
+public
+*.config.js
+*.config.ts
+vite.config.ts
+plopfile.mjs
+templates

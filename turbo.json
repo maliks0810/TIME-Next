@@ -1,0 +1,92 @@
+{
+  "$schema": "https://turbo.build.schema.json",
+  "globalDependencies": [
+    "**/.env.*"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
+    },
+    "build:sandbox": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
+    },
+    "build:dev": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
+    },
+    "build:qa": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
+    },
+    "build:prod": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
+    },
+    "dev": {
+      "dependsOn": [
+        "^build"
+      ],
+      "persistent": true,
+      "cache": false,
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
+    },
+    "lint": {
+      "outputs": []
+    },
+    "lint:fix": {
+      "outputs": []
+    },
+    "type-check": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": [
+      ],
+      "cache": false
+    },
+    "deploy": {
+      "dependsOn": [
+        "build",
+        "test"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "cache": false
+    }
+  }
+}

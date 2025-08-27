@@ -1,0 +1,26 @@
+{
+  "name": "@platform/app-registry",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint src --ext ts,tsx --fix  --report-unused-disable-directives --max-warnings 0",
+    "clean": "rm -rf dist .turbo",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-router-dom": "^7.8.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "typescript": "^5.8.3"
+  }
+}
