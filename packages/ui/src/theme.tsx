@@ -12,7 +12,8 @@ const theme = createTheme({
     typography: {
         fontFamily: [
             'Lato'
-        ].join(',')
+        ].join(','),
+        fontSize: 14
     },
   palette: {
     primary: {
