@@ -29,7 +29,6 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  console.log(theme)
     return (
         <MuiThemeProvider theme={theme}>
             <CssBaseLine />

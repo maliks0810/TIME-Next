@@ -36,7 +36,7 @@ export default defineConfig(({ mode }) => ({
         exclude: ['@platform/ui', '@platform/styles', '@platform/app-registry'],
     },
     build: {
-        outDir: 'dist',
+        outDir: '../../build-' + mode,
         sourcemap: mode !== 'prod',
         rollupOptions: {
             output: {
