@@ -4,7 +4,19 @@ import { Box, CardContent, Typography, } from '@mui/material';
 import React, { ReactNode } from 'react';
 import { ThemeProvider } from '../../theme';
 
-export const TcwCard: React.FC<{iconPath: string, title: string, children: ReactNode, width?: number | string, height?: number | string}> = (props: {iconPath: string, title: string, children: ReactNode, width?: number | string, height?: number | string}) => {
+export const TcwCard: React.FC<{
+        iconPath: string, 
+        title: string, 
+        children: ReactNode, 
+        width?: number | string, 
+        height?: number | string
+    }> = (props: {
+        iconPath: string, 
+        title: string, 
+        children: ReactNode, 
+        width?: number | string, 
+        height?: number | string
+    }) => {
     return (
         <ThemeProvider>
             <Card className='tcw-card-container' sx={{width: props.width, height: props.height}}>
