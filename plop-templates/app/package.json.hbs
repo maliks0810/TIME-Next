@@ -1,13 +1,13 @@
 {
-  "name": "@platform/{{appName}}",
+  "name": "@{{team}}/{{appName}}",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "description": "{{appDescription}}",
   "scripts": {
     "build": "tsc && vite build",
-    "dev": "vite",
-    "preview": "vite preview",
+    "dev": "vite --mode local --port {{port}}",
+    "preview": "vite preview --port {{port}}",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit",
     "test": "vitest"
