@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import type { AppMetadata, TeamMetadata, AppRegistry } from './types';
+import { type AppMetadata, type TeamMetadata, type AppRegistry, NavbarHeader, NavbarSubHeader } from './types';
 
 const apps: AppMetadata[] = [
     {
@@ -8,7 +8,17 @@ const apps: AppMetadata[] = [
         title: 'Home',
         path: '/',
         team: 'platform',
+        external: false,
         component: lazy(() => import('@platform/platform-shell/src/layouts/HomePage'))
+    },
+    {
+        header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.InvestmentManagementSolutions,
+        title: 'IM Target Viewer',
+        url: 'https://sector-summary-webapp.pd.tcw.com/credit/home',
+        id: 'IM Target Viewer',
+        name: 'IM Target Viewer',
+        external: true,
     }
 ]
 

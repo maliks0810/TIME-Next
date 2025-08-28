@@ -61,6 +61,7 @@ jspm_packages/
 .env.development.local
 .env.test.local
 .env.production.local
+dist
 
 
 package-lock.json
@@ -70,3 +71,7 @@ apps/platform-shell/node_modules/*
 
 packages/ui/dist/
 packages/app-registry/dist/
+build-sandbox
+build-development
+build-production
+build-prod

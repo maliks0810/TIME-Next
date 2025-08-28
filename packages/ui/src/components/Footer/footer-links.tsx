@@ -1,6 +1,3 @@
-// @ts-nocheck
-
-// import UpRightArrow from '../assets/arrow-up-right-svgrepo-com.svg';
 
 export const FooterLinks = (props: { linkData: any }) => {
     return (
