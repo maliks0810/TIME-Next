@@ -24,8 +24,8 @@ export const TcwCard: React.FC<{
                     avatar={<img src={props.iconPath} alt={`${props.title} image`} className='tcw-card-image' />}
                     title={props.title}
                 />
-                <CardContent>
-                    <Box className='tcw-card-content'>
+                <CardContent className='tcw-card-content'>
+                    <Box>
                         {props.children}
                     </Box>
                 </CardContent>
