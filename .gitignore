@@ -71,3 +71,7 @@ apps/platform-shell/node_modules/*
 
 packages/ui/dist/
 packages/app-registry/dist/
+build-sandbox
+build-development
+build-production
+build-prod

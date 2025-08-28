@@ -2,9 +2,14 @@ export interface AppMetadata {
     id: string;
     name: string;
     title: string;
-    path: string;
-    team: string;
-    component: React.LazyExoticComponent<React.ComponentType>;
+    external: boolean;
+    path?: string;
+    team?: string;
+    header?: string;
+    subHeader?: string;
+    order?: number;
+    component?: React.LazyExoticComponent<React.ComponentType>;
+    url?: string;
     description?: string;
     requiresAuth?: boolean;
 }
@@ -24,3 +29,29 @@ export interface AppRegistry {
     getAllApps(): AppMetadata[];
     getNavigationItems(): AppMetadata[];
 }
+
+export enum NavbarHeader {
+    PortfolioManagement = 'Portfolio Management',
+    ResearchAnalysis = 'Research & Analysis',
+    RiskPerformance = 'Risk & Performance',
+    Compliance = 'Compliance',
+    ClientManagement = 'Client Management',
+    Support = 'Support'
+
+}
+
+export enum NavbarSubHeader {
+    AladdinPortfolioManagement = 'Aladdin Portfolio Management',
+    InvestmentManagementSolutions = 'Investment Management Solutions',
+    Fundamental = 'Fundamental',
+    ESG = 'ESG',
+    Market = 'Market',
+    Other = 'Other',
+    Performance = 'Performance',
+    Research = 'Research',
+    Governance = 'Governance',
+    Regulations = 'Regulations',
+    General = 'General'
+}
+
+

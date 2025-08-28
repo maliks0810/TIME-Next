@@ -12,15 +12,29 @@ const theme = createTheme({
     typography: {
         fontFamily: [
             'Lato'
-        ].join(',')
+        ].join(','),
+        fontSize: 14
     },
   palette: {
     primary: {
       main: primaryTcwBlueColor,
+      light: '#009CD5',
+      dark: '#003265'
     },
     secondary: {
       main: secondaryTcwTealColor,
+      light: '#A6E3E2',
+      dark: '#007270'
     },
+    warning: {
+      main: '#E55302'
+    },
+    error: {
+      main: '#A33A29'
+    },
+    success: {
+      main: '#70A94F'
+    }
   },
 });
 
