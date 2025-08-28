@@ -26,11 +26,9 @@ const theme = createTheme({
     MuiCardHeader: {
       styleOverrides: {
         title: {
-          title: { 
-            fontSize: '32px', 
-            color: 'primary.main', 
-            fontWeight: 'bold'
-          }
+          fontSize: '32px', 
+          color: primaryTcwBlueColor, 
+          fontWeight: 700,
         }
       }
     }

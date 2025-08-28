@@ -1,6 +1,6 @@
 import Card from '@mui/material/Card'
 import './TcwCard.scss';
-import { Box, CardContent, CardHeader, Typography } from '@mui/material';
+import { Box, CardContent, CardHeader } from '@mui/material';
 import React, { ReactNode } from 'react';
 import { ThemeProvider } from '../../theme';
 
@@ -22,7 +22,7 @@ export const TcwCard: React.FC<{
             <Card className='tcw-card-container' sx={{width: props.width, height: props.height}}>
                 <CardHeader className='tcw-card-header'
                     avatar={<img src={props.iconPath} alt={`${props.title} image`} className='tcw-card-image' />}
-                    title={<Typography variant='h1'> {props.title} </Typography>}
+                    title={props.title}
                 />
                 <CardContent>
                     <Box className='tcw-card-content'>
