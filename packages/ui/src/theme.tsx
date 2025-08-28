@@ -41,7 +41,7 @@ const theme = createTheme({
         title: {
           fontSize: '32px', 
           color: primaryTcwBlueColor, 
-          fontWeight: 700,
+          fontWeight: 550,
         }
       }
     }
