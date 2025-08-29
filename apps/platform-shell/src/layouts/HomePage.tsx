@@ -7,7 +7,7 @@ const HomePage: React.FC = () => {
     <div className="dashboard-container">
     {/* Put in shared components here  */}
 
-        <TcwCard title={'Top Performers Year 2025'} height={'fit-content'} width={'fit-content'} iconPath="src/assets/snowflake-color.png">
+        <TcwCard title={'Top Performers Year 2025'} height={'fit-content'} width={'fit-content'} titleSize='22px' iconPath="src/assets/snowflake-color.png">
           <Box sx={{display: 'flex', flexDirection: 'row', columnGap: '20px'}}>
             <TcwCard title={'Wealth Portfolio ABC123'} height={'135px'} iconPath='src/assets/snowflake-color.png'>
               <Box sx={{height: '40px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
