@@ -2,7 +2,6 @@ import Card from '@mui/material/Card'
 import './TcwCard.scss';
 import { Box, CardContent, CardHeader } from '@mui/material';
 import React, { ReactNode } from 'react';
-import { ThemeProvider } from '../../theme';
 
 export const TcwCard: React.FC<{
         iconPath: string, 
@@ -18,18 +17,16 @@ export const TcwCard: React.FC<{
         height?: number | string
     }) => {
     return (
-        <ThemeProvider>
-            <Card className='tcw-card-container' sx={{width: props.width, height: props.height}}>
-                <CardHeader className='tcw-card-header'
-                    avatar={<img src={props.iconPath} alt={`${props.title} image`} className='tcw-card-image' />}
-                    title={props.title}
-                />
-                <CardContent className='tcw-card-content'>
-                    <Box>
-                        {props.children}
-                    </Box>
-                </CardContent>
-            </Card>
-        </ThemeProvider>
+        <Card className='tcw-card-container' sx={{width: props.width, height: props.height}}>
+            <CardHeader className='tcw-card-header'
+                avatar={<img src={props.iconPath} alt={`${props.title} image`} className='tcw-card-image' />}
+                title={props.title}
+            />
+            <CardContent className='tcw-card-content'>
+                <Box>
+                    {props.children}
+                </Box>
+            </CardContent>
+        </Card>
     )
 }
