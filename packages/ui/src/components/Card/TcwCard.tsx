@@ -1,6 +1,6 @@
 import Card from '@mui/material/Card'
 import './TcwCard.scss';
-import { Box, CardContent, CardHeader, Typography } from '@mui/material';
+import { Box, CardContent, CardHeader } from '@mui/material';
 import React, { ReactNode } from 'react';
 
 export const TcwCard: React.FC<{
