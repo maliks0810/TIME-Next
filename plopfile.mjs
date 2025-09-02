@@ -3,7 +3,6 @@ export default function (plop) {
     plop.setHelper('dashCase', (text) => {
         return text.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/,'');
     })
-}
 
 plop.setGenerator('app', {
     description: 'Generate a new Feature application',
@@ -11,7 +10,7 @@ plop.setGenerator('app', {
         {
             type: 'input',
             name: 'team',
-            message: 'Team name (lowercase)',
+            message: 'Team name (lowercase):',
             validate: (input) => {
                 if (!input) return 'Team name is required';
                 if (!/^[a-z]+$/.test(input)) {
@@ -24,7 +23,7 @@ plop.setGenerator('app', {
         {
             type: 'input',
             name: 'appName',
-            message: 'What is your application name? (kebab-case)',
+            message: 'What is your application name? (kebab-case): ',
             validate: (input) => {
                 if (!input) return 'App name is required';
                 if (!/^[a-z]+(-[a-z]+)*$/.test(input)) {
@@ -155,3 +154,6 @@ plop.setGenerator('app', {
 
     ]
 })
+}
+
+
