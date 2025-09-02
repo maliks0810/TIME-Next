@@ -201,6 +201,33 @@ const apps: AppMetadata[] = [
         name: 'Returns Overlay Upload',
         external: true,
     },
+    {
+        header: NavbarHeader.Compliance,
+        subHeader: NavbarSubHeader.Research,
+        title: 'Under Construction',
+        url: '',
+        id: 'Under Construction',
+        name: 'Under Construction',
+        external: true,
+    },
+    {
+        header: NavbarHeader.Compliance,
+        subHeader: NavbarSubHeader.Governance,
+        title: 'AI Usage Request Form',
+        url: 'https://workflow.corp.tcw.com/Runtime/Runtime/Form/TCW%20Workdesk?FormName=Form/AI.AiUsageRequest-wd.fm',
+        id: 'AI Usage Request Form',
+        name: 'AI Usage Request Form',
+        external: true,
+    },
+    {
+        header: NavbarHeader.Compliance,
+        subHeader: NavbarSubHeader.Regulations,
+        title: 'EU Securitization',
+        url: 'https://tipeu.corp.tcw.com/',
+        id: 'EU Securitization',
+        name: 'EU Securitization',
+        external: true,
+    },
 ]
 
 const teams: TeamMetadata[] = [
