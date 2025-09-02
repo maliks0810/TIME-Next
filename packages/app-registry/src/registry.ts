@@ -228,6 +228,15 @@ const apps: AppMetadata[] = [
         name: 'EU Securitization',
         external: true,
     },
+    {
+        header: NavbarHeader.ClientManagement,
+        subHeader: NavbarSubHeader.Research,
+        title: 'Under Construction',
+        url: '',
+        id: 'Under Construction',
+        name: 'Under Construction',
+        external: true,
+    },
 ]
 
 const teams: TeamMetadata[] = [
