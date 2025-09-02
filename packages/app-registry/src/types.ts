@@ -12,6 +12,7 @@ export interface AppMetadata {
     url?: string;
     description?: string;
     requiresAuth?: boolean;
+    disabled?: boolean;
 }
 
 export interface TeamMetadata {
