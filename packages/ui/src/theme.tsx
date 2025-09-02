@@ -9,12 +9,11 @@ const primaryTcwBlueColor = getComputedStyle(root).getPropertyValue('--tcw-blue-
 const secondaryTcwTealColor = getComputedStyle(root).getPropertyValue('--secondary-tcw-teal-color').trim();
 
 const theme = createTheme({
-    typography: {
-        fontFamily: [
-            'Lato'
-        ].join(','),
-        fontSize: 14
-    },
+  typography: {
+      fontFamily: [
+          'Lato'
+      ].join(',')
+  },
   palette: {
     primary: {
       main: primaryTcwBlueColor,
@@ -36,6 +35,16 @@ const theme = createTheme({
       main: '#70A94F'
     }
   },
+  components: {
+    MuiCardHeader: {
+      styleOverrides: {
+        title: {
+          color: primaryTcwBlueColor, 
+          fontWeight: 550,
+        }
+      }
+    }
+  }
 });
 
 interface ThemeProviderProps {
@@ -43,6 +52,7 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
+  console.log(theme)
     return (
         <MuiThemeProvider theme={theme}>
             <CssBaseLine />

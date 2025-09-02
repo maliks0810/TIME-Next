@@ -1,0 +1,21 @@
+.tcw-card-container{
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.tcw-card-content{
+    padding: 0;
+    margin: 0;
+}
+
+.tcw-card-header{
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
+    align-items: center;
+}
+
+.tcw-card-image{
+    width: 30px;
+    height: 30px;
+}
