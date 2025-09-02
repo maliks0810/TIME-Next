@@ -237,6 +237,33 @@ const apps: AppMetadata[] = [
         name: 'Under Construction',
         external: true,
     },
+    {
+        header: NavbarHeader.Support,
+        subHeader: NavbarSubHeader.General,
+        title: 'GEM',
+        url: 'https://app.powerbi.com/groups/me/apps/3bc63f1b-3cb6-49d4-bf4f-24c8c0ea3a5e/reports/33271b9b-d03f-4bfc-b350-eb964d2cc850/ba46ae49a5fb77d0654b?experience=power-bi',
+        id: 'GEM',
+        name: 'GEM',
+        external: true,
+    },
+    {
+        header: NavbarHeader.Support,
+        subHeader: NavbarSubHeader.General,
+        title: 'Business Events',
+        url: 'https://app.powerbi.com/links/oHDAvEyDht?ctid=b730b432-2098-413f-bd4a-014acdf7c72e&pbi_source=linkShare&bookmarkGuid=e0a09b46-58ca-4182-af2d-6cfec40e899a',
+        id: 'Business Events',
+        name: 'Business Events',
+        external: true,
+    },
+    {
+        header: NavbarHeader.Support,
+        subHeader: NavbarSubHeader.General,
+        title: 'Recon TODvsTDC',
+        url: 'https://app.powerbi.com/links/wPQ2LRhUp5?ctid=b730b432-2098-413f-bd4a-014acdf7c72e&pbi_source=linkShare',
+        id: 'Recon TODvsTDC',
+        name: 'Recon TODvsTDC',
+        external: true,
+    },
 ]
 
 const teams: TeamMetadata[] = [
