@@ -174,7 +174,33 @@ const apps: AppMetadata[] = [
         name: 'TIP',
         external: true,
     },
-    
+    {
+        header: NavbarHeader.RiskPerformance,
+        subHeader: NavbarSubHeader.Performance,
+        title: 'Client Returns',
+        url: 'https://trap-parallel.pd.tcw.com/riskreturn/returns/client-return-portfolio',
+        id: 'Client Returns',
+        name: 'Client Returns',
+        external: true,
+    },
+    {
+        header: NavbarHeader.RiskPerformance,
+        subHeader: NavbarSubHeader.Performance,
+        title: 'Attribution Analysis',
+        url: 'https://trap-parallel.pd.tcw.com/riskreturn/returns/attribution-analysis',
+        id: 'Attribution Analysis',
+        name: 'Attribution Analysis',
+        external: true,
+    },
+    {
+        header: NavbarHeader.RiskPerformance,
+        subHeader: NavbarSubHeader.Performance,
+        title: 'Returns Overlay Upload',
+        url: 'https://trap-parallel.pd.tcw.com/riskreturn/returns/returns-overlay-upload',
+        id: 'Returns Overlay Upload',
+        name: 'Returns Overlay Upload',
+        external: true,
+    },
 ]
 
 const teams: TeamMetadata[] = [
