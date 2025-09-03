@@ -20,6 +20,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/material": "^7.2.0",
+    "@mui/icons-material": "^7.2.0",
     "@platform/app-registry": "1.0.0",
     "@platform/styles": "1.0.0",
     "react": "19.1.1",
