@@ -36,6 +36,7 @@ export default defineConfig(({ mode }) => ({
         exclude: ['@platform/ui', '@platform/styles', '@platform/app-registry'],
     },
     build: {
+        assetsInlineLimit: 60000,
         outDir: '../../build-' + mode,
         sourcemap: mode !== 'prod',
         rollupOptions: {
