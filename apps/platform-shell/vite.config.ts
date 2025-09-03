@@ -46,6 +46,7 @@ export default defineConfig(({ mode }) => ({
                 },
             },
         },
+        assetsInlineLimit: 60000
     },
     define: {
         'process.env.NODE_ENV': JSON.stringify(mode === 'prod' ? 'production': 'development'),
