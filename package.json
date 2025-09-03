@@ -14,7 +14,7 @@
     "build:sandbox": "turbo run build:sandbox",
     "build:development": "turbo run build:development",
     "build:qa": "turbo run build:qa",
-    "build:prod": "turbo run build:prod",
+    "build:production": "turbo run build:prod",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
