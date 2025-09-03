@@ -1,6 +1,7 @@
 import Card from '@mui/material/Card'
 import './TcwCard.scss';
 import { Box, CardContent, CardHeader } from '@mui/material';
+import * as MuiIcons from '@mui/icons-material';  
 import React, { ReactNode } from 'react';
 
 export const TcwCard: React.FC<{
@@ -9,19 +10,33 @@ export const TcwCard: React.FC<{
         width?: number | string, 
         height?: number | string,
         titleSize?: string
-        avatar?: string
+        avatarMuiIcon?: keyof typeof MuiIcons;
+        avatarCustom?: string;
     }> = (props: {
         title: string, 
         children: ReactNode, 
         width?: number | string, 
         height?: number | string,
         titleSize?: string
-        avatar?: string
+        avatarMuiIcon?: keyof typeof MuiIcons;
+        avatarCustom?: string;
     }) => {
+        const renderAvatar = () => {
+            if (props.avatarCustom) {
+                return <img src={props.avatarCustom} alt={`${props.title} image`} className='tcw-card-image' />
+            }
+
+            if (props.avatarMuiIcon) {
+                const MuiIconComponent = MuiIcons[props.avatarMuiIcon];
+                return <MuiIconComponent />;
+            }
+
+            return null;
+        };
     return (
         <Card className='tcw-card-container' sx={{width: props.width, height: props.height}}>
             <CardHeader className='tcw-card-header'
-                avatar={<img src={props.avatar} alt={`${props.title} image`} className='tcw-card-image' />}
+                avatar={renderAvatar()}
                 title={props.title}
                 slotProps={{
                     title: {
