@@ -1,2 +1,3 @@
 export * from './components';
-export { ThemeProvider, theme } from './theme';
+export { ThemeProvider, muiTheme } from './themes/mui-theme';
+export { AntDThemeProvider, antdTheme } from './themes/antd-theme';

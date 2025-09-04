@@ -8,7 +8,7 @@ const root = document.documentElement;
 const primaryTcwBlueColor = getComputedStyle(root).getPropertyValue('--tcw-blue-color').trim();
 const secondaryTcwTealColor = getComputedStyle(root).getPropertyValue('--secondary-tcw-teal-color').trim();
 
-const theme = createTheme({
+const muiTheme = createTheme({
   typography: {
       fontFamily: [
           'Lato'
@@ -52,13 +52,12 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  console.log(theme)
     return (
-        <MuiThemeProvider theme={theme}>
+        <MuiThemeProvider theme={muiTheme}>
             <CssBaseLine />
             {children}
         </MuiThemeProvider>
     )
 }
 
-export { theme };
+export { muiTheme };

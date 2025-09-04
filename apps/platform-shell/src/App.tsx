@@ -1,14 +1,16 @@
 import { BrowserRouter } from 'react-router-dom';
-import { ThemeProvider } from '@platform/ui';
+import { ThemeProvider, AntDThemeProvider } from '@platform/ui';
 import { AppRouter } from './router';
 
 
 export default function App() {
     return (
         <ThemeProvider>
-            <BrowserRouter>
-                <AppRouter />
-            </BrowserRouter>
+            <AntDThemeProvider>
+                <BrowserRouter>
+                    <AppRouter />
+                </BrowserRouter>
+            </AntDThemeProvider>
         </ThemeProvider>
     )
 }
