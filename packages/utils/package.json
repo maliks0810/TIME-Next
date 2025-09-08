@@ -23,6 +23,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@apollo/client": "^4.0.4",
+    "@okta/okta-react": "^6.10.0",
     "react": "19.1.1"
   },
   "devDependencies": {
