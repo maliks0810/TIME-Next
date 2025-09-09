@@ -6,11 +6,7 @@
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/index.esm.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
+    ".": "./src/index.ts"
   },
   "files": [
     "dist"
@@ -24,6 +20,7 @@
   },
   "dependencies": {
     "@apollo/client": "^4.0.4",
+    "@okta/okta-auth-js": "^7.14.0",
     "@okta/okta-react": "^6.10.0",
     "react": "19.1.1"
   },
