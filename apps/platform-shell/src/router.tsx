@@ -1,5 +1,5 @@
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
-import { Security } from '@okta/okta-react';
+import { LoginCallback, Security } from '@okta/okta-react';
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
 import { ApolloProvider } from '@apollo/client/react'
 import { oktaConfig } from './okta-config';
@@ -40,11 +40,12 @@ export function AppRouter() {
                             success={
                                 // Need to think about this structure
                                 <ApolloProvider client={client}>
-                                    <UserInfoProvider>
+                                    {/* <UserInfoProvider appName={import.meta.env.VITE_APP_NAME}> */}
+                                     {/* <UserInfoProvider > */}
                                         <UserLoader>
                                             <RootLayout />
                                         </UserLoader>
-                                    </UserInfoProvider>
+                                    {/* </UserInfoProvider> */}
                                 </ApolloProvider>
                             }
                         />
@@ -78,7 +79,7 @@ export function AppRouter() {
                     })}
 
                 </Route>
-                {/* <Route path="/login/callback" element={<LoginCallback />} /> */}
+                <Route path="/login/callback" element={<LoginCallback />} />
 
             </Routes>
          </Security>
