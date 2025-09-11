@@ -25,11 +25,11 @@ const config = [
       react: reactPlugin,  
       '@typescript-eslint': tsPlugin,  
     },  
-    rules: {  
-      ...reactPlugin.configs.recommended.rules,  
+    rules: {
+      ...reactPlugin.configs.recommended.rules,
       ...tsPlugin.configs.recommended.rules,
-    },  
-  },  
-];  
+    },
+  },
+];
 
-export default config;  
+export default config;
