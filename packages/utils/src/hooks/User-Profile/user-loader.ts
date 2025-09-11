@@ -9,7 +9,7 @@ import { useUserAuthorizations } from '../Authorization/user-authorizations';
 //are being used as an example of the possibility of calling gql queries in a
 //utility function
 
-export default function UserLoader(props: {
+export function UserLoader(props: {
     children: React.ReactElement | null;
 }): React.ReactElement | null {
     const updateUserInfo = useRef(useUpdateUserInfo());
@@ -41,7 +41,7 @@ export default function UserLoader(props: {
         .then(async (userInfo) => {
             console.log('User info loaded. Loading authorizations');
             userInfo.authorizations = await auths.current.get();
-            console.log('Loading favorites');
+            // console.log('Loading favorites');
             // userInfo.favorites = await favs.current.get(userInfo.login ?? '');
             console.log('setting user info context');
             updateUserInfo.current(userInfo);            

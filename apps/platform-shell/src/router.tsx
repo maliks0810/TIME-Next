@@ -7,7 +7,7 @@ import { Routes, Route, Navigate, useNavigate  } from 'react-router-dom';
 import { Suspense } from 'react';
 import { RootLayout } from './layouts/RootLayout';
 import { AppMetadata, appRegistry } from '@platform/app-registry';
-import { Authenticator } from '@platform/utils';
+import { Authenticator, UserInfoProvider, UserLoader } from '@platform/utils';
 
 
 const oktaAuth = new OktaAuth(oktaConfig.oidc);
@@ -32,16 +32,20 @@ export function AppRouter() {
 
     return (
             <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
+
             <Routes>
 
                 <Route path="/" element={
                         <Authenticator
                             success={
-                                // <UserLoader>
+                                // Need to think about this structure
                                 <ApolloProvider client={client}>
-                                    <RootLayout />
+                                    <UserInfoProvider>
+                                        <UserLoader>
+                                            <RootLayout />
+                                        </UserLoader>
+                                    </UserInfoProvider>
                                 </ApolloProvider>
-                                // </UserLoader>
                             }
                         />
                     }>
