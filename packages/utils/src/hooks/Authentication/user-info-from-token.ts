@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useOktaAuth } from "@okta/okta-react";
 import { UserInfo } from "./user-info";
 
@@ -46,7 +47,7 @@ export const getUserInfoFromIdToken = (idToken: string | undefined): UserInfo =>
     return userInfo;
 }
 
-export const swapNameOrder = (name: any ) => {
+export const swapNameOrder = (name: string ) => {
     const splitName = name.split(' ');
     const removeComma = splitName[0].slice(0, -1);
     const newName = splitName[1] + " " + removeComma;
@@ -72,6 +73,6 @@ export const getTokenParts = (token: string | undefined): string[] => {
     return [] as string[];
 }
 
-export const decode = (part: string): any => {
+export const decode = (part: string): string => {
     return atob(part);     
 }

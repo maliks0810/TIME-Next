@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { createContext, useState, useContext, useEffect } from 'react';
 import { AppProviderProps } from '../User-Profile/provider-children';
 import { UserInfo } from './user-info';

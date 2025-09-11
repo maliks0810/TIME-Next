@@ -15,7 +15,7 @@ const oktaAuth = new OktaAuth(oktaConfig.oidc);
 export function AppRouter() {
     const apps = appRegistry.getAllApps();
     const navigate = useNavigate();
-    const restoreOriginalUri = async (auth: any, originalUri: string) => {
+    const restoreOriginalUri = async (auth: OktaAuth, originalUri: string) => {
         console.log(auth);
         navigate(toRelativeUrl(originalUri || '', window.location.origin));
     };
