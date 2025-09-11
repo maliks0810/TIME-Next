@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useUpdateUserInfo } from '../Authentication/user-info-context';
 import { useOktaUserInfo } from '../Authentication/user-info-from-token';
 
-import { useUserAuthorizations } from '../Authorization/user-authorizations';
+// import { useUserAuthorizations } from '../Authorization/user-authorizations';
 
 //getUserInfoFromOkta, loadUserFavorites, and getUserAuthorizations could probably
 //(should probably?) all be custom hooks. loadUserFavorites and getUserAuthorizations
@@ -14,7 +14,7 @@ export function UserLoader(props: {
 }): React.ReactElement | null {
     const updateUserInfo = useRef(useUpdateUserInfo());
 
-    const auths = useRef(useUserAuthorizations());
+    // const auths = useRef(useUserAuthorizations());
     const info = useRef(useOktaUserInfo());
     //Notice here the use of useRef. This basically tells React
     //that the value passed to useRef is not expected to change.
@@ -40,7 +40,7 @@ export function UserLoader(props: {
         info.current.get()
         .then(async (userInfo) => {
             console.log('User info loaded. Loading authorizations');
-            userInfo.authorizations = await auths.current.get();
+            // userInfo.authorizations = await auths.current.get();
             // console.log('Loading favorites');
             // userInfo.favorites = await favs.current.get(userInfo.login ?? '');
             console.log('setting user info context');
