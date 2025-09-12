@@ -41,11 +41,11 @@ export function AppRouter() {
                                 // Need to think about this structure
                                 <ApolloProvider client={client}>
                                     {/* <UserInfoProvider appName={import.meta.env.VITE_APP_NAME}> */}
-                                     {/* <UserInfoProvider > */}
+                                     <UserInfoProvider >
                                         <UserLoader>
                                             <RootLayout />
                                         </UserLoader>
-                                    {/* </UserInfoProvider> */}
+                                    </UserInfoProvider>
                                 </ApolloProvider>
                             }
                         />
