@@ -16,10 +16,10 @@ export function AppRouter() {
     const apps = appRegistry.getAllApps();
     const navigate = useNavigate();
     const restoreOriginalUri = async (auth: OktaAuth, originalUri: string) => {
-        console.log(auth);
         navigate(toRelativeUrl(originalUri || '', window.location.origin));
     };
 
+    // needs to support multiple
     const httpLink = new HttpLink({
         uri: import.meta.env.VITE_REACT_APP_TIME_PROFILE_AGQL_URL,
     });
