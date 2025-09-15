@@ -13,6 +13,7 @@ import { Authenticator, UserInfoProvider, UserLoader } from '@platform/utils';
 const oktaAuth = new OktaAuth(oktaConfig.oidc);
 // add a circular progress for non loading items from mui materials
 export function AppRouter() {
+    console.log(oktaAuth)
     const apps = appRegistry.getAllApps();
     const navigate = useNavigate();
     const restoreOriginalUri = async (_auth: OktaAuth, originalUri: string) => {
