@@ -15,7 +15,7 @@ const oktaAuth = new OktaAuth(oktaConfig.oidc);
 export function AppRouter() {
     const apps = appRegistry.getAllApps();
     const navigate = useNavigate();
-    const restoreOriginalUri = async (auth: OktaAuth, originalUri: string) => {
+    const restoreOriginalUri = async (_auth: OktaAuth, originalUri: string) => {
         navigate(toRelativeUrl(originalUri || '', window.location.origin));
     };
 
@@ -32,56 +32,52 @@ export function AppRouter() {
 
     return (
             <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
-
-            <Routes>
-
-                <Route path="/" element={
-                        <Authenticator
-                            success={
-                                // Need to think about this structure
-                                <ApolloProvider client={client}>
-                                    {/* <UserInfoProvider appName={import.meta.env.VITE_APP_NAME}> */}
-                                     <UserInfoProvider >
-                                        <UserLoader>
-                                            <RootLayout />
-                                        </UserLoader>
-                                    </UserInfoProvider>
-                                </ApolloProvider>
+                <Routes>
+                    <Route path="/" element={
+                            <Authenticator
+                                success={
+                                    // Need to think about this structure
+                                    <ApolloProvider client={client}>
+                                        <UserInfoProvider appName={import.meta.env.VITE_APP_NAME}>
+                                            <UserLoader>
+                                                <RootLayout />
+                                            </UserLoader>
+                                        </UserInfoProvider>
+                                    </ApolloProvider>
+                                }
+                            />
+                        }>
+                        {apps.map((app: AppMetadata) => {
+                            if(app.external && app.url) {
+                                return (
+                                    <Route
+                                        key={app.id}
+                                        path={app.path === '/' ? undefined: app.path}
+                                        index={app.path === '/'}
+                                        element={<Navigate to={app.url} replace />}
+                                    />
+                                );
                             }
-                        />
-                    }>
-                    {apps.map((app: AppMetadata) => {
-                        if(app.external && app.url) {
-                            return (
-                                <Route
-                                    key={app.id}
-                                    path={app.path === '/' ? undefined: app.path}
-                                    index={app.path === '/'}
-                                    element={<Navigate to={app.url} replace />}
-                                />
-                            );
-                        }
-                        if(app.component) {
-                            return (
-                                <Route
-                                    key={app.id}
-                                    path={app.path === '/' ? undefined : app.path}
-                                    index={app.path === '/'}
-                                    element={
-                                        <Suspense>
-                                            <app.component />
-                                        </Suspense>
-                                    }
-                                />
-                            );
-                        }
-                        return null;
-                    })}
+                            if(app.component) {
+                                return (
+                                    <Route
+                                        key={app.id}
+                                        path={app.path === '/' ? undefined : app.path}
+                                        index={app.path === '/'}
+                                        element={
+                                            <Suspense>
+                                                <app.component />
+                                            </Suspense>
+                                        }
+                                    />
+                                );
+                            }
+                            return null;
+                        })}
 
-                </Route>
-                <Route path="/login/callback" element={<LoginCallback />} />
-
-            </Routes>
-         </Security>
+                    </Route>
+                    <Route path="/login/callback" element={<LoginCallback />} />
+                </Routes>
+            </Security>
     );
 }

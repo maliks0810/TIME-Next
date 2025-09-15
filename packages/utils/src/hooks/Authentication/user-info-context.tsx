@@ -18,10 +18,10 @@ export function useUpdateUserInfo() {
     return useContext(UpdateUserInfoContext);
 }
 
-export function UserInfoProvider({ children }: AppProviderProps) {
+export function UserInfoProvider({ children, appName }: AppProviderProps) {
     const [userInfo, setUserInfo] = useState<UserInfo>(defaultUserInfo);
-    const saveUserProfile = usePersistUserProfile();
-    const bumpUserProfile = useBumpUserProfile();
+    const saveUserProfile = usePersistUserProfile(appName);
+    const bumpUserProfile = useBumpUserProfile(appName);
 
     const saveUserInfo = (userInfo: UserInfo, skipPersist?: boolean) => {
         setUserInfo(userInfo);

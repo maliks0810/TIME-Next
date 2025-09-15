@@ -2,7 +2,6 @@ import { gql } from '@apollo/client';
 import { UserInfo } from '../Authentication/user-info';
 import { useBasicGQLOperation } from '../basic-agql-client';
 
-const APP_NAME = process.env.REACT_APP_NAME;
 
 export const UPDATE_PROFILE = gql`
     mutation UpdateTIMEUserProfile($request: ProfileUpdateRequest!) {
@@ -20,7 +19,7 @@ export const BUMP_PROFILE = gql`
     }
 `;
 
-export function usePersistUserProfile(): { run: (userInfo: UserInfo) => void } {
+export function usePersistUserProfile(appName: string): { run: (userInfo: UserInfo) => void } {
     const apolloOp = useBasicGQLOperation();
 
     return {
@@ -29,7 +28,7 @@ export function usePersistUserProfile(): { run: (userInfo: UserInfo) => void } {
                 UPDATE_PROFILE,
                 {
                     request: {
-                        application: APP_NAME,
+                        application: appName,
                         profileJson: JSON.stringify({ favorites: userInfo.favorites }),
                     },
                 },
@@ -49,12 +48,12 @@ export function usePersistUserProfile(): { run: (userInfo: UserInfo) => void } {
     };
 }
 
-export function useBumpUserProfile(): { run: () => void } {
+export function useBumpUserProfile(appName: string): { run: () => void } {
     const apolloOp = useBasicGQLOperation();
 
     return {
         run: async () => {
-            await apolloOp(BUMP_PROFILE, { appname: APP_NAME }, true)
+            await apolloOp(BUMP_PROFILE, { appname: appName }, true)
                 .then((results) => {
                     if (results?.data?.updateTIMEUserLastUpdated?.success) {
                         console.log('Profile Bumped.');
