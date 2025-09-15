@@ -27,13 +27,14 @@ export default defineConfig(({ mode }) => ({
             '@platform/ui': path.resolve(__dirname, '../../packages/ui/src'),
             '@platform/styles': path.resolve(__dirname, '../../packages/styles/src'),
             '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
+            '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
             '@platform/platform-shell': path.resolve(__dirname, '.'),
         },
         preserveSymlinks: true,
     },
     optimizeDeps: {
         include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
-        exclude: ['@platform/ui', '@platform/styles', '@platform/app-registry'],
+        exclude: ['@platform/ui', '@platform/styles', '@platform/app-registry', '@platform/utils'],
     },
     build: {
         assetsInlineLimit: 60000,
