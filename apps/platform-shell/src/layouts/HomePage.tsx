@@ -2,7 +2,7 @@ import { TcwCard } from "@platform/ui";
 import { Box, Chip, Typography } from '@mui/material';
 import '../App.scss';
 import snowflake from '../assets/snowflake.png';
-import { useGenericDataContext, useUpdateGenericDataContext } from "@/contexts/generic-data-context";
+import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
 
 
 const HomePage: React.FC = () => {
@@ -30,7 +30,7 @@ const HomePage: React.FC = () => {
               </Box>
             </TcwCard>
 
-            <button onClick={() => console.log(genericData.data)}> TESTING </button>
+            <button onClick={() => console.log(genericData.data)}> View Data </button>
             <button onClick={() => updateGenericData({data: {
               name: 'test user',
               date: 'Sept 16',
