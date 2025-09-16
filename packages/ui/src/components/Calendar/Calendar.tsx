@@ -1,6 +1,6 @@
 import './Calendar.css';
 
-export const Calendar = () => {
+export const Calendar: React.FC = () => {
     return(
         <></>
     );
