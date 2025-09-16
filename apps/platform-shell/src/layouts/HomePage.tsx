@@ -31,12 +31,13 @@ const HomePage: React.FC = () => {
             </TcwCard>
 
             <button onClick={() => console.log(genericData.data)}> View Data </button>
-            <button onClick={() => updateGenericData({data: {
+            {/* <button onClick={() => updateGenericData({data: {
               name: 'test user',
               date: 'Sept 16',
               amount: 1235,
               projects: [{name: 'TIME', language: 'React TypeScript', team: 'Platform Engineering'}],
-            }})}> Update Data</button>
+            }})}> Update Data</button> */}
+            <button onClick={() => updateGenericData({data: {name: 'test', value: [12,25,45, 234, 789]}})}> Update Data</button>
           </Box>
         </TcwCard>
 
