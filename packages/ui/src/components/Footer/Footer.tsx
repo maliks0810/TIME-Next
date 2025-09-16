@@ -1,6 +1,6 @@
 import React from 'react';
 // import tcwTime from '../assets/tcw-time.png';
-import { footerBottomLinksData, footerLinksData } from './footer-links-data';
+import { footerLinksData } from './footer-links-data';
 import { FooterLinks } from './footer-links.js';
 // import './Footer.module.scss'
 import './Footer.scss';
@@ -17,13 +17,6 @@ export const Footer: React.FC = () => {
                             <FooterLinks linkData={footerLink} key={index} />
                         ))}
                     </div>
-                </div>
-                <div className="footer-bottom">
-                    {footerBottomLinksData?.map((bottomLink, index) => (
-                        <a href={bottomLink.url} className="bottom-link" key={index}>
-                            {bottomLink.header}
-                        </a>
-                    ))}
                 </div>
             </div>
         </div>

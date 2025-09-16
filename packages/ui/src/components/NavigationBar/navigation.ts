@@ -1,4 +1,4 @@
-import { TTTLinks } from './ttt-links.js';
+// import { TTTLinks } from './ttt-links.js';
 
 export const navigationData = [
     {
@@ -7,12 +7,12 @@ export const navigationData = [
             {
                 title: 'Aladdin Portfolio Management',
                 links: [
-                    {
-                        title: TTTLinks.TOD.title,
-                        url: TTTLinks.TOD.url,
-                        newTab: true,
-                        disabled: TTTLinks.TOD.disabled,
-                    },
+                    // {
+                    //     title: TTTLinks.TOD.title,
+                    //     url: TTTLinks.TOD.url,
+                    //     newTab: true,
+                    //     disabled: TTTLinks.TOD.disabled,
+                    // },
                 ],
             },
             {
@@ -145,12 +145,12 @@ export const navigationData = [
             {
                 title: 'Other',
                 links: [
-                    {
-                        title: TTTLinks.TIP.title,
-                        url: TTTLinks.TIP.url,
-                        newTab: true,
-                        disabled: TTTLinks.TIP.disabled,
-                    },
+                    // {
+                    //     title: TTTLinks.TIP.title,
+                    //     url: TTTLinks.TIP.url,
+                    //     newTab: true,
+                    //     disabled: TTTLinks.TIP.disabled,
+                    // },
                 ],
             },
         ],

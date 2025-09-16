@@ -1,8 +1,9 @@
-export interface AppMetadata {
+export interface InternalAppMetadata {
+    type: 'internal';
     id: string;
     name: string;
     title: string;
-    external: boolean;
+    env: HighestEnv;
     path?: string;
     team?: string;
     header?: string;
@@ -13,7 +14,29 @@ export interface AppMetadata {
     description?: string;
     requiresAuth?: boolean;
     disabled?: boolean;
+    newTab?: boolean;
 }
+
+export interface ExternalAppMetadata {
+    type: 'external';
+    header: string;
+    subHeader: string;
+    title: string;
+    url: string;
+    newTab: boolean;
+    disabled: boolean;
+    env: HighestEnv;
+    httpMethod?: 'GET' | 'POST';
+    postBody?: string;
+    requiresAuth?: boolean;
+    path?: string;
+}
+
+export enum HighestEnv {
+    dev = 'dev',
+    qa = 'qa',
+    prod = 'prod'
+} 
 
 export interface TeamMetadata {
     id: string;
@@ -23,12 +46,12 @@ export interface TeamMetadata {
 }
 
 export interface AppRegistry {
-    apps: Map<string, AppMetadata>;
+    apps: Map<string, InternalAppMetadata|ExternalAppMetadata>;
     teams: Map<string, TeamMetadata>;
-    getApp(id: string): AppMetadata | undefined;
-    getTeamApp(teamId: string): AppMetadata[];
-    getAllApps(): AppMetadata[];
-    getNavigationItems(): AppMetadata[];
+    getApp(id: string): InternalAppMetadata |ExternalAppMetadata | undefined;
+    getTeamApp(teamId: string): (InternalAppMetadata|ExternalAppMetadata)[];
+    getAllApps(): (InternalAppMetadata|ExternalAppMetadata)[];
+    getNavigationItems(): (InternalAppMetadata|ExternalAppMetadata)[];
 }
 
 export enum NavbarHeader {

@@ -28,6 +28,7 @@ const config = [
     rules: {  
       ...reactPlugin.configs.recommended.rules,  
       ...tsPlugin.configs.recommended.rules,
+      '@typescript-eslint/ban-ts-comment': 'off'
     },  
   },  
 ];  
