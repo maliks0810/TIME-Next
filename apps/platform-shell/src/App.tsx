@@ -1,6 +1,7 @@
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, AntDThemeProvider } from '@platform/ui';
 import { AppRouter } from './router';
+import { GenericDataProvider } from './contexts/generic-data-context';
 
 
 export default function App() {
@@ -8,7 +9,9 @@ export default function App() {
         <ThemeProvider>
             <AntDThemeProvider>
                 <BrowserRouter>
-                    <AppRouter />
+                    <GenericDataProvider>
+                        <AppRouter />
+                    </GenericDataProvider>
                 </BrowserRouter>
             </AntDThemeProvider>
         </ThemeProvider>
