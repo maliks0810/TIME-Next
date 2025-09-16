@@ -35,6 +35,7 @@ const config = [
         return acc;  
       }, {}),  
       'react/react-in-jsx-scope': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off'
     },  
   },  
 ];  

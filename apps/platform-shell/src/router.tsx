@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 import { LoginCallback, Security } from '@okta/okta-react';
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
@@ -6,7 +7,7 @@ import { oktaConfig } from './okta-config';
 import { Routes, Route, Navigate, useNavigate  } from 'react-router-dom';
 import { Suspense } from 'react';
 import { RootLayout } from './layouts/RootLayout';
-import { AppMetadata, appRegistry } from '@platform/app-registry';
+import { appRegistry } from '@platform/app-registry';
 import { Authenticator, UserInfoProvider, UserLoader } from '@platform/utils';
 
 
@@ -48,7 +49,7 @@ export function AppRouter() {
                                 }
                             />
                         }>
-                        {apps.map((app: AppMetadata) => {
+                        {apps.map((app: any ) => {
                             if(app.external && app.url) {
                                 return (
                                     <Route

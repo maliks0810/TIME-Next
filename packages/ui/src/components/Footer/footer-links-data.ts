@@ -75,21 +75,4 @@ export const footerLinksData = [
         ],
     },        
 ];
-export const footerBottomLinksData = [
-    {
-        header: 'Terms and Conditions',
-        url: 'terms',
-    },
-    {
-        header: 'Privacy Policy',
-        url: 'policy',
-    },
-    {
-        header: 'Regulatory Disclosures',
-        url: 'regulatory',
-    },
-    {
-        header: 'Compliance Guidelines',
-        url: 'compliance',
-    },
-];
+

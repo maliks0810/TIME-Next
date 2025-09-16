@@ -1,12 +1,13 @@
-// @ts-nocheck
-
+// @ts-nocheck  
+/// <reference types="vite-plugin-svgr/client" />
 import { useEffect, useRef, useState } from 'react';
 import { Menu } from '@mui/material';
 // import './Navbar.css';
-// import DownArrowSVG from '../assets/arrow-down-339-svgrepo-com.svg';
+import DownArrowSVG from '../../assets/arrow-down.svg?react';
 // import arrowUp from '../assets/arrow-up.png';
-import { LinkInfoBase } from './link-info-base.js';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { InternalAppMetadata, ExternalAppMetadata } from '@platform/app-registry';
+import { NaviLinkContainer } from './navi-link-container';
 
 
 export const TopMenu = (props: { menuData: any }) => {
@@ -15,9 +16,9 @@ export const TopMenu = (props: { menuData: any }) => {
     );
     const [selectedList, setSelectedList] = useState<any>();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    // const popupRef = useRef<any>();
+    const popupRef = useRef<any>();
     const open = Boolean(anchorEl);
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -33,16 +34,34 @@ export const TopMenu = (props: { menuData: any }) => {
         setSelectedItem(e.currentTarget.title);
     };
 
-    const handleMenuLinkClick = (link: LinkInfoBase) => {
-        console.log('here', link)
-        if (link.url === 'feature-alpha') {
-            navigate('/feature-tod')
-        }
-        if (link.url === 'feature-beta') {
-            navigate('/feature-tod-no-style')
-        }
+    const handleMenuLinkClick = (link: (ExternalAppMetadata|InternalAppMetadata)) => {
+        if (link.httpMethod !== 'POST') {
+            handleClose();
+            console.log(link)
+            popupRef.current.showPopup(link);
+        } else {
         handleClose();
-        // popupRef.current.showPopup(link);
+
+        fetch(link.url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: link.postBody
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error("POST Request failed:", error);
+        });
+    }
     };
 
     useEffect(() => {
@@ -60,14 +79,15 @@ export const TopMenu = (props: { menuData: any }) => {
 
     return (
         <div className="header-menu-item">
+            <NaviLinkContainer ref={popupRef} />
             <button onClick={handleClick}>
                 <div className={'header-menu-item-container' + (open ? ' current' : '')}>
                     {props.menuData.header}
                     {/* <img
                                 src={DownArrowSVG}
                                 alt="title icon"
-                                className="menu-expand-arrow"
-                            /> */}
+                                className={'menu-expand-arrow' + (open ? ' current' : '')}
+                    /> */}
                     {/* <DownArrowSVG className={'menu-expand-arrow' + (open ? ' current' : '')} /> */}
                 </div>
             </button>
