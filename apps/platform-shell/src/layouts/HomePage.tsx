@@ -2,9 +2,9 @@
 // import { Box, Chip, Typography } from '@mui/material';
 // import snowflake from '../assets/snowflake.png';
 // import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
-import { Calendar } from '@platform/ui';
+// import { Calendar } from '@platform/ui';
+// import { useState } from 'react';
 import '../App.scss';
-import { useState } from 'react';
 
 const HomePage: React.FC = () => {
 
@@ -12,7 +12,7 @@ const HomePage: React.FC = () => {
   // const updateGenericData = useUpdateGenericDataContext();
 
   
-  const [ date, setDate ] = useState<Date>();
+  // const [ date, setDate ] = useState<Date>();
   
   return (
     <div className="dashboard-container">
@@ -43,8 +43,13 @@ const HomePage: React.FC = () => {
             }})}> Update Data</button>
           </Box>
         </TcwCard> */}
-        { date && <p> Date Selected Parent: {date?.toDateString()}</p>}
-        <Calendar onSelect={(date) => setDate(date)}/>
+
+        {/* With Optional Callback to store date in state */}
+        {/* { date && <p> Date Selected: {date?.toDateString()}</p>}
+        <Calendar onSelect={(date) => setDate(date)}/> */}
+
+        {/* Without optional callback to store date in state */}
+        {/* <Calendar /> */}
 
     </div>
   )
