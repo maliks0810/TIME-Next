@@ -72,81 +72,81 @@ plop.setGenerator('app', {
             destination: 'apps/{{team}}--{{appName}}/package.json',
             templateFiles: 'plop-templates/app/package.json.hbs',
         },
-        {
-            type: 'add',
-            destination: 'apps/{{team}}--{{appName}}/index.html',
-            templateFiles: 'plop-templates/app/index.html.hbs',
-        },
-        {
-            type: 'add',
-            destination: 'apps/{{team}}--{{appName}}/src/main.tsx',
-            templateFiles: 'plop-templates/app/src/main.tsx.hbs',
-        },
-        {
-            type: 'add',
-            destination: 'apps/{{team}}--{{appName}}/src/App.tsx',
-            templateFiles: 'plop-templates/app/src/App.tsx.hbs',
-        },
-        {
-            type: 'add',
-            destination: 'apps/{{team}}--{{appName}}/src/pages/{{pascalCase appName}}Page.tsx',
-            templateFiles: 'plop-templates/app/src/pages/Page.tsx.hbs',
-        },
+        // {
+        //     type: 'add',
+        //     destination: 'apps/{{team}}--{{appName}}/index.html',
+        //     templateFiles: 'plop-templates/app/index.html.hbs',
+        // },
+        // {
+        //     type: 'add',
+        //     destination: 'apps/{{team}}--{{appName}}/src/main.tsx',
+        //     templateFiles: 'plop-templates/app/src/main.tsx.hbs',
+        // },
+        // {
+        //     type: 'add',
+        //     destination: 'apps/{{team}}--{{appName}}/src/App.tsx',
+        //     templateFiles: 'plop-templates/app/src/App.tsx.hbs',
+        // },
+        // {
+        //     type: 'add',
+        //     destination: 'apps/{{team}}--{{appName}}/src/pages/{{pascalCase appName}}Page.tsx',
+        //     templateFiles: 'plop-templates/app/src/pages/Page.tsx.hbs',
+        // },
         // Need to update this because it's not updating the file properly
-        {
-            type: 'modify',
-            path: 'packages/app-registry/src/registry.ts',
-            pattern: /(\s*)\/\/ PLOP_INJECT_APP/,
-            template: `.\n {\n
-                                id: \'{{appName}}\',\n
-                                name: \'{{appName}}\',\n
-                                title: \'{{title}}\',\n
-                                path: \'{{routePath}}\',\n
-                                team: \'{{team}}\',\n
-                                component: lazy(() => import(\'@{{team}}/{{appName}}/src/pages/{{pascalCase appName}}Page\')),\n
-                                description: \'{{description}}\',\n
-                            }$1// PLOP_INJECT_APP`,
-        },
-        function(answers, config, plop) {
-            const path = require('path');
-            const fs = require('fs');
-            const registryPath = path.join(process.cwd(), 'packages/app-registry/src/registry.ts');
-            const registryContent = fs.readFileSync(registryPath, 'utf8');
+        // {
+        //     type: 'modify',
+        //     path: 'packages/app-registry/src/registry.ts',
+        //     pattern: /(\s*)\/\/ PLOP_INJECT_APP/,
+        //     template: `.\n {\n
+        //                         id: \'{{appName}}\',\n
+        //                         name: \'{{appName}}\',\n
+        //                         title: \'{{title}}\',\n
+        //                         path: \'{{routePath}}\',\n
+        //                         team: \'{{team}}\',\n
+        //                         component: lazy(() => import(\'@{{team}}/{{appName}}/src/pages/{{pascalCase appName}}Page\')),\n
+        //                         description: \'{{description}}\',\n
+        //                     }$1// PLOP_INJECT_APP`,
+        // },
+        // function(answers, config, plop) {
+        //     const path = require('path');
+        //     const fs = require('fs');
+        //     const registryPath = path.join(process.cwd(), 'packages/app-registry/src/registry.ts');
+        //     const registryContent = fs.readFileSync(registryPath, 'utf8');
 
-            if (!registryContent.includes(`id: '${answers.team}'`)) {
-                const teamPattern = /(\s*)\/\/ PLOP_INJECT_APP/;
-                const teamTemplate = `.\n {\n
-                                id: '${answers.team}',\n
-                                name: '${answers.team}',\n
-                                displayName: '${answers.team.charAt(0).toUpperCase() + answers.team.slice(1)} Team',\n
-                                apps: ['${answers.appName}']\n
-                            }$1// PLOP_INJECT_TEAM`;
-                const updatedContent = registryContent.replace(teamPattern, teamTemplate);
-                fs.writeFileSync(registryPath, updatedContent);
-                return 'Team added to registry';
+        //     if (!registryContent.includes(`id: '${answers.team}'`)) {
+        //         const teamPattern = /(\s*)\/\/ PLOP_INJECT_APP/;
+        //         const teamTemplate = `.\n {\n
+        //                         id: '${answers.team}',\n
+        //                         name: '${answers.team}',\n
+        //                         displayName: '${answers.team.charAt(0).toUpperCase() + answers.team.slice(1)} Team',\n
+        //                         apps: ['${answers.appName}']\n
+        //                     }$1// PLOP_INJECT_TEAM`;
+        //         const updatedContent = registryContent.replace(teamPattern, teamTemplate);
+        //         fs.writeFileSync(registryPath, updatedContent);
+        //         return 'Team added to registry';
 
-            } else {
-                const teamRegex = new RegExp(`(id: '${answers.team}'[^}]+apps: \\[)([^\\]]*)(\\])`, 's');
-                const updatedContent = registryContent.replace(teamRegex, (match, p1, p2, p3) => {
-                    const apps = p2.trim() ? `${p2}, '${answers.appName}'` : `'${answers.appName}'`;
-                    return `${p1}${apps}${p3}`;
-                });
-                fs.writeFileSync(registryPath, updatedContent);
-                return 'Team apps updated in registry';
-            }
-        },
-        {
-            type: 'modify',
-            path: 'apps/platform-shell/vite.config.ts',
-            pattern: /(\s*)preserveSymlinks: true,/,
-            template: ` '@{{team}}/{{appName}}': path.resolve(__dirname, '../{{team}}-{{appName}}'),\n$1preserveSymlinks: true,`,
-        },
-        {
-            type: 'modify',
-            path: 'apps/platform-shell/tsconfig.json',
-            pattern: /(\s*)"@platform\/shell\/\*": \["\.\*"\]/,
-            template: `$1"@platform/shell/*": ["./*"],\n$1"@{{team}}/{{appName}}/*": ["../{{team}}-{{appName}}/*"]`,
-        },
+        //     } else {
+        //         const teamRegex = new RegExp(`(id: '${answers.team}'[^}]+apps: \\[)([^\\]]*)(\\])`, 's');
+        //         const updatedContent = registryContent.replace(teamRegex, (match, p1, p2, p3) => {
+        //             const apps = p2.trim() ? `${p2}, '${answers.appName}'` : `'${answers.appName}'`;
+        //             return `${p1}${apps}${p3}`;
+        //         });
+        //         fs.writeFileSync(registryPath, updatedContent);
+        //         return 'Team apps updated in registry';
+        //     }
+        // },
+        // {
+        //     type: 'modify',
+        //     path: 'apps/platform-shell/vite.config.ts',
+        //     pattern: /(\s*)preserveSymlinks: true,/,
+        //     template: ` '@{{team}}/{{appName}}': path.resolve(__dirname, '../{{team}}-{{appName}}'),\n$1preserveSymlinks: true,`,
+        // },
+        // {
+        //     type: 'modify',
+        //     path: 'apps/platform-shell/tsconfig.json',
+        //     pattern: /(\s*)"@platform\/shell\/\*": \["\.\*"\]/,
+        //     template: `$1"@platform/shell/*": ["./*"],\n$1"@{{team}}/{{appName}}/*": ["../{{team}}-{{appName}}/*"]`,
+        // },
         function () {
             return `App successfully created. make sure to npm install and then npm run dev`
         }

@@ -17,6 +17,18 @@ const apps: (InternalAppMetadata|ExternalAppMetadata)[] = [
     {
         header: NavbarHeader.PortfolioManagement,
         subHeader: NavbarSubHeader.AladdinPortfolioManagement,
+        type: 'internal',
+        id: 'testing',
+        name: 'testing',
+        title: 'testing',
+        path: '/testing',
+        team: 'testing',
+        env: HighestEnv.prod,
+        component: lazy(() => import('@testing/alpha/src/App'))
+    },
+    {
+        header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.AladdinPortfolioManagement,
         type: 'external',
         title: 'TOD',
         url: 'https://tod.pd.tcw.com/',
