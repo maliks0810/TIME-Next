@@ -6,11 +6,11 @@
   "description": "testing",
   "scripts": {
     "build": "tsc && vite build",
+    "clean": "rm -rf dist .turbo node_modules",
     "dev": "vite",
     "preview": "vite preview --port 3001",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "type-check": "tsc --noEmit",
-    "test": "vitest"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "react": "19.1.1",
