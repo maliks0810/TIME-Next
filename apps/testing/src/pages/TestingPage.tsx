@@ -1,6 +1,6 @@
 
 export default function TestingPage() {
     return (
-        <div>New App</div>
+        <div>New Testing App</div>
     )
 }
