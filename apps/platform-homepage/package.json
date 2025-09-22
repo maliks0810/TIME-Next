@@ -1,0 +1,32 @@
+{
+  "name": "@platform/homepage",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "testing",
+  "scripts": {
+    "build": "tsc && vite build",
+    "clean": "rm -rf dist .turbo node_modules",
+    "dev": "vite",
+    "preview": "vite preview --port 3001",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "react-router-dom": "7.8.2",
+    "@platform/ui": "1.0.0",
+    "@platform/styles": "1.0.0",
+    "@platform/utils": "1.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.10",
+    "@types/react-dom": "19.1.7",
+    "eslint": "^9.34.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "sass": "^1.90.0",
+    "typescript": "5.9.2"
+  }
+}
