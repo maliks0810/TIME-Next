@@ -1,0 +1,35 @@
+import { ExternalAppMetadata } from '@platform/app-registry';
+import { HighestEnv, NavbarHeader, NavbarSubHeader } from './types';
+
+export const complianceApps: ExternalAppMetadata[] = [
+        {
+        type: 'external',
+        header: NavbarHeader.Compliance,
+        subHeader: NavbarSubHeader.Research,
+        title: 'Under Construction',
+        url: '',
+        newTab: false,
+        disabled: true,
+        env: HighestEnv.prod
+    },
+    {
+        type: 'external',
+        header: NavbarHeader.Compliance,
+        subHeader: NavbarSubHeader.Governance,
+        title: 'AI Usage Request Form',
+        url: 'https://workflow.corp.tcw.com/Runtime/Runtime/Form/TCW%20Workdesk?FormName=Form/AI.AiUsageRequest-wd.fm',
+        newTab: true,
+        disabled: false,
+        env: HighestEnv.prod
+    },
+    {
+        type: 'external',
+        header: NavbarHeader.Compliance,
+        subHeader: NavbarSubHeader.Regulations,
+        title: 'EU Securitization',
+        url: 'https://tipeu.corp.tcw.com/',
+        newTab: true,
+        disabled: false,
+        env: HighestEnv.prod
+    },
+]
