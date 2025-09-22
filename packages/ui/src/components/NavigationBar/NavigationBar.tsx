@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu } from '@mui/material';
 import { navigationData } from './navigation.ts';
+import { useUserInfo } from '@platform/utils';
 import { TopMenu } from './top-menu.js';
 import tcwTime from '../../assets/tcw-time.png';
 import HomeSVG from '../../assets/HomeSVG.svg';
@@ -22,7 +23,7 @@ export interface NavigationBarProps {
 export const Navbar: React.FC = () => {
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
+    const userInfo = useUserInfo();
     const handleHomeClick = () => {
         navigate('/');
     };
@@ -133,7 +134,7 @@ export const Navbar: React.FC = () => {
                 anchorOrigin={{vertical: 50, horizontal: -125}}
             >
                 <div className="profile-dropdown-content">
-                    <div className="profile-menu-user-name">Matthew Lee</div>
+                    <div className="profile-menu-user-name">{userInfo.name}</div>
                     <button className="profile-menu-preferences" >
                         Preferences
                     </button>
