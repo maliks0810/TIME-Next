@@ -137,9 +137,6 @@ export const Navbar: React.FC = () => {
                     <button className="profile-menu-preferences" >
                         Preferences
                     </button>
-                    <button className="profile-menu-preferences" >
-                        Usage Metrics
-                    </button>
                     <div className="profile-menu-log-off">Log Off</div>
                 </div>
             </Menu>

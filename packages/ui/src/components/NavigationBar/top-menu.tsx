@@ -39,7 +39,8 @@ export const TopMenu = (props: { menuData: any }) => {
             handleClose();
             popupRef.current.showPopup(link);
         } else if (link.type === 'internal') {
-            navigate(link.path)
+            navigate(link.path);
+            handleClose();
         }else {
         handleClose();
 
