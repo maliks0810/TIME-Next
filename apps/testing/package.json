@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "clean": "rm -rf dist .turbo node_modules",
     "dev": "vite",
-    "preview": "vite preview --port 3001",
+    "preview": "vite preview --port 3002",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit"
   },
@@ -27,7 +27,6 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "sass": "^1.90.0",
-    "typescript": "5.9.2",
-    "vitest": "3.2.4"
+    "typescript": "5.9.2"
   }
 }
