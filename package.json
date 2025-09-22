@@ -10,6 +10,8 @@
     "dev": "turbo run dev --parallel",
     "prod": "turbo run prod --parallel",
     "dev:shell": "turbo run dev --filter=@platform/platform-shell",
+    "dev:homepage": "turbo run dev --filter=@platform/homepage",
+    "dev:testingapp": "turbo run dev --filter=@testing/alpha",
     "build": "turbo run build",
     "build:sandbox": "turbo run build:sandbox",
     "build:development": "turbo run build:development",

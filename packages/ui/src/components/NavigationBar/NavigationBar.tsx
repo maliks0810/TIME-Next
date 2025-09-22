@@ -99,13 +99,6 @@ export const Navbar: React.FC = () => {
                 })}
             </div>
 
-            {/* Old Navbar Loading */}
-            {/* <div className="menu-container">
-                {navigationData.map((header, index) => {
-                    return <TopMenu key={index} menuData={header} />;
-                })}
-            </div> */}
-
                 <img
                             src={SearchSVG}
                             alt="search icon"
