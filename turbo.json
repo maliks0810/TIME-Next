@@ -95,6 +95,9 @@
         "coverage/**"
       ],
       "cache": false
+    },
+    "clean": {
+      "cache": false
     }
   }
 }

@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 import { LoginCallback, Security } from '@okta/okta-react';
-import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
-import { ApolloProvider } from '@apollo/client/react'
 import { oktaConfig } from './okta-config';
 import { Routes, Route, Navigate, useNavigate  } from 'react-router-dom';
 import { Suspense } from 'react';
 import { RootLayout } from './layouts/RootLayout';
 import { appRegistry } from '@platform/app-registry';
-import { Authenticator, UserInfoProvider, UserLoader } from '@platform/utils';
+import { Authenticator } from '@platform/utils';
 
 
 const oktaAuth = new OktaAuth(oktaConfig.oidc);
@@ -21,31 +19,13 @@ export function AppRouter() {
         navigate(toRelativeUrl(originalUri || '', window.location.origin));
     };
 
-    // needs to support multiple
-    const httpLink = new HttpLink({
-        uri: import.meta.env.VITE_REACT_APP_TIME_PROFILE_AGQL_URL,
-    });
-
-    const client = new ApolloClient({
-        cache: new InMemoryCache(),
-        link: httpLink,
-    });
-
-
     return (
             <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
                 <Routes>
                     <Route path="/" element={
                             <Authenticator
                                 success={
-                                    // Need to think about this structure
-                                    <ApolloProvider client={client}>
-                                        <UserInfoProvider appName={import.meta.env.VITE_APP_NAME}>
-                                            <UserLoader>
-                                                <RootLayout />
-                                            </UserLoader>
-                                        </UserInfoProvider>
-                                    </ApolloProvider>
+                                    <RootLayout />
                                 }
                             />
                         }>

@@ -35,11 +35,13 @@ export const TopMenu = (props: { menuData: any }) => {
     };
 
     const handleMenuLinkClick = (link: (ExternalAppMetadata|InternalAppMetadata)) => {
-        if (link.httpMethod !== 'POST') {
+        if (link.httpMethod !== 'POST'&& link.type === 'external') {
             handleClose();
-            console.log(link)
             popupRef.current.showPopup(link);
-        } else {
+        } else if (link.type === 'internal') {
+            navigate(link.path);
+            handleClose();
+        }else {
         handleClose();
 
         fetch(link.url, {

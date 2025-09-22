@@ -20,7 +20,7 @@ export interface NavigationBarProps {
 // Bring in app registry for the dynamic links
 
 export const Navbar: React.FC = () => {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleHomeClick = () => {
@@ -58,7 +58,9 @@ export const Navbar: React.FC = () => {
                 title: item.title,    
                 url: item.url,    
                 newTab: item.newTab,
-                disabled: item.disabled
+                disabled: item.disabled,
+                path: item.path,
+                type: item.type
             });    
         });
     
@@ -134,9 +136,6 @@ export const Navbar: React.FC = () => {
                     <div className="profile-menu-user-name">Matthew Lee</div>
                     <button className="profile-menu-preferences" >
                         Preferences
-                    </button>
-                    <button className="profile-menu-preferences" >
-                        Usage Metrics
                     </button>
                     <div className="profile-menu-log-off">Log Off</div>
                 </div>

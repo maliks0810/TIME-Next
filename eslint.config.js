@@ -28,6 +28,7 @@ const config = [
     rules: {  
       ...reactPlugin.configs.recommended.rules,  
       ...tsPlugin.configs.recommended.rules,
+      'react/react-in-jsx-scope': 'off',
     },  
   },  
 ];  

@@ -16,6 +16,7 @@ const HomePage: React.FC = () => {
   
   return (
     <div className="dashboard-container">
+      HomePage
     {/* Put in shared components here  */}
 
         {/* <TcwCard title={'Top Performers Year 2025'} height={'fit-content'} width={'fit-content'} titleSize='22px' avatarMuiIcon='StarBorder'>
