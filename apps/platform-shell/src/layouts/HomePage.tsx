@@ -2,6 +2,8 @@
 // import { Box, Chip, Typography } from '@mui/material';
 // import snowflake from '../assets/snowflake.png';
 // import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
+// import { Calendar } from '@platform/ui';
+// import { useState } from 'react';
 import '../App.scss';
 
 const HomePage: React.FC = () => {
@@ -9,6 +11,9 @@ const HomePage: React.FC = () => {
   // const genericData = useGenericDataContext();
   // const updateGenericData = useUpdateGenericDataContext();
 
+  
+  // const [ date, setDate ] = useState<Date>();
+  
   return (
     <div className="dashboard-container">
     {/* Put in shared components here  */}
@@ -38,6 +43,13 @@ const HomePage: React.FC = () => {
             }})}> Update Data</button>
           </Box>
         </TcwCard> */}
+
+        {/* With Optional Callback to store date in state */}
+        {/* { date && <p> Date Selected: {date?.toDateString()}</p>}
+        <Calendar onSelect={(date) => setDate(date)}/> */}
+
+        {/* Without optional callback to store date in state */}
+        {/* <Calendar /> */}
 
     </div>
   )
