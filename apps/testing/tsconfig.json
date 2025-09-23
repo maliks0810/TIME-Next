@@ -9,7 +9,7 @@
       "@platform/ui": ["../../packages/ui/src"]
     }
   },
-  "include": ["src/**/*", "vite.config.ts", "vite-testing-env.d.ts"],
+  "include": ["src/**/*", "vite.config.ts", "vite-env.d.ts"],
   "exclude": ["node_modules", "dist"],
   "references": [
     { "path": "../../packages/styles"},
