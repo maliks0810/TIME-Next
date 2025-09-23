@@ -1,0 +1,23 @@
+:root {
+    --dx-color-primary: #003e7e;
+    --dx-color-secondary: #00B0AD;
+
+
+    --dx-font-family: 'Lato';
+
+}
+
+.dx-theme-material,
+.dx-theme-material-typography {
+    font-family: var(--dx-font-family) !important;
+
+    .dx-widget {
+        font-family: inherit;
+    }
+
+    .dx-datagrid {
+        .dx-datagrid-headers {
+            font-weight: 600;
+        }
+    }
+}
