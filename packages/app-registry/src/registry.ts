@@ -67,7 +67,7 @@ class AppRegistryImpl implements AppRegistry {
 
     // Logic is if HighestEnv is Prod, it will be displayed in all env.
     private isAppAvailableInCurrentEnv(appEnv: HighestEnv): boolean {
-        const envOrder = [HighestEnv.dev, HighestEnv.qa, HighestEnv.prod];
+        const envOrder = [HighestEnv.sandbox, HighestEnv.dev, HighestEnv.qa, HighestEnv.prod];
         const currentEnvIndex = envOrder.indexOf(this.currentEnv);
         const appEnvIndex = envOrder.indexOf(appEnv);
         return appEnvIndex >= currentEnvIndex;
@@ -75,6 +75,8 @@ class AppRegistryImpl implements AppRegistry {
 
     private convertToHighestEnv(env: string): HighestEnv {  
         switch (env) {
+            case 'sandbox':
+                return HighestEnv.sandbox;
             case 'dev':
                 return HighestEnv.dev;
             case 'development':

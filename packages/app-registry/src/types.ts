@@ -33,6 +33,7 @@ export interface ExternalAppMetadata {
 }
 
 export enum HighestEnv {
+    sandbox = 'sandbox',
     dev = 'development',
     qa = 'qa',
     prod = 'production'
