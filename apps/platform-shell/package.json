@@ -6,9 +6,9 @@
   "scripts": {
     "build": "tsc && vite build",
     "build:sandbox": "tsc && vite build --mode sandbox",
-    "build:development": "tsc && vite build --mode development",
+    "build:development": "tsc && vite build --mode dev",
     "build:qa": "tsc && vite build --mode qa",
-    "build:prod": "tsc && vite build --mode prod",
+    "build:production": "tsc && vite build --mode prod",
     "clean": "rm -rf dist .turbo node_modules",
     "dev": "vite",
     "preview": "vite preview",
