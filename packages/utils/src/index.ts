@@ -6,3 +6,4 @@ export * from './hooks/User-Profile/user-loader';
 export { Authenticator } from './hooks/Authentication/authenticator';
 export * from './hooks/Authentication/user-info-context';
 export * from './hooks/Contexts/generic-data-context';
+export * from 'axios';

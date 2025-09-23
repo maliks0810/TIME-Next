@@ -3,8 +3,10 @@
 // import snowflake from '../assets/snowflake.png';
 // import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
 // import { Calendar } from '@platform/ui';
+// import { Axios } from '@platform/utils';
 // import { useState } from 'react';
 import '../App.scss';
+// import { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
 
@@ -13,6 +15,22 @@ const HomePage: React.FC = () => {
 
   
   // const [ date, setDate ] = useState<Date>();
+
+  // Sample of how to use Axios from @platform/utils
+  // const axios = new Axios();
+
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //       const response = await axios.get('https://jsonplaceholder.typicode.com/users');
+  //       console.log(response)
+  //     } catch (err) {
+  //       console.log(err)
+  //     }
+  //   }
+
+  //   fetchUsers()
+  // })
   
   return (
     <div className="dashboard-container">
