@@ -33,9 +33,9 @@ export interface ExternalAppMetadata {
 }
 
 export enum HighestEnv {
-    dev = 'dev',
+    dev = 'development',
     qa = 'qa',
-    prod = 'prod'
+    prod = 'production'
 } 
 
 export interface TeamMetadata {
@@ -60,6 +60,7 @@ export enum NavbarHeader {
     RiskPerformance = 'Risk & Performance',
     Compliance = 'Compliance',
     ClientManagement = 'Client Management',
+    AiProducts = 'AI Products',
     Support = 'Support'
 
 }
@@ -75,7 +76,8 @@ export enum NavbarSubHeader {
     Research = 'Research',
     Governance = 'Governance',
     Regulations = 'Regulations',
-    General = 'General'
+    General = 'General',
+    AiThemes= 'AI Themes'
 }
 
 
