@@ -15,7 +15,7 @@ interface DevExpressProviderProps {
     rtl?: boolean;
 }
 
-export function DevExpressProvider({
+function DevExpressProvider({
     children,
     locale: userLocale = 'en',
     rtl = false
@@ -41,10 +41,12 @@ interface DevExpressProviderProps {
     children: ReactNode;
 }
 
-export function DevExpressThemeProvider({children}: DevExpressProviderProps) {
+function DevExpressThemeProvider({children}: DevExpressProviderProps) {
     return (
         <DevExpressProvider>
             {children}
         </DevExpressProvider>
     )
 }
+
+export { DevExpressThemeProvider };
