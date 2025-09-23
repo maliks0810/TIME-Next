@@ -5,6 +5,6 @@
     "composite": true,
     "noEmit": false
   },
-  "include": ["src/**/*", "custom.d.ts", "../../apps/testing/vite-testing-env.d.ts"],
+  "include": ["src/**/*", "custom.d.ts", "../../apps/testing/vite-env.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

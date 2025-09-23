@@ -11,7 +11,7 @@
           "@platform/platform-shell/*": ["./*"],
         }
     },
-    "include": ["src/**/*", "vite.config.ts", "custom.d.ts", "vite-platform-shell-env.d.ts"],
+    "include": ["src/**/*", "vite.config.ts", "custom.d.ts", "vite-env.d.ts"],
     "exclude": ["node_modules", "dist"],
     "references": [
       { "path": "../../packages/ui" },
