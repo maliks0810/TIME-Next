@@ -43,11 +43,6 @@ export default defineConfig(({ mode }) => ({
         assetsInlineLimit: 60000,
         outDir: '../../build-' + mode,
         sourcemap: mode !== 'prod',
-        watch: mode === 'dev' ? {
-            include: [
-                'src/**', '../**/src/**', '../../packages/**'
-            ]
-        } : null,
         rollupOptions: {
             output: {
                 manualChunks: {
