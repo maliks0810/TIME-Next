@@ -50,6 +50,6 @@ export default defineConfig(({ mode }) => ({
         },
     },
     define: {
-        'process.env.NODE_ENV': JSON.stringify(mode === 'prod' ? 'production': 'dev'),
+        'process.env.NODE_ENV': JSON.stringify(mode === 'prod' ? 'production': 'development'),
     }
 }));
