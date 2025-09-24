@@ -10,9 +10,9 @@ export const Grid = () => {
         <GridLayout
             className='layout'
             layout={layout}
-            cols={12}
-            rowHeight={30}
-            width={1200}
+            cols={14}
+            rowHeight={20}
+            width={1900}
             isResizable={true}
         >
             <div key='a' className='grid-item-a'> a </div>
