@@ -1,0 +1,11 @@
+.grid-layout{
+    border: 1px solid red;
+}
+
+.grid-item-a{
+    border: 1px solid blue;
+}
+
+.grid-item-b{
+    border: 1px solid green;
+}
