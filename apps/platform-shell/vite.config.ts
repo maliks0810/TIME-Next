@@ -28,13 +28,16 @@ export default defineConfig(({ mode }) => ({
             '@platform/styles': path.resolve(__dirname, '../../packages/styles/src'),
             '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
             '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
+            '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
+            '@testing/alpha': path.resolve(__dirname, '../testing'),
             '@platform/platform-shell': path.resolve(__dirname, '.'),
         },
         preserveSymlinks: true,
     },
     optimizeDeps: {
         include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
-        exclude: ['@platform/ui', '@platform/styles', '@platform/app-registry', '@platform/utils'],
+        exclude: ['@platform/ui', '@platform/styles', '@platform/app-registry', '@platform/utils', '@platform/homepage', '@testing/alpha'],
+        entries: ['src/**/*.tsx', '../**/src/**/*.tsx', '../../packages/**/*.tsx']
     },
     build: {
         assetsInlineLimit: 60000,
