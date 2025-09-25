@@ -1,7 +1,7 @@
 import GridLayout from "react-grid-layout";
-import './Grid.css';
+import './TcwAdjustableGrid.css';
 
-export const Grid = () => {
+export const TcwAdjustableGrid = () => {
     const layout = [
       { i: "a", x: 0, y: 0, w: 1, h: 2 },
       { i: "b", x: 1, y: 0, w: 3, h: 2 },
