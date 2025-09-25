@@ -5,7 +5,7 @@
 // import { Calendar } from '@platform/ui';
 // import { Axios } from '@platform/utils';
 // import { useState } from 'react';
-import { tlog } from '@platform/utils';
+// import { tlog } from '@platform/utils';
 import '../App.scss';
 // import { useEffect } from 'react';
 
@@ -32,18 +32,18 @@ const HomePage: React.FC = () => {
   //   fetchUsers()
   // })
   
-  const testLog = () => {
-    tlog.warn('testing client logging warn');
-    tlog.info('testing client logging info');
-    tlog.debug('testing client logging debug');
-    tlog.error(new Error('error log'), 'testing client logs', 'testLog()', '123', {key: 'value'});
-    tlog.fatal('testing client logging fatal');
-  }
+  // const testLog = () => {
+  //   tlog.warn('testing client logging warn');
+  //   tlog.info('testing client logging info');
+  //   tlog.debug('testing client logging debug');
+  //   tlog.error(new Error('error log'), 'testing client logs', 'testLog()', '123', {key: 'value'});
+  //   tlog.fatal('testing client logging fatal');
+  // }
 
   return (
     <div className="dashboard-container">
       HomePage
-      <button onClick={() => testLog()}> TEST LOG </button>
+      {/* <button onClick={() => testLog()}> TEST LOG </button> */}
     {/* Put in shared components here  */}
 
         {/* <TcwCard title={'Top Performers Year 2025'} height={'fit-content'} width={'fit-content'} titleSize='22px' avatarMuiIcon='StarBorder'>
