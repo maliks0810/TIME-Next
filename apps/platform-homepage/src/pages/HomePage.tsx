@@ -7,7 +7,7 @@
 // import { useState } from 'react';
 // import { TcwAdjustableGrid } from '@platform/ui';
 // import { useEffect } from 'react';
-import { TcwHorizontalList } from '@platform/ui';
+// import { TcwHorizontalList } from '@platform/ui';
 import '../App.scss';
 
 const HomePage: React.FC = () => {
@@ -66,6 +66,8 @@ const HomePage: React.FC = () => {
           </Box>
         </TcwCard> */}
 
+        {/* <TcwAdjustableGrid /> */}
+
         {/* With Optional Callback to store date in state */}
         {/* { date && <p> Date Selected: {date?.toDateString()}</p>}
         <Calendar onSelect={(date) => setDate(date)}/> */}
@@ -73,7 +75,7 @@ const HomePage: React.FC = () => {
         {/* Without optional callback to store date in state */}
         {/* <Calendar /> */}
           
-        <TcwHorizontalList width={'100%'} contentList={[ '12 Tasks Waiting', '8 Tasks Waiting', '21 Compliance Updates', '18 New Workflows', '12 Reports', '$500M AUM', '438 Total Accounts']}/>
+        {/* <TcwHorizontalList width={'100%'} contentList={[ '12 Tasks Waiting', '8 Tasks Waiting', '21 Compliance Updates', '18 New Workflows', '12 Reports', '$500M AUM', '438 Total Accounts']}/> */}
     </div>
   )
 }
