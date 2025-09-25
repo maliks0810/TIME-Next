@@ -3,3 +3,4 @@ export * from './Footer';
 export * from './Card';
 export * from './Calendar';
 export * from './TcwAdjustableGrid';
+export * from './TcwHorizontalList';
