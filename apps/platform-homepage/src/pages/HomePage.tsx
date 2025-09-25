@@ -5,8 +5,9 @@
 // import { Calendar } from '@platform/ui';
 // import { Axios } from '@platform/utils';
 // import { useState } from 'react';
-//import { TcwAdjustableGrid } from '@platform/ui';
+// import { TcwAdjustableGrid } from '@platform/ui';
 // import { useEffect } from 'react';
+import { TcwHorizontalList } from '@platform/ui';
 import '../App.scss';
 
 const HomePage: React.FC = () => {
@@ -71,7 +72,8 @@ const HomePage: React.FC = () => {
 
         {/* Without optional callback to store date in state */}
         {/* <Calendar /> */}
-
+          
+        <TcwHorizontalList width={'100%'} contentList={[ '12 Tasks Waiting', '8 Tasks Waiting', '21 Compliance Updates', '18 New Workflows', '12 Reports', '$500M AUM', '438 Total Accounts']}/>
     </div>
   )
 }
