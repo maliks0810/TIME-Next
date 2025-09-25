@@ -5,8 +5,9 @@
 // import { Calendar } from '@platform/ui';
 // import { Axios } from '@platform/utils';
 // import { useState } from 'react';
-// import { tlog } from '@platform/utils';
 import '../App.scss';
+//import { TcwAdjustableGrid } from '@platform/ui';
+// import { tlog } from '@platform/utils';
 // import { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
@@ -44,6 +45,7 @@ const HomePage: React.FC = () => {
     <div className="dashboard-container">
       HomePage
       {/* <button onClick={() => testLog()}> TEST LOG </button> */}
+      {/* <TcwAdjustableGrid /> */}
     {/* Put in shared components here  */}
 
         {/* <TcwCard title={'Top Performers Year 2025'} height={'fit-content'} width={'fit-content'} titleSize='22px' avatarMuiIcon='StarBorder'>
