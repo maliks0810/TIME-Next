@@ -10,7 +10,6 @@ import '../App.scss';
 // import { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
-
   // const genericData = useGenericDataContext();
   // const updateGenericData = useUpdateGenericDataContext();
 
@@ -34,7 +33,11 @@ const HomePage: React.FC = () => {
   // })
   
   const testLog = () => {
-    tlog.warn('testing client log')
+    tlog.warn('testing client logging warn');
+    tlog.info('testing client logging info');
+    tlog.debug('testing client logging debug');
+    tlog.error(new Error('error log'), 'testing client logs', 'testLog()', '123', {key: 'value'});
+    tlog.fatal('testing client logging fatal');
   }
 
   return (
