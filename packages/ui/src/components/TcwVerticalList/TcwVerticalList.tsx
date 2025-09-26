@@ -1,4 +1,5 @@
 import { Box, Typography } from "@mui/material"
+import { TcwCard } from "@platform/ui";
 
 export type VerticalListContent = {
     task: string,
@@ -7,7 +8,7 @@ export type VerticalListContent = {
     completed: boolean
 }
 
-export const TcwVerticalList = (props: { contentList: VerticalListContent[], width: string | number, height: string | number }) => {
+export const TcwVerticalList = (props: { contentList: VerticalListContent[], width?: string | number, height?: string | number }) => {
 
     const date = new Date();
     const getDate = (date: Date): string => {
@@ -15,33 +16,17 @@ export const TcwVerticalList = (props: { contentList: VerticalListContent[], wid
     } 
 
     return(
-        <Box
-            sx={{
-                border: '1px solid red',
-                width: props.width,
-                height: props.height,
-                display: 'flex',
-                flexDirection: 'column'
-            }}
+        <TcwCard
+            title={`${getDate(date)} To-Do List`}
+            titleSize="22px"
+            width={props.width}
+            height={props.height}
         >
             <Box
                 sx={{
-                    border: '1px solid red',
-                    width: '100%',
-                    padding: '10px',
-                    minHeight: '50px'
-                }}
-            > 
-                <Typography variant='h5'> {getDate(date)} To-Do List</Typography>
-            </Box>
-
-            <Box
-                sx={{
-                    border: '1px solid blue',
-                    flexGrow: 1,
                     display: 'flex',
                     flexDirection: 'column',
-                    rowGap: '10px'
+                    rowGap: '10px',
                 }}
             >
                 {props.contentList.map((item: VerticalListContent, index: number) => (
@@ -50,7 +35,7 @@ export const TcwVerticalList = (props: { contentList: VerticalListContent[], wid
                         sx={{
                             display: 'flex',
                             flexDirection: 'column',
-                            textDecoration: item.completed ? 'line-through' : 'none'
+                            textDecoration: item.completed ? 'line-through' : 'none',
                         }}
                     >
                         <Typography variant='body1'> {item.task} </Typography>
@@ -58,6 +43,6 @@ export const TcwVerticalList = (props: { contentList: VerticalListContent[], wid
                     </Box>
                 ))}
             </Box>
-        </Box>
+        </TcwCard>
     )
 }

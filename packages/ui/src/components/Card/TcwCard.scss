@@ -4,8 +4,7 @@
 }
 
 .tcw-card-content{
-    padding: 0;
-    margin: 0;
+    padding: 10px!important;
 }
 
 .tcw-card-header{
@@ -13,6 +12,7 @@
     flex-direction: row;
     column-gap: 5px;
     align-items: center;
+    padding: 10px!important;
 }
 
 .tcw-card-image{
