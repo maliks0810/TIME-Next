@@ -1,7 +1,8 @@
+import React from 'react';
 import GridLayout from "react-grid-layout";
 import './TcwAdjustableGrid.css';
 
-export const TcwAdjustableGrid = () => {
+export const TcwAdjustableGrid = (props: { children: React.ReactNode }) => {
     const layout = [
       { i: "a", x: 0, y: 0, w: 1, h: 2 },
       { i: "b", x: 1, y: 0, w: 3, h: 2 },
@@ -15,8 +16,7 @@ export const TcwAdjustableGrid = () => {
             width={1900}
             isResizable={true}
         >
-            <div key='a' className='grid-item-a'> a </div>
-            <div key='b' className='grid-item-b'> b </div>
+            {props.children}
         </GridLayout>
     );
 }

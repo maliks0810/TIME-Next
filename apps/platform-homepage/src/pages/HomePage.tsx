@@ -1,11 +1,12 @@
 // import { TcwCard } from "@platform/ui";
+import { Box } from '@mui/material';
 // import { Box, Chip, Typography } from '@mui/material';
 // import snowflake from '../assets/snowflake.png';
 // import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
 // import { Calendar } from '@platform/ui';
 // import { Axios } from '@platform/utils';
 // import { useState } from 'react';
-//import { TcwAdjustableGrid } from '@platform/ui';
+import { TcwAdjustableGrid } from '@platform/ui';
 // import { useEffect } from 'react';
 import '../App.scss';
 
@@ -36,7 +37,10 @@ const HomePage: React.FC = () => {
   return (
     <div className="dashboard-container">
       HomePage
-      {/* <TcwAdjustableGrid /> */}
+      <TcwAdjustableGrid>
+        <Box key='a' sx={{ border: '1px solid red'}}> a </Box>
+        <Box key='b' sx={{ border: '1px solid blue'}}> b </Box>
+      </TcwAdjustableGrid>
     {/* Put in shared components here  */}
 
         {/* <TcwCard title={'Top Performers Year 2025'} height={'fit-content'} width={'fit-content'} titleSize='22px' avatarMuiIcon='StarBorder'>
