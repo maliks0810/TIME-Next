@@ -7,7 +7,7 @@
 // import { useState } from 'react';
 //import { TcwAdjustableGrid } from '@platform/ui';
 // import { useEffect } from 'react';
-import { TcwVerticalList, VerticalListContent } from '@platform/ui';
+// import { TcwVerticalList, VerticalListContent } from '@platform/ui';
 import '../App.scss';
 
 const HomePage: React.FC = () => {
@@ -34,32 +34,32 @@ const HomePage: React.FC = () => {
   //   fetchUsers()
   // })
 
-  const todoListItems: VerticalListContent[] = [
-    {
-      task: 'Present Generalist Report to John Smith',
-      assigner: 'Tom Marks',
-      dateAssigned: new Date(),
-      completed: false
-    },
-    {
-      task: 'Generate Atlas Report to Elliot Jones',
-      assigner: 'Tom Marks',
-      dateAssigned: new Date(),
-      completed: true
-    },
-    {
-      task: 'Lorem ipsum dolores nonummy',
-      assigner: 'Tom Marks',
-      dateAssigned: new Date(),
-      completed: false
-    },
-  ]
+  // const todoListItems: VerticalListContent[] = [
+  //   {
+  //     task: 'Present Generalist Report to John Smith',
+  //     assigner: 'Tom Marks',
+  //     dateAssigned: new Date(),
+  //     completed: false
+  //   },
+  //   {
+  //     task: 'Generate Atlas Report to Elliot Jones',
+  //     assigner: 'Tom Marks',
+  //     dateAssigned: new Date(),
+  //     completed: true
+  //   },
+  //   {
+  //     task: 'Lorem ipsum dolores nonummy',
+  //     assigner: 'Tom Marks',
+  //     dateAssigned: new Date(),
+  //     completed: false
+  //   },
+  // ]
   
   return (
     <div className="dashboard-container">
       HomePage
 
-      <TcwVerticalList contentList={todoListItems} width={'375px'} />
+    {/* <TcwVerticalList contentList={todoListItems} width={'375px'} /> */}
 
     {/* <TcwAdjustableGrid /> */}
     {/* Put in shared components here  */}
