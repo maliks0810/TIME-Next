@@ -45,7 +45,7 @@ const HomePage: React.FC = () => {
       task: 'Generate Atlas Report to Elliot Jones',
       assigner: 'Tom Marks',
       dateAssigned: new Date(),
-      completed: false
+      completed: true
     },
     {
       task: 'Lorem ipsum dolores nonummy',
