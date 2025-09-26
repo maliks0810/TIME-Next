@@ -1,5 +1,6 @@
 import { Box, Checkbox, Typography } from "@mui/material"
 import { TcwCard } from "@platform/ui";
+import { useState } from "react";
 
 export type VerticalListContent = {
     task: string,
@@ -14,6 +15,27 @@ export const TcwVerticalList = (props: { contentList: VerticalListContent[], wid
     const getDate = (date: Date): string => {
         return `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()}`
     } 
+
+    const startingStates = () => {
+        const states: boolean[] =[];
+        props.contentList.map((item)=>{
+            states.push(item.completed)
+        })
+        return states;
+    }
+
+    const [ itemStates, setItemStates ] = useState<boolean[]>(startingStates());
+
+    const handleClick = (index: number) => {
+        const newList = itemStates.map((state,ind) => {
+            if(ind === index){
+                return (!state)
+            } else {
+                return state
+            }
+        });
+        setItemStates(newList);
+    }
 
     return(
         <TcwCard
@@ -36,10 +58,10 @@ export const TcwVerticalList = (props: { contentList: VerticalListContent[], wid
                             display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'flex-start',
-                            textDecoration: item.completed ? 'line-through' : 'none',
+                            textDecoration: itemStates[index] ? 'line-through' : 'none',
                         }}
                     >
-                        <Checkbox checked={item.completed} />
+                        <Checkbox checked={itemStates[index]} onClick={() => handleClick(index)} />
                         <Box 
                             sx={{
                                 display: 'flex',
