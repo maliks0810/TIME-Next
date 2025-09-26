@@ -59,7 +59,7 @@ const HomePage: React.FC = () => {
     <div className="dashboard-container">
       HomePage
 
-      <TcwVerticalList contentList={todoListItems} width={1/3} />
+      <TcwVerticalList contentList={todoListItems} width={'375px'} />
 
     {/* <TcwAdjustableGrid /> */}
     {/* Put in shared components here  */}

@@ -1,4 +1,4 @@
-import { Box, Checkbox, Typography } from "@mui/material"
+import { Box, Button, Checkbox, Typography } from "@mui/material"
 import { TcwCard } from "@platform/ui";
 import { useState } from "react";
 
@@ -48,7 +48,7 @@ export const TcwVerticalList = (props: { contentList: VerticalListContent[], wid
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    rowGap: '10px',
+                    rowGap: '15px',
                 }}
             >
                 {props.contentList.map((item: VerticalListContent, index: number) => (
@@ -73,6 +73,17 @@ export const TcwVerticalList = (props: { contentList: VerticalListContent[], wid
                         </Box>
                     </Box>
                 ))}
+
+                <Button 
+                    variant='contained' 
+                    onClick={() => console.log(itemStates)}
+                    sx={{
+                        width: 'fit-content',
+                        alignSelf: 'flex-end'
+                    }}
+                > 
+                    Submit 
+                </Button>
             </Box>
         </TcwCard>
     )
