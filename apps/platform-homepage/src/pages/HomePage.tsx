@@ -38,17 +38,20 @@ const HomePage: React.FC = () => {
     {
       task: 'Present Generalist Report to John Smith',
       assigner: 'Tom Marks',
-      dateAssigned: new Date()
+      dateAssigned: new Date(),
+      completed: false
     },
     {
       task: 'Generate Atlas Report to Elliot Jones',
       assigner: 'Tom Marks',
-      dateAssigned: new Date()
+      dateAssigned: new Date(),
+      completed: false
     },
     {
       task: 'Lorem ipsum dolores nonummy',
       assigner: 'Tom Marks',
-      dateAssigned: new Date()
+      dateAssigned: new Date(),
+      completed: false
     },
   ]
   
