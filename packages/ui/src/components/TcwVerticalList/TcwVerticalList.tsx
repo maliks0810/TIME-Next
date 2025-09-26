@@ -3,7 +3,8 @@ import { Box, Typography } from "@mui/material"
 export type VerticalListContent = {
     task: string,
     assigner: string,
-    dateAssigned: Date
+    dateAssigned: Date,
+    completed: boolean
 }
 
 export const TcwVerticalList = (props: { contentList: VerticalListContent[], width: string | number, height: string | number }) => {
