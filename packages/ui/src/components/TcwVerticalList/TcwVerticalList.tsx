@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material"
+import { Box, Checkbox, Typography } from "@mui/material"
 import { TcwCard } from "@platform/ui";
 
 export type VerticalListContent = {
@@ -34,12 +34,21 @@ export const TcwVerticalList = (props: { contentList: VerticalListContent[], wid
                         key={index}
                         sx={{
                             display: 'flex',
-                            flexDirection: 'column',
+                            flexDirection: 'row',
+                            alignItems: 'flex-start',
                             textDecoration: item.completed ? 'line-through' : 'none',
                         }}
                     >
-                        <Typography variant='body1'> {item.task} </Typography>
-                        <Typography variant='body2'> Assigned by {item.assigner} on {getDate(item.dateAssigned)} </Typography>
+                        <Checkbox checked={item.completed} />
+                        <Box 
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column'
+                            }}
+                        >
+                            <Typography variant='body1'> {item.task} </Typography>
+                            <Typography variant='body2'> Assigned by {item.assigner} on {getDate(item.dateAssigned)} </Typography>
+                        </Box>
                     </Box>
                 ))}
             </Box>
