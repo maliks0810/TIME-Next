@@ -89,7 +89,6 @@ const HomePage: React.FC = () => {
     {/* <TcwAdjustableGrid /> */}
       {/* <button onClick={() => testLog()}> TEST LOG </button> */}
       {/* <TcwAdjustableGrid /> */}
->>>>>>> apps/platform-homepage/src/pages/HomePage.tsx
     {/* Put in shared components here  */}
 
         {/* <TcwCard title={'Top Performers Year 2025'} height={'fit-content'} width={'fit-content'} titleSize='22px' avatarMuiIcon='StarBorder'>
