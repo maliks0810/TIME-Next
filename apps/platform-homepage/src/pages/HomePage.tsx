@@ -1,13 +1,13 @@
 // import { TcwCard } from "@platform/ui";
-import { Box } from '@mui/material';
+// import { Box } from '@mui/material';
 // import { Box, Chip, Typography } from '@mui/material';
 // import snowflake from '../assets/snowflake.png';
 // import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
 // import { Calendar } from '@platform/ui';
 // import { Axios } from '@platform/utils';
 // import { useState } from 'react';
-import { TcwAdjustableGrid } from '@platform/ui';
-import { Layout } from '@platform/ui';
+// import { TcwAdjustableGrid } from '@platform/ui';
+// import { Layout } from '@platform/ui';
 // import { useEffect } from 'react';
 import '../App.scss';
 
@@ -35,20 +35,20 @@ const HomePage: React.FC = () => {
   //   fetchUsers()
   // })
   
-  const layout: Layout[] = [
-    { i: "a", x: 0, y: 0, w: 1, h: 2, static: true },
-    { i: "b", x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4 },
-    { i: "c", x: 4, y: 0, w: 1, h: 2 },
-  ]
+  // const layout: Layout[] = [
+  //   { i: "a", x: 0, y: 0, w: 1, h: 2, static: true },
+  //   { i: "b", x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4 },
+  //   { i: "c", x: 4, y: 0, w: 1, h: 2 },
+  // ]
   
   return (
     <div className="dashboard-container">
       HomePage
-      <TcwAdjustableGrid layout={layout}>
+      {/* <TcwAdjustableGrid layout={layout}>
         <Box key='a' sx={{ border: '1px solid red'}}> a </Box>
         <Box key='b' sx={{ border: '1px solid blue'}}> b </Box>
         <Box key='c' sx={{ border: '1px solid green'}}> c </Box>
-      </TcwAdjustableGrid>
+      </TcwAdjustableGrid> */}
     {/* Put in shared components here  */}
 
         {/* <TcwCard title={'Top Performers Year 2025'} height={'fit-content'} width={'fit-content'} titleSize='22px' avatarMuiIcon='StarBorder'>
