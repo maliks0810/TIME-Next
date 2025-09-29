@@ -7,6 +7,7 @@
 // import { useState } from 'react';
 // import { TcwAdjustableGrid } from '@platform/ui';
 // import { useEffect } from 'react';
+// import { TcwVerticalList, VerticalListContent } from '@platform/ui';
 // import { TcwHorizontalList } from '@platform/ui';
 import '../App.scss';
 //import { TcwAdjustableGrid } from '@platform/ui';
@@ -35,6 +36,27 @@ const HomePage: React.FC = () => {
 
   //   fetchUsers()
   // })
+
+  // const todoListItems: VerticalListContent[] = [
+  //   {
+  //     task: 'Present Generalist Report to John Smith',
+  //     assigner: 'Tom Marks',
+  //     dateAssigned: new Date(),
+  //     completed: false
+  //   },
+  //   {
+  //     task: 'Generate Atlas Report to Elliot Jones',
+  //     assigner: 'Tom Marks',
+  //     dateAssigned: new Date(),
+  //     completed: true
+  //   },
+  //   {
+  //     task: 'Lorem ipsum dolores nonummy',
+  //     assigner: 'Tom Marks',
+  //     dateAssigned: new Date(),
+  //     completed: false
+  //   },
+  // ]
   
   // const testLog = () => {
   //   tlog.warn('testing client logging warn');
@@ -47,6 +69,10 @@ const HomePage: React.FC = () => {
   return (
     <div className="dashboard-container">
       HomePage
+
+    {/* <TcwVerticalList contentList={todoListItems} width={'375px'} /> */}
+
+    {/* <TcwAdjustableGrid /> */}
       {/* <button onClick={() => testLog()}> TEST LOG </button> */}
       {/* <TcwAdjustableGrid /> */}
     {/* Put in shared components here  */}
