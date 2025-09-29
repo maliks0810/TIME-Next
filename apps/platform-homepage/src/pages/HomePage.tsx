@@ -7,6 +7,7 @@ import { Box } from '@mui/material';
 // import { Axios } from '@platform/utils';
 // import { useState } from 'react';
 import { TcwAdjustableGrid } from '@platform/ui';
+import { Layout } from '@platform/ui';
 // import { useEffect } from 'react';
 import '../App.scss';
 
@@ -34,12 +35,19 @@ const HomePage: React.FC = () => {
   //   fetchUsers()
   // })
   
+  const layout: Layout[] = [
+    { i: "a", x: 0, y: 0, w: 1, h: 2, static: true },
+    { i: "b", x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4 },
+    { i: "c", x: 4, y: 0, w: 1, h: 2 },
+  ]
+  
   return (
     <div className="dashboard-container">
       HomePage
-      <TcwAdjustableGrid>
+      <TcwAdjustableGrid layout={layout}>
         <Box key='a' sx={{ border: '1px solid red'}}> a </Box>
         <Box key='b' sx={{ border: '1px solid blue'}}> b </Box>
+        <Box key='c' sx={{ border: '1px solid green'}}> c </Box>
       </TcwAdjustableGrid>
     {/* Put in shared components here  */}
 
