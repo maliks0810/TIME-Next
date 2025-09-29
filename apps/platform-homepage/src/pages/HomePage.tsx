@@ -5,13 +5,16 @@
 // import { Calendar } from '@platform/ui';
 // import { Axios } from '@platform/utils';
 // import { useState } from 'react';
-//import { TcwAdjustableGrid } from '@platform/ui';
+// import { TcwAdjustableGrid } from '@platform/ui';
 // import { useEffect } from 'react';
 // import { TcwVerticalList, VerticalListContent } from '@platform/ui';
+// import { TcwHorizontalList } from '@platform/ui';
 import '../App.scss';
+//import { TcwAdjustableGrid } from '@platform/ui';
+// import { tlog } from '@platform/utils';
+// import { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
-
   // const genericData = useGenericDataContext();
   // const updateGenericData = useUpdateGenericDataContext();
 
@@ -55,6 +58,14 @@ const HomePage: React.FC = () => {
   //   },
   // ]
   
+  // const testLog = () => {
+  //   tlog.warn('testing client logging warn');
+  //   tlog.info('testing client logging info');
+  //   tlog.debug('testing client logging debug');
+  //   tlog.error(new Error('error log'), 'testing client logs', 'testLog()', '123', {key: 'value'});
+  //   tlog.fatal('testing client logging fatal');
+  // }
+
   return (
     <div className="dashboard-container">
       HomePage
@@ -62,6 +73,8 @@ const HomePage: React.FC = () => {
     {/* <TcwVerticalList contentList={todoListItems} width={'375px'} /> */}
 
     {/* <TcwAdjustableGrid /> */}
+      {/* <button onClick={() => testLog()}> TEST LOG </button> */}
+      {/* <TcwAdjustableGrid /> */}
     {/* Put in shared components here  */}
 
         {/* <TcwCard title={'Top Performers Year 2025'} height={'fit-content'} width={'fit-content'} titleSize='22px' avatarMuiIcon='StarBorder'>
@@ -90,13 +103,16 @@ const HomePage: React.FC = () => {
           </Box>
         </TcwCard> */}
 
+        {/* <TcwAdjustableGrid /> */}
+
         {/* With Optional Callback to store date in state */}
         {/* { date && <p> Date Selected: {date?.toDateString()}</p>}
         <Calendar onSelect={(date) => setDate(date)}/> */}
 
         {/* Without optional callback to store date in state */}
         {/* <Calendar /> */}
-
+          
+        {/* <TcwHorizontalList width={'100%'} contentList={[ '12 Tasks Waiting', '8 Tasks Waiting', '21 Compliance Updates', '18 New Workflows', '12 Reports', '$500M AUM', '438 Total Accounts']}/> */}
     </div>
   )
 }
