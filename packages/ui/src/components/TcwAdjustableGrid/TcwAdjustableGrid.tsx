@@ -1,5 +1,6 @@
 import GridLayout from "react-grid-layout";
 import './TcwAdjustableGrid.css';
+import { Box } from "@mui/material";
 
 export const TcwAdjustableGrid = () => {
     const layout = [
@@ -15,8 +16,20 @@ export const TcwAdjustableGrid = () => {
             width={1900}
             isResizable={true}
         >
-            <div key='a' className='grid-item-a'> a </div>
-            <div key='b' className='grid-item-b'> b </div>
+            <Box
+                key='a' 
+                sx={{ overflow: 'auto'}} 
+                className='grid-item-a'
+            > 
+                a
+            </Box>
+            <Box 
+                key='b' 
+                className='grid-item-b'
+                sx={{ overflow: 'auto'}} 
+            >
+                b 
+            </Box>
         </GridLayout>
     );
 }
