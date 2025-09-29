@@ -1,7 +1,7 @@
 import React from 'react';
 import GridLayout from "react-grid-layout";
-import './TcwAdjustableGrid.css';
 import { Layout } from 'react-grid-layout';
+import './TcwAdjustableGrid.css';
 
 export const TcwAdjustableGrid = (props: { layout: Layout[], children: React.ReactNode }) => {
     return (

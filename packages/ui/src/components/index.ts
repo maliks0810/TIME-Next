@@ -4,3 +4,5 @@ export * from './Card';
 export * from './Calendar';
 export * from './TcwAdjustableGrid';
 export type { Layout } from 'react-grid-layout';
+export * from './TcwVerticalList';
+export * from './TcwHorizontalList';

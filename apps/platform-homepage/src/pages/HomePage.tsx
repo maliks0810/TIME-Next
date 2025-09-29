@@ -9,10 +9,14 @@
 // import { TcwAdjustableGrid } from '@platform/ui';
 // import { Layout } from '@platform/ui';
 // import { useEffect } from 'react';
+// import { TcwVerticalList, VerticalListContent } from '@platform/ui';
+// import { TcwHorizontalList } from '@platform/ui';
 import '../App.scss';
+//import { TcwAdjustableGrid } from '@platform/ui';
+// import { tlog } from '@platform/utils';
+// import { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
-
   // const genericData = useGenericDataContext();
   // const updateGenericData = useUpdateGenericDataContext();
 
@@ -34,21 +38,58 @@ const HomePage: React.FC = () => {
 
   //   fetchUsers()
   // })
+
+  // const todoListItems: VerticalListContent[] = [
+  //   {
+  //     task: 'Present Generalist Report to John Smith',
+  //     assigner: 'Tom Marks',
+  //     dateAssigned: new Date(),
+  //     completed: false
+  //   },
+  //   {
+  //     task: 'Generate Atlas Report to Elliot Jones',
+  //     assigner: 'Tom Marks',
+  //     dateAssigned: new Date(),
+  //     completed: true
+  //   },
+  //   {
+  //     task: 'Lorem ipsum dolores nonummy',
+  //     assigner: 'Tom Marks',
+  //     dateAssigned: new Date(),
+  //     completed: false
+  //   },
+  // ]
   
   // const layout: Layout[] = [
   //   { i: "a", x: 0, y: 0, w: 1, h: 2, static: true },
   //   { i: "b", x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4 },
   //   { i: "c", x: 4, y: 0, w: 1, h: 2 },
   // ]
-  
+
+  // const testLog = () => {
+  //   tlog.warn('testing client logging warn');
+  //   tlog.info('testing client logging info');
+  //   tlog.debug('testing client logging debug');
+  //   tlog.error(new Error('error log'), 'testing client logs', 'testLog()', '123', {key: 'value'});
+  //   tlog.fatal('testing client logging fatal');
+  // }
+
   return (
     <div className="dashboard-container">
       HomePage
-      {/* <TcwAdjustableGrid layout={layout}>
-        <Box key='a' sx={{ border: '1px solid red'}}> a </Box>
-        <Box key='b' sx={{ border: '1px solid blue'}}> b </Box>
-        <Box key='c' sx={{ border: '1px solid green'}}> c </Box>
-      </TcwAdjustableGrid> */}
+
+        {/* <TcwAdjustableGrid layout={layout}>
+          <Box key='a' sx={{ border: '1px solid red'}}> a </Box>
+          <Box key='b' sx={{ border: '1px solid blue'}}> b </Box>
+          <Box key='c' sx={{ border: '1px solid green'}}> c </Box>
+        </TcwAdjustableGrid> */}
+
+    {/* <TcwVerticalList contentList={todoListItems} width={'375px'} /> */}
+
+    {/* <TcwAdjustableGrid /> */}
+      {/* <button onClick={() => testLog()}> TEST LOG </button> */}
+      {/* <TcwAdjustableGrid /> */}
+>>>>>>> apps/platform-homepage/src/pages/HomePage.tsx
     {/* Put in shared components here  */}
 
         {/* <TcwCard title={'Top Performers Year 2025'} height={'fit-content'} width={'fit-content'} titleSize='22px' avatarMuiIcon='StarBorder'>
@@ -77,13 +118,16 @@ const HomePage: React.FC = () => {
           </Box>
         </TcwCard> */}
 
+        {/* <TcwAdjustableGrid /> */}
+
         {/* With Optional Callback to store date in state */}
         {/* { date && <p> Date Selected: {date?.toDateString()}</p>}
         <Calendar onSelect={(date) => setDate(date)}/> */}
 
         {/* Without optional callback to store date in state */}
         {/* <Calendar /> */}
-
+          
+        {/* <TcwHorizontalList width={'100%'} contentList={[ '12 Tasks Waiting', '8 Tasks Waiting', '21 Compliance Updates', '18 New Workflows', '12 Reports', '$500M AUM', '438 Total Accounts']}/> */}
     </div>
   )
 }
