@@ -35,6 +35,7 @@
     "postinstall": "npm run deps:check"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
     "@types/node": "^24.0.14",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
