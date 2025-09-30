@@ -9,7 +9,6 @@ function useGenericData() {
     return { data, update };
 }
 
-
 describe('useGenericDataContext', () => {
     it('provides undefined by default', () => {
         const wrapper = ({ children }: {children: React.ReactNode }) => (
@@ -35,6 +34,7 @@ describe('useUpdateGenericDataContext',() => {
         })
         expect(result.current.data.data).toBe(123)
     });
+
     it('should update the stored value when a string is input', () => {
         const wrapper = ({ children }: {children: React.ReactNode }) => (
             <GenericDataProvider> {children} </GenericDataProvider>
@@ -138,5 +138,4 @@ describe('useUpdateGenericDataContext',() => {
         })
         expect(result.current.data.data).toBe(123);
     });
-    
 })
