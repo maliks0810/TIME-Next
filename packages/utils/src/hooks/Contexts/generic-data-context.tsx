@@ -8,7 +8,7 @@ type GenericData = {
     data: unknown;
 }
 
-const defaultGenericData: GenericData = { data: undefined };
+const defaultGenericData: GenericData = { data:undefined};
 const GenericDataContext = createContext<GenericData>(defaultGenericData);
 const UpdateGenericDataContext = createContext<(data: GenericData) => void>((i) => i);
 
