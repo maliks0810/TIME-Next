@@ -138,4 +138,130 @@ describe('useUpdateGenericDataContext',() => {
         })
         expect(result.current.data.data).toBe(123);
     });
+
+    it('should be of type function when a function is input', () => {
+        const wrapper = ({ children }: {children: React.ReactNode }) => (
+            <GenericDataProvider> {children} </GenericDataProvider>
+        )
+
+        const { result } = renderHook(() => useGenericData(), {wrapper});
+        expect(result.current.data.data).toBeUndefined();
+
+        act(() => {
+            result.current.update({ data: () => ''});
+        })
+        expect(typeof result.current.data.data).toBe('function');
+    });
+
+    it('should update the stored value when a nested object is input', () => {
+        const wrapper = ({ children }: {children: React.ReactNode }) => (
+            <GenericDataProvider> {children} </GenericDataProvider>
+        )
+
+        const { result } = renderHook(() => useGenericData(), {wrapper});
+        expect(result.current.data.data).toBeUndefined();
+
+        act(() => {
+            result.current.update({ data: {
+                people: [   
+                    {name: 'test', id: 1},
+                    {name: 'testtwo', id: 2},
+                    {name: 'testthree', id: 3, isAdmin: true},
+                    {name: 'testfour', projects: ['abc', 'def']}
+                ]
+            }});
+        })
+
+        const expectedData = {
+            people: [   
+                {name: 'test', id: 1},
+                {name: 'testtwo', id: 2},
+                {name: 'testthree', id: 3, isAdmin: true},
+                {name: 'testfour', projects: ['abc', 'def']}
+            ]
+        }
+
+        expect(typeof result.current.data.data).toBe('object');
+        expect(result.current.data.data).toEqual(expectedData);
+    });
+
+    it('should not save data when an invalid data type is input', () => {
+        const wrapper = ({ children }: {children: React.ReactNode }) => (
+            <GenericDataProvider> {children} </GenericDataProvider>
+        )
+
+        const { result } = renderHook(() => useGenericData(), {wrapper});
+        expect(result.current.data.data).toBeUndefined();
+
+        type Data = {
+            name: string
+        }
+        const data: Data = {
+            name: 'test'
+        }
+
+        act(() => {
+            result.current.update(data as any);
+        })
+        expect(result.current.data.data).toBe(undefined);
+    });
+
+    it('should not save when nothing is input', () => {
+        const wrapper = ({ children }: {children: React.ReactNode }) => (
+            <GenericDataProvider> {children} </GenericDataProvider>
+        )
+
+        const { result } = renderHook(() => useGenericData(), {wrapper});
+        expect(result.current.data.data).toBeUndefined();
+
+        type Data = {}
+        const data: Data = {}
+
+        act(() => {
+            result.current.update(data as any);
+        })
+        expect(result.current.data.data).toBe(undefined);
+    });
+
+    it('should not save when a string not contained in the correct data object is input', () => {
+        const wrapper = ({ children }: {children: React.ReactNode }) => (
+            <GenericDataProvider> {children} </GenericDataProvider>
+        )
+
+        const { result } = renderHook(() => useGenericData(), {wrapper});
+        expect(result.current.data.data).toBeUndefined();
+
+        act(() => {
+            result.current.update('' as any);
+        })
+        expect(result.current.data.data).toBe(undefined);
+    });
+
+    it('should not save when a number not contained in the correct data object is input', () => {
+        const wrapper = ({ children }: {children: React.ReactNode }) => (
+            <GenericDataProvider> {children} </GenericDataProvider>
+        )
+
+        const { result } = renderHook(() => useGenericData(), {wrapper});
+        expect(result.current.data.data).toBeUndefined();
+
+        act(() => {
+            result.current.update(123 as any);
+        })
+        expect(result.current.data.data).toBe(undefined);
+    });
+
+    it('should not save when an object not contained in the correct data object is input', () => {
+        const wrapper = ({ children }: {children: React.ReactNode }) => (
+            <GenericDataProvider> {children} </GenericDataProvider>
+        )
+
+        const { result } = renderHook(() => useGenericData(), {wrapper});
+        expect(result.current.data.data).toBeUndefined();
+
+        act(() => {
+            result.current.update({test: 'abc'} as any);
+        })
+        expect(result.current.data.data).toBe(undefined);
+    });
 })
