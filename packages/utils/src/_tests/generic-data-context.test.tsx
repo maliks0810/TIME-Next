@@ -201,6 +201,7 @@ describe('useUpdateGenericDataContext',() => {
         }
 
         act(() => {
+            // eslint-disable-next-line
             result.current.update(data as any);
         })
         expect(result.current.data.data).toBe(undefined);
@@ -214,10 +215,13 @@ describe('useUpdateGenericDataContext',() => {
         const { result } = renderHook(() => useGenericData(), {wrapper});
         expect(result.current.data.data).toBeUndefined();
 
+        // eslint-disable-next-line
         type Data = {}
+        
         const data: Data = {}
 
         act(() => {
+            // eslint-disable-next-line
             result.current.update(data as any);
         })
         expect(result.current.data.data).toBe(undefined);
@@ -232,6 +236,7 @@ describe('useUpdateGenericDataContext',() => {
         expect(result.current.data.data).toBeUndefined();
 
         act(() => {
+            // eslint-disable-next-line
             result.current.update('' as any);
         })
         expect(result.current.data.data).toBe(undefined);
@@ -246,6 +251,7 @@ describe('useUpdateGenericDataContext',() => {
         expect(result.current.data.data).toBeUndefined();
 
         act(() => {
+            // eslint-disable-next-line
             result.current.update(123 as any);
         })
         expect(result.current.data.data).toBe(undefined);
@@ -260,6 +266,7 @@ describe('useUpdateGenericDataContext',() => {
         expect(result.current.data.data).toBeUndefined();
 
         act(() => {
+            // eslint-disable-next-line
             result.current.update({test: 'abc'} as any);
         })
         expect(result.current.data.data).toBe(undefined);
