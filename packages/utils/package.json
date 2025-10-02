@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.27.1",
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/react": "19.1.10",
     "@vitejs/plugin-react": "5.0.2",
     "jest": "^30.2.0",
