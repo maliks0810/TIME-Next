@@ -3,7 +3,7 @@ import { describe, it, vi, beforeEach, expect as ex } from "vitest"
 import { useOktaAuth } from '@okta/okta-react';
 import { render, renderHook, screen } from "@testing-library/react";
 import { Authenticator } from "../hooks/Authentication/authenticator";
-import React, { JSX } from "react";
+import { JSX } from "react";
 
 vi.mock('@okta/okta-react',() => ({
     useOktaAuth: vi.fn(),
