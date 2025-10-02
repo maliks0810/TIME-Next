@@ -16,7 +16,8 @@ describe('useBearerToken', () => {
 
     it('should return the token with "Bearer " prefix if token does not contain the prefix', async () => {
         mockGetOrRenewAccessToken.mockResolvedValue('testtoken');
-
+        
+        // eslint-disable-next-line
         (useOktaAuth as any).mockReturnValue({
             oktaAuth : {
                 getOrRenewAccessToken: mockGetOrRenewAccessToken
@@ -31,6 +32,7 @@ describe('useBearerToken', () => {
     it('should return the token with "Bearer " prefix if token does contain the prefix', async () => {
         mockGetOrRenewAccessToken.mockResolvedValue('Bearer testtoken');
 
+        // eslint-disable-next-line
         (useOktaAuth as any).mockReturnValue({
             oktaAuth: {
                 getOrRenewAccessToken: mockGetOrRenewAccessToken,
@@ -43,7 +45,9 @@ describe('useBearerToken', () => {
     });
 
     it('should throw an error when oktaAuth is falsey', async () => {
+        // eslint-disable-next-line
         (useOktaAuth as any).mockReturnValue({});
+        
         const { result } = renderHook(() => useBearerToken());
         await expect(result.current()).rejects.toThrow('Context for OktaAuth is not set or is unavailable');
     });
@@ -51,6 +55,7 @@ describe('useBearerToken', () => {
     it('should throw an error if the token is undefined', async () => {
         mockGetOrRenewAccessToken.mockResolvedValue(undefined);
 
+        // eslint-disable-next-line
         (useOktaAuth as any).mockReturnValue({
             oktaAuth: {
                 getOrRenewAccessToken: mockGetOrRenewAccessToken
@@ -63,7 +68,8 @@ describe('useBearerToken', () => {
 
     it('should throw an error if the token is null', async () => {
         mockGetOrRenewAccessToken.mockResolvedValue(null);
-
+        
+        // eslint-disable-next-line
         (useOktaAuth as any).mockReturnValue({
             oktaAuth: {
                 getOrRenewAccessToken: mockGetOrRenewAccessToken
