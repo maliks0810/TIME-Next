@@ -46,5 +46,18 @@ describe('useBearerToken', () => {
         (useOktaAuth as any).mockReturnValue({});
         const { result } = renderHook(() => useBearerToken());
         await expect(result.current()).rejects.toThrow('Context for OktaAuth is not set or is unavailable');
+    });
+
+    it('should throw an error if the token is undefined', async () => {
+        mockGetOrRenewAccessToken.mockResolvedValue(undefined);
+
+        (useOktaAuth as any).mockReturnValue({
+            oktaAuth: {
+                getOrRenewAccessToken: mockGetOrRenewAccessToken
+            }
+        });
+
+        const { result } = renderHook(() => useBearerToken());
+        await expect(result.current()).rejects.toThrow('Unable to retrieve Okta Access Token.')
     })
 })
