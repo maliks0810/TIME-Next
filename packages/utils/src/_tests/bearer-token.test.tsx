@@ -41,4 +41,10 @@ describe('useBearerToken', () => {
         const token = await result.current();
         expect(token).toBe('Bearer testtoken');
     });
+
+    it('should throw an error when oktaAuth is falsey', async () => {
+        (useOktaAuth as any).mockReturnValue({});
+        const { result } = renderHook(() => useBearerToken());
+        await expect(result.current()).rejects.toThrow('Context for OktaAuth is not set or is unavailable');
+    })
 })
