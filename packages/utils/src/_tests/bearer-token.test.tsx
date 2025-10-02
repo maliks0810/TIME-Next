@@ -1,0 +1,44 @@
+import { renderHook } from "@testing-library/react"
+import { describe, vi, it, expect, beforeEach } from "vitest"
+import { useBearerToken } from "../hooks/bearer-token"
+import { useOktaAuth } from "@okta/okta-react";
+
+vi.mock('@okta/okta-react',() => ({
+    useOktaAuth: vi.fn(),
+}));
+
+describe('useBearerToken', () => {
+    let mockGetOrRenewAccessToken: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+        mockGetOrRenewAccessToken = vi.fn();
+    });
+
+    it('should return the token with "Bearer " prefix if token does not contain the prefix', async () => {
+        mockGetOrRenewAccessToken.mockResolvedValue('testtoken');
+
+        (useOktaAuth as any).mockReturnValue({
+            oktaAuth : {
+                getOrRenewAccessToken: mockGetOrRenewAccessToken
+            }
+        });
+
+        const { result } = renderHook(() => useBearerToken());
+        const token = await result.current();
+        expect(token).toBe('Bearer testtoken');
+    });
+
+    it('should return the token with "Bearer " prefix if token does contain the prefix', async () => {
+        mockGetOrRenewAccessToken.mockResolvedValue('Bearer testtoken');
+
+        (useOktaAuth as any).mockReturnValue({
+            oktaAuth: {
+                getOrRenewAccessToken: mockGetOrRenewAccessToken,
+            }
+        });
+
+        const { result } = renderHook(() => useBearerToken());
+        const token = await result.current();
+        expect(token).toBe('Bearer testtoken');
+    });
+})
