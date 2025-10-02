@@ -2,6 +2,7 @@ import { describe, it, vi, beforeEach, expect as ex } from "vitest"
 import { useOktaAuth } from '@okta/okta-react';
 import { render, renderHook, screen } from "@testing-library/react";
 import { Authenticator } from "../hooks/Authentication/authenticator";
+// eslint-disable-next-line
 import React, { JSX } from "react";
 
 vi.mock('@okta/okta-react',() => ({
