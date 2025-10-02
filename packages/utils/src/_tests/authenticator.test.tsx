@@ -18,7 +18,7 @@ describe('authenticator', () => {
 
     function mockSuccess(): JSX.Element {
         return(
-            <div > Success </div>
+            <div data-testid='test-success'> Success </div>
         )
     };
 
@@ -31,6 +31,7 @@ describe('authenticator', () => {
     it('should return loading state if isAuthenticated is undefined ', async () => {
         mockIsAuthenticated.mockResolvedValue(undefined);
 
+        // eslint-disable-next-line
         (useOktaAuth as any).mockReturnValue({
             oktaAuth: {
                 isAuthenticated: mockIsAuthenticated
@@ -43,5 +44,23 @@ describe('authenticator', () => {
         render(result.current);
         ex(screen.getByTestId('test-loading')).toBeInTheDocument();
         ex(screen.getByTestId('test-loading')).toHaveTextContent('Loading');
-    })
+    });
+
+    // it('should return success state if isAuthenticated is true', async () => {
+    //     mockIsAuthenticated.mockResolvedValue(true);
+
+    //     (useOktaAuth as any).mockReturnValue({
+    //         oktaAuth: {
+    //             isAuthenticated: mockIsAuthenticated
+    //         }
+    //     });
+
+    //     const { result } = renderHook(() => Authenticator({success: mockSuccess(), loading: mockLoading()}));
+    //     ex(result.current?.type).toEqual('div');
+        
+    //     render(result.current);
+    //     ex(screen.getByTestId('test-success')).toBeInTheDocument();
+    //     ex(screen.getByTestId('test-success')).toHaveTextContent('Success');
+    // })
+
 })
