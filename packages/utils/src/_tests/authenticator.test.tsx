@@ -1,8 +1,8 @@
+/* eslint-disable */
 import { describe, it, vi, beforeEach, expect as ex } from "vitest"
 import { useOktaAuth } from '@okta/okta-react';
 import { render, renderHook, screen } from "@testing-library/react";
 import { Authenticator } from "../hooks/Authentication/authenticator";
-// eslint-disable-next-line
 import React, { JSX } from "react";
 
 vi.mock('@okta/okta-react',() => ({
@@ -32,7 +32,6 @@ describe('authenticator', () => {
     it('should return loading state if isAuthenticated is undefined ', async () => {
         mockIsAuthenticated.mockResolvedValue(undefined);
 
-        // eslint-disable-next-line
         (useOktaAuth as any).mockReturnValue({
             oktaAuth: {
                 isAuthenticated: mockIsAuthenticated
