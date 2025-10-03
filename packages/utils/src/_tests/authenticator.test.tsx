@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { describe, it, vi, beforeEach, expect as ex } from "vitest"
 import { useOktaAuth } from '@okta/okta-react';
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, renderHook, screen } from "@testing-library/react";
 import { Authenticator } from "../hooks/Authentication/authenticator";
 
 vi.mock('@okta/okta-react',() => ({
@@ -51,7 +51,21 @@ describe('authenticator', () => {
         ex(container).toBeEmptyDOMElement();
     });
 
-    it('should redirect when user is not authenticated', () => {
-        //todo
-    });
+    // it('should redirect when user is not authenticated', () => {
+
+    //     vi.mock('@okta/okta-react',() => ({
+    //         useOktaAuth: {
+    //             setOriginalUri: vi.fn()
+    //         }
+    //     }));
+        
+
+    //     render(<Authenticator success={mockSuccessDiv} loading={mockLoadingDiv} />);
+
+    //     const { useOktaAuth } = require('@okta/okta-react');
+    //     const { oktaAuth } = useOktaAuth();
+
+    //     ex(oktaAuth.setOriginalUri).toHaveBeenCalledWith('/');
+        
+    // });
 })
