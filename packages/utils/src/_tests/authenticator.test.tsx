@@ -25,8 +25,20 @@ describe('authenticator', () => {
 
         render(<Authenticator success={mockSuccessDiv} loading={mockLoadingDiv} />);
 
-        ex(screen.getByTestId('test-success')).toBeInTheDocument()
+        ex(screen.getByTestId('test-success')).toBeInTheDocument();
+    });
 
-    })
+    it('should redirect if user is not authenticated', () => {
+        //todo
+    });
 
+    it('should render the loading state when authState is undefined', () => {
+        (useOktaAuth as any).mockReturnValue({
+            authState: { isAuthenticated: undefined },
+            oktaAuth: {}
+        });
+
+        render(<Authenticator success={mockSuccessDiv} loading={mockLoadingDiv} />);
+        ex(screen.getByTestId('test-loading')).toBeInTheDocument();
+    });
 })
