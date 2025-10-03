@@ -41,4 +41,18 @@ describe('authenticator', () => {
         render(<Authenticator success={mockSuccessDiv} loading={mockLoadingDiv} />);
         ex(screen.getByTestId('test-loading')).toBeInTheDocument();
     });
+
+        it('should render nothing when the user is not auth and no loading prop is passed', () => {
+        (useOktaAuth as any).mockReturnValue({
+            authState: { isAuthenticated: false },
+            oktaAuth: {
+                setOriginalUri: vi.fn(),
+                signInWithRedirect: vi.fn()
+            },
+        });
+
+        const { container } = render(<Authenticator success={mockSuccessDiv} />);
+
+        ex(container).toBeEmptyDOMElement();
+    });
 })
