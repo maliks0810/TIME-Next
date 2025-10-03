@@ -1,9 +1,8 @@
 /* eslint-disable */
 import { describe, it, vi, beforeEach, expect as ex } from "vitest"
 import { useOktaAuth } from '@okta/okta-react';
-import { cleanup, render, renderHook, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { Authenticator } from "../hooks/Authentication/authenticator";
-import { JSX } from "react";
 
 vi.mock('@okta/okta-react',() => ({
     useOktaAuth: vi.fn(),
@@ -28,10 +27,6 @@ describe('authenticator', () => {
         ex(screen.getByTestId('test-success')).toBeInTheDocument();
     });
 
-    it('should redirect if user is not authenticated', () => {
-        //todo
-    });
-
     it('should render the loading state when authState is undefined', () => {
         (useOktaAuth as any).mockReturnValue({
             authState: { isAuthenticated: undefined },
@@ -42,7 +37,7 @@ describe('authenticator', () => {
         ex(screen.getByTestId('test-loading')).toBeInTheDocument();
     });
 
-        it('should render nothing when the user is not auth and no loading prop is passed', () => {
+    it('should render nothing when the user is not auth and no loading prop is passed', () => {
         (useOktaAuth as any).mockReturnValue({
             authState: { isAuthenticated: false },
             oktaAuth: {
@@ -54,5 +49,9 @@ describe('authenticator', () => {
         const { container } = render(<Authenticator success={mockSuccessDiv} />);
 
         ex(container).toBeEmptyDOMElement();
+    });
+
+    it('should redirect when user is not authenticated', () => {
+        //todo
     });
 })
