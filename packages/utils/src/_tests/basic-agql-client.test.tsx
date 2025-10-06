@@ -52,4 +52,15 @@ describe('useBasicGQLOperation', () => {
         const res = await mockQuery(mockQueryDocument, { id: 999}, false);
         expect(res).toEqual(data);
     });
+
+    it('should execute a query when a token is needed', async () => {
+        const { result } = renderHook(() => useBasicGQLOperation());
+        const mockQuery = result.current;
+
+        const data = { data: { user: { id: 999 }}};
+        mockQueryFunction.mockResolvedValue(data);
+
+        const res = await mockQuery(mockQueryDocument, { id: 999}, true);
+        expect(res).toEqual(data);
+    });
 })
