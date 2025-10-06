@@ -14,7 +14,6 @@ vi.mock('../hooks/bearer-token', () => ({
     useBearerToken: vi.fn()
 }));
 
-
 describe('useBasicGQLOperation', () => {
 
     const mockQueryFunction = vi.fn();
@@ -33,16 +32,16 @@ describe('useBasicGQLOperation', () => {
         }
     ` as TypedDocumentNode<mockDocumentData, mockDocumentType>;
  
-    // const mockMutationDocument: TypedDocumentNode<mockDocumentData, mockDocumentType> = gql`
-    //     mutation GetMockData($id: id!) {
-    //         user(id: $id) { 
-    //             id
-    //         }
-    //     }
-    // ` as TypedDocumentNode<mockDocumentData, mockDocumentType>;
+    const mockMutationDocument: TypedDocumentNode<mockDocumentData, mockDocumentType> = gql`
+        mutation PostMockData($id: id!) {
+            user(id: $id) { 
+                id
+            }
+        }
+    ` as TypedDocumentNode<mockDocumentData, mockDocumentType>;
 
     const mockInvalidDocument: TypedDocumentNode<mockDocumentData, mockDocumentType> = gql`
-        subscription GetMockData($id: id!) {
+        subscription SubscribeMockData($id: id!) {
             user(id: $id) { 
                 id
             }
@@ -53,7 +52,7 @@ describe('useBasicGQLOperation', () => {
         cleanup();
         (useApolloClient as any).mockReturnValue({
             query: mockQueryFunction,
-            mutation: mockMutationFunction
+            mutate: mockMutationFunction
         });
         (useBearerToken as any).mockReturnValue(mockGetTokenFunction);
     });
@@ -65,7 +64,7 @@ describe('useBasicGQLOperation', () => {
         const data = { data: { user: { id: 999 }}};
         mockQueryFunction.mockResolvedValue(data);
 
-        const res = await mockQuery(mockQueryDocument, { id: 999 }, false);
+        const res = await mockQuery(mockQueryDocument, data, false);
         expect(res).toEqual(data);
     });
 
@@ -76,9 +75,38 @@ describe('useBasicGQLOperation', () => {
         const data = { data: { user: { id: 999 }}};
         mockQueryFunction.mockResolvedValue(data);
 
-        const res = await mockQuery(mockQueryDocument, { id: 999 }, true);
+        const res = await mockQuery(mockQueryDocument, data, true);
         expect(res).toEqual(data);
     });
+
+    
+    it('should execute a mutation when a token is needed', async () => {
+        const { result } = renderHook(() => useBasicGQLOperation());
+        const mockMutation = result.current;
+
+        const data = { data: { user: { id: 999}}};
+        mockMutationFunction.mockResolvedValue(data);
+
+        const res = await mockMutation(mockMutationDocument, data , true);
+        expect(res).toEqual(data)
+    })
+
+    it('should execute a mutation when a token is not needed', async() => {
+        const { result } = renderHook(() => useBasicGQLOperation());
+        const mockMutation = result.current;
+
+        const data = { data: { user: { id: 999}}};
+        mockMutationFunction.mockResolvedValue(data);
+
+        console.log('mutation ' + typeof mockMutation)
+        console.log('mutation ' + mockMutation)
+
+        const res = await mockMutation(mockMutationDocument, data, false);
+        console.log('mutation res:' + typeof res);
+        console.log('mutation res;' + res)
+        expect(res).toEqual(data)
+    });
+
 
     it('should throw an error when the input docType is not a query or mutation', async () => {
         const { result } = renderHook(() => useBasicGQLOperation());
@@ -98,6 +126,15 @@ describe('useBasicGQLOperation', () => {
         mockQueryFunction.mockRejectedValue(mockError);
 
         await expect(mockQuery(mockQueryDocument)).rejects.toThrow('error testing');
+    });
 
-    })
+    it('should throw an error when a mutation fails', async () => {
+        const mockError = new Error('error test');
+        const { result } = renderHook(() => useBasicGQLOperation());
+        const mockMutation = result.current;
+        
+        mockMutationFunction.mockRejectedValue(mockError);
+
+        await expect(mockMutation(mockMutationDocument)).rejects.toThrow('error test');
+    });
 })
