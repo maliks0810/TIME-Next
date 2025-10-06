@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { describe, it, beforeEach, expect, vi } from "vitest";
 import { useBasicGQLOperation } from "../hooks/basic-agql-client";
 import { cleanup, renderHook } from "@testing-library/react";
