@@ -98,12 +98,7 @@ describe('useBasicGQLOperation', () => {
         const data = { data: { user: { id: 999}}};
         mockMutationFunction.mockResolvedValue(data);
 
-        console.log('mutation ' + typeof mockMutation)
-        console.log('mutation ' + mockMutation)
-
         const res = await mockMutation(mockMutationDocument, data, false);
-        console.log('mutation res:' + typeof res);
-        console.log('mutation res;' + res)
         expect(res).toEqual(data)
     });
 
