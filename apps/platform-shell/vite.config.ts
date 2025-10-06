@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => ({
             '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
             '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
             '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
-            '@testing/alpha': path.resolve(__dirname, '../testing'),
+            '@r2/qre': path.resolve(__dirname, '../QRE'),
             '@platform/platform-shell': path.resolve(__dirname, '.'),
             'echarts': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
             'echarts/core': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => ({
     },
     optimizeDeps: {
         include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
-        exclude: ['@platform/ui', '@platform/styles', '@platform/app-registry', '@platform/utils', '@platform/homepage', '@testing/alpha'],
+        exclude: ['@platform/ui', '@platform/styles', '@platform/app-registry', '@platform/utils', '@platform/homepage', '@r2/qre'],
         entries: ['src/**/*.tsx', '../**/src/**/*.tsx', '../../packages/**/*.tsx']
     },
     build: {
