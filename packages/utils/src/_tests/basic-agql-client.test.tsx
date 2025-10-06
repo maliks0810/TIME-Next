@@ -87,6 +87,17 @@ describe('useBasicGQLOperation', () => {
         const data = { data: { user: { id: 999 }}};
         mockInvalidFunction.mockResolvedValue(data);
 
-        await expect(mockInvalid(mockInvalidDocument)).rejects.toThrow('operation document must be a query or a mutation')
+        await expect(mockInvalid(mockInvalidDocument)).rejects.toThrow('operation document must be a query or a mutation');
     });
+
+    it('should throw an error when a query fails', async () => {
+        const mockError = new Error('error testing');
+        const { result } = renderHook(() => useBasicGQLOperation());
+        const mockQuery = result.current;
+
+        mockQueryFunction.mockRejectedValue(mockError);
+
+        await expect(mockQuery(mockQueryDocument)).rejects.toThrow('error testing');
+
+    })
 })
