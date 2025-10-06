@@ -20,8 +20,9 @@ describe('useBasicGQLOperation', () => {
     const mockQueryFunction = vi.fn();
     const mockMutationFunction = vi.fn();
     const mockGetTokenFunction = vi.fn();
+    const mockInvalidFunction = vi.fn();
 
-    type mockDocumentData = { user: { id: string } };
+    type mockDocumentData = { user: { id: string}};
     type mockDocumentType = { name: string };
 
     const mockQueryDocument: TypedDocumentNode<mockDocumentData, mockDocumentType> = gql`
@@ -32,6 +33,21 @@ describe('useBasicGQLOperation', () => {
         }
     ` as TypedDocumentNode<mockDocumentData, mockDocumentType>;
  
+    const mockMutationDocument: TypedDocumentNode<mockDocumentData, mockDocumentType> = gql`
+        mutation GetMockData($id: id!) {
+            user(id: $id) { 
+                id
+            }
+        }
+    ` as TypedDocumentNode<mockDocumentData, mockDocumentType>;
+
+    const mockInvalidDocument: TypedDocumentNode<mockDocumentData, mockDocumentType> = gql`
+        subscription GetMockData($id: id!) {
+            user(id: $id) { 
+                id
+            }
+        }
+    ` as TypedDocumentNode<mockDocumentData, mockDocumentType>;
 
     beforeEach(() => {
         cleanup();
@@ -49,7 +65,7 @@ describe('useBasicGQLOperation', () => {
         const data = { data: { user: { id: 999 }}};
         mockQueryFunction.mockResolvedValue(data);
 
-        const res = await mockQuery(mockQueryDocument, { id: 999}, false);
+        const res = await mockQuery(mockQueryDocument, { id: 999 }, false);
         expect(res).toEqual(data);
     });
 
@@ -60,7 +76,17 @@ describe('useBasicGQLOperation', () => {
         const data = { data: { user: { id: 999 }}};
         mockQueryFunction.mockResolvedValue(data);
 
-        const res = await mockQuery(mockQueryDocument, { id: 999}, true);
+        const res = await mockQuery(mockQueryDocument, { id: 999 }, true);
         expect(res).toEqual(data);
     });
+
+    it('should throw an error when the input docType is not a query or mutation', async () => {
+        const { result } = renderHook(() => useBasicGQLOperation());
+        const mockInvalid = result.current;
+
+        const data = { data: { user: { id: 999 }}};
+        mockInvalidFunction.mockResolvedValue(data);
+
+        await expect(mockInvalid(mockInvalidDocument)).rejects.toThrow('operation document must be a query or a mutation')
+    })
 })
