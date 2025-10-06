@@ -33,13 +33,13 @@ describe('useBasicGQLOperation', () => {
         }
     ` as TypedDocumentNode<mockDocumentData, mockDocumentType>;
  
-    const mockMutationDocument: TypedDocumentNode<mockDocumentData, mockDocumentType> = gql`
-        mutation GetMockData($id: id!) {
-            user(id: $id) { 
-                id
-            }
-        }
-    ` as TypedDocumentNode<mockDocumentData, mockDocumentType>;
+    // const mockMutationDocument: TypedDocumentNode<mockDocumentData, mockDocumentType> = gql`
+    //     mutation GetMockData($id: id!) {
+    //         user(id: $id) { 
+    //             id
+    //         }
+    //     }
+    // ` as TypedDocumentNode<mockDocumentData, mockDocumentType>;
 
     const mockInvalidDocument: TypedDocumentNode<mockDocumentData, mockDocumentType> = gql`
         subscription GetMockData($id: id!) {
@@ -88,5 +88,5 @@ describe('useBasicGQLOperation', () => {
         mockInvalidFunction.mockResolvedValue(data);
 
         await expect(mockInvalid(mockInvalidDocument)).rejects.toThrow('operation document must be a query or a mutation')
-    })
+    });
 })
