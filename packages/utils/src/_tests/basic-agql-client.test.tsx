@@ -1,32 +1,54 @@
-import { describe, it, beforeEach } from "vitest"
-import { cleanup } from "@testing-library/react";
+import { describe, it, beforeEach, expect, vi } from "vitest";
+import { useBasicGQLOperation } from "../hooks/basic-agql-client";
+import { cleanup, renderHook } from "@testing-library/react";
+import { gql, TypedDocumentNode } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
+import { useBearerToken } from "../hooks/bearer-token";
+
+vi.mock('@apollo/client/react', () => ({
+    useApolloClient: vi.fn()
+}));
+
+vi.mock('../hooks/bearer-token', () => ({
+    useBearerToken: vi.fn()
+}));
 
 
 describe('useBasicGQLOperation', () => {
+
+    const mockQueryFunction = vi.fn();
+    const mockMutationFunction = vi.fn();
+    const mockGetTokenFunction = vi.fn();
+
+    type mockDocumentData = { user: { id: string } };
+    type mockDocumentType = { name: string };
+
+    const mockQueryDocument: TypedDocumentNode<mockDocumentData, mockDocumentType> = gql`
+        query GetMockData($id: id!) {
+            user(id: $id) { 
+                id
+            }
+        }
+    ` as TypedDocumentNode<mockDocumentData, mockDocumentType>;
+ 
+
     beforeEach(() => {
         cleanup();
-    })
+        (useApolloClient as any).mockReturnValue({
+            query: mockQueryFunction,
+            mutation: mockMutationFunction
+        });
+        (useBearerToken as any).mockReturnValue(mockGetTokenFunction);
+    });
 
-    it('should throw an error if the input docType is not query or mutation', () => {
-        //todo
-    });
-    
-    it('should populate operationOptions with the input variables', () => {
-        //todo
-    });
-    it('should populate operationOptions with the correct bearer token', () => {
-        //todo
-    });
-    it('should send a query when docType is query', () => {
-        //todo
-    });
-    it('should send a mutation when docType is mutation', () => {
-        //todo
-    });
-    it('should reutrn the raw response when successful', () => {
-        //todo
-    });
-    it('should return the error on failure', () => {
-        //todo
+    it('should execute a query when a token is not needed', async () => {
+        const { result } = renderHook(() => useBasicGQLOperation());
+        const mockQuery = result.current;
+
+        const data = { data: { user: { id: 999 }}};
+        mockQueryFunction.mockResolvedValue(data);
+
+        const res = await mockQuery(mockQueryDocument, { id: 999}, false);
+        expect(res).toEqual(data);
     });
 })
