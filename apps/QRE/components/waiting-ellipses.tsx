@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+// import { useRef, useState } from 'react';
 import './waiting-ellipses.scss';
 
-const ELLIPSES_COUNT = 3;
-const TIMER_SPEED = 250;
+// const ELLIPSES_COUNT = 3;
+// const TIMER_SPEED = 250;
 
 export const WaitingEllipses = (props: {
     prefix: string;
@@ -10,19 +11,20 @@ export const WaitingEllipses = (props: {
     speed?: number;
     ellipseCount?: number;
 }) => {
-    const [typingCount, setTypingCount] = useState<number>(0);
-    const ellipseCnt = props.ellipseCount ?? ELLIPSES_COUNT;
+    // const [typingCount, setTypingCount] = useState<number>(0);
+    const [typingCount] = useState<number>(0);
+    // const ellipseCnt = props.ellipseCount ?? ELLIPSES_COUNT;
 
     const ellipses = '.'.repeat(typingCount);
-    const timer = useRef<number | undefined>(undefined);
+    // const timer = useRef<number | undefined>(undefined);
     const level = props.maintainWidth ? 1 : 0;
-    if (!timer.current) {
-        timer.current = setTimeout(() => {
-            clearTimeout(timer.current);
-            timer.current = undefined;
-            setTypingCount((p) => (p < ellipseCnt ? p + 1 : 0));
-        }, props.speed ?? TIMER_SPEED);
-    }
+    // if (!timer.current) {
+    //     timer.current = setTimeout(() => {
+    //         clearTimeout(timer.current);
+    //         timer.current = undefined;
+    //         setTypingCount((p) => (p < ellipseCnt ? p + 1 : 0));
+    //     }, props.speed ?? TIMER_SPEED);
+    // }
 
     return (
         <div className="waiting-ellipses-container" >

@@ -1,5 +1,4 @@
 import { createContext, Dispatch, ReactNode, useCallback, useContext, useState } from 'react';
-import * as tlog from '@tcw/tlog';
 import {
     ModelCatalogEntry,
     ModelCatalogFilterByValues,

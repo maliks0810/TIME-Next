@@ -8,7 +8,6 @@ import {
 } from '../../../../contexts/model-catalog-entry-context';
 import { useUserInfo } from '@platform/utils';
 import { ModelCatalogEntryEditor } from './entry-editor';
-import { Button } from '@mui/material';
 import './grid-row.scss';
 import { EntryActions, EntryPresentation, EntrySync } from './grid-row-parts';
 

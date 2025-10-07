@@ -16,7 +16,7 @@ import './grid-row.scss';
 export const EntryPresentation = memo((props: { entry: ModelCatalogEntry, userOwned?: boolean }) => {
     const { entry, userOwned } = props;
     console.debug('EntryPresentation rendering');
-    const selectedText = entry.permissions.join(', ') || 'No Permissions';
+    // const selectedText = entry.permissions.join(', ') || 'No Permissions';
 
     const handleNavToNotebook = () => {
         if (entry.hub.lab) {

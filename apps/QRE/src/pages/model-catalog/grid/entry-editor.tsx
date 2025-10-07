@@ -12,7 +12,7 @@ import {
     useModelCatalogEntriesContext,
     useModelCategorizationsContext,
 } from '../../../../contexts/model-catalog-context';
-import { CategorizationSelect, EnumSelect, PermissionsSelect } from '../selects/selects';
+import { CategorizationSelect, EnumSelect } from '../selects/selects';
 import './entry-editor.scss';
 
 export const ModelCatalogEntryEditor = (props: {
