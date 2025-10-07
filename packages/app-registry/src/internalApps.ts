@@ -14,7 +14,7 @@ export const internalApps: InternalAppMetadata[] = [
     component: lazy(() => import('@platform/homepage/src/App'))  
   },  
   {  
-    header: NavbarHeader.ResearchAnalysis,  
+    header: NavbarHeader.PortfolioManagement,  
     subHeader: NavbarSubHeader.QRE,  
     type: 'internal',  
     id: '@r2/qre',  
