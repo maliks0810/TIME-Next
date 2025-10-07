@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
 import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
 import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlineBlankOutlined';
-import { Select, SelectRef } from "../../../../components/select";
-import { ModelCategorization, ModelCategorizationMap, ModelPermissions } from "../../../../types/model-catalog-types";
+import { Select, SelectRef } from "../../../components/select";
+import { ModelCategorization, ModelCategorizationMap, ModelPermissions } from "../../../types/model-catalog-types";
 import './selects.scss';
 
 export const EnumSelect = (props: {

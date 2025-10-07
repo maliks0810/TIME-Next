@@ -1,22 +1,22 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useRef } from 'react';
-import { BlockContainer } from '../../../components/block-container';
+import { BlockContainer } from '../../components/block-container';
 import './model-catalog.scss';
-import { FilterInput } from '../../../components/filter';
-import { ModelCatalogFilterByValues } from '../../../types/model-catalog-types';
+import { FilterInput } from '../../components/filter';
+import { ModelCatalogFilterByValues } from '../../types/model-catalog-types';
 import {
     ModelCatalogProvider,
     useModelCatalogEntryCountsContext,
     useModelCatalogFilterContext,
     useModelCatalogLoadingContext,
     useModelCatalogReloadTriggerContext,
-} from '../../../contexts/model-catalog-context';
+} from '../../contexts/model-catalog-context';
 import {
     ModelCatalogEntryProvider,
     useEntryBusyContext,
     useEntryEditingContext,
-} from '../../../contexts/model-catalog-entry-context';
-import { ModelCatalogAxiosContextProvider } from '../../../contexts/model-catalog-axios-context';
+} from '../../contexts/model-catalog-entry-context';
+import { ModelCatalogAxiosContextProvider } from '../../contexts/model-catalog-axios-context';
 import { EnumSelect } from './selects/selects';
 import { ModelCatalogGrid } from './grid/grid';
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';

@@ -6,15 +6,15 @@ import ReportIcon from '@mui/icons-material/Report';
 // import GitLabIcon from '../../../../assets/gitlab.svg?react';
 // import JupyterIcon from '../../../../assets/jupyter.svg?react';
 import './dialogs.scss';
-import { ModelCatalogEntry, SyncTypes } from '../../../../types/model-catalog-types';
-import { AcceptDialog } from '../../../../components/accept-dialog';
+import { ModelCatalogEntry, SyncTypes } from '../../../types/model-catalog-types';
+import { AcceptDialog } from '../../../components/accept-dialog';
 import {
     useEntryBusyContext,
     useSetEntryBusyContext,
-} from '../../../../contexts/model-catalog-entry-context';
-import { AlertSeverity } from '../../../../types/alert.d';
-import { useUpdateAlertInfoContext } from '../../../../contexts/alert-context';
-import { useDeleteModelCatalogEntry, useSynchronize } from '../../../../hooks/model-catalog-entries';
+} from '../../../contexts/model-catalog-entry-context';
+import { AlertSeverity } from '../../../types/alert.d';
+import { useUpdateAlertInfoContext } from '../../../contexts/alert-context';
+import { useDeleteModelCatalogEntry, useSynchronize } from '../../../hooks/model-catalog-entries';
 
 export type ModelCatalogDialogProps = {
     visible: boolean;

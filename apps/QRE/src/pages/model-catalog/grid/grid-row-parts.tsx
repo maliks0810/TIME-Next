@@ -6,11 +6,11 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 // import GitLabIcon from '../../../../assets/gitlab.svg?react';
 // import JupyterIcon from '../../../../assets/jupyter.svg?react';
-import { ModelCatalogEntry, ModelStates, SyncTypes } from '../../../../types/model-catalog-types';
+import { ModelCatalogEntry, ModelStates, SyncTypes } from '../../../types/model-catalog-types';
 import {
     useEntryEditingContext,
     useSetEntryEditingContext,
-} from '../../../../contexts/model-catalog-entry-context';
+} from '../../../contexts/model-catalog-entry-context';
 import './grid-row.scss';
 
 export const EntryPresentation = memo((props: { entry: ModelCatalogEntry, userOwned?: boolean }) => {

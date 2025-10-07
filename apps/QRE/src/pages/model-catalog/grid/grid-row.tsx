@@ -1,11 +1,11 @@
 import * as tlog from '@tcw/tlog';
 import { memo, useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { ModelCatalogEntry, SyncTypes } from '../../../../types/model-catalog-types';
+import { ModelCatalogEntry, SyncTypes } from '../../../types/model-catalog-types';
 import {
     useEntryEditingContext,
     useSetEntryEditingContext,
-} from '../../../../contexts/model-catalog-entry-context';
+} from '../../../contexts/model-catalog-entry-context';
 import { useUserInfo } from '@platform/utils';
 import { ModelCatalogEntryEditor } from './entry-editor';
 import './grid-row.scss';

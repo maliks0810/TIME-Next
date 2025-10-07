@@ -10,24 +10,24 @@ import {
     useModelCategorizationsContext,
     useSetModelCatalogLoadingContext,
     useModelCatalogReloadTriggerContext,
-} from '../../../../contexts/model-catalog-context';
-import { ModelCatalogEntry } from '../../../../types/model-catalog-types';
+} from '../../../contexts/model-catalog-context';
+import { ModelCatalogEntry } from '../../../types/model-catalog-types';
 import {
     useEntryBusyContext,
     useEntryEditingContext,
     useSetEntryBusyContext,
-} from '../../../../contexts/model-catalog-entry-context';
+} from '../../../contexts/model-catalog-entry-context';
 import {
     useGetModelCatalogEntries,
     useSaveEntry,
     useGetModelCategorizationMap,
-} from '../../../../hooks/model-catalog-entries';
-import { WaitingEllipses } from '../../../../components/waiting-ellipses';
+} from '../../../hooks/model-catalog-entries';
+import { WaitingEllipses } from '../../../components/waiting-ellipses';
 import { DialogTypes, DialogWrapper } from '../dialogs/dialogs';
-import { SortableFields } from '../../../../data/model-catalog-data';
-import { filterEntries, sortEntries } from '../../../../utils/model-catalog-utils';
-import { useUpdateAlertInfoContext } from '../../../../contexts/alert-context';
-import { AlertSeverity } from '../../../../types/alert.d';
+import { SortableFields } from '../../../data/model-catalog-data';
+import { filterEntries, sortEntries } from '../../../utils/model-catalog-utils';
+import { useUpdateAlertInfoContext } from '../../../contexts/alert-context';
+import { AlertSeverity } from '../../../types/alert.d';
 import { useUserInfo } from '@platform/utils';
 import { ModelCatalogGridRow, ModelCatalogNewEntryRow } from './grid-row';
 import './grid.scss';

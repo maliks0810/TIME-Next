@@ -1,17 +1,17 @@
 import { CircularProgress } from '@mui/material';
 import { useRef, useState } from 'react';
-import { WaitingEllipses } from '../../../../components/waiting-ellipses';
+import { WaitingEllipses } from '../../../components/waiting-ellipses';
 import {
     ModelCatalogEntry,
     ModelCategorization,
     ModelStates,
-} from '../../../../types/model-catalog-types';
-import { isNameInvalid } from '../../../../utils/model-catalog-utils';
+} from '../../../types/model-catalog-types';
+import { isNameInvalid } from '../../../utils/model-catalog-utils';
 import { useUserInfo } from '@platform/utils';
 import {
     useModelCatalogEntriesContext,
     useModelCategorizationsContext,
-} from '../../../../contexts/model-catalog-context';
+} from '../../../contexts/model-catalog-context';
 import { CategorizationSelect, EnumSelect } from '../selects/selects';
 import './entry-editor.scss';
 
