@@ -272,7 +272,7 @@ describe('useUpdateGenericDataContext',() => {
         expect(result.current.data.data).toBe(undefined);
     });
 
-    it('should return undefined when an invalid object is input', () => {
+    it('should return undefined when a function is input', () => {
         const wrapper = ({ children }: {children: React.ReactNode }) => (
             <GenericDataProvider> {children} </GenericDataProvider>
         )
