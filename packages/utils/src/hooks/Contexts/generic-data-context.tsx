@@ -49,7 +49,6 @@ export function GenericDataProvider({ children }: AppProviderProps) {
         } else {
             console.log('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
         }
-
     }   
 
     return (

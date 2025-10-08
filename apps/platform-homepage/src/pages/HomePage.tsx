@@ -1,7 +1,7 @@
 // import { TcwCard } from "@platform/ui";
 // import { Box, Chip, Typography } from '@mui/material';
 // import snowflake from '../assets/snowflake.png';
-import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
+// import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
 // import { Calendar } from '@platform/ui';
 // import { Axios } from '@platform/utils';
 // import { useState } from 'react';
@@ -15,8 +15,8 @@ import '../App.scss';
 // import { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
-  const genericData = useGenericDataContext();
-  const updateGenericData = useUpdateGenericDataContext();
+  // const genericData = useGenericDataContext();
+  // const updateGenericData = useUpdateGenericDataContext();
 
   
   // const [ date, setDate ] = useState<Date>();
@@ -71,18 +71,12 @@ const HomePage: React.FC = () => {
       HomePage
 
       {/* Working */}
-      <button onClick={() => updateGenericData('test' as any)}> SET </button>
+      {/* <button onClick={() => updateGenericData('test' as any)}> SET </button>
       <button onClick={() => updateGenericData({data: 'testing'})}> SET WITH DATA </button>
       <button onClick={() => updateGenericData({hello: '123'} as any)}> SET WITH ANY OBJ </button>
-      <button onClick={() => updateGenericData({hello: {test: { again: '123'}}} as any)}> SET NESTED </button>
+      <button onClick={() => updateGenericData({hello: {test: { again: '123'}}} as any)}> SET NESTED </button> */}
 
-      {/* Runs function but does not save anything to state */}
-      <button onClick={() => updateGenericData(console.log('test') as any)}> SET WITH FUN </button>
-      {/* Syntax Err */}
-      {/* <button onClick={() => updateGenericData(() => console.log('test') as any)}> SET WITH FUN </button> */}
-
-
-      <button onClick={() => console.log(genericData)}> GET </button>
+      {/* <button onClick={() => console.log(genericData)}> GET </button> */}
 
     {/* <TcwVerticalList contentList={todoListItems} width={'375px'} /> */}
 
