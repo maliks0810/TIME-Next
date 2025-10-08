@@ -4,8 +4,8 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CopyAllIcon from '@mui/icons-material/CopyAll';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-// import GitLabIcon from '../../../../assets/gitlab.svg?react';
-// import JupyterIcon from '../../../../assets/jupyter.svg?react';
+import GitLabIcon from '../../../assets/gitlab.svg';
+import JupyterIcon from '../../../assets/jupyter.svg';
 import { ModelCatalogEntry, ModelStates, SyncTypes } from '../../../types/model-catalog-types';
 import {
     useEntryEditingContext,
@@ -165,14 +165,14 @@ export const EntrySync = memo((props: { startSync: (syncType: SyncTypes) => void
                             className="model-catalog-entry-action-icon"
                             aria-label="small-arrow-left"
                         />
-                        {/* <GitLabIcon className="model-catalog-entry-action-icon" /> */}
+                        <img src={GitLabIcon} className="model-catalog-entry-action-icon" />
                     </button>
                     <button
                         className="model-catalog-entry-action-button"
                         title="Sync To JupyterLab"
                         onClick={handleSyncToJupyter}
                     >
-                        {/* <JupyterIcon className="model-catalog-entry-action-icon" /> */}
+                        <img src={JupyterIcon} className="model-catalog-entry-action-icon" />
                         <ArrowBackIcon
                             className="model-catalog-entry-action-icon"
                             aria-label="small-arrow-right"
