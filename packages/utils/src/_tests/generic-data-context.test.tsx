@@ -272,16 +272,18 @@ describe('useUpdateGenericDataContext',() => {
         expect(result.current.data.data).toBe(undefined);
     });
 
-    it('should return undefined when an improper data type is input', () => {
-       const wrapper = ({ children }: {children: React.ReactNode }) => (
+    it('should return undefined when an invalid object is input', () => {
+        const wrapper = ({ children }: {children: React.ReactNode }) => (
             <GenericDataProvider> {children} </GenericDataProvider>
         )
 
         const { result } = renderHook(() => useGenericData(), {wrapper});
-        act(() => {            
+        expect(result.current.data.data).toBeUndefined();
+
+        act(() => {
             // eslint-disable-next-line
-            result.current.update('abc' as any);
+            result.current.update(console.log('test') as any);
         })
-        expect(result.current.data).toBe('abc');
-    });
+        expect(result.current.data.data).toBe(undefined);    
+    })
 })

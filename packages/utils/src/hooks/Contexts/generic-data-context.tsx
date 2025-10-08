@@ -5,7 +5,7 @@ type AppProviderProps = {
 };
 
 type GenericData = {
-    data: object | string | number | undefined;
+    data: object | string | number | boolean | null | undefined;
 }
 
 const defaultGenericData: GenericData = { data:undefined};
