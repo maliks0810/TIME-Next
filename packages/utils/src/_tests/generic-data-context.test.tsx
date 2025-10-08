@@ -32,7 +32,7 @@ describe('useUpdateGenericDataContext',() => {
         act(() => {
             result.current.update({ data: 123});
         })
-        expect(result.current.data.data).toBe(123)
+        expect(result.current.data.data).toBe(123);
     });
 
     it('should update the stored value when a string is input', () => {
@@ -270,5 +270,18 @@ describe('useUpdateGenericDataContext',() => {
             result.current.update({test: 'abc'} as any);
         })
         expect(result.current.data.data).toBe(undefined);
+    });
+
+    it('should return undefined when an improper data type is input', () => {
+       const wrapper = ({ children }: {children: React.ReactNode }) => (
+            <GenericDataProvider> {children} </GenericDataProvider>
+        )
+
+        const { result } = renderHook(() => useGenericData(), {wrapper});
+        act(() => {            
+            // eslint-disable-next-line
+            result.current.update('abc' as any);
+        })
+        expect(result.current.data).toBe('abc');
     });
 })

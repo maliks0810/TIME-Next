@@ -5,7 +5,7 @@ type AppProviderProps = {
 };
 
 type GenericData = {
-    data: unknown;
+    data: object | string | number | undefined;
 }
 
 const defaultGenericData: GenericData = { data:undefined};
@@ -42,9 +42,19 @@ export function useUpdateGenericDataContext() {
 export function GenericDataProvider({ children }: AppProviderProps) {
     const [genericData, setGenericData] = useState<GenericData>(defaultGenericData);
 
+    const validateContextData = (updatedData: GenericData ) => {
+        console.log(typeof updatedData)
+        if (typeof updatedData !== 'function' && updatedData !== undefined) { 
+            setGenericData(updatedData);
+        } else {
+            console.log('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
+        }
+
+    }   
+
     return (
         <GenericDataContext.Provider value={genericData}>
-            <UpdateGenericDataContext value={setGenericData}>
+            <UpdateGenericDataContext value={validateContextData}>
                 {children}
             </UpdateGenericDataContext>
         </GenericDataContext.Provider>
