@@ -48,7 +48,7 @@
     "sass": "^1.90.0",
     "syncpack": "^13.0.4",
     "turbo": "2.5.6",
-    "typescript": "5.9.2"
+    "typescript": "5.9.3"
   },
   "workspaces": [
     "apps/*",
