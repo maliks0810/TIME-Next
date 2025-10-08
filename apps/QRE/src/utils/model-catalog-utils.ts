@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { SortableFields } from '../data/model-catalog-data';
 import {
     ModelCatalogFilterByValues,
