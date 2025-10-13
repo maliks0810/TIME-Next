@@ -12,13 +12,19 @@ import { Authenticator } from '@platform/utils';
 const oktaAuth = new OktaAuth(oktaConfig.oidc);
 // add a circular progress for non loading items from mui materials
 export function AppRouter() {
-    console.log(oktaAuth)
     const apps = appRegistry.getAllApps();
     const navigate = useNavigate();
     const restoreOriginalUri = async (_auth: OktaAuth, originalUri: string) => {
         navigate(toRelativeUrl(originalUri || '', window.location.origin));
     };
 
+    // redirect logic based on okta persona.. pull out persona here
+    // and redirect if no persona do as usual
+    const redirectToAppBasedOnOkta = async() => {
+        const user = await oktaAuth.getUser()
+        console.log(user)
+    }
+    redirectToAppBasedOnOkta()
     return (
             <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
                 <Routes>
