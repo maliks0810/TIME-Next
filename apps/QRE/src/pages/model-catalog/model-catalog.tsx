@@ -118,20 +118,9 @@ const ModelCatalogHeader = () => {
 };
 
 export default function ModelCatalog() {
-    console.log(import.meta.env.VITE_QRE_CONTENT_MGMT)
-    const qrehttpLink = new HttpLink({
-        uri: import.meta.env.VITE_QRE_CONTENT_MGMT,
-    });
-
-    const qreClient = new ApolloClient({
-        cache: new InMemoryCache(),
-        link: qrehttpLink,
-    });
-    console.log(qreClient)
     console.debug('ModelCatalog rendering');
 
     return (
-        <ApolloProvider client={qreClient}>
         <ModelCatalogProvider>
             <ModelCatalogEntryProvider>
                 <BlockContainer title={<ModelCatalogHeader />} className="full-screen-block">
@@ -141,6 +130,5 @@ export default function ModelCatalog() {
                 </BlockContainer>
             </ModelCatalogEntryProvider>
         </ModelCatalogProvider>
-        </ApolloProvider>
     );
 };
