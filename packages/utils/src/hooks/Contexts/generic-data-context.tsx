@@ -4,12 +4,16 @@ type AppProviderProps = {
     children: React.ReactNode;
 };
 
-type GenericData = {
-    data: object | string | number | boolean | null | undefined;
+class GenericData{
+    public data: object | string | number | boolean | null | undefined;
+
+    constructor(data: object | string | number | boolean | null | undefined){
+        this.data = data;
+    }
 }
 
-const defaultGenericData: GenericData = { data:undefined};
-const GenericDataContext = createContext<GenericData>(defaultGenericData);
+const defaultGenericData = new GenericData(undefined);
+const GenericDataContext = createContext(defaultGenericData);
 const UpdateGenericDataContext = createContext<(data: GenericData) => void>((i) => i);
 
 // Summary:
@@ -42,8 +46,26 @@ export function useUpdateGenericDataContext() {
 export function GenericDataProvider({ children }: AppProviderProps) {
     const [genericData, setGenericData] = useState<GenericData>(defaultGenericData);
 
+    let count = 0;
+    function traverseObject(obj: any) {
+        Object.keys(obj).forEach(key => {
+            if(typeof obj[key] === 'function'){
+                count++;            
+            } else if (typeof obj[key] === 'object' && obj[key] !== null){
+                traverseObject(obj[key])
+            } 
+        });
+    }
+
     const validateContextData = (updatedData: GenericData ) => {
-        if (typeof updatedData !== 'function' && updatedData !== undefined && typeof updatedData.data !== 'function') { 
+
+        if(typeof updatedData === 'object'){
+            traverseObject(updatedData);
+            if (count !== 0){
+                throw Error('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
+            } 
+        }
+        if (typeof updatedData !== 'function' && updatedData !== undefined) { 
             setGenericData(updatedData);
         } else {
             throw Error('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
@@ -59,6 +81,5 @@ export function GenericDataProvider({ children }: AppProviderProps) {
     )
 }
 
-// convert data type to class
 // changes babel and jest config to not be cjs module.export
 // look into condesning auth test files into one
