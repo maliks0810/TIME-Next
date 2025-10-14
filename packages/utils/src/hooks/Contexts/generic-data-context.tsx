@@ -44,10 +44,10 @@ export function GenericDataProvider({ children }: AppProviderProps) {
 
     const validateContextData = (updatedData: GenericData ) => {
         console.log(typeof updatedData)
-        if (typeof updatedData !== 'function' && updatedData !== undefined) { 
+        if (typeof updatedData !== 'function' && updatedData !== undefined && typeof updatedData.data !== 'function') { 
             setGenericData(updatedData);
         } else {
-            console.log('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
+            throw Error('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
         }
     }   
 
@@ -59,3 +59,8 @@ export function GenericDataProvider({ children }: AppProviderProps) {
         </GenericDataContext.Provider>
     )
 }
+
+// convert data type to class
+// look into anon func
+// changes babel and jest config to not be cjs module.export
+// look into condesning auth test files into one

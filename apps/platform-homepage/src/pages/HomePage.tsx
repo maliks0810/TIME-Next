@@ -2,7 +2,7 @@
 // import { Box } from '@mui/material';
 // import { Box, Chip, Typography } from '@mui/material';
 // import snowflake from '../assets/snowflake.png';
-// import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
+import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
 // import { Calendar } from '@platform/ui';
 // import { Axios } from '@platform/utils';
 // import { useState } from 'react';
@@ -17,8 +17,8 @@ import '../App.scss';
 // import { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
-  // const genericData = useGenericDataContext();
-  // const updateGenericData = useUpdateGenericDataContext();
+  const genericData = useGenericDataContext();
+  const updateGenericData = useUpdateGenericDataContext();
 
   
   // const [ date, setDate ] = useState<Date>();
@@ -74,17 +74,32 @@ const HomePage: React.FC = () => {
   //   tlog.fatal('testing client logging fatal');
   // }
 
+  function test(){
+    console.log('hello')
+  }
+
+  const testing = () => {
+    console.log('test')
+  }
+
   return (
     <div className="dashboard-container">
       HomePage
 
       {/* Working */}
-      {/* <button onClick={() => updateGenericData('test' as any)}> SET </button>
+      <button onClick={() => updateGenericData('test' as any)}> SET </button>
       <button onClick={() => updateGenericData({data: 'testing'})}> SET WITH DATA </button>
       <button onClick={() => updateGenericData({hello: '123'} as any)}> SET WITH ANY OBJ </button>
-      <button onClick={() => updateGenericData({hello: {test: { again: '123'}}} as any)}> SET NESTED </button> */}
+      <button onClick={() => updateGenericData({hello: {test: { again: '123'}}} as any)}> SET NESTED </button>
+      <button onClick={() => updateGenericData({data: ()=>console.log('test')})}> SET func </button>
+      <button onClick={() => updateGenericData(this as any)}> This </button>
+      <button onClick={() => updateGenericData(test as any)}> func </button>
+      <button onClick={() => updateGenericData(testing as any)}> func test </button>
 
-      {/* <button onClick={() => console.log(genericData)}> GET </button> */}
+
+      <button onClick={() => updateGenericData({data: () => console.log('test') as any})}> anon func </button>
+
+      <button onClick={() => console.log(genericData)}> GET </button>
         {/* <TcwAdjustableGrid layout={layout}>
           <Box key='a' sx={{ border: '1px solid red'}}> a </Box>
           <Box key='b' sx={{ border: '1px solid blue'}}> b </Box>
