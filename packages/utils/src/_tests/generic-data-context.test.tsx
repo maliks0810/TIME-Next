@@ -63,7 +63,7 @@ describe('useUpdateGenericDataContext',() => {
         expect(result.current.data.data).toStrictEqual({ name: 'testname', id: 999})
     });
 
-    it('should update the stored value when undefined is input', () => {
+    it('should update the stored value when undefined is input as data', () => {
         const wrapper = ({ children }: {children: React.ReactNode }) => (
             <GenericDataProvider> {children} </GenericDataProvider>
         )
@@ -75,6 +75,23 @@ describe('useUpdateGenericDataContext',() => {
             result.current.update({ data: undefined} );
         })
         expect(result.current.data.data).toBeUndefined();
+    });
+    
+    it('should not update the stored value when undefined is input as undefined', () => {
+        const wrapper = ({ children }: {children: React.ReactNode }) => (
+            <GenericDataProvider> {children} </GenericDataProvider>
+        )
+
+        const { result } = renderHook(() => useGenericData(), {wrapper});
+        expect(result.current.data.data).toBeUndefined();
+
+        act(() => {
+            result.current.update(undefined as any);
+        })
+
+        console.log(result.current.data)
+
+        expect(result.current.data).toThrowError();
     });
 
     it('should update the stored value when null is input', () => {
@@ -171,18 +188,19 @@ describe('useUpdateGenericDataContext',() => {
         expect(result.current.data.data).toEqual(expectedData);
     });
 
-    it('should return undefined when a function is input', () => {
+    it('should throw an error when a function is input', async () => {
         const wrapper = ({ children }: {children: React.ReactNode }) => (
             <GenericDataProvider> {children} </GenericDataProvider>
         )
 
         const { result } = renderHook(() => useGenericData(), {wrapper});
         expect(result.current.data.data).toBeUndefined();
-
+        
         act(() => {
             // eslint-disable-next-line
-            result.current.update(console.log('test') as any);
-        })
-        expect(result.current.data.data).toBe(undefined);    
+            result.current.update({data: ()=>console.log('test')});
+        });
+        expect(result.current.update).toThrowError();
+        expect(result.current.data).toBe(undefined);
     })
 })

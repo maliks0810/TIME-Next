@@ -46,22 +46,21 @@ export function useUpdateGenericDataContext() {
 export function GenericDataProvider({ children }: AppProviderProps) {
     const [genericData, setGenericData] = useState<GenericData>(defaultGenericData);
 
-    let count = 0;
+    let inputIsFunction = false;
     function traverseObject(obj: any) {
         Object.keys(obj).forEach(key => {
             if(typeof obj[key] === 'function'){
-                count++;            
+                inputIsFunction = true;            
             } else if (typeof obj[key] === 'object' && obj[key] !== null){
                 traverseObject(obj[key])
             } 
         });
     }
 
-    const validateContextData = (updatedData: GenericData ) => {
-
+    const validateContextData = (updatedData: GenericData) => {
         if(typeof updatedData === 'object'){
             traverseObject(updatedData);
-            if (count !== 0){
+            if (inputIsFunction){
                 throw Error('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
             } 
         }
