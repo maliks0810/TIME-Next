@@ -74,29 +74,12 @@ const HomePage: React.FC = () => {
   //   tlog.fatal('testing client logging fatal');
   // }
 
-  function test(){
-    console.log('hello')
-  }
-
-  const testing = () => {
-    console.log('test')
-  }
-
   return (
     <div className="dashboard-container">
       HomePage
 
       {/* Working */}
-      <button onClick={() => updateGenericData('test' as any)}> TEST </button>
       <button onClick={() => updateGenericData({data: 'testing'})}> DATA: TESTING </button>
-      <button onClick={() => updateGenericData({hello: '123'} as any)}> hello: 123 </button>
-      <button onClick={() => updateGenericData({hello: {test: { again: '123'}}} as any)}> hello: test: again: 123 </button>
-      <button onClick={() => updateGenericData({data: ()=>console.log('test')})}> data: consolelog </button>
-      <button onClick={() => updateGenericData(this as any)}> This as any</button>
-      <button onClick={() => updateGenericData(test as any)}> function testing as any </button>
-      <button onClick={() => updateGenericData(testing as any)}> const testing func test </button>
-      <button onClick={() => updateGenericData({data: {datatwo: () => console.log('test') as any}})}> data: datatwo: anon func </button>
-
       <button onClick={() => console.log(genericData)}> GET </button>
         {/* <TcwAdjustableGrid layout={layout}>
           <Box key='a' sx={{ border: '1px solid red'}}> a </Box>
