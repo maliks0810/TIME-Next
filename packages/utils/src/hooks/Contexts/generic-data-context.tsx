@@ -37,6 +37,43 @@ export function useUpdateGenericDataContext() {
     return useContext(UpdateGenericDataContext);
 }
 
+export function validateData(updatedData: GenericData): GenericData{
+    let inputContainsFunction = false;
+
+    // eslint-disable-next-line
+    function traverseObject(obj: any) {
+        Object.keys(obj).forEach(key => {
+            if(typeof obj[key] === 'function'){
+                inputContainsFunction = true;            
+            } else if (typeof obj[key] === 'object' && obj[key] !== null){
+                traverseObject(obj[key])
+            } 
+        });
+    } 
+
+
+    if(typeof updatedData === 'object'){
+        try{
+            traverseObject(updatedData);
+            if (!inputContainsFunction){
+                return updatedData;
+            } 
+        } catch (e:any){
+            if(e instanceof Error){
+                throw new Error('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
+            }else {
+                console.log('')
+            }
+        }
+    }
+    if (typeof updatedData !== 'function' && updatedData !== undefined) { 
+        return(updatedData);
+    } else {
+        throw new Error('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
+    }
+}
+
+
 // Summary:
 // Returns a context which is used to wrap the application in App.tsx so that data can be passed up and down between components
 // Usage:
@@ -46,31 +83,9 @@ export function useUpdateGenericDataContext() {
 export function GenericDataProvider({ children }: AppProviderProps) {
     const [genericData, setGenericData] = useState<GenericData>(defaultGenericData);
 
-    let inputIsFunction = false;
-
-    // eslint-disable-next-line
-    function traverseObject(obj: any) {
-        Object.keys(obj).forEach(key => {
-            if(typeof obj[key] === 'function'){
-                inputIsFunction = true;            
-            } else if (typeof obj[key] === 'object' && obj[key] !== null){
-                traverseObject(obj[key])
-            } 
-        });
-    }
-
     const validateContextData = (updatedData: GenericData) => {
-        if(typeof updatedData === 'object'){
-            traverseObject(updatedData);
-            if (inputIsFunction){
-                throw Error('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
-            } 
-        }
-        if (typeof updatedData !== 'function' && updatedData !== undefined) { 
-            setGenericData(updatedData);
-        } else {
-            throw Error('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
-        }
+        const data = validateData(updatedData);
+        setGenericData(data)
     }   
 
     return (
@@ -82,5 +97,5 @@ export function GenericDataProvider({ children }: AppProviderProps) {
     )
 }
 
-// changes babel and jest config to not be cjs module.export
-// look into condesning auth test files into one
+// look into condensing auth test files into one
+// fix unit tests

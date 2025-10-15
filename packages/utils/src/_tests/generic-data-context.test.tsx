@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { expect, it, describe } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { GenericDataProvider, useGenericDataContext, useUpdateGenericDataContext } from '../hooks/Contexts/generic-data-context';
+import { GenericDataProvider, useGenericDataContext, useUpdateGenericDataContext, validateData } from '../hooks/Contexts/generic-data-context';
 import React from 'react'
 
 function useGenericData() {
@@ -197,10 +197,44 @@ describe('useUpdateGenericDataContext',() => {
         const { result } = renderHook(() => useGenericData(), {wrapper});
         expect(result.current.data.data).toBeUndefined();
 
-        act(() => {
-            result.current.update({data: ()=>console.log('test')});
-        });
-        expect(result.current.update).toThrowError();
-        expect(result.current.data).toBe(undefined);
+        function test(){
+            console.log(1+1)
+        }
+
+  
+        expect(result.current.update(test as any)).rejects.toThrow();
     })
+})
+
+describe('validateData', () => {
+    it('should return the data if a string is passed', () => {
+        const { result } = renderHook(() => validateData({ data: 'test' }))
+        expect(result.current.data).toBe('test') 
+        expect(result.current).toStrictEqual({data: 'test'});
+    });
+    it('should return the data if an integer is input', () => {
+        const { result } = renderHook(() => validateData({ data: 123 }))
+        expect(result.current.data).toBe(123);
+        expect(result.current).toStrictEqual({data: 123});
+    });
+    it('should return the data if null is input', () => {
+        const { result } = renderHook(() => validateData({ data: null }))
+        expect(result.current.data).toBe(null);
+        expect(result.current).toStrictEqual({data: null});  
+    });
+    it('should return the data if an object, not containing a function, is input', () => {
+        const { result } = renderHook(() => validateData({ data: { nested: 'test'}}));
+        expect(result.current).toStrictEqual({ data: { nested: 'test'}});
+    });
+    it('should throw an error if an object containing a function is input', () => {
+        function test(){
+            console.log('test')
+        }
+        const { result } = renderHook(() => validateData({ data: { number: test()}}))
+        expect(result.current).toThrowError()    
+    });
+    it.only('should throw an error if a function is input', () => {
+        const { result } = renderHook(() => validateData(console.log('test') as any))
+        expect(result.current).toThrow('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
+    });
 })
