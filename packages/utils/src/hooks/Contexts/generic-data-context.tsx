@@ -47,6 +47,8 @@ export function GenericDataProvider({ children }: AppProviderProps) {
     const [genericData, setGenericData] = useState<GenericData>(defaultGenericData);
 
     let inputIsFunction = false;
+
+    // eslint-disable-next-line
     function traverseObject(obj: any) {
         Object.keys(obj).forEach(key => {
             if(typeof obj[key] === 'function'){

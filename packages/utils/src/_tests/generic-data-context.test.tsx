@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { expect, it, describe } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { GenericDataProvider, useGenericDataContext, useUpdateGenericDataContext } from '../hooks/Contexts/generic-data-context';
@@ -195,9 +196,8 @@ describe('useUpdateGenericDataContext',() => {
 
         const { result } = renderHook(() => useGenericData(), {wrapper});
         expect(result.current.data.data).toBeUndefined();
-        
+
         act(() => {
-            // eslint-disable-next-line
             result.current.update({data: ()=>console.log('test')});
         });
         expect(result.current.update).toThrowError();
