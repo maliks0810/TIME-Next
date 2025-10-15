@@ -227,10 +227,8 @@ describe('validateData', () => {
         expect(result.current).toStrictEqual({ data: { nested: 'test'}});
     });
     it('should throw an error if an object containing a function is input', () => {
-        function test(){
-            console.log('test')
-        }
-        const { result } = renderHook(() => validateData({ data: { number: test()}}))
+        const { result } = renderHook(() => validateData({data: { test: () => console.log('test')}}))
+        console.log(result)
         expect(result.current).toThrowError()    
     });
     it('should throw an error if a function is input', () => {

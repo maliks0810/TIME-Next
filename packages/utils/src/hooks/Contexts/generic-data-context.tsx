@@ -55,9 +55,11 @@ export function validateData(updatedData: GenericData): GenericData{
     if(typeof updatedData === 'object'){
         try{
             traverseObject(updatedData);
-            if (!inputContainsFunction){
+            if (inputContainsFunction){
+                throw new Error('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
+            } else {
                 return updatedData;
-            } 
+            }
         } catch (e:any){
             if(e instanceof Error){
                 throw new Error('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
