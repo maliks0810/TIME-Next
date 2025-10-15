@@ -86,9 +86,7 @@ describe('useUpdateGenericDataContext',() => {
         const { result } = renderHook(() => useGenericData(), {wrapper});
         expect(result.current.data.data).toBeUndefined();
 
-        act(() => {
-            expect(() => {result.current.update(undefined as any)}).toThrowError();
-        })
+        expect(() => {result.current.update(undefined as any)}).toThrowError();
     });
 
     it('should update the stored value when null is input', () => {
@@ -197,10 +195,10 @@ describe('useUpdateGenericDataContext',() => {
             console.log(1+1)
         }
 
-        act(() => {
-            expect(() => result.current.update(test as any)).toThrow();
-        });
-
+        // act(() => {
+        //     expect(() => result.current.update(test as any)).toThrow();
+        // });
+        expect(() => result.current.update(test as any)).toThrow();
     })
 })
 
