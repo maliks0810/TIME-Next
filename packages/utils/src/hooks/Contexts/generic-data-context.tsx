@@ -37,6 +37,18 @@ export function useUpdateGenericDataContext() {
     return useContext(UpdateGenericDataContext);
 }
 
+// Summary:
+// Function to validate that any input data to the context is not a function, and does not contain a function within an object
+// First it checks if the input data is an object:
+//      If an object it recursively loops through the object, switching the inputContainsFunction flag to be true and throws an error if true, or returns the data if false
+// Then it checks if the input itself is not a function or undefined, if true it returns the data, if false throws and error
+//
+// Params:
+// updatedData: GenericData - which must be either a string, number, object, null or boolean, the class allows for undefined however that is not an acceptable input as
+// we use that for the default state 
+//
+// Returns: 
+// Either returns the input data without any transformation if it passes all validation, or throws an error
 export function validateData(updatedData: GenericData): GenericData{
     let inputContainsFunction = false;
 
@@ -50,7 +62,6 @@ export function validateData(updatedData: GenericData): GenericData{
             } 
         });
     } 
-
 
     if(typeof updatedData === 'object'){
         try{
@@ -99,6 +110,3 @@ export function GenericDataProvider({ children }: AppProviderProps) {
         </GenericDataContext.Provider>
     )
 }
-
-// look into condensing auth test files into one
-// fix unit tests
