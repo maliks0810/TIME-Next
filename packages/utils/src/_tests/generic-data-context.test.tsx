@@ -201,8 +201,7 @@ describe('useUpdateGenericDataContext',() => {
             console.log(1+1)
         }
 
-  
-        expect(result.current.update(test as any)).rejects.toThrow();
+        expect(() => (result.current.update(test as any))).toThrow('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined');
     })
 })
 
@@ -232,7 +231,10 @@ describe('validateData', () => {
         expect(result.current).toThrowError()    
     });
     it('should throw an error if a function is input', () => {
-        const { result } = renderHook(() => validateData(console.log('test') as any))
-        expect(result.current).toThrow('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
+        function test(){
+            console.log(1+1)
+        }
+        const { result } = renderHook(() => validateData(test as any))
+        expect(() => result.current).toThrowError()
     });
 })
