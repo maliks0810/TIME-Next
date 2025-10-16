@@ -2,7 +2,7 @@
 // import { Box } from '@mui/material';
 // import { Box, Chip, Typography } from '@mui/material';
 // import snowflake from '../assets/snowflake.png';
-// import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
+import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
 // import { Calendar } from '@platform/ui';
 // import { Axios } from '@platform/utils';
 // import { useState } from 'react';
@@ -17,8 +17,8 @@ import '../App.scss';
 // import { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
-  // const genericData = useGenericDataContext();
-  // const updateGenericData = useUpdateGenericDataContext();
+  const genericData = useGenericDataContext();
+  const updateGenericData = useUpdateGenericDataContext();
 
   
   // const [ date, setDate ] = useState<Date>();
@@ -79,8 +79,13 @@ const HomePage: React.FC = () => {
       HomePage
 
       {/* Working */}
-      {/* <button onClick={() => updateGenericData({data: 'testing'})}> DATA: TESTING </button>
-      <button onClick={() => console.log(genericData)}> GET </button> */}
+      <button onClick={() => updateGenericData({data: 'testing'})}> DATA: TESTING </button>
+      <button onClick={() => updateGenericData(console.log('asdf') as any)}> TEST </button>
+      <button onClick={() => updateGenericData(({ data: { test: () => console.log('test') }}))}> test nested </button>
+      <button onClick={() => updateGenericData({data: undefined})}> test </button>
+      <button onClick={() => updateGenericData({data: {again: {third: undefined}}})}> test nested undefined </button>
+      <button onClick={() => updateGenericData({ data: { test: {nested: { array: [1,2,3,4,5]}}}})}> test nested arr</button>
+      <button onClick={() => console.log(genericData)}> GET </button>
         {/* <TcwAdjustableGrid layout={layout}>
           <Box key='a' sx={{ border: '1px solid red'}}> a </Box>
           <Box key='b' sx={{ border: '1px solid blue'}}> b </Box>

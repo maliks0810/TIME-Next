@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
+import { isPlainObject } from "lodash";
 
 type AppProviderProps = {    
     children: React.ReactNode;
@@ -55,15 +56,17 @@ export function validateData(updatedData: GenericData): GenericData{
     // eslint-disable-next-line
     function traverseObject(obj: any) {
         Object.keys(obj).forEach(key => {
-            if(typeof obj[key] === 'function'){
+            if(typeof obj[key] === 'function' || obj[key] === undefined){
                 inputContainsFunction = true;            
-            } else if (typeof obj[key] === 'object' && obj[key] !== null){
+            } else if (isPlainObject(obj[key]) && obj[key] !== null){
+                console.log(obj[key])
                 traverseObject(obj[key])
+                
             } 
         });
     } 
 
-    if(typeof updatedData === 'object'){
+    if(isPlainObject(updatedData)){
         try{
             traverseObject(updatedData);
             if (inputContainsFunction){
