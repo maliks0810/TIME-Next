@@ -64,7 +64,7 @@ describe('useUpdateGenericDataContext',() => {
         expect(result.current.data.data).toStrictEqual({ name: 'testname', id: 999})
     });
 
-    it('should update the stored value when undefined is input as data', () => {
+    it('should throw an error when undefined is input as data', () => {
         const wrapper = ({ children }: {children: React.ReactNode }) => (
             <GenericDataProvider> {children} </GenericDataProvider>
         )
@@ -72,10 +72,12 @@ describe('useUpdateGenericDataContext',() => {
         const { result } = renderHook(() => useGenericData(), {wrapper});
         expect(result.current.data.data).toBeUndefined();
 
-        act(() => {
-            result.current.update({ data: undefined} );
-        })
-        expect(result.current.data.data).toBeUndefined();
+        // act(() => {
+        //     result.current.update({ data: undefined} );
+        // })
+        // expect(result.current.data.data).toBeUndefined();
+                expect(() => result.current.update({ data: undefined})).toThrow();
+
     });
     
     it('should not update the stored value when undefined is input as undefined', () => {
