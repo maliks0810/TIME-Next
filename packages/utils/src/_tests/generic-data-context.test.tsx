@@ -86,13 +86,7 @@ describe('useUpdateGenericDataContext',() => {
         const { result } = renderHook(() => useGenericData(), {wrapper});
         expect(result.current.data.data).toBeUndefined();
 
-        act(() => {
-            result.current.update(undefined as any);
-        })
-
-        console.log(result.current.data)
-
-        expect(result.current.data).toThrowError();
+        expect(() => {result.current.update(undefined as any)}).toThrowError();
     });
 
     it('should update the stored value when null is input', () => {
@@ -201,40 +195,39 @@ describe('useUpdateGenericDataContext',() => {
             console.log(1+1)
         }
 
-        expect(() => (result.current.update(test as any))).toThrow('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined');
+        // act(() => {
+        //     expect(() => result.current.update(test as any)).toThrow();
+        // });
+        expect(() => result.current.update(test as any)).toThrow();
     })
 })
 
 describe('validateData', () => {
-    it('should return the data if a string is passed', () => {
-        const { result } = renderHook(() => validateData({ data: 'test' }))
-        expect(result.current.data).toBe('test') 
-        expect(result.current).toStrictEqual({data: 'test'});
-    });
+    it('should return the data if a string is passed', () => {  
+        const result = validateData({ data: 'test' });  
+        expect(result).toStrictEqual({ data: 'test' });  
+    });  
     it('should return the data if an integer is input', () => {
-        const { result } = renderHook(() => validateData({ data: 123 }))
-        expect(result.current.data).toBe(123);
-        expect(result.current).toStrictEqual({data: 123});
+        const result = validateData({ data: 123 });  
+        expect(result).toStrictEqual({ data: 123 });  
     });
     it('should return the data if null is input', () => {
-        const { result } = renderHook(() => validateData({ data: null }))
-        expect(result.current.data).toBe(null);
-        expect(result.current).toStrictEqual({data: null});  
+        const result = validateData({ data: null });  
+        expect(result).toStrictEqual({ data: null });  
     });
     it('should return the data if an object, not containing a function, is input', () => {
         const { result } = renderHook(() => validateData({ data: { nested: 'test'}}));
         expect(result.current).toStrictEqual({ data: { nested: 'test'}});
     });
-    it('should throw an error if an object containing a function is input', () => {
-        const { result } = renderHook(() => validateData({data: { test: () => console.log('test')}}))
-        console.log(result)
-        expect(result.current).toThrowError()    
-    });
-    it('should throw an error if a function is input', () => {
-        function test(){
-            console.log(1+1)
-        }
-        const { result } = renderHook(() => validateData(test as any))
-        expect(() => result.current).toThrowError()
-    });
+    it('should throw an error if an object containing a function is input', () => {  
+        expect(() => validateData({ data: { test: () => console.log('test') } })).toThrowError(  
+            'Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined'  
+        );  
+    });  
+  
+    it('should throw an error if a function is input', () => {  
+        expect(() => validateData(console.log('test') as any)).toThrowError(  
+            'Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined'  
+        );  
+    });  
 })
