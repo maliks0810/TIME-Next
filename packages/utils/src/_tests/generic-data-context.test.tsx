@@ -71,13 +71,7 @@ describe('useUpdateGenericDataContext',() => {
 
         const { result } = renderHook(() => useGenericData(), {wrapper});
         expect(result.current.data.data).toBeUndefined();
-
-        // act(() => {
-        //     result.current.update({ data: undefined} );
-        // })
-        // expect(result.current.data.data).toBeUndefined();
-                expect(() => result.current.update({ data: undefined})).toThrow();
-
+        expect(() => result.current.update({ data: undefined})).toThrow();
     });
     
     it('should not update the stored value when undefined is input as undefined', () => {
@@ -197,30 +191,31 @@ describe('useUpdateGenericDataContext',() => {
             console.log(1+1)
         }
 
-        // act(() => {
-        //     expect(() => result.current.update(test as any)).toThrow();
-        // });
         expect(() => result.current.update(test as any)).toThrow();
-    })
-})
+    });
+});
 
 describe('validateData', () => {
     it('should return the data if a string is passed', () => {  
         const result = validateData({ data: 'test' });  
         expect(result).toStrictEqual({ data: 'test' });  
     });  
+
     it('should return the data if an integer is input', () => {
         const result = validateData({ data: 123 });  
         expect(result).toStrictEqual({ data: 123 });  
     });
+
     it('should return the data if null is input', () => {
         const result = validateData({ data: null });  
         expect(result).toStrictEqual({ data: null });  
     });
+
     it('should return the data if an object, not containing a function, is input', () => {
         const { result } = renderHook(() => validateData({ data: { nested: 'test'}}));
         expect(result.current).toStrictEqual({ data: { nested: 'test'}});
     });
+
     it('should throw an error if an object containing a function is input', () => {  
         expect(() => validateData({ data: { test: () => console.log('test') } })).toThrowError(  
             'Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined'  
@@ -232,4 +227,4 @@ describe('validateData', () => {
             'Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined'  
         );  
     });  
-})
+});
