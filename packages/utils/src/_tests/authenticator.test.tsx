@@ -5,21 +5,26 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { Authenticator } from "../hooks/Authentication/authenticator";
 
 vi.mock('@okta/okta-react',() => ({
-    useOktaAuth: vi.fn(),
+    authState: { isAuthenticated: false },
+    useOktaAuth: vi.fn()
 }));
 
 describe('authenticator', () => {
     const mockSuccessDiv = <div data-testid='test-success'>Success</div> 
     const mockLoadingDiv = <div data-testid='test-loading'>Loading</div>
 
+    const consoleMock = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+
+
     beforeEach(() => {
         cleanup();
+        consoleMock.mockReset();
     });
 
     it('should display the success component when user is authenticated', () => {
         (useOktaAuth as any).mockReturnValue({
             authState: { isAuthenticated: true},
-            oktaAuth: {}
+            oktaAuth: vi.fn()
         });
 
         render(<Authenticator success={mockSuccessDiv} loading={mockLoadingDiv} />);
@@ -50,4 +55,21 @@ describe('authenticator', () => {
 
         ex(container).toBeEmptyDOMElement();
     });
-})
+
+    
+    it('should redirect when user is not authenticated', () => {
+        (useOktaAuth as any).mockReturnValue({
+            authState: { isAuthenticated: false },
+            oktaAuth: {
+                setOriginalUri: vi.fn(),
+                signInWithRedirect: vi.fn()
+            },
+        });
+
+        render(<Authenticator success={mockSuccessDiv} loading={mockLoadingDiv} />);
+        
+        const { container } = render(<Authenticator success={mockSuccessDiv} />);
+        ex(container).toBeEmptyDOMElement();
+        ex(consoleMock).toHaveBeenLastCalledWith('User is not authenticated')
+    });
+});
