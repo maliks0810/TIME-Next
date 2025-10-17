@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { isPlainObject } from "lodash";
+import { isFunction, isNull, isPlainObject, isUndefined } from "lodash";
 
 type AppProviderProps = {    
     children: React.ReactNode;
@@ -56,11 +56,10 @@ export function validateData(updatedData: GenericData): GenericData{
     // eslint-disable-next-line
     function traverseObject(obj: any) {
         Object.keys(obj).forEach(key => {
-            if(typeof obj[key] === 'function' || obj[key] === undefined){
+            if(isFunction(obj[key]) || isUndefined(obj[key])){
                 inputContainsFunction = true;            
-            } else if (isPlainObject(obj[key]) && obj[key] !== null){
+            } else if (isPlainObject(obj[key]) && isNull(obj[key]) === false ){
                 traverseObject(obj[key])
-                
             } 
         });
     } 
@@ -82,7 +81,7 @@ export function validateData(updatedData: GenericData): GenericData{
             }
         }
     }
-    if (typeof updatedData !== 'function' && updatedData !== undefined) { 
+    if (isFunction(updatedData) === false && isUndefined(updatedData) === false) { 
         return(updatedData);
     } else {
         throw new Error('Error updating Generic Data Context, Functions and Undefined Data are not supported, context value set to undefined')
