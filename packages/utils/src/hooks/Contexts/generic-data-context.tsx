@@ -59,7 +59,6 @@ export function validateData(updatedData: GenericData): GenericData{
             if(typeof obj[key] === 'function' || obj[key] === undefined){
                 inputContainsFunction = true;            
             } else if (isPlainObject(obj[key]) && obj[key] !== null){
-                console.log(obj[key])
                 traverseObject(obj[key])
                 
             } 
