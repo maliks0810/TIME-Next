@@ -17,7 +17,6 @@ import '../App.scss';
 // import { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
-  console.log(import.meta.env)
   // const genericData = useGenericDataContext();
   // const updateGenericData = useUpdateGenericDataContext();
 
