@@ -88,7 +88,8 @@ class AppRegistryImpl implements AppRegistry {
             case 'production':
                 return HighestEnv.prod;
             default:
-                throw new Error(`Unknown environment: ${env}`);
+                console.error(`Unknown environment: ${env}`);
+                return HighestEnv.dev;
         }
     }
 }
