@@ -28,9 +28,6 @@ export default defineConfig(({ mode }) => ({
         },
         preserveSymlinks: true,
     },
-        // optimizeDeps: {
-        //     exclude: ['react', 'react-router-dom', 'react-dom'],
-        // },
     build: {
         assetsInlineLimit: 60000,
         outDir: 'dist',
