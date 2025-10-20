@@ -10,14 +10,17 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => {
     const combinedEnv: Record<string, string> = {};
     const appsDir = path.resolve(__dirname, '..');
-
+    const normalizedMode = mode === 'dev' ? 'development' : mode;
     fs.readdirSync(appsDir).forEach(dir => {
         if (dir !== 'platform-shell') {
-            // const normalizedMode = mode === 'dev' ? 'development' : mode;
-            const envFile = path.join(appsDir, dir, `.env.${mode}`);
+            console.log(mode)
+            
+            const envFile = path.join(appsDir, dir, `.env.${normalizedMode}`);
+            console.log(envFile)
             if (fs.existsSync(envFile)) {
                 const teamName = dir.split('-')[0];
-                const env = loadEnv(mode, path.join(appsDir, dir), '');
+                const env = loadEnv(normalizedMode, path.join(appsDir, dir), '');
+                console.log(env)
 
                 Object.entries(env).forEach(([key, value]) => {
                     if (key.startsWith('VITE_')) {
@@ -27,6 +30,8 @@ export default defineConfig(({ mode }) => {
             }
         }
     })
+
+    console.log(combinedEnv)
 
     return {
         plugins: [
@@ -66,7 +71,7 @@ export default defineConfig(({ mode }) => {
         },
         build: {
             assetsInlineLimit: 60000,
-            outDir: '../../build-' + mode,
+            outDir: '../../build-' + normalizedMode,
             sourcemap: mode !== 'prod',
             rollupOptions: {
                 output: {
@@ -79,6 +84,7 @@ export default defineConfig(({ mode }) => {
         },
         define: Object.entries(combinedEnv).reduce((acc,[key, value])  => {
             acc[`import.meta.env.${key}`] = JSON.stringify(value);
+            console.log(acc)
             return acc;
         }, {} as Record<string, string>),
         // define: {
