@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vite build",
     "build:sandbox": "vite build --mode sandbox",
-    "build:development": "vite build --mode dev",
+    "build:development": "vite build --mode development",
     "build:qa": "vite build --mode qa",
     "build:production": "vite build --mode prod",
     "clean": "rm -rf dist .turbo node_modules",
