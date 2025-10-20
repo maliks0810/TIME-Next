@@ -10,16 +10,16 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => {
     const combinedEnv: Record<string, string> = {};
     const appsDir = path.resolve(__dirname, '..');
-    const normalizedMode = mode === 'dev' ? 'development' : mode;
+    const normalizedMode = mode === 'development' ? 'dev' : mode;
     fs.readdirSync(appsDir).forEach(dir => {
         if (dir !== 'platform-shell') {
             console.log(mode)
             
-            const envFile = path.join(appsDir, dir, `.env.${normalizedMode}`);
+            const envFile = path.join(appsDir, dir, `.env.${mode}`);
             console.log(envFile)
             if (fs.existsSync(envFile)) {
                 const teamName = dir.split('-')[0];
-                const env = loadEnv(normalizedMode, path.join(appsDir, dir), '');
+                const env = loadEnv(mode, path.join(appsDir, dir), '');
                 console.log(env)
 
                 Object.entries(env).forEach(([key, value]) => {
