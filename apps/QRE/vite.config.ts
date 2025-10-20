@@ -23,10 +23,16 @@ export default defineConfig(({ mode }) => ({
             '@': path.resolve(__dirname, './src'),
             '@platform/ui': path.resolve(__dirname, '../../packages/ui/src'),
             '@platform/styles': path.resolve(__dirname, '../../packages/styles/src'),
+            '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
+            '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
         },
         preserveSymlinks: true,
     },
+        // optimizeDeps: {
+        //     exclude: ['react', 'react-router-dom', 'react-dom'],
+        // },
     build: {
+        assetsInlineLimit: 60000,
         outDir: 'dist',
         sourcemap: mode !== 'prod',
     },

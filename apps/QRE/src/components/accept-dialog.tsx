@@ -1,13 +1,13 @@
-import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
-import { ReactNode, Ref } from 'react';
+// import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
+import { ReactNode } from 'react';
 import './accept-dialog.scss';
-import { CircularProgress } from '@mui/material';
+// import { CircularProgress } from '@mui/material';
 import { WaitingEllipses } from './waiting-ellipses';
 
 export const AcceptDialog = (props: {
     title: string | ReactNode;
     children: ReactNode;
-    ref: Ref<HTMLDialogElement>;
+    ref: React.Ref<HTMLDialogElement> | undefined;
     onClick: (accept: boolean) => void;
     busyMessage?: string | null;
     busyTitle?: string | null;
@@ -16,7 +16,7 @@ export const AcceptDialog = (props: {
     const titleBlock =
         typeof title === 'string' ? (
             <div className="accept-dialog-title">
-                <WarningAmberOutlinedIcon className="accept-dialog-warning-icon" />
+                {/* <WarningAmberOutlinedIcon className="accept-dialog-warning-icon" /> */}
                 {title}
             </div>
         ) : (
@@ -37,12 +37,12 @@ export const AcceptDialog = (props: {
                         </div>
                         {/* couldn't get the 'track' prop to work on CircularProgress, so this is a work-around */}
                         <div className="accept-dialog-busy-progress">
-                            <CircularProgress
+                            {/* <CircularProgress
                                 variant="determinate"
                                 value={100}
                                 id="background-progress"
                             />
-                            <CircularProgress id="foreground-progress" />
+                            <CircularProgress id="foreground-progress" /> */}
                         </div>
                     </div>
                 )}

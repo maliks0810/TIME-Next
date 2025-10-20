@@ -8,3 +8,5 @@ export * from './hooks/Authentication/user-info-context';
 export * from './hooks/Contexts/generic-data-context';
 export * from 'axios';
 export * as tlog from '@tcw/tlog';
+export * from '@apollo/client';
+export { ApolloProvider } from '@apollo/client/react';

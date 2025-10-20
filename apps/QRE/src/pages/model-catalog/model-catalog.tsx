@@ -1,4 +1,4 @@
-import RefreshIcon from '@mui/icons-material/Refresh';
+// import RefreshIcon from '@mui/icons-material/Refresh';
 import { useRef } from 'react';
 import { BlockContainer } from '../../components/block-container';
 import './model-catalog.scss';
@@ -19,8 +19,6 @@ import {
 import { ModelCatalogAxiosContextProvider } from '../../contexts/model-catalog-axios-context';
 import { EnumSelect } from './selects/selects';
 import { ModelCatalogGrid } from './grid/grid';
-import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
-import { ApolloProvider } from '@apollo/client/react'
 
 const ModelCatalogRowCount = () => {
     const counts = useModelCatalogEntryCountsContext()[0];
@@ -51,7 +49,7 @@ const ModelCatalogRefresh = () => {
             disabled={disabled}
             title="Refresh Model Catalog"
         >
-            <RefreshIcon className="model-catalog-refresh-icon" />
+            {/* <RefreshIcon className="model-catalog-refresh-icon" /> */}
         </button>
     );
 };

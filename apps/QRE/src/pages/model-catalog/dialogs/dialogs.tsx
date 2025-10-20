@@ -1,8 +1,8 @@
 import { JSX, useEffect, useRef } from 'react';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import ReportIcon from '@mui/icons-material/Report';
+// import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+// import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+// import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+// import ReportIcon from '@mui/icons-material/Report';
 import GitLabIcon from '../../../assets/gitlab.svg';
 import JupyterIcon from '../../../assets/jupyter.svg';
 import './dialogs.scss';
@@ -53,7 +53,7 @@ export const ModelDeleteDialog = (props: ModelCatalogDialogProps) => {
                         {'Are you sure you want to delete Model\n'}
                         <span>{entry?.name}</span>
                     </div>
-                    <ReportIcon className="model-catalog-delete-dialog-icon" />
+                    {/* <ReportIcon className="model-catalog-delete-dialog-icon" /> */}
                 </div>
             }
             ref={ref}
@@ -97,8 +97,8 @@ export const SyncToJupyterDialog = (props: ModelCatalogDialogProps) => {
                     </div>
 
                     <img src={JupyterIcon} className="model-catalog-sync-dialog-icon" />
-                    <ArrowBackIcon className="model-catalog-sync-dialog-icon" />
-                    <HelpOutlineIcon className="model-catalog-sync-dialog-icon" />
+                    {/* <ArrowBackIcon className="model-catalog-sync-dialog-icon" /> */}
+                    {/* <HelpOutlineIcon className="model-catalog-sync-dialog-icon" /> */}
                 </div>
             }
             ref={ref}
@@ -142,9 +142,9 @@ export const SyncToGitlabDialog = (props: ModelCatalogDialogProps) => {
                         {'Sync Jupyter to Gitlab?\n'}
                         <span>{entry?.name}</span>
                     </div>
-                    <ArrowForwardIcon className="model-catalog-sync-dialog-icon" />
+                    {/* <ArrowForwardIcon className="model-catalog-sync-dialog-icon" /> */}
                     <img src={GitLabIcon} className="model-catalog-sync-dialog-icon" />
-                    <HelpOutlineIcon className="model-catalog-sync-dialog-icon" />
+                    {/* <HelpOutlineIcon className="model-catalog-sync-dialog-icon" /> */}
                 </div>
             }
             ref={ref}
