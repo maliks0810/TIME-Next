@@ -5,6 +5,6 @@
     "composite": true,
     "noEmit": false
   },
-  "include": ["src/**/*", "custom.d.ts", "../../apps/QRE/vite-env.d.ts"],
+  "include": ["src/**/*", "custom.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

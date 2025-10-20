@@ -22,7 +22,7 @@ export const internalApps: InternalAppMetadata[] = [
     title: 'R2-Model-Catalog',  
     path: '/qre/catalog',  
     team: 'R2',  
-    env: HighestEnv.prod,  
+    env: HighestEnv.dev,  
     component: lazy(() => import('@r2/qre/src/pages/model-catalog/model-catalog'))  
   },    
 ];  
