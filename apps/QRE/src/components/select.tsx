@@ -1,5 +1,5 @@
 import { forwardRef, ReactNode, useImperativeHandle, useRef } from 'react';
-// import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined';
+import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined';
 import './select.scss';
 import { genSmallId } from '../utils/uuid';
 
@@ -41,7 +41,7 @@ export const Select = forwardRef<SelectRef, SelectProps>((props, ref) => {
             >
                 <div className="select-button-content">
                     <div className="select-button-text">{selectText}</div>
-                    {/* <ExpandMoreOutlinedIcon className="select-icon" /> */}
+                    <ExpandMoreOutlinedIcon className="select-icon" />
                 </div>
             </button>
         </div>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-// import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-// import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
     useModelCatalogEntryCountsContext,
     useModelCatalogEntriesContext,
@@ -34,16 +34,16 @@ import './grid.scss';
 
 const ModelCatalogGridHeader = () => {
     const [sort, setSort] = useModelCatalogSortContext();
-    // const DirIcon = sort.sortDesc ? KeyboardArrowDownIcon : KeyboardArrowUpIcon;
+    const DirIcon = sort.sortDesc ? KeyboardArrowDownIcon : KeyboardArrowUpIcon;
     const entryBusy = useEntryBusyContext();
     const entryEditing = useEntryEditingContext();
     const disabled = entryBusy || entryEditing;
 
     console.debug('ModelCatalogGridHeader rendering');
 
-    // const getIcon = (name: string) => (
-    //     <DirIcon className="model-catalog-sort-icon" aria-hidden={sort.sortBy != name} />
-    // );
+    const getIcon = (name: string) => (
+        <DirIcon className="model-catalog-sort-icon" aria-hidden={sort.sortBy != name} />
+    );
 
     const handleSort = (name: SortableFields) => {
         let newSortDesc = false;
@@ -61,7 +61,7 @@ const ModelCatalogGridHeader = () => {
             disabled={disabled}
         >
             {name}
-            {/* {getIcon(name)} */}
+            {getIcon(name)}
         </button>
     );
 
