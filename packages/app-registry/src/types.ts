@@ -78,7 +78,8 @@ export enum NavbarSubHeader {
     Governance = 'Governance',
     Regulations = 'Regulations',
     General = 'General',
-    AiThemes= 'AI Themes'
+    AiThemes= 'AI Themes',
+    QRE = 'QRE'
 }
 
 

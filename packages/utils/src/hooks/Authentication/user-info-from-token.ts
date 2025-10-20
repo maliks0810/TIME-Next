@@ -2,6 +2,7 @@
 import { useOktaAuth } from "@okta/okta-react";
 import { UserInfo } from "./user-info";
 
+// might need to rethink this
 const ADMIN_GROUP = 'VelocityPortalAdmins';
 
 export const useOktaUserInfo = () : {get: () => Promise<UserInfo>} => {

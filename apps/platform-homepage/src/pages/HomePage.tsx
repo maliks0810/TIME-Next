@@ -78,6 +78,13 @@ const HomePage: React.FC = () => {
     <div className="dashboard-container">
       HomePage
 
+      {/* Working */}
+      {/* <button onClick={() => updateGenericData('test' as any)}> SET </button>
+      <button onClick={() => updateGenericData({data: 'testing'})}> SET WITH DATA </button>
+      <button onClick={() => updateGenericData({hello: '123'} as any)}> SET WITH ANY OBJ </button>
+      <button onClick={() => updateGenericData({hello: {test: { again: '123'}}} as any)}> SET NESTED </button> */}
+
+      {/* <button onClick={() => console.log(genericData)}> GET </button> */}
         {/* <TcwAdjustableGrid layout={layout}>
           <Box key='a' sx={{ border: '1px solid red'}}> a </Box>
           <Box key='b' sx={{ border: '1px solid blue'}}> b </Box>

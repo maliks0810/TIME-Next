@@ -1,0 +1,1 @@
+export type SortableFields = 'Name' | 'State' | 'Kind' | 'Purpose' | 'Owner' | '';

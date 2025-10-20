@@ -1,5 +1,4 @@
-import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
-import { ApolloProvider } from '@apollo/client/react'
+import { ApolloClient, HttpLink, InMemoryCache, ApolloProvider } from '@platform/utils';
 import { Outlet } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { Navbar, Footer } from '@platform/ui';

@@ -15,14 +15,14 @@ export const internalApps: InternalAppMetadata[] = [
   },  
   {  
     header: NavbarHeader.PortfolioManagement,  
-    subHeader: NavbarSubHeader.AladdinPortfolioManagement,  
+    subHeader: NavbarSubHeader.QRE,  
     type: 'internal',  
-    id: 'testing',  
-    name: 'testing',  
-    title: 'testing',  
-    path: '/testing',  
-    team: 'testing',  
-    env: HighestEnv.prod,  
-    component: lazy(() => import('@testing/alpha/src/App'))  
+    id: '@r2/qre',  
+    name: 'R2-Model-Catalog',  
+    title: 'R2-Model-Catalog',  
+    path: '/qre/catalog',  
+    team: 'R2',  
+    env: HighestEnv.dev,  
+    component: lazy(() => import('@r2/qre/src/pages/model-catalog/model-catalog'))  
   },    
 ];  

@@ -1,0 +1,36 @@
+{
+  "name": "@r2/qre",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "R2 - QRE",
+  "scripts": {
+    "build": "vite build",
+    "build:sandbox": "vite build --mode sandbox",
+    "build:development": "vite build --mode dev",
+    "build:qa": "vite build --mode qa",
+    "build:production": "vite build --mode prod",
+    "clean": "rm -rf dist .turbo node_modules",
+    "dev": "vite",
+    "preview": "vite preview --port 3002",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-router-dom": "7.9.3",
+    "@platform/ui": "1.0.0",
+    "@platform/styles": "1.0.0",
+    "@platform/utils": "1.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.1",
+    "eslint": "^9.34.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "sass": "^1.90.0",
+    "typescript": "5.9.3"
+  }
+}
