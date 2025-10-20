@@ -13,7 +13,8 @@ export default defineConfig(({ mode }) => {
 
     fs.readdirSync(appsDir).forEach(dir => {
         if (dir !== 'platform-shell') {
-            const envFile = path.join(appsDir, dir, `.env.${mode}`);
+            const normalizedMode = mode === 'dev' ? 'development' : mode;
+            const envFile = path.join(appsDir, dir, `.env.${normalizedMode}`);
             if (fs.existsSync(envFile)) {
                 const teamName = dir.split('-')[0];
                 const env = loadEnv(mode, path.join(appsDir, dir), '');
