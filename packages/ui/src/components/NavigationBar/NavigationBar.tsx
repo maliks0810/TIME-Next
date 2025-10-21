@@ -83,7 +83,16 @@ export const Navbar: React.FC = () => {
         }    
             
         return result;    
-    };  
+    };
+
+    const handleSendEmail = () => {
+        const recipientEmail = 'es-platformengineering@tcw.com';
+        const subject = 'Support Request';
+
+        const encodedSubject = encodeURIComponent(subject);
+
+        window.open(`mailto:${recipientEmail}?subject=${encodedSubject}`);
+    }
 
     return (
         <div className="header-container">
@@ -131,7 +140,10 @@ export const Navbar: React.FC = () => {
                     <button className="profile-menu-preferences" >
                         Preferences
                     </button>
-                    <div className="profile-menu-log-off">Log Off</div>
+                    <button className="profile-menu-preferences" onClick={handleSendEmail}>
+                        Request Support
+                    </button>
+                    {/* <div className="profile-menu-log-off">Log Off</div> */}
                 </div>
             </Menu>
         </div>
