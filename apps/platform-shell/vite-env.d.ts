@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="vite-plugin-svgr/client" />
 
 interface ImportMetaEnv {
     readonly VITE_APP_ENV: string;
@@ -9,7 +10,6 @@ interface ImportMetaEnv {
     readonly VITE_REACT_APP_TIME_PROFILE_AGQL_URL: string;
     readonly VITE_REACT_APP_SUPPORT_EMAIL: string;
     readonly VITE_REACT_APP_TIP_ERISA_AI_URL: string;
-    readonly VITE_QRE_CONTENT_MGMT: string;
 }
 
 interface ImportMeta {

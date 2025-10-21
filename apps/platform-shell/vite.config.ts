@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import svgr from 'vite-plugin-svgr';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,7 +31,8 @@ export default defineConfig(({ mode }) => {
 
     return {
         plugins: [
-            react()
+            react(),
+            svgr()
         ],
         server: {
             port: 5173,

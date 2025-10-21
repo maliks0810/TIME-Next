@@ -3,8 +3,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ReportIcon from '@mui/icons-material/Report';
-// import GitLabIcon from '../../../assets/gitlab.svg';
-// import JupyterIcon from '../../../assets/jupyter.svg';
+import GitLabIcon from '../../../assets/gitlab.svg?react';
+import JupyterIcon from '../../../assets/jupyter.svg?react';
 import './dialogs.scss';
 import { ModelCatalogEntry, SyncTypes } from '../../../types/model-catalog-types';
 import { AcceptDialog } from '../../../components/accept-dialog';
@@ -95,7 +95,7 @@ export const SyncToJupyterDialog = (props: ModelCatalogDialogProps) => {
                         {'Sync Gitlab to Jupyter?\n'}
                         <span>{entry?.name}</span>
                     </div>
-
+                    <JupyterIcon className="model-catalog-sync-dialog-icon" />
                     {/* <img src={JupyterIcon} className="model-catalog-sync-dialog-icon" /> */}
                     <ArrowBackIcon className="model-catalog-sync-dialog-icon" />
                     <HelpOutlineIcon className="model-catalog-sync-dialog-icon" />
@@ -143,6 +143,7 @@ export const SyncToGitlabDialog = (props: ModelCatalogDialogProps) => {
                         <span>{entry?.name}</span>
                     </div>
                     <ArrowForwardIcon className="model-catalog-sync-dialog-icon" />
+                    <GitLabIcon className="model-catalog-sync-dialog-icon" />
                     {/* <img src={GitLabIcon} className="model-catalog-sync-dialog-icon" /> */}
                     <HelpOutlineIcon className="model-catalog-sync-dialog-icon" />
                 </div>

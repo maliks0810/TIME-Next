@@ -1,10 +1,9 @@
 // @ts-nocheck  
-/// <reference types="vite-plugin-svgr/client" />
 import { useEffect, useRef, useState } from 'react';
 import { Menu } from '@mui/material';
 // import './Navbar.css';
 import DownArrowSVG from '../../assets/arrow-down.svg?react';
-// import arrowUp from '../assets/arrow-up.png';
+import arrowUp from '../../assets/arrow-up.png';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { InternalAppMetadata, ExternalAppMetadata } from '@platform/app-registry';
 import { NaviLinkContainer } from './navi-link-container';
@@ -90,7 +89,7 @@ export const TopMenu = (props: { menuData: any }) => {
                                 alt="title icon"
                                 className={'menu-expand-arrow' + (open ? ' current' : '')}
                     /> */}
-                    {/* <DownArrowSVG className={'menu-expand-arrow' + (open ? ' current' : '')} /> */}
+                    <DownArrowSVG className={'menu-expand-arrow' + (open ? ' current' : '')} />
                 </div>
             </button>
             <Menu
@@ -127,13 +126,13 @@ export const TopMenu = (props: { menuData: any }) => {
                                     title={subMenu.title}
                                 >
                                     {subMenu.title}
-                                    {/* {selectedItem == subMenu.title && (
+                                    {selectedItem == subMenu.title && (
                                         <img
                                             src={arrowUp}
                                             alt="arrow"
                                             className="sub-menu-extension-arrow"
                                         />
-                                    )} */}
+                                    )}
                                 </button>
                             </div>
                         ))}
