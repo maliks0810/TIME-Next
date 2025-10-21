@@ -87,12 +87,12 @@ export const Navbar: React.FC = () => {
 
     const handleSendEmail = () => {
         const recipientEmail = 'es-platformengineering@tcw.com';
-        const subject = 'Support Request';
+        const subject = 'Request Support';
 
         const encodedSubject = encodeURIComponent(subject);
 
         window.open(`mailto:${recipientEmail}?subject=${encodedSubject}`);
-    }
+    };
 
     return (
         <div className="header-container">
