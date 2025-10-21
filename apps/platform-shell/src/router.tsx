@@ -3,7 +3,7 @@ import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 import { LoginCallback, Security } from '@okta/okta-react';
 import { oktaConfig } from './okta-config';
 import { Routes, Route, Navigate, useNavigate  } from 'react-router-dom';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { RootLayout } from './layouts/RootLayout';
 import { appRegistry } from '@platform/app-registry';
 import { Authenticator } from '@platform/utils';
@@ -18,13 +18,21 @@ export function AppRouter() {
         navigate(toRelativeUrl(originalUri || '', window.location.origin));
     };
 
+    // Because <Security> re-renders was getting a warning that two custom restoreOriginalUri callbacks were detected.
+    // https://github.com/okta/okta-react/issues/227
+    useEffect(() => {
+        return () => {
+            oktaAuth.options.restoreOriginalUri = undefined
+        }
+    }, []);
+
     // redirect logic based on okta persona.. pull out persona here
     // and redirect if no persona do as usual
-    const redirectToAppBasedOnOkta = async() => {
-        const user = await oktaAuth.getUser()
-        console.log(user)
-    }
-    redirectToAppBasedOnOkta()
+    // const redirectToAppBasedOnOkta = async() => {
+    //     const user = await oktaAuth.getUser()
+    //     console.log(user)
+    // }
+    // redirectToAppBasedOnOkta()
     return (
             <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
                 <Routes>
