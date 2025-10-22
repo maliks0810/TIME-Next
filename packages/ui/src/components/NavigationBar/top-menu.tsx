@@ -1,7 +1,6 @@
 // @ts-nocheck  
 import { useEffect, useRef, useState } from 'react';
 import { Menu } from '@mui/material';
-// import './Navbar.css';
 import DownArrowSVG from '../../assets/arrow-down.svg?react';
 import arrowUp from '../../assets/arrow-up.png';
 import { Navigate, useNavigate } from 'react-router-dom';

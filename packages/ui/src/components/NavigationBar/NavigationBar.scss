@@ -28,6 +28,7 @@
     align-items: center;
     padding-left: 50px;
     padding-right: 70px;
+    box-sizing: content-box;
 }
 
 .header-icon {
@@ -64,10 +65,10 @@
     color: white;
     font-size: 13px;
     &:hover {
-        color: var(--hover-blue-color);
+        color: var(--tcw-hover-blue-color);
     }
     &:focus {
-        color: var(--hover-blue-color);
+        color: var(--tcw-hover-blue-color);
     }   
 }
 
@@ -79,7 +80,7 @@
 }
 
 .header-menu-item-container.current {
-    color: var(--hover-blue-color);
+    color: var(--tcw-hover-blue-color);
 }
 
 .menu-expand-arrow.current {
@@ -87,6 +88,7 @@
         brightness(98%) contrast(93%);
     transform: rotate(180deg);
     padding-right: 6px;
+    padding-left: 0px;
 }
 
 .sub-menu-items-dropdown-container {
@@ -271,25 +273,12 @@
     outline: inherit;
     width: 100%;
     height: 40px;
-    border-bottom: 1px solid var(--dark-gray-color);
+    border-bottom: 1px solid var(--tcw-dark-gray-color);
     background-color: white;
     text-align: center;
     align-content: center;
 }
 
 .profile-menu-preferences:hover {
-    background-color: var(--hover-blue-color);
-}
-
-.profile-menu-log-off {
-    height: 40px;
-    background-color: white;
-    text-align: center;
-    align-content: center;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-}
-
-.profile-menu-log-off:hover {
-    background-color: var(--hover-blue-color);
+    background-color: var(--tcw-hover-blue-color);
 }
