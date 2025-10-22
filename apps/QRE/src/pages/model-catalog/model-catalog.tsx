@@ -1,4 +1,4 @@
-// import RefreshIcon from '@mui/icons-material/Refresh';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { useRef } from 'react';
 import { BlockContainer } from '../../components/block-container';
 import './model-catalog.scss';
@@ -49,7 +49,7 @@ const ModelCatalogRefresh = () => {
             disabled={disabled}
             title="Refresh Model Catalog"
         >
-            {/* <RefreshIcon className="model-catalog-refresh-icon" /> */}
+            <RefreshIcon className="model-catalog-refresh-icon" />
         </button>
     );
 };

@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
-// import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
-// import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlineBlankOutlined';
+import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
+import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlineBlankOutlined';
 import { Select, SelectRef } from "../../../components/select";
 import { ModelCategorization, ModelCategorizationMap, ModelPermissions } from "../../../types/model-catalog-types";
 import './selects.scss';
@@ -74,11 +74,11 @@ export const PermissionsSelect = (props: {
                         className="model-catalog-permissions-option-button"
                     >
                         <div className="model-catalog-permissions-option" key={i}>
-                            {/* {selected.includes(k) ? (
+                            {selected.includes(k) ? (
                                 <CheckBoxOutlinedIcon className="model-catalog-permissions-check-icon" />
                             ) : (
                                 <CheckBoxOutlineBlankOutlinedIcon className="model-catalog-permissions-check-icon" />
-                            )} */}
+                            )}
                             {k}
                         </div>
                     </button>

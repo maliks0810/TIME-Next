@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import svgr from 'vite-plugin-svgr';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,14 +14,11 @@ export default defineConfig(({ mode }) => {
     const normalizedMode = mode === 'development' ? 'dev' : mode;
     fs.readdirSync(appsDir).forEach(dir => {
         if (dir !== 'platform-shell') {
-            console.log(mode)
-            
             const envFile = path.join(appsDir, dir, `.env.${mode}`);
-            console.log(envFile)
+
             if (fs.existsSync(envFile)) {
                 const teamName = dir.split('-')[0];
                 const env = loadEnv(mode, path.join(appsDir, dir), '');
-                console.log(env)
 
                 Object.entries(env).forEach(([key, value]) => {
                     if (key.startsWith('VITE_')) {
@@ -31,11 +29,10 @@ export default defineConfig(({ mode }) => {
         }
     })
 
-    console.log(combinedEnv)
-
     return {
         plugins: [
-            react()
+            react(),
+            svgr()
         ],
         server: {
             port: 5173,
@@ -84,7 +81,6 @@ export default defineConfig(({ mode }) => {
         },
         define: Object.entries(combinedEnv).reduce((acc,[key, value])  => {
             acc[`import.meta.env.${key}`] = JSON.stringify(value);
-            console.log(acc)
             return acc;
         }, {} as Record<string, string>),
         // define: {

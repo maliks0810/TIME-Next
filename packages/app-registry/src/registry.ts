@@ -1,7 +1,7 @@
 import { type InternalAppMetadata, type ExternalAppMetadata, type TeamMetadata,
          type AppRegistry, 
          HighestEnv} from './types';
-import { internalApps } from './internalApps';
+import { defaultApps } from './defaultApps';
 import { portfolioManagementApps } from './portfolioManagementApps';
 import { researchAnalysisApps } from './researchAnalysisApps';
 import { riskPerformanceApps } from './riskPerformanceApps';
@@ -15,7 +15,7 @@ const currentEnv = import.meta.env.VITE_APP_ENV;
 // going to use discriminated union
 // order matters
 const apps: (InternalAppMetadata|ExternalAppMetadata)[] = [
-    ...internalApps,
+    ...defaultApps,
     ...portfolioManagementApps,
     ...researchAnalysisApps,
     ...riskPerformanceApps,

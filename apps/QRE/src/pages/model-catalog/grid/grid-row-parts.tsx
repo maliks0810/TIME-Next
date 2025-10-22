@@ -1,11 +1,11 @@
 import { memo } from 'react';
-// import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-// import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-// import CopyAllIcon from '@mui/icons-material/CopyAll';
-// import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-// import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-import GitLabIcon from '../../../assets/gitlab.svg';
-import JupyterIcon from '../../../assets/jupyter.svg';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CopyAllIcon from '@mui/icons-material/CopyAll';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import GitLabIcon from '../../../assets/gitlab.svg?react';
+import JupyterIcon from '../../../assets/jupyter.svg?react';
 import { ModelCatalogEntry, ModelStates, SyncTypes } from '../../../types/model-catalog-types';
 import {
     useEntryEditingContext,
@@ -36,7 +36,7 @@ export const EntryPresentation = memo((props: { entry: ModelCatalogEntry, userOw
                             onClick={handleNavToNotebook}
                         >
                             {entry.name}
-                            {/* <ArrowForwardIcon className="model-catalog-entry-name-icon" /> */}
+                            <ArrowForwardIcon className="model-catalog-entry-name-icon" />
                         </button>
                         <div className="model-catalog-entry-state" aria-level={entry.state}>
                             {ModelStates[entry.state]}
@@ -113,14 +113,14 @@ export const EntryActions = memo(
                             onClick={handleEdit}
                             aria-hidden={copyOnly}
                         >
-                            {/* <DriveFileRenameOutlineIcon className="model-catalog-entry-action-icon" /> */}
+                            <DriveFileRenameOutlineIcon className="model-catalog-entry-action-icon" />
                         </button>
                         <button
                             className="model-catalog-entry-action-button"
                             title="Copy Model Entry"
                             onClick={handleCopy}
                         >
-                            {/* <CopyAllIcon className="model-catalog-entry-action-icon" /> */}
+                            <CopyAllIcon className="model-catalog-entry-action-icon" />
                         </button>
                         <button
                             className="model-catalog-entry-action-button"
@@ -128,7 +128,7 @@ export const EntryActions = memo(
                             onClick={handleDelete}
                             aria-hidden={copyOnly}
                         >
-                            {/* <DeleteForeverIcon className="model-catalog-entry-action-icon" /> */}
+                            <DeleteForeverIcon className="model-catalog-entry-action-icon" />
                         </button>
                     </>
                 )}
@@ -161,22 +161,24 @@ export const EntrySync = memo((props: { startSync: (syncType: SyncTypes) => void
                         title="Sync To Gitlab"
                         onClick={handleSyncToGitlab}
                     >
-                        {/* <ArrowForwardIcon
+                        <ArrowForwardIcon
                             className="model-catalog-entry-action-icon"
                             aria-label="small-arrow-left"
-                        /> */}
-                        <img src={GitLabIcon} className="model-catalog-entry-action-icon" />
+                        />
+                        <GitLabIcon className="model-catalog-entry-action-icon" />
+                        {/* <img src={GitLabIcon} className="model-catalog-entry-action-icon" /> */}
                     </button>
                     <button
                         className="model-catalog-entry-action-button"
                         title="Sync To JupyterLab"
                         onClick={handleSyncToJupyter}
                     >
-                        <img src={JupyterIcon} className="model-catalog-entry-action-icon" />
-                        {/* <ArrowBackIcon
+                        <JupyterIcon className="model-catalog-entry-action-icon" />
+                        {/* <img src={JupyterIcon} className="model-catalog-entry-action-icon" /> */}
+                        <ArrowBackIcon
                             className="model-catalog-entry-action-icon"
                             aria-label="small-arrow-right"
-                        /> */}
+                        />
                     </button>
                 </>
             )}

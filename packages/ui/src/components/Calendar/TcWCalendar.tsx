@@ -1,7 +1,6 @@
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
 import { Dayjs } from 'dayjs';
-import './Calendar.css';
 
 // Summary:
 // - Wrapper around MUI-X Calendar component using DayJs
@@ -16,7 +15,7 @@ import './Calendar.css';
 //      - In your component create a state to hold the data: const [ date, setDate ] = useState<Date>();
 //      - Call the Calendar component using the prop callback: <Calendar onSelect={(date) => setDate(date)}/> */}
 //      - The data in "date" can now be used anywhere within the component with the type Date
-export const Calendar = (props: { onSelect?: (date: Date) => void }) => {
+export const TcWCalendar = (props: { onSelect?: (date: Date) => void }) => {
 
     const handleDateSelect = (date: Dayjs | null) => {
         if(date !== null && props.onSelect){

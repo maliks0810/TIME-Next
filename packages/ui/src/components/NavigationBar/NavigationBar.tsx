@@ -1,5 +1,4 @@
 // @ts-nocheck
-/// <reference types="vite-plugin-svgr/client" />
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu } from '@mui/material';
@@ -7,9 +6,9 @@ import { navigationData } from './navigation.ts';
 import { useUserInfo } from '@platform/utils';
 import { TopMenu } from './top-menu.js';
 import tcwTime from '../../assets/tcw-time.png';
-import HomeSVG from '../../assets/HomeSVG.svg';
-import SearchSVG from '../../assets/SearchSVG.svg';
-import ProfileSVG from '../../assets/ProfileSVG.svg';
+import HomeSVG from '../../assets/HomeSVG.svg?react';
+import SearchSVG from '../../assets/SearchSVG.svg?react';
+import ProfileSVG from '../../assets/ProfileSVG.svg?react';
 import { appRegistry } from '@platform/app-registry';
 import './NavigationBar.scss';
 
@@ -84,7 +83,16 @@ export const Navbar: React.FC = () => {
         }    
             
         return result;    
-    };  
+    };
+
+    const handleSendEmail = () => {
+        const recipientEmail = 'es-platformengineering@tcw.com';
+        const subject = 'Request Support';
+
+        const encodedSubject = encodeURIComponent(subject);
+
+        window.open(`mailto:${recipientEmail}?subject=${encodedSubject}`);
+    };
 
     return (
         <div className="header-container">
@@ -98,19 +106,20 @@ export const Navbar: React.FC = () => {
                     return <TopMenu key={index} menuData={header} />;
                 })}
             </div>
-
-                <img
+                {/* <SearchSVG className="header-icon" /> */}
+                {/* <img
                             src={SearchSVG}
                             alt="search icon"
                             className="header-icon"
-                />
+                /> */}
                         <div className="profile-menu">
             <button className="profile-menu-header-button" onClick={handleClick}>
-                <img
+                <ProfileSVG className="profile-icon header-icon" />
+                {/* <img
                             src={ProfileSVG}
                             alt="title icon"
                             className="profile-icon header-icon"
-                />
+                /> */}
             </button>
             <Menu
                 id="basic-menu"
@@ -131,7 +140,10 @@ export const Navbar: React.FC = () => {
                     <button className="profile-menu-preferences" >
                         Preferences
                     </button>
-                    <div className="profile-menu-log-off">Log Off</div>
+                    <button className="profile-menu-preferences" onClick={handleSendEmail}>
+                        Request Support
+                    </button>
+                    {/* <div className="profile-menu-log-off">Log Off</div> */}
                 </div>
             </Menu>
         </div>

@@ -1,6 +1,6 @@
 import * as tlog from '@tcw/tlog';
 import { memo, useState } from 'react';
-// import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { ModelCatalogEntry, SyncTypes } from '../../../types/model-catalog-types';
 import {
     useEntryEditingContext,
@@ -163,7 +163,7 @@ export const ModelCatalogNewEntryRow = (props: {
                     onClick={handleNewEntryClick}
                     disabled={editing}
                 >
-                    {/* <AddCircleOutlineIcon className="model-catalog-add-entry-icon" /> */}
+                    <AddCircleOutlineIcon className="model-catalog-add-entry-icon" />
                     Add new Model Catalog entry
                 </button>
             )}

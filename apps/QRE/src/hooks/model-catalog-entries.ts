@@ -111,8 +111,7 @@ import { useModelCatalogAxiosContext } from '../contexts/model-catalog-axios-con
 //         synchronization: { toGitlab: { user: 'bboucher' } },
 //     },
 // ];
-console.log(import.meta.env.VITE_QRE_CONTENT_MGMT)
-console.log(import.meta.env)
+
 export const QRE_CONTENT_MGMT_URL = NoTrailingForwardSlash(import.meta.env.VITE_QRE_CONTENT_MGMT);
 console.log(QRE_CONTENT_MGMT_URL)
 export const MODELS_URL = QRE_CONTENT_MGMT_URL + '/catalog/models';
