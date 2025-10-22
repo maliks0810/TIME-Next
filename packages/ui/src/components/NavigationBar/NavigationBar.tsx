@@ -106,7 +106,7 @@ export const Navbar: React.FC = () => {
                     return <TopMenu key={index} menuData={header} />;
                 })}
             </div>
-                <SearchSVG className="header-icon" />
+                {/* <SearchSVG className="header-icon" /> */}
                 {/* <img
                             src={SearchSVG}
                             alt="search icon"
