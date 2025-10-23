@@ -1,7 +1,6 @@
 
 # QRE team
-/apps/QRE/ @tcw-caquebral
-/apps/QRE/* @tcw-caquebral
+apps/QRE/ @tcw-caquebral
 /packages/app-registry/src/researchAnalysisApps.ts @tcw-caquebral
 
 
