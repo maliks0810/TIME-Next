@@ -1,10 +1,11 @@
 
 # QRE team
-/apps/QRE/ @tcw-caquebral
-/packages/app-registry/src/researchAnalysisApps.ts @tcw-caquebral
+[QRE] @tcw-caquebral
+/apps/QRE/
+/packages/app-registry/src/researchAnalysisApps.ts
 
 
 # Platform Engineering
-^[PE]
+[PE]
 * @tcw-group/technology/platform-engineering
 
