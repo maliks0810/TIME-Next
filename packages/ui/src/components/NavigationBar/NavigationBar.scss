@@ -118,7 +118,7 @@
     padding: 32px;
     background-color: #fafafa;
     border-bottom-right-radius: 10px;
-    max-height: 230px;
+    max-height: 290px;
 }
 
 .menu-item {
@@ -198,6 +198,9 @@
     font-size: 14px;
     text-align: left;
 
+    button {
+        color: inherit;
+    }
     &:disabled {
         color: var(--tcw-gray-color);
         cursor: default;
