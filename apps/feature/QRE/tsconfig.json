@@ -6,7 +6,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@platform/styles": ["../../../packages/styles/src"],
-      "@platform/ui": ["../../../packages/ui/src"]
+      "@platform/ui": ["../../../packages/ui/src"],
+      "@feature/QRE": ["./src"]
     }
   },
   "include": ["src/**/*", "vite.config.ts", "vite-env.d.ts"],
