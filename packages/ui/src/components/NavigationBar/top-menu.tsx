@@ -1,6 +1,6 @@
 // @ts-nocheck  
 import { useEffect, useRef, useState } from 'react';
-import { Menu } from '@mui/material';
+import { Menu, Button } from '@mui/material';
 import DownArrowSVG from '../../assets/arrow-down.svg?react';
 import arrowUp from '../../assets/arrow-up.png';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -157,13 +157,13 @@ export const TopMenu = (props: { menuData: any }) => {
                     <div className="sub-menu-links-container">
                         {selectedList?.links?.map((link: (ExternalAppMetadata|InternalAppMetadata), index: number) =>
                             <div className="sub-menu-link">
-                                <button
+                                <Button
                                     disabled={isLinkDisabled(link)}
                                     key={index}
                                     onClick={() => handleMenuLinkClick(link)}
                                 >
                                     {link.title}
-                                </button>
+                                </Button>
                                 <IconButton
                                     sx={{ display: link.newTab || link.type === 'internal' ? '' : 'none' }}
                                     aria-label="copy link"

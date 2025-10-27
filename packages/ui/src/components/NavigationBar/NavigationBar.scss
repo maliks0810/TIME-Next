@@ -200,6 +200,7 @@
 
     button {
         color: inherit;
+        text-transform: none;
     }
     &:disabled {
         color: var(--tcw-gray-color);
