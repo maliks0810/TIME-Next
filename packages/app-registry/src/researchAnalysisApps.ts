@@ -1,6 +1,7 @@
 import { ExternalAppMetadata } from '@platform/app-registry';
 import { lazy } from 'react';
-import { HighestEnv, InternalAppMetadata, NavbarHeader, NavbarSubHeader } from './types';
+import { HighestEnv, InternalAppMetadata } from './types';
+import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
   
 export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
     {
@@ -212,7 +213,7 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
             title: 'Model Catalog',  
             path: '/qre/catalog',  
             team: 'R2',  
-            env: HighestEnv.dev,  
-            component: lazy(() => import('@r2/qre/src/pages/model-catalog/model-catalog'))  
+            env: HighestEnv.dev,
+            component: lazy(() => import('../../../apps/feature/QRE/src/pages/model-catalog/model-catalog'))  
         },    
 ]

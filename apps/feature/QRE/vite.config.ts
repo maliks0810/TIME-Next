@@ -23,10 +23,10 @@ export default defineConfig(({ mode }) => ({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
-            '@platform/ui': path.resolve(__dirname, '../../packages/ui/src'),
-            '@platform/styles': path.resolve(__dirname, '../../packages/styles/src'),
-            '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
-            '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
+            '@platform/ui': path.resolve(__dirname, '../../../packages/ui/src'),
+            '@platform/styles': path.resolve(__dirname, '../../../packages/styles/src'),
+            '@platform/app-registry': path.resolve(__dirname, '../../../../packages/app-registry/src'),
+            '@platform/utils': path.resolve(__dirname, '../../../packages/utils/src'),
         },
         preserveSymlinks: true,
     },
