@@ -214,6 +214,6 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
             path: '/qre/catalog',  
             team: 'R2',  
             env: HighestEnv.dev,
-            component: lazy(() => import('../../../apps/feature/QRE/src/pages/model-catalog/model-catalog'))  
+            component: lazy(() => import('@r2/qre/src/pages/model-catalog/model-catalog'))
         },    
 ]
