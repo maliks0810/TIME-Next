@@ -1,5 +1,6 @@
 import { ExternalAppMetadata } from '@platform/app-registry';
-import { HighestEnv, NavbarHeader, NavbarSubHeader } from './types';
+import { HighestEnv } from './types';
+import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
 
 export const riskPerformanceApps: ExternalAppMetadata[] = [
 {

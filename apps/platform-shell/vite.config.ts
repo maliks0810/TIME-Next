@@ -11,23 +11,32 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => {
     const combinedEnv: Record<string, string> = {};
     const appsDir = path.resolve(__dirname, '..');
+    const featureDir = path.resolve(appsDir, 'feature');
     const normalizedMode = mode === 'development' ? 'dev' : mode;
-    fs.readdirSync(appsDir).forEach(dir => {
-        if (dir !== 'platform-shell') {
-            const envFile = path.join(appsDir, dir, `.env.${mode}`);
 
-            if (fs.existsSync(envFile)) {
-                const teamName = dir.split('-')[0];
-                const env = loadEnv(mode, path.join(appsDir, dir), '');
+    function loadEnvsIn(dirPath: string) {
+        fs.readdirSync(dirPath).forEach(subDir => {
 
-                Object.entries(env).forEach(([key, value]) => {
-                    if (key.startsWith('VITE_')) {
-                        combinedEnv[`VITE_${teamName.toUpperCase()}_${key.slice(5)}`] = value;
-                    }
-                })
+            if (subDir !== 'platform-shell') {
+                const envFile = path.join(dirPath, subDir, `.env.${mode}`);
+                if (fs.existsSync(envFile)) {
+                    const teamName = subDir.split('-')[0];
+                    const env = loadEnv(mode, path.join(dirPath, subDir), '');
+
+                    Object.entries(env).forEach(([key, value]) => {
+                        if (key.startsWith('VITE_')) {
+                            combinedEnv[`VITE_${teamName.toUpperCase()}_${key.slice(5)}`] = value;
+                        }
+                    });
+                }
             }
-        }
-    })
+        });
+    }
+
+    loadEnvsIn(appsDir);
+    if (fs.existsSync(featureDir)) {
+        loadEnvsIn(featureDir);
+    }
 
     return {
         plugins: [
@@ -53,7 +62,7 @@ export default defineConfig(({ mode }) => {
                 '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
                 '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
                 '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
-                '@r2/qre': path.resolve(__dirname, '../QRE'),
+                '@r2/qre': path.resolve(__dirname, '../feature/QRE'),
                 '@platform/platform-shell': path.resolve(__dirname, '.'),
                 'echarts': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
                 'echarts/core': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
@@ -64,7 +73,7 @@ export default defineConfig(({ mode }) => {
         optimizeDeps: {
             include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
             exclude: ['react/jsx-runtime','@platform/ui', '@platform/styles', '@platform/app-registry', '@platform/utils', '@platform/homepage', '@r2/qre'],
-            entries: ['src/**/*.tsx', '../**/src/**/*.tsx', '../../packages/**/*.tsx']
+            entries: ['src/**/*.tsx', '../**/src/**/*.tsx', '../../packages/**/*.tsx', '../feature/**/*.tsx']
         },
         build: {
             assetsInlineLimit: 60000,
