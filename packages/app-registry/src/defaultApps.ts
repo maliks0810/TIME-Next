@@ -10,7 +10,7 @@ export const defaultApps: InternalAppMetadata[] = [
       title: 'Home',  
       path: '/',  
       team: 'platform',  
-      env: HighestEnv.prod,  
+      env: HighestEnv.prod,
       component: lazy(() => import('@platform/homepage/src/App'))  
     },
 ];  

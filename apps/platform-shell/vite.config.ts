@@ -62,7 +62,7 @@ export default defineConfig(({ mode }) => {
                 '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
                 '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
                 '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
-                '@feature/QRE': path.resolve(__dirname, '../feature/QRE'),
+                '@r2/qre': path.resolve(__dirname, '../feature/QRE'),
                 '@platform/platform-shell': path.resolve(__dirname, '.'),
                 'echarts': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
                 'echarts/core': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
@@ -72,7 +72,7 @@ export default defineConfig(({ mode }) => {
         },
         optimizeDeps: {
             include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
-            exclude: ['react/jsx-runtime','@platform/ui', '@platform/styles', '@platform/app-registry', '@platform/utils', '@platform/homepage', '@feature/QRE'],
+            exclude: ['react/jsx-runtime','@platform/ui', '@platform/styles', '@platform/app-registry', '@platform/utils', '@platform/homepage'],
             entries: ['src/**/*.tsx', '../**/src/**/*.tsx', '../../packages/**/*.tsx', '../feature/**/*.tsx']
         },
         build: {

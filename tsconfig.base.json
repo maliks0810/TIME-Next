@@ -23,8 +23,7 @@
     "paths": {
         "@platform/ui": ["./packages/ui/src"],
         "@platform/styles": ["./packages/styles/src"],
-        "@platform/app-registry": ["./packages/app-registry/src"],
-        "@feature/*": ["./apps/feature/*/src"]
+        "@platform/app-registry": ["./packages/app-registry/src"]
     }
   },
   "exclude": ["node_modules", "dist", "build", ".turbo"]

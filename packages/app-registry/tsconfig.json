@@ -4,11 +4,7 @@
     "outDir": "./dist",
     "composite": true,
     "noEmit": false,
-    "baseUrl": ".",
-    "rootDir": "../../",  
-    "paths": {  
-      "@feature/*": ["../../apps/feature/*/src"]  
-    }  
+    "rootDir": "../../",
   },
   "include": ["src/**/*", "src/*", "custom.d.ts", "../../apps/platform-shell/vite-env.d.ts", "../../apps/feature/QRE/src/**/*"],
   "exclude": ["node_modules", "dist"]
