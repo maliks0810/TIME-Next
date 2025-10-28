@@ -35,7 +35,7 @@ export const TopMenu = (props: { menuData: any }) => {
     };
 
     const handleMenuLinkClick = (link: (ExternalAppMetadata|InternalAppMetadata)) => {
-        if (link.httpMethod !== 'POST'&& link.type === 'external') {
+        if (link.httpMethod !== 'POST' && link.type === 'external') {
             handleClose();
             popupRef.current.showPopup(link);
         } else if (link.type === 'internal') {
@@ -76,10 +76,10 @@ export const TopMenu = (props: { menuData: any }) => {
         }
   
         navigator.clipboard.writeText(linkUrl).then(() => {
-        console.log("Copied to clipboard:", linkUrl);
-    }).catch((err) => {
-        console.error("Failed to copy:", linkUrl);
-    });
+            console.log("Copied to clipboard:", linkUrl);
+        }).catch((err) => {
+            console.error("Failed to copy:", linkUrl);
+        });
     }
 
     useEffect(() => {
@@ -92,13 +92,14 @@ export const TopMenu = (props: { menuData: any }) => {
     }, [props.menuData, selectedItem]);
 
     const isLinkDisabled = (link: any): boolean => {
-        return false;
+        return link.disabled;
     };
 
     return (
         <div className="header-menu-item">
             <NaviLinkContainer ref={popupRef} />
-            <button onClick={handleClick}>
+            <button
+                onClick={handleClick}>
                 <div className={'header-menu-item-container' + (open ? ' current' : '')}>
                     {props.menuData.header}
                     {/* <img
@@ -155,20 +156,19 @@ export const TopMenu = (props: { menuData: any }) => {
                         ))}
                     </div>
                     <div className="sub-menu-links-container">
-                        {selectedList?.links?.map((link: (ExternalAppMetadata|InternalAppMetadata), index: number) =>
-                            <div className="sub-menu-link">
+                        {selectedList?.links?.map((app: (ExternalAppMetadata|InternalAppMetadata), index: number) =>
+                            <div className="sub-menu-link" key={index}>
                                 <Button
-                                    disabled={isLinkDisabled(link)}
-                                    key={index}
-                                    onClick={() => handleMenuLinkClick(link)}
+                                    disabled={isLinkDisabled(app)}
+                                    onClick={() => handleMenuLinkClick(app)}
                                 >
-                                    {link.title}
+                                    {app.title}
                                 </Button>
                                 <IconButton
-                                    sx={{ display: link.newTab || link.type === 'internal' ? '' : 'none' }}
+                                    sx={{ display: app.newTab || app.type === 'internal' ? '' : 'none' }}
                                     aria-label="copy link"
-                                    disabled={isLinkDisabled(link)}
-                                    onClick={() => copyToClipboard(link)}
+                                    disabled={isLinkDisabled(app)}
+                                    onClick={() => copyToClipboard(app)}
                                     size="small"  >  
                                 <ContentCopyIcon fontSize="inherit" />
                                 </IconButton>
