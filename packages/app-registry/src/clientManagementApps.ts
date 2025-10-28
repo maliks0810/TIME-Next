@@ -10,7 +10,7 @@ export const clientManagementApps: ExternalAppMetadata[] = [
         title: 'Under Construction',
         url: '',
         newTab: false,
-        disabled: false,
+        disabled: true,
         env: HighestEnv.prod
     },
 ]

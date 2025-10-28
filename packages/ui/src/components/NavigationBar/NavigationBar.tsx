@@ -4,7 +4,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu } from '@mui/material';
 import { navigationData } from './navigation.ts';
 import { useUserInfo } from '@platform/utils';
-import { TopMenu } from './top-menu.js';
+import { IconButton } from '@mui/material';
+import { InternalAppMetadata, ExternalAppMetadata } from '@platform/app-registry';
+import { TopMenu } from './top-menu';
 import tcwTime from '../../assets/tcw-time.png';
 import HomeSVG from '../../assets/HomeSVG.svg?react';
 import SearchSVG from '../../assets/SearchSVG.svg?react';
@@ -17,7 +19,6 @@ export interface NavigationBarProps {
     onNavigate?: (route: string) => void;
 }
 
-// Bring in app registry for the dynamic links
 
 export const Navbar: React.FC = () => {
     const navigate = useNavigate();
@@ -35,7 +36,7 @@ export const Navbar: React.FC = () => {
         setAnchorEl(null);
     };
 
-    const transformLinks = (inputArray) => {    
+    const transformLinks = (inputArray: (InternalAppMetadata|ExternalAppMetadata)[]) => {    
         const headerMap = new Map();    
 
         inputArray.forEach(item => {    
@@ -112,41 +113,41 @@ export const Navbar: React.FC = () => {
                             alt="search icon"
                             className="header-icon"
                 /> */}
-                        <div className="profile-menu">
-            <button className="profile-menu-header-button" onClick={handleClick}>
-                <ProfileSVG className="profile-icon header-icon" />
+            <div className="profile-menu">
+                <IconButton className="profile-menu-header-button" onClick={handleClick}>
+                    <ProfileSVG className="profile-icon header-icon" />
                 {/* <img
                             src={ProfileSVG}
                             alt="title icon"
                             className="profile-icon header-icon"
                 /> */}
-            </button>
-            <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                    'aria-labelledby': 'basic-button',
-                    disablePadding: true,
-                    
-                }}
-                classes={{ paper: 'menu-paper' }}
-                slotProps={{ paper: { square: true } }}
-                anchorOrigin={{vertical: 50, horizontal: -125}}
-            >
-                <div className="profile-dropdown-content">
-                    <div className="profile-menu-user-name">{userInfo.name}</div>
-                    <button className="profile-menu-preferences" >
-                        Preferences
-                    </button>
-                    <button className="profile-menu-preferences" onClick={handleSendEmail}>
-                        Request Support
-                    </button>
-                    {/* <div className="profile-menu-log-off">Log Off</div> */}
-                </div>
-            </Menu>
-        </div>
+                </IconButton>
+                <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                        'aria-labelledby': 'basic-button',
+                        disablePadding: true,
+                        
+                    }}
+                    classes={{ paper: 'menu-paper' }}
+                    slotProps={{ paper: { square: true } }}
+                    anchorOrigin={{vertical: 50, horizontal: -125}}
+                >
+                    <div className="profile-dropdown-content">
+                        <div className="profile-menu-user-name">{userInfo.name}</div>
+                        <button className="profile-menu-preferences" >
+                            Preferences
+                        </button>
+                        <button className="profile-menu-preferences" onClick={handleSendEmail}>
+                            Request Support
+                        </button>
+                        {/* <div className="profile-menu-log-off">Log Off</div> */}
+                    </div>
+                </Menu>
+            </div>
 
             {/* <HomeSVG className="home-icon header-icon" onClick={handleHomeClick} title='Return to main TIME screen' />
             <SearchSVG className="search-icon header-icon" />
