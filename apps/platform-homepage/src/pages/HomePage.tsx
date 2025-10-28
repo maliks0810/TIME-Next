@@ -79,12 +79,13 @@ const HomePage: React.FC = () => {
       HomePage
 
       {/* Working */}
-      {/* <button onClick={() => updateGenericData('test' as any)}> SET </button>
-      <button onClick={() => updateGenericData({data: 'testing'})}> SET WITH DATA </button>
-      <button onClick={() => updateGenericData({hello: '123'} as any)}> SET WITH ANY OBJ </button>
-      <button onClick={() => updateGenericData({hello: {test: { again: '123'}}} as any)}> SET NESTED </button> */}
-
-      {/* <button onClick={() => console.log(genericData)}> GET </button> */}
+      {/* <button onClick={() => updateGenericData({data: 'testing'})}> DATA: TESTING </button>
+      <button onClick={() => updateGenericData(console.log('asdf') as any)}> TEST </button>
+      <button onClick={() => updateGenericData(({ data: { test: () => console.log('test') }}))}> test nested </button>
+      <button onClick={() => updateGenericData({data: undefined})}> test </button>
+      <button onClick={() => updateGenericData({data: {again: {third: undefined}}})}> test nested undefined </button>
+      <button onClick={() => updateGenericData({ data: { test: {nested: { array: [1,2,3,4,5]}}}})}> test nested arr</button>
+      <button onClick={() => console.log(genericData)}> GET </button> */}
         {/* <TcwAdjustableGrid layout={layout}>
           <Box key='a' sx={{ border: '1px solid red'}}> a </Box>
           <Box key='b' sx={{ border: '1px solid blue'}}> b </Box>

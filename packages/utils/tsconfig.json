@@ -16,7 +16,7 @@
     "noUnusedParameters": true,
     "declaration": true,
     "outDir": "dist",
-    "types": ["node", "jest", "@testing-library/jest-dom"]
+    "types": ["node", "jest", "@testing-library/jest-dom"],
   },
   "include": ["src"]
 }
