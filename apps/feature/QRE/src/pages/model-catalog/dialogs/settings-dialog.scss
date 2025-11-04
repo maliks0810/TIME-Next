@@ -104,28 +104,28 @@
     margin-top: auto;
 }
 
-.mod-cat-settings-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 65px;
-    height: 35px;
-    background-color: var(--button-color) !important;
-    border-radius: 6px;
-    color: var(--on-button-color) !important;
-    box-shadow: var(--button-shadow) !important;
+// .mod-cat-settings-button {
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     width: 65px;
+//     height: 35px;
+//     // background-color: var(--button-color) !important;
+//     border-radius: 6px;
+//     // color: var(--on-button-color) !important;
+//     box-shadow: var(--button-shadow) !important;
 
-    &:hover:enabled {
-        background-color: var(--button-color_hover) !important;
-        box-shadow: 0 0 0 !important;
-    }
+//     &:hover:enabled {
+//         // background-color: var(--button-color_hover) !important;
+//         box-shadow: 0 0 0 !important;
+//     }
 
-    &:disabled {
-        background-color: var(--light-gray-color) !important;
-        color: var(--dark-gray-color) !important;
-        box-shadow: 0 0 0 !important;
-    }
-}
+//     &:disabled {
+//         // background-color: var(--light-gray-color) !important;
+//         // color: var(--dark-gray-color) !important;
+//         box-shadow: 0 0 0 !important;
+//     }
+// }
 
 .mod-cat-settings-busy-progress {
     position: relative;

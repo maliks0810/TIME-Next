@@ -5,3 +5,5 @@ Not sure where the user-info context is
 How do we know which app-specific .env file is being used?
 -what environment settings are provided by TIME 2
 Need Okta
+Not obvious that something is happening when loading from the main page then navigating to specific app
+-looks like TIME or the IDE did not get the route request, but it's actually loading dependencies in the backgrounds

@@ -254,14 +254,14 @@ export const SettingsDialog = (props: { open: boolean; onClose: () => void }) =>
                 </Card>
                 <div className="mod-cat-settings-buttons">
                     <Button
-                        className="mod-cat-settings-button responsive-button"
+                  
                         onClick={() => onClick(true)}
                         disabled={disableSave}
                     >
                         Save
                     </Button>
                     <Button
-                        className="mod-cat-settings-button responsive-button"
+               
                         onClick={() => onClick(false)}
                     >
                         Cancel
