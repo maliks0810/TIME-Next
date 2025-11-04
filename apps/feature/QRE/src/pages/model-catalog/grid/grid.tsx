@@ -144,7 +144,7 @@ export const ModelCatalogGrid = () => {
     );
     const alert = useUpdateAlertInfoContext();
 
-    console.debug('ModelCatalogGrid rendering');
+    console.debug('ModelCatalogGrid rendering', user);
 
     const handleSyncToGitlab = (entry: ModelCatalogEntry) => {
         setDialogEntry(entry);

@@ -5,7 +5,7 @@ import { useModelCatalogAxiosContext } from '../contexts/model-catalog-axios-con
 import { NoTrailingForwardSlash } from '../utils/url-utils';
 import { ToQreBulkAuthorizations } from '../utils/authorization-utils';
 
-export const QRE_CONTENT_MGMT_URL = NoTrailingForwardSlash(import.meta.env.VITE_QRE_CONTENT_MGMT);
+export const QRE_CONTENT_MGMT_URL = NoTrailingForwardSlash(import.meta.env.VITE_CONTENT_MGMT);
 export const QRE_BULK_AUTH = `${QRE_CONTENT_MGMT_URL}/authorizations/bulk`;
 
 export const useQreUserAuthorizations = (): (() => Promise<QreBulkAuthorizations>) => {
