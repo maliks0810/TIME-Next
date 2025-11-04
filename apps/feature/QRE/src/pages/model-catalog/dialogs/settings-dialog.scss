@@ -6,22 +6,21 @@
             overflow: hidden;
             width: 75%;
             max-width: 85%;
-            border-radius: 8px;
+            // border-radius: 8px;
             height: 100%;
 
         }
     }
 
-    .MuiButtonBase-root {
-        text-transform: none;
-    }
+    // .MuiButtonBase-root {
+    //     text-transform: none;
+    // }
 }
 
 .mod-cat-settings-dialog-header {
     box-sizing: border-box;
     padding-left: 16px;
-    font-size: 20px;
-    font-family: Lato;
+
 
 }
 
@@ -37,10 +36,10 @@
 }
 
 .mod-cat-settings-container {
-    background-color: white;
+
     height: 100%;
     padding-bottom: 16px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+
 }
 
 .mod-cat-settings-busy-container {
@@ -51,9 +50,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(51, 51, 51, 0.75);
     z-index: 10;
-    color: var(--on_background);
     align-items: center;
     justify-content: center;
     gap: 32px;
@@ -64,36 +61,26 @@
         height: 64px !important;
     }
 
-    #background-progress.MuiCircularProgress-circle,
-    #foreground-progress.MuiCircularProgress-circle {
-        color: var(--primary_light);
+    // #background-progress.MuiCircularProgress-circle,
+    // #foreground-progress.MuiCircularProgress-circle {
 
-    }
+
+    // }
 }
 
 .mod-cat-settings-busy-title {
     width: 100%;
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
+
     margin-bottom: -16px;
-    text-shadow:
-        -1px -1px 0 black,
-        1px -1px 0 black,
-        -1px 1px 0 black,
-        1px 1px 0 black;
+
 }
 
 .mod-cat-settings-busy-text {
     width: 100%;
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
+
 }
 
-.waiting-text {
-    color: var(--on_surface);
-}
+
 
 .mod-cat-settings-buttons {
     display: flex;
@@ -144,10 +131,10 @@
 }
 
 .cat-settings-list {
-    box-sizing: border-box;
+    // box-sizing: border-box;
     height: calc(100% - 54px);
-    padding: 8px;
-    background-color: transparent;
+    // padding: 8px;
+
 
     &.kind {
         overflow-y: auto;
@@ -162,13 +149,13 @@
     }
 
     .cat-settings-list-item-add-button {
-        margin-left: 48px;
-        color: var(--light-blue-color);
-        margin-top: -4px;
-        margin-bottom: -4px;
-        min-width: 0;
-        width: fit-content;
-        padding: 2px;
+        // margin-left: 48px;
+        
+        // margin-top: -4px;
+        // margin-bottom: -4px;
+        // min-width: 0;
+        // width: fit-content;
+        // padding: 2px;
 
         .cat-settings-list-add-icon {
             margin-right: 8px;
@@ -178,13 +165,13 @@
             visibility: hidden;
         }
 
-        &:disabled {
-            cursor: default;
-        }
+        // &:disabled {
+        //     cursor: default;
+        // }
 
-        &:hover:enabled {
-            color: var(--tcw-blue-color);
-        }
+        // &:hover:enabled {
+            
+        // }
     }
 
 
@@ -192,10 +179,10 @@
     .cat-settings-list-item {
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        background-color: transparent;
-        padding-top: 2px;
-        padding-bottom: 2px;
+        // align-items: flex-start;
+        // background-color: transparent;
+        // padding-top: 2px;
+        // padding-bottom: 2px;
 
         &:hover, &:focus-within {
 
@@ -213,20 +200,20 @@
 
             .cat-settings-list-item-delete-button {
                 visibility: hidden;
-                color: var(--light-blue-color);
-                padding: 0;
-                min-width: 0;
+                // color: var(--light-blue-color);
+                // padding: 0;
+                // min-width: 0;
 
-                &:disabled {
-                    cursor: default;
-                    color: var(--light-gray-color_dark);
-                }
+                // &:disabled {
+                //     cursor: default;
+                //     color: var(--light-gray-color_dark);
+                // }
 
-                &:hover:enabled {
-                    .cat-settings-list-item-delete-icon {
-                        color: var(--tcw-blue-color);
-                    }
-                }
+                // &:hover:enabled {
+                //     .cat-settings-list-item-delete-icon {
+                //         color: var(--tcw-blue-color);
+                //     }
+                // }
             }
 
             .cat-settings-list-item-text {
@@ -256,22 +243,22 @@
 
     }
 
-    .MuiOutlinedInput-root {
-        padding: 4px;
-    }
+    // .MuiOutlinedInput-root {
+    //     padding: 4px;
+    // }
 
-    .MuiInputBase-inputMultiline {
-        line-height: 1;
-    }
+    // .MuiInputBase-inputMultiline {
+    //     line-height: 1;
+    // }
 
-    .MuiInputBase-input {
-        font-size: 12px;
-        font-family: Lato;
-        padding: 0;
-        padding-left: 4px;
-        padding-right: 4px;
+    // .MuiInputBase-input {
+    //     font-size: 12px;
+    //     font-family: Lato;
+    //     padding: 0;
+    //     padding-left: 4px;
+    //     padding-right: 4px;
 
-    }
+    // }
 
 }
 
