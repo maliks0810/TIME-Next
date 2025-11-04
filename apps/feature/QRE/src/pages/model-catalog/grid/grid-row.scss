@@ -251,8 +251,8 @@
 .model-catalog-edit-new-row {
     display: flex;
     flex-direction: row;
-    width: 100%;
-
+    width: calc(100% - 4px);
+    margin-top: 8px;
     align-content: center;
     background-color: var(--light-gray-color);
     border: 1px solid var(--tcw-gray-color);
@@ -267,8 +267,9 @@
     color: var(--on-button-color);
     background-color: var(--button-color);
     border-radius: 6px;
-    padding: 8px;
-    margin: 8px;
+    padding: 4px;
+    
+    margin: 4px;
     box-shadow: var(--button-shadow);
 
     &:hover {

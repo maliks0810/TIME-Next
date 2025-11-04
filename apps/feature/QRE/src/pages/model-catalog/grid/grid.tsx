@@ -21,14 +21,16 @@ import {
     useGetModelCatalogEntries,
     useSaveEntry,
     useGetModelCategorizationMap,
+    useCopyEntry,
 } from '../../../hooks/model-catalog-entries';
 import { WaitingEllipses } from '../../../components/waiting-ellipses';
 import { DialogTypes, DialogWrapper } from '../dialogs/dialogs';
 import { SortableFields } from '../../../data/model-catalog-data';
 import { filterEntries, sortEntries } from '../../../utils/model-catalog-utils';
+import { AlertSeverity } from '../../../types/alert-types';
 import { useUpdateAlertInfoContext } from '../../../contexts/alert-context';
-import { AlertSeverity } from '../../../types/alert.d';
 import { useUserInfo } from '@platform/utils';
+import { useQreUserAuthorizationsContext } from '../../../contexts/qre-user-authorizations';
 import { ModelCatalogGridRow, ModelCatalogNewEntryRow } from './grid-row';
 import './grid.scss';
 
@@ -122,11 +124,13 @@ export const ModelCatalogGrid = () => {
     const [dialogEntry, setDialogEntry] = useState<ModelCatalogEntry | null>(null);
     const setBusy = useSetEntryBusyContext();
     const saveEntry = useSaveEntry();
+    const copyEntry = useCopyEntry();
     const sort = useModelCatalogSortContext()[0];
     const filter = useModelCatalogFilterContext()[0];
     const setCounts = useModelCatalogEntryCountsContext()[1];
     const setTrigger = useModelCatalogReloadTriggerContext()[1];
     const user = useUserInfo();
+    const userAuth = useQreUserAuthorizationsContext()[0];
 
     const sortedAndFiltered = sortEntries(
         filterEntries(
@@ -229,6 +233,29 @@ export const ModelCatalogGrid = () => {
             });
     };
 
+    const handleCopy = async (
+        newEntry: ModelCatalogEntry,
+        sourceEntry: ModelCatalogEntry
+    ): Promise<boolean> => {
+        setBusy(true);
+        return copyEntry(newEntry, sourceEntry)
+            .then(() => {
+                loadCatalog();
+                return true;
+            })
+            .catch((err) => {
+                alert({
+                    severity: AlertSeverity.ERROR,
+                    title: 'An error occurred while copying the Model',
+                    message: err.message,
+                });
+                return false;
+            })
+            .finally(() => {
+                setBusy(false);
+            });
+    };
+
     const handleDialogFinished = (reload: boolean) => {
         setDialogEntry(null);
         setDialogType(DialogTypes.None);
@@ -243,19 +270,23 @@ export const ModelCatalogGrid = () => {
             {loading ? (
                 <LoadMessage failed={loadError} />
             ) : (
+                <>
+                <ModelCatalogNewEntryRow onSave={handleSave} />
                 <div className="model-catalog-grid">
+                    
                     {sortedAndFiltered.map((e, i) => (
                         <ModelCatalogGridRow
                             entry={e}
                             key={i}
                             onSyncToGitlab={handleSyncToGitlab}
                             onSyncToJupyter={handleSyncToJupyter}
-                            onSave={handleSave}
+                            onSave={(newE, c) => (c ? handleCopy(newE, e) : handleSave(newE))}
                             onDelete={handleDelete}
+                            userAuth={userAuth}
                         />
                     ))}
-                    <ModelCatalogNewEntryRow onSave={handleSave} />
                 </div>
+                </>
             )}
             <DialogWrapper
                 dialogType={dialogType}

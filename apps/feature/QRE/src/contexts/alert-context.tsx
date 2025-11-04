@@ -1,6 +1,6 @@
-import { createContext, useContext, useState } from "react";
-import { AlertSeverity, TIMEAlert } from "../types/alert.d";
-import { AppProviderProps } from "../types/provider-children";
+import { createContext, ReactNode, useContext, useState } from "react";
+import { AlertSeverity, TIMEAlert } from "../types/alert-types";
+
 
 const defaultAlert: TIMEAlert = {severity: AlertSeverity.NONE};
 
@@ -17,7 +17,8 @@ export function useUpdateAlertInfoContext() {
     return useContext(UpdateAlertContext);
 }
 
-export function AlertProvider({ children }: AppProviderProps) {
+export function AlertProvider(props: { children: ReactNode }) {
+    const { children } = props;
     const [alertInfo, setAlertInfo] = useState<TIMEAlert>(defaultAlert);
 
     return (

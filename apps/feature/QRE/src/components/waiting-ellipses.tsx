@@ -14,11 +14,11 @@ export const WaitingEllipses = (props: {
     const ellipseCnt = props.ellipseCount ?? ELLIPSES_COUNT;
 
     const ellipses = '.'.repeat(typingCount);
-    const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+    const timer = useRef<NodeJS.Timeout | undefined>(undefined);
     const level = props.maintainWidth ? 1 : 0;
     if (!timer.current) {
         timer.current = setTimeout(() => {
-            clearTimeout(timer.current!);
+            clearTimeout(timer.current);
             timer.current = undefined;
             setTypingCount((p) => (p < ellipseCnt ? p + 1 : 0));
         }, props.speed ?? TIMER_SPEED);

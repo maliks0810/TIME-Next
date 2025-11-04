@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { createContext, ReactNode, useCallback, useContext, useRef } from 'react';
-import { useBearerToken } from '@platform/utils';
+import { useBearerToken } from '../hooks/bearer-token';
 
 const ModelCatalogAxiosContext = createContext<() => AxiosInstance>(null!);
 

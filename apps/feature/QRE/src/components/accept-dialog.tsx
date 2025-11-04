@@ -1,5 +1,5 @@
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
-import { ReactNode } from 'react';
+import { ReactNode, Ref } from 'react';
 import './accept-dialog.scss';
 import { CircularProgress } from '@mui/material';
 import { WaitingEllipses } from './waiting-ellipses';
@@ -7,7 +7,7 @@ import { WaitingEllipses } from './waiting-ellipses';
 export const AcceptDialog = (props: {
     title: string | ReactNode;
     children: ReactNode;
-    ref: React.Ref<HTMLDialogElement> | undefined;
+    ref: Ref<HTMLDialogElement>;
     onClick: (accept: boolean) => void;
     busyMessage?: string | null;
     busyTitle?: string | null;

@@ -40,6 +40,18 @@
     align-items: center;
     justify-content: center;
     gap: 32px;
+
+    #background-progress.MuiCircularProgress-root,
+    #foreground-progress.MuiCircularProgress-root {
+        width: 64px !important;
+        height: 64px !important;
+    }
+
+    #background-progress.MuiCircularProgress-circle,
+    #foreground-progress.MuiCircularProgress-circle {
+        color: var(--primary_light);
+
+    }
 }
 
 .accept-dialog-busy-title {
@@ -106,16 +118,6 @@
         background-color: var(--button-color_hover);
         box-shadow: 0 0 0;
     }
-}
-
-.MuiCircularProgress-root {
-    width: 64px !important;
-    height: 64px !important;
-}
-
-.MuiCircularProgress-circle {
-    color: var(--primary_light);
-
 }
 
 .accept-dialog-busy-progress {

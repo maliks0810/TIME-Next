@@ -18,6 +18,7 @@
         margin: var(--client-margin);
         margin-bottom: 0;
         height: calc(100vh - var(--main-header-height) - (var(--client-margin) * 2));
+        min-height: 400px;
         // width: calc(100% - (var(--client-margin) * 2));
         // height: calc(100% - (var(--client-margin) * 2));
         // min-height: calc(100% - (var(--client-margin) * 2));

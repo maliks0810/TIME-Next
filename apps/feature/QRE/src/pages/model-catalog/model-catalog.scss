@@ -97,3 +97,31 @@
 
 
 }
+
+.model-catalog-settings-button {
+    display: flex;
+    width: 24px !important;
+    height: 24px !important;
+    padding: 0;
+
+    margin-left: 8px;
+    color: var(--hover-blue-color_dark);
+
+    &[aria-hidden="true"] {
+        visibility: hidden;
+    }
+
+    &:hover:enabled {
+        color: var(--tcw-blue-color);
+    }
+
+    &:disabled {
+        opacity: 50%;
+        cursor: default;
+    }
+
+    .model-catalog-settings-icon {
+        width: 20px !important;
+        height: 20px !important;
+    }
+}

@@ -15,6 +15,7 @@ import './grid-row.scss';
 
 export const EntryPresentation = memo((props: { entry: ModelCatalogEntry, userOwned?: boolean }) => {
     const { entry, userOwned } = props;
+    const disabled = entry.hub.lab.length < 1 || !userOwned;
     console.debug('EntryPresentation rendering');
     // const selectedText = entry.permissions.join(', ') || 'No Permissions';
 
@@ -31,8 +32,8 @@ export const EntryPresentation = memo((props: { entry: ModelCatalogEntry, userOw
                     <div className="model-catalog-entry-name-state">
                         <button
                             className="model-catalog-entry-name-button"
-                            disabled={entry.hub.lab.length < 1 || !userOwned}
-                            title={`Navigate to notebook at ${entry.hub.lab}`}
+                            disabled={disabled}
+                            title={disabled ? '' : `Navigate to notebook at ${entry.hub.lab}`}
                             onClick={handleNavToNotebook}
                         >
                             {entry.name}
@@ -166,7 +167,6 @@ export const EntrySync = memo((props: { startSync: (syncType: SyncTypes) => void
                             aria-label="small-arrow-left"
                         />
                         <GitLabIcon className="model-catalog-entry-action-icon" />
-                        {/* <img src={GitLabIcon} className="model-catalog-entry-action-icon" /> */}
                     </button>
                     <button
                         className="model-catalog-entry-action-button"
@@ -174,7 +174,6 @@ export const EntrySync = memo((props: { startSync: (syncType: SyncTypes) => void
                         onClick={handleSyncToJupyter}
                     >
                         <JupyterIcon className="model-catalog-entry-action-icon" />
-                        {/* <img src={JupyterIcon} className="model-catalog-entry-action-icon" /> */}
                         <ArrowBackIcon
                             className="model-catalog-entry-action-icon"
                             aria-label="small-arrow-right"

@@ -1,0 +1,54 @@
+.qre-app-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 25%;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 64px;
+    font-size: 18px;
+    padding-bottom: 64px;
+}
+
+.qre-app-unauthorized {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: top;
+    margin-top: 64px;
+    width: 25%;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 32px;
+}
+
+.qre-app-unauthorized-title {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+
+    font-weight: bold;
+    padding-left: 6px;
+    width: 100%;
+    color: var(--dark-blue-color);
+}
+
+.qre-app-unauthorized-info {
+    display: flex;
+    font-size: 16px;
+}
+
+.qre-app-unauthorized-icon {
+    display: flex;
+    margin-left: auto;
+    width: 48px !important;
+    height: 48px !important;
+}
+
+.qre-app-unauthorized-msg {
+    display: flex;
+    width: 100%;
+    font-size: 13px;
+    color: var(--dark-gray-color);
+}

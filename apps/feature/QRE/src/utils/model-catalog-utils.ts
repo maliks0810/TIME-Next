@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { SortableFields } from '../data/model-catalog-data';
 import {
     ModelCatalogFilterByValues,
@@ -104,7 +103,7 @@ export const sortEntries = (
     });
 };
 
-export const ToCatMap = (data?: any): ModelCategorizationMap => {
+export const toCatMap = (data?: any): ModelCategorizationMap => {
     const catMap: ModelCategorizationMap = {};
 
     if (!data) {
@@ -122,15 +121,21 @@ export const ToCatMap = (data?: any): ModelCategorizationMap => {
     return catMap;
 };
 
-export const ToModelCatalogEntries = (data?: any): ModelCatalogEntry[] => {
+export const flattenCatMap = (map: ModelCategorizationMap) : ModelCategorization[] => {
+    const cats: ModelCategorization[] = [];
+    Object.entries(map).forEach((e) => e[1].forEach((v) => cats.push({kind: e[0], purpose: v})));
+    return cats;
+}
+
+export const toModelCatalogEntries = (data?: any): ModelCatalogEntry[] => {
     if (!data?.results) {
         return [];
     }
 
-    return (data.results as any[]).map((r) => ToModelCatalogEntry(r));
+    return (data.results as any[]).map((r) => toModelCatalogEntry(r));
 };
 
-export const ToModelCatalogEntry = (data?: any): ModelCatalogEntry => {
+export const toModelCatalogEntry = (data?: any): ModelCatalogEntry => {
     return {
         ...data,
         state: data.state == 'experiment' ? ModelStates.experimental : ModelStates[data.state],

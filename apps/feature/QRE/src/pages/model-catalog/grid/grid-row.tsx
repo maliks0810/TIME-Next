@@ -1,6 +1,7 @@
 import * as tlog from '@tcw/tlog';
 import { memo, useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { QreBulkAuthorizations } from '../../../types/qre-authorization-types';
 import { ModelCatalogEntry, SyncTypes } from '../../../types/model-catalog-types';
 import {
     useEntryEditingContext,
@@ -10,6 +11,9 @@ import { useUserInfo } from '@platform/utils';
 import { ModelCatalogEntryEditor } from './entry-editor';
 import './grid-row.scss';
 import { EntryActions, EntryPresentation, EntrySync } from './grid-row-parts';
+
+const SYNC_RESOURCE = 'catalog';
+const SYNC_ACTION = 'synchronize';
 
 enum EditModes {
     None,
@@ -26,17 +30,20 @@ export const ModelCatalogGridRow = memo(
         onSyncToJupyter: (entry: ModelCatalogEntry) => void;
         onDelete: (entry: ModelCatalogEntry) => void;
         //onSave is an async function that returns a bool. The bool indicates if the editor can close
-        onSave: (entry: ModelCatalogEntry, newModel: boolean) => Promise<boolean>;
+        onSave: (entry: ModelCatalogEntry, copying: boolean) => Promise<boolean>;
+        userAuth: QreBulkAuthorizations;
     }) => {
-        const { entry, onSyncToGitlab, onSyncToJupyter, onDelete, onSave } = props;
+        const { entry, onSyncToGitlab, onSyncToJupyter, onDelete, onSave, userAuth } = props;
         const user = useUserInfo();
         const setEditing = useSetEntryEditingContext();
         const [mode, setMode] = useState<EditModes>(EditModes.None);
+        const [busyTitle, setBusyTitle] = useState<string | null>(null);
         const [busyMsg, setBusyMsg] = useState<string | null>(null);
         const userOwned = entry.owner.email.toLowerCase() == user.email.toLowerCase();
-
-        console.log('ModelCatalogGridRow rendering');
+        const canSync = userAuth.results?.find((s) => s.resource == SYNC_RESOURCE && s.action == SYNC_ACTION)?.authorized ?? false;
         
+        console.log('ModelCatalogGridRow rendering');
+
         const handleCancel = () => {
             setEditing(false);
             setMode(EditModes.None);
@@ -44,11 +51,17 @@ export const ModelCatalogGridRow = memo(
 
         const handleSave = async (e: ModelCatalogEntry) => {
             const copying = mode == EditModes.Copy;
-            setBusyMsg(
+            setBusyMsg(copying ? `Creating new model '${e.name}'` : `This should not take long`);
+            setBusyTitle(
                 copying
-                    ? `Creating new model from ${entry.name}`
+                    ? `Spawning Jupyter Model project. Cloning Model '${entry.name}'. Starting JupyterLab server. This will take a few minutes. `
                     : `Saving changes to ${entry.name}`
             );
+            setBusyTitle(
+                copying
+                    ? `Spawning Jupyter Model project. Cloning Model '${entry.name}'. Starting JupyterLab server. This will take a few minutes. `
+                    : `Saving changes to ${entry.name}`
+            )
             onSave(e, copying)
                 .then((close) => {
                     if (close) {
@@ -58,10 +71,15 @@ export const ModelCatalogGridRow = memo(
                 })
                 .catch((err) => {
                     console.log('Very unexpected error:', err);
-                    tlog.error(err, 'An unexpected error occurred while saving a model catalog entry row', 'handleSave');
+                    tlog.error(
+                        err,
+                        'An unexpected error occurred while saving a model catalog entry row',
+                        'handleSave'
+                    );
                 })
                 .finally(() => {
                     setBusyMsg(null);
+                    setBusyTitle(null);
                 });
         };
 
@@ -85,6 +103,7 @@ export const ModelCatalogGridRow = memo(
                 onCancel={handleCancel}
                 onSave={handleSave}
                 busyMessage={busyMsg}
+                busyTitle={busyTitle}
             />
         );
 
@@ -95,9 +114,13 @@ export const ModelCatalogGridRow = memo(
                         Editor
                     ) : (
                         <>
-                            <EntryActions startEdit={handleStartEdit} startDelete={handleDelete} copyOnly={!userOwned}/>
-                            <EntryPresentation entry={entry} userOwned={userOwned}/>
-                            <EntrySync startSync={handleStartSync} hidden={!userOwned} />
+                            <EntryActions
+                                startEdit={handleStartEdit}
+                                startDelete={handleDelete}
+                                copyOnly={!userOwned}
+                            />
+                            <EntryPresentation entry={entry} userOwned={userOwned} />
+                            <EntrySync startSync={handleStartSync} hidden={!userOwned || !canSync} />
                         </>
                     )}
                 </div>
@@ -111,12 +134,13 @@ ModelCatalogGridRow.displayName = 'ModelCatalogGridRow';
 
 export const ModelCatalogNewEntryRow = (props: {
     //onSave is an async function that returns a bool. The bool indicates if the editor can close
-    onSave: (entry: ModelCatalogEntry, newModel: boolean) => Promise<boolean>;
+    onSave: (entry: ModelCatalogEntry) => Promise<boolean>;
 }) => {
     const { onSave } = props;
     const setEditing = useSetEntryEditingContext();
     const editing = useEntryEditingContext();
     const [busyMsg, setBusyMsg] = useState<string | null>(null);
+    const [busyTitle, setBusyTitle] = useState<string | null>(null);
     //Need this active flag to show the edit component, instead of editing flag,
     //because other things change the editing flag.
     const [active, setActive] = useState<boolean>(false);
@@ -132,7 +156,10 @@ export const ModelCatalogNewEntryRow = (props: {
 
     const handleSave = async (entry: ModelCatalogEntry) => {
         setBusyMsg(`Creating new model '${entry.name}'`);
-        onSave(entry, true)
+        setBusyTitle(
+            'Spawning Jupyter Model project. Generating Model. Starting JupyterLab server. This will take a few minutes.'
+        );
+        onSave(entry)
             .then((success) => {
                 if (success) {
                     setEditing(false);
@@ -144,6 +171,7 @@ export const ModelCatalogNewEntryRow = (props: {
             })
             .finally(() => {
                 setBusyMsg(null);
+                setBusyTitle(null);
             });
     };
 
@@ -155,6 +183,7 @@ export const ModelCatalogNewEntryRow = (props: {
                         onCancel={handleCancel}
                         onSave={handleSave}
                         busyMessage={busyMsg}
+                        busyTitle={busyTitle}
                     />
                 </div>
             ) : (

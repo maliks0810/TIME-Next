@@ -12,7 +12,7 @@ import {
     useEntryBusyContext,
     useSetEntryBusyContext,
 } from '../../../contexts/model-catalog-entry-context';
-import { AlertSeverity } from '../../../types/alert.d';
+import { AlertSeverity } from '../../../types/alert-types';
 import { useUpdateAlertInfoContext } from '../../../contexts/alert-context';
 import { useDeleteModelCatalogEntry, useSynchronize } from '../../../hooks/model-catalog-entries';
 
@@ -95,8 +95,8 @@ export const SyncToJupyterDialog = (props: ModelCatalogDialogProps) => {
                         {'Sync Gitlab to Jupyter?\n'}
                         <span>{entry?.name}</span>
                     </div>
+
                     <JupyterIcon className="model-catalog-sync-dialog-icon" />
-                    {/* <img src={JupyterIcon} className="model-catalog-sync-dialog-icon" /> */}
                     <ArrowBackIcon className="model-catalog-sync-dialog-icon" />
                     <HelpOutlineIcon className="model-catalog-sync-dialog-icon" />
                 </div>
@@ -144,7 +144,6 @@ export const SyncToGitlabDialog = (props: ModelCatalogDialogProps) => {
                     </div>
                     <ArrowForwardIcon className="model-catalog-sync-dialog-icon" />
                     <GitLabIcon className="model-catalog-sync-dialog-icon" />
-                    {/* <img src={GitLabIcon} className="model-catalog-sync-dialog-icon" /> */}
                     <HelpOutlineIcon className="model-catalog-sync-dialog-icon" />
                 </div>
             }

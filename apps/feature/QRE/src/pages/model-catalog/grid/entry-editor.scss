@@ -154,6 +154,19 @@
         font-weight: bold;
     }
 
+    .model-catalog-busy-title {
+        width: 100%;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: -16px;
+        text-shadow:
+            -1px -1px 0 black,
+            1px -1px 0 black,
+            -1px 1px 0 black,
+            1px 1px 0 black;
+    }
+
     .model-catalog-busy-progress {
         position: relative;
 
@@ -170,15 +183,16 @@
         }
     }
 
-    .MuiCircularProgress-root {
-        width: 64px !important;
-        height: 64px !important;
+    #background-progress.MuiCircularProgress-root,
+    #foreground-progress.MuiCircularProgress-root {
+        width: 48px !important;
+        height: 48px !important;
     }
 
-    .MuiCircularProgress-circle {
+    #background-progress.MuiCircularProgress-circle,
+    #foreground-progress.MuiCircularProgress-circle {
         color: var(--primary_light);
-
+        
     }
-
 
 }

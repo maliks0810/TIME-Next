@@ -1,5 +1,6 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { useRef } from 'react';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { useRef, useState } from 'react';
 import { BlockContainer } from '../../components/block-container';
 import './model-catalog.scss';
 import { FilterInput } from '../../components/filter';
@@ -17,8 +18,14 @@ import {
     useEntryEditingContext,
 } from '../../contexts/model-catalog-entry-context';
 import { ModelCatalogAxiosContextProvider } from '../../contexts/model-catalog-axios-context';
+import { QREAuthorization } from '../../components/qre-authorization';
+import { useQreUserAuthorizationsContext } from '../../contexts/qre-user-authorizations';
 import { EnumSelect } from './selects/selects';
 import { ModelCatalogGrid } from './grid/grid';
+import { SettingsDialog } from './dialogs/settings-dialog';
+
+const APP_RESOURCE = 'application';
+const ADMIN_ACTION = 'admin';
 
 const ModelCatalogRowCount = () => {
     const counts = useModelCatalogEntryCountsContext()[0];
@@ -33,12 +40,10 @@ const ModelCatalogRowCount = () => {
     );
 };
 
-const ModelCatalogRefresh = () => {
+const ModelCatalogRefresh = (props: { disabled?: boolean }) => {
     const trigger = useModelCatalogReloadTriggerContext()[0];
-    const entryBusy = useEntryBusyContext();
-    const entryEditing = useEntryEditingContext();
     const loading = useModelCatalogLoadingContext();
-    const disabled = entryBusy || entryEditing || loading;
+    const disabled = props.disabled || loading;
 
     console.debug('ModelCatalogRefresh rendering', disabled);
 
@@ -54,15 +59,45 @@ const ModelCatalogRefresh = () => {
     );
 };
 
-const ModelCatalogHeader = () => {
+const ModelCatalogSettings = (props: { disabled?: boolean; hidden?: boolean }) => {
+    const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+    const loading = useModelCatalogLoadingContext();
+    const disabled = props.disabled || loading;
+
+    console.debug('ModelCatalogSettings rendering', disabled);
+
+    const handleSettingsClicked = () => {
+        setSettingsOpen(true);
+    };
+
+    const handleSettingsClose = () => {
+        setSettingsOpen(false);
+    };
+
+    return (
+        <>
+            <SettingsDialog open={settingsOpen} onClose={handleSettingsClose} />
+            <button
+                aria-hidden={props.hidden}
+                className="model-catalog-settings-button"
+                title="Click here to manage settings like: Categorizations"
+                onClick={handleSettingsClicked}
+                disabled={disabled}
+            >
+                <SettingsIcon className="model-catalog-settings-icon" />
+            </button>
+        </>
+    );
+};
+
+const ModelCatalogFilter = (props: { disabled?: boolean }) => {
     const values = Object.keys(ModelCatalogFilterByValues).filter((key) => isNaN(Number(key)));
     const [filter, setFilter] = useModelCatalogFilterContext();
-    const entryBusy = useEntryBusyContext();
-    const entryEditing = useEntryEditingContext();
-    const disabled = entryBusy || entryEditing;
+    const loading = useModelCatalogLoadingContext();
+    const disabled = props.disabled || loading;
     const userOwnedRef = useRef<HTMLInputElement>(null);
 
-    console.debug('ModelCatalogHeader rendering');
+    console.debug('ModelCatalogFilter rendering', disabled);
 
     const handleValueChange = (value: string) => {
         console.log('val changed', value);
@@ -77,56 +112,84 @@ const ModelCatalogHeader = () => {
             return;
         }
         console.log('field changed', userOwnedRef.current?.checked);
-        setFilter({...filter, userOwnedOnly: userOwnedRef.current?.checked ?? false});
-    }
+        setFilter({ ...filter, userOwnedOnly: userOwnedRef.current?.checked ?? false });
+    };
 
     return (
-        <div className="model-catalog-header">
-            <div className="model-catalog-header-title block-title">Model Catalog</div>
-            <div className="model-catalog-filter">
-                <div className="model-catalog-filter-title">Filter:</div>
-                <FilterInput
-                    filter={filter.value}
-                    onFilterChanged={handleValueChange}
-                    placeholder="Filter value"
+        <div className="model-catalog-filter">
+            <div className="model-catalog-filter-title">Filter:</div>
+            <FilterInput
+                filter={filter.value}
+                onFilterChanged={handleValueChange}
+                placeholder="Filter value"
+                disabled={disabled}
+            />
+            <div className="model-catalog-filter-title">By:</div>
+            <EnumSelect
+                values={values}
+                defaultSelected="Name"
+                onSelected={handleFieldChange}
+                disabled={disabled}
+            />
+            <div
+                className="model-catalog-filter-user-owned"
+                onClick={handleUserOwnedClicked}
+                aria-disabled={disabled}
+            >
+                <label htmlFor="userOwnedOnlyCheckbox">Show only my models</label>
+                <input
+                    type="checkbox"
+                    title="Show only the models that I own"
+                    id="userOwnedOnlyCheckbox"
                     disabled={disabled}
+                    ref={userOwnedRef}
                 />
-                <div className="model-catalog-filter-title">By:</div>
-                <EnumSelect
-                    values={values}
-                    defaultSelected="Name"
-                    onSelected={handleFieldChange}
-                    disabled={disabled}
-                />
-                <div className="model-catalog-filter-user-owned" onClick={handleUserOwnedClicked} aria-disabled={disabled}>
-                    <label htmlFor="userOwnedOnlyCheckbox">Show only my models</label>
-                    <input
-                        type="checkbox"
-                        title="Show only the models that I own"
-                        id="userOwnedOnlyCheckbox"
-                        disabled={disabled}
-                        ref={userOwnedRef}
-                    />
-                </div>
             </div>
-            <ModelCatalogRowCount />
-            <ModelCatalogRefresh />
         </div>
     );
 };
 
-export default function ModelCatalog() {
+const ModelCatalogHeader = () => {
+    const entryBusy = useEntryBusyContext();
+    const entryEditing = useEntryEditingContext();
+    const auths = useQreUserAuthorizationsContext()[0];
+    const disabled = entryBusy || entryEditing;
+    const isAdmin =
+        auths.results?.find((s) => s.resource == APP_RESOURCE && s.action == ADMIN_ACTION)
+            ?.authorized ?? false;
+
+    console.debug('ModelCatalogHeader rendering');
+
+    return (
+        <div className="model-catalog-header">
+            <div className="model-catalog-header-title block-title">Model Catalog</div>
+            <ModelCatalogSettings disabled={disabled || !isAdmin} hidden={!isAdmin} />
+            <ModelCatalogFilter disabled={disabled} />
+            <ModelCatalogRowCount />
+            <ModelCatalogRefresh disabled={disabled} />
+        </div>
+    );
+};
+
+const ModelCatalog = () => {
     console.debug('ModelCatalog rendering');
 
     return (
         <ModelCatalogProvider>
             <ModelCatalogEntryProvider>
-                <BlockContainer title={<ModelCatalogHeader />} className="full-screen-block">
-                    <ModelCatalogAxiosContextProvider>
-                        <ModelCatalogGrid />
-                    </ModelCatalogAxiosContextProvider>
-                </BlockContainer>
+                <ModelCatalogAxiosContextProvider>
+                    <QREAuthorization>
+                        <BlockContainer
+                            title={<ModelCatalogHeader />}
+                            className="full-screen-block"
+                        >
+                            <ModelCatalogGrid />
+                        </BlockContainer>
+                    </QREAuthorization>
+                </ModelCatalogAxiosContextProvider>
             </ModelCatalogEntryProvider>
         </ModelCatalogProvider>
     );
 };
+
+export default ModelCatalog;
