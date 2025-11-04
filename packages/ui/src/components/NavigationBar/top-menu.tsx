@@ -165,7 +165,7 @@ export const TopMenu = (props: { menuData: any }) => {
                                     {app.title}
                                 </Button>
                                 <IconButton
-                                    sx={{ display: app.newTab || app.type === 'internal' ? '' : 'none' }}
+                                    sx={{ display: app.type === 'internal' ? '' : 'none' }}
                                     aria-label="copy link"
                                     disabled={isLinkDisabled(app)}
                                     onClick={() => copyToClipboard(app)}
