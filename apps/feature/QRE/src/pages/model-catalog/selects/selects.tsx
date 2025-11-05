@@ -1,8 +1,13 @@
-import { useRef, useState } from "react";
-import CheckBoxOutlinedIcon from '@mui/icons-material/CheckBoxOutlined';
-import CheckBoxOutlineBlankOutlinedIcon from '@mui/icons-material/CheckBoxOutlineBlankOutlined';
-import { Select, SelectRef } from "../../../components/select";
-import { ModelCategorization, ModelCategorizationMap, ModelPermissions } from "../../../types/model-catalog-types";
+import { useState } from 'react';
+import {
+    Button,
+    FormControl,
+    MenuItem,
+    Select,
+    SelectChangeEvent,
+    Typography,
+} from '@mui/material';
+import { ModelCategorization, ModelCategorizationMap } from '../../../types/model-catalog-types';
 import './selects.scss';
 
 export const EnumSelect = (props: {
@@ -12,79 +17,22 @@ export const EnumSelect = (props: {
     disabled?: boolean;
 }) => {
     const { values, defaultSelected, onSelected, disabled } = props;
-    const selectRef = useRef<SelectRef>(null);
     const [selectedValue, setSelectedValue] = useState<string>(defaultSelected ?? '');
-    const handleSelected = (value: string) => {
-        selectRef.current?.hideOptions();
-        setSelectedValue(value);
-        onSelected(value);
+    const handleChange = (event: SelectChangeEvent) => {
+        setSelectedValue(event.target.value);
+        onSelected(event.target.value);
     };
 
     return (
-        <Select
-            className="model-catalog-selector-editor"
-            selectText={selectedValue}
-            ref={selectRef}
-            disabled={disabled}
-        >
-            <div className="model-catalog-select-options-container">
+        <FormControl disabled={disabled}>
+            <Select onChange={handleChange} value={selectedValue}>
                 {values.map((v, i) => (
-                    <button
-                        key={i}
-                        aria-selected={v == selectedValue}
-                        onClick={() => handleSelected(v)}
-                        className="model-catalog-select-option-button"
-                    >
+                    <MenuItem value={v} key={i}>
                         {v}
-                    </button>
+                    </MenuItem>
                 ))}
-            </div>
-        </Select>
-    );
-};
-
-export const PermissionsSelect = (props: {
-    current: string[];
-    onSelected: (selected: string[]) => void;
-}) => {
-    const { current, onSelected } = props;
-    const selectRef = useRef<SelectRef>(null);
-    const [selected, setSelected] = useState<string[]>(current);
-    const handleSelected = (key: string) => {
-        let newSelected: string[];
-        if (selected.includes(key)) {
-            newSelected = selected.filter((s) => s != key);
-        } else {
-            newSelected = [...selected, key];
-        }
-
-        setSelected(newSelected);
-        onSelected(newSelected);
-    };
-
-    const selectedText = selected.join(', ') || 'No Permissions';
-            
-    return (
-        <Select className="model-catalog-selector-editor" selectText={selectedText} ref={selectRef}>
-            <div className="model-catalog-select-options-container permissions">
-                {ModelPermissions.map((k, i) => (
-                    <button
-                        key={i}
-                        onClick={() => handleSelected(k)}
-                        className="model-catalog-permissions-option-button"
-                    >
-                        <div className="model-catalog-permissions-option" key={i}>
-                            {selected.includes(k) ? (
-                                <CheckBoxOutlinedIcon className="model-catalog-permissions-check-icon" />
-                            ) : (
-                                <CheckBoxOutlineBlankOutlinedIcon className="model-catalog-permissions-check-icon" />
-                            )}
-                            {k}
-                        </div>
-                    </button>
-                ))}
-            </div>
-        </Select>
+            </Select>
+        </FormControl>
     );
 };
 
@@ -94,42 +42,44 @@ export const CategorizationSelect = (props: {
     onSelected: (value: ModelCategorization) => void;
 }) => {
     const { map, defaultSelected, onSelected } = props;
-    const selectRef = useRef<SelectRef>(null);
     const [selectedValue, setSelectedValue] = useState<ModelCategorization>(
         defaultSelected ?? { kind: '', purpose: '' }
     );
+    const [isOpen, setIsOpen] = useState(false);
     const selectText = `${selectedValue.kind}: ${selectedValue.purpose}`;
     const handleSelected = (value: ModelCategorization) => {
-        selectRef.current?.hideOptions();
         setSelectedValue(value);
         onSelected(value);
+        setIsOpen(false);
     };
 
     return (
-        <Select
-            className="model-catalog-selector-cat-editor"
-            selectText={selectText}
-            ref={selectRef}
-        >
-            <div className="model-catalog-select-cat-options-container">
+        <FormControl>
+            <Select
+                value={selectText}
+                renderValue={() => <Typography>{selectText}</Typography>}
+                open={isOpen}
+                onClose={() => setIsOpen(false)}
+                onOpen={() => setIsOpen(true)}
+            >
                 {Object.keys(map).map((k, i) => (
-                    <div className="model-catalog-select-cat-kind" key={i}>
-                        <p>{k}</p>
+                    <div key={i} className='model-catalog-select-options-container'>
+                        <Typography>{k}</Typography>
                         {map[k].map((p, pi) => (
-                            <button
+                            <Button
                                 key={pi}
                                 aria-selected={
                                     selectedValue.kind == k && selectedValue.purpose == p
                                 }
                                 onClick={() => handleSelected({ kind: k, purpose: p })}
-                                className="model-catalog-select-cat-option-button"
                             >
                                 {p}
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 ))}
-            </div>
-        </Select>
+            </Select>
+        </FormControl>
+
     );
 };

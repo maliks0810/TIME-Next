@@ -6,7 +6,7 @@
     // box-shadow: 0 8px 8px rgba(0, 0, 0, 0.2);
     // background-color: var(--body);
     // max-width: 750px;
-    background-color: transparent;
+    // background-color: transparent;
     padding: 16px;
 }
 
@@ -57,26 +57,26 @@
 .accept-dialog-busy-title {
     width: 100%;
     color: white;
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: -16px;
-    text-shadow:
-        -1px -1px 0 black,
-        1px -1px 0 black,
-        -1px 1px 0 black,
-        1px 1px 0 black;
+    // font-size: 20px;
+    // font-weight: bold;
+    // margin-bottom: -16px;
+    // text-shadow:
+    //     -1px -1px 0 black,
+    //     1px -1px 0 black,
+    //     -1px 1px 0 black,
+    //     1px 1px 0 black;
 }
 
 .accept-dialog-busy-text {
     width: 100%;
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
+    // color: white;
+    // font-size: 20px;
+    // font-weight: bold;
 }
 
-.waiting-text {
-    color: var(--on_surface);
-}
+// .waiting-text {
+//     color: var(--on_surface);
+// }
 
 .accept-dialog-warning-icon {
     width: 32px !important;
@@ -89,9 +89,9 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    font-weight: bold;
-    font-size: 20px;
-    color: var(--on_background);
+    // font-weight: bold;
+    // font-size: 20px;
+    // color: var(--on_background);
 }
 
 .accept-dialog-buttons {
@@ -107,17 +107,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 65px;
-    height: 35px;
-    background-color: var(--button-color);
-    border-radius: 6px;
-    color: var(--on-button-color);
-    box-shadow: var(--button-shadow);
+//     width: 65px;
+//     height: 35px;
+//     background-color: var(--button-color);
+//     border-radius: 6px;
+//     color: var(--on-button-color);
+//     box-shadow: var(--button-shadow);
 
-    &:hover {
-        background-color: var(--button-color_hover);
-        box-shadow: 0 0 0;
-    }
+//     &:hover {
+//         background-color: var(--button-color_hover);
+//         box-shadow: 0 0 0;
+//     }
 }
 
 .accept-dialog-busy-progress {

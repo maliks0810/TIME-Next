@@ -1,4 +1,5 @@
-import { JSX, useEffect, useRef } from 'react';
+import { JSX, useEffect, useState } from 'react';
+import { Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -26,15 +27,12 @@ export type ModelCatalogDialogProps = {
 export const ModelDeleteDialog = (props: ModelCatalogDialogProps) => {
     const { visible, entry, onAccept, onCancel } = props;
     const busy = useEntryBusyContext();
-    const ref = useRef<HTMLDialogElement>(null);
+    const [open, setOpen] = useState<boolean>(false);
+
     const busyMessage = busy && visible ? `Deleting model '${entry.name}'` : null;
 
     useEffect(() => {
-        if (visible) {
-            ref.current?.showModal();
-        } else {
-            ref.current?.close();
-        }
+        setOpen(visible);
     }, [visible]);
 
     const handleClick = (accept: boolean) => {
@@ -49,14 +47,14 @@ export const ModelDeleteDialog = (props: ModelCatalogDialogProps) => {
         <AcceptDialog
             title={
                 <div className="popup-inner-header">
-                    <div>
+                    <Typography>
                         {'Are you sure you want to delete Model\n'}
                         <span>{entry?.name}</span>
-                    </div>
+                    </Typography>
                     <ReportIcon className="model-catalog-delete-dialog-icon" />
                 </div>
             }
-            ref={ref}
+            open={open}
             onClick={handleClick}
             busyMessage={busyMessage}
         >
@@ -68,15 +66,11 @@ export const ModelDeleteDialog = (props: ModelCatalogDialogProps) => {
 export const SyncToJupyterDialog = (props: ModelCatalogDialogProps) => {
     const { visible, entry, onAccept, onCancel } = props;
     const busy = useEntryBusyContext();
-    const ref = useRef<HTMLDialogElement>(null);
+    const [open, setOpen] = useState<boolean>(false);
     const busyTitle = busy && visible ? `Synchronizing notebooks from Gitlab to JupyterLab` : null;
     const busyMessage = busy && visible ? `This could take up to 5 minutes` : null;
     useEffect(() => {
-        if (visible) {
-            ref.current?.showModal();
-        } else {
-            ref.current?.close();
-        }
+        setOpen(visible);
     }, [visible]);
 
     const handleClick = (accept: boolean) => {
@@ -91,17 +85,17 @@ export const SyncToJupyterDialog = (props: ModelCatalogDialogProps) => {
         <AcceptDialog
             title={
                 <div className="popup-inner-header">
-                    <div>
+                    <Typography>
                         {'Sync Gitlab to Jupyter?\n'}
-                        <span>{entry?.name}</span>
-                    </div>
+                        <Typography>{entry?.name}</Typography>
+                    </Typography>
 
                     <JupyterIcon className="model-catalog-sync-dialog-icon" />
                     <ArrowBackIcon className="model-catalog-sync-dialog-icon" />
                     <HelpOutlineIcon className="model-catalog-sync-dialog-icon" />
                 </div>
             }
-            ref={ref}
+            open={open}
             onClick={handleClick}
             busyMessage={busyMessage}
             busyTitle={busyTitle}
@@ -114,16 +108,12 @@ export const SyncToJupyterDialog = (props: ModelCatalogDialogProps) => {
 export const SyncToGitlabDialog = (props: ModelCatalogDialogProps) => {
     const { visible, entry, onAccept, onCancel } = props;
     const busy = useEntryBusyContext();
-    const ref = useRef<HTMLDialogElement>(null);
+    const [open, setOpen] = useState<boolean>(false);
     const busyMessage =
         busy && visible ? `Synchronizing notebooks from JupyterLab to Gitlab` : null;
 
     useEffect(() => {
-        if (visible) {
-            ref.current?.showModal();
-        } else {
-            ref.current?.close();
-        }
+        setOpen(visible);
     }, [visible]);
 
     const handleClick = (accept: boolean) => {
@@ -138,16 +128,16 @@ export const SyncToGitlabDialog = (props: ModelCatalogDialogProps) => {
         <AcceptDialog
             title={
                 <div className="popup-inner-header">
-                    <div>
+                    <Typography>
                         {'Sync Jupyter to Gitlab?\n'}
-                        <span>{entry?.name}</span>
-                    </div>
+                        <Typography>{entry?.name}</Typography>
+                    </Typography>
                     <ArrowForwardIcon className="model-catalog-sync-dialog-icon" />
                     <GitLabIcon className="model-catalog-sync-dialog-icon" />
                     <HelpOutlineIcon className="model-catalog-sync-dialog-icon" />
                 </div>
             }
-            ref={ref}
+            open={open}
             onClick={handleClick}
             busyMessage={busyMessage}
         >

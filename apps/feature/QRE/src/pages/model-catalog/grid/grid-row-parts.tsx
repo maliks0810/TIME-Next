@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { Button, Card, Link, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CopyAllIcon from '@mui/icons-material/CopyAll';
@@ -29,8 +30,8 @@ export const EntryPresentation = memo((props: { entry: ModelCatalogEntry, userOw
         <>
             <div className="model-catalog-grid-row-col" aria-label="entry">
                 <div className="model-catalog-entry-details-row">
-                    <div className="model-catalog-entry-name-state">
-                        <button
+                    <Card className="model-catalog-entry-name-state">
+                        <Button
                             className="model-catalog-entry-name-button"
                             disabled={disabled}
                             title={disabled ? '' : `Navigate to notebook at ${entry.hub.lab}`}
@@ -38,44 +39,44 @@ export const EntryPresentation = memo((props: { entry: ModelCatalogEntry, userOw
                         >
                             {entry.name}
                             <ArrowForwardIcon className="model-catalog-entry-name-icon" />
-                        </button>
-                        <div className="model-catalog-entry-state" aria-level={entry.state}>
+                        </Button>
+                        <Typography className="model-catalog-entry-state" aria-level={entry.state}>
                             {ModelStates[entry.state]}
-                        </div>
-                    </div>
+                        </Typography>
+                    </Card>
                     <div className="model-catalog-entry-details-col">
                         <div className="model-catalog-entry-details-row">
-                            <div className="model-catalog-entry-categorization">
+                            <Typography className="model-catalog-entry-categorization">
                                 {`${entry.kind}: ${entry.purpose}`}
-                            </div>
+                            </Typography>
 
-                            <div className="model-catalog-entry-owner">{entry.owner.fullName}</div>
+                            <Typography className="model-catalog-entry-owner">{entry.owner.fullName}</Typography>
                             {/* <div className="model-catalog-entry-permissions">
                                 {selectedText}
                             </div> */}
                         </div>
                         <div className="model-catalog-entry-api model-catalog-entry-with-title">
-                            <span>Api: </span>
-                            <a href={entry.apiUrl} rel="noreferrer" target="_blank">
+                            <Typography>Api: </Typography>
+                            <Link href={entry.apiUrl} rel="noreferrer" target="_blank">
                                 {entry.apiUrl}
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>
                 <div className="model-catalog-entry-details-row">
                     <div className="model-catalog-entry-notes model-catalog-entry-with-title">
-                        <span>Notes: </span>
-                        <span>{entry.notes}</span>
+                        <Typography>Notes: </Typography>
+                        <Typography>{entry.notes}</Typography>
                     </div>
                     {entry.lastUpdatedBy && (
-                        <div
+                        <Typography
                             className="model-catalog-entry-last-updated"
                             aria-hidden={!Boolean(entry.lastUpdatedBy)}
                         >
                             {`Updated by ${
                                 entry.lastUpdatedBy
                             } on ${entry.lastUpdated?.toLocaleDateString?.()} ${entry.lastUpdated?.toLocaleTimeString?.()}`}
-                        </div>
+                        </Typography>
                     )}
                 </div>
             </div>
@@ -108,29 +109,29 @@ export const EntryActions = memo(
             <div className="model-catalog-grid-row-col" aria-label="mod">
                 {!editing && (
                     <>
-                        <button
+                        <Button
                             className="model-catalog-entry-action-button"
                             title="Edit Model Entry"
                             onClick={handleEdit}
                             aria-hidden={copyOnly}
                         >
                             <DriveFileRenameOutlineIcon className="model-catalog-entry-action-icon" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             className="model-catalog-entry-action-button"
                             title="Copy Model Entry"
                             onClick={handleCopy}
                         >
                             <CopyAllIcon className="model-catalog-entry-action-icon" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             className="model-catalog-entry-action-button"
                             title="Delete Model Entry"
                             onClick={handleDelete}
                             aria-hidden={copyOnly}
                         >
                             <DeleteForeverIcon className="model-catalog-entry-action-icon" />
-                        </button>
+                        </Button>
                     </>
                 )}
             </div>
@@ -157,7 +158,7 @@ export const EntrySync = memo((props: { startSync: (syncType: SyncTypes) => void
         <div className="model-catalog-grid-row-col" aria-label="sync" aria-hidden={hidden}>
             {!disabled && (
                 <>
-                    <button
+                    <Button
                         className="model-catalog-entry-action-button"
                         title="Sync To Gitlab"
                         onClick={handleSyncToGitlab}
@@ -167,8 +168,8 @@ export const EntrySync = memo((props: { startSync: (syncType: SyncTypes) => void
                             aria-label="small-arrow-left"
                         />
                         <GitLabIcon className="model-catalog-entry-action-icon" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         className="model-catalog-entry-action-button"
                         title="Sync To JupyterLab"
                         onClick={handleSyncToJupyter}
@@ -178,7 +179,7 @@ export const EntrySync = memo((props: { startSync: (syncType: SyncTypes) => void
                             className="model-catalog-entry-action-icon"
                             aria-label="small-arrow-right"
                         />
-                    </button>
+                    </Button>
                 </>
             )}
         </div>

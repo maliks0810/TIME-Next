@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { Typography } from '@mui/material';
 import './waiting-ellipses.scss';
 
 const ELLIPSES_COUNT = 3;
@@ -27,8 +28,8 @@ export const WaitingEllipses = (props: {
     return (
         <div className="waiting-ellipses-container" >
             <div className="waiting-wrapper" aria-level={level}>                
-                <div className="waiting-text" aria-level={level}> {props.prefix}</div>
-                <div className="waiting-ellipses" aria-level={level}>{ellipses}</div>
+                <Typography className="waiting-text" aria-level={level}> {props.prefix}</Typography>
+                <Typography className="waiting-ellipses" aria-level={level}>{ellipses}</Typography>
             </div>
         </div>
     );

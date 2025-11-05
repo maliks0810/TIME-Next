@@ -1,5 +1,6 @@
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, TextField } from '@mui/material';
 import { useRef, useState } from 'react';
+import { Button, Typography } from '@mui/material';
 import { WaitingEllipses } from '../../../components/waiting-ellipses';
 import {
     ModelCatalogEntry,
@@ -108,7 +109,7 @@ export const ModelCatalogEntryEditor = (props: {
         <div className="model-catalog-entry-editor">
             {busyMessage && (
                 <div className="model-catalog-busy-container">
-                    {busyTitle && <div className="model-catalog-busy-title">{busyTitle}</div>}
+                    {busyTitle && <Typography className="model-catalog-busy-title">{busyTitle}</Typography>}
                     <div className="model-catalog-busy-text">
                         <WaitingEllipses
                             prefix={busyMessage ?? 'Please wait'}
@@ -127,20 +128,20 @@ export const ModelCatalogEntryEditor = (props: {
                 </div>
             )}
             {copying && (
-                <div className="model-catalog-entry-copying">{`Copying from model '${entry?.name}'`}</div>
+                <Typography className="model-catalog-entry-copying">{`Copying from model '${entry?.name}'`}</Typography>
             )}
             <div className="model-catalog-editor-field-group">
                 <div className="model-catalog-editor-field" aria-label="name">
-                    <div className="model-catalog-editor-field-title">
+                    <Typography className="model-catalog-editor-field-title">
                         Name
-                        <span
+                        <Typography
                             className="model-catalog-editor-name-invalid"
                             aria-hidden={!nameInvalid}
                         >
                             --Name is require and must be unique--
-                        </span>
-                    </div>
-                    <input
+                        </Typography>
+                    </Typography>
+                    <TextField
                         name="entryName"
                         type="text"
                         data-form-type="other"
@@ -149,11 +150,11 @@ export const ModelCatalogEntryEditor = (props: {
                         onChange={(e) => {
                             nameRef.current = e.target.value;
                         }}
-                        maxLength={56}
+                        slotProps={{htmlInput:{maxLength:56}}}
                     />
                 </div>
                 <div className="model-catalog-editor-field" aria-label="state">
-                    <div className="model-catalog-editor-field-title">State</div>
+                    <Typography className="model-catalog-editor-field-title">State</Typography>
                     <EnumSelect
                         values={stateVals}
                         defaultSelected={stateRef.current}
@@ -163,7 +164,7 @@ export const ModelCatalogEntryEditor = (props: {
                     />
                 </div>
                 <div className="model-catalog-editor-field" aria-label="cat">
-                    <div className="model-catalog-editor-field-title">Kind/Purpose</div>
+                    <Typography className="model-catalog-editor-field-title">Kind/Purpose</Typography>
                     <CategorizationSelect
                         map={catMap}
                         defaultSelected={catRef.current}
@@ -182,8 +183,8 @@ export const ModelCatalogEntryEditor = (props: {
             </div>
             <div className="model-catalog-editor-field-group">
                 <div className="model-catalog-editor-field" aria-label="url">
-                    <div className="model-catalog-editor-field-title">API URL</div>
-                    <input
+                    <Typography className="model-catalog-editor-field-title">API URL</Typography>
+                    <TextField
                         name="entryApi"
                         type="text"
                         data-form-type="other"
@@ -195,8 +196,8 @@ export const ModelCatalogEntryEditor = (props: {
                     />
                 </div>
                 <div className="model-catalog-editor-field" aria-label="notes">
-                    <div className="model-catalog-editor-field-title">Notes</div>
-                    <input
+                    <Typography className="model-catalog-editor-field-title">Notes</Typography>
+                    <TextField
                         name="entryNotes"
                         type="text"
                         data-form-type="other"
@@ -210,12 +211,12 @@ export const ModelCatalogEntryEditor = (props: {
             </div>
 
             <div className="model-catalog-edit-actions">
-                <button className="model-catalog-edit-action-button" onClick={handleSaveClick}>
+                <Button className="model-catalog-edit-action-button" onClick={handleSaveClick}>
                     Save
-                </button>
-                <button className="model-catalog-edit-action-button" onClick={() => onCancel?.()}>
+                </Button>
+                <Button className="model-catalog-edit-action-button" onClick={() => onCancel?.()}>
                     Cancel
-                </button>
+                </Button>
             </div>
         </div>
     );

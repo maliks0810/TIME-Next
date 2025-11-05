@@ -11,12 +11,12 @@
         display: flex;
         flex: 0;
         max-width: fit-content;
-        background-color: var(--light-gray-color);
-        border: 1px solid var(--tcw-gray-color);
-        box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
-        border-radius: 3px;
-        padding: 2px;
-        color: var(--dark-blue-color);
+        // background-color: var(--light-gray-color);
+        // border: 1px solid var(--tcw-gray-color);
+        // box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+        // border-radius: 3px;
+        // padding: 2px;
+        // color: var(--dark-blue-color);
     }
 
     .model-catalog-editor-field-group {
@@ -78,14 +78,14 @@
 
     .model-catalog-editor-field-title {
         font-size: 14px;
-        color: var(--tcw-blue-color);
+        // color: var(--tcw-blue-color);
     }
 
     .model-catalog-editor-name-invalid {
-        font-size: 13px;
-        font-weight: bold;
-        color: rgb(189, 78, 78);
-        padding-left: 8px;
+        // font-size: 13px;
+        // font-weight: bold;
+        // color: rgb(189, 78, 78);
+        // padding-left: 8px;
         display: none;
 
         &[aria-hidden='false'] {
@@ -106,27 +106,27 @@
     .model-catalog-edit-action-button {
         width: 100px;
         height: 35px;
-        background-color: var(--button-color);
-        border-radius: 6px;
-        color: var(--on-button-color);
-        box-shadow: var(--button-shadow);
+        // background-color: var(--button-color);
+        // border-radius: 6px;
+        // color: var(--on-button-color);
+        // box-shadow: var(--button-shadow);
 
-        &:hover {
-            background-color: var(--button-color_hover);
-            box-shadow: 0 0 0;
-        }
+        // &:hover {
+        //     background-color: var(--button-color_hover);
+        //     box-shadow: 0 0 0;
+        // }
     }
 
-    .model-catalog-edit-input {
-        border: 1px solid black;
-        outline: none;
-        border-radius: 3px;
-        padding: 2px;
+    // .model-catalog-edit-input {
+    //     border: 1px solid black;
+    //     outline: none;
+    //     border-radius: 3px;
+    //     padding: 2px;
 
-        &:focus-within {
-            border: 1px solid var(--hover-blue-color);
-        }
-    }
+    //     &:focus-within {
+    //         border: 1px solid var(--hover-blue-color);
+    //     }
+    // }
 }
 
 .model-catalog-busy-container {
@@ -149,22 +149,22 @@
 
     .model-catalog-busy-text {
         width: 100%;
-        color: white;
-        font-size: 20px;
-        font-weight: bold;
+        // color: white;
+        // font-size: 20px;
+        // font-weight: bold;
     }
 
     .model-catalog-busy-title {
         width: 100%;
-        color: white;
-        font-size: 20px;
-        font-weight: bold;
-        margin-bottom: -16px;
-        text-shadow:
-            -1px -1px 0 black,
-            1px -1px 0 black,
-            -1px 1px 0 black,
-            1px 1px 0 black;
+        // color: white;
+        // font-size: 20px;
+        // font-weight: bold;
+        // margin-bottom: -16px;
+        // text-shadow:
+        //     -1px -1px 0 black,
+        //     1px -1px 0 black,
+        //     -1px 1px 0 black,
+        //     1px 1px 0 black;
     }
 
     .model-catalog-busy-progress {

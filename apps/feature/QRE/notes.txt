@@ -7,3 +7,4 @@ How do we know which app-specific .env file is being used?
 Need Okta
 Not obvious that something is happening when loading from the main page then navigating to specific app
 -looks like TIME or the IDE did not get the route request, but it's actually loading dependencies in the backgrounds
+Does not want to auto-add imports

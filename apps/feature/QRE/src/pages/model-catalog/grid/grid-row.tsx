@@ -1,5 +1,6 @@
 import * as tlog from '@tcw/tlog';
 import { memo, useState } from 'react';
+import { Button, ListItem } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { QreBulkAuthorizations } from '../../../types/qre-authorization-types';
 import { ModelCatalogEntry, SyncTypes } from '../../../types/model-catalog-types';
@@ -109,7 +110,7 @@ export const ModelCatalogGridRow = memo(
 
         return (
             <>
-                <div className="model-catalog-grid-row-container">
+                <ListItem className="model-catalog-grid-row-container">
                     {mode == EditModes.Edit ? (
                         Editor
                     ) : (
@@ -123,7 +124,7 @@ export const ModelCatalogGridRow = memo(
                             <EntrySync startSync={handleStartSync} hidden={!userOwned || !canSync} />
                         </>
                     )}
-                </div>
+                </ListItem>
                 {mode == EditModes.Copy && Editor}
             </>
         );
@@ -176,7 +177,7 @@ export const ModelCatalogNewEntryRow = (props: {
     };
 
     return (
-        <div className="model-catalog-edit-new-row">
+        <ListItem className="model-catalog-edit-new-row">
             {active ? (
                 <div className="model-catalog-entry-editor">
                     <ModelCatalogEntryEditor
@@ -187,15 +188,15 @@ export const ModelCatalogNewEntryRow = (props: {
                     />
                 </div>
             ) : (
-                <button
+                <Button
                     className="model-catalog-add-entry-button"
                     onClick={handleNewEntryClick}
                     disabled={editing}
                 >
                     <AddCircleOutlineIcon className="model-catalog-add-entry-icon" />
                     Add new Model Catalog entry
-                </button>
+                </Button>
             )}
-        </div>
+        </ListItem>
     );
 };

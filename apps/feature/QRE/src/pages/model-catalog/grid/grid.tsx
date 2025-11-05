@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Button, List, ListSubheader, Typography } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
@@ -57,21 +58,21 @@ const ModelCatalogGridHeader = () => {
     };
 
     const SortButton = (name: SortableFields) => (
-        <button
+        <Button
             onClick={() => handleSort(name)}
             className="model-catalog-sort-button"
             disabled={disabled}
         >
             {name}
             {getIcon(name)}
-        </button>
+        </Button>
     );
 
     return (
-        <div className="model-catalog-grid-header">
-            <div className="model-catalog-grid-header-col" aria-label="mod">
+        <ListSubheader  className="model-catalog-grid-header">
+            <Typography className="model-catalog-grid-header-col" aria-label="mod">
                 Mod.
-            </div>
+            </Typography>
             <div className="model-catalog-grid-header-col" aria-label="name">
                 <div className="model-catalog-grid-header-group">
                     {SortButton('Name')}/{SortButton('State')}
@@ -88,10 +89,10 @@ const ModelCatalogGridHeader = () => {
             {/* <div className="model-catalog-grid-header-col" aria-label="permissions">
                 <div>Permissions</div>
             </div> */}
-            <div className="model-catalog-grid-header-col" aria-label="sync">
+            <Typography className="model-catalog-grid-header-col" aria-label="sync">
                 Sync
-            </div>
-        </div>
+            </Typography>
+        </ListSubheader>
     );
 };
 
@@ -100,9 +101,9 @@ const LoadMessage = (props: { failed: boolean }) => {
     return (
         <div className="model-catalog-load-message">
             {failed ? (
-                <div className="model-catalog-load-error">
+                <Typography className="model-catalog-load-error">
                     An error occurred while loading the Model Catalog
-                </div>
+                </Typography>
             ) : (
                 <div className="model-catalog-loading">
                     <WaitingEllipses prefix={'Loading Model Catalog'} />{' '}
@@ -265,7 +266,7 @@ export const ModelCatalogGrid = () => {
     };
 
     return (
-        <div className="model-catalog-grid-container">
+        <List className="model-catalog-grid-container">
             <ModelCatalogGridHeader />
             {loading ? (
                 <LoadMessage failed={loadError} />
@@ -293,6 +294,6 @@ export const ModelCatalogGrid = () => {
                 entry={dialogEntry}
                 onFinished={handleDialogFinished}
             />
-        </div>
+        </List>
     );
 };

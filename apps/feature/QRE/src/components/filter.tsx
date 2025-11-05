@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import './filter.scss';
+import { Button, TextField } from '@mui/material';
 
 export const FilterInput = (props: {
     filter: string | undefined;
@@ -23,7 +24,7 @@ export const FilterInput = (props: {
     };
     return (
         <div className="filter-container" aria-disabled={disabled}>
-            <input
+            <TextField
                 id="filter-input"
                 type="text"
                 className="filter-input"
@@ -34,14 +35,14 @@ export const FilterInput = (props: {
                 data-form-type="other"
                 ref={ref}
                 disabled={disabled}
-            ></input>
-            <button
+            />
+            <Button
                 className="filter-clear-button"
                 onClick={() => onFilterChanged('')}
                 disabled={disabled}
             >
                 x
-            </button>
+            </Button>
         </div>
     );
 };

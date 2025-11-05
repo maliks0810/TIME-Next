@@ -1,7 +1,7 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { useRef, useState } from 'react';
-import { BlockContainer } from '../../components/block-container';
+import { ChangeEvent, useState } from 'react';
+import { Button, Card, Checkbox, FormControlLabel, Typography } from '@mui/material';
 import './model-catalog.scss';
 import { FilterInput } from '../../components/filter';
 import { ModelCatalogFilterByValues } from '../../types/model-catalog-types';
@@ -34,9 +34,9 @@ const ModelCatalogRowCount = () => {
     console.debug('ModelCatalogRowCount rendering');
 
     return (
-        <div className="model-catalog-entry-counts">
+        <Typography className="model-catalog-entry-counts">
             {loading ? '' : `Showing ${counts.filteredEntries} of ${counts.entries}`}
-        </div>
+        </Typography>
     );
 };
 
@@ -48,14 +48,14 @@ const ModelCatalogRefresh = (props: { disabled?: boolean }) => {
     console.debug('ModelCatalogRefresh rendering', disabled);
 
     return (
-        <button
+        <Button
             onClick={trigger}
             className="model-catalog-refresh-button"
             disabled={disabled}
             title="Refresh Model Catalog"
         >
             <RefreshIcon className="model-catalog-refresh-icon" />
-        </button>
+        </Button>
     );
 };
 
@@ -77,7 +77,7 @@ const ModelCatalogSettings = (props: { disabled?: boolean; hidden?: boolean }) =
     return (
         <>
             <SettingsDialog open={settingsOpen} onClose={handleSettingsClose} />
-            <button
+            <Button
                 aria-hidden={props.hidden}
                 className="model-catalog-settings-button"
                 title="Click here to manage settings like: Categorizations"
@@ -85,7 +85,7 @@ const ModelCatalogSettings = (props: { disabled?: boolean; hidden?: boolean }) =
                 disabled={disabled}
             >
                 <SettingsIcon className="model-catalog-settings-icon" />
-            </button>
+            </Button>
         </>
     );
 };
@@ -95,7 +95,6 @@ const ModelCatalogFilter = (props: { disabled?: boolean }) => {
     const [filter, setFilter] = useModelCatalogFilterContext();
     const loading = useModelCatalogLoadingContext();
     const disabled = props.disabled || loading;
-    const userOwnedRef = useRef<HTMLInputElement>(null);
 
     console.debug('ModelCatalogFilter rendering', disabled);
 
@@ -107,42 +106,38 @@ const ModelCatalogFilter = (props: { disabled?: boolean }) => {
         console.log('field changed', value);
         setFilter({ ...filter, field: value });
     };
-    const handleUserOwnedClicked = () => {
+    const handleUserOwnedClicked = (_e: ChangeEvent<HTMLInputElement>, checked: boolean) => {
         if (disabled) {
             return;
         }
-        console.log('field changed', userOwnedRef.current?.checked);
-        setFilter({ ...filter, userOwnedOnly: userOwnedRef.current?.checked ?? false });
+        console.log('checked changed', checked);
+        setFilter({ ...filter, userOwnedOnly: checked });
     };
-
+//TODO: change EnumSelect to Mui
     return (
         <div className="model-catalog-filter">
-            <div className="model-catalog-filter-title">Filter:</div>
+            <Typography className="model-catalog-filter-title">Filter:</Typography>
             <FilterInput
                 filter={filter.value}
                 onFilterChanged={handleValueChange}
                 placeholder="Filter value"
                 disabled={disabled}
             />
-            <div className="model-catalog-filter-title">By:</div>
+            <Typography className="model-catalog-filter-title">By:</Typography>
             <EnumSelect
                 values={values}
                 defaultSelected="Name"
                 onSelected={handleFieldChange}
                 disabled={disabled}
             />
-            <div
-                className="model-catalog-filter-user-owned"
-                onClick={handleUserOwnedClicked}
-                aria-disabled={disabled}
-            >
-                <label htmlFor="userOwnedOnlyCheckbox">Show only my models</label>
-                <input
-                    type="checkbox"
+            <div className="model-catalog-filter-user-owned" aria-disabled={disabled}>
+                <FormControlLabel
+                    required
+                    control={<Checkbox onChange={handleUserOwnedClicked} />}
+                    label="Show only my models"
+                    labelPlacement="start"
                     title="Show only the models that I own"
-                    id="userOwnedOnlyCheckbox"
                     disabled={disabled}
-                    ref={userOwnedRef}
                 />
             </div>
         </div>
@@ -162,7 +157,7 @@ const ModelCatalogHeader = () => {
 
     return (
         <div className="model-catalog-header">
-            <div className="model-catalog-header-title block-title">Model Catalog</div>
+            <Typography>Model Catalog</Typography>
             <ModelCatalogSettings disabled={disabled || !isAdmin} hidden={!isAdmin} />
             <ModelCatalogFilter disabled={disabled} />
             <ModelCatalogRowCount />
@@ -179,12 +174,10 @@ const ModelCatalog = () => {
             <ModelCatalogEntryProvider>
                 <ModelCatalogAxiosContextProvider>
                     <QREAuthorization>
-                        <BlockContainer
-                            title={<ModelCatalogHeader />}
-                            className="full-screen-block"
-                        >
+                        <Card>
+                            <ModelCatalogHeader />
                             <ModelCatalogGrid />
-                        </BlockContainer>
+                        </Card>
                     </QREAuthorization>
                 </ModelCatalogAxiosContextProvider>
             </ModelCatalogEntryProvider>
