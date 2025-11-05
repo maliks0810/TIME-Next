@@ -10,21 +10,19 @@ import { IconButton } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 
-export const TopMenu = (props: { menuData: any }) => {
+export const TopMenu = (props: { 
+                            menuData: any,
+                            openMenu: string | null,
+                            setOpenMenu: (menu: string | null) => void,
+                            handleClick: (event: React.MouseEvent<HTMLButtonElement>, menuName: string) => void,
+                            handleClose: () => void 
+                        }) => {
     const [selectedItem, setSelectedItem] = useState<string>(
         ((props.menuData.subHeaders as any[]) ?? [])[0]?.title ?? ''
     );
     const [selectedList, setSelectedList] = useState<any>();
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const popupRef = useRef<any>();
-    const open = Boolean(anchorEl);
     const navigate = useNavigate();
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
 
     const handleSubMenuClick = (e: React.MouseEvent<HTMLButtonElement> | undefined) => {
         if (!e) {
@@ -36,13 +34,13 @@ export const TopMenu = (props: { menuData: any }) => {
 
     const handleMenuLinkClick = (link: (ExternalAppMetadata|InternalAppMetadata)) => {
         if (link.httpMethod !== 'POST' && link.type === 'external') {
-            handleClose();
+            props.handleClose();
             popupRef.current.showPopup(link);
         } else if (link.type === 'internal') {
             navigate(link.path);
-            handleClose();
+            props.handleClose();
         }else {
-        handleClose();
+        props.handleClose();
 
         fetch(link.url, {
             method: "POST",
@@ -99,22 +97,17 @@ export const TopMenu = (props: { menuData: any }) => {
         <div className="header-menu-item">
             <NaviLinkContainer ref={popupRef} />
             <button
-                onClick={handleClick}>
-                <div className={'header-menu-item-container' + (open ? ' current' : '')}>
+                onClick={(e) => props.handleClick(e, props.menuData.header)}>
+                <div className={'header-menu-item-container' + (props.openMenu === props.menuData.header ? ' current' : '')}>
                     {props.menuData.header}
-                    {/* <img
-                                src={DownArrowSVG}
-                                alt="title icon"
-                                className={'menu-expand-arrow' + (open ? ' current' : '')}
-                    /> */}
-                    <DownArrowSVG className={'menu-expand-arrow' + (open ? ' current' : '')} />
+                    <DownArrowSVG className={'menu-expand-arrow' + (props.openMenu === props.menuData.header ? ' current' : '')} />
                 </div>
             </button>
             <Menu
                 id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
+                anchorEl={props.openMenu === props.menuData.header ? document.querySelector('.header-menu-item-container.current') : null}
+                open={props.openMenu === props.menuData.header}
+                onClose={props.handleClose}
                 MenuListProps={{
                     'aria-labelledby': 'basic-button',
                     disablePadding: true,
@@ -169,8 +162,9 @@ export const TopMenu = (props: { menuData: any }) => {
                                     aria-label="copy link"
                                     disabled={isLinkDisabled(app)}
                                     onClick={() => copyToClipboard(app)}
-                                    size="small"  >  
-                                <ContentCopyIcon fontSize="inherit" />
+                                    size="small" 
+                                >  
+                                    <ContentCopyIcon fontSize="inherit" />
                                 </IconButton>
                             </div>
 

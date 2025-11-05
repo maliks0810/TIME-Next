@@ -21,19 +21,26 @@ export interface NavigationBarProps {
 
 
 export const Navbar: React.FC = () => {
-    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [openMenu, setOpenMenu] = useState<string | null>(null);
+
+    const navigate = useNavigate();
     const userInfo = useUserInfo();
     const handleHomeClick = () => {
+        setOpenMenu(null);
         navigate('/');
     };
 
-    const open = Boolean(anchorEl);
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>, menuName: string) => {
+        if (openMenu === menuName) {
+            setOpenMenu(null);
+        } else {
+            setOpenMenu(menuName);
+        }
     };
+
     const handleClose = () => {
-        setAnchorEl(null);
+        setOpenMenu(null);
     };
 
     const transformLinks = (inputArray: (InternalAppMetadata|ExternalAppMetadata)[]) => {
@@ -96,7 +103,7 @@ export const Navbar: React.FC = () => {
     };
 
     return (
-        <div className="header-container">
+        <div className="header-container" >
             <button onClick={handleHomeClick}>
                 <img src={tcwTime} alt="TcwTIME" className="main-logo" />
             </button>
@@ -104,28 +111,24 @@ export const Navbar: React.FC = () => {
             {/* New Navbar Loading from App Registry */}
             <div className="menu-container">
                 {transformLinks(appRegistry.getAllApps()).map((header, index) => {
-                    return <TopMenu key={index} menuData={header} />;
+                    return <TopMenu
+                                key={index}
+                                menuData={header}
+                                openMenu={openMenu}
+                                setOpenMenu={setOpenMenu}
+                                handleClick={handleClick}
+                                handleClose={handleClose}
+                            />;
                 })}
             </div>
-                {/* <SearchSVG className="header-icon" /> */}
-                {/* <img
-                            src={SearchSVG}
-                            alt="search icon"
-                            className="header-icon"
-                /> */}
             <div className="profile-menu">
-                <IconButton className="profile-menu-header-button" onClick={handleClick}>
+                <IconButton className="profile-menu-header-button" onClick={(e) => handleClick(e, 'profile')}>
                     <ProfileSVG className="profile-icon header-icon" />
-                {/* <img
-                            src={ProfileSVG}
-                            alt="title icon"
-                            className="profile-icon header-icon"
-                /> */}
                 </IconButton>
                 <Menu
                     id="basic-menu"
                     anchorEl={anchorEl}
-                    open={open}
+                    open={openMenu === 'profile'}
                     onClose={handleClose}
                     MenuListProps={{
                         'aria-labelledby': 'basic-button',
@@ -133,8 +136,8 @@ export const Navbar: React.FC = () => {
                         
                     }}
                     classes={{ paper: 'menu-paper' }}
-                    slotProps={{ paper: { square: true } }}
-                    anchorOrigin={{vertical: 50, horizontal: -125}}
+                    slotProps={{ paper: { square: true }}}
+                    anchorOrigin={{vertical: 72, horizontal: "right"}}
                 >
                     <div className="profile-dropdown-content">
                         <div className="profile-menu-user-name">{userInfo.name}</div>
@@ -144,14 +147,10 @@ export const Navbar: React.FC = () => {
                         <button className="profile-menu-preferences" onClick={handleSendEmail}>
                             Request Support
                         </button>
-                        {/* <div className="profile-menu-log-off">Log Off</div> */}
                     </div>
                 </Menu>
             </div>
 
-            {/* <HomeSVG className="home-icon header-icon" onClick={handleHomeClick} title='Return to main TIME screen' />
-            <SearchSVG className="search-icon header-icon" />
-            <ProfileMenu /> */}
         </div>
     );
 }

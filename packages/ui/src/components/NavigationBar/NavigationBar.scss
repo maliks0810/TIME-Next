@@ -10,6 +10,7 @@
     align-items: center;
     align-content: center;
     flex-grow: 1;
+    z-index: 1301;
 }
 
 .main-logo {
@@ -65,10 +66,15 @@
 }
 
 
-.header-menu-item-container:hover .menu-expand-arrow {
+.header-menu-item-container:hover {
     filter: brightness(0) saturate(100%) invert(72%) sepia(29%) saturate(355%) hue-rotate(156deg)
         brightness(98%) contrast(93%);
-    padding-left: 6px;
+}
+
+.menu-expand-arrow {
+    filter: brightness(0) saturate(100%) invert(72%) sepia(29%) saturate(355%) hue-rotate(156deg)
+    brightness(98%) contrast(93%);
+    padding-left: 6px
 }
 
 .header-menu-item-container.current {
