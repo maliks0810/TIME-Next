@@ -36,54 +36,54 @@ export const Navbar: React.FC = () => {
         setAnchorEl(null);
     };
 
-    const transformLinks = (inputArray: (InternalAppMetadata|ExternalAppMetadata)[]) => {    
-        const headerMap = new Map();    
+    const transformLinks = (inputArray: (InternalAppMetadata|ExternalAppMetadata)[]) => {
+        const headerMap = new Map();
 
-        inputArray.forEach(item => {    
-    
-            if (!item.header || !item.subHeader) return;    
+        inputArray.forEach(item => {
+
+            if (!item.header || !item.subHeader) return;
 
             if (!headerMap.has(item.header)) {
             headerMap.set(item.header, new Map());
             }
 
-            const subHeaderMap = headerMap.get(item.header);    
+            const subHeaderMap = headerMap.get(item.header);
     
             if (!subHeaderMap.has(item.subHeader)) {
-            subHeaderMap.set(item.subHeader, []);
+                subHeaderMap.set(item.subHeader, []);
             }
 
-            const links = subHeaderMap.get(item.subHeader);    
+            const links = subHeaderMap.get(item.subHeader);
 
-            links.push({    
+            links.push({
                 title: item.title,    
                 url: item.url,    
                 newTab: item.newTab,
                 disabled: item.disabled,
                 path: item.path,
                 type: item.type
-            });    
+            });
         });
-    
-        const result = [];    
-            
-        for (const [header, subHeaderMap] of headerMap.entries()) {    
-            const subHeaders = [];    
-            
-            for (const [subHeaderTitle, links] of subHeaderMap.entries()) {    
-            subHeaders.push({    
-                title: subHeaderTitle,    
-                links,    
-            });    
-            }    
-            
-            result.push({    
-            header,    
-            subHeaders,    
-            });    
-        }    
-            
-        return result;    
+
+        const result = [];
+
+        for (const [header, subHeaderMap] of headerMap.entries()) {
+            const subHeaders = [];
+
+            for (const [subHeaderTitle, links] of subHeaderMap.entries()) {
+                subHeaders.push({
+                    title: subHeaderTitle,
+                    links,
+                });
+            }
+
+            result.push({
+            header,
+            subHeaders,
+            });
+        }
+
+        return result;
     };
 
     const handleSendEmail = () => {
