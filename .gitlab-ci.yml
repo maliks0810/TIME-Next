@@ -1,7 +1,7 @@
 include:
   - project: 'tcw-group/technology/platform-engineering/development-operations/cicd-configurations'
-    ref: 'main'
-    file: '/html/pipelines/x1/react.application.cloud.default.pipeline.yml'
+    ref: 'PE-3143'
+    file: '/time-next/pipelines/x1/time-next.application.cloud.default.pipeline.yml'
 
 variables:
   PROJECT_NAME: time-next
