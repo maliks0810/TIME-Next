@@ -6,13 +6,20 @@ import { ReactNode } from 'react';
 
 const root = document.documentElement;
 const primaryTcwBlueColor = getComputedStyle(root).getPropertyValue('--tcw-blue-color').trim();
+const primaryTcwBlueContrastTextColor = getComputedStyle(root)
+    .getPropertyValue('--tcw-blue-contrast-text-color')
+    .trim();
 const secondaryTcwTealColor = getComputedStyle(root)
     .getPropertyValue('--secondary-tcw-teal-color')
     .trim();
 const tcwDefaultMargin = getComputedStyle(root).getPropertyValue('--tcw-default-margin').trim();
 const tcwDefaultPadding = getComputedStyle(root).getPropertyValue('--tcw-default-padding').trim();
-const primaryTcwHighlightColor = getComputedStyle(root).getPropertyValue('--tcw-highlight-blue-color').trim();
-const primaryTcwLightGrayColor = getComputedStyle(root).getPropertyValue('--tcw-light-gray-color').trim();
+const primaryTcwHighlightColor = getComputedStyle(root)
+    .getPropertyValue('--tcw-highlight-blue-color')
+    .trim();
+const primaryTcwLightGrayColor = getComputedStyle(root)
+    .getPropertyValue('--tcw-light-gray-color')
+    .trim();
 
 const muiTheme = createTheme({
     typography: {
@@ -23,13 +30,13 @@ const muiTheme = createTheme({
             main: primaryTcwBlueColor,
             light: '#009CD5',
             dark: '#003265',
-            contrastText: '#FFFFFF'
-        },        
+            contrastText: '#FFFFFF',
+        },
         secondary: {
             main: secondaryTcwTealColor,
             light: '#A6E3E2',
             dark: '#007270',
-            contrastText: '#FFFFFF'
+            contrastText: '#FFFFFF',
         },
         warning: {
             main: '#E55302',
@@ -45,29 +52,42 @@ const muiTheme = createTheme({
         MuiPaper: {
             styleOverrides: {
                 root: {
+                    //TODO: Add to documentation
                     '&.page-base': {
                         margin: tcwDefaultMargin,
                         padding: tcwDefaultPadding,
                     },
+                    //TODO: Add to documentation
                     '&.row-base': {
                         backgroundColor: primaryTcwLightGrayColor,
                         '&:hover': {
                             backgroundColor: primaryTcwHighlightColor,
-                        }
-                        
-                    },                    
+                        },
+                    },
                 },
             },
         },
+        MuiDialogTitle: {
+            styleOverrides: {
+                root: ({theme}) => ({
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText,
+                    marginBottom: tcwDefaultMargin,
+                    ...theme.typography.h4,
+                }),
+                
+            },
+            
+        },
         MuiCardContent: {
-          styleOverrides : {
-            root: {
-              padding: tcwDefaultPadding,
-              '&:last-child': {
-                paddingBottom: tcwDefaultPadding,
-              }
-            }
-          }
+            styleOverrides: {
+                root: {
+                    padding: tcwDefaultPadding,
+                    '&:last-child': {
+                        paddingBottom: tcwDefaultPadding,
+                    },
+                },
+            },
         },
         MuiCardHeader: {
             styleOverrides: {

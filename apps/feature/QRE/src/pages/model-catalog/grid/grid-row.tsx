@@ -1,6 +1,16 @@
 import * as tlog from '@tcw/tlog';
 import { memo, useState } from 'react';
-import { Button, CardContent, Grid, Paper } from '@mui/material';
+import {
+    Button,
+    CardContent,
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    Grid,
+    Paper,
+    Stack,
+    Typography,
+} from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { QreBulkAuthorizations } from '../../../types/qre-authorization-types';
 import { ModelCatalogEntry, SyncTypes } from '../../../types/model-catalog-types';
@@ -39,7 +49,7 @@ export const ModelCatalogGridRow = memo(
         const setEditing = useSetEntryEditingContext();
         const [mode, setMode] = useState<EditModes>(EditModes.None);
         const [busyTitle, setBusyTitle] = useState<string | null>(null);
-        const [busyMsg, setBusyMsg] = useState<string | null>(null);
+        const [busyMessage, setBusyMsg] = useState<string | null>(null);
         const userOwned = true || entry.owner.email.toLowerCase() == user.email.toLowerCase();
         const canSync =
             userAuth.results?.find((s) => s.resource == SYNC_RESOURCE && s.action == SYNC_ACTION)
@@ -105,13 +115,30 @@ export const ModelCatalogGridRow = memo(
                 copying={mode == EditModes.Copy}
                 onCancel={handleCancel}
                 onSave={handleSave}
-                busyMessage={busyMsg}
-                busyTitle={busyTitle}
             />
         );
 
         return (
             <>
+                <Dialog open={(busyMessage?.length ?? 0) > 0} maxWidth="sm" fullWidth={true}>
+                    <DialogContent>
+                        <Stack
+                            direction="column"
+                            spacing={5}
+                            flexGrow={1}
+                            alignItems="center"
+                            justifyContent="center"
+                        >
+                            <Typography variant="h6" textAlign="center" color="primary">
+                                {busyTitle}
+                            </Typography>
+                            <Typography variant="subtitle1">
+                                {busyMessage ?? 'Please wait'}
+                            </Typography>
+                            <CircularProgress enableTrackSlot size={64} />
+                        </Stack>
+                    </DialogContent>
+                </Dialog>
                 <Paper className="row-base">
                     <CardContent>
                         {mode == EditModes.Edit ? (
@@ -197,8 +224,6 @@ export const ModelCatalogNewEntryRow = (props: {
                     <ModelCatalogEntryEditor
                         onCancel={handleCancel}
                         onSave={handleSave}
-                        busyMessage={busyMsg}
-                        busyTitle={busyTitle}
                     />
                 </div>
             ) : (

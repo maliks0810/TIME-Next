@@ -1,12 +1,19 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react';
-import { CircularProgress } from '@mui/material';
+import {
+    Card,
+    CardContent,
+    CircularProgress,
+    Container,
+    Paper,
+    Stack,
+    Typography,
+} from '@mui/material';
 import BrowserNotSupportedIcon from '@mui/icons-material/BrowserNotSupported';
 import { useQreUserAuthorizations } from '../hooks/user-authorizations';
 import {
     QreUserAuthorizationsProvider,
     useQreUserAuthorizationsContext,
 } from '../contexts/qre-user-authorizations';
-import { WaitingEllipses } from './waiting-ellipses';
 import './qre-authorization.scss';
 
 const APP_RESOURCE = 'application';
@@ -16,16 +23,36 @@ const Unauthorized = (props: { msg?: string | null }) => {
     const { msg } = props;
 
     return (
-        <div className="qre-app-unauthorized">
-            <div className="qre-app-unauthorized-title">
-                Not Authorized
-                <BrowserNotSupportedIcon className="qre-app-unauthorized-icon" />
-            </div>
-            <div className="qre-app-unauthorized-info">
-                You are not authorized to use this QRE application
-            </div>
-            {msg && <div className="qre-app-unauthorized-msg">{msg}</div>}
-        </div>
+        <Container>
+            <CardContent /> {/* Just a spacer */}
+            <Card variant="elevation" raised>
+                <CardContent>
+                    <Stack
+                        direction="column"
+                        spacing={2}
+                        justifyContent="center"
+                        alignItems="center"
+                    >
+                        <Stack
+                            direction="row"
+                            justifyContent="center"
+                            alignItems="center"
+                            spacing={4}
+                        >
+                            <Typography variant="h4" color="error">
+                                Not Authorized
+                            </Typography>
+                            <BrowserNotSupportedIcon fontSize="large" color="error" />
+                        </Stack>
+
+                        <Typography variant="subtitle1" color="warning">
+                            You are not authorized to use this QRE application
+                        </Typography>
+                        {msg && <Typography>{msg}</Typography>}
+                    </Stack>
+                </CardContent>
+            </Card>
+        </Container>
     );
 };
 
@@ -62,10 +89,25 @@ const AuthContent = (props: { children: ReactNode }) => {
     }, [loadAuth]);
 
     return loading ? (
-        <div className="qre-app-loading">
-            <WaitingEllipses prefix="Loading QRE Authorizations" maintainWidth={true} />
-            <CircularProgress />
-        </div>
+        <Container>
+            <CardContent /> {/* Just a spacer */}
+            <Card>
+                <CardContent>
+                    <Stack
+                        direction="column"
+                        spacing={2}
+                        justifyContent="center"
+                        alignItems="center"
+                    >
+                        <Typography variant="h6" color="primary">
+                            Loading QRE Authorizations
+                        </Typography>
+                        <Typography>Please Wait.</Typography>
+                        <CircularProgress enableTrackSlot size={64} />
+                    </Stack>
+                </CardContent>
+            </Card>
+        </Container>
     ) : canUse ? (
         children
     ) : (

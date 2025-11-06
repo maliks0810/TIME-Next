@@ -4,6 +4,7 @@ import {
     Paper,
     CardHeader,
     Dialog,
+    DialogActions,
     List,
     ListItem,
     TextField,
@@ -13,6 +14,8 @@ import {
     DialogContent,
     IconButton,
     Typography,
+    CardContent,
+    Container,
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -234,60 +237,58 @@ export const SettingsDialog = (props: { open: boolean; onClose: () => void }) =>
     };
 
     return (
-        <Dialog open={open} maxWidth="xl" fullWidth={true}>
+        <Dialog open={open} maxWidth="xl" fullWidth={true} scroll="paper">
             <DialogTitle variant="h4" color="primary">
                 Model Catalog Settings
             </DialogTitle>
-            <DialogContent>
-                <Stack direction="column" spacing={1}>
-                    <Dialog open={busy} maxWidth="sm" fullWidth={true}>
-                        <DialogContent>
-                            <Stack
-                                direction="column"
-                                spacing={5}
-                                flexGrow={1}
-                                alignItems="center"
-                                justifyContent="center"
-                            >
-                                <Typography variant="h5" color="primary">
-                                    Saving Model Categorizations. Please wait.
-                                </Typography>
-                                <CircularProgress enableTrackSlot size={64} />
-                            </Stack>
-                        </DialogContent>
-                    </Dialog>
-
-                    <Paper elevation={3} variant="elevation">
-                        <Card variant="outlined">
-                            <Stack direction="row" spacing={2}>
-                                <CardHeader title="Model Categorizations"></CardHeader>
-                                <Button
-                                    onClick={handleAddKind}
-                                    color="secondary"
-                                    startIcon={<AddCircleOutlineIcon fontSize="small" />}
-                                >
-                                    Add Kind
-                                </Button>
-                            </Stack>
-
-                            <CatList kinds={kinds} setKinds={setKinds} />
-                        </Card>
-                    </Paper>
-                    <Stack direction="row" spacing={1} justifyContent="flex-end">
+            <Container maxWidth="xl">
+                <Card variant="outlined">
+                    <Stack direction="row" spacing={2}>
+                        <CardHeader title="Model Categorizations"></CardHeader>
                         <Button
-                            onClick={() => onClick(true)}
-                            disabled={disableSave}
-                            color="primary"
-                            variant="outlined"
+                            onClick={handleAddKind}
+                            color="secondary"
+                            startIcon={<AddCircleOutlineIcon fontSize="small" />}
                         >
-                            Save
-                        </Button>
-                        <Button onClick={() => onClick(false)} color="primary" variant="outlined">
-                            Cancel
+                            Add Kind
                         </Button>
                     </Stack>
-                </Stack>
+                </Card>
+            </Container>
+            <CardContent /> {/* Just a spacer */}
+            <DialogContent dividers>
+                <Dialog open={busy} maxWidth="sm" fullWidth={true}>
+                    <DialogContent>
+                        <Stack
+                            direction="column"
+                            spacing={5}
+                            flexGrow={1}
+                            alignItems="center"
+                            justifyContent="center"
+                        >
+                            <Typography variant="h5" color="primary">
+                                Saving Model Categorizations. Please wait.
+                            </Typography>
+                            <CircularProgress enableTrackSlot size={64} />
+                        </Stack>
+                    </DialogContent>
+                </Dialog>
+
+                <CatList kinds={kinds} setKinds={setKinds} />
             </DialogContent>
+            <DialogActions>
+                <Button
+                    onClick={() => onClick(true)}
+                    disabled={disableSave}
+                    color="primary"
+                    variant="outlined"
+                >
+                    Save
+                </Button>
+                <Button onClick={() => onClick(false)} color="primary" variant="outlined">
+                    Cancel
+                </Button>
+            </DialogActions>
         </Dialog>
     );
 };

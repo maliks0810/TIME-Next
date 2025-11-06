@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import './waiting-ellipses.scss';
 
 const ELLIPSES_COUNT = 3;
@@ -16,7 +16,7 @@ export const WaitingEllipses = (props: {
 
     const ellipses = '.'.repeat(typingCount);
     const timer = useRef<NodeJS.Timeout | undefined>(undefined);
-    const level = props.maintainWidth ? 1 : 0;
+    // const _level = props.maintainWidth ? 1 : 0;
     if (!timer.current) {
         timer.current = setTimeout(() => {
             clearTimeout(timer.current);
@@ -26,11 +26,11 @@ export const WaitingEllipses = (props: {
     }
 
     return (
-        <div className="waiting-ellipses-container" >
-            <div className="waiting-wrapper" aria-level={level}>                
-                <Typography className="waiting-text" aria-level={level}> {props.prefix}</Typography>
-                <Typography className="waiting-ellipses" aria-level={level}>{ellipses}</Typography>
-            </div>
-        </div>
+        <Box >
+            <Stack direction='row' spacing={0}>
+                <Typography > {props.prefix}</Typography>
+                <Typography >{ellipses}</Typography>
+            </Stack>
+        </Box>
     );
 };

@@ -1,12 +1,4 @@
-import {
-    Box,
-    CircularProgress,
-    Dialog,
-    DialogContent,
-    Grid,
-    Stack,
-    TextField,
-} from '@mui/material';
+import { Grid, Stack, TextField } from '@mui/material';
 import { useRef, useState } from 'react';
 import { Button, Typography } from '@mui/material';
 import {
@@ -26,12 +18,10 @@ import './entry-editor.scss';
 export const ModelCatalogEntryEditor = (props: {
     entry?: ModelCatalogEntry;
     copying?: boolean;
-    busyMessage?: string | null;
-    busyTitle?: string | null;
     onSave?: (entry: ModelCatalogEntry) => void;
     onCancel?: () => void;
 }) => {
-    const { entry, copying, busyMessage, busyTitle, onSave, onCancel } = props;
+    const { entry, copying, onSave, onCancel } = props;
     const [nameInvalid, setNameInvalid] = useState<boolean>(false);
     const user = useUserInfo();
     const entries = useModelCatalogEntriesContext()[0];
@@ -113,124 +103,105 @@ export const ModelCatalogEntryEditor = (props: {
 
     //If entry is undefined, assume new
     return (
-        <Box>
-            <Dialog open={(busyMessage?.length ?? 0) > 0} maxWidth="sm" fullWidth={true}>
-                <DialogContent>
-                    <Stack
-                        direction="column"
-                        spacing={5}
-                        flexGrow={1}
-                        alignItems="center"
-                        justifyContent="center"
-                    >
-                        <Typography variant="h6" textAlign="center" color="primary">
-                            {busyTitle}
-                        </Typography>
-                        <Typography variant="subtitle1">{busyMessage ?? 'Please wait'}</Typography>
-                        <CircularProgress enableTrackSlot size={64} />
-                    </Stack>
-                </DialogContent>
-            </Dialog>
-            <Grid container spacing={2} columns={18}>
-                {copying && (
-                    <Grid size={12}>
-                        <Typography variant="subtitle1">{`Copying from model '${entry?.name}'`}</Typography>
-                    </Grid>
-                )}
-                <Grid size={7}>
-                    <TextField
-                        fullWidth
-                        label="Name"
-                        size="small"
-                        color="primary"
-                        data-form-type="other"
-                        variant="outlined"
-                        required={true}
-                        placeholder="require and must be unique"
-                        defaultValue={nameRef.current}
-                        onChange={(e) => {
-                            nameRef.current = e.target.value;
-                        }}
-                        slotProps={{
-                            htmlInput: { maxLength: 56 },
-                            inputLabel: {
-                                shrink: true,
-                            },
-                        }}
-                        error={nameInvalid}
-                        helperText={nameInvalid && 'must be unique'}
-                    />
+        <Grid container spacing={2} columns={18}>
+            {copying && (
+                <Grid size={12}>
+                    <Typography variant="subtitle1">{`Copying from model '${entry?.name}'`}</Typography>
                 </Grid>
-                <Grid size={2}>
-                    <EnumSelect
-                        fillWidth={true}
-                        values={stateVals}
-                        defaultSelected={stateRef.current}
-                        onSelected={(v) => {
-                            stateRef.current = v;
-                        }}
-                        label="State"
-                    />
-                </Grid>
-                <Grid size={9}>
-                    <CategorizationSelect
-                        map={catMap}
-                        defaultSelected={catRef.current}
-                        onSelected={(m) => {
-                            catRef.current = m;
-                        }}
-                        label="Kind: Purpose"
-                    />
-                </Grid>
-                <Grid size={8}>
-                    <TextField
-                        fullWidth
-                        label="API URL"
-                        size="small"
-                        color="primary"
-                        data-form-type="other"
-                        variant="outlined"
-                        defaultValue={apiRef.current}
-                        onChange={(e) => {
-                            apiRef.current = e.target.value;
-                        }}
-                        slotProps={{
-                            inputLabel: {
-                                shrink: true,
-                            },
-                        }}
-                    />
-                </Grid>
-                <Grid size={10}>
-                    <TextField
-                        fullWidth
-                        label="Notes"
-                        size="small"
-                        color="primary"
-                        data-form-type="other"
-                        variant="outlined"
-                        defaultValue={notesRef.current}
-                        onChange={(e) => {
-                            notesRef.current = e.target.value;
-                        }}
-                        slotProps={{
-                            inputLabel: {
-                                shrink: true,
-                            },
-                        }}
-                    />
-                </Grid>
-                <Grid size={18}>
-                    <Stack direction="row" spacing={1} justifyContent="flex-end">
-                        <Button variant="contained" color="primary" onClick={handleSaveClick}>
-                            Save
-                        </Button>
-                        <Button variant="contained" color="primary" onClick={() => onCancel?.()}>
-                            Cancel
-                        </Button>
-                    </Stack>
-                </Grid>
+            )}
+            <Grid size={7}>
+                <TextField
+                    fullWidth
+                    label="Name"
+                    size="small"
+                    color="primary"
+                    data-form-type="other"
+                    variant="outlined"
+                    required={true}
+                    placeholder="require and must be unique"
+                    defaultValue={nameRef.current}
+                    onChange={(e) => {
+                        nameRef.current = e.target.value;
+                    }}
+                    slotProps={{
+                        htmlInput: { maxLength: 56 },
+                        inputLabel: {
+                            shrink: true,
+                        },
+                    }}
+                    error={nameInvalid}
+                    helperText={nameInvalid && 'must be unique'}
+                />
             </Grid>
-        </Box>
+            <Grid size={2}>
+                <EnumSelect
+                    fillWidth={true}
+                    values={stateVals}
+                    defaultSelected={stateRef.current}
+                    onSelected={(v) => {
+                        stateRef.current = v;
+                    }}
+                    label="State"
+                />
+            </Grid>
+            <Grid size={9}>
+                <CategorizationSelect
+                    map={catMap}
+                    defaultSelected={catRef.current}
+                    onSelected={(m) => {
+                        catRef.current = m;
+                    }}
+                    label="Kind: Purpose"
+                />
+            </Grid>
+            <Grid size={8}>
+                <TextField
+                    fullWidth
+                    label="API URL"
+                    size="small"
+                    color="primary"
+                    data-form-type="other"
+                    variant="outlined"
+                    defaultValue={apiRef.current}
+                    onChange={(e) => {
+                        apiRef.current = e.target.value;
+                    }}
+                    slotProps={{
+                        inputLabel: {
+                            shrink: true,
+                        },
+                    }}
+                />
+            </Grid>
+            <Grid size={10}>
+                <TextField
+                    fullWidth
+                    label="Notes"
+                    size="small"
+                    color="primary"
+                    data-form-type="other"
+                    variant="outlined"
+                    defaultValue={notesRef.current}
+                    onChange={(e) => {
+                        notesRef.current = e.target.value;
+                    }}
+                    slotProps={{
+                        inputLabel: {
+                            shrink: true,
+                        },
+                    }}
+                />
+            </Grid>
+            <Grid size={18}>
+                <Stack direction="row" spacing={1} justifyContent="flex-end">
+                    <Button variant="contained" color="primary" onClick={handleSaveClick}>
+                        Save
+                    </Button>
+                    <Button variant="contained" color="primary" onClick={() => onCancel?.()}>
+                        Cancel
+                    </Button>
+                </Stack>
+            </Grid>
+        </Grid>
     );
 };
