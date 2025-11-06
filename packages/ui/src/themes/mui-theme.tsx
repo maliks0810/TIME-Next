@@ -6,9 +6,9 @@ import { ReactNode } from 'react';
 
 const root = document.documentElement;
 const primaryTcwBlueColor = getComputedStyle(root).getPropertyValue('--tcw-blue-color').trim();
-const primaryTcwBlueContrastTextColor = getComputedStyle(root)
-    .getPropertyValue('--tcw-blue-contrast-text-color')
-    .trim();
+// const primaryTcwBlueContrastTextColor = getComputedStyle(root)
+//     .getPropertyValue('--tcw-blue-contrast-text-color')
+//     .trim();
 const secondaryTcwTealColor = getComputedStyle(root)
     .getPropertyValue('--secondary-tcw-teal-color')
     .trim();
@@ -21,6 +21,9 @@ const primaryTcwLightGrayColor = getComputedStyle(root)
     .getPropertyValue('--tcw-light-gray-color')
     .trim();
 
+    //TODO: Add contrast text colors
+    //TODO: Define color vars in CSS
+    //TODO: Add 'info' to palette
 const muiTheme = createTheme({
     typography: {
         fontFamily: ['Lato'].join(','),
