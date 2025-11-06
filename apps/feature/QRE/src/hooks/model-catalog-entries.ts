@@ -2,6 +2,7 @@ import * as tlog from '@tcw/tlog';
 import { useCallback } from 'react';
 import axios from 'axios';
 import {
+    AnyData,
     ModelCatalogEntry,
     ModelCategorizationMap,
     ModelStates,
@@ -25,7 +26,7 @@ if (!QRE_CONTENT_MGMT_URL) {
     tlog.fatal('The base url for QRE Content Mgmt was not found.', 'model-catalog-entries');
 }
 
-export const useGetAllConfigs = (): (() => Promise<any>) => {
+export const useGetAllConfigs = (): (() => Promise<AnyData>) => {
     return useCallback(async () => {
         return axios
             .get(CONFIG_URL)
@@ -46,10 +47,10 @@ export const useGetAllConfigs = (): (() => Promise<any>) => {
     }, []);
 };
 
-export const useUpdateAllConfigs = (): ((configs: any) => Promise<void>) => {
+export const useUpdateAllConfigs = (): ((configs: AnyData) => Promise<void>) => {
     const axios = useModelCatalogAxiosContext();
     return useCallback(
-        async (configs: any) => {
+        async (configs: AnyData) => {
             return axios()
                 .post(CONFIG_URL, configs)
                 .then(async () => {}) //nothing else to do here
@@ -107,7 +108,7 @@ export const useSaveModelCategorizationMap = (): ((
             getConfigs()
                 .then((configs) => {
                     configs.categorizations = flattenCatMap(map);
-                    //let the catch block handle any other errors
+                    //let the catch block handle AnyData other errors
                     updateConfigs(configs);
                 })
                 .catch((err) => {
@@ -172,7 +173,7 @@ export const useSaveEntry = (): ((entry: ModelCatalogEntry) => Promise<ModelCata
 
             return method(url, body)
                 .then(async (response) => {
-                    //Updating an entry will not return any new data for the entry
+                    //Updating an entry will not return AnyData new data for the entry
                     return createNew ? toModelCatalogEntry(response.data) : entry;
                 })
                 .catch((err) => {
@@ -217,7 +218,7 @@ export const useCopyEntry = (): ((
             return axios()
                 .post(url, body)
                 .then(async (response) => {
-                    //Updating an entry will not return any new data for the entry
+                    //Updating an entry will not return AnyData new data for the entry
                     return toModelCatalogEntry(response.data);
                 })
                 .catch((err) => {

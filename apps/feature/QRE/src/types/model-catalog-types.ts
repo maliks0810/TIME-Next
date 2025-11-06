@@ -78,3 +78,6 @@ export const enum SyncTypes {
     ToJupyter,
     ToGitlab,
 }
+
+// eslint-disable-next-line
+export type AnyData = any;

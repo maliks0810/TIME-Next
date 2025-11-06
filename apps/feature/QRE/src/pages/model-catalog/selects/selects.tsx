@@ -1,15 +1,5 @@
 import { ChangeEvent, useState } from 'react';
-import {
-    Button,
-    CardContent,
-    Checkbox,
-    FormControlLabel,
-    MenuItem,
-    Stack,
-    TextField,
-    ToggleButton,
-    Typography,
-} from '@mui/material';
+import { CardContent, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { ModelCategorization, ModelCategorizationMap } from '../../../types/model-catalog-types';
 import './selects.scss';
 
@@ -85,13 +75,15 @@ export const CategorizationSelect = (props: {
             <CardContent>
                 {Object.keys(map).map((k, i) => (
                     <Stack key={i} direction="column">
-                        <Typography color='primary' variant='button'>{k}</Typography>
+                        <Typography color="primary" variant="button">
+                            {k}
+                        </Typography>
                         {map[k].map((p, pi) => (
                             <MenuItem
                                 key={pi}
                                 selected={k == selectedValue.kind && p == selectedValue.purpose}
                                 onClick={() => handleSelected({ kind: k, purpose: p })}
-                                color='primary'
+                                color="primary"
                             >
                                 {p}
                             </MenuItem>
@@ -110,7 +102,6 @@ export const CategorizationSelect = (props: {
                             //     checked={k == selectedValue.kind && p == selectedValue.purpose}
 
                             // />
-  
                         ))}
                     </Stack>
                 ))}

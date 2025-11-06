@@ -1,12 +1,5 @@
 import { ReactNode } from 'react';
-import {
-    Button,
-    Dialog,
-    DialogTitle,
-    DialogActions,
-    DialogContent,
-    Grid,
-} from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogActions, DialogContent, Grid } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 
 export enum DialogIcon {
@@ -21,7 +14,7 @@ export const DialogBase = (props: {
     onButtonClick: (button: string) => void;
     title: string;
     children: ReactNode;
-    header?:ReactNode;
+    header?: ReactNode;
     icon?: DialogIcon;
     buttons?: string[];
 }) => {
@@ -34,9 +27,9 @@ export const DialogBase = (props: {
     }
 
     const IconComponent = {
-        [DialogIcon.Info]: <InfoIcon color="info" fontSize='large'/>,
-        [DialogIcon.Alert]: <InfoIcon color="error" fontSize='large' />,
-        [DialogIcon.Question]: <InfoIcon color="warning" fontSize='large' />,
+        [DialogIcon.Info]: <InfoIcon color="info" fontSize="large" />,
+        [DialogIcon.Alert]: <InfoIcon color="error" fontSize="large" />,
+        [DialogIcon.Question]: <InfoIcon color="warning" fontSize="large" />,
     };
 
     const handleClick = (button: string) => {
@@ -54,8 +47,8 @@ export const DialogBase = (props: {
                 </Grid>
             </DialogContent>
             <DialogActions>
-                {buttons.map((b) => (
-                    <Button variant="outlined" onClick={() => handleClick(b)}>
+                {buttons.map((b, i) => (
+                    <Button variant="outlined" onClick={() => handleClick(b)} key={i}>
                         {b}
                     </Button>
                 ))}

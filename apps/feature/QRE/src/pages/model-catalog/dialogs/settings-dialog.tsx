@@ -1,7 +1,6 @@
 //NOTE: Attempting to use MUI components to make switching to these easier when moving to TIME 2
 import {
     Button,
-    Paper,
     CardHeader,
     Dialog,
     DialogActions,
@@ -13,14 +12,12 @@ import {
     DialogTitle,
     DialogContent,
     IconButton,
-    Typography,
     CardContent,
     Container,
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useCallback, useEffect, useState } from 'react';
-import { CircularProgress } from '@mui/material';
 import { useModelCategorizationsContext } from '../../../contexts/model-catalog-context';
 import './settings-dialog.scss';
 import { useSaveModelCategorizationMap } from '../../../hooks/model-catalog-entries';
@@ -55,7 +52,7 @@ const CatList = (props: { kinds: CatListItem[]; setKinds: (kinds: CatListItem[])
     };
 
     const handleAddPurpose = (
-        _e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+        _: React.MouseEvent<HTMLButtonElement, MouseEvent>,
         kindIndex: number
     ) => {
         kinds[kindIndex].purposes = ['', ...kinds[kindIndex].purposes];
@@ -64,7 +61,7 @@ const CatList = (props: { kinds: CatListItem[]; setKinds: (kinds: CatListItem[])
     };
 
     const handleDeletePurpose = (
-        _e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+        _: React.MouseEvent<HTMLButtonElement, MouseEvent>,
         index: number,
         kindIndex: number
     ) => {
@@ -73,7 +70,7 @@ const CatList = (props: { kinds: CatListItem[]; setKinds: (kinds: CatListItem[])
     };
 
     const handleDeleteKind = (
-        _e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+        _: React.MouseEvent<HTMLButtonElement, MouseEvent>,
         index: number
     ) => {
         if (kinds[index].purposes.filter((p) => p.trim().length > 0).length > 0) {
@@ -233,7 +230,7 @@ export const SettingsDialog = (props: { open: boolean; onClose: () => void }) =>
         loadKinds();
     }, [loadKinds, map]);
 
-    const handleAddKind = (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const handleAddKind = () => {
         setKinds([{ kind: '', purposes: [''] }, ...kinds]);
     };
 
