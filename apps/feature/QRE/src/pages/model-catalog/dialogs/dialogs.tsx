@@ -1,5 +1,5 @@
 import { JSX, useEffect, useState } from 'react';
-import { CircularProgress, Dialog, DialogContent, DialogTitle, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import GitLabIcon from '../../../assets/gitlab.svg?react';
@@ -14,6 +14,7 @@ import { AlertSeverity } from '../../../types/alert-types';
 import { useUpdateAlertInfoContext } from '../../../contexts/alert-context';
 import { useDeleteModelCatalogEntry, useSynchronize } from '../../../hooks/model-catalog-entries';
 import { DialogBase, DialogIcon } from '../../../components/dialog-base';
+import { BusyOverlay } from '../../../components/busy-overlay';
 
 export type ModelCatalogDialogProps = {
     visible: boolean;
@@ -156,7 +157,10 @@ export const DialogWrapper = (props: {
     const alert = useUpdateAlertInfoContext();
     const synchronize = useSynchronize();
     const ModelDialog = Dialogs[dialogType];
-    const [busyInfo, setBusyInfo] = useState<{title: string, message: string}>({title: "", message: ""});
+    const [busyInfo, setBusyInfo] = useState<{ title: string; message: string }>({
+        title: '',
+        message: '',
+    });
     const actions: { [key in DialogTypes]: [(entry: ModelCatalogEntry) => Promise<void>, string] } =
         {
             [DialogTypes.None]: [async () => {}, ''],
@@ -183,7 +187,7 @@ export const DialogWrapper = (props: {
 
     const handleAccept = (e: ModelCatalogEntry, busyTitle: string, busyMessage: string) => {
         setBusy(true);
-        setBusyInfo({title: busyTitle, message: busyMessage});
+        setBusyInfo({ title: busyTitle, message: busyMessage });
         actions[dialogType][0](e)
             .then(() => {
                 if (dialogType == DialogTypes.ToGitlab || dialogType == DialogTypes.ToJupyter) {
@@ -213,25 +217,7 @@ export const DialogWrapper = (props: {
         entry != null &&
         Boolean(entry) && (
             <>
-                <Dialog open={busy} maxWidth="sm" fullWidth={true}>
-                    <DialogTitle>
-                        {busyInfo.title}
-                    </DialogTitle>
-                    <DialogContent>
-                        <Stack
-                            direction="column"
-                            spacing={5}
-                            flexGrow={1}
-                            alignItems="center"
-                            justifyContent="center"
-                        >
-                            <Typography variant="h5" color="primary">
-                                {busyInfo.message}
-                            </Typography>
-                            <CircularProgress enableTrackSlot size={64} />
-                        </Stack>
-                    </DialogContent>
-                </Dialog>
+                <BusyOverlay open={busy} title={busyInfo.title} message={busyInfo.message} />
                 <ModelDialog
                     visible={visible}
                     entry={entry}

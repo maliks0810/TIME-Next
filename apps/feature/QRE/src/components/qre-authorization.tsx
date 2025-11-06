@@ -4,7 +4,6 @@ import {
     CardContent,
     CircularProgress,
     Container,
-    Paper,
     Stack,
     Typography,
 } from '@mui/material';

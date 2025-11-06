@@ -27,6 +27,7 @@ import { useSaveModelCategorizationMap } from '../../../hooks/model-catalog-entr
 import { AlertSeverity } from '../../../types/alert-types';
 import { useUpdateAlertInfoContext } from '../../../contexts/alert-context';
 import { ModelCategorizationMap } from '../../../types/model-catalog-types';
+import { BusyOverlay } from '../../../components/busy-overlay';
 
 type CatListItem = { kind: string; purposes: string[] };
 
@@ -257,23 +258,11 @@ export const SettingsDialog = (props: { open: boolean; onClose: () => void }) =>
             </Container>
             <CardContent /> {/* Just a spacer */}
             <DialogContent dividers>
-                <Dialog open={busy} maxWidth="sm" fullWidth={true}>
-                    <DialogContent>
-                        <Stack
-                            direction="column"
-                            spacing={5}
-                            flexGrow={1}
-                            alignItems="center"
-                            justifyContent="center"
-                        >
-                            <Typography variant="h5" color="primary">
-                                Saving Model Categorizations. Please wait.
-                            </Typography>
-                            <CircularProgress enableTrackSlot size={64} />
-                        </Stack>
-                    </DialogContent>
-                </Dialog>
-
+                <BusyOverlay
+                    open={busy}
+                    title="Saving"
+                    message="Saving Model Categorizations. Please wait."
+                />
                 <CatList kinds={kinds} setKinds={setKinds} />
             </DialogContent>
             <DialogActions>

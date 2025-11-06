@@ -1,16 +1,6 @@
 import * as tlog from '@tcw/tlog';
 import { memo, useState } from 'react';
-import {
-    Button,
-    CardContent,
-    CircularProgress,
-    Dialog,
-    DialogContent,
-    Grid,
-    Paper,
-    Stack,
-    Typography,
-} from '@mui/material';
+import { Button, CardContent, Grid, Paper } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { QreBulkAuthorizations } from '../../../types/qre-authorization-types';
 import { ModelCatalogEntry, SyncTypes } from '../../../types/model-catalog-types';
@@ -22,6 +12,7 @@ import { useUserInfo } from '@platform/utils';
 import { ModelCatalogEntryEditor } from './entry-editor';
 import './grid-row.scss';
 import { EntryActions, EntryPresentation, EntrySync } from './grid-row-parts';
+import { BusyOverlay } from '../../../components/busy-overlay';
 
 const SYNC_RESOURCE = 'catalog';
 const SYNC_ACTION = 'synchronize';
@@ -120,25 +111,11 @@ export const ModelCatalogGridRow = memo(
 
         return (
             <>
-                <Dialog open={(busyMessage?.length ?? 0) > 0} maxWidth="sm" fullWidth={true}>
-                    <DialogContent>
-                        <Stack
-                            direction="column"
-                            spacing={5}
-                            flexGrow={1}
-                            alignItems="center"
-                            justifyContent="center"
-                        >
-                            <Typography variant="h6" textAlign="center" color="primary">
-                                {busyTitle}
-                            </Typography>
-                            <Typography variant="subtitle1">
-                                {busyMessage ?? 'Please wait'}
-                            </Typography>
-                            <CircularProgress enableTrackSlot size={64} />
-                        </Stack>
-                    </DialogContent>
-                </Dialog>
+                <BusyOverlay
+                    open={(busyMessage?.length ?? 0) > 0}
+                    title={busyTitle}
+                    message={busyMessage}
+                />
                 <Paper className="row-base">
                     <CardContent>
                         {mode == EditModes.Edit ? (
@@ -181,7 +158,7 @@ export const ModelCatalogNewEntryRow = (props: {
     const { onSave } = props;
     const setEditing = useSetEntryEditingContext();
     const editing = useEntryEditingContext();
-    const [busyMsg, setBusyMsg] = useState<string | null>(null);
+    const [busyMessage, setBusyMsg] = useState<string | null>(null);
     const [busyTitle, setBusyTitle] = useState<string | null>(null);
     //Need this active flag to show the edit component, instead of editing flag,
     //because other things change the editing flag.
@@ -218,27 +195,32 @@ export const ModelCatalogNewEntryRow = (props: {
     };
 
     return (
-        <CardContent>
-            {active ? (
-                <div className="model-catalog-entry-editor">
-                    <ModelCatalogEntryEditor
-                        onCancel={handleCancel}
-                        onSave={handleSave}
-                    />
-                </div>
-            ) : (
-                <Button
-                    fullWidth={false}
-                    size="small"
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleNewEntryClick}
-                    disabled={editing}
-                    startIcon={<AddCircleOutlineIcon fontSize="small" />}
-                >
-                    Add new Model Catalog entry
-                </Button>
-            )}
-        </CardContent>
+        <>
+            {' '}
+            <BusyOverlay
+                open={(busyMessage?.length ?? 0) > 0}
+                title={busyTitle}
+                message={busyMessage}
+            />
+            <CardContent>
+                {active ? (
+                    <div className="model-catalog-entry-editor">
+                        <ModelCatalogEntryEditor onCancel={handleCancel} onSave={handleSave} />
+                    </div>
+                ) : (
+                    <Button
+                        fullWidth={false}
+                        size="small"
+                        variant="contained"
+                        color="secondary"
+                        onClick={handleNewEntryClick}
+                        disabled={editing}
+                        startIcon={<AddCircleOutlineIcon fontSize="small" />}
+                    >
+                        Add new Model Catalog entry
+                    </Button>
+                )}
+            </CardContent>
+        </>
     );
 };
