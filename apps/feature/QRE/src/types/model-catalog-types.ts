@@ -12,6 +12,13 @@ export enum ModelStates {
     trading,
 }
 
+export const stateColor = {
+    [ModelStates.experimental]: 'warning',
+    [ModelStates.integration]: 'info',
+    [ModelStates.non_trading]: 'success',
+    [ModelStates.trading]: 'error',
+};
+
 export enum ModelCatalogFilterByValues {
     'Name',
     'State',
@@ -46,7 +53,7 @@ export type ModelOwner = {
     email: string;
     fullName: string;
     id: string;
-}
+};
 
 export type ModelCatalogEntry = {
     id: string;

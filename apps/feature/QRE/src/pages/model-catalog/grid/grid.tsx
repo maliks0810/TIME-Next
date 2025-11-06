@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Button, List, ListSubheader, Typography } from '@mui/material';
+import { Button, Grid, Paper, Stack, Typography } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
@@ -44,10 +44,6 @@ const ModelCatalogGridHeader = () => {
 
     console.debug('ModelCatalogGridHeader rendering');
 
-    const getIcon = (name: string) => (
-        <DirIcon className="model-catalog-sort-icon" aria-hidden={sort.sortBy != name} />
-    );
-
     const handleSort = (name: SortableFields) => {
         let newSortDesc = false;
         if (sort.sortBy == name) {
@@ -57,42 +53,49 @@ const ModelCatalogGridHeader = () => {
         setSort({ sortBy: name, sortDesc: newSortDesc });
     };
 
-    const SortButton = (name: SortableFields) => (
+    const SortButton = (name: SortableFields, suffix?:string) => (
         <Button
             onClick={() => handleSort(name)}
-            className="model-catalog-sort-button"
+            size="small"
             disabled={disabled}
+            endIcon={name == sort.sortBy && <DirIcon fontSize="small" />}
+            color="primary"
         >
-            {name}
-            {getIcon(name)}
+            {`${name}${suffix ?? ''}`}
         </Button>
     );
 
     return (
-        <ListSubheader  className="model-catalog-grid-header">
-            <Typography className="model-catalog-grid-header-col" aria-label="mod">
-                Mod.
-            </Typography>
-            <div className="model-catalog-grid-header-col" aria-label="name">
-                <div className="model-catalog-grid-header-group">
-                    {SortButton('Name')}/{SortButton('State')}
-                </div>
-            </div>
-            <div className="model-catalog-grid-header-col" aria-label="cat">
-                <div className="model-catalog-grid-header-group">
-                    {SortButton('Kind')}:{SortButton('Purpose')}
-                </div>
-            </div>
-            <div className="model-catalog-grid-header-col" aria-label="owner">
-                {SortButton('Owner')}
-            </div>
-            {/* <div className="model-catalog-grid-header-col" aria-label="permissions">
-                <div>Permissions</div>
-            </div> */}
-            <Typography className="model-catalog-grid-header-col" aria-label="sync">
-                Sync
-            </Typography>
-        </ListSubheader>
+        <Paper elevation={2}>
+            <Grid container columns={32}>
+                <Grid size={1} alignItems="center" justifyContent="center" display="flex">
+                    <Typography variant="button" color="secondary">
+                        mod.
+                    </Typography>
+                </Grid>
+                <Grid size={9}>
+                    <Stack direction="row" alignItems="center">
+                        {SortButton('Name')}
+                        <Typography variant="button" color="primary">
+                            /
+                        </Typography>
+                        {SortButton('State')}
+                    </Stack>
+                </Grid>
+                <Grid size={15}>
+                    <Stack direction="row" alignItems="center">
+                        {SortButton('Kind', ' :')}
+                        {SortButton('Purpose')}
+                    </Stack>
+                </Grid>
+                <Grid size={6}>{SortButton('Owner')}</Grid>
+                <Grid size={1} alignItems="center" justifyContent="center" display="flex">
+                    <Typography variant="button" color="secondary">
+                        sync
+                    </Typography>
+                </Grid>
+            </Grid>
+        </Paper>
     );
 };
 
@@ -266,15 +269,14 @@ export const ModelCatalogGrid = () => {
     };
 
     return (
-        <List className="model-catalog-grid-container">
+        <Stack direction="column" spacing={1}>
+            <ModelCatalogNewEntryRow onSave={handleSave} />
             <ModelCatalogGridHeader />
+
             {loading ? (
                 <LoadMessage failed={loadError} />
             ) : (
-                <>
-                <ModelCatalogNewEntryRow onSave={handleSave} />
-                <div className="model-catalog-grid">
-                    
+                <Stack direction="column" spacing={1}>
                     {sortedAndFiltered.map((e, i) => (
                         <ModelCatalogGridRow
                             entry={e}
@@ -286,14 +288,13 @@ export const ModelCatalogGrid = () => {
                             userAuth={userAuth}
                         />
                     ))}
-                </div>
-                </>
+                </Stack>
             )}
             <DialogWrapper
                 dialogType={dialogType}
                 entry={dialogEntry}
                 onFinished={handleDialogFinished}
             />
-        </List>
+        </Stack>
     );
 };

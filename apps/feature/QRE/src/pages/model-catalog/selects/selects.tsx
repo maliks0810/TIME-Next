@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import {
     Button,
-    FormControl,
+    CardContent,
+    Checkbox,
+    FormControlLabel,
     MenuItem,
-    Select,
-    SelectChangeEvent,
+    Stack,
+    TextField,
+    ToggleButton,
     Typography,
 } from '@mui/material';
 import { ModelCategorization, ModelCategorizationMap } from '../../../types/model-catalog-types';
@@ -14,34 +17,44 @@ export const EnumSelect = (props: {
     values: string[];
     defaultSelected?: string;
     onSelected: (value: string) => void;
+    label?: string;
     disabled?: boolean;
+    fillWidth?: boolean;
 }) => {
-    const { values, defaultSelected, onSelected, disabled } = props;
+    const { values, defaultSelected, onSelected, label, disabled, fillWidth } = props;
     const [selectedValue, setSelectedValue] = useState<string>(defaultSelected ?? '');
-    const handleChange = (event: SelectChangeEvent) => {
+    const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setSelectedValue(event.target.value);
         onSelected(event.target.value);
     };
 
     return (
-        <FormControl disabled={disabled}>
-            <Select onChange={handleChange} value={selectedValue}>
-                {values.map((v, i) => (
-                    <MenuItem value={v} key={i}>
-                        {v}
-                    </MenuItem>
-                ))}
-            </Select>
-        </FormControl>
+        <TextField
+            fullWidth={fillWidth}
+            select
+            label={label}
+            value={selectedValue}
+            disabled={disabled}
+            onChange={handleChange}
+            size="small"
+            color="primary"
+        >
+            {values.map((v, i) => (
+                <MenuItem value={v} key={i}>
+                    {v}
+                </MenuItem>
+            ))}
+        </TextField>
     );
 };
 
 export const CategorizationSelect = (props: {
     map: ModelCategorizationMap;
+    label?: string;
     defaultSelected?: ModelCategorization;
     onSelected: (value: ModelCategorization) => void;
 }) => {
-    const { map, defaultSelected, onSelected } = props;
+    const { map, label, defaultSelected, onSelected } = props;
     const [selectedValue, setSelectedValue] = useState<ModelCategorization>(
         defaultSelected ?? { kind: '', purpose: '' }
     );
@@ -54,32 +67,54 @@ export const CategorizationSelect = (props: {
     };
 
     return (
-        <FormControl>
-            <Select
-                value={selectText}
-                renderValue={() => <Typography>{selectText}</Typography>}
-                open={isOpen}
-                onClose={() => setIsOpen(false)}
-                onOpen={() => setIsOpen(true)}
-            >
+        <TextField
+            select
+            fullWidth
+            value={selectedValue}
+            slotProps={{
+                select: {
+                    open: isOpen,
+                    onClose: () => setIsOpen(false),
+                    onOpen: () => setIsOpen(true),
+                    renderValue: () => <Typography noWrap>{selectText}</Typography>,
+                },
+            }}
+            size="small"
+            label={label}
+        >
+            <CardContent>
                 {Object.keys(map).map((k, i) => (
-                    <div key={i} className='model-catalog-select-options-container'>
-                        <Typography>{k}</Typography>
+                    <Stack key={i} direction="column">
+                        <Typography color='primary' variant='button'>{k}</Typography>
                         {map[k].map((p, pi) => (
-                            <Button
+                            <MenuItem
                                 key={pi}
-                                aria-selected={
-                                    selectedValue.kind == k && selectedValue.purpose == p
-                                }
+                                selected={k == selectedValue.kind && p == selectedValue.purpose}
                                 onClick={() => handleSelected({ kind: k, purpose: p })}
+                                color='primary'
                             >
                                 {p}
-                            </Button>
-                        ))}
-                    </div>
-                ))}
-            </Select>
-        </FormControl>
+                            </MenuItem>
 
+                            // <FormControlLabel
+                            //     control={
+                            //         <Checkbox
+                            //             onChange={() => handleSelected({ kind: k, purpose: p })}
+                            //             color="primary"
+                            //             size="medium"
+                            //         />
+                            //     }
+                            //     label={<Typography color="primary">{p}</Typography>}
+                            //     labelPlacement="end"
+                            //     title="Show only the models that I own"
+                            //     checked={k == selectedValue.kind && p == selectedValue.purpose}
+
+                            // />
+  
+                        ))}
+                    </Stack>
+                ))}
+            </CardContent>
+        </TextField>
     );
 };

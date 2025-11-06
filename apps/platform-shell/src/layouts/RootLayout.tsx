@@ -5,7 +5,6 @@ import { Navbar, Footer } from '@platform/ui';
 import { UserInfoProvider, UserLoader } from '@platform/utils';
 
 export function RootLayout() {
-
     const httpLink = new HttpLink({
         uri: import.meta.env.VITE_REACT_APP_TIME_PROFILE_AGQL_URL,
     });
@@ -16,7 +15,7 @@ export function RootLayout() {
     });
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <ApolloProvider client={rootClient}>
                 <UserInfoProvider appName={import.meta.env.VITE_APP_NAME}>
                     <UserLoader>
@@ -24,13 +23,10 @@ export function RootLayout() {
                     </UserLoader>
                 </UserInfoProvider>
             </ApolloProvider>
-                                                   
-                                                        
 
-            <Box component="main" sx={{ flexGrow: 1, py: 4 }}>
-                <Outlet />
-            </Box>
+            <Outlet />
+
             <Footer />
         </Box>
-    )
+    );
 }

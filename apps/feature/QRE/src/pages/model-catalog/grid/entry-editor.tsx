@@ -1,7 +1,14 @@
-import { CircularProgress, TextField } from '@mui/material';
+import {
+    Box,
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    Grid,
+    Stack,
+    TextField,
+} from '@mui/material';
 import { useRef, useState } from 'react';
 import { Button, Typography } from '@mui/material';
-import { WaitingEllipses } from '../../../components/waiting-ellipses';
 import {
     ModelCatalogEntry,
     ModelCategorization,
@@ -106,118 +113,124 @@ export const ModelCatalogEntryEditor = (props: {
 
     //If entry is undefined, assume new
     return (
-        <div className="model-catalog-entry-editor">
-            {busyMessage && (
-                <div className="model-catalog-busy-container">
-                    {busyTitle && <Typography className="model-catalog-busy-title">{busyTitle}</Typography>}
-                    <div className="model-catalog-busy-text">
-                        <WaitingEllipses
-                            prefix={busyMessage ?? 'Please wait'}
-                            maintainWidth={true}
-                        />
-                    </div>
-                    {/* couldn't get the 'track' prop to work on CircularProgress, so this is a work-around */}
-                    <div className="model-catalog-busy-progress">
-                        <CircularProgress
-                            variant="determinate"
-                            value={100}
-                            id="background-progress"
-                        />
-                        <CircularProgress id="foreground-progress" />
-                    </div>
-                </div>
-            )}
-            {copying && (
-                <Typography className="model-catalog-entry-copying">{`Copying from model '${entry?.name}'`}</Typography>
-            )}
-            <div className="model-catalog-editor-field-group">
-                <div className="model-catalog-editor-field" aria-label="name">
-                    <Typography className="model-catalog-editor-field-title">
-                        Name
-                        <Typography
-                            className="model-catalog-editor-name-invalid"
-                            aria-hidden={!nameInvalid}
-                        >
-                            --Name is require and must be unique--
+        <Box>
+            <Dialog open={(busyMessage?.length ?? 0) > 0} maxWidth="sm" fullWidth={true}>
+                <DialogContent>
+                    <Stack
+                        direction="column"
+                        spacing={5}
+                        flexGrow={1}
+                        alignItems="center"
+                        justifyContent="center"
+                    >
+                        <Typography variant="h6" textAlign="center" color="primary">
+                            {busyTitle}
                         </Typography>
-                    </Typography>
+                        <Typography variant="subtitle1">{busyMessage ?? 'Please wait'}</Typography>
+                        <CircularProgress enableTrackSlot size={64} />
+                    </Stack>
+                </DialogContent>
+            </Dialog>
+            <Grid container spacing={2} columns={18}>
+                {copying && (
+                    <Grid size={12}>
+                        <Typography variant="subtitle1">{`Copying from model '${entry?.name}'`}</Typography>
+                    </Grid>
+                )}
+                <Grid size={7}>
                     <TextField
-                        name="entryName"
-                        type="text"
+                        fullWidth
+                        label="Name"
+                        size="small"
+                        color="primary"
                         data-form-type="other"
-                        className="model-catalog-edit-input"
+                        variant="outlined"
+                        required={true}
+                        placeholder="require and must be unique"
                         defaultValue={nameRef.current}
                         onChange={(e) => {
                             nameRef.current = e.target.value;
                         }}
-                        slotProps={{htmlInput:{maxLength:56}}}
+                        slotProps={{
+                            htmlInput: { maxLength: 56 },
+                            inputLabel: {
+                                shrink: true,
+                            },
+                        }}
+                        error={nameInvalid}
+                        helperText={nameInvalid && 'must be unique'}
                     />
-                </div>
-                <div className="model-catalog-editor-field" aria-label="state">
-                    <Typography className="model-catalog-editor-field-title">State</Typography>
+                </Grid>
+                <Grid size={2}>
                     <EnumSelect
+                        fillWidth={true}
                         values={stateVals}
                         defaultSelected={stateRef.current}
                         onSelected={(v) => {
                             stateRef.current = v;
                         }}
+                        label="State"
                     />
-                </div>
-                <div className="model-catalog-editor-field" aria-label="cat">
-                    <Typography className="model-catalog-editor-field-title">Kind/Purpose</Typography>
+                </Grid>
+                <Grid size={9}>
                     <CategorizationSelect
                         map={catMap}
                         defaultSelected={catRef.current}
                         onSelected={(m) => {
                             catRef.current = m;
                         }}
+                        label="Kind: Purpose"
                     />
-                </div>
-                {/* <div className="model-catalog-editor-field" aria-label="permissions">
-                    <div className="model-catalog-editor-field-title">Permissions</div>
-                    <PermissionsSelect
-                        current={permissionsRef.current}
-                        onSelected={(p) => (permissionsRef.current = p)}
-                    />
-                </div> */}
-            </div>
-            <div className="model-catalog-editor-field-group">
-                <div className="model-catalog-editor-field" aria-label="url">
-                    <Typography className="model-catalog-editor-field-title">API URL</Typography>
+                </Grid>
+                <Grid size={8}>
                     <TextField
-                        name="entryApi"
-                        type="text"
+                        fullWidth
+                        label="API URL"
+                        size="small"
+                        color="primary"
                         data-form-type="other"
-                        className="model-catalog-edit-input long"
+                        variant="outlined"
                         defaultValue={apiRef.current}
                         onChange={(e) => {
                             apiRef.current = e.target.value;
                         }}
+                        slotProps={{
+                            inputLabel: {
+                                shrink: true,
+                            },
+                        }}
                     />
-                </div>
-                <div className="model-catalog-editor-field" aria-label="notes">
-                    <Typography className="model-catalog-editor-field-title">Notes</Typography>
+                </Grid>
+                <Grid size={10}>
                     <TextField
-                        name="entryNotes"
-                        type="text"
+                        fullWidth
+                        label="Notes"
+                        size="small"
+                        color="primary"
                         data-form-type="other"
-                        className="model-catalog-edit-input long"
+                        variant="outlined"
                         defaultValue={notesRef.current}
                         onChange={(e) => {
                             notesRef.current = e.target.value;
                         }}
+                        slotProps={{
+                            inputLabel: {
+                                shrink: true,
+                            },
+                        }}
                     />
-                </div>
-            </div>
-
-            <div className="model-catalog-edit-actions">
-                <Button className="model-catalog-edit-action-button" onClick={handleSaveClick}>
-                    Save
-                </Button>
-                <Button className="model-catalog-edit-action-button" onClick={() => onCancel?.()}>
-                    Cancel
-                </Button>
-            </div>
-        </div>
+                </Grid>
+                <Grid size={18}>
+                    <Stack direction="row" spacing={1} justifyContent="flex-end">
+                        <Button variant="contained" color="primary" onClick={handleSaveClick}>
+                            Save
+                        </Button>
+                        <Button variant="contained" color="primary" onClick={() => onCancel?.()}>
+                            Cancel
+                        </Button>
+                    </Stack>
+                </Grid>
+            </Grid>
+        </Box>
     );
 };

@@ -2,7 +2,7 @@ import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import { ReactNode } from 'react';
 import {
     Button,
-    Card,
+    Paper,
     Dialog,
     Typography,
 } from '@mui/material';
@@ -30,7 +30,7 @@ export const AcceptDialog = (props: {
         );
     return (
         <Dialog open={open} aria-modal={true} className="accept-dialog">
-            <Card className="accept-dialog-container popup-container">
+            <Paper className="accept-dialog-container popup-container">
                 <div className="block-top" />
                 {busyMessage && (
                     <div className="accept-dialog-busy-container">
@@ -68,7 +68,7 @@ export const AcceptDialog = (props: {
                         Cancel
                     </Button>
                 </div>
-            </Card>
+            </Paper>
         </Dialog>
     );
 };

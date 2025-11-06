@@ -4,11 +4,16 @@
     --tcw-light-blue-color: #7b9abb;
     --tcw-hover-blue-color: #68A2B8;
     --tcw-dark-blue-color: #003265;
-    --tcw-highlight-blue-color: #cfdbe7;
+    --tcw-highlight-blue-color: #eef2f7;
     --tcw-light-gray-color: #f6f7f7;
     --tcw-dark-gray-color: #7e7f82;
     background-color: var(--tcw-gray-color);
     --secondary-tcw-teal-color: #00B0AD;
+
+    --tcw-default-margin: 12px;
+    --tcw-default-padding: 8px;
+    --tcw-horizontal-gap: 8px;
+    --tcw-vertical-gap: 8px;
 }
 
 body {

@@ -1,4 +1,4 @@
-import Card from '@mui/material/Card'
+import Paper from '@mui/material/Paper'
 import './TcwCard.scss';
 import { Box, CardContent, CardHeader } from '@mui/material';
 import * as MuiIcons from '@mui/icons-material';  
@@ -34,7 +34,7 @@ export const TcwCard: React.FC<{
             return null;
         };
     return (
-        <Card className='tcw-card-container' sx={{width: props.width, height: props.height}}>
+        <Paper className='tcw-card-container' sx={{width: props.width, height: props.height}}>
             <CardHeader className='tcw-card-header'
                 avatar={renderAvatar()}
                 title={props.title}
@@ -51,6 +51,6 @@ export const TcwCard: React.FC<{
                     {props.children}
                 </Box>
             </CardContent>
-        </Card>
+        </Paper>
     )
 }

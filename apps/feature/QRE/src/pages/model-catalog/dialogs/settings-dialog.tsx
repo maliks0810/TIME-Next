@@ -1,11 +1,24 @@
 //NOTE: Attempting to use MUI components to make switching to these easier when moving to TIME 2
-import { Button, Card, CardHeader, Dialog, List, ListItem, TextField } from '@mui/material';
+import {
+    Button,
+    Paper,
+    CardHeader,
+    Dialog,
+    List,
+    ListItem,
+    TextField,
+    Card,
+    Stack,
+    DialogTitle,
+    DialogContent,
+    IconButton,
+    Typography,
+} from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useCallback, useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import { useModelCategorizationsContext } from '../../../contexts/model-catalog-context';
-import { WaitingEllipses } from '../../../components/waiting-ellipses';
 import './settings-dialog.scss';
 import { useSaveModelCategorizationMap } from '../../../hooks/model-catalog-entries';
 import { AlertSeverity } from '../../../types/alert-types';
@@ -46,11 +59,6 @@ const CatList = (props: { kinds: CatListItem[]; setKinds: (kinds: CatListItem[])
         setKinds([...kinds]);
     };
 
-    const handleAddKind = (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        setLastAddedKindIndex(-1);
-        setKinds([{ kind: '', purposes: [''] }, ...kinds]);
-    };
-
     const handleDeletePurpose = (
         _e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
         index: number,
@@ -73,28 +81,24 @@ const CatList = (props: { kinds: CatListItem[]; setKinds: (kinds: CatListItem[])
     };
 
     return (
-        <>
-            {' '}
-            <Button className="cat-settings-list-item-add-button kind" onClick={handleAddKind}>
-                <AddCircleOutlineIcon className="cat-settings-list-add-icon kind" />
-                Add Kind
-            </Button>
-            <List className="cat-settings-list kind">
-                {kinds.map((k, ki) => (
-                    <ListItem key={ki} className="cat-settings-list-item kind">
-                        <div className="cat-settings-list-item-container kind">
-                            <Button
-                                className="cat-settings-list-item-delete-button kind"
+        <List>
+            {kinds.map((k, ki) => (
+                <ListItem key={ki} className="cat-settings-item-kind">
+                    <Stack direction="column" spacing={0} flexGrow={1}>
+                        <Stack direction="row" spacing={1}>
+                            <IconButton
+                                className="cat-settings-action-kind"
                                 onClick={(e) => handleDeleteKind(e, ki)}
                                 disabled={k.purposes.filter((p) => p.trim().length > 0).length > 0}
                                 title="Delete this Kind"
                             >
-                                <DeleteOutlineIcon className="cat-settings-list-item-delete-icon kind" />
-                            </Button>
+                                <DeleteOutlineIcon fontSize="small" />
+                            </IconButton>
+
                             <TextField
                                 value={k.kind}
                                 onChange={(e) => handleKindChange(e, ki)}
-                                className="cat-settings-list-item-text kind"
+                                size="small"
                                 placeholder="kind"
                                 inputRef={(e) => {
                                     if (ki == 0 && lastAddedKindIndex != null) {
@@ -107,29 +111,32 @@ const CatList = (props: { kinds: CatListItem[]; setKinds: (kinds: CatListItem[])
                                 }
                                 required={true}
                             />
+
                             <Button
-                                className="cat-settings-list-item-add-button purpose"
+                                className="cat-settings-action-kind"
+                                startIcon={<AddCircleOutlineIcon fontSize="small" />}
                                 onClick={(e) => handleAddPurpose(e, ki)}
                             >
-                                <AddCircleOutlineIcon className="cat-settings-list-add-icon purpose" />
                                 Add Purpose
                             </Button>
-                        </div>
-                        <List className="cat-settings-list purpose">
+                        </Stack>
+                        <List>
                             {k.purposes.map((p, pi) => (
-                                <ListItem key={pi} className="cat-settings-list-item purpose">
-                                    <div className="cat-settings-list-item-container purpose">
-                                        <Button
-                                            className="cat-settings-list-item-delete-button purpose"
+                                <ListItem key={pi} className="cat-settings-item-purpose">
+                                    <Stack direction="row" spacing={1} flexGrow={1}>
+                                        <IconButton
                                             onClick={(e) => handleDeletePurpose(e, pi, ki)}
                                             title="Delete this Purpose"
+                                            className="cat-settings-action-purpose"
                                         >
-                                            <DeleteOutlineIcon className="cat-settings-list-item-delete-icon purpose" />
-                                        </Button>
+                                            <DeleteOutlineIcon fontSize="small" />
+                                        </IconButton>
+
                                         <TextField
+                                            fullWidth
                                             value={p}
                                             onChange={(e) => handlePurposeChange(e, pi, ki)}
-                                            className="cat-settings-list-item-text purpose"
+                                            size="small"
                                             placeholder="purpose"
                                             variant="standard"
                                             inputRef={(e) => {
@@ -138,14 +145,14 @@ const CatList = (props: { kinds: CatListItem[]; setKinds: (kinds: CatListItem[])
                                                 }
                                             }}
                                         />
-                                    </div>
+                                    </Stack>
                                 </ListItem>
                             ))}
                         </List>
-                    </ListItem>
-                ))}
-            </List>
-        </>
+                    </Stack>
+                </ListItem>
+            ))}
+        </List>
     );
 };
 
@@ -170,10 +177,11 @@ export const SettingsDialog = (props: { open: boolean; onClose: () => void }) =>
         if (!accept) {
             //reset on cancel
             loadKinds();
-            onClose();
         } else {
             saveKinds();
         }
+
+        onClose();
     };
 
     const loadKinds = useCallback(() => {
@@ -221,53 +229,65 @@ export const SettingsDialog = (props: { open: boolean; onClose: () => void }) =>
         loadKinds();
     }, [loadKinds, map]);
 
+    const handleAddKind = (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        setKinds([{ kind: '', purposes: [''] }, ...kinds]);
+    };
+
     return (
-        <Dialog open={open} className="mod-cat-settings-dialog">
-            {busy && (
-                <div className="mod-cat-settings-busy-container">
-                    <div className="mod-cat-settings-busy-text">
-                        <WaitingEllipses
-                            prefix="Saving Model Categorizations"
-                            maintainWidth={true}
-                        />
-                    </div>
-                    {/* couldn't get the 'track' prop to work on CircularProgress, so this is a work-around */}
-                    <div className="mod-cat-settings-busy-progress">
-                        <CircularProgress
-                            variant="determinate"
-                            value={100}
-                            id="background-progress"
-                        />
-                        <CircularProgress id="foreground-progress" />
-                    </div>
-                </div>
-            )}
-            <div className="mod-cat-settings-dialog-header popup-header">
+        <Dialog open={open} maxWidth="xl" fullWidth={true}>
+            <DialogTitle variant="h4" color="primary">
                 Model Catalog Settings
-            </div>
-            <div className="mod-cat-settings-dialog-content">
-                <Card className="mod-cat-settings-container">
-                    <div className="block-top" />
-                    <CardHeader title="Model Categorizations"></CardHeader>
-                    {/* <KindList map={tempMap} ref={kindListRef} /> */}
-                    <CatList kinds={kinds} setKinds={setKinds} />
-                </Card>
-                <div className="mod-cat-settings-buttons">
-                    <Button
-                  
-                        onClick={() => onClick(true)}
-                        disabled={disableSave}
-                    >
-                        Save
-                    </Button>
-                    <Button
-               
-                        onClick={() => onClick(false)}
-                    >
-                        Cancel
-                    </Button>
-                </div>
-            </div>
+            </DialogTitle>
+            <DialogContent>
+                <Stack direction="column" spacing={1}>
+                    <Dialog open={busy} maxWidth="sm" fullWidth={true}>
+                        <DialogContent>
+                            <Stack
+                                direction="column"
+                                spacing={5}
+                                flexGrow={1}
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                <Typography variant="h5" color="primary">
+                                    Saving Model Categorizations. Please wait.
+                                </Typography>
+                                <CircularProgress enableTrackSlot size={64} />
+                            </Stack>
+                        </DialogContent>
+                    </Dialog>
+
+                    <Paper elevation={3} variant="elevation">
+                        <Card variant="outlined">
+                            <Stack direction="row" spacing={2}>
+                                <CardHeader title="Model Categorizations"></CardHeader>
+                                <Button
+                                    onClick={handleAddKind}
+                                    color="secondary"
+                                    startIcon={<AddCircleOutlineIcon fontSize="small" />}
+                                >
+                                    Add Kind
+                                </Button>
+                            </Stack>
+
+                            <CatList kinds={kinds} setKinds={setKinds} />
+                        </Card>
+                    </Paper>
+                    <Stack direction="row" spacing={1} justifyContent="flex-end">
+                        <Button
+                            onClick={() => onClick(true)}
+                            disabled={disableSave}
+                            color="primary"
+                            variant="outlined"
+                        >
+                            Save
+                        </Button>
+                        <Button onClick={() => onClick(false)} color="primary" variant="outlined">
+                            Cancel
+                        </Button>
+                    </Stack>
+                </Stack>
+            </DialogContent>
         </Dialog>
     );
 };

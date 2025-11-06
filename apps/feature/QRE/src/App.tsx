@@ -1,6 +1,10 @@
+import { AlertProvider } from './contexts/alert-context';
 import ModelCatalog from './pages/model-catalog/model-catalog';
 
-
 export default function App() {
-    return <ModelCatalog />;
+    return (
+        <AlertProvider>            
+            <ModelCatalog />
+        </AlertProvider>
+    );
 }

@@ -87,7 +87,7 @@ export const SyncToJupyterDialog = (props: ModelCatalogDialogProps) => {
                 <div className="popup-inner-header">
                     <Typography>
                         {'Sync Gitlab to Jupyter?\n'}
-                        <Typography>{entry?.name}</Typography>
+                        <span>{entry?.name}</span>
                     </Typography>
 
                     <JupyterIcon className="model-catalog-sync-dialog-icon" />
@@ -130,7 +130,7 @@ export const SyncToGitlabDialog = (props: ModelCatalogDialogProps) => {
                 <div className="popup-inner-header">
                     <Typography>
                         {'Sync Jupyter to Gitlab?\n'}
-                        <Typography>{entry?.name}</Typography>
+                        <span>{entry?.name}</span>
                     </Typography>
                     <ArrowForwardIcon className="model-catalog-sync-dialog-icon" />
                     <GitLabIcon className="model-catalog-sync-dialog-icon" />
