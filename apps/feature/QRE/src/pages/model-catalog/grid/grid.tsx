@@ -53,7 +53,7 @@ const ModelCatalogGridHeader = () => {
         setSort({ sortBy: name, sortDesc: newSortDesc });
     };
 
-    const SortButton = (name: SortableFields, suffix?:string) => (
+    const SortButton = (name: SortableFields, suffix?: string) => (
         <Button
             onClick={() => handleSort(name)}
             size="small"
@@ -117,6 +117,7 @@ const LoadMessage = (props: { failed: boolean }) => {
 };
 
 export const ModelCatalogGrid = () => {
+    const setAlert = useUpdateAlertInfoContext();
     const [entries, setEntries] = useModelCatalogEntriesContext();
     const getEntries = useGetModelCatalogEntries();
     const getCatMap = useGetModelCategorizationMap();
@@ -146,7 +147,6 @@ export const ModelCatalogGrid = () => {
         sort.sortBy,
         sort.sortDesc
     );
-    const alert = useUpdateAlertInfoContext();
 
     console.debug('ModelCatalogGrid rendering', user);
 
@@ -172,7 +172,8 @@ export const ModelCatalogGrid = () => {
                 setEntries(entries);
             })
             .catch((err) => {
-                alert({
+                console.log(err);
+                setAlert({
                     severity: AlertSeverity.ERROR,
                     title: 'An error occurred while loading the Model Catalog entries',
                     message: err.message,
@@ -182,7 +183,7 @@ export const ModelCatalogGrid = () => {
             .finally(() => {
                 setLoading(false);
             });
-    }, [alert, getEntries, setEntries, setLoading]);
+    }, [setAlert, getEntries, setEntries, setLoading]);
 
     const loadAll = useCallback(async () => {
         const all = Promise.all([getEntries(), getCatMap()]);
@@ -193,7 +194,7 @@ export const ModelCatalogGrid = () => {
             setCatMap(data[1]);
         })
             .catch((err) => {
-                alert({
+                setAlert({
                     severity: AlertSeverity.ERROR,
                     title: 'An error occurred while loading the Model Catalog',
                     message: err.message,
@@ -203,7 +204,7 @@ export const ModelCatalogGrid = () => {
             .finally(() => {
                 setLoading(false);
             });
-    }, [alert, getCatMap, getEntries, setCatMap, setEntries, setLoading]);
+    }, [setAlert, getCatMap, getEntries, setCatMap, setEntries, setLoading]);
 
     useEffect(() => {
         loadAll();
@@ -222,10 +223,14 @@ export const ModelCatalogGrid = () => {
         return saveEntry(entry)
             .then(() => {
                 loadCatalog();
+                setAlert({
+                    severity: AlertSeverity.SUCCESS,
+                    title: 'Save was successful',
+                });
                 return true;
             })
             .catch((err) => {
-                alert({
+                setAlert({
                     severity: AlertSeverity.ERROR,
                     title: 'An error occurred while saving the Model',
                     message: err.message,
@@ -245,10 +250,14 @@ export const ModelCatalogGrid = () => {
         return copyEntry(newEntry, sourceEntry)
             .then(() => {
                 loadCatalog();
+                setAlert({
+                    severity: AlertSeverity.SUCCESS,
+                    title: 'Copy was successful',
+                });
                 return true;
             })
             .catch((err) => {
-                alert({
+                setAlert({
                     severity: AlertSeverity.ERROR,
                     title: 'An error occurred while copying the Model',
                     message: err.message,

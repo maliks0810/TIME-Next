@@ -1,6 +1,6 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import {
     Paper,
     Checkbox,
@@ -32,6 +32,8 @@ import { useQreUserAuthorizationsContext } from '../../contexts/qre-user-authori
 import { EnumSelect } from './selects/selects';
 import { ModelCatalogGrid } from './grid/grid';
 import { SettingsDialog } from './dialogs/settings-dialog';
+import { AlertProvider } from '../../contexts/alert-context';
+import { AlertDisplay } from '../../components/alert-display';
 
 const APP_RESOURCE = 'application';
 const ADMIN_ACTION = 'admin';
@@ -156,11 +158,12 @@ const ModelCatalogHeader = () => {
     const isAdmin =
         auths.results?.find((s) => s.resource == APP_RESOURCE && s.action == ADMIN_ACTION)
             ?.authorized ?? false;
-
+    const anchorEl = useRef<null | HTMLDivElement>(null);
     console.debug('ModelCatalogHeader rendering');
 
     return (
-        <Card variant="outlined">
+        <Card variant="outlined" ref={anchorEl}>
+            <AlertDisplay anchor={anchorEl.current} />
             <CardContent>
                 <Stack direction="row" spacing={1} alignItems="center">
                     <Typography variant="h5" color="primary">
@@ -176,27 +179,30 @@ const ModelCatalogHeader = () => {
     );
 };
 
+
 const ModelCatalog = () => {
     console.debug('ModelCatalog rendering');
 
     return (
-        <ModelCatalogProvider>
-            <ModelCatalogEntryProvider>
-                <ModelCatalogAxiosContextProvider>
-                    <QREAuthorization>
-                        <Paper
-                            elevation={3}
-                            variant="elevation"
-                            square={false}
-                            className="page-base"
-                        >
-                            <ModelCatalogHeader />
-                            <ModelCatalogGrid />
-                        </Paper>
-                    </QREAuthorization>
-                </ModelCatalogAxiosContextProvider>
-            </ModelCatalogEntryProvider>
-        </ModelCatalogProvider>
+        <AlertProvider>
+            <ModelCatalogProvider>
+                <ModelCatalogEntryProvider>
+                    <ModelCatalogAxiosContextProvider>
+                        <QREAuthorization>
+                            <Paper
+                                elevation={3}
+                                variant="elevation"
+                                square={false}
+                                className="page-base"
+                            >
+                                <ModelCatalogHeader />
+                                <ModelCatalogGrid />
+                            </Paper>
+                        </QREAuthorization>
+                    </ModelCatalogAxiosContextProvider>
+                </ModelCatalogEntryProvider>
+            </ModelCatalogProvider>
+        </AlertProvider>
     );
 };
 

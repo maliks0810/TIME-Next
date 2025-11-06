@@ -1,7 +1,7 @@
 export enum AlertSeverity {
     NONE = 'none',
     SUCCESS = 'success',
-    INFO = 'information',
+    INFO = 'info',
     ERROR = 'error',
     WARNING = 'warning',
 }
