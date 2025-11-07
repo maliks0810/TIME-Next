@@ -1,16 +1,924 @@
+image: node:20
+
 include:
-  - project: 'tcw-group/technology/platform-engineering/development-operations/cicd-configurations'
-    ref: 'PE-3143'
-    file: '/time-next/pipelines/x1/time-next.application.cloud.default.pipeline.yml'
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
 
 variables:
   PROJECT_NAME: time-next
   ENABLE_TLS: 'true'
   DOMAIN: timenext
   DEPLOYMENT_NAME: time-next
+  DEV_EXTREMEKEY: $TIME_DEVEXTREME_KEY
 
   ## AKS Tags ####################################################################################
   APPLICATION_OWNER: 'engineering-solutions'
   APPLICATION_TYPE: 'time-next-monorepo'
   APPLICATION_SENSITIVITY: 'private'
   ################################################################################################
+
+  ## Security Configurations #####################################################################
+  GITLAB_ADVANCED_SAST_ENABLED: 'true'
+  #################################################################################################
+
+stages:
+  - validate-merge
+  - install
+  - validation
+  - build
+  - sandbox
+  - dry-run
+  - release
+  - development
+  - qa
+  - production
+
+workflow:
+  rules:
+  - if: $CI_COMMIT_TAG
+    when: never
+  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    when: never
+  - when: always
+
+cache: 
+  key: ${CI_COMMIT_REF_SLUG}
+  paths: 
+    - node_modules/
+
+merge-validation:
+  stage: validate-merge
+  script:
+    - echo "Checking if the merge is allowed"
+    - |
+      set -eu
+
+      SRC="$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+      TGT="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+
+      is_allowed=true
+
+      case "$SRC:$TGT" in
+        dev:release) is_allowed=false ;;
+        qa:release) is_allowed=false ;;
+        dev:qa) is_allowed=false ;;
+        qa:dev) is_allowed=false ;;
+        dev:main) is_allowed=false ;;
+        qa:main) is_allowed=false ;;
+      esac
+
+      if ["$is_allowed" == false]; then
+        echo "Merging from '$SRC' to '$TGT' branch in not allowed"
+        exit 1
+      fi
+
+      if ["$SRC" != "release"] && ["$TGT" == "main"]; then
+        echo "Only release branch can be merged to main"
+        exit 1
+      fi
+
+install:
+  stage: install
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull-push
+  before_script:
+    - apt-get update && apt-get install -y
+    - echo -e $ARTIFACTORY_NPMRC_CONFIG > .npmrc
+  script:
+    - npm install --prefer-offline --no-audit --progress=false --legacy-peer-deps
+    - npm install -g env-cmd
+    - npm install ajv
+
+lint:
+  stage: validation
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull
+  script:
+    - npm run lint
+
+test:
+  stage: validation
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull
+  script:
+    - npm run test
+
+type-check:
+  stage: validation
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull
+  script:
+    - npm run type-check
+
+sast:
+  stage: validation
+
+dependency_scanning:
+  stage: validation
+
+secret_detection:
+  stage: validation
+  variables:
+    SECRET_DETECTION_EXCLUDED_PATHS: 'node_modules'
+    SECURE_LOG_LEVEL: 'debug'
+    SECRET_DETECTION_HISTORIC_SCAN: 'true'
+
+build-sandbox:
+  stage: sandbox
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+  variables:
+    TARGET_ENV: sandbox
+    TARGET_OUTPUT: build-sandbox
+  before_script:
+    - export NODE_OPTIONS="--max-old-space-size=8192"
+  script:
+    - npm install --save-dev typescript
+    - npm run build
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR
+  allow_failure: true
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH != 'main' && $CI_COMMIT_REF_PROTECTED == "false"
+
+package-sandbox:
+  stage: sandbox
+  needs:
+    - job: build-sandbox
+      artifacts: true
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    TARGET_ENV: 'development'
+    TARGET_OUTPUT: 'build-sandbox'
+    BASE_REGISTRY: 'registry.gitlab.com'    
+    DOCKER_SOURCE_PROJECT_ID: 61389417
+    DOCKER_SOURCE_REF: 'main'
+    DOCKER_SOURCE_PATH: 'react/alpine/v1'
+    DOCKER_SOURCE_FILE: 'dockerfile.cicd'
+
+  before_script:
+    - docker login -u $TCW_REGISTRY_UID -p $TCW_REGISTRY_PWD $BASE_REGISTRY    
+    - apk add --update curl
+    - cd $CI_PROJECT_DIR 
+    - FULL_PATH=$DOCKER_SOURCE_PATH/$DOCKER_SOURCE_FILE
+    - ENCODED=$(echo $FULL_PATH | sed 's/\//%2F/g; s/\./%2E/g')
+    - URL="https://gitlab.com/api/v4/projects/$DOCKER_SOURCE_PROJECT_ID/repository/files/$ENCODED/raw?ref=$DOCKER_SOURCE_REF"
+    - mkdir -p build-sandbox
+    - mkdir -p usr/share/nginx/html/*
+   
+  script:    
+    - export IMAGE_NAME=$CI_REGISTRY_IMAGE:$TARGET_ENV
+    - |
+      if [ $CUSTOM_DOCKERFILE = "true" ]; then
+       echo "Using custom dockerfile in the project"
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.override .
+       echo "label is being set to:$LABEL"
+      else
+       echo "Using default dockerfile"
+       curl -o dockerfile.pe -H "PRIVATE-TOKEN:$PE_CICD_DOCKER_API" --url $URL
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.pe .
+       echo "label is being set to:$LABEL"
+      fi
+    - docker push $IMAGE_NAME
+  after_script:
+    - docker logout $BASE_REGISTRY
+  rules:
+    - if: $CI_COMMIT_BRANCH != 'main' && $CI_COMMIT_REF_PROTECTED == "false"
+
+dry-run-sandbox:
+  stage: sandbox
+  needs:
+    - job: package-sandbox
+  image: dtzar/helm-kubectl:3.11
+  variables:
+    AGENT: $NONPROD_CICD_K8S_AGENT
+    CHART_NAME: react-application-chart
+    TARGET_ENV: sandbox
+    TARGET_NAMESPACE: sandbox
+    TARGET_HOSTNAME: $DOMAIN-sandbox.np.tcw.com
+    TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
+    TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
+    TLS_SECRET: $TLS_NONPROD_SECRET_NAME
+    REPO_NAME: TCWReactHelmChartRepository
+    REPO_ID: 61926856
+  before_script:
+    - >
+      helm repo add $REPO_NAME
+      --username $TCW_HELM_UID
+      --password $TCW_HELM_TOKEN
+      https://gitlab.com/api/v4/projects/$REPO_ID/packages/helm/stable
+  script:
+    - kubectl config use-context $AGENT
+    - >
+      helm upgrade -name $PROJECT_NAME $REPO_NAME/$CHART_NAME
+      --dry-run
+      --debug
+      --install
+      -f $CI_PROJECT_DIR/override-values/override-values.yml
+      -f $CI_PROJECT_DIR/override-values/_values-$TARGET_NAMESPACE.yml
+      -n $TARGET_NAMESPACE
+      --set application.name=$PROJECT_NAME
+      --set application.team=$TCW_TEAM_LABEL
+      --set application.owner=$TCW_OWNER_LABEL
+      --set namespace=$TARGET_NAMESPACE
+      --set image.name=$CI_REGISTRY_IMAGE
+      --set image.tag=$TARGET_ENV-$(cat version/*)
+      --set useTLS=true
+      --set ingress.hostName=$TARGET_HOSTNAME
+      --set ingress.tls.hosts[0]=$TLS_HOST_WILD
+      --set ingress.tls.hosts[1]=$TLS_HOST_LITERAL
+      --set ingress.tls.secretName=$TLS_SECRET
+
+  rules:
+    - if: $CI_COMMIT_BRANCH != 'main' && $CI_COMMIT_REF_PROTECTED == "false"
+
+deploy-sandbox:
+  stage: sandbox
+  needs:
+    - job: dry-run-sandbox
+  cache: 
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull-push
+  image: dtzar/helm-kubectl:3.11
+  variables:
+    AGENT: $NONPROD_CICD_K8S_AGENT
+    HELM_WAIT_TIMEOUT: 300s
+    CHART_NAME: react-application-chart
+    TARGET_ENV: sandbox
+    TARGET_NAMESPACE: sandbox
+    TARGET_HOSTNAME: $DOMAIN-sandbox.np.tcw.com
+    TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
+    TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
+    TLS_SECRET: $TLS_NONPROD_SECRET_NAME
+    DOCKERCONFIG: 'managed'
+    REPO_NAME: TCWReactHelmChartRepository
+    REPO_ID: 61926856
+  before_script:
+    - >
+      helm repo add $REPO_NAME
+      --username $TCW_HELM_UID
+      --password $TCW_HELM_TOKEN
+      https://gitlab.com/api/v4/projects/$REPO_ID/packages/helm/stable
+  script:
+    - |
+      if [ "$CUSTOM_DOCKERFILE" = "true" ]; then
+        echo "true"
+        DOCKERCONFIG="override"
+      else
+        echo "false"
+        DOCKERCONFIG="managed"
+      fi
+
+    - kubectl config use-context $AGENT
+    - >
+      helm upgrade -name $DEPLOYMENT_NAME $REPO_NAME/$CHART_NAME
+      --debug
+      --install
+      --wait
+      --timeout $HELM_WAIT_TIMEOUT
+      -n $TARGET_NAMESPACE
+      -f $CI_PROJECT_DIR/override-values/override-values.yml
+      -f $CI_PROJECT_DIR/override-values/_values-$TARGET_NAMESPACE.yml
+      --set application.name=$DEPLOYMENT_NAME
+      --set application.team=$TCW_TEAM_LABEL
+      --set application.owner=$APPLICATION_OWNER
+      --set application.appType=$APPLICATION_TYPE
+      --set application.sensitivity=$APPLICATION_SENSITIVITY
+      --set application.dockerconfig=$DOCKERCONFIG
+      --set namespace=$TARGET_NAMESPACE
+      --set image.name=$CI_REGISTRY_IMAGE
+      --set image.tag=$TARGET_ENV
+      --set useTLS=$ENABLE_TLS
+      --set ingress.hostName=$TARGET_HOSTNAME
+      --set ingress.tls.hosts[0]=$TLS_HOST_WILD
+      --set ingress.tls.hosts[1]=$TLS_HOST_LITERAL
+      --set ingress.tls.secretName=$TLS_SECRET
+      --set environment[0].name=EXECUTION_ENVIRONMENT
+      --set environment[0].value=AZURE
+      --set environment[1].name=$TIME_DEVEXPRESS_LICENSE_KEY
+      --set environment[1].value=$DEV_EXTREMKEY
+  rules:
+    - if: $CI_COMMIT_BRANCH != 'main' && $CI_COMMIT_REF_PROTECTED == "false"
+
+dry-run:
+  stage: dry-run
+  image: dtzar/helm-kubectl:3.11
+  variables:
+    AGENT: $NONPROD_CICD_K8S_AGENT
+    CHART_NAME: react-application-chart
+    TARGET_ENV: development
+    TARGET_NAMESPACE: development
+    TARGET_HOSTNAME: $DOMAIN-sandbox.np.tcw.com
+    TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
+    TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
+    TLS_SECRET: $TLS_NONPROD_SECRET_NAME
+    REPO_NAME: TCWReactHelmChartRepository
+    REPO_ID: 61926856
+  before_script:
+    - >
+      helm repo add $REPO_NAME
+      --username $TCW_HELM_UID
+      --password $TCW_HELM_TOKEN
+      https://gitlab.com/api/v4/projects/$REPO_ID/packages/helm/stable
+  script:
+    - kubectl config use-context $AGENT
+    - >
+      helm upgrade -name $PROJECT_NAME $REPO_NAME/$CHART_NAME
+      --dry-run
+      --debug
+      --install
+      -f $CI_PROJECT_DIR/override-values/override-values.yml
+      -f $CI_PROJECT_DIR/override-values/_values-$TARGET_NAMESPACE.yml
+      -n $TARGET_NAMESPACE
+      --set application.name=$PROJECT_NAME
+      --set application.team=$TCW_TEAM_LABEL
+      --set application.owner=$TCW_OWNER_LABEL
+      --set namespace=$TARGET_NAMESPACE
+      --set image.name=$CI_REGISTRY_IMAGE
+      --set image.tag=$TARGET_ENV-$(cat version/*)
+      --set useTLS=true
+      --set ingress.hostName=$TARGET_HOSTNAME
+      --set ingress.tls.hosts[0]=$TLS_HOST_WILD
+      --set ingress.tls.hosts[1]=$TLS_HOST_LITERAL
+      --set ingress.tls.secretName=$TLS_SECRET
+
+  rules:
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
+
+build-dev:
+  stage: development
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+  variables:
+    TARGET_ENV: development
+    TARGET_OUTPUT: build-dev
+  before_script:
+    - export NODE_OPTIONS="--max-old-space-size=8192"
+  script:
+    - npm install --save-dev typescript
+    - npm run build
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR
+  allow_failure: true
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'dev' && $CI_COMMIT_REF_PROTECTED == "true"
+
+package-dev:
+  stage: development
+  needs:
+    - job: build-dev
+      artifacts: true
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    TARGET_ENV: 'development'
+    TARGET_OUTPUT: 'build-dev'
+    BASE_REGISTRY: 'registry.gitlab.com'    
+    DOCKER_SOURCE_PROJECT_ID: 61389417
+    DOCKER_SOURCE_REF: 'main'
+    DOCKER_SOURCE_PATH: 'react/alpine/v1'
+    DOCKER_SOURCE_FILE: 'dockerfile.cicd'
+
+  before_script:
+    - docker login -u $TCW_REGISTRY_UID -p $TCW_REGISTRY_PWD $BASE_REGISTRY    
+    - apk add --update curl
+    - cd $CI_PROJECT_DIR 
+    - FULL_PATH=$DOCKER_SOURCE_PATH/$DOCKER_SOURCE_FILE
+    - ENCODED=$(echo $FULL_PATH | sed 's/\//%2F/g; s/\./%2E/g')
+    - URL="https://gitlab.com/api/v4/projects/$DOCKER_SOURCE_PROJECT_ID/repository/files/$ENCODED/raw?ref=$DOCKER_SOURCE_REF"
+    - mkdir -p build-sandbox
+    - mkdir -p usr/share/nginx/html/*
+   
+  script:    
+    - export IMAGE_NAME=$CI_REGISTRY_IMAGE:$TARGET_ENV
+    - |
+      if [ $CUSTOM_DOCKERFILE = "true" ]; then
+       echo "Using custom dockerfile in the project"
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.override .
+       echo "label is being set to:$LABEL"
+      else
+       echo "Using default dockerfile"
+       curl -o dockerfile.pe -H "PRIVATE-TOKEN:$PE_CICD_DOCKER_API" --url $URL
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.pe .
+       echo "label is being set to:$LABEL"
+      fi
+    - docker push $IMAGE_NAME
+  after_script:
+    - docker logout $BASE_REGISTRY
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'dev' && $CI_COMMIT_REF_PROTECTED == "true"
+
+deploy-dev:
+  stage: development
+  needs:
+    - job: dry-run
+  cache: 
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull-push
+  image: dtzar/helm-kubectl:3.11
+  variables:
+    AGENT: $NONPROD_CICD_K8S_AGENT
+    HELM_WAIT_TIMEOUT: 300s
+    CHART_NAME: react-application-chart
+    TARGET_ENV: development
+    TARGET_NAMESPACE: development
+    TARGET_HOSTNAME: $DOMAIN-sandbox.np.tcw.com
+    TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
+    TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
+    TLS_SECRET: $TLS_NONPROD_SECRET_NAME
+    DOCKERCONFIG: 'managed'
+    REPO_NAME: TCWReactHelmChartRepository
+    REPO_ID: 61926856
+  before_script:
+    - >
+      helm repo add $REPO_NAME
+      --username $TCW_HELM_UID
+      --password $TCW_HELM_TOKEN
+      https://gitlab.com/api/v4/projects/$REPO_ID/packages/helm/stable
+  script:
+    - |
+      if [ "$CUSTOM_DOCKERFILE" = "true" ]; then
+        echo "true"
+        DOCKERCONFIG="override"
+      else
+        echo "false"
+        DOCKERCONFIG="managed"
+      fi
+
+    - kubectl config use-context $AGENT
+    - >
+      helm upgrade -name $DEPLOYMENT_NAME $REPO_NAME/$CHART_NAME
+      --debug
+      --install
+      --wait
+      --timeout $HELM_WAIT_TIMEOUT
+      -n $TARGET_NAMESPACE
+      -f $CI_PROJECT_DIR/override-values/override-values.yml
+      -f $CI_PROJECT_DIR/override-values/_values-$TARGET_NAMESPACE.yml
+      --set application.name=$DEPLOYMENT_NAME
+      --set application.team=$TCW_TEAM_LABEL
+      --set application.owner=$APPLICATION_OWNER
+      --set application.appType=$APPLICATION_TYPE
+      --set application.sensitivity=$APPLICATION_SENSITIVITY
+      --set application.dockerconfig=$DOCKERCONFIG
+      --set namespace=$TARGET_NAMESPACE
+      --set image.name=$CI_REGISTRY_IMAGE
+      --set image.tag=$TARGET_ENV
+      --set useTLS=$ENABLE_TLS
+      --set ingress.hostName=$TARGET_HOSTNAME
+      --set ingress.tls.hosts[0]=$TLS_HOST_WILD
+      --set ingress.tls.hosts[1]=$TLS_HOST_LITERAL
+      --set ingress.tls.secretName=$TLS_SECRET
+      --set environment[0].name=EXECUTION_ENVIRONMENT
+      --set environment[0].value=AZURE
+      --set environment[1].name=$TIME_DEVEXPRESS_LICENSE_KEY
+      --set environment[1].value=$DEV_EXTREMKEY
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'dev' && $CI_COMMIT_REF_PROTECTED == "true"
+
+build-qa:
+  stage: qa
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+  variables:
+    TARGET_ENV: qa
+    TARGET_OUTPUT: build-qa
+  before_script:
+    - export NODE_OPTIONS="--max-old-space-size=8192"
+  script:
+    - npm install --save-dev typescript
+    - npm run build
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR
+  allow_failure: true
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'qa' && $CI_COMMIT_REF_PROTECTED == "true"
+
+package-qa:
+  stage: qa
+  needs:
+    - job: build-qa
+      artifacts: true
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    TARGET_ENV: 'qa'
+    TARGET_OUTPUT: 'build-qa'
+    BASE_REGISTRY: 'registry.gitlab.com'    
+    DOCKER_SOURCE_PROJECT_ID: 61389417
+    DOCKER_SOURCE_REF: 'main'
+    DOCKER_SOURCE_PATH: 'react/alpine/v1'
+    DOCKER_SOURCE_FILE: 'dockerfile.cicd'
+
+  before_script:
+    - docker login -u $TCW_REGISTRY_UID -p $TCW_REGISTRY_PWD $BASE_REGISTRY    
+    - apk add --update curl
+    - cd $CI_PROJECT_DIR 
+    - FULL_PATH=$DOCKER_SOURCE_PATH/$DOCKER_SOURCE_FILE
+    - ENCODED=$(echo $FULL_PATH | sed 's/\//%2F/g; s/\./%2E/g')
+    - URL="https://gitlab.com/api/v4/projects/$DOCKER_SOURCE_PROJECT_ID/repository/files/$ENCODED/raw?ref=$DOCKER_SOURCE_REF"
+    - mkdir -p build-sandbox
+    - mkdir -p usr/share/nginx/html/*
+   
+  script:    
+    - export IMAGE_NAME=$CI_REGISTRY_IMAGE:$TARGET_ENV
+    - |
+      if [ $CUSTOM_DOCKERFILE = "true" ]; then
+       echo "Using custom dockerfile in the project"
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.override .
+       echo "label is being set to:$LABEL"
+      else
+       echo "Using default dockerfile"
+       curl -o dockerfile.pe -H "PRIVATE-TOKEN:$PE_CICD_DOCKER_API" --url $URL
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.pe .
+       echo "label is being set to:$LABEL"
+      fi
+    - docker push $IMAGE_NAME
+  after_script:
+    - docker logout $BASE_REGISTRY
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'qa' && $CI_COMMIT_REF_PROTECTED == "true"
+
+deploy-qa:
+  stage: qa
+  needs:
+    - job: dry-run
+  cache: 
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull-push
+  image: dtzar/helm-kubectl:3.11
+  variables:
+    AGENT: $NONPROD_CICD_K8S_AGENT
+    HELM_WAIT_TIMEOUT: 300s
+    CHART_NAME: react-application-chart
+    TARGET_ENV: qa
+    TARGET_NAMESPACE: qa
+    TARGET_HOSTNAME: $DOMAIN-sandbox.np.tcw.com
+    TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
+    TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
+    TLS_SECRET: $TLS_NONPROD_SECRET_NAME
+    DOCKERCONFIG: 'managed'
+    REPO_NAME: TCWReactHelmChartRepository
+    REPO_ID: 61926856
+  before_script:
+    - >
+      helm repo add $REPO_NAME
+      --username $TCW_HELM_UID
+      --password $TCW_HELM_TOKEN
+      https://gitlab.com/api/v4/projects/$REPO_ID/packages/helm/stable
+  script:
+    - |
+      if [ "$CUSTOM_DOCKERFILE" = "true" ]; then
+        echo "true"
+        DOCKERCONFIG="override"
+      else
+        echo "false"
+        DOCKERCONFIG="managed"
+      fi
+
+    - kubectl config use-context $AGENT
+    - >
+      helm upgrade -name $DEPLOYMENT_NAME $REPO_NAME/$CHART_NAME
+      --debug
+      --install
+      --wait
+      --timeout $HELM_WAIT_TIMEOUT
+      -n $TARGET_NAMESPACE
+      -f $CI_PROJECT_DIR/override-values/override-values.yml
+      -f $CI_PROJECT_DIR/override-values/_values-$TARGET_NAMESPACE.yml
+      --set application.name=$DEPLOYMENT_NAME
+      --set application.team=$TCW_TEAM_LABEL
+      --set application.owner=$APPLICATION_OWNER
+      --set application.appType=$APPLICATION_TYPE
+      --set application.sensitivity=$APPLICATION_SENSITIVITY
+      --set application.dockerconfig=$DOCKERCONFIG
+      --set namespace=$TARGET_NAMESPACE
+      --set image.name=$CI_REGISTRY_IMAGE
+      --set image.tag=$TARGET_ENV
+      --set useTLS=$ENABLE_TLS
+      --set ingress.hostName=$TARGET_HOSTNAME
+      --set ingress.tls.hosts[0]=$TLS_HOST_WILD
+      --set ingress.tls.hosts[1]=$TLS_HOST_LITERAL
+      --set ingress.tls.secretName=$TLS_SECRET
+      --set environment[0].name=EXECUTION_ENVIRONMENT
+      --set environment[0].value=AZURE
+      --set environment[1].name=$TIME_DEVEXPRESS_LICENSE_KEY
+      --set environment[1].value=$DEV_EXTREMKEY
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'qa' && $CI_COMMIT_REF_PROTECTED == "true"
+
+build-release:
+  stage: release
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+  variables:
+    TARGET_ENV: release
+    TARGET_OUTPUT: build-prod
+  before_script:
+    - export NODE_OPTIONS="--max-old-space-size=8192"
+  script:
+    - npm install --save-dev typescript
+    - npm run build
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR
+  allow_failure: true
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'release' && $CI_COMMIT_REF_PROTECTED == "true"
+
+package-release:
+  stage: release
+  needs:
+    - job: build-release
+      artifacts: true
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    TARGET_ENV: 'release'
+    TARGET_OUTPUT: 'build-release'
+    BASE_REGISTRY: 'registry.gitlab.com'    
+    DOCKER_SOURCE_PROJECT_ID: 61389417
+    DOCKER_SOURCE_REF: 'main'
+    DOCKER_SOURCE_PATH: 'react/alpine/v1'
+    DOCKER_SOURCE_FILE: 'dockerfile.cicd'
+
+  before_script:
+    - docker login -u $TCW_REGISTRY_UID -p $TCW_REGISTRY_PWD $BASE_REGISTRY    
+    - apk add --update curl
+    - cd $CI_PROJECT_DIR 
+    - FULL_PATH=$DOCKER_SOURCE_PATH/$DOCKER_SOURCE_FILE
+    - ENCODED=$(echo $FULL_PATH | sed 's/\//%2F/g; s/\./%2E/g')
+    - URL="https://gitlab.com/api/v4/projects/$DOCKER_SOURCE_PROJECT_ID/repository/files/$ENCODED/raw?ref=$DOCKER_SOURCE_REF"
+    - mkdir -p build-sandbox
+    - mkdir -p usr/share/nginx/html/*
+   
+  script:    
+    - export IMAGE_NAME=$CI_REGISTRY_IMAGE:$TARGET_ENV
+    - |
+      if [ $CUSTOM_DOCKERFILE = "true" ]; then
+       echo "Using custom dockerfile in the project"
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.override .
+       echo "label is being set to:$LABEL"
+      else
+       echo "Using default dockerfile"
+       curl -o dockerfile.pe -H "PRIVATE-TOKEN:$PE_CICD_DOCKER_API" --url $URL
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.pe .
+       echo "label is being set to:$LABEL"
+      fi
+    - docker push $IMAGE_NAME
+  after_script:
+    - docker logout $BASE_REGISTRY
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'release' && $CI_COMMIT_REF_PROTECTED == "true"
+
+deploy-release:
+  stage: release
+  needs:
+    - job: dry-run
+  cache: 
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull-push
+  image: dtzar/helm-kubectl:3.11
+  variables:
+    AGENT: $NONPROD_CICD_K8S_AGENT
+    HELM_WAIT_TIMEOUT: 300s
+    CHART_NAME: react-application-chart
+    TARGET_ENV: release
+    TARGET_NAMESPACE: production
+    TARGET_HOSTNAME: $DOMAIN-sandbox.np.tcw.com
+    TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
+    TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
+    TLS_SECRET: $TLS_NONPROD_SECRET_NAME
+    DOCKERCONFIG: 'managed'
+    REPO_NAME: TCWReactHelmChartRepository
+    REPO_ID: 61926856
+  before_script:
+    - >
+      helm repo add $REPO_NAME
+      --username $TCW_HELM_UID
+      --password $TCW_HELM_TOKEN
+      https://gitlab.com/api/v4/projects/$REPO_ID/packages/helm/stable
+  script:
+    - |
+      if [ "$CUSTOM_DOCKERFILE" = "true" ]; then
+        echo "true"
+        DOCKERCONFIG="override"
+      else
+        echo "false"
+        DOCKERCONFIG="managed"
+      fi
+
+    - kubectl config use-context $AGENT
+    - >
+      helm upgrade -name $DEPLOYMENT_NAME $REPO_NAME/$CHART_NAME
+      --debug
+      --install
+      --wait
+      --timeout $HELM_WAIT_TIMEOUT
+      -n $TARGET_NAMESPACE
+      -f $CI_PROJECT_DIR/override-values/override-values.yml
+      -f $CI_PROJECT_DIR/override-values/_values-$TARGET_NAMESPACE.yml
+      --set application.name=$DEPLOYMENT_NAME
+      --set application.team=$TCW_TEAM_LABEL
+      --set application.owner=$APPLICATION_OWNER
+      --set application.appType=$APPLICATION_TYPE
+      --set application.sensitivity=$APPLICATION_SENSITIVITY
+      --set application.dockerconfig=$DOCKERCONFIG
+      --set namespace=$TARGET_NAMESPACE
+      --set image.name=$CI_REGISTRY_IMAGE
+      --set image.tag=$TARGET_ENV
+      --set useTLS=$ENABLE_TLS
+      --set ingress.hostName=$TARGET_HOSTNAME
+      --set ingress.tls.hosts[0]=$TLS_HOST_WILD
+      --set ingress.tls.hosts[1]=$TLS_HOST_LITERAL
+      --set ingress.tls.secretName=$TLS_SECRET
+      --set environment[0].name=EXECUTION_ENVIRONMENT
+      --set environment[0].value=AZURE
+      --set environment[1].name=$TIME_DEVEXPRESS_LICENSE_KEY
+      --set environment[1].value=$DEV_EXTREMKEY
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'release' && $CI_COMMIT_REF_PROTECTED == "true"
+
+build-prod:
+  stage: production
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+  variables:
+    TARGET_ENV: production
+    TARGET_OUTPUT: build-prod
+  before_script:
+    - export NODE_OPTIONS="--max-old-space-size=8192"
+  script:
+    - npm install --save-dev typescript
+    - npm run build
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR
+  allow_failure: true
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main' && $CI_COMMIT_REF_PROTECTED == "true"
+
+package-prod:
+  stage: production
+  needs:
+    - job: build-prod
+      artifacts: true
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    TARGET_ENV: 'production'
+    TARGET_OUTPUT: 'build-prod'
+    BASE_REGISTRY: 'registry.gitlab.com'    
+    DOCKER_SOURCE_PROJECT_ID: 61389417
+    DOCKER_SOURCE_REF: 'main'
+    DOCKER_SOURCE_PATH: 'react/alpine/v1'
+    DOCKER_SOURCE_FILE: 'dockerfile.cicd'
+
+  before_script:
+    - docker login -u $TCW_REGISTRY_UID -p $TCW_REGISTRY_PWD $BASE_REGISTRY    
+    - apk add --update curl
+    - cd $CI_PROJECT_DIR 
+    - FULL_PATH=$DOCKER_SOURCE_PATH/$DOCKER_SOURCE_FILE
+    - ENCODED=$(echo $FULL_PATH | sed 's/\//%2F/g; s/\./%2E/g')
+    - URL="https://gitlab.com/api/v4/projects/$DOCKER_SOURCE_PROJECT_ID/repository/files/$ENCODED/raw?ref=$DOCKER_SOURCE_REF"
+    - mkdir -p build-sandbox
+    - mkdir -p usr/share/nginx/html/*
+   
+  script:    
+    - export IMAGE_NAME=$CI_REGISTRY_IMAGE:$TARGET_ENV
+    - |
+      if [ $CUSTOM_DOCKERFILE = "true" ]; then
+       echo "Using custom dockerfile in the project"
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.override .
+       echo "label is being set to:$LABEL"
+      else
+       echo "Using default dockerfile"
+       curl -o dockerfile.pe -H "PRIVATE-TOKEN:$PE_CICD_DOCKER_API" --url $URL
+       docker build --build-arg OUTPUT=$TARGET_OUTPUT -t $IMAGE_NAME -f dockerfile.pe .
+       echo "label is being set to:$LABEL"
+      fi
+    - docker push $IMAGE_NAME
+  after_script:
+    - docker logout $BASE_REGISTRY
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main' && $CI_COMMIT_REF_PROTECTED == "true"
+
+deploy-prod:
+  stage: production
+  needs:
+    - job: dry-run
+  cache: 
+    key: ${CI_COMMIT_REF_SLUG}
+    paths: 
+      - node_modules/
+    policy: pull-push
+  image: dtzar/helm-kubectl:3.11
+  variables:
+    AGENT: $NONPROD_CICD_K8S_AGENT
+    HELM_WAIT_TIMEOUT: 300s
+    CHART_NAME: react-application-chart
+    TARGET_ENV: production
+    TARGET_NAMESPACE: production
+    TARGET_HOSTNAME: $DOMAIN-sandbox.np.tcw.com
+    TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
+    TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
+    TLS_SECRET: $TLS_NONPROD_SECRET_NAME
+    DOCKERCONFIG: 'managed'
+    REPO_NAME: TCWReactHelmChartRepository
+    REPO_ID: 61926856
+  before_script:
+    - >
+      helm repo add $REPO_NAME
+      --username $TCW_HELM_UID
+      --password $TCW_HELM_TOKEN
+      https://gitlab.com/api/v4/projects/$REPO_ID/packages/helm/stable
+  script:
+    - |
+      if [ "$CUSTOM_DOCKERFILE" = "true" ]; then
+        echo "true"
+        DOCKERCONFIG="override"
+      else
+        echo "false"
+        DOCKERCONFIG="managed"
+      fi
+
+    - kubectl config use-context $AGENT
+    - >
+      helm upgrade -name $DEPLOYMENT_NAME $REPO_NAME/$CHART_NAME
+      --debug
+      --install
+      --wait
+      --timeout $HELM_WAIT_TIMEOUT
+      -n $TARGET_NAMESPACE
+      -f $CI_PROJECT_DIR/override-values/override-values.yml
+      -f $CI_PROJECT_DIR/override-values/_values-$TARGET_NAMESPACE.yml
+      --set application.name=$DEPLOYMENT_NAME
+      --set application.team=$TCW_TEAM_LABEL
+      --set application.owner=$APPLICATION_OWNER
+      --set application.appType=$APPLICATION_TYPE
+      --set application.sensitivity=$APPLICATION_SENSITIVITY
+      --set application.dockerconfig=$DOCKERCONFIG
+      --set namespace=$TARGET_NAMESPACE
+      --set image.name=$CI_REGISTRY_IMAGE
+      --set image.tag=$TARGET_ENV
+      --set useTLS=$ENABLE_TLS
+      --set ingress.hostName=$TARGET_HOSTNAME
+      --set ingress.tls.hosts[0]=$TLS_HOST_WILD
+      --set ingress.tls.hosts[1]=$TLS_HOST_LITERAL
+      --set ingress.tls.secretName=$TLS_SECRET
+      --set environment[0].name=EXECUTION_ENVIRONMENT
+      --set environment[0].value=AZURE
+      --set environment[1].name=$TIME_DEVEXPRESS_LICENSE_KEY
+      --set environment[1].value=$DEV_EXTREMKEY
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main' && $CI_COMMIT_REF_PROTECTED == "true"
