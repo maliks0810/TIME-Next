@@ -68,12 +68,12 @@ merge-validation:
         qa:main) is_allowed=false ;;
       esac
 
-      if ["$is_allowed" == false]; then
+      if [ "$is_allowed" = false ]; then
         echo "Merging from '$SRC' to '$TGT' branch in not allowed"
         exit 1
       fi
 
-      if ["$SRC" != "release"] && ["$TGT" == "main"]; then
+      if [ "$SRC" != "release" ] && [ "$TGT" = "main" ]; then
         echo "Only release branch can be merged to main"
         exit 1
       fi
