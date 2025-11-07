@@ -48,6 +48,7 @@ cache:
     - node_modules/
 
 merge-validation:
+  image: alpine:latest
   stage: validate-merge
   script:
     - echo "Checking if the merge is allowed"
