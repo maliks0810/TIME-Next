@@ -54,7 +54,6 @@ merge-validation:
     - echo "Checking if the merge is allowed"
     - |
       set -eu
-
       SRC="$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
       TGT="$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
 
