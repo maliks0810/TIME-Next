@@ -77,6 +77,8 @@ merge-validation:
         echo "Only release branch can be merged to main"
         exit 1
       fi
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 install:
   stage: install
