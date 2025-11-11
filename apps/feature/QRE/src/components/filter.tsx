@@ -46,8 +46,8 @@ export const FilterInput = (props: {
             slotProps={{
                 input: {
                     endAdornment: (
-                        <IconButton onClick={handleClearClick} disabled={disabled}>
-                            <ClearIcon fontSize="small" color="action" />
+                        <IconButton onClick={handleClearClick} disabled={disabled} color="secondary">
+                            <ClearIcon fontSize="small"  />
                         </IconButton>
                     ),
                     

@@ -59,8 +59,8 @@ const ModelCatalogRefresh = (props: { disabled?: boolean }) => {
     console.debug('ModelCatalogRefresh rendering', disabled);
 
     return (
-        <IconButton onClick={trigger} disabled={disabled} title="Refresh Model Catalog">
-            <RefreshIcon fontSize="small" color="secondary" />
+        <IconButton onClick={trigger} disabled={disabled} title="Refresh Model Catalog" color="secondary">
+            <RefreshIcon fontSize="small"  />
         </IconButton>
     );
 };
@@ -88,8 +88,9 @@ const ModelCatalogSettings = (props: { disabled?: boolean; hidden?: boolean }) =
                 onClick={handleSettingsClicked}
                 disabled={disabled}
                 hidden={props.hidden}
+                color="secondary" 
             >
-                <SettingsIcon fontSize="small" color="secondary" />
+                <SettingsIcon fontSize="small" />
             </IconButton>
         </>
     );

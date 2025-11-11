@@ -92,6 +92,7 @@ const CatList = (props: { kinds: CatListItem[]; setKinds: (kinds: CatListItem[])
                                 onClick={(e) => handleDeleteKind(e, ki)}
                                 disabled={k.purposes.filter((p) => p.trim().length > 0).length > 0}
                                 title="Delete this Kind"
+                                color="secondary" 
                             >
                                 <DeleteOutlineIcon fontSize="small" />
                             </IconButton>
@@ -117,6 +118,7 @@ const CatList = (props: { kinds: CatListItem[]; setKinds: (kinds: CatListItem[])
                                 className="cat-settings-action-kind"
                                 startIcon={<AddCircleOutlineIcon fontSize="small" />}
                                 onClick={(e) => handleAddPurpose(e, ki)}
+                                color="secondary" 
                             >
                                 Add Purpose
                             </Button>
@@ -129,6 +131,7 @@ const CatList = (props: { kinds: CatListItem[]; setKinds: (kinds: CatListItem[])
                                             onClick={(e) => handleDeletePurpose(e, pi, ki)}
                                             title="Delete this Purpose"
                                             className="cat-settings-action-purpose"
+                                            color="secondary" 
                                         >
                                             <DeleteOutlineIcon fontSize="small" />
                                         </IconButton>
@@ -266,12 +269,12 @@ export const SettingsDialog = (props: { open: boolean; onClose: () => void }) =>
                 <Button
                     onClick={() => onClick(true)}
                     disabled={disableSave}
-                    color="primary"
+                    color="secondary" 
                     variant="outlined"
                 >
                     Save
                 </Button>
-                <Button onClick={() => onClick(false)} color="primary" variant="outlined">
+                <Button onClick={() => onClick(false)} color="secondary"  variant="outlined">
                     Cancel
                 </Button>
             </DialogActions>
