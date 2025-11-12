@@ -43,12 +43,27 @@ const muiTheme = createTheme({
         },
         warning: {
             main: '#E55302',
+            light: '#e28d60ff',
+            dark: '#e5510271',
+            contrastText: '#FFFFFF',
         },
         error: {
             main: '#A33A29',
+            light: '#a55d52ff',
+            dark: '#a339296c',
+            contrastText: '#FFFFFF',
         },
         success: {
             main: '#70A94F',
+            light: '#93a787ff',
+            dark: '#70a94fb2',
+            contrastText: '#FFFFFF',
+        },
+        info: {
+            main: '#009CD5',
+            light: '#51b0d3ff',
+            dark: '#1a4570ff',
+            contrastText: '#FFFFFF',
         },
     },
     components: {
@@ -59,6 +74,7 @@ const muiTheme = createTheme({
                     '&.page-base': {
                         margin: tcwDefaultMargin,
                         padding: tcwDefaultPadding,
+                        width: '100%',
                     },
                     //TODO: Add to documentation
                     '&.row-base': {
