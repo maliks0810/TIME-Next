@@ -379,8 +379,8 @@ build-dev:
       - node_modules/
     policy: pull
   variables:
-    TARGET_ENV: development
-    TARGET_OUTPUT: build-development
+    TARGET_ENV: dev
+    TARGET_OUTPUT: build-dev
   before_script:
     - export NODE_OPTIONS="--max-old-space-size=8192"
   script:
@@ -402,8 +402,8 @@ package-dev:
   services:
     - docker:dind
   variables:
-    TARGET_ENV: 'development'
-    TARGET_OUTPUT: 'build-development'
+    TARGET_ENV: 'dev'
+    TARGET_OUTPUT: 'build-dev'
     BASE_REGISTRY: 'registry.gitlab.com'    
     DOCKER_SOURCE_PROJECT_ID: 61389417
     DOCKER_SOURCE_REF: 'main'
@@ -453,7 +453,7 @@ deploy-dev:
     AGENT: $NONPROD_CICD_K8S_AGENT
     HELM_WAIT_TIMEOUT: 300s
     CHART_NAME: react-application-chart
-    TARGET_ENV: development
+    TARGET_ENV: dev
     TARGET_NAMESPACE: development
     TARGET_HOSTNAME: $DOMAIN-dev.np.tcw.com
     TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
