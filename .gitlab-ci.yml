@@ -580,7 +580,7 @@ package-qa:
 deploy-qa:
   stage: qa
   needs:
-    - job: dry-run-qa
+    - job: dry-run
   cache: 
     key: ${CI_COMMIT_REF_SLUG}
     paths: 
@@ -719,8 +719,6 @@ package-release:
 
 deploy-release:
   stage: release
-  needs:
-    - job: dry-run-release
   cache: 
     key: ${CI_COMMIT_REF_SLUG}
     paths: 
