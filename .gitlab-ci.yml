@@ -324,53 +324,6 @@ deploy-sandbox:
   rules:
     - if: $CI_COMMIT_BRANCH != 'main' && $CI_COMMIT_REF_PROTECTED == "false"
 
-dry-run:
-  stage: development
-  needs:
-    - job: package-dev
-  image: dtzar/helm-kubectl:3.11
-  variables:
-    AGENT: $NONPROD_CICD_K8S_AGENT
-    CHART_NAME: react-application-chart
-    TARGET_ENV: development
-    TARGET_NAMESPACE: development
-    TARGET_HOSTNAME: $DOMAIN-dev.np.tcw.com
-    TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
-    TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
-    TLS_SECRET: $TLS_NONPROD_SECRET_NAME
-    REPO_NAME: TCWReactHelmChartRepository
-    REPO_ID: 61926856
-  before_script:
-    - >
-      helm repo add $REPO_NAME
-      --username $TCW_HELM_UID
-      --password $TCW_HELM_TOKEN
-      https://gitlab.com/api/v4/projects/$REPO_ID/packages/helm/stable
-  script:
-    - kubectl config use-context $AGENT
-    - >
-      helm upgrade -name $PROJECT_NAME $REPO_NAME/$CHART_NAME
-      --dry-run
-      --debug
-      --install
-      -f $CI_PROJECT_DIR/override-values/override-values.yml
-      -f $CI_PROJECT_DIR/override-values/_values-$TARGET_NAMESPACE.yml
-      -n $TARGET_NAMESPACE
-      --set application.name=$PROJECT_NAME
-      --set application.team=$TCW_TEAM_LABEL
-      --set application.owner=$TCW_OWNER_LABEL
-      --set namespace=$TARGET_NAMESPACE
-      --set image.name=$CI_REGISTRY_IMAGE
-      --set image.tag=$TARGET_ENV-$(cat version/*)
-      --set useTLS=true
-      --set ingress.hostName=$TARGET_HOSTNAME
-      --set ingress.tls.hosts[0]=$TLS_HOST_WILD
-      --set ingress.tls.hosts[1]=$TLS_HOST_LITERAL
-      --set ingress.tls.secretName=$TLS_SECRET
-
-  rules:
-    - if: $CI_COMMIT_REF_PROTECTED == "true"
-
 build-dev:
   stage: development
   cache:
@@ -436,6 +389,53 @@ package-dev:
     - docker push $IMAGE_NAME
   after_script:
     - docker logout $BASE_REGISTRY
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'dev' && $CI_COMMIT_REF_PROTECTED == "true"
+
+dry-run:
+  stage: development
+  needs:
+    - job: package-dev
+  image: dtzar/helm-kubectl:3.11
+  variables:
+    AGENT: $NONPROD_CICD_K8S_AGENT
+    CHART_NAME: react-application-chart
+    TARGET_ENV: development
+    TARGET_NAMESPACE: development
+    TARGET_HOSTNAME: $DOMAIN-dev.np.tcw.com
+    TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
+    TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
+    TLS_SECRET: $TLS_NONPROD_SECRET_NAME
+    REPO_NAME: TCWReactHelmChartRepository
+    REPO_ID: 61926856
+  before_script:
+    - >
+      helm repo add $REPO_NAME
+      --username $TCW_HELM_UID
+      --password $TCW_HELM_TOKEN
+      https://gitlab.com/api/v4/projects/$REPO_ID/packages/helm/stable
+  script:
+    - kubectl config use-context $AGENT
+    - >
+      helm upgrade -name $PROJECT_NAME $REPO_NAME/$CHART_NAME
+      --dry-run
+      --debug
+      --install
+      -f $CI_PROJECT_DIR/override-values/override-values.yml
+      -f $CI_PROJECT_DIR/override-values/_values-$TARGET_NAMESPACE.yml
+      -n $TARGET_NAMESPACE
+      --set application.name=$PROJECT_NAME
+      --set application.team=$TCW_TEAM_LABEL
+      --set application.owner=$TCW_OWNER_LABEL
+      --set namespace=$TARGET_NAMESPACE
+      --set image.name=$CI_REGISTRY_IMAGE
+      --set image.tag=$TARGET_ENV-$(cat version/*)
+      --set useTLS=true
+      --set ingress.hostName=$TARGET_HOSTNAME
+      --set ingress.tls.hosts[0]=$TLS_HOST_WILD
+      --set ingress.tls.hosts[1]=$TLS_HOST_LITERAL
+      --set ingress.tls.secretName=$TLS_SECRET
+
   rules:
     - if: $CI_COMMIT_BRANCH == 'dev' && $CI_COMMIT_REF_PROTECTED == "true"
 
