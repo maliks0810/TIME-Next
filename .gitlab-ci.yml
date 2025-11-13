@@ -332,8 +332,8 @@ build-dev:
       - node_modules/
     policy: pull
   variables:
-    TARGET_ENV: dev
-    TARGET_OUTPUT: build-dev
+    TARGET_ENV: development
+    TARGET_OUTPUT: build-development
   before_script:
     - export NODE_OPTIONS="--max-old-space-size=8192"
   script:
@@ -355,8 +355,8 @@ package-dev:
   services:
     - docker:dind
   variables:
-    TARGET_ENV: 'dev'
-    TARGET_OUTPUT: 'build-dev'
+    TARGET_ENV: 'development'
+    TARGET_OUTPUT: 'build-development'
     BASE_REGISTRY: 'registry.gitlab.com'    
     DOCKER_SOURCE_PROJECT_ID: 61389417
     DOCKER_SOURCE_REF: 'main'
