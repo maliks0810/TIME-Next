@@ -324,7 +324,7 @@ deploy-sandbox:
   rules:
     - if: $CI_COMMIT_BRANCH != 'main' && $CI_COMMIT_REF_PROTECTED == "false"
 
-build-dev:
+build-development:
   stage: development
   cache:
     key: ${CI_COMMIT_REF_SLUG}
@@ -349,7 +349,7 @@ build-dev:
 package-dev:
   stage: development
   needs:
-    - job: build-dev
+    - job: build-development
       artifacts: true
   image: docker:latest
   services:
