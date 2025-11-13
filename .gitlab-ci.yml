@@ -370,7 +370,7 @@ package-dev:
     - FULL_PATH=$DOCKER_SOURCE_PATH/$DOCKER_SOURCE_FILE
     - ENCODED=$(echo $FULL_PATH | sed 's/\//%2F/g; s/\./%2E/g')
     - URL="https://gitlab.com/api/v4/projects/$DOCKER_SOURCE_PROJECT_ID/repository/files/$ENCODED/raw?ref=$DOCKER_SOURCE_REF"
-    - mkdir -p build-development
+    - mkdir -p build-sandbox
     - mkdir -p usr/share/nginx/html/*
    
   script:    
