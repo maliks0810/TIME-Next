@@ -827,7 +827,7 @@ deploy-release:
     CHART_NAME: react-application-chart
     TARGET_ENV: production
     TARGET_NAMESPACE: production
-    TARGET_HOSTNAME: $DOMAIN-prod.np.tcw.com
+    TARGET_HOSTNAME: $DOMAIN-pd.np.tcw.com
     TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
     TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
     TLS_SECRET: $TLS_NONPROD_SECRET_NAME
