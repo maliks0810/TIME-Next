@@ -40,7 +40,7 @@
       ],
       "env": ["NODE_ENV", "VITE_APP_ENV"]
     },
-    "build:prod": {
+    "build:production": {
       "dependsOn": [
         "^build"
       ],
