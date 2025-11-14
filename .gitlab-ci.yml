@@ -324,7 +324,7 @@ deploy-sandbox:
   rules:
     - if: $CI_COMMIT_BRANCH != 'main' && $CI_COMMIT_REF_PROTECTED == "false"
 
-build-development:
+build-dev:
   stage: development
   cache:
     key: ${CI_COMMIT_REF_SLUG}
@@ -333,7 +333,7 @@ build-development:
     policy: pull
   variables:
     TARGET_ENV: development
-    TARGET_OUTPUT: build-development
+    TARGET_OUTPUT: build-dev
   before_script:
     - export NODE_OPTIONS="--max-old-space-size=8192"
   script:
@@ -349,14 +349,14 @@ build-development:
 package-dev:
   stage: development
   needs:
-    - job: build-development
+    - job: build-dev
       artifacts: true
   image: docker:latest
   services:
     - docker:dind
   variables:
     TARGET_ENV: 'development'
-    TARGET_OUTPUT: 'build-development'
+    TARGET_OUTPUT: 'build-dev'
     BASE_REGISTRY: 'registry.gitlab.com'    
     DOCKER_SOURCE_PROJECT_ID: 61389417
     DOCKER_SOURCE_REF: 'main'
