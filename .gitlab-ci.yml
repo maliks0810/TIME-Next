@@ -702,8 +702,8 @@ build-release:
       - node_modules/
     policy: pull
   variables:
-    TARGET_ENV: release
-    TARGET_OUTPUT: build-release
+    TARGET_ENV: production
+    TARGET_OUTPUT: build-production
   before_script:
     - export NODE_OPTIONS="--max-old-space-size=8192"
   script:
@@ -726,8 +726,8 @@ package-release:
   services:
     - docker:dind
   variables:
-    TARGET_ENV: 'release'
-    TARGET_OUTPUT: 'build-release'
+    TARGET_ENV: 'production'
+    TARGET_OUTPUT: 'build-production'
     BASE_REGISTRY: 'registry.gitlab.com'    
     DOCKER_SOURCE_PROJECT_ID: 61389417
     DOCKER_SOURCE_REF: 'main'
@@ -771,8 +771,8 @@ dry-run-release:
   variables:
     AGENT: $NONPROD_CICD_K8S_AGENT
     CHART_NAME: react-application-chart
-    TARGET_ENV: prod
-    TARGET_NAMESPACE: prod
+    TARGET_ENV: production
+    TARGET_NAMESPACE: production
     TARGET_HOSTNAME: $DOMAIN-prod.np.tcw.com
     TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
     TLS_HOST_LITERAL: $TLS_NONPROD_HOST_LITERAL
@@ -825,7 +825,7 @@ deploy-release:
     AGENT: $NONPROD_CICD_K8S_AGENT
     HELM_WAIT_TIMEOUT: 300s
     CHART_NAME: react-application-chart
-    TARGET_ENV: release
+    TARGET_ENV: production
     TARGET_NAMESPACE: production
     TARGET_HOSTNAME: $DOMAIN-prod.np.tcw.com
     TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
