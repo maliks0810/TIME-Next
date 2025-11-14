@@ -703,7 +703,7 @@ build-release:
     policy: pull
   variables:
     TARGET_ENV: production
-    TARGET_OUTPUT: build-prod
+    TARGET_OUTPUT: build-production
   before_script:
     - export NODE_OPTIONS="--max-old-space-size=8192"
   script:
@@ -727,7 +727,7 @@ package-release:
     - docker:dind
   variables:
     TARGET_ENV: 'production'
-    TARGET_OUTPUT: 'build-prod'
+    TARGET_OUTPUT: 'build-production'
     BASE_REGISTRY: 'registry.gitlab.com'    
     DOCKER_SOURCE_PROJECT_ID: 61389417
     DOCKER_SOURCE_REF: 'main'
