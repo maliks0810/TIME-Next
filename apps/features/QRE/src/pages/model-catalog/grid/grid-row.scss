@@ -1,0 +1,21 @@
+.model-catalog-entry-action-icon {
+    width: 24px !important;
+    height: 24px !important;
+}
+
+//NOTE: Setting all actions buttons to hidden
+.model-catalog-entry-action-button {
+    visibility: hidden;
+}
+
+.row-base {
+    &:hover {        
+        //NOTE: setting MUI IconButtons to hidden does not always 
+        //hide the button but still sets the hidden attribute, so 
+        //we will select on this attribute and avoid showing buttons
+        //that are supposed to be hidden
+        .model-catalog-entry-action-button:not([hidden]) {
+            visibility: visible;
+        }
+    }
+}

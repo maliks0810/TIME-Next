@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => {
     const combinedEnv: Record<string, string> = {};
     const appsDir = path.resolve(__dirname, '..');
-    const featureDir = path.resolve(appsDir, 'feature');
+    const featuresDir = path.resolve(appsDir, 'features');
     const normalizedMode = mode === 'development' ? 'dev' : mode === 'production' ? 'prod' : mode;  
 
     function loadEnvsIn(dirPath: string) {
@@ -34,8 +34,8 @@ export default defineConfig(({ mode }) => {
     }
 
     loadEnvsIn(appsDir);
-    if (fs.existsSync(featureDir)) {
-        loadEnvsIn(featureDir);
+    if (fs.existsSync(featuresDir)) {
+        loadEnvsIn(featuresDir);
     }
 
     return {
@@ -62,7 +62,7 @@ export default defineConfig(({ mode }) => {
                 '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
                 '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
                 '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
-                '@r2/qre': path.resolve(__dirname, '../feature/QRE'),
+                '@r2/qre': path.resolve(__dirname, '../features/QRE'),
                 '@platform/platform-shell': path.resolve(__dirname, '.'),
                 'echarts': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
                 'echarts/core': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
@@ -73,7 +73,7 @@ export default defineConfig(({ mode }) => {
         optimizeDeps: {
             include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
             exclude: ['react/jsx-runtime','@platform/ui', '@platform/styles', '@platform/app-registry', '@platform/utils', '@platform/homepage'],
-            entries: ['src/**/*.tsx', '../**/src/**/*.tsx', '../../packages/**/*.tsx', '../feature/**/*.tsx']
+            entries: ['src/**/*.tsx', '../**/src/**/*.tsx', '../../packages/**/*.tsx', '../features/**/*.tsx']
         },
         build: {
             assetsInlineLimit: 60000,
