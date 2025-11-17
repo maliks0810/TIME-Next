@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => {
     const combinedEnv: Record<string, string> = {};
     const appsDir = path.resolve(__dirname, '..');
     const featureDir = path.resolve(appsDir, 'feature');
-    const normalizedMode = mode === 'development' ? 'dev' : mode;
+    const normalizedMode = mode === 'development' ? 'dev' : mode === 'production' ? 'prod' : mode;  
 
     function loadEnvsIn(dirPath: string) {
         fs.readdirSync(dirPath).forEach(subDir => {

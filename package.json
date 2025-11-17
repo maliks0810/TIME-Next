@@ -16,7 +16,7 @@
     "build:sandbox": "turbo run build:sandbox",
     "build:development": "turbo run build:development",
     "build:qa": "turbo run build:qa",
-    "build:production": "turbo run build:prod",
+    "build:production": "turbo run build:production",
     "clean": "turbo run clean && rm -rf node_modules",
     "test": "turbo run test",
     "lint": "turbo run lint",
