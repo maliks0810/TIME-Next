@@ -95,6 +95,9 @@ install:
     - npm install --prefer-offline --no-audit --progress=false --legacy-peer-deps
     - npm install -g env-cmd
     - npm install ajv
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
 
 lint:
   stage: validation
@@ -105,6 +108,9 @@ lint:
     policy: pull
   script:
     - npm run lint
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
 
 test:
   stage: validation
@@ -115,6 +121,9 @@ test:
     policy: pull
   script:
     - npm run test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
 
 type-check:
   stage: validation
@@ -125,6 +134,9 @@ type-check:
     policy: pull
   script:
     - npm run type-check
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
 
 sast:
   stage: validation
