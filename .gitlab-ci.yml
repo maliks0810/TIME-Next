@@ -98,6 +98,7 @@ install:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: never
+    - when: always
 
 lint:
   stage: validation
@@ -111,6 +112,7 @@ lint:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: never
+    - when: always
 
 test:
   stage: validation
@@ -124,6 +126,7 @@ test:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: never
+    - when: always
 
 type-check:
   stage: validation
@@ -137,6 +140,7 @@ type-check:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: never
+    - when: always
 
 sast:
   stage: validation
