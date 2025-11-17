@@ -1,13 +1,13 @@
 
 
 [Tech][1] @tcw-group/technology
-/apps/feature/
+/apps/features/
 /packages/app-registry/src/
 
 
 # Platform Engineering
 [PE]
 * @tcw-group/technology/platform-engineering
-!/apps/feature/
+!/apps/features/
 !/packages/app-registry/src/
 
