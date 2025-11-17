@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { SortableFields } from '../data/model-catalog-data';
 import {
     ModelCatalogFilterByValues,
@@ -6,20 +5,18 @@ import {
     ModelStates,
     ModelCategorizationMap,
     ModelCategorization,
+    AnyData,
 } from '../types/model-catalog-types';
 
-export const isNameInvalid = (
-    entries: ModelCatalogEntry[],
-    name?: string
-): boolean => {
-    return (name ?? '').length < 1 || (entries.filter((e) => e.name == name).length > 0);
+export const isNameInvalid = (entries: ModelCatalogEntry[], name?: string): boolean => {
+    return (name ?? '').length < 1 || entries.filter((e) => e.name == name).length > 0;
 };
 
 export const filterEntries = (
     entries: ModelCatalogEntry[] | undefined,
     value: string,
     field: string,
-    ownedByEmail?: string,
+    ownedByEmail?: string
 ): ModelCatalogEntry[] => {
     if (!entries) {
         return [];
@@ -33,7 +30,9 @@ export const filterEntries = (
 
     const by = ModelCatalogFilterByValues[field as keyof typeof ModelCatalogFilterByValues];
 
-    const preFiltered = ownedByEmail ? entries.filter((e) => e.owner.email.toLowerCase() == ownedByEmail.toLowerCase()) : entries;
+    const preFiltered = ownedByEmail
+        ? entries.filter((e) => e.owner.email.toLowerCase() == ownedByEmail.toLowerCase())
+        : entries;
 
     switch (by) {
         case ModelCatalogFilterByValues.Name:
@@ -45,9 +44,15 @@ export const filterEntries = (
         case ModelCatalogFilterByValues.Kind:
             return preFiltered?.filter((e) => e.kind.toLowerCase().includes(value.toLowerCase()));
         case ModelCatalogFilterByValues.Purpose:
-            return preFiltered?.filter((e) => e.purpose.toLowerCase().includes(value.toLowerCase()));
+            return preFiltered?.filter((e) =>
+                e.purpose.toLowerCase().includes(value.toLowerCase())
+            );
         case ModelCatalogFilterByValues.Owner:
-            return ownedByEmail ? preFiltered : preFiltered?.filter((e) => e.owner.fullName.toLowerCase().includes(value.toLowerCase()));
+            return ownedByEmail
+                ? preFiltered
+                : preFiltered?.filter((e) =>
+                      e.owner.fullName.toLowerCase().includes(value.toLowerCase())
+                  );
         case ModelCatalogFilterByValues.Notes:
             return preFiltered?.filter((e) => e.notes.toLowerCase().includes(value.toLowerCase()));
         case ModelCatalogFilterByValues['API URL']:
@@ -104,7 +109,7 @@ export const sortEntries = (
     });
 };
 
-export const ToCatMap = (data?: any): ModelCategorizationMap => {
+export const toCatMap = (data?: AnyData): ModelCategorizationMap => {
     const catMap: ModelCategorizationMap = {};
 
     if (!data) {
@@ -122,15 +127,21 @@ export const ToCatMap = (data?: any): ModelCategorizationMap => {
     return catMap;
 };
 
-export const ToModelCatalogEntries = (data?: any): ModelCatalogEntry[] => {
+export const flattenCatMap = (map: ModelCategorizationMap): ModelCategorization[] => {
+    const cats: ModelCategorization[] = [];
+    Object.entries(map).forEach((e) => e[1].forEach((v) => cats.push({ kind: e[0], purpose: v })));
+    return cats;
+};
+
+export const toModelCatalogEntries = (data?: AnyData): ModelCatalogEntry[] => {
     if (!data?.results) {
         return [];
     }
 
-    return (data.results as any[]).map((r) => ToModelCatalogEntry(r));
+    return (data.results as AnyData[]).map((r) => toModelCatalogEntry(r));
 };
 
-export const ToModelCatalogEntry = (data?: any): ModelCatalogEntry => {
+export const toModelCatalogEntry = (data?: AnyData): ModelCatalogEntry => {
     return {
         ...data,
         state: data.state == 'experiment' ? ModelStates.experimental : ModelStates[data.state],

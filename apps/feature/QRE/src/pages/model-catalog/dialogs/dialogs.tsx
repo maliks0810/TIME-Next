@@ -1,159 +1,134 @@
-import { JSX, useEffect, useRef } from 'react';
+import { JSX, useEffect, useState } from 'react';
+import { Stack, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import ReportIcon from '@mui/icons-material/Report';
 import GitLabIcon from '../../../assets/gitlab.svg?react';
 import JupyterIcon from '../../../assets/jupyter.svg?react';
 import './dialogs.scss';
 import { ModelCatalogEntry, SyncTypes } from '../../../types/model-catalog-types';
-import { AcceptDialog } from '../../../components/accept-dialog';
 import {
     useEntryBusyContext,
     useSetEntryBusyContext,
 } from '../../../contexts/model-catalog-entry-context';
-import { AlertSeverity } from '../../../types/alert.d';
+import { AlertSeverity } from '../../../types/alert-types';
 import { useUpdateAlertInfoContext } from '../../../contexts/alert-context';
 import { useDeleteModelCatalogEntry, useSynchronize } from '../../../hooks/model-catalog-entries';
+import { DialogBase, DialogIcon } from '../../../components/dialog-base';
+import { BusyOverlay } from '../../../components/busy-overlay';
 
 export type ModelCatalogDialogProps = {
     visible: boolean;
     entry: ModelCatalogEntry;
-    onAccept: (entry: ModelCatalogEntry) => void;
+    onAccept: (entry: ModelCatalogEntry, busyTitle: string, busyMessage: string) => void;
     onCancel?: () => void;
 };
 
 export const ModelDeleteDialog = (props: ModelCatalogDialogProps) => {
     const { visible, entry, onAccept, onCancel } = props;
-    const busy = useEntryBusyContext();
-    const ref = useRef<HTMLDialogElement>(null);
-    const busyMessage = busy && visible ? `Deleting model '${entry.name}'` : null;
+    const [open, setOpen] = useState<boolean>(false);
 
     useEffect(() => {
-        if (visible) {
-            ref.current?.showModal();
-        } else {
-            ref.current?.close();
-        }
+        setOpen(visible);
     }, [visible]);
 
-    const handleClick = (accept: boolean) => {
-        if (accept) {
-            onAccept(entry);
+    const handleClick = (button: string) => {
+        if (button == 'yes') {
+            onAccept(
+                entry,
+                'Deleting model',
+                `Deleting model '${entry.name}' from the Model Catalog. Please wait.`
+            );
         } else {
             onCancel?.();
         }
     };
 
     return (
-        <AcceptDialog
-            title={
-                <div className="popup-inner-header">
-                    <div>
-                        {'Are you sure you want to delete Model\n'}
-                        <span>{entry?.name}</span>
-                    </div>
-                    <ReportIcon className="model-catalog-delete-dialog-icon" />
-                </div>
-            }
-            ref={ref}
-            onClick={handleClick}
-            busyMessage={busyMessage}
+        <DialogBase
+            title="Delete Catalog Model"
+            open={open}
+            onButtonClick={handleClick}
+            icon={DialogIcon.Alert}
         >
-            This operation cannot be undone!
-        </AcceptDialog>
+            <Stack direction="column" spacing={1}>
+                <Typography variant="subtitle2">
+                    {'Are you sure you want to delete Model\n'}
+                    <span>{entry?.name}</span>
+                </Typography>
+                <Typography color="warning">This operation cannot be undone!</Typography>
+            </Stack>
+        </DialogBase>
     );
 };
 
 export const SyncToJupyterDialog = (props: ModelCatalogDialogProps) => {
     const { visible, entry, onAccept, onCancel } = props;
-    const busy = useEntryBusyContext();
-    const ref = useRef<HTMLDialogElement>(null);
-    const busyTitle = busy && visible ? `Synchronizing notebooks from Gitlab to JupyterLab` : null;
-    const busyMessage = busy && visible ? `This could take up to 5 minutes` : null;
+    const [open, setOpen] = useState<boolean>(false);
+
     useEffect(() => {
-        if (visible) {
-            ref.current?.showModal();
-        } else {
-            ref.current?.close();
-        }
+        setOpen(visible);
     }, [visible]);
 
-    const handleClick = (accept: boolean) => {
-        if (accept) {
-            onAccept(entry);
+    const handleClick = (button: string) => {
+        if (button == 'yes') {
+            onAccept(
+                entry,
+                `Synchronizing notebooks from Gitlab to JupyterLab`,
+                `Synchronizing notebooks associated with model '${entry?.name}' from Gitlab to JupyterLab. This could take up to 5 minutes. Please wait.`
+            );
         } else {
             onCancel?.();
         }
     };
 
     return (
-        <AcceptDialog
-            title={
-                <div className="popup-inner-header">
-                    <div>
-                        {'Sync Gitlab to Jupyter?\n'}
-                        <span>{entry?.name}</span>
-                    </div>
+        <DialogBase title="Sync Gitlab to Jupyter?" open={open} onButtonClick={handleClick}>
+            <Stack direction="row" spacing={1}>
+                <Stack direction="column" spacing={1}>
+                    <Typography color="primary">{`This will synchronize the notebooks associated with model '${entry?.name}' from Gitlab to JupyterLab. Continue?`}</Typography>
+                    <Typography color="warning">
+                        Be aware, this operation may take up to five minutes.
+                    </Typography>
+                </Stack>
+                <div className="model-catalog-sync-dialog-icon-group">
                     <JupyterIcon className="model-catalog-sync-dialog-icon" />
-                    {/* <img src={JupyterIcon} className="model-catalog-sync-dialog-icon" /> */}
                     <ArrowBackIcon className="model-catalog-sync-dialog-icon" />
-                    <HelpOutlineIcon className="model-catalog-sync-dialog-icon" />
                 </div>
-            }
-            ref={ref}
-            onClick={handleClick}
-            busyMessage={busyMessage}
-            busyTitle={busyTitle}
-        >
-            {`This will synchronize the notebooks associated with model '${entry?.name}' from Gitlab to JupyterLab. Continue?\nBe aware, this operation may take up to five minutes.`}
-        </AcceptDialog>
+            </Stack>
+        </DialogBase>
     );
 };
 
 export const SyncToGitlabDialog = (props: ModelCatalogDialogProps) => {
     const { visible, entry, onAccept, onCancel } = props;
-    const busy = useEntryBusyContext();
-    const ref = useRef<HTMLDialogElement>(null);
-    const busyMessage =
-        busy && visible ? `Synchronizing notebooks from JupyterLab to Gitlab` : null;
+    const [open, setOpen] = useState<boolean>(false);
 
     useEffect(() => {
-        if (visible) {
-            ref.current?.showModal();
-        } else {
-            ref.current?.close();
-        }
+        setOpen(visible);
     }, [visible]);
 
-    const handleClick = (accept: boolean) => {
-        if (accept) {
-            onAccept(entry);
+    const handleClick = (button: string) => {
+        if (button == 'yes') {
+            onAccept(
+                entry,
+                `Synchronizing notebooks from JupyterLab to Gitlab`,
+                `Synchronizing notebooks associated with model '${entry?.name}' from JupyterLab to Gitlab. Please wait.`
+            );
         } else {
             onCancel?.();
         }
     };
 
     return (
-        <AcceptDialog
-            title={
-                <div className="popup-inner-header">
-                    <div>
-                        {'Sync Jupyter to Gitlab?\n'}
-                        <span>{entry?.name}</span>
-                    </div>
+        <DialogBase title="Sync Jupyter to Gitlab?" open={open} onButtonClick={handleClick}>
+            <Stack direction="row" spacing={1}>
+                <Typography color="primary">{`This will synchronize the notebooks associated with model '${entry?.name}' from JupyterLab to Gitlab. Continue?`}</Typography>
+                <div className="model-catalog-sync-dialog-icon-group">
                     <ArrowForwardIcon className="model-catalog-sync-dialog-icon" />
                     <GitLabIcon className="model-catalog-sync-dialog-icon" />
-                    {/* <img src={GitLabIcon} className="model-catalog-sync-dialog-icon" /> */}
-                    <HelpOutlineIcon className="model-catalog-sync-dialog-icon" />
                 </div>
-            }
-            ref={ref}
-            onClick={handleClick}
-            busyMessage={busyMessage}
-        >
-            {`This will synchronize the notebooks associated with model '${entry?.name}' from JupyterLab to Gitlab. Continue?`}
-        </AcceptDialog>
+            </Stack>
+        </DialogBase>
     );
 };
 
@@ -178,9 +153,14 @@ export const DialogWrapper = (props: {
 }) => {
     const { dialogType, entry, onFinished } = props;
     const setBusy = useSetEntryBusyContext();
+    const busy = useEntryBusyContext();
     const alert = useUpdateAlertInfoContext();
     const synchronize = useSynchronize();
-    const Dialog = Dialogs[dialogType];
+    const ModelDialog = Dialogs[dialogType];
+    const [busyInfo, setBusyInfo] = useState<{ title: string; message: string }>({
+        title: '',
+        message: '',
+    });
     const actions: { [key in DialogTypes]: [(entry: ModelCatalogEntry) => Promise<void>, string] } =
         {
             [DialogTypes.None]: [async () => {}, ''],
@@ -205,14 +185,17 @@ export const DialogWrapper = (props: {
         onFinished(false);
     };
 
-    const handleAccept = (e: ModelCatalogEntry) => {
+    const handleAccept = (e: ModelCatalogEntry, busyTitle: string, busyMessage: string) => {
         setBusy(true);
+        setBusyInfo({ title: busyTitle, message: busyMessage });
         actions[dialogType][0](e)
             .then(() => {
                 if (dialogType == DialogTypes.ToGitlab || dialogType == DialogTypes.ToJupyter) {
                     alert({
                         severity: AlertSeverity.SUCCESS,
-                        title: `Synchronization to ${dialogType == DialogTypes.ToGitlab ? 'Gitlab' : 'JupyterHub'} completed successfully!`,
+                        title: `Synchronization to ${
+                            dialogType == DialogTypes.ToGitlab ? 'Gitlab' : 'JupyterHub'
+                        } completed successfully!`,
                     });
                 }
                 onFinished(dialogType == DialogTypes.Delete);
@@ -233,12 +216,15 @@ export const DialogWrapper = (props: {
         dialogType != DialogTypes.None &&
         entry != null &&
         Boolean(entry) && (
-            <Dialog
-                visible={visible}
-                entry={entry}
-                onCancel={handleCancel}
-                onAccept={handleAccept}
-            />
+            <>
+                <BusyOverlay open={busy} title={busyInfo.title} message={busyInfo.message} />
+                <ModelDialog
+                    visible={visible}
+                    entry={entry}
+                    onCancel={handleCancel}
+                    onAccept={handleAccept}
+                />
+            </>
         )
     );
 };

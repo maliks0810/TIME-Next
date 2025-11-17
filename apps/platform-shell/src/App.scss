@@ -10,6 +10,7 @@ body {
 :root {
       font-family: Lato !important;
     --tcw-blue-color: #003e7e;
+    --tcw-blue-contrast-text-color: #FFFFFF;
     /* --tcw-blue-color: black; */
     --tcw-gray-color: #d9d9d9;
     --tcw-light-blue-color: #7b9abb;
@@ -19,6 +20,7 @@ body {
     --tcw-light-gray-color: #f6f7f7;
     --tcw-dark-gray-color: #7e7f82;
     background-color: var(--tcw-gray-color);
+   
 }
 
 

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Button, Grid, Paper, Stack, Typography } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
@@ -21,14 +22,16 @@ import {
     useGetModelCatalogEntries,
     useSaveEntry,
     useGetModelCategorizationMap,
+    useCopyEntry,
 } from '../../../hooks/model-catalog-entries';
 import { WaitingEllipses } from '../../../components/waiting-ellipses';
 import { DialogTypes, DialogWrapper } from '../dialogs/dialogs';
 import { SortableFields } from '../../../data/model-catalog-data';
 import { filterEntries, sortEntries } from '../../../utils/model-catalog-utils';
+import { AlertSeverity } from '../../../types/alert-types';
 import { useUpdateAlertInfoContext } from '../../../contexts/alert-context';
-import { AlertSeverity } from '../../../types/alert.d';
 import { useUserInfo } from '@platform/utils';
+import { useQreUserAuthorizationsContext } from '../../../contexts/qre-user-authorizations';
 import { ModelCatalogGridRow, ModelCatalogNewEntryRow } from './grid-row';
 import './grid.scss';
 
@@ -41,10 +44,6 @@ const ModelCatalogGridHeader = () => {
 
     console.debug('ModelCatalogGridHeader rendering');
 
-    const getIcon = (name: string) => (
-        <DirIcon className="model-catalog-sort-icon" aria-hidden={sort.sortBy != name} />
-    );
-
     const handleSort = (name: SortableFields) => {
         let newSortDesc = false;
         if (sort.sortBy == name) {
@@ -54,42 +53,49 @@ const ModelCatalogGridHeader = () => {
         setSort({ sortBy: name, sortDesc: newSortDesc });
     };
 
-    const SortButton = (name: SortableFields) => (
-        <button
+    const SortButton = (name: SortableFields, suffix?: string) => (
+        <Button
             onClick={() => handleSort(name)}
-            className="model-catalog-sort-button"
+            size="small"
             disabled={disabled}
+            endIcon={name == sort.sortBy && <DirIcon fontSize="small" />}
+            color="primary"
         >
-            {name}
-            {getIcon(name)}
-        </button>
+            {`${name}${suffix ?? ''}`}
+        </Button>
     );
 
     return (
-        <div className="model-catalog-grid-header">
-            <div className="model-catalog-grid-header-col" aria-label="mod">
-                Mod.
-            </div>
-            <div className="model-catalog-grid-header-col" aria-label="name">
-                <div className="model-catalog-grid-header-group">
-                    {SortButton('Name')}/{SortButton('State')}
-                </div>
-            </div>
-            <div className="model-catalog-grid-header-col" aria-label="cat">
-                <div className="model-catalog-grid-header-group">
-                    {SortButton('Kind')}:{SortButton('Purpose')}
-                </div>
-            </div>
-            <div className="model-catalog-grid-header-col" aria-label="owner">
-                {SortButton('Owner')}
-            </div>
-            {/* <div className="model-catalog-grid-header-col" aria-label="permissions">
-                <div>Permissions</div>
-            </div> */}
-            <div className="model-catalog-grid-header-col" aria-label="sync">
-                Sync
-            </div>
-        </div>
+        <Paper elevation={2}>
+            <Grid container columns={32}>
+                <Grid size={1} alignItems="center" justifyContent="center" display="flex">
+                    <Typography variant="button" color="secondary">
+                        mod.
+                    </Typography>
+                </Grid>
+                <Grid size={9}>
+                    <Stack direction="row" alignItems="center">
+                        {SortButton('Name')}
+                        <Typography variant="button" color="primary">
+                            /
+                        </Typography>
+                        {SortButton('State')}
+                    </Stack>
+                </Grid>
+                <Grid size={15}>
+                    <Stack direction="row" alignItems="center">
+                        {SortButton('Kind', ' :')}
+                        {SortButton('Purpose')}
+                    </Stack>
+                </Grid>
+                <Grid size={6}>{SortButton('Owner')}</Grid>
+                <Grid size={1} alignItems="center" justifyContent="center" display="flex">
+                    <Typography variant="button" color="secondary">
+                        sync
+                    </Typography>
+                </Grid>
+            </Grid>
+        </Paper>
     );
 };
 
@@ -98,9 +104,9 @@ const LoadMessage = (props: { failed: boolean }) => {
     return (
         <div className="model-catalog-load-message">
             {failed ? (
-                <div className="model-catalog-load-error">
+                <Typography className="model-catalog-load-error">
                     An error occurred while loading the Model Catalog
-                </div>
+                </Typography>
             ) : (
                 <div className="model-catalog-loading">
                     <WaitingEllipses prefix={'Loading Model Catalog'} />{' '}
@@ -111,6 +117,7 @@ const LoadMessage = (props: { failed: boolean }) => {
 };
 
 export const ModelCatalogGrid = () => {
+    const setAlert = useUpdateAlertInfoContext();
     const [entries, setEntries] = useModelCatalogEntriesContext();
     const getEntries = useGetModelCatalogEntries();
     const getCatMap = useGetModelCategorizationMap();
@@ -122,11 +129,13 @@ export const ModelCatalogGrid = () => {
     const [dialogEntry, setDialogEntry] = useState<ModelCatalogEntry | null>(null);
     const setBusy = useSetEntryBusyContext();
     const saveEntry = useSaveEntry();
+    const copyEntry = useCopyEntry();
     const sort = useModelCatalogSortContext()[0];
     const filter = useModelCatalogFilterContext()[0];
     const setCounts = useModelCatalogEntryCountsContext()[1];
     const setTrigger = useModelCatalogReloadTriggerContext()[1];
     const user = useUserInfo();
+    const userAuth = useQreUserAuthorizationsContext()[0];
 
     const sortedAndFiltered = sortEntries(
         filterEntries(
@@ -138,9 +147,8 @@ export const ModelCatalogGrid = () => {
         sort.sortBy,
         sort.sortDesc
     );
-    const alert = useUpdateAlertInfoContext();
 
-    console.debug('ModelCatalogGrid rendering');
+    console.debug('ModelCatalogGrid rendering', user);
 
     const handleSyncToGitlab = (entry: ModelCatalogEntry) => {
         setDialogEntry(entry);
@@ -164,7 +172,8 @@ export const ModelCatalogGrid = () => {
                 setEntries(entries);
             })
             .catch((err) => {
-                alert({
+                console.log(err);
+                setAlert({
                     severity: AlertSeverity.ERROR,
                     title: 'An error occurred while loading the Model Catalog entries',
                     message: err.message,
@@ -174,7 +183,7 @@ export const ModelCatalogGrid = () => {
             .finally(() => {
                 setLoading(false);
             });
-    }, [alert, getEntries, setEntries, setLoading]);
+    }, [setAlert, getEntries, setEntries, setLoading]);
 
     const loadAll = useCallback(async () => {
         const all = Promise.all([getEntries(), getCatMap()]);
@@ -185,7 +194,7 @@ export const ModelCatalogGrid = () => {
             setCatMap(data[1]);
         })
             .catch((err) => {
-                alert({
+                setAlert({
                     severity: AlertSeverity.ERROR,
                     title: 'An error occurred while loading the Model Catalog',
                     message: err.message,
@@ -195,7 +204,7 @@ export const ModelCatalogGrid = () => {
             .finally(() => {
                 setLoading(false);
             });
-    }, [alert, getCatMap, getEntries, setCatMap, setEntries, setLoading]);
+    }, [setAlert, getCatMap, getEntries, setCatMap, setEntries, setLoading]);
 
     useEffect(() => {
         loadAll();
@@ -214,12 +223,43 @@ export const ModelCatalogGrid = () => {
         return saveEntry(entry)
             .then(() => {
                 loadCatalog();
+                setAlert({
+                    severity: AlertSeverity.SUCCESS,
+                    title: 'Save was successful',
+                });
                 return true;
             })
             .catch((err) => {
-                alert({
+                setAlert({
                     severity: AlertSeverity.ERROR,
                     title: 'An error occurred while saving the Model',
+                    message: err.message,
+                });
+                return false;
+            })
+            .finally(() => {
+                setBusy(false);
+            });
+    };
+
+    const handleCopy = async (
+        newEntry: ModelCatalogEntry,
+        sourceEntry: ModelCatalogEntry
+    ): Promise<boolean> => {
+        setBusy(true);
+        return copyEntry(newEntry, sourceEntry)
+            .then(() => {
+                loadCatalog();
+                setAlert({
+                    severity: AlertSeverity.SUCCESS,
+                    title: 'Copy was successful',
+                });
+                return true;
+            })
+            .catch((err) => {
+                setAlert({
+                    severity: AlertSeverity.ERROR,
+                    title: 'An error occurred while copying the Model',
                     message: err.message,
                 });
                 return false;
@@ -238,30 +278,32 @@ export const ModelCatalogGrid = () => {
     };
 
     return (
-        <div className="model-catalog-grid-container">
+        <Stack direction="column" spacing={1}>
+            <ModelCatalogNewEntryRow onSave={handleSave} />
             <ModelCatalogGridHeader />
+
             {loading ? (
                 <LoadMessage failed={loadError} />
             ) : (
-                <div className="model-catalog-grid">
+                <Stack direction="column" spacing={1}>
                     {sortedAndFiltered.map((e, i) => (
                         <ModelCatalogGridRow
                             entry={e}
                             key={i}
                             onSyncToGitlab={handleSyncToGitlab}
                             onSyncToJupyter={handleSyncToJupyter}
-                            onSave={handleSave}
+                            onSave={(newE, c) => (c ? handleCopy(newE, e) : handleSave(newE))}
                             onDelete={handleDelete}
+                            userAuth={userAuth}
                         />
                     ))}
-                    <ModelCatalogNewEntryRow onSave={handleSave} />
-                </div>
+                </Stack>
             )}
             <DialogWrapper
                 dialogType={dialogType}
                 entry={dialogEntry}
                 onFinished={handleDialogFinished}
             />
-        </div>
+        </Stack>
     );
 };
