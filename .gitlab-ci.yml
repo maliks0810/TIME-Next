@@ -39,7 +39,7 @@ workflow:
     when: never
   - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_PROTECTED == "true" && $CI_MERGE_REQUEST_TARGET_BRANCH_PROTECTED == "true"
     when: always
-  - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_PROTECTED == "false"
+  - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_PROTECTED == "false" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "dev" || "qa" || "release"
     when: never
   - when: always
 
@@ -470,7 +470,7 @@ deploy-dev:
     AGENT: $NONPROD_CICD_K8S_AGENT
     HELM_WAIT_TIMEOUT: 300s
     CHART_NAME: react-application-chart
-    TARGET_ENV: dev
+    TARGET_ENV: development
     TARGET_NAMESPACE: development
     TARGET_HOSTNAME: $DOMAIN-dev.np.tcw.com
     TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
