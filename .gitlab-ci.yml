@@ -470,7 +470,7 @@ deploy-dev:
     AGENT: $NONPROD_CICD_K8S_AGENT
     HELM_WAIT_TIMEOUT: 300s
     CHART_NAME: react-application-chart
-    TARGET_ENV: dev
+    TARGET_ENV: development
     TARGET_NAMESPACE: development
     TARGET_HOSTNAME: $DOMAIN-dev.np.tcw.com
     TLS_HOST_WILD: $TLS_NONPROD_HOST_WILDCARD
