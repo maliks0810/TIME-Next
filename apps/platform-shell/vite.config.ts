@@ -15,20 +15,27 @@ export default defineConfig(({ mode }) => {
     const normalizedMode = mode === 'development' ? 'dev' : mode === 'production' ? 'prod' : mode;  
 
     function loadEnvsIn(dirPath: string) {
+
         fs.readdirSync(dirPath).forEach(subDir => {
+            const subDirPath = path.join(dirPath, subDir);
 
-            if (subDir !== 'platform-shell') {
-                const envFile = path.join(dirPath, subDir, `.env.${mode}`);
-                if (fs.existsSync(envFile)) {
-                    const teamName = subDir.split('-')[0];
-                    const env = loadEnv(mode, path.join(dirPath, subDir), '');
+            if (fs.statSync(subDirPath).isDirectory()) {
+                fs.readdirSync(subDirPath).forEach(appDir => {
 
-                    Object.entries(env).forEach(([key, value]) => {
-                        if (key.startsWith('VITE_')) {
-                            combinedEnv[`VITE_${teamName.toUpperCase()}_${key.slice(5)}`] = value;
+                    const appDirPath = path.join(subDirPath, appDir);
+                    if (fs.statSync(appDirPath).isDirectory()) {
+                        const envFile = path.join(appDirPath, `.env.${mode}`);
+                        if (fs.existsSync(envFile)) {
+
+                            const env = loadEnv(mode, appDirPath, '');
+                            Object.entries(env).forEach(([key, value]) => {
+                                if (key.startsWith('VITE_')) {
+                                    combinedEnv[key] = value;
+                                }
+                            });
                         }
-                    });
-                }
+                    }
+                });
             }
         });
     }
