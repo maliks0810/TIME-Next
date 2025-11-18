@@ -1,8 +1,9 @@
 import { ExternalAppMetadata } from '@platform/app-registry';
-import { HighestEnv } from './types';
+import { HighestEnv, InternalAppMetadata } from './types';
 import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
+import { lazy } from 'react';
 
-export const portfolioManagementApps: ExternalAppMetadata[] = [
+export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
         {
             header: NavbarHeader.PortfolioManagement,
             subHeader: NavbarSubHeader.AladdinPortfolioManagement,
@@ -42,5 +43,6 @@ export const portfolioManagementApps: ExternalAppMetadata[] = [
             newTab: false,
             disabled: false,
             env: HighestEnv.prod
-        }
+        },
+        // PLOP_INJECT_APP
 ]
