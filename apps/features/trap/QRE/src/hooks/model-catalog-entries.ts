@@ -17,7 +17,7 @@ import {
 } from '../utils/model-catalog-utils';
 import { useModelCatalogAxiosContext } from '../contexts/model-catalog-axios-context';
 
-export const QRE_CONTENT_MGMT_URL = NoTrailingForwardSlash(import.meta.env.VITE_CONTENT_MGMT);
+export const QRE_CONTENT_MGMT_URL = NoTrailingForwardSlash(import.meta.env.VITE_TRAP_QRE_CONTENT_MGMT);
 export const MODELS_URL = QRE_CONTENT_MGMT_URL + '/catalog/models';
 export const CONFIG_URL = QRE_CONTENT_MGMT_URL + '/configurations/model';
 export const SYNC_SUFFIX = 'synchronize';
