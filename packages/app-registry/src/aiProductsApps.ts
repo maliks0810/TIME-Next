@@ -1,8 +1,6 @@
 import { ExternalAppMetadata } from '@platform/app-registry';
 import { HighestEnv, InternalAppMetadata } from './types';
 import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
-// @ts-ignore
-import { lazy } from 'react';
 
 export const aiProductsApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
     {
