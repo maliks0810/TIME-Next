@@ -1,8 +1,8 @@
 import { ExternalAppMetadata } from '@platform/app-registry';
-import { HighestEnv } from './types';
+import { HighestEnv, InternalAppMetadata } from './types';
 import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
 
-export const supportApps: ExternalAppMetadata[] = [
+export const supportApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
     {
         type: 'external',
         header: NavbarHeader.Support,

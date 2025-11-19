@@ -11,31 +11,38 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => {
     const combinedEnv: Record<string, string> = {};
     const appsDir = path.resolve(__dirname, '..');
-    const featureDir = path.resolve(appsDir, 'feature');
+    const featuresDir = path.resolve(appsDir, 'features');
     const normalizedMode = mode === 'development' ? 'dev' : mode === 'production' ? 'prod' : mode;  
 
     function loadEnvsIn(dirPath: string) {
+
         fs.readdirSync(dirPath).forEach(subDir => {
+            const subDirPath = path.join(dirPath, subDir);
 
-            if (subDir !== 'platform-shell') {
-                const envFile = path.join(dirPath, subDir, `.env.${mode}`);
-                if (fs.existsSync(envFile)) {
-                    const teamName = subDir.split('-')[0];
-                    const env = loadEnv(mode, path.join(dirPath, subDir), '');
+            if (fs.statSync(subDirPath).isDirectory()) {
+                fs.readdirSync(subDirPath).forEach(appDir => {
 
-                    Object.entries(env).forEach(([key, value]) => {
-                        if (key.startsWith('VITE_')) {
-                            combinedEnv[`VITE_${teamName.toUpperCase()}_${key.slice(5)}`] = value;
+                    const appDirPath = path.join(subDirPath, appDir);
+                    if (fs.statSync(appDirPath).isDirectory()) {
+                        const envFile = path.join(appDirPath, `.env.${mode}`);
+                        if (fs.existsSync(envFile)) {
+
+                            const env = loadEnv(mode, appDirPath, '');
+                            Object.entries(env).forEach(([key, value]) => {
+                                if (key.startsWith('VITE_')) {
+                                    combinedEnv[key] = value;
+                                }
+                            });
                         }
-                    });
-                }
+                    }
+                });
             }
         });
     }
 
     loadEnvsIn(appsDir);
-    if (fs.existsSync(featureDir)) {
-        loadEnvsIn(featureDir);
+    if (fs.existsSync(featuresDir)) {
+        loadEnvsIn(featuresDir);
     }
 
     return {
@@ -62,7 +69,6 @@ export default defineConfig(({ mode }) => {
                 '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
                 '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
                 '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
-                '@r2/qre': path.resolve(__dirname, '../feature/QRE'),
                 '@platform/platform-shell': path.resolve(__dirname, '.'),
                 'echarts': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
                 'echarts/core': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
@@ -73,17 +79,22 @@ export default defineConfig(({ mode }) => {
         optimizeDeps: {
             include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
             exclude: ['react/jsx-runtime','@platform/ui', '@platform/styles', '@platform/app-registry', '@platform/utils', '@platform/homepage'],
-            entries: ['src/**/*.tsx', '../**/src/**/*.tsx', '../../packages/**/*.tsx', '../feature/**/*.tsx']
+            entries: ['src/**/*.tsx', '../**/src/**/*.tsx', '../../packages/**/*.tsx']
         },
         build: {
             assetsInlineLimit: 60000,
             outDir: '../../build-' + normalizedMode,
-            sourcemap: mode !== 'prod',
+            sourcemap: mode !== 'production',
             rollupOptions: {
                 output: {
                     manualChunks: {
                         vendor: ['react', 'react-dom', 'react-router-dom'],
-                        mui: ['@mui/material', '@emotion/react', '@emotion/styled']
+                        mui: ['@mui/material', '@emotion/react', '@emotion/styled'],
+                        okta: ['@okta/okta-auth-js', '@okta/okta-react'],
+                        apollo: ['@apollo/client'],
+                        axios: ['axios'],
+                        graphql:['graphql'],
+                        lodash: ['lodash']
                     },
                 },
             },

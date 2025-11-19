@@ -1,3 +1,5 @@
+import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
+
 export interface InternalAppMetadata {
     type: 'internal';
     id: string;
@@ -19,8 +21,8 @@ export interface InternalAppMetadata {
 
 export interface ExternalAppMetadata {
     type: 'external';
-    header: string;
-    subHeader: string;
+    header: NavbarHeader;
+    subHeader: NavbarSubHeader;
     title: string;
     url: string;
     newTab: boolean;

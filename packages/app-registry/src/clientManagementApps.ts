@@ -13,4 +13,5 @@ export const clientManagementApps: ExternalAppMetadata[] = [
         disabled: true,
         env: HighestEnv.prod
     },
+    // PLOP_INJECT_APP
 ]

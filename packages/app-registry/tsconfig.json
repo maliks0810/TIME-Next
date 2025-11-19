@@ -6,6 +6,6 @@
     "noEmit": false,
     "rootDir": "../../",
   },
-  "include": ["src/**/*", "src/*", "custom.d.ts", "../../apps/platform-shell/vite-env.d.ts", "../../apps/feature/QRE/src/**/*"],
+  "include": ["src/**/*", "src/*", "custom.d.ts", "../../apps/platform-shell/vite-env.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

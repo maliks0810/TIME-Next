@@ -2,30 +2,23 @@
 export default function (plop) {
     plop.setHelper('dashCase', (text) => {
         return text.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/,'');
-    })
+    });
 
 plop.setGenerator('app', {
     description: 'Generate a new Feature application',
     prompts: [
         {
-            type: 'input',
+            type: 'list',
             name: 'team',
-            message: 'Team name (lowercase):',
-            validate: (input) => {
-                if (!input) return 'Team name is required';
-                if (!/^[a-z]+$/.test(input)) {
-                    return 'Team name must be lowercase letters';
-                }
-
-                return true;
-            }
+            message: 'Select your Team',
+            choices: ['PE', 'R2', 'IOD']
         },
         {
             type: 'input',
             name: 'appName',
-            message: 'What is your application name? (kebab-case): ',
+            message: 'What is your feature application name? (kebab-case): ',
             validate: (input) => {
-                if (!input) return 'App name is required';
+                if (!input) return 'Feature application name is required';
                 if (!/^[a-z]+(-[a-z]+)*$/.test(input)) {
                     return 'App must be kebab-case';
                 }
@@ -35,14 +28,45 @@ plop.setGenerator('app', {
         },
         {
             type: 'input',
-            name: 'description',
-            message: 'Provide a brief description of your application:',
+            name: 'appDescription',
+            message: 'Provide a brief description of your feature application:',
             default: 'A new feature application'
+        },
+        {
+            type: 'list',
+            name: 'navMenu',
+            message: 'Which Menu item would you like your application to be under in the Nav Bar?',
+            choices: ['Portfolio Management', 'Research & Analysis', 'Risk & Performance', 'Compliance', 'Client Management', 'AI Products', 'Support']
+        },
+        {
+            type: 'list',
+            name: 'navSubMenu',
+            message: 'Which Sub Menu would you like your application to be under from the Nav Menu that was selected?',
+            choices: (answers) => {
+                    switch (answers.navMenu) {
+                        case 'Portfolio Management':  
+                            return ['Aladdin Portfolio Management', 'Investment Management Solutions'];
+                        case 'Research & Analysis':
+                            return ['Fundamental', 'ESG', 'Market', 'Other'];
+                        case 'Risk & Performance':
+                            return ['Performance'];
+                        case 'Compliance':
+                            return ['Research', 'Governance', 'Regulations'];
+                        case 'Client Management':
+                            return ['Research'];
+                        case 'AI Products':
+                            return ['Ai Themes']
+                        case 'Support':
+                            return ['General'];
+                        default:
+                            return [];
+                    }
+                }
         },
         {
             type: 'input',
             name: 'routePath',
-            message: 'What route should this app be accessible at? (e.g., /pe/home/):',
+            message: 'What route should this feature application be accessible at? (e.g., /pe/appA/):',
             default: (answers) => answers.appName,
             validate: (input) => {
                 if (!input) return 'Route is required';
@@ -51,6 +75,13 @@ plop.setGenerator('app', {
                 return true;
             }
         },
+                {
+            type: 'list',
+            name: 'highestEnv',
+            message: 'Highest Environment the feature application should be displayed',
+            choices: ['sandbox', 'dev', 'qa', 'prod']
+        },
+        // todo: get rid of this and give a default one that is +1 of the last one created
         {
             type: 'input',
             name: 'port',
@@ -66,94 +97,111 @@ plop.setGenerator('app', {
             }
         }
     ],
-    actions: [
+    actions: (answers) => {
+        const navMenuToFileMap = {
+            'Portfolio Management': 'portfolioManagementApps',
+            'Research & Analysis': 'researchAnalysisApps',
+            'Risk & Performance': 'riskPerformanceApps',
+            'Compliance': 'complianceApps',
+            'Client Management': 'clientManagementApps',
+            'AI Products': 'aiProductsApps',
+            'Support': 'supportApps'
+        };
+        const fileName = navMenuToFileMap[answers.navMenu];
+        // todo: bring in types from appregistry
+        const headerEnumConversion = `NavbarHeader.${answers.navMenu.replace(/[^a-zA-Z0-9]/g, '')}`
+        const subHeaderEnumConversion = `NavbarSubHeader.${answers.navSubMenu.replace(/[^a-zA-Z0-9]/g, '')}`
+        const highEnvEnumConversion = `HighestEnv.${answers.highestEnv}`;
+
+
+        return [
         {
             type: 'add',
-            destination: 'apps/{{team}}--{{appName}}/package.json',
-            templateFiles: 'plop-templates/app/package.json.hbs',
+            path: 'apps/features/{{team}}/{{appName}}/package.json',
+            templateFile: 'plop-templates/app/package.json.hbs',
         },
-        // {
-        //     type: 'add',
-        //     destination: 'apps/{{team}}--{{appName}}/index.html',
-        //     templateFiles: 'plop-templates/app/index.html.hbs',
-        // },
-        // {
-        //     type: 'add',
-        //     destination: 'apps/{{team}}--{{appName}}/src/main.tsx',
-        //     templateFiles: 'plop-templates/app/src/main.tsx.hbs',
-        // },
-        // {
-        //     type: 'add',
-        //     destination: 'apps/{{team}}--{{appName}}/src/App.tsx',
-        //     templateFiles: 'plop-templates/app/src/App.tsx.hbs',
-        // },
-        // {
-        //     type: 'add',
-        //     destination: 'apps/{{team}}--{{appName}}/src/pages/{{pascalCase appName}}Page.tsx',
-        //     templateFiles: 'plop-templates/app/src/pages/Page.tsx.hbs',
-        // },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/index.html',
+            templateFile: 'plop-templates/app/index.html.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/src/main.tsx',
+            templateFile: 'plop-templates/app/src/main.tsx.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/src/App.tsx',
+            templateFile: 'plop-templates/app/src/App.tsx.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/src/pages/{{pascalCase appName}}Page.tsx',
+            templateFile: 'plop-templates/app/src/pages/Page.tsx.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/tsconfig.json',
+            templateFile: 'plop-templates/app/tsconfig.json.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/vite.config.ts',
+            templateFile: 'plop-templates/app/vite.config.ts.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/vite-env.d.ts',
+            templateFile: 'plop-templates/app/vite-env.d.ts.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/.env.local',
+            templateFile: 'plop-templates/app/.env.local.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/.env.development',
+            templateFile: 'plop-templates/app/.env.development.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/.env.qa',
+            templateFile: 'plop-templates/app/.env.qa.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/.env.production',
+            templateFile: 'plop-templates/app/.env.production.hbs',
+        },
         // Need to update this because it's not updating the file properly
-        // {
-        //     type: 'modify',
-        //     path: 'packages/app-registry/src/registry.ts',
-        //     pattern: /(\s*)\/\/ PLOP_INJECT_APP/,
-        //     template: `.\n {\n
-        //                         id: \'{{appName}}\',\n
-        //                         name: \'{{appName}}\',\n
-        //                         title: \'{{title}}\',\n
-        //                         path: \'{{routePath}}\',\n
-        //                         team: \'{{team}}\',\n
-        //                         component: lazy(() => import(\'@{{team}}/{{appName}}/src/pages/{{pascalCase appName}}Page\')),\n
-        //                         description: \'{{description}}\',\n
-        //                     }$1// PLOP_INJECT_APP`,
-        // },
-        // function(answers, config, plop) {
-        //     const path = require('path');
-        //     const fs = require('fs');
-        //     const registryPath = path.join(process.cwd(), 'packages/app-registry/src/registry.ts');
-        //     const registryContent = fs.readFileSync(registryPath, 'utf8');
+        {
+            type: 'modify',  
+            path: `packages/app-registry/src/${fileName}.ts`,  
+            pattern: /(\s*)\/\/ PLOP_INJECT_APP/,  
+            template: `\n    {
+        type: 'internal',
+        header: ${headerEnumConversion},
+        subHeader: ${subHeaderEnumConversion},
+        id: \'{{appName}}\',
+        name: \'{{appName}}\',
+        title: \'{{appName}}\',
+        env: ${highEnvEnumConversion},
+        path: \'{{routePath}}\',
+        team: \'{{team}}\',
+        component: lazy(() => import(\'@{{team}}/{{appName}}/src/App\')),
+        description: \'{{description}}\',
+    },$1// PLOP_INJECT_APP`,  
+        },
 
-        //     if (!registryContent.includes(`id: '${answers.team}'`)) {
-        //         const teamPattern = /(\s*)\/\/ PLOP_INJECT_APP/;
-        //         const teamTemplate = `.\n {\n
-        //                         id: '${answers.team}',\n
-        //                         name: '${answers.team}',\n
-        //                         displayName: '${answers.team.charAt(0).toUpperCase() + answers.team.slice(1)} Team',\n
-        //                         apps: ['${answers.appName}']\n
-        //                     }$1// PLOP_INJECT_TEAM`;
-        //         const updatedContent = registryContent.replace(teamPattern, teamTemplate);
-        //         fs.writeFileSync(registryPath, updatedContent);
-        //         return 'Team added to registry';
-
-        //     } else {
-        //         const teamRegex = new RegExp(`(id: '${answers.team}'[^}]+apps: \\[)([^\\]]*)(\\])`, 's');
-        //         const updatedContent = registryContent.replace(teamRegex, (match, p1, p2, p3) => {
-        //             const apps = p2.trim() ? `${p2}, '${answers.appName}'` : `'${answers.appName}'`;
-        //             return `${p1}${apps}${p3}`;
-        //         });
-        //         fs.writeFileSync(registryPath, updatedContent);
-        //         return 'Team apps updated in registry';
-        //     }
-        // },
-        // {
-        //     type: 'modify',
-        //     path: 'apps/platform-shell/vite.config.ts',
-        //     pattern: /(\s*)preserveSymlinks: true,/,
-        //     template: ` '@{{team}}/{{appName}}': path.resolve(__dirname, '../{{team}}-{{appName}}'),\n$1preserveSymlinks: true,`,
-        // },
-        // {
-        //     type: 'modify',
-        //     path: 'apps/platform-shell/tsconfig.json',
-        //     pattern: /(\s*)"@platform\/shell\/\*": \["\.\*"\]/,
-        //     template: `$1"@platform/shell/*": ["./*"],\n$1"@{{team}}/{{appName}}/*": ["../{{team}}-{{appName}}/*"]`,
-        // },
         function () {
             return `App successfully created. make sure to npm install and then npm run dev`
         }
 
 
     ]
+    }
 })
 }
-
 

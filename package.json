@@ -52,7 +52,7 @@
   },
   "workspaces": [
     "apps/*",
-    "apps/feature/*",
+    "apps/features/**",
     "packages/*"
   ],
   "engines:": {

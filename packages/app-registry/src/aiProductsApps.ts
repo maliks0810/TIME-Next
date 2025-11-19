@@ -1,8 +1,8 @@
 import { ExternalAppMetadata } from '@platform/app-registry';
-import { HighestEnv } from './types';
+import { HighestEnv, InternalAppMetadata } from './types';
 import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
 
-export const aiProductsApps: ExternalAppMetadata[] = [
+export const aiProductsApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
     {
         type: 'external',
         header: NavbarHeader.AiProducts,
@@ -43,4 +43,5 @@ export const aiProductsApps: ExternalAppMetadata[] = [
         disabled: false,
         env: HighestEnv.dev
     },
+    // PLOP_INJECT_APP
 ]
