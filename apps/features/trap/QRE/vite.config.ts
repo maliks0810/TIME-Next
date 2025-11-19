@@ -33,9 +33,9 @@ export default defineConfig(({ mode }) => ({
     build: {
         assetsInlineLimit: 60000,
         outDir: 'dist',
-        sourcemap: mode !== 'prod',
+        sourcemap: mode !== 'production',
     },
     define: {
-        'process.env.NODE_ENV': JSON.stringify(mode === 'prod' ? 'production': 'development'),
+        'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production': 'development'),
     }
 }));

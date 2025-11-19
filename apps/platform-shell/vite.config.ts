@@ -84,12 +84,17 @@ export default defineConfig(({ mode }) => {
         build: {
             assetsInlineLimit: 60000,
             outDir: '../../build-' + normalizedMode,
-            sourcemap: mode !== 'prod',
+            sourcemap: mode !== 'production',
             rollupOptions: {
                 output: {
                     manualChunks: {
                         vendor: ['react', 'react-dom', 'react-router-dom'],
-                        mui: ['@mui/material', '@emotion/react', '@emotion/styled']
+                        mui: ['@mui/material', '@emotion/react', '@emotion/styled'],
+                        okta: ['@okta/okta-auth-js', '@okta/okta-react'],
+                        apollo: ['@apollo/client'],
+                        axios: ['axios'],
+                        graphql:['graphql'],
+                        lodash: ['lodash']
                     },
                 },
             },
