@@ -1,8 +1,10 @@
 import { ExternalAppMetadata } from '@platform/app-registry';
-import { HighestEnv } from './types';
+import { HighestEnv, InternalAppMetadata } from './types';
 import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
+// @ts-ignore
+import { lazy } from 'react';
 
-export const riskPerformanceApps: ExternalAppMetadata[] = [
+export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
 {
         type: 'external',
         header: NavbarHeader.RiskPerformance,
@@ -33,4 +35,5 @@ export const riskPerformanceApps: ExternalAppMetadata[] = [
         disabled: false,
         env: HighestEnv.prod
     },
+    // PLOP_INJECT_APP
 ]

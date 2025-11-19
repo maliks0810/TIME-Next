@@ -36,7 +36,7 @@ plop.setGenerator('app', {
             type: 'list',
             name: 'navMenu',
             message: 'Which Menu item would you like your application to be under in the Nav Bar?',
-            choices: ['Portfolio Management', 'Research & Analysis', 'Risk & Performance', 'Compliance', 'Client Management', 'Support']
+            choices: ['Portfolio Management', 'Research & Analysis', 'Risk & Performance', 'Compliance', 'Client Management', 'AI Products', 'Support']
         },
         {
             type: 'list',
@@ -54,6 +54,8 @@ plop.setGenerator('app', {
                             return ['Research', 'Governance', 'Regulations'];
                         case 'Client Management':
                             return ['Research'];
+                        case 'AI Products':
+                            return ['Ai Themes']
                         case 'Support':
                             return ['General'];
                         default:
@@ -76,9 +78,10 @@ plop.setGenerator('app', {
                 {
             type: 'list',
             name: 'highestEnv',
-            message: 'Highest Env the feature should be displayed',
-            choices: ['sandbox', 'development', 'qa', 'production']
+            message: 'Highest Environment the feature application should be displayed',
+            choices: ['sandbox', 'dev', 'qa', 'prod']
         },
+        // todo: get rid of this and give a default one that is +1 of the last one created
         {
             type: 'input',
             name: 'port',
@@ -100,10 +103,17 @@ plop.setGenerator('app', {
             'Research & Analysis': 'researchAnalysisApps',
             'Risk & Performance': 'riskPerformanceApps',
             'Compliance': 'complianceApps',
-            'Client Management': 'clientManagementApps',  
+            'Client Management': 'clientManagementApps',
+            'AI Products': 'aiProductsApps',
             'Support': 'supportApps'
         };
         const fileName = navMenuToFileMap[answers.navMenu];
+        // todo: bring in types from appregistry
+        const headerEnumConversion = `NavbarHeader.${answers.navMenu.replace(/[^a-zA-Z0-9]/g, '')}`
+        const subHeaderEnumConversion = `NavbarSubHeader.${answers.navSubMenu.replace(/[^a-zA-Z0-9]/g, '')}`
+        const highEnvEnumConversion = `HighestEnv.${answers.highestEnv}`;
+
+
         return [
         {
             type: 'add',
@@ -140,113 +150,50 @@ plop.setGenerator('app', {
             path: 'apps/features/{{team}}/{{appName}}/vite.config.ts',
             templateFile: 'plop-templates/app/vite.config.ts.hbs',
         },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/vite-env.d.ts',
+            templateFile: 'plop-templates/app/vite-env.d.ts.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/.env.local',
+            templateFile: 'plop-templates/app/.env.local.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/.env.development',
+            templateFile: 'plop-templates/app/.env.development.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/.env.qa',
+            templateFile: 'plop-templates/app/.env.qa.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/.env.production',
+            templateFile: 'plop-templates/app/.env.production.hbs',
+        },
         // Need to update this because it's not updating the file properly
         {
             type: 'modify',  
             path: `packages/app-registry/src/${fileName}.ts`,  
             pattern: /(\s*)\/\/ PLOP_INJECT_APP/,  
-            template: `\n        {
-            type: 'internal',
-            header: '${answers.navMenu}',
-            subHeader: '${answers.navSubMenu}',
-            id: \'{{appName}}\',
-            name: \'{{appName}}\',
-            title: \'{{appName}}\',
-            env: 'development',
-            path: \'{{routePath}}\',
-            team: \'{{team}}\',
-            component: lazy(() => import(\'@{{team}}/{{appName}}/src/App\')),
-            description: \'{{description}}\',
-        },$1// PLOP_INJECT_APP`,  
+            template: `\n    {
+        type: 'internal',
+        header: ${headerEnumConversion},
+        subHeader: ${subHeaderEnumConversion},
+        id: \'{{appName}}\',
+        name: \'{{appName}}\',
+        title: \'{{appName}}\',
+        env: ${highEnvEnumConversion},
+        path: \'{{routePath}}\',
+        team: \'{{team}}\',
+        component: lazy(() => import(\'@{{team}}/{{appName}}/src/App\')),
+        description: \'{{description}}\',
+    },$1// PLOP_INJECT_APP`,  
         },
-        // async function(answers, config, plop) {
-        //                 const path = await import('path');  
-        //     const fs = await import('fs');  
-        //     const registryPath = path.join(process.cwd(), `packages/app-registry/src/${fileName}.ts`);
-        //     const registryContent = fs.readFileSync(registryPath, 'utf8');
-
-        //         const teamRegex = new RegExp(`(id: '${answers.team}'[^}]+apps: \\[)([^\\]]*)(\\])`, 's');
-        //         const updatedContent = registryContent.replace(teamRegex, (match, p1, p2, p3) => {
-        //             const apps = p2.trim() ? `${p2}, '${answers.appName}'` : `'${answers.appName}'`;
-        //             return `${p1}${apps}${p3}`;
-        //         });
-        //         console.log('teamRegex', teamRegex)
-        //         console.log('updatedContent', updatedContent)
-        //         fs.writeFileSync(registryPath, updatedContent);
-        //         return 'Team apps updated in registry';
-
-
-
-
-            // if (!registryContent.includes(`id: '${answers.team}'`)) {
-            //     const teamPattern = /(\s*)\/\/ PLOP_INJECT_APP/;
-            //     const teamTemplate = `.\n {\n
-            //                     id: '${answers.team}',\n
-            //                     name: '${answers.team}',\n
-            //                     displayName: '${answers.team.charAt(0).toUpperCase() + answers.team.slice(1)} Team',\n
-            //                     apps: ['${answers.appName}']\n
-            //                 }$1// PLOP_INJECT_TEAM`;
-            //     const updatedContent = registryContent.replace(teamPattern, teamTemplate);
-            //     console.log('teamPattern', teamPattern)
-            //     console.log('teamTemplate', teamTemplate)
-            //     console.log('updatedContent', updatedContent)
-            //     fs.writeFileSync(registryPath, updatedContent);
-            //     return 'Team added to registry';
-
-            // } else {
-            //     const teamRegex = new RegExp(`(id: '${answers.team}'[^}]+apps: \\[)([^\\]]*)(\\])`, 's');
-            //     const updatedContent = registryContent.replace(teamRegex, (match, p1, p2, p3) => {
-            //         const apps = p2.trim() ? `${p2}, '${answers.appName}'` : `'${answers.appName}'`;
-            //         return `${p1}${apps}${p3}`;
-            //     });
-            //     console.log('teamRegex', teamRegex)
-            //     console.log('updatedContent', updatedContent)
-            //     fs.writeFileSync(registryPath, updatedContent);
-            //     return 'Team apps updated in registry';
-            // }
-        // },
-        // {
-        //     type: 'modify',
-        //     path: 'packages/app-registry/src/{{}}.ts',
-        //     pattern: /(\s*)\/\/ PLOP_INJECT_APP/,
-        //     template: `.\n {\n
-        //                         id: \'{{appName}}\',\n
-        //                         name: \'{{appName}}\',\n
-        //                         title: \'{{title}}\',\n
-        //                         path: \'{{routePath}}\',\n
-        //                         team: \'{{team}}\',\n
-        //                         component: lazy(() => import(\'@{{team}}/{{appName}}/src/pages/{{pascalCase appName}}Page\')),\n
-        //                         description: \'{{description}}\',\n
-        //                     }$1// PLOP_INJECT_APP`,
-        // },
-        // function(answers, config, plop) {
-        //     const path = require('path');
-        //     const fs = require('fs');
-        //     const registryPath = path.join(process.cwd(), 'packages/app-registry/src/registry.ts');
-        //     const registryContent = fs.readFileSync(registryPath, 'utf8');
-
-        //     if (!registryContent.includes(`id: '${answers.team}'`)) {
-        //         const teamPattern = /(\s*)\/\/ PLOP_INJECT_APP/;
-        //         const teamTemplate = `.\n {\n
-        //                         id: '${answers.team}',\n
-        //                         name: '${answers.team}',\n
-        //                         displayName: '${answers.team.charAt(0).toUpperCase() + answers.team.slice(1)} Team',\n
-        //                         apps: ['${answers.appName}']\n
-        //                     }$1// PLOP_INJECT_TEAM`;
-        //         const updatedContent = registryContent.replace(teamPattern, teamTemplate);
-        //         fs.writeFileSync(registryPath, updatedContent);
-        //         return 'Team added to registry';
-
-        //     } else {
-        //         const teamRegex = new RegExp(`(id: '${answers.team}'[^}]+apps: \\[)([^\\]]*)(\\])`, 's');
-        //         const updatedContent = registryContent.replace(teamRegex, (match, p1, p2, p3) => {
-        //             const apps = p2.trim() ? `${p2}, '${answers.appName}'` : `'${answers.appName}'`;
-        //             return `${p1}${apps}${p3}`;
-        //         });
-        //         fs.writeFileSync(registryPath, updatedContent);
-        //         return 'Team apps updated in registry';
-        //     }
-        // },
 
         function () {
             return `App successfully created. make sure to npm install and then npm run dev`
