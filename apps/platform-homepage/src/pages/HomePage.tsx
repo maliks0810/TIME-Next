@@ -10,6 +10,7 @@
 // import { Layout } from '@platform/ui';
 // import { useEffect } from 'react';
 // import { TcwVerticalList, VerticalListContent } from '@platform/ui';
+// import ReactECharts from 'echarts-for-react';
 // import { TcwHorizontalList } from '@platform/ui';
 import '../App.scss';
 //import { TcwAdjustableGrid } from '@platform/ui';
@@ -17,6 +18,24 @@ import '../App.scss';
 // import { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
+  //   const options = {
+  //   title: {
+  //     text: 'Simple Bar Chart'
+  //   },
+  //   tooltip: {},
+  //   legend: {
+  //     data: ['Sales']
+  //   },
+  //   xAxis: {
+  //     data: ['Shirt', 'Sweater', 'Chiffon Shirt', 'Pants', 'High Heels', 'Socks']
+  //   },
+  //   yAxis: {},
+  //   series: [{
+  //     name: 'Sales',
+  //     type: 'bar',
+  //     data: [5, 20, 36, 10, 10, 20]
+  //   }]
+  // };
   // const genericData = useGenericDataContext();
   // const updateGenericData = useUpdateGenericDataContext();
 
@@ -77,6 +96,9 @@ const HomePage: React.FC = () => {
   return (
     <div className="dashboard-container">
       HomePage
+    {/* <div style={{ width: '100%', height: '400px' }}>
+      <ReactECharts option={options} />
+    </div> */}
 
       {/* Working */}
       {/* <button onClick={() => updateGenericData({data: 'testing'})}> DATA: TESTING </button>

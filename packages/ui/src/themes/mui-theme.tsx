@@ -72,7 +72,6 @@ const muiTheme = createTheme({
                 root: {
                     //TODO: Add to documentation
                     '&.page-base': {
-                        margin: tcwDefaultMargin,
                         padding: tcwDefaultPadding,
                         width: '100%',
                     },

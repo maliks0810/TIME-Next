@@ -69,10 +69,7 @@ export default defineConfig(({ mode }) => {
                 '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
                 '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
                 '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
-                '@platform/platform-shell': path.resolve(__dirname, '.'),
-                'echarts': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
-                'echarts/core': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
-                'echarts/charts': path.resolve(__dirname, '../../packages/ui/src/configured-echarts.ts'),
+                '@platform/platform-shell': path.resolve(__dirname, '.')
             },
             preserveSymlinks: true,
         },
