@@ -8,7 +8,7 @@ export const clientManagementApps: ExternalAppMetadata[] = [
         header: NavbarHeader.ClientManagement,
         subHeader: NavbarSubHeader.Research,
         title: 'Under Construction',
-        url: '',
+        devUrl: '',
         newTab: false,
         disabled: true,
         env: HighestEnv.prod

@@ -8,7 +8,7 @@ export const complianceApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
         header: NavbarHeader.Compliance,
         subHeader: NavbarSubHeader.Research,
         title: 'Under Construction',
-        url: '',
+        devUrl: '',
         newTab: false,
         disabled: true,
         env: HighestEnv.prod
@@ -18,7 +18,7 @@ export const complianceApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
         header: NavbarHeader.Compliance,
         subHeader: NavbarSubHeader.Governance,
         title: 'AI Usage Request Form',
-        url: 'https://workflow.corp.tcw.com/Runtime/Runtime/Form/TCW%20Workdesk?FormName=Form/AI.AiUsageRequest-wd.fm',
+        prodUrl: 'https://workflow.corp.tcw.com/Runtime/Runtime/Form/TCW%20Workdesk?FormName=Form/AI.AiUsageRequest-wd.fm',
         newTab: true,
         disabled: false,
         env: HighestEnv.prod
@@ -28,7 +28,7 @@ export const complianceApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
         header: NavbarHeader.Compliance,
         subHeader: NavbarSubHeader.Regulations,
         title: 'EU Securitization',
-        url: 'https://tipeu.corp.tcw.com/',
+        prodUrl: 'https://tipeu.corp.tcw.com/',
         newTab: true,
         disabled: false,
         env: HighestEnv.prod

@@ -24,7 +24,10 @@ export interface ExternalAppMetadata {
     header: NavbarHeader;
     subHeader: NavbarSubHeader;
     title: string;
-    url: string;
+    sandboxUrl?: string;
+    devUrl?: string;
+    qaUrl?: string;
+    prodUrl?: string;
     newTab: boolean;
     disabled: boolean;
     env: HighestEnv;
