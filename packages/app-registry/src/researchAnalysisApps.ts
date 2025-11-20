@@ -213,7 +213,7 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
         title: 'Model Catalog',  
         path: '/qre/catalog',  
         team: 'R2',  
-        env: HighestEnv.dev,
+        env: HighestEnv.prod,
         component: lazy(() => import('@r2/qre/src/App'))
     },
     // PLOP_INJECT_APP
