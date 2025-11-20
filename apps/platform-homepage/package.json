@@ -12,6 +12,7 @@
     "build:production": "vite build --mode production",
     "clean": "rm -rf dist .turbo node_modules",
     "dev": "vite",
+    "prod": "vite --mode production",
     "preview": "vite preview --port 3001",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit"
