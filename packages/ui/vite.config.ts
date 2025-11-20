@@ -4,7 +4,6 @@ import { resolve } from 'path';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import svgr from 'vite-plugin-svgr';
-import removeConsole from 'vite-plugin-remove-console';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,8 +11,7 @@ const __dirname = path.dirname(__filename);
 export default defineConfig({
     plugins: [
         react(),
-        svgr(),
-        removeConsole()
+        svgr()
     ],
     build: {
         lib: {

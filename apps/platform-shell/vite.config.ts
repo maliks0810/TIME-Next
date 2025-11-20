@@ -4,7 +4,6 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import svgr from 'vite-plugin-svgr';
-import removeConsole from 'vite-plugin-remove-console';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,8 +48,7 @@ export default defineConfig(({ mode }) => {
     return {
         plugins: [
             react(),
-            svgr(),
-            ...(mode === 'production' ? [removeConsole()] : [])
+            svgr()
         ],
         server: {
             port: 5173,

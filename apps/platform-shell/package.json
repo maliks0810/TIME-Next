@@ -35,7 +35,6 @@
     "sass": "1.94.2",
     "typescript": "5.9.3",
     "vite": "7.2.4",
-    "vite-plugin-remove-console": "2.2.0",
     "vitest": "4.0.12"
   }
 }
