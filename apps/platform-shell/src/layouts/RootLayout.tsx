@@ -23,8 +23,9 @@ export function RootLayout() {
                     </UserLoader>
                 </UserInfoProvider>
             </ApolloProvider>
-
-            <Outlet />
+            <Box sx={{ minHeight: '810px' }}>
+                <Outlet />
+           </Box>
 
             <Footer />
         </Box>

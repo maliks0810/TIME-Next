@@ -5,7 +5,7 @@
     "composite": true,
       "noEmit": false
   },
-  "include": ["src/**/*", "vite-env.d.ts"],
+  "include": ["src/**/*", "vite-env.d.ts", "custom.d.ts"],
   "exclude": ["node_modules", "dist"],
   "references": [
       { "path": "../app-registry"}

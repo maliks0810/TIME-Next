@@ -3,8 +3,14 @@
     flex-direction: row;
     width: 100%;
     background-color: var(--tcw-blue-color);
-    margin-top: 32px;
-    padding-top: 30px;
+    // background-color: black;
+    height: 65px;
+    justify-content: center;
+    align-items: center;
+}
+
+.footer-logo {
+    margin-left: 20px;
 }
 
 .footer-all-links-container {
@@ -22,7 +28,7 @@
 }
 
 .footer-main-logo {
-    height: 60px;
+    height: 20px;
     padding-left: 30px;
     flex-grow: 0;
 }
@@ -30,8 +36,11 @@
 .footer-links-container {
     display: flex;
     flex-direction: row;
+    justify-content: center;
+    align-items: center;
     flex-grow: 1;
-    align-self: center;
+    border-left: 1px solid white;
+    padding: 0 20px;
 }
 
 .footer-bottom {
@@ -63,23 +72,32 @@
 }
 
 .links-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     gap: 10px 20px;
-    flex-grow: 1;
-    padding-left: 75px;
-    padding-bottom: 10px;
-    text-align: left;
-    border-right: 1px solid white;
-    margin-bottom: 25px;
+    // display: grid;
+    // grid-template-columns: repeat(6, 1fr);
+    // gap: 10px 20px;
+    // flex-grow: 1;
+    // padding-left: 75px;
+    // // padding-bottom: 10px;
+    // text-align: left;
+    // border-left: 1px solid white;
+    // border-right: 1px solid white;
 }
 
-.links-container:last-child {
+.link-container:last-child {
     border-right: 0;
 }
 
 .links-header {
-    grid-column: span 2;
+    // grid-column: span 3;
+    // color: white;
+    // font-size: 17px;
+    // font-weight: bold;
+    // padding-bottom: 8px;
     color: white;
     font-size: 17px;
     font-weight: bold;
@@ -89,13 +107,16 @@
 .link-container {
     display: flex;
     flex-direction: row;
+    border-right: 1px white solid;
+    padding-right: 20px;
 }
 
 .footer-link {
-    color: white;
+    color: white !important;
     text-decoration: none;
     align-self: center;
     font-size: 13px;
+    font: Lato;
 }
 
 .footer-action-arrow {
