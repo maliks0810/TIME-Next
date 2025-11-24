@@ -45,13 +45,13 @@ export const Navbar: React.FC = () => {
 
     const transformLinks = (inputArray: (InternalAppMetadata|ExternalAppMetadata)[]) => {
         const headerMap = new Map();
-
+        const currentEnv = import.meta.env.VITE_APP_ENV;
         inputArray.forEach(item => {
 
             if (!item.header || !item.subHeader) return;
 
             if (!headerMap.has(item.header)) {
-            headerMap.set(item.header, new Map());
+                headerMap.set(item.header, new Map());
             }
 
             const subHeaderMap = headerMap.get(item.header);
@@ -62,16 +62,30 @@ export const Navbar: React.FC = () => {
 
             const links = subHeaderMap.get(item.subHeader);
 
+            let url = item.url;
+
+            if (item.type === 'external') {
+                if (currentEnv === 'production' && item.prodUrl) {
+                    url = item.prodUrl;
+                } else if (currentEnv === 'qa' && item.qaUrl) {
+                    url = item.qaUrl;
+                } else if (currentEnv === 'dev' && item.devUrl) {
+                    url = item.devUrl;
+                } else if (currentEnv === 'sandbox' && item.sandboxUrl) {
+                    url = item.sandboxUrl;
+                }
+            }
+
             links.push({
                 title: item.title,    
-                url: item.url,    
+                url: url,    
                 newTab: item.newTab,
                 disabled: item.disabled,
                 path: item.path,
                 type: item.type
             });
         });
-
+ 
         const result = [];
 
         for (const [header, subHeaderMap] of headerMap.entries()) {

@@ -8,7 +8,7 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         header: NavbarHeader.RiskPerformance,
         subHeader: NavbarSubHeader.Performance,
         title: 'Client Returns',
-        url: 'https://trap-parallel.pd.tcw.com/riskreturn/returns/client-return-portfolio',
+        prodUrl: 'https://trap-parallel.pd.tcw.com/riskreturn/returns/client-return-portfolio',
         newTab: true,
         disabled: false,
         env: HighestEnv.prod
@@ -18,7 +18,7 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         header: NavbarHeader.RiskPerformance,
         subHeader: NavbarSubHeader.Performance,
         title: 'Attribution Analysis',
-        url: 'https://trap-parallel.pd.tcw.com/riskreturn/returns/attribution-analysis',
+        prodUrl: 'https://trap-parallel.pd.tcw.com/riskreturn/returns/attribution-analysis',
         newTab: true,
         disabled: false,
         env: HighestEnv.prod
@@ -28,7 +28,7 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         header: NavbarHeader.RiskPerformance,
         subHeader: NavbarSubHeader.Performance,
         title: 'Returns Overlay Upload',
-        url: 'https://trap-parallel.pd.tcw.com/riskreturn/returns/returns-overlay-upload',
+        prodUrl: 'https://trap-parallel.pd.tcw.com/riskreturn/returns/returns-overlay-upload',
         newTab: true,
         disabled: false,
         env: HighestEnv.prod
