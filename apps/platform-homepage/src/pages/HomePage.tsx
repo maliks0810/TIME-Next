@@ -12,6 +12,7 @@
 // import { TcwVerticalList, VerticalListContent } from '@platform/ui';
 // import ReactECharts from 'echarts-for-react';
 // import { TcwHorizontalList } from '@platform/ui';
+// import { Button } from 'devextreme-react/button';
 import '../App.scss';
 //import { TcwAdjustableGrid } from '@platform/ui';
 // import { tlog } from '@platform/utils';
@@ -96,6 +97,13 @@ const HomePage: React.FC = () => {
   return (
     <div className="dashboard-container">
       HomePage
+                       {/* <Button
+                width={120}
+                text="Text"
+                type="normal"
+                stylingMode="text"
+              /> */}
+
     {/* <div style={{ width: '100%', height: '400px' }}>
       <ReactECharts option={options} />
     </div> */}

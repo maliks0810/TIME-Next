@@ -18,12 +18,12 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@platform/styles": "1.0.0",
+    "@platform/ui": "1.0.0",
+    "@platform/utils": "1.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "react-router-dom": "7.9.6",
-    "@platform/ui": "1.0.0",
-    "@platform/styles": "1.0.0",
-    "@platform/utils": "1.0.0"
+    "react-router-dom": "7.9.6"
   },
   "devDependencies": {
     "@types/react": "19.2.6",
