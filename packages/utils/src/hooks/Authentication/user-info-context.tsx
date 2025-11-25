@@ -37,7 +37,7 @@ export function UserInfoProvider({ children, appName }: AppProviderProps) {
 
     useEffect(() => {
         if (userInfo?.accessToken) {
-            bumpUserProfile.run();
+            // bumpUserProfile.run();
         }
     }, [userInfo.accessToken, bumpUserProfile]);
 
