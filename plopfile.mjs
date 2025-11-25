@@ -1,3 +1,6 @@
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 export default function (plop) {
     plop.setHelper('dashCase', (text) => {
@@ -67,7 +70,7 @@ plop.setGenerator('app', {
             type: 'input',
             name: 'routePath',
             message: 'What route should this feature application be accessible at? (e.g., /pe/appA/):',
-            default: (answers) => answers.appName,
+            default: (answers) => `/${answers.team}/${answers.appName}/`,
             validate: (input) => {
                 if (!input) return 'Route is required';
                 if (!input.startsWith('/')) return 'Route path must start with /';
@@ -86,11 +89,21 @@ plop.setGenerator('app', {
             type: 'input',
             name: 'port',
             message: 'Dev server port:',
-            default: 3100,
+            default: 3200,
             validate: (input) => {
+                const __filename = fileURLToPath(import.meta.url);
+                const __dirname = path.dirname(__filename);
                 const port = parseInt(input);
                 if (isNaN(port) || port < 3000 || port > 9999) {
                     return 'Port must be between 3000 and 9999';
+                }
+
+                // Load the list of used ports
+                const usedPortsPath = path.resolve(__dirname, 'plop-templates/config/usedPorts.json');
+                const usedPorts = JSON.parse(fs.readFileSync(usedPortsPath, 'utf-8')).usedPorts;
+
+                if (usedPorts.includes(port)) {
+                    return `Port ${port} is already in use. Please choose another port.`;
                 }
 
                 return true;
@@ -175,6 +188,12 @@ plop.setGenerator('app', {
             path: 'apps/features/{{team}}/{{appName}}/.env.production',
             templateFile: 'plop-templates/app/.env.production.hbs',
         },
+        {
+            type: 'modify',
+            path: 'plop-templates/config/usedPorts.json',
+            pattern: /"usedPorts": \[/,
+            template: '"usedPorts": [{{port}}, '
+        },
         // Need to update this because it's not updating the file properly
         {
             type: 'modify',  
@@ -194,13 +213,9 @@ plop.setGenerator('app', {
         description: \'{{description}}\',
     },$1// PLOP_INJECT_APP`,  
         },
-
         function () {
             return `App successfully created. make sure to npm install and then npm run dev`
-        }
-
-
-    ]
+        }]
     }
 })
 }
