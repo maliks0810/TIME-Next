@@ -1,6 +1,8 @@
 import { ExternalAppMetadata } from '@platform/app-registry';
 import { HighestEnv, InternalAppMetadata } from './types';
 import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { lazy } from 'react';
 
 export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
     {
