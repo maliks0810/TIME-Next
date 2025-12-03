@@ -15,19 +15,21 @@ export function RootLayout() {
     });
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <ApolloProvider client={rootClient}>
-                <UserInfoProvider appName={import.meta.env.VITE_APP_NAME}>
-                    <UserLoader>
+        <ApolloProvider client={rootClient}>
+            <UserInfoProvider appName={import.meta.env.VITE_APP_NAME}>
+                <UserLoader>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
                         <Navbar />
-                    </UserLoader>
-                </UserInfoProvider>
-            </ApolloProvider>
-            <Box sx={{ minHeight: 'calc(100vh - 135px)' }}>
-                <Outlet />
-           </Box>
 
-            <Footer />
-        </Box>
+                        <Box sx={{ minHeight: 'calc(100vh - 135px)' }}>
+                            <Outlet />
+                        </Box>
+
+                        <Footer />
+
+                    </Box>
+                </UserLoader>
+            </UserInfoProvider>
+        </ApolloProvider>
     );
 }
