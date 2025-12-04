@@ -20,19 +20,8 @@
   "dependencies": {
     "@platform/styles": "1.0.0",
     "@platform/ui": "1.0.0",
-    "@platform/utils": "1.0.0",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
-    "react-router-dom": "7.9.6"
+    "@platform/utils": "1.0.0"
   },
   "devDependencies": {
-    "@types/react": "19.2.6",
-    "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.1",
-    "eslint": "9.39.1",
-    "eslint-plugin-react-hooks": "7.0.1",
-    "eslint-plugin-react-refresh": "0.4.24",
-    "sass": "1.94.2",
-    "typescript": "5.9.3"
   }
 }

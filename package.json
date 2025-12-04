@@ -42,7 +42,6 @@
     "husky": "9.1.7",
     "lint-staged": "16.2.7",
     "plop": "4.0.4",
-    "sass": "1.94.2",
     "syncpack": "13.0.4",
     "turbo": "2.6.1",
     "typescript": "5.9.3"
