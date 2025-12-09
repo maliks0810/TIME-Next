@@ -84,33 +84,15 @@ plop.setGenerator('app', {
             message: 'Highest Environment the feature application should be displayed',
             choices: ['sandbox', 'dev', 'qa', 'prod']
         },
-        // todo: get rid of this and give a default one that is +1 of the last one created
-        {
-            type: 'input',
-            name: 'port',
-            message: 'Dev server port:',
-            default: 3200,
-            validate: (input) => {
-                const __filename = fileURLToPath(import.meta.url);
-                const __dirname = path.dirname(__filename);
-                const port = parseInt(input);
-                if (isNaN(port) || port < 3000 || port > 9999) {
-                    return 'Port must be between 3000 and 9999';
-                }
-
-                // Load the list of used ports
-                const usedPortsPath = path.resolve(__dirname, 'plop-templates/config/usedPorts.json');
-                const usedPorts = JSON.parse(fs.readFileSync(usedPortsPath, 'utf-8')).usedPorts;
-
-                if (usedPorts.includes(port)) {
-                    return `Port ${port} is already in use. Please choose another port.`;
-                }
-
-                return true;
-            }
-        }
     ],
     actions: (answers) => {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const usedPortsPath = path.resolve(__dirname, 'plop-templates/config/usedPorts.json');
+        const usedPorts = JSON.parse(fs.readFileSync(usedPortsPath, 'utf-8')).usedPorts;
+        const nextPort = Math.max(...usedPorts) + 1;
+        answers.nextPort = nextPort; 
+
         const navMenuToFileMap = {
             'Portfolio Management': 'portfolioManagementApps',
             'Research & Analysis': 'researchAnalysisApps',
@@ -192,7 +174,7 @@ plop.setGenerator('app', {
             type: 'modify',
             path: 'plop-templates/config/usedPorts.json',
             pattern: /"usedPorts": \[/,
-            template: '"usedPorts": [{{port}}, '
+            template: '"usedPorts": [{{nextPort}}, '
         },
         // Need to update this because it's not updating the file properly
         {
@@ -212,6 +194,12 @@ plop.setGenerator('app', {
         component: lazy(() => import(\'@{{team}}/{{appName}}/src/App\')),
         description: \'{{description}}\',
     },$1// PLOP_INJECT_APP`,  
+        },
+        {
+        type: 'modify',
+        path: 'apps/platform-shell/vite.config.ts',
+        pattern: /(\s*)\/\/ PLOP_INJECT_NEW_FEATURE_APP/,
+        template: `$1'@{{team}}/{{appName}}': path.resolve(__dirname, '../features/{{team}}/{{appName}}'),$1// PLOP_INJECT_NEW_FEATURE_APP`
         },
         function () {
             return `App successfully created. make sure to npm install and then npm run dev`
