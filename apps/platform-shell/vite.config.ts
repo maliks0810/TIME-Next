@@ -69,7 +69,8 @@ export default defineConfig(({ mode }) => {
                 '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
                 '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
                 '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
-                '@platform/platform-shell': path.resolve(__dirname, '.')
+                '@platform/platform-shell': path.resolve(__dirname, '.'),
+                // PLOP_INJECT_NEW_FEATURE_APP
             },
             preserveSymlinks: true,
         },
