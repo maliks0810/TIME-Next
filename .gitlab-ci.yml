@@ -1,6 +1,6 @@
 include:
   - project: 'tcw-group/technology/platform-engineering/development-operations/cicd-configurations'
-    ref: 'time-two'
+    ref: 'main'
     file: '/time-next/pipelines/x1/time-next.application.cloud.default.pipeline.yml'
 
 variables:
