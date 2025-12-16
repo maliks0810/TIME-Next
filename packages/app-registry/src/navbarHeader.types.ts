@@ -4,7 +4,7 @@ export enum NavbarHeader {
     RiskPerformance = 'Risk & Performance',
     Compliance = 'Compliance',
     ClientManagement = 'Client Management',
-    AiProducts = 'AI Products',
+    AIProducts = 'AI Products',
     Support = 'Support'
 
 }
@@ -21,7 +21,8 @@ export enum NavbarSubHeader {
     Governance = 'Governance',
     Regulations = 'Regulations',
     General = 'General',
-    AiThemes= 'AI Themes',
+    AIThemes= 'AI Themes',
+    AIUploadTools = 'AI Upload Tools',
     QRE = 'QRE'
 }
 

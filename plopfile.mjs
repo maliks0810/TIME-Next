@@ -58,7 +58,7 @@ plop.setGenerator('app', {
                         case 'Client Management':
                             return ['Research'];
                         case 'AI Products':
-                            return ['Ai Themes']
+                            return ['AI Themes', 'AI Upload Tools']
                         case 'Support':
                             return ['General'];
                         default:
@@ -154,6 +154,11 @@ plop.setGenerator('app', {
             type: 'add',
             path: 'apps/features/{{team}}/{{appName}}/.env.local',
             templateFile: 'plop-templates/app/.env.local.hbs',
+        },
+        {
+            type: 'add',
+            path: 'apps/features/{{team}}/{{appName}}/.env.sandbox',
+            templateFile: 'plop-templates/app/.env.sandbox.hbs',
         },
         {
             type: 'add',
