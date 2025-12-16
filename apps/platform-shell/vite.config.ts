@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -8,41 +9,35 @@ import svgr from 'vite-plugin-svgr';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function loadEnvsIn(dirPath, mode, combinedEnv) {
+    fs.readdirSync(dirPath).forEach(subDir => {
+        const subDirPath = path.join(dirPath, subDir);
+
+        if (fs.statSync(subDirPath).isDirectory()) {
+            const envFile = path.join(subDirPath, `.env.${mode}`);
+            if (fs.existsSync(envFile)) {
+                const env = loadEnv(mode, subDirPath, '');
+                Object.entries(env).forEach(([key, value]) => {
+                    if (key.startsWith('VITE_')) {
+                        combinedEnv[key] = value;
+                    }
+                });
+            }
+
+            loadEnvsIn(subDirPath, mode, combinedEnv);  
+        }
+    });
+}
+
 export default defineConfig(({ mode }) => {
-    const combinedEnv: Record<string, string> = {};
+    const combinedEnv = {};
     const appsDir = path.resolve(__dirname, '..');
     const featuresDir = path.resolve(appsDir, 'features');
     const normalizedMode = mode === 'development' ? 'dev' : mode === 'production' ? 'prod' : mode;  
 
-    function loadEnvsIn(dirPath: string) {
-
-        fs.readdirSync(dirPath).forEach(subDir => {
-            const subDirPath = path.join(dirPath, subDir);
-
-            if (fs.statSync(subDirPath).isDirectory()) {
-                fs.readdirSync(subDirPath).forEach(appDir => {
-
-                    const appDirPath = path.join(subDirPath, appDir);
-                    if (fs.statSync(appDirPath).isDirectory()) {
-                        const envFile = path.join(appDirPath, `.env.${mode}`);
-                        if (fs.existsSync(envFile)) {
-
-                            const env = loadEnv(mode, appDirPath, '');
-                            Object.entries(env).forEach(([key, value]) => {
-                                if (key.startsWith('VITE_')) {
-                                    combinedEnv[key] = value;
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    loadEnvsIn(appsDir);
+    loadEnvsIn(appsDir, mode, combinedEnv);
     if (fs.existsSync(featuresDir)) {
-        loadEnvsIn(featuresDir);
+        loadEnvsIn(featuresDir, mode, combinedEnv);
     }
 
     return {
@@ -70,6 +65,7 @@ export default defineConfig(({ mode }) => {
                 '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
                 '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
                 '@platform/platform-shell': path.resolve(__dirname, '.'),
+                '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
                 // PLOP_INJECT_NEW_FEATURE_APP
             },
             preserveSymlinks: true,
