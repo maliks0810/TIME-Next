@@ -38,10 +38,13 @@ export const aiProductsApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
         header: NavbarHeader.AIProducts,
         subHeader: NavbarSubHeader.AIThemes,
         title: 'Equity.IQ',
+        sandboxUrl: 'https://tip2-frontend-np.corp.tcw.com/copilots/equityIq',
         devUrl: 'https://tip2-frontend-np.corp.tcw.com/copilots/equityIq',
+        qaUrl: 'https://tip2-frontend-np.corp.tcw.com/copilots/equityIq',
+        prodUrl: 'https://tip2-frontend-pd.corp.tcw.com/',
         newTab: true,
         disabled: false,
-        env: HighestEnv.dev
+        env: HighestEnv.prod
     },
     // PLOP_INJECT_APP
 ]

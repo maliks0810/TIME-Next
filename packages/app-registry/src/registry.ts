@@ -9,6 +9,7 @@ import { clientManagementApps } from './clientManagementApps';
 import { complianceApps } from './complianceApps';
 import { supportApps } from './supportApps';
 import { aiProductsApps } from './aiProductsApps';
+import { productApps } from './productsApps';
 
 const currentEnv = import.meta.env.VITE_APP_ENV;
 
@@ -21,6 +22,7 @@ const apps: (InternalAppMetadata|ExternalAppMetadata)[] = [
     ...riskPerformanceApps,
     ...clientManagementApps,
     ...complianceApps,
+    ...productApps,
     ...aiProductsApps,
     ...supportApps
 

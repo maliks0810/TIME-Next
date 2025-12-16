@@ -3,16 +3,16 @@ import { HighestEnv, InternalAppMetadata } from './types';
 import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
 
 export const complianceApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
-        {
-        type: 'external',
-        header: NavbarHeader.Compliance,
-        subHeader: NavbarSubHeader.Research,
-        title: 'Under Construction',
-        devUrl: '',
-        newTab: false,
-        disabled: true,
-        env: HighestEnv.prod
-    },
+    //     {
+    //     type: 'external',
+    //     header: NavbarHeader.Compliance,
+    //     subHeader: NavbarSubHeader.Research,
+    //     title: 'Under Construction',
+    //     devUrl: '',
+    //     newTab: false,
+    //     disabled: true,
+    //     env: HighestEnv.prod
+    // },
     {
         type: 'external',
         header: NavbarHeader.Compliance,
