@@ -1,17 +1,17 @@
 import { ExternalAppMetadata } from '@platform/app-registry';
-import { HighestEnv } from './types';
-import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
+// import { HighestEnv } from './types';
+// import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
 
 export const clientManagementApps: ExternalAppMetadata[] = [
-        {
-        type: 'external',
-        header: NavbarHeader.ClientManagement,
-        subHeader: NavbarSubHeader.Research,
-        title: 'Under Construction',
-        devUrl: '',
-        newTab: false,
-        disabled: true,
-        env: HighestEnv.prod
-    },
+    //     {
+    //     type: 'external',
+    //     header: NavbarHeader.ClientManagement,
+    //     subHeader: NavbarSubHeader.Research,
+    //     title: 'Under Construction',
+    //     devUrl: '',
+    //     newTab: false,
+    //     disabled: true,
+    //     env: HighestEnv.prod
+    // },
     // PLOP_INJECT_APP
 ]

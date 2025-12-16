@@ -10,6 +10,8 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         subHeader: NavbarSubHeader.AladdinPortfolioManagement,
         type: 'external',
         title: 'TOD',
+        devUrl: 'https://tod-dev.np.tcw.com/',
+        qaUrl: 'https://tod-qa.np.tcw.com/',
         prodUrl: 'https://tod.pd.tcw.com/',
         newTab: true,
         disabled: false,
