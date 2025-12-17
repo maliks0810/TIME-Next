@@ -2,7 +2,7 @@
 export const FooterLinks = (props: { linkData: any }) => {
     return (
         <div className="links-container">
-            {/* <div className="links-header">{props.linkData.header}</div> */}
+            <div className="links-header">{props.linkData.header}</div>
             {props.linkData.links?.map((link: any, index: number) => (
                 <div className="link-container" key={index}>
                     <a

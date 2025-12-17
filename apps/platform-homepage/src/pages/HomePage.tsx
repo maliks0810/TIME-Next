@@ -1,170 +1,309 @@
-// import { TcwCard } from "@platform/ui";
-// import { Box } from '@mui/material';
-// import { Box, Chip, Typography } from '@mui/material';
-// import snowflake from '../assets/snowflake.png';
-// import { useGenericDataContext, useUpdateGenericDataContext } from "@platform/utils";
-// import { Calendar } from '@platform/ui';
-// import { Axios } from '@platform/utils';
-// import { useState } from 'react';
-// import { TcwAdjustableGrid } from '@platform/ui';
-// import { Layout } from '@platform/ui';
-// import { useEffect } from 'react';
-// import { TcwVerticalList, VerticalListContent } from '@platform/ui';
-// import ReactECharts from 'echarts-for-react';
-// import { TcwHorizontalList } from '@platform/ui';
-// import { Button } from 'devextreme-react/button';
+import { gql } from '@apollo/client';
+import { useBasicGQLOperation, useUserInfo } from '@platform/utils';
+import { Card, CardContent, CardMedia, IconButton, Paper, Stack, Typography } from '@mui/material';
+
+import blueUpRightArrow from '../assets/noun-right-up-100x100-tcw-blue.png';
+// import tcwMainPicture from '../assets/tcwMainPicture.jpg';
+import tcwTestMain from '../assets/test-main.png';
 import '../App.scss';
-//import { TcwAdjustableGrid } from '@platform/ui';
-// import { tlog } from '@platform/utils';
-// import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import BookmarksOutlinedIcon from '@mui/icons-material/BookmarksOutlined';
+import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import OkSVG from '../assets/check_circle.svg?react';
+import ErrorSVG from '../assets/report.svg?react';
+
+
+export const GET_DESKS_STATUS = gql`
+    query AllDesksStatus {
+        allDesksStatus {
+            timestamp
+            desks {
+                id
+                name
+                label
+                description
+                dashboard
+                trading
+                portfolio {
+                    construction
+                    exploration
+                    management
+                }
+            }
+        }
+    }
+`;
+
+export type DeskCapability = {
+    id: string;
+    name: string;
+    label: string;
+    description: string;
+    portfolio: PortfolioCapability;
+    dashboard: boolean;
+    trading: boolean;
+};
+
+export type PortfolioCapability = {
+    construction: boolean;
+    exploration: boolean;
+    management: boolean;
+};
+
+export const createDeskStatusMark = (normal?: boolean) => {
+    return normal ? (
+        <OkSVG className="desk-status-mark status-mark-normal" />
+    ) : (
+        <ErrorSVG className="desk-status-mark status-mark-abnormal" />
+    );
+};
 
 const HomePage: React.FC = () => {
-  //   const options = {
-  //   title: {
-  //     text: 'Simple Bar Chart'
-  //   },
-  //   tooltip: {},
-  //   legend: {
-  //     data: ['Sales']
-  //   },
-  //   xAxis: {
-  //     data: ['Shirt', 'Sweater', 'Chiffon Shirt', 'Pants', 'High Heels', 'Socks']
-  //   },
-  //   yAxis: {},
-  //   series: [{
-  //     name: 'Sales',
-  //     type: 'bar',
-  //     data: [5, 20, 36, 10, 10, 20]
-  //   }]
-  // };
-  // const genericData = useGenericDataContext();
-  // const updateGenericData = useUpdateGenericDataContext();
+  const apolloOp = useBasicGQLOperation();
+	const [deskStatuses, setDeskStatuses] = useState<DeskCapability[]>([]);
 
-  
-  // const [ date, setDate ] = useState<Date>();
-
-  // Sample of how to use Axios from @platform/utils
-  // const axios = new Axios();
-
-  // useEffect(() => {
-  //   const fetchUsers = async () => {
-  //     try {
-  //       const response = await axios.get('https://jsonplaceholder.typicode.com/users');
-  //       console.log(response)
-  //     } catch (err) {
-  //       console.log(err)
-  //     }
-  //   }
-
-  //   fetchUsers()
-  // })
-
-  // const todoListItems: VerticalListContent[] = [
-  //   {
-  //     task: 'Present Generalist Report to John Smith',
-  //     assigner: 'Tom Marks',
-  //     dateAssigned: new Date(),
-  //     completed: false
-  //   },
-  //   {
-  //     task: 'Generate Atlas Report to Elliot Jones',
-  //     assigner: 'Tom Marks',
-  //     dateAssigned: new Date(),
-  //     completed: true
-  //   },
-  //   {
-  //     task: 'Lorem ipsum dolores nonummy',
-  //     assigner: 'Tom Marks',
-  //     dateAssigned: new Date(),
-  //     completed: false
-  //   },
-  // ]
-  
-  // const layout: Layout[] = [
-  //   { i: "a", x: 0, y: 0, w: 1, h: 2, static: true },
-  //   { i: "b", x: 1, y: 0, w: 3, h: 2, minW: 2, maxW: 4 },
-  //   { i: "c", x: 4, y: 0, w: 1, h: 2 },
-  // ]
-
-  // const testLog = () => {
-  //   tlog.warn('testing client logging warn');
-  //   tlog.info('testing client logging info');
-  //   tlog.debug('testing client logging debug');
-  //   tlog.error(new Error('error log'), 'testing client logs', 'testLog()', '123', {key: 'value'});
-  //   tlog.fatal('testing client logging fatal');
-  // }
+	    useEffect(() => {
+        apolloOp(GET_DESKS_STATUS)
+            .then((results) => {
+                if (results?.data?.allDesksStatus?.desks) {
+                    setDeskStatuses(results?.data?.allDesksStatus?.desks);
+                }
+            })
+            .catch((err) => {
+                console.log('Error getting Desk Statuses:', err);
+            });
+    }, [apolloOp]);
+	console.log(deskStatuses);
+    const userInfo = useUserInfo();
 
   return (
     <div className="dashboard-container">
-      HomePage
-                       {/* <Button
-                width={120}
-                text="Text"
-                type="normal"
-                stylingMode="text"
-              /> */}
+		<div className="dashboard-time">
+			<span>
+				{'As of ' + new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+			</span>
+		</div>
+      <Stack direction="row" spacing={2} flexGrow={1}>
+        <Stack direction="column" spacing={1} sx={{ width: '65%' }}>
+          <Card variant="outlined">
+                <CardMedia
+                    component="div"
+                    sx={{
+                      height: 6,
+                      backgroundImage: 'linear-gradient(to right, #0D0D0D, #23425C, #A3C0C7)',
+                    }}>
+                </CardMedia>
+            <img src={tcwTestMain} alt="TCW Main Picture" width="100%" ></img>
+          </Card>
+          <Paper elevation={0} sx={{background: '#F9F9F9'}}>
+            <CardContent  sx={{pb: "0px", pt: "0px"}}><h2>Key Features</h2></CardContent>
+             <Stack direction="row" spacing={3} flexGrow={1}>
+              <Card sx={{width: '100%'}}>
+                <CardMedia
+                    component="div"
+                    sx={{
+                      height: 6,
+                      backgroundImage: 'linear-gradient(to right, #0D0D0D, #375431, #B2C685)',
+                    }}></CardMedia>
+                    <CardContent>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                          Centralized Platform
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        One hub for all your <br />
+                        investment tools and <br /> workflows
 
-    {/* <div style={{ width: '100%', height: '400px' }}>
-      <ReactECharts option={options} />
-    </div> */}
+                      </Typography>
+                    </CardContent>
 
-      {/* Working */}
-      {/* <button onClick={() => updateGenericData({data: 'testing'})}> DATA: TESTING </button>
-      <button onClick={() => updateGenericData(console.log('asdf') as any)}> TEST </button>
-      <button onClick={() => updateGenericData(({ data: { test: () => console.log('test') }}))}> test nested </button>
-      <button onClick={() => updateGenericData({data: undefined})}> test </button>
-      <button onClick={() => updateGenericData({data: {again: {third: undefined}}})}> test nested undefined </button>
-      <button onClick={() => updateGenericData({ data: { test: {nested: { array: [1,2,3,4,5]}}}})}> test nested arr</button>
-      <button onClick={() => console.log(genericData)}> GET </button> */}
-        {/* <TcwAdjustableGrid layout={layout}>
-          <Box key='a' sx={{ border: '1px solid red'}}> a </Box>
-          <Box key='b' sx={{ border: '1px solid blue'}}> b </Box>
-          <Box key='c' sx={{ border: '1px solid green'}}> c </Box>
-        </TcwAdjustableGrid> */}
+              </Card>
 
-    {/* <TcwVerticalList contentList={todoListItems} width={'375px'} /> */}
+              <Card sx={{width: '100%'}} >
+                <CardMedia
+                    component="div"
+                    sx={{
+                      height: 6,
+                      backgroundImage: 'linear-gradient(to right, #0D0D0D, #75375B, #DBD4D5)',
+                    }}></CardMedia>
+                    <CardContent>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                          Portfolio Management
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Simplify allocation and track <br />
+                        performance effortlessly
 
-    {/* <TcwAdjustableGrid /> */}
-      {/* <button onClick={() => testLog()}> TEST LOG </button> */}
-      {/* <TcwAdjustableGrid /> */}
-    {/* Put in shared components here  */}
+                      </Typography>
+                    </CardContent>
+              </Card>
 
-        {/* <TcwCard title={'Top Performers Year 2025'} height={'fit-content'} width={'fit-content'} titleSize='22px' avatarMuiIcon='StarBorder'>
-          <Box sx={{display: 'flex', flexDirection: 'row', columnGap: '20px'}}>
-            <TcwCard title={'Wealth Portfolio ABC123'} height={'135px'} avatarCustom={snowflake} >
-              <Box sx={{height: '40px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
-                <Typography variant="h4" fontSize={'24px'}> 598.91 </Typography>
-                <Chip label='-0.02%' sx={{height: '40px', width: '70px', borderRadius: '30px'}} variant="outlined" />
-              </Box>
-            </TcwCard>
+              <Card sx={{width: '100%'}}>
+                <CardMedia
+                    component="div"
+                    sx={{
+                      height: 6,
+                      backgroundImage: 'linear-gradient(to right, #0D0D0D, #977935, #E4E3E1)',
+                    }}></CardMedia>
+                    <CardContent>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                          Risk Analytics
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Gain actionable insights to <br />
+                        manage exposure <br />
+                        confidently
 
-            <TcwCard title={'Wealth Portfolio DEF456'} height={'135px'} avatarCustom={snowflake}>
-              <Box sx={{height: '40px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
-                <Typography variant="h4" fontSize={'24px'}> 621.23 </Typography>
-                <Chip label='1.93%' sx={{height: '40px', width: '70px', borderRadius: '30px'}} variant="outlined" />
-              </Box>
-            </TcwCard>
+                      </Typography>
+                    </CardContent>
+              </Card>
+              <Card sx={{width: '100%'}}>
+                <CardMedia
+                    component="div"
+                    sx={{
+                      height: 6,
+                      backgroundImage: 'linear-gradient(to right, #0D0D0D, #23425C, #A3C0C7)',
+                    }}></CardMedia>
+                    <CardContent>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        Compliance & Reporting
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Ensure regulatory adherence <br />
+                        and generate reports with <br />
+                        confidence
 
-            <button onClick={() => console.log(genericData.data)}> View Data </button>
-            <button onClick={() => updateGenericData({data: {
-              name: 'test user',
-              date: 'Sept 16',
-              amount: 1235,
-              projects: [{name: 'TIME', language: 'React TypeScript', team: 'Platform Engineering'}],
-            }})}> Update Data</button>
-          </Box>
-        </TcwCard> */}
+                      </Typography>
+                    </CardContent>
+              </Card>
+             </Stack>
 
-        {/* <TcwAdjustableGrid /> */}
+          </Paper>
+        </Stack>
 
-        {/* With Optional Callback to store date in state */}
-        {/* { date && <p> Date Selected: {date?.toDateString()}</p>}
-        <Calendar onSelect={(date) => setDate(date)}/> */}
+        <Card variant="outlined"  sx={{ width: '35%' }}>
+          <CardMedia
+                    component="div"
+                    sx={{
+                      height: 6,
+                      backgroundImage: 'linear-gradient(to right, #0D0D0D, #23425C, #A3C0C7)',
+                    }}>
+          </CardMedia>
+          <CardContent sx={{pl: "20px", pb: "0px"}}>
+                <Typography gutterBottom variant="h5" component="div">
+                  Quick View
+                </Typography>
+          </CardContent>
+          <Stack direction="column" sx={{pl: "20px", pt: "10px", pr: "20px"}} spacing={4} flexGrow={1} justifyContent="center">
+            <Card sx={{background: '#F9F9F9'}}>
+              <CardContent>
+                <Typography variant="subtitle1" fontWeight="bold" component="div">
+                        <IconButton size="small" disableFocusRipple disableRipple>
+                          <BookmarksOutlinedIcon/>
+                        </IconButton>
+                  <span className='quick-view-card-title'>
+                    Frequently Visited Pages
+                  </span>
+                </Typography>
+					{(userInfo.favorites ?? [])
+						.sort((a, b) => (a.clickCount < b.clickCount ? 1 : -1))
+						.slice(0, 7)
+						.map((fav, i) => (
+							<div className="quick-view-link-container" key={i}>
+								<button
+									className="quick-view-link"
+									// onClick={() => popupRef.current.showPopup(fav)}
+								>
+									{fav.title}
+								</button>
+								{fav.newTab && (
+									<img
+										src={blueUpRightArrow}
+										alt="blueUpRightArrow"
+										className="link-action-arrow"
+									/>
+								)}
+							</div>  
+						))}  
+              </CardContent>
+            </Card>
+            <Card sx={{background: '#F9F9F9'}}>
+              <CardContent>
+                <Typography variant="subtitle1" fontWeight="bold" component="div">
+                                          <IconButton size="small" disableFocusRipple disableRipple>
+                                            <CheckCircleOutlineOutlinedIcon />
+                                          </IconButton>
+                  <span className='quick-view-card-title'>
+                    Statuses
+                  </span>
 
-        {/* Without optional callback to store date in state */}
-        {/* <Calendar /> */}
-          
-        {/* <TcwHorizontalList width={'100%'} contentList={[ '12 Tasks Waiting', '8 Tasks Waiting', '21 Compliance Updates', '18 New Workflows', '12 Reports', '$500M AUM', '438 Total Accounts']}/> */}
+                </Typography>
+				            <div>
+                                        <span >
+                    TIME Platform Status
+                  </span>
+                {/* title="Start of Day Business Events"
+                status={allDesksNormal ? 'Normal' : 'Abnormal'}
+            > */}
+                {/* <div className="service-desk-header">
+                    <div className="status-desk-row-header desk-header-name">Name</div>
+                    <div className="status-desk-row-header desk-header-dashboard">Dashbrd</div>
+                    <div className="status-desk-row-header desk-header-trading">Trading</div>
+                    <div className="status-desk-row-header desk-header-pfconstruction">
+                        Pf Const
+                    </div>
+                    <div className="status-desk-row-header desk-header-pfexploration">Pf Expl</div>
+                    <div className="status-desk-row-header desk-header-pfmanagement">Pf Mgmt</div>
+                    <div className="status-desk-row-header desk-header-description">
+                        Description
+                    </div>
+                </div> */}
+                {/* {deskStatuses.map((s, i) => (
+                    <div className="status-desk-row" key={i}>
+                        <div className="status-desk-row-field desk-field-name">{s.name}</div>
+                        <div className="status-desk-row-field desk-field-dashboard">
+                            {createDeskStatusMark(s.dashboard)}
+                        </div>
+                        <div className="status-desk-row-field desk-field-trading">
+                            {createDeskStatusMark(s.trading)}
+                        </div>
+                        <div className="status-desk-row-field desk-field-pfconstruction">
+                            {createDeskStatusMark(s.portfolio?.construction)}
+                        </div>
+                        <div className="status-desk-row-field desk-field-pfexploration">
+                            {createDeskStatusMark(s.portfolio?.exploration)}
+                        </div>
+                        <div className="status-desk-row-field desk-field-pfmanagement">
+                            {createDeskStatusMark(s.portfolio?.management)}
+                        </div>
+                        <div className="status-desk-row-field desk-field-description">
+                            {s.description}
+                        </div>
+                    </div>
+                ))} */}
+            </div>
+              </CardContent>
+            </Card>
+            <Card sx={{background: '#F9F9F9'}}>
+              <CardContent>
+                <Typography variant="subtitle1" fontWeight="bold" component="div">
+                  <IconButton size="small" disableFocusRipple disableRipple>
+                    <InfoOutlinedIcon />
+                  </IconButton>
+                  <span className='quick-view-card-title'>
+                   TCW TIME Announcement
+                  </span>
+                </Typography>
+                <Typography variant="body1" component="div">
+                   Welcome to TIME 2.0.  This is a unified platform to host TCW applications.
+                </Typography>
+              </CardContent>
+            </Card>
+
+          </Stack>
+        </Card>
+      </Stack>
     </div>
   )
 }

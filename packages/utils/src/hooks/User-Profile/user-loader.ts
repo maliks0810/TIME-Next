@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useUpdateUserInfo } from '../Authentication/user-info-context';
 import { useOktaUserInfo } from '../Authentication/user-info-from-token';
+import { useUserFavorites } from './user-favs';
 
 // import { useUserAuthorizations } from '../Authorization/user-authorizations';
 
@@ -13,7 +14,7 @@ export function UserLoader(props: {
     children: React.ReactElement | null;
 }): React.ReactElement | null {
     const updateUserInfo = useRef(useUpdateUserInfo());
-
+    const favs = useRef(useUserFavorites());
     // const auths = useRef(useUserAuthorizations());
     const info = useRef(useOktaUserInfo());
     //Notice here the use of useRef. This basically tells React
@@ -42,7 +43,8 @@ export function UserLoader(props: {
             console.log('User info loaded. Loading authorizations');
             // userInfo.authorizations = await auths.current.get();
             // console.log('Loading favorites');
-            // userInfo.favorites = await favs.current.get(userInfo.login ?? '');
+            userInfo.favorites = await favs.current.get(userInfo.login ?? '');
+            console.log(userInfo.favorites)
             console.log('setting user info context');
             updateUserInfo.current(userInfo);            
         })
