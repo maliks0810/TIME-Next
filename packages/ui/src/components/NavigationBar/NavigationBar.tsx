@@ -8,6 +8,7 @@ import { IconButton } from '@mui/material';
 import { InternalAppMetadata, ExternalAppMetadata } from '@platform/app-registry';
 import { TopMenu } from './top-menu';
 import tcwTime from '../../assets/tcw-time.png';
+import updatedTcwTime from '../../assets/updated-time-logo.png';
 import HomeSVG from '../../assets/HomeSVG.svg?react';
 import SearchSVG from '../../assets/SearchSVG.svg?react';
 import ProfileSVG from '../../assets/ProfileSVG.svg?react';
@@ -119,7 +120,8 @@ export const Navbar: React.FC = () => {
     return (
         <div className="header-container" >
             <button onClick={handleHomeClick}>
-                <img src={tcwTime} alt="TcwTIME" className="main-logo" />
+                {/* <img src={tcwTime} alt="TcwTIME" className="main-logo" /> */}
+                <img src={updatedTcwTime} alt="TcwTIME" className="main-logo" />
             </button>
 
             {/* New Navbar Loading from App Registry */}

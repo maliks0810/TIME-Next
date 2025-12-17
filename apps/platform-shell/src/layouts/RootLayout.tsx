@@ -21,7 +21,7 @@ export function RootLayout() {
                     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
                         <Navbar />
 
-                        <Box sx={{ minHeight: 'calc(100vh - 135px)' }}>
+                        <Box sx={{ minHeight: 'calc(100vh - 70px)' }}>
                             <Outlet />
                         </Box>
 
