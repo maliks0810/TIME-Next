@@ -1,0 +1,27 @@
+{
+  "name": "@IOD/tdm",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "TCW Data Management",
+  "scripts": {
+    "build": "vite build",
+    "build:sandbox": "vite build --mode sandbox",
+    "build:development": "vite build --mode development",
+    "build:qa": "vite build --mode qa",
+    "build:production": "vite build --mode production",
+    "clean": "rm -rf dist .turbo node_modules",
+    "dev": "vite",
+    "prod": "vite --mode production",
+    "preview": "vite preview --port 3003",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@platform/ui": "1.0.0",
+    "@platform/styles": "1.0.0",
+    "@platform/utils": "1.0.0"
+  },
+  "devDependencies": {
+  }
+}

@@ -47,5 +47,18 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         disabled: false,
         env: HighestEnv.prod
     },
+    {
+        type: 'internal',
+        header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.AladdinPortfolioManagement,
+        id: 'tdm',
+        name: 'tdm',
+        title: 'tdm',
+        env: HighestEnv.prod,
+        path: '/iod/tdm',
+        team: 'IOD',
+        component: lazy(() => import('@IOD/tdm/src/App')),
+        description: '',
+    },
     // PLOP_INJECT_APP
 ]
