@@ -66,6 +66,7 @@ export default defineConfig(({ mode }) => {
                 '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
                 '@platform/platform-shell': path.resolve(__dirname, '.'),
                 '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
+                '@IOD/tdm': path.resolve(__dirname, '../features/IOD/tdm'),
                 // PLOP_INJECT_NEW_FEATURE_APP
             },
             preserveSymlinks: true,
