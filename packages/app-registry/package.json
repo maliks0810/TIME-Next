@@ -16,11 +16,11 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "react": "19.2.1",
-    "react-router-dom": "7.9.6"
+    "react": "19.2.3",
+    "react-router-dom": "7.11.0"
   },
   "devDependencies": {
-    "@types/react": "19.2.6",
+    "@types/react": "19.2.7",
     "typescript": "5.9.3"
   }
 }

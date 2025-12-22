@@ -17,7 +17,7 @@
     "type-check": "echo 'Styles package - no type check needed'"
   },
   "devDependencies": {
-    "sass": "1.94.2",
+    "sass": "1.97.1",
     "stylelint-config-standard-scss": "16.0.0"
   }
 }
