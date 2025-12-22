@@ -26,7 +26,7 @@ const primaryTcwLightGrayColor = getComputedStyle(root)
     //TODO: Add 'info' to palette
 const muiTheme = createTheme({
     typography: {
-        fontFamily: ['Lato'].join(','),
+        fontFamily: ['ABC-MonumentGrotesk-Regular', 'Lato'].join(','),
     },
     palette: {
         primary: {

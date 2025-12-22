@@ -1,4 +1,20 @@
+@font-face {
+    font-family: 'ABC-MonumentGrotesk-Regular';
+    src: url("./fonts/ABCMonumentGrotesk-Regular.TTF");
+}
+
+@font-face {
+    font-family: 'ABC-MonumentGrotesk-Bold';
+    src: url("./fonts/ABCMonumentGrotesk-Bold.TTF");
+}
+
+@font-face {
+    font-family: 'ABC-MonumentGrotesk-BoldItalic';
+    src: url("./fonts/ABCMonumentGrotesk-BoldItalic.TTF");
+}
+
 :root {
+    font-family: 'ABC-MonumentGrotesk-Regular' !important;
     --tcw-blue-color: #003e7e;
     --tcw-gray-color: #d9d9d9;
     --tcw-light-blue-color: #7b9abb;
@@ -18,7 +34,7 @@
 
 body {
     margin: 0;
-    font-family: Lato !important;
+    font-family: 'ABC-MonumentGrotesk-Regular' !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: #f0f2f5;
@@ -43,7 +59,7 @@ body {
 
 .App {
     text-align: center;
-    font-family: 'Lato' !important;
+    font-family: 'ABC-MonumentGrotesk-Regular' !important;
     background-color: var(--light-gray-color);
     height: 100%;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);

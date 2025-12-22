@@ -95,7 +95,7 @@ const HomePage: React.FC = () => {
                       backgroundImage: 'linear-gradient(to right, #0D0D0D, #23425C, #A3C0C7)',
                     }}>
                 </CardMedia>
-            <img src={tcwTestMain} alt="TCW Main Picture" width="100%" ></img>
+            <img src={tcwTestMain} alt="TCW Main Picture" width="100%" style={{maxHeight:"615px"}}></img>
           </Card>
           <Paper elevation={0} sx={{background: '#F9F9F9'}}>
             <CardContent  sx={{pb: "0px", pt: "0px"}}><h2>Key Features</h2></CardContent>
@@ -198,7 +198,7 @@ const HomePage: React.FC = () => {
           <Stack direction="column" sx={{pl: "20px", pt: "10px", pr: "20px"}} spacing={4} flexGrow={1} justifyContent="center">
             <Card sx={{background: '#F9F9F9'}}>
               <CardContent>
-                <Typography variant="subtitle1" fontWeight="bold" component="div">
+                <Typography variant="subtitle1" fontWeight="bold" component="div" style={{paddingBottom: "15px"}}>
                         <IconButton size="small" disableFocusRipple disableRipple>
                           <BookmarksOutlinedIcon/>
                         </IconButton>
@@ -230,7 +230,7 @@ const HomePage: React.FC = () => {
             </Card>
             <Card sx={{background: '#F9F9F9'}}>
               <CardContent>
-                <Typography variant="subtitle1" fontWeight="bold" component="div">
+                <Typography variant="subtitle1" fontWeight="bold" component="div" style={{paddingBottom: "15px"}}>
                                           <IconButton size="small" disableFocusRipple disableRipple>
                                             <CheckCircleOutlineOutlinedIcon />
                                           </IconButton>
@@ -239,10 +239,10 @@ const HomePage: React.FC = () => {
                   </span>
 
                 </Typography>
-				            <div>
-                                        <span >
-                    TIME Platform Status
-                  </span>
+				    <div>
+						<span style={{paddingLeft: "5px", color: '#003e7e'}}>
+                    		TIME Platform Status
+                  		</span>
                 {/* title="Start of Day Business Events"
                 status={allDesksNormal ? 'Normal' : 'Abnormal'}
             > */}
@@ -287,7 +287,7 @@ const HomePage: React.FC = () => {
             </Card>
             <Card sx={{background: '#F9F9F9'}}>
               <CardContent>
-                <Typography variant="subtitle1" fontWeight="bold" component="div">
+                <Typography variant="subtitle1" fontWeight="bold" component="div" style={{paddingBottom: "15px"}}>
                   <IconButton size="small" disableFocusRipple disableRipple>
                     <InfoOutlinedIcon />
                   </IconButton>
@@ -295,8 +295,15 @@ const HomePage: React.FC = () => {
                    TCW TIME Announcement
                   </span>
                 </Typography>
-                <Typography variant="body1" component="div">
-                   Welcome to TIME 2.0.  This is a unified platform to host TCW applications.
+                <Typography variant="body1" component="div" style={{paddingLeft: "5px"}}>
+					<span style={{fontSize: '14px', color: '#007DAA', fontWeight: '550'}}>
+						{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+					</span>
+					<br />
+					<span >
+						Welcome to TIME 2.0.  This is a unified platform to host TCW applications.
+					</span>
+                   
                 </Typography>
               </CardContent>
             </Card>

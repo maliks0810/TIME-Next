@@ -19,7 +19,7 @@ const timeEchartsTheme = {
     color: timeColors.chartColors,
     backgroundColor: 'transparent',
     textStyle: {
-        fontFamily: 'Lato'
+        fontFamily: 'ABC-MonumentGrotesk-Regular'
     }
 }
     echarts.use([

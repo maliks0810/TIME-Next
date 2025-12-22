@@ -1,6 +1,5 @@
 body {
     margin: 0;
-    font-family: Lato !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: #f0f2f5;
@@ -8,7 +7,6 @@ body {
 }
 
 :root {
-      font-family: Lato !important;
     --tcw-blue-color: #003e7e;
     --tcw-blue-contrast-text-color: #FFFFFF;
     /* --tcw-blue-color: black; */
@@ -50,7 +48,6 @@ body {
 
 .App {
     text-align: center;
-    font-family: 'Lato' !important;
     background-color: var(--light-gray-color);
     height: 100%;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
