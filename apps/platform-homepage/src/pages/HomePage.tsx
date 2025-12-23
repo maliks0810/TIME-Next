@@ -4,7 +4,7 @@ import { Card, CardContent, CardMedia, IconButton, Paper, Stack, Typography } fr
 
 import blueUpRightArrow from '../assets/noun-right-up-100x100-tcw-blue.png';
 // import tcwMainPicture from '../assets/tcwMainPicture.jpg';
-import tcwTestMain from '../assets/test-main.png';
+import tcwTestMain from '../assets/Picture1.png';
 import '../App.scss';
 import { useEffect, useState } from 'react';
 import BookmarksOutlinedIcon from '@mui/icons-material/BookmarksOutlined';
@@ -86,7 +86,7 @@ const HomePage: React.FC = () => {
 			</span>
 		</div>
       <Stack direction="row" spacing={2} flexGrow={1}>
-        <Stack direction="column" spacing={1} sx={{ width: '65%' }}>
+        <Stack direction="column" spacing={1} sx={{ width: '70%' }}>
           <Card variant="outlined">
                 <CardMedia
                     component="div"
@@ -95,7 +95,16 @@ const HomePage: React.FC = () => {
                       backgroundImage: 'linear-gradient(to right, #0D0D0D, #23425C, #A3C0C7)',
                     }}>
                 </CardMedia>
-            <img src={tcwTestMain} alt="TCW Main Picture" width="100%" style={{maxHeight:"615px"}}></img>
+                <div style={{lineHeight: 0}}>
+                  <img src={tcwTestMain} alt="TCW Main Picture" width="100%" ></img>
+                  <div className="banner">
+                    <div className="text-container">
+						<h1 className="title">TIME</h1> 
+						<p className="subtitle">TCW Investment Management Engine</p> 
+					</div> 
+					</div> 
+                </div>
+            
           </Card>
           <Paper elevation={0} sx={{background: '#F9F9F9'}}>
             <CardContent  sx={{pb: "0px", pt: "0px"}}><h2>Key Features</h2></CardContent>
@@ -107,11 +116,11 @@ const HomePage: React.FC = () => {
                       height: 6,
                       backgroundImage: 'linear-gradient(to right, #0D0D0D, #375431, #B2C685)',
                     }}></CardMedia>
-                    <CardContent>
-                      <Typography variant="subtitle1" fontWeight="bold">
+                    <CardContent >
+                      <Typography variant="subtitle1" fontWeight="bold" sx={{ padding: '10px' }}>
                           Centralized Platform
                       </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      <Typography variant="body2" sx={{ color: 'text.secondary', padding: '10px' }}>
                         One hub for all your <br />
                         investment tools and <br /> workflows
 
@@ -128,10 +137,10 @@ const HomePage: React.FC = () => {
                       backgroundImage: 'linear-gradient(to right, #0D0D0D, #75375B, #DBD4D5)',
                     }}></CardMedia>
                     <CardContent>
-                      <Typography variant="subtitle1" fontWeight="bold">
+                      <Typography variant="subtitle1" fontWeight="bold" sx={{ padding: '10px' }}>
                           Portfolio Management
                       </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      <Typography variant="body2" sx={{ color: 'text.secondary', padding: '10px' }}>
                         Simplify allocation and track <br />
                         performance effortlessly
 
@@ -147,10 +156,10 @@ const HomePage: React.FC = () => {
                       backgroundImage: 'linear-gradient(to right, #0D0D0D, #977935, #E4E3E1)',
                     }}></CardMedia>
                     <CardContent>
-                      <Typography variant="subtitle1" fontWeight="bold">
+                      <Typography variant="subtitle1" fontWeight="bold" sx={{ padding: '10px' }}>
                           Risk Analytics
                       </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      <Typography variant="body2" sx={{ color: 'text.secondary', padding: '10px' }}>
                         Gain actionable insights to <br />
                         manage exposure <br />
                         confidently
@@ -166,10 +175,10 @@ const HomePage: React.FC = () => {
                       backgroundImage: 'linear-gradient(to right, #0D0D0D, #23425C, #A3C0C7)',
                     }}></CardMedia>
                     <CardContent>
-                      <Typography variant="subtitle1" fontWeight="bold">
+                      <Typography variant="subtitle1" fontWeight="bold" sx={{ padding: '10px' }}>
                         Compliance & Reporting
                       </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      <Typography variant="body2" sx={{ color: 'text.secondary', padding: '10px' }}>
                         Ensure regulatory adherence <br />
                         and generate reports with <br />
                         confidence
@@ -182,7 +191,7 @@ const HomePage: React.FC = () => {
           </Paper>
         </Stack>
 
-        <Card variant="outlined"  sx={{ width: '35%' }}>
+        <Card variant="outlined"  sx={{ width: '30%' }}>
           <CardMedia
                     component="div"
                     sx={{

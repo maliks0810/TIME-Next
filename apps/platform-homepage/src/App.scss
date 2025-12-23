@@ -314,3 +314,29 @@
 .quick-view-card-title {
     vertical-align: middle;
 }
+
+.banner {
+font-family: 'ABC-MonumentGrotesk-Regular';
+background: linear-gradient(to right, #23425C, #A3C0C7,#23425C );
+display: flex;
+align-items: center;
+justify-content: flex-start;
+height: 110px;
+}
+
+.text-container {
+text-align: left;
+max-width: 800px;
+line-height: 0.3;
+padding: 20px;
+}
+
+.title {
+font-size: 2.5em;
+color: #ffffff;
+}
+
+.subtitle {
+font-size: 1em;
+color: #ffffff;
+}
