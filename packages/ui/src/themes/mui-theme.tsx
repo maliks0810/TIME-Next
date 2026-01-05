@@ -102,7 +102,7 @@ const muiTheme = createTheme({
                 root: {
                     padding: tcwDefaultPadding,
                     '&:last-child': {
-                        paddingBottom: tcwDefaultPadding,
+                        // paddingBottom: tcwDefaultPadding,
                     },
                 },
             },
