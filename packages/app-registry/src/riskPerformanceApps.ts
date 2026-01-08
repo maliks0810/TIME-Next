@@ -8,7 +8,8 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         header: NavbarHeader.RiskPerformance,
         subHeader: NavbarSubHeader.Performance,
         title: 'Client Returns',
-        devUrl: 'https://trap.pd.tcw.com/riskreturn/returns/client-return-portfolio',
+        devUrl: 'https://trap.pd.tcw.com/riskreturn/returns/client-return-portfolio', // Please update if dev link available
+        qaUrl: 'https://trap.pd.tcw.com/riskreturn/returns/client-return-portfolio', // Please update if qa link available
         prodUrl: 'https://trap.pd.tcw.com/riskreturn/returns/client-return-portfolio',
         newTab: true,
         disabled: false,
@@ -19,7 +20,8 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         header: NavbarHeader.RiskPerformance,
         subHeader: NavbarSubHeader.Performance,
         title: 'Attribution Analysis',
-        devUrl: 'https://trap.pd.tcw.com/riskreturn/returns/attribution-analysis',
+        devUrl: 'https://trap.pd.tcw.com/riskreturn/returns/attribution-analysis', // Please update if dev link available
+        qaUrl: 'https://trap.pd.tcw.com/riskreturn/returns/attribution-analysis', // Please update if qa link available
         prodUrl: 'https://trap.pd.tcw.com/riskreturn/returns/attribution-analysis',
         newTab: true,
         disabled: false,
@@ -30,7 +32,8 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         header: NavbarHeader.RiskPerformance,
         subHeader: NavbarSubHeader.Performance,
         title: 'Returns Overlay Upload',
-        devUrl: 'https://trap.pd.tcw.com/riskreturn/returns/returns-overlay-upload',
+        devUrl: 'https://trap.pd.tcw.com/riskreturn/returns/returns-overlay-upload', // Please update if dev link available
+        qaUrl: 'https://trap.pd.tcw.com/riskreturn/returns/returns-overlay-upload', // Please update if qa link available
         prodUrl: 'https://trap.pd.tcw.com/riskreturn/returns/returns-overlay-upload',
         newTab: true,
         disabled: false,
