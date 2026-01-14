@@ -49,6 +49,14 @@
       ],
       "env": ["NODE_ENV", "VITE_APP_ENV"]
     },
+    "sandbox": {
+      "dependsOn": [
+        "^build"
+      ],
+      "persistent": true,
+      "cache": false,
+      "env": ["NODE_ENV", "VITE_APP_ENV"]
+    },
     "dev": {
       "dependsOn": [
         "^build"
