@@ -7,6 +7,7 @@
   "description": "Platform Engineering Monorepo Project",
   "scripts": {
     "new:app": "plop app",
+    "sandbox": "turbo run sandbox --parallel",
     "dev": "turbo run dev --parallel",
     "prod": "turbo run prod --parallel",
     "build": "turbo run build",
