@@ -327,7 +327,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             </Grid>
             <Grid container flexDirection={'row'} columns={1} spacing={1}>
               {securityRequest.securityRequestDocuments.map(securityRequestDocument => (
-                <Grid size={1}>
+                <Grid key={securityRequestDocument.id} size={1}>
                   <Box className='security-request-file-container'>
                     <Grid container flexDirection={'row'} spacing={1}>
                       <Grid alignContent={'center'}>

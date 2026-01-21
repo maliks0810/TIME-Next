@@ -1,14 +1,15 @@
-import axios, { AxiosError } from 'axios';
 import { ISecurityRequest, ISecurityRequestDocument, securityRequestsMockData } from "../pages/dashboard/lib/SecurityRequest";
+import { ISecurityRequestApi, ISecurityRequestDocumentApi } from './domain-objects/SecurityRequestApi';
 
-export const transformApiSecurityRequestDocument = (apiData: any): ISecurityRequestDocument => {
+export const transformApiSecurityRequestDocument = (apiData: ISecurityRequestDocumentApi): ISecurityRequestDocument => {
   return {
+    id: apiData.id,
     fileName: apiData.fileName,
     filePath: apiData.filePath,
   }
 }
 
-export const transformApiSecurityRequestsDashboard = (apiData: any): ISecurityRequest => {
+export const transformApiSecurityRequestsDashboard = (apiData: ISecurityRequestApi): ISecurityRequest => {
     return {
         id: Number(apiData.securitySetupRequestsId),
         description: apiData.description,
@@ -52,22 +53,16 @@ export const transformApiSecurityRequestsDashboard = (apiData: any): ISecurityRe
           collateral: apiData.collateral,
           ffiecQual: apiData.ffiecQual,
         },
-        securityRequestDocuments:
-          apiData.documents.map(transformApiSecurityRequestDocument),
+        securityRequestDocuments: []
     };
 };
 
 export const getSecurityRequestsDashboard = async () : Promise<ISecurityRequest[]> => {
   let securityRequests : ISecurityRequest[] = []
   
-  try {
-    //const response = await axios.get("");
-    //securityRequests = response.data.map(transformApiSecurityRequestsDashboard);
-    securityRequests = securityRequestsMockData;
-  }
-  catch (err) {
-    const error = err as AxiosError;
-  }
+  //const response = await axios.get("");
+  //securityRequests = response.data.map(transformApiSecurityRequestsDashboard);
+  securityRequests = securityRequestsMockData;
 
   return securityRequests;
 };

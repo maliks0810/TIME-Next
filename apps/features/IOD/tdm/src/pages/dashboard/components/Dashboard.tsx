@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
     setSearchValue(e.target.value);
   };
 
-  const handleStartDateChange = useCallback((value: any) => {
+  const handleStartDateChange = useCallback((value: string | number | Date | null) => {
     setStartDate(null);
     if (value) {
       const newStartDate = new Date(value);
@@ -50,7 +50,7 @@ const Dashboard: React.FC = () => {
     }
   }, [setStartDate]);
 
-  const handleEndDateChange = useCallback((value: any) => {
+  const handleEndDateChange = useCallback((value: string | number | Date | null) => {
     setEndDate(null);
     if (value) {
       const newEndDate = new Date(value);

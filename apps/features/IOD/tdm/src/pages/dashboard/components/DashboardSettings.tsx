@@ -1,5 +1,5 @@
-import React, { Dispatch, SetStateAction, useCallback, useRef, useState } from 'react';
-import { Box, Paper, Menu, MenuItem, Switch, Button } from '@mui/material';
+import React, { Dispatch, SetStateAction, useState } from 'react';
+import { Box, Menu, MenuItem, Switch, Button } from '@mui/material';
 import { Settings } from '@mui/icons-material';
 
 type DashboardSettingsProps = {
@@ -25,7 +25,6 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({setAreSecurityRequ
   const handleShowStatsOnChange = (checked: boolean) => {
     setSecurityRequestStatsSwitchChecked(checked);
     setAreSecurityRequestStatsVisible(checked);
-    handleSettingsMenuClose();
   };
   
   return (

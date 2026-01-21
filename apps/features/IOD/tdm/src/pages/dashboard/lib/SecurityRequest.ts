@@ -51,6 +51,7 @@ export interface ISecurityRequestTradeFields {
 }
 
 export interface ISecurityRequestDocument {
+  id: number;
   fileName: string;
   filePath: string;
 }
@@ -102,6 +103,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
     },
     securityRequestDocuments: [
       {
+        id: 1,
         fileName: 'Offering Memorandum',
         filePath: 'filename.extension',
       }
@@ -152,6 +154,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
     },
     securityRequestDocuments: [
       {
+        id: 1,
         fileName: 'Offering Memorandum',
         filePath: 'filename.extension',
       }
@@ -202,6 +205,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
     },
     securityRequestDocuments: [
       {
+        id: 1,
         fileName: 'Offering Memorandum',
         filePath: 'filename.extension',
       }
@@ -252,6 +256,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
     },
     securityRequestDocuments: [
       {
+        id: 1,
         fileName: 'Offering Memorandum',
         filePath: 'filename.extension',
       }
@@ -302,6 +307,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
     },
     securityRequestDocuments: [
       {
+        id: 1,
         fileName: 'Offering Memorandum',
         filePath: 'filename.extension',
       }
@@ -352,6 +358,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
     },
     securityRequestDocuments: [
       {
+        id: 1,
         fileName: 'Offering Memorandum',
         filePath: 'filename.extension',
       }
@@ -402,6 +409,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
     },
     securityRequestDocuments: [
       {
+        id: 1,
         fileName: 'Offering Memorandum',
         filePath: 'filename.extension',
       }
@@ -452,6 +460,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
     },
     securityRequestDocuments: [
       {
+        id: 1,
         fileName: 'Offering Memorandum',
         filePath: 'filename.extension',
       }
@@ -502,6 +511,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
     },
     securityRequestDocuments: [
       {
+        id: 1,
         fileName: 'Offering Memorandum',
         filePath: 'filename.extension',
       }
