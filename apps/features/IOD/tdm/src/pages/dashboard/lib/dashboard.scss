@@ -1,0 +1,174 @@
+$dashboard-light-gray: #f3f3f5;
+
+.body-disable-scroll
+{
+  padding-right: 0px !important;
+  overflow-y: scroll !important;
+  position: fixed !important;
+  width: 100% !important;
+}
+
+.tcw-button
+{
+  color: white;
+  background-color: var(--tcw-blue-color) !important;
+  box-shadow: none !important;
+  text-transform: initial !important;
+}
+
+.tcw-button-outlined
+{
+  color: var(--tcw-blue-color) !important;
+  border-color: var(--tcw-blue-color) !important;
+  text-transform: initial !important;
+}
+
+.tcw-button-text
+{
+  color: var(--tcw-blue-color) !important;
+  text-transform: initial !important;
+}
+
+.dashboard-search-textfield
+{
+  width: 100%;
+  height: 55px;
+  border-radius: 5px;
+  background-color: $dashboard-light-gray !important;
+  vertical-align: middle !important;
+  .MuiOutlinedInput-root
+  {
+    fieldset
+    {
+      border: none !important;
+    }
+  }
+}
+
+.dashboard-daterangebox
+{
+  background-color: $dashboard-light-gray !important;
+}
+
+.dashboard-card
+{
+  width: 100%;
+  height: 100%;
+  background-color: $dashboard-light-gray !important;
+}
+
+.dashboard-card-media
+{
+  height: 7px;
+  background-image: linear-gradient(to right, #0D0D0D, #23425C, #A3C0C7);
+}
+
+.dashboard-grid
+{
+  .dx-header-row
+  {
+    td
+    {
+      height: 4em;
+      text-align: center !important;
+      vertical-align: middle !important;
+      color: white;
+      background-color: var(--tcw-blue-color);
+      border-radius: 5px 5px 0px 0px;
+    }
+  }
+
+  .dx-data-row
+  {
+    td
+    {
+      vertical-align: middle !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-bottom: 1px solid var(--dx-color-border);
+      padding-left: 1em !important;
+      padding-right: 1em !important;
+    }
+  }
+
+  .dx-datagrid-pager
+  {
+    border-top: none !important;
+  }
+}
+
+.dashboard-grid-status
+{
+  width: fit-content;
+  border: 1;
+  border-radius: 5px;
+  padding: 7px;
+}
+
+.security-request-file-container
+{
+  background-color: #F3F3F3;
+  border: 1;
+  border-radius: 5px;
+  padding: 7px;
+}
+
+.red-text
+{
+  color: #ce1f00;
+}
+
+.status-red
+{
+  color: #6c1444;
+  background-color: #dac4d0;
+}
+
+.status-purple
+{
+  color: #654d88;
+  background-color: #d8d2e1;
+}
+
+.status-blue
+{
+  color: #013d7d;
+  background-color: #bfcede;
+}
+
+.status-lightblue
+{
+  color: #56ccf2;
+  background-color: #d4f2fb;
+}
+
+.status-green
+{
+  color: #4b773d;
+  background-color: #d2ddce;
+}
+
+.status-yellow
+{
+  color: #db9f00;
+  background-color: #f6e7bf;
+}
+
+.status-orange
+{
+  color: #f2994a;
+  background-color: #fbe5d1;
+}
+
+.status-darkorange
+{
+  color: #904529;
+  background-color: #e3d0c9;
+}
+
+.status-gray
+{
+  color: #3b3b3d;
+  background-color: #f0f0f0;
+}
+
