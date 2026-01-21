@@ -70,7 +70,7 @@ export const Navbar: React.FC = () => {
                     url = item.prodUrl;
                 } else if (currentEnv === 'qa' && item.qaUrl) {
                     url = item.qaUrl;
-                } else if (currentEnv === 'dev' && item.devUrl) {
+                } else if ((currentEnv === 'dev' || currentEnv === 'development') && item.devUrl) {
                     url = item.devUrl;
                 } else if (currentEnv === 'sandbox' && item.sandboxUrl) {
                     url = item.sandboxUrl;
