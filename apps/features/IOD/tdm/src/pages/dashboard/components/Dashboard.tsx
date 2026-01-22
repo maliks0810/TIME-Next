@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
   }, [setSecurityRequestsData, setFilteredSecurityRequestsData]);
 
   const handleNewSecurityRequestOnClick = () => {
-    navigate('iod/tdm/security-setup');
+    navigate('/iod/tdm/security-setup');
   }
 
   const handleSearchTextFieldOnChange = (e: ChangeEvent<HTMLInputElement>) => {

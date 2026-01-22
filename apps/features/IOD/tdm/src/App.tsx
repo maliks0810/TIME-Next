@@ -5,9 +5,10 @@ import 'devextreme/dist/css/dx.light.css';
 
 export default function App() {
     return (
-        <Routes>
-            <Route index element={<Dashboard />} />
-            <Route path="security-setup" element={<SecuritySetup />} />
-        </Routes>
+      <Routes>
+        <Route index element={<Dashboard />} />
+        <Route path="*" element={<Dashboard />} />
+        <Route path="/security-setup" element={<SecuritySetup />} />
+      </Routes>
     )
 }
