@@ -14,7 +14,7 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         prodUrl: 'https://tod.pd.tcw.com/',
         newTab: true,
         disabled: false,
-        env: HighestEnv.prod
+        env: HighestEnv.prod,
     },
     {
         header: NavbarHeader.PortfolioManagement,
@@ -26,7 +26,7 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         prodUrl: 'https://sector-summary-webapp.pd.tcw.com/credit/home',
         newTab: true,
         disabled: false,
-        env: HighestEnv.prod
+        env: HighestEnv.prod,
     },
     {
         header: NavbarHeader.PortfolioManagement,
@@ -38,7 +38,7 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         prodUrl: 'http://localhost:5406/tools/iralaunchpad/?tdenv=prod&mode=aladdin',
         newTab: false,
         disabled: false,
-        env: HighestEnv.prod
+        env: HighestEnv.prod,
     },
     {
         header: NavbarHeader.PortfolioManagement,
@@ -50,20 +50,20 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         prodUrl: 'http://localhost:5406/tools/iralaunchpad/?tdenv=prod&mode=legacy',
         newTab: false,
         disabled: false,
-        env: HighestEnv.prod
+        env: HighestEnv.prod,
     },
     {
         type: 'internal',
         header: NavbarHeader.PortfolioManagement,
         subHeader: NavbarSubHeader.AladdinPortfolioManagement,
         id: 'tdm',
-        name: 'tdm',
-        title: 'tdm',
+        name: 'TDM',
+        title: 'TDM',
         env: HighestEnv.prod,
-        path: '/iod/tdm',
+        path: '/iod/tdm/*',
         team: 'IOD',
         component: lazy(() => import('@IOD/tdm/src/App')),
         description: '',
     },
     // PLOP_INJECT_APP
-]
+];
