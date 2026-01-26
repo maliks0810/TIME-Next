@@ -1,23 +1,32 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button, IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom'
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CheckIcon from '@mui/icons-material/Check';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { debounce } from 'lodash';
 import { FormContainer } from '../../../common/components/FormContainer';
 import { HorizontalStepper } from './HorizontalStepper';
-import { EnterIdentifierContainer } from './EnterIdentifierContainer';
 import { ReviewDetailsPage } from './ReviewDetailsPage';
 import { ConfirmDetailsPage } from './ConfirmDetailsPage';
 import { SubmitConfirmationModal } from './SubmitConfirmationModal';
 import {
-  SecuritySetupStep,
   ISecuritySetupWizardData,
   IEnterIdentifierFormValues,
   IReviewDetailsFormValues,
   SecuritySetupFlowType,
+  EnterIdentifierSubStep,
 } from '../lib/types';
 import '../lib/styles.scss';
+import { NewIssuePage } from './NewIssuePage';
+import { UploadCDIPage } from './UploadCDIPage';
+import { PrivateDealPage } from './PrivateDealPage';
+import { SSAPPasswordPage } from './SSAPPasswordPage';
+import { SAPILoginPage } from './SAPILoginPage';
+import { BloombergIdentifierPage } from './BloombergIdentifierPage';
+import { SSAPConfirmationPage } from './SSAPConfirmationPage';
 
 interface SecuritySetupContainerProps {
   flowType: SecuritySetupFlowType;
@@ -25,13 +34,19 @@ interface SecuritySetupContainerProps {
   onCancel?: () => void;
 }
 
+// Unified step type combining all steps
+type WizardStep = EnterIdentifierSubStep | 'review-details' | 'confirm-details';
+
 export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   flowType,
   onComplete,
   onCancel,
 }) => {
-  const [currentStep, setCurrentStep] = useState<SecuritySetupStep>('enter-identifier');
+  const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState<WizardStep>('new-issue');
+  const [completedSteps, setCompletedSteps] = useState<WizardStep[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
   const [wizardData, setWizardData] = useState<ISecuritySetupWizardData>({
     step1: {},
@@ -62,64 +77,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }));
   }, []);
 
-  const handleNext = () => {
-    switch (currentStep) {
-      case 'enter-identifier':
-        setCurrentStep('review-details');
-        break;
-      case 'review-details':
-        // Prepare confirm data
-        setWizardData((prev) => ({
-          ...prev,
-          step3: {
-            uploadedFile: 'file.file_extension',
-            ...prev.step2,
-          },
-        }));
-        setCurrentStep('confirm-details');
-        break;
-      case 'confirm-details':
-        setShowConfirmModal(true);
-        break;
-    }
-  };
-
-  const handleConfirmDetailsSubmit = () => {
-    // Console log all form field values
-    console.log('All Form Values:', JSON.stringify(wizardData, null, 2));
-
-    setShowConfirmModal(true);
-  };
-
-  const handleConfirmSubmit = () => {
-    setShowConfirmModal(false);
-
-    // Final submission
-    if (onComplete) {
-      onComplete(wizardData);
-    }
-  };
-
-  const handleCancelSubmit = () => {
-    setShowConfirmModal(false);
-  };
-
-  const handleBack = () => {
-    switch (currentStep) {
-      case 'review-details':
-        setCurrentStep('enter-identifier');
-        break;
-      case 'confirm-details':
-        setCurrentStep('review-details');
-        break;
-      case 'enter-identifier':
-        if (onCancel) {
-          onCancel();
-        }
-        break;
-    }
-  };
-
   const debouncedHandleStep1Change = useMemo(
     () =>
       debounce((values: IEnterIdentifierFormValues) => {
@@ -136,16 +93,21 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     [handleStep2Change]
   );
 
-  const handleFormChange = useCallback((formState: { values: IEnterIdentifierFormValues | IReviewDetailsFormValues }) => {
-    if (currentStep === 'enter-identifier') {
-      debouncedHandleStep1Change(formState.values as IEnterIdentifierFormValues);
-    } else if (currentStep === 'review-details') {
-      debouncedHandleStep2Change(formState.values as IReviewDetailsFormValues);
-    }
-  }, [currentStep, debouncedHandleStep1Change, debouncedHandleStep2Change]);
+  const handleFormChange = useCallback(
+    (formState: { values: IEnterIdentifierFormValues | IReviewDetailsFormValues }) => {
+      if (currentStep === 'review-details') {
+        debouncedHandleStep2Change(formState.values as IReviewDetailsFormValues);
+      } else if (currentStep !== 'confirm-details' && currentStep !== 'ssap-confirmation') {
+        debouncedHandleStep1Change(formState.values as IEnterIdentifierFormValues);
+      }
+    },
+    [currentStep, debouncedHandleStep1Change, debouncedHandleStep2Change]
+  );
 
-  const handleFormSubmit = async () => {
-    // Form submission is handled by the Next button
+  const handleFormSubmit = async (
+    values: IEnterIdentifierFormValues | IReviewDetailsFormValues
+  ) => {
+    console.log('form values', values);
     return Promise.resolve();
   };
 
@@ -156,17 +118,262 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     };
   }, [debouncedHandleStep1Change, debouncedHandleStep2Change]);
 
-  const renderStepContent = () => {
+  const markStepComplete = (step: WizardStep) => {
+    if (!completedSteps.includes(step)) {
+      setCompletedSteps((prev) => [...prev, step]);
+    }
+  };
+
+  const getNextStep = (current: WizardStep): WizardStep | null => {
+    switch (current) {
+      case 'new-issue':
+        return wizardData.step1.newIssue === 'no' ? 'bloomberg-identifier' : 'upload-cdi';
+      case 'upload-cdi':
+        return 'private-deal';
+      case 'private-deal':
+        return wizardData.step1.privateDeal === 'no' ? 'bloomberg-identifier' : 'ssap-password';
+      case 'ssap-password':
+        return 'sapi-login';
+      case 'sapi-login':
+        return 'ssap-confirmation';
+      case 'ssap-confirmation':
+        // This step doesn't have a "next" - user should be routed to dashboard
+        return null;
+      case 'bloomberg-identifier':
+        return 'review-details';
+      case 'review-details':
+        return 'confirm-details';
+      case 'confirm-details':
+        return null; // Final step
+      default:
+        return null;
+    }
+  };
+
+  const getPreviousStep = (current: WizardStep): WizardStep | null => {
+    const currentIndex = completedSteps.indexOf(current);
+
+    if (currentIndex > 0) {
+      return completedSteps[currentIndex - 1]
+    }
+
+    if (currentIndex === 0) {
+      return null
+    }
+
+    // current step not in completed steps, return last completed step
+    if (completedSteps.length > 0) {
+      return completedSteps[completedSteps.length - 1];
+    }
+    return null;
+  };
+
+  const canProceed = (): boolean => {
+    if (isReadOnly) return true;
+
     switch (currentStep) {
-      case 'enter-identifier':
-        return (
-          <EnterIdentifierContainer
-            flowType={flowType}
-            formValues={wizardData.step1}
-            onFormChange={handleStep1Change}
-            onContinue={handleNext}
-          />
-        );
+      case 'new-issue':
+        return !!wizardData.step1.newIssue;
+      case 'upload-cdi':
+        return !!wizardData.step1.cdiFileUploadedToAnser && !!wizardData.step1.aladdinCDIId;
+      case 'private-deal':
+        return !!wizardData.step1.privateDeal;
+      case 'ssap-password':
+        return !!wizardData.step1.ssapIdPassword;
+      case 'sapi-login':
+        return !!wizardData.step1.ssapApproved;
+      case 'ssap-confirmation':
+        return false; // No next button on confirmation page
+      case 'bloomberg-identifier':
+        return !!wizardData.step1.identifierValue && !!wizardData.step1.marketSector;
+      case 'review-details':
+      case 'confirm-details':
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  const handleNext = () => {
+    if (!isReadOnly) {
+      markStepComplete(currentStep);
+    }
+
+    const nextStep = getNextStep(currentStep);
+
+    if (nextStep) {
+      if (currentStep === 'review-details') {
+        // Prepare confirm data before moving to confirm-details
+        setWizardData((prev) => ({
+          ...prev,
+          step3: {
+            uploadedFile: 'file.file_extension',
+            ssapIdPassword: prev.step1.ssapIdPassword,
+            ...prev.step2,
+          },
+        }));
+      }
+      setCurrentStep(nextStep);
+      setIsReadOnly(false);
+    } else if (currentStep === 'confirm-details') {
+      // Final step - show confirmation modal
+      setShowConfirmModal(true);
+    }
+  };
+
+  const handleSkip = () => {
+    // Skip to Bloomberg Identifier (Step 4)
+    setCurrentStep('bloomberg-identifier');
+  };
+
+  const handleBack = () => {
+    const prevStep = getPreviousStep(currentStep);
+    if (prevStep) {
+      setCurrentStep(prevStep);
+      setIsReadOnly(true); // Enable read-only mode when going back
+    } else if (onCancel) {
+      onCancel();
+    }
+  };
+
+  const handleClose = () => {
+    navigate('/iod/tdm/');
+  };
+
+  const handleConfirmSubmit = () => {
+    setShowConfirmModal(false);
+    if (onComplete) {
+      onComplete(wizardData);
+    }
+  };
+
+  const handleCancelSubmit = () => {
+    setShowConfirmModal(false);
+  };
+
+  const getCurrentStepNumber = (): number => {
+    switch (currentStep) {
+      case 'new-issue':
+        return 1;
+      case 'upload-cdi':
+        return 2;
+      case 'private-deal':
+      case 'ssap-password':
+      case 'sapi-login':
+      case 'ssap-confirmation':
+        return 3; // All private deal related steps are part of Step 3
+      case 'bloomberg-identifier':
+        return 4;
+      case 'review-details':
+        return 5;
+      case 'confirm-details':
+        return 6;
+      default:
+        return 1;
+    }
+  };
+
+  const getStepTitle = (): string => {
+    switch (currentStep) {
+      case 'new-issue':
+        return 'Step 1 of 6: New Issue';
+      case 'upload-cdi':
+        return 'Step 2 of 6: New Issue CDI Anser Upload';
+      case 'private-deal':
+      case 'ssap-password':
+      case 'sapi-login':
+      case 'ssap-confirmation':
+        return 'Step 3 of 6: Private Deal';
+      case 'bloomberg-identifier':
+        return 'Step 4 of 6: Trader Details';
+      case 'review-details':
+        return 'Step 5 of 6: Security Request Template';
+      case 'confirm-details':
+        return 'Step 6 of 6: Review Security Data';
+      default:
+        return '';
+    }
+  };
+
+  const renderSuccessMessages = () => {
+    const messages: { step: WizardStep; message: string; isPending?: boolean }[] = [];
+
+    if (completedSteps.includes('new-issue')) {
+      messages.push({
+        step: 'new-issue',
+        message: `New Issue: ${wizardData.step1.newIssue === 'yes' ? 'Yes' : 'No'}`,
+      });
+    }
+    if (completedSteps.includes('upload-cdi')) {
+      messages.push({
+        step: 'upload-cdi',
+        message: `CDI File Uploaded & Aladdin CDI ID entered (${wizardData.step1.aladdinCDIId})`,
+      });
+    }
+    if (completedSteps.includes('private-deal')) {
+      messages.push({
+        step: 'private-deal',
+        message: `Private Deal: ${wizardData.step1.privateDeal === 'yes' ? 'Yes' : 'No'}`,
+      });
+    }
+    if (completedSteps.includes('ssap-password')) {
+      messages.push({
+        step: 'ssap-password',
+        message: `SSAP ID/Password: ${wizardData.step1.ssapIdPassword || ''}`,
+      });
+    }
+    if (currentStep === 'sapi-login' && !wizardData.step1.ssapApproved) {
+      messages.push({
+        step: 'sapi-login',
+        message: 'Pending DM SSAP Review',
+        isPending: true,
+      });
+    }
+    if (completedSteps.includes('sapi-login')) {
+      messages.push({
+        step: 'sapi-login',
+        message: 'SAPI login confirmed',
+      });
+    }
+
+    if (messages.length === 0) return null;
+
+    return (
+      <div className="substep-success-messages">
+        {messages.map((msg, index) => (
+          <div key={index} className="substep-success-item">
+            <CheckCircleIcon
+              className={`substep-success-icon ${msg.isPending ? 'pending' : ''}`}
+            />
+            <span className={msg.isPending ? 'pending' : ''}>{msg.message}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderStepContent = () => {
+    const commonProps = {
+      formValues: wizardData.step1,
+      onFormChange: handleStep1Change,
+      isReadOnly: isReadOnly,
+    };
+
+    switch (currentStep) {
+      case 'new-issue':
+        return <NewIssuePage {...commonProps} />;
+      case 'upload-cdi':
+        return <UploadCDIPage {...commonProps} />;
+      case 'private-deal':
+        return <PrivateDealPage {...commonProps} />;
+      case 'ssap-password':
+        return <SSAPPasswordPage {...commonProps} />;
+      case 'sapi-login':
+        return <SAPILoginPage {...commonProps} />;
+      case 'ssap-confirmation':
+        return <SSAPConfirmationPage onSkipToBloomberg={handleSkip} />;
+      case 'bloomberg-identifier':
+        return <BloombergIdentifierPage {...commonProps} />;
       case 'review-details':
         return (
           <ReviewDetailsPage
@@ -179,10 +386,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         return (
           <ConfirmDetailsPage
             flowType={flowType}
-            data={wizardData.step3 || {
-              uploadedFile: '',
-              ...wizardData.step2,
-            }}
+            data={
+              wizardData.step3 || {
+                uploadedFile: '',
+                ...wizardData.step2,
+              }
+            }
           />
         );
       default:
@@ -190,43 +399,44 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
   };
 
-  const getStepTitle = () => {
-    switch (currentStep) {
-      case 'enter-identifier':
-        return 'Step 1 of 3: Enter Identifier';
-      case 'review-details':
-        return 'Step 2 of 3: Security Request Template';
-      case 'confirm-details':
-        return 'Step 3 of 3: Review Security Data';
-      default:
-        return '';
-    }
+  const getButtonText = (): string => {
+    if (currentStep === 'bloomberg-identifier') return 'Continue to Request Form';
+    if (currentStep === 'review-details') return 'Review Request';
+    if (currentStep === 'confirm-details') return 'Confirm Request';
+    return 'Next';
   };
 
   const formInitialValues = useMemo(() => {
-    return currentStep === 'enter-identifier'
-      ? wizardData.step1
-      : wizardData.step2;
+    return currentStep === 'review-details' ? wizardData.step2 : wizardData.step1;
   }, [currentStep, wizardData.step1, wizardData.step2]);
+
+  const showBackButton = completedSteps.length > 0 && currentStep !== 'ssap-confirmation';
+  const showNextButton = currentStep !== 'ssap-confirmation';
 
   return (
     <div className="security-setup-wizard">
       <div className="wizard-header">
         <h1 className="wizard-title">Security Setup Wizard</h1>
-        <IconButton
-          className="wizard-close-button"
-          onClick={onCancel}
-          aria-label="close"
-        >
-          <CloseIcon />
-        </IconButton>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <IconButton className="wizard-close-button" onClick={handleClose} aria-label="close">
+            <CloseIcon />
+          </IconButton>
+          <span style={{ fontSize: '14px', cursor: 'pointer' }} onClick={handleClose}>Cancel</span>
+        </div>
       </div>
 
-      <HorizontalStepper currentStep={currentStep} stepTitle={getStepTitle()} />
+      <HorizontalStepper
+        currentStepNumber={getCurrentStepNumber()}
+        totalSteps={6}
+        stepTitle={getStepTitle()}
+      />
 
       <div className="wizard-content">
-        {currentStep === 'confirm-details' ? (
-          renderStepContent()
+        {currentStep === 'confirm-details' || currentStep === 'ssap-confirmation' ? (
+          <>
+            {renderSuccessMessages()}
+            {renderStepContent()}
+          </>
         ) : (
           <FormContainer
             key={currentStep}
@@ -238,13 +448,14 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             }}
             containerOnly
           >
+            {renderSuccessMessages()}
             {renderStepContent()}
           </FormContainer>
         )}
       </div>
 
-      {(currentStep === 'review-details' || currentStep === 'confirm-details') && (
-        <div className="wizard-actions">
+      <div className="wizard-actions">
+        {showBackButton && (
           <Button
             variant="outlined"
             className="back-button"
@@ -253,16 +464,25 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           >
             Back
           </Button>
+        )}
+        {showNextButton && (
           <Button
             variant="contained"
             className="next-button"
-            onClick={currentStep === 'review-details' ? handleNext : handleConfirmDetailsSubmit}
-            endIcon={currentStep === 'confirm-details' ? <CheckIcon /> : undefined}
+            onClick={handleNext}
+            disabled={!canProceed()}
+            endIcon={
+              currentStep === 'confirm-details' ? (
+                <CheckIcon />
+              ) : (
+                <ArrowForwardIcon />
+              )
+            }
           >
-            {currentStep === 'review-details' ? 'Review Request' : 'Confirm Request'}
+            {getButtonText()}
           </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       <SubmitConfirmationModal
         open={showConfirmModal}

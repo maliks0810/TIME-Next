@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormControl, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
-import { IEnterIdentifierFormValues } from '../../lib/types';
+import { IEnterIdentifierFormValues } from '../lib/types';
 
 interface UploadCDIPageProps {
   formValues: IEnterIdentifierFormValues;

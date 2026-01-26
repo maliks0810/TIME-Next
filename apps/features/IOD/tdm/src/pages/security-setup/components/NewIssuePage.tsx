@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormControl, MenuItem, Select, SelectChangeEvent } from '@mui/material';
-import { IEnterIdentifierFormValues } from '../../lib/types';
+import { IEnterIdentifierFormValues } from '../lib/types';
 
 interface NewIssuePageProps {
   formValues: IEnterIdentifierFormValues;

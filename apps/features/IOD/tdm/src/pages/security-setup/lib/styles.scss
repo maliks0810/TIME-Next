@@ -40,7 +40,6 @@
   }
 }
 
-// Progress Stepper
 .progress-stepper {
   padding: 24px 48px 16px;
   background-color: #fff;
@@ -75,12 +74,121 @@
   }
 }
 
-// Wizard Content
 .wizard-content {
   flex: 1 1 auto;
   padding: 0 48px 24px;
   overflow-y: auto;
   min-height: 0;
+}
+
+// =============================================================================
+// SUCCESS MESSAGES (GREEN BOX)
+// =============================================================================
+.substep-success-messages {
+  background-color: #e8f5e9;
+  border: 1px solid #81c784;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+
+  .substep-success-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .substep-success-icon {
+      color: #4caf50;
+      font-size: 20px;
+      flex-shrink: 0;
+
+      &.pending {
+        color: #ff9800; // Orange for pending
+      }
+    }
+
+    span {
+      font-size: 13px;
+      color: #2e7d32;
+      line-height: 1.4;
+
+      &.pending {
+        color: #e65100; // Darker orange for pending text
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// =============================================================================
+// REMINDER BOX (YELLOW)
+// =============================================================================
+.reminder-box {
+  background-color: #fff8e1;
+  border: 1px solid #ffcc80;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin-top: 24px;
+
+  .reminder-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e65100;
+    margin-bottom: 8px;
+  }
+
+  .reminder-text {
+    font-size: 13px;
+    color: #5d4037;
+    line-height: 1.5;
+  }
+}
+
+// =============================================================================
+// COMMON FORM STYLES
+// =============================================================================
+
+.substep-content {
+  margin-bottom: 32px;
+
+  .form-row-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .field-label {
+      font-size: 13px;
+      color: #1a1a1a;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .field-inputs-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+
+      .field-input-half {
+        width: 100%;
+      }
+
+      .field-label-inline {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 8px;
+        font-weight: 400;
+      }
+    }
+  }
 }
 
 // =============================================================================
@@ -91,7 +199,6 @@
   margin: 0 auto;
   padding: 24px 0;
 
-  // Sub-step Header
   .substep-header {
     margin-bottom: 24px;
 
@@ -103,39 +210,6 @@
     }
   }
 
-  // Sub-step Success Messages (green box)
-  .substep-success-messages {
-    background-color: #e8f5e9;
-    border: 1px solid #81c784;
-    border-radius: 4px;
-    padding: 16px 20px;
-    margin-bottom: 32px;
-
-    .substep-success-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-
-      .substep-success-icon {
-        color: #4caf50;
-        font-size: 20px;
-        flex-shrink: 0;
-      }
-
-      span {
-        font-size: 13px;
-        color: #2e7d32;
-        line-height: 1.4;
-      }
-    }
-  }
-
-  // Sub-step Content
   .substep-content {
     margin-bottom: 32px;
 
@@ -184,7 +258,6 @@
       }
     }
 
-    // SAPI Instruction Box
     .sapi-instruction-box {
       background-color: #e3f2fd;
       border: 1px solid #90caf9;
@@ -209,9 +282,147 @@
         }
       }
     }
+
+    .ssap-request-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 0;
+      gap: 24px;
+
+      .ssap-confirmation-instruction {
+        font-size: 14px;
+        color: #1a1a1a;
+        text-align: center;
+        margin: 0;
+      }
+
+      .ssap-request-button {
+        background-color: #3f51b5;
+        color: #fff;
+        text-transform: none;
+        padding: 12px 32px;
+        font-size: 15px;
+        font-weight: 500;
+        border-radius: 4px;
+        box-shadow: none;
+        min-width: 240px;
+
+        &:hover {
+          background-color: #303f9f;
+          box-shadow: none;
+        }
+
+        &:disabled {
+          background-color: #b0b0b0;
+          color: #fff;
+        }
+      }
+    }
+
+    .ssap-confirmation-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 0;
+
+      .ssap-confirmation-box {
+        max-width: 600px;
+        text-align: center;
+        padding: 32px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #fafafa;
+
+        .ssap-confirmation-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #1a1a1a;
+          margin: 0 0 16px 0;
+        }
+
+        .ssap-confirmation-text {
+          font-size: 14px;
+          color: #666;
+          line-height: 1.6;
+          margin: 0 0 24px 0;
+        }
+
+        .ssap-confirmation-actions {
+          display: flex;
+          gap: 16px;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .go-to-dashboard-button {
+          background-color: #3f51b5;
+          color: #fff;
+          text-transform: none;
+          padding: 10px 24px;
+          font-size: 14px;
+          font-weight: 500;
+          border-radius: 4px;
+          box-shadow: none;
+
+          &:hover {
+            background-color: #303f9f;
+            box-shadow: none;
+          }
+        }
+
+        .skip-to-step4-button {
+          color: #666;
+          border-color: #ccc;
+          text-transform: none;
+          padding: 10px 24px;
+          font-size: 14px;
+          font-weight: 500;
+          border-radius: 4px;
+          box-shadow: none;
+
+          &:hover {
+            background-color: #f5f5f5;
+            border-color: #999;
+          }
+        }
+      }
+    }
+
+    .ssap-approval-container {
+      display: flex;
+      justify-content: center;
+      padding: 24px 0;
+
+      .approve-ssap-button {
+        background-color: #093566;
+        color: #fff;
+        text-transform: none;
+        padding: 12px 32px;
+        font-size: 15px;
+        font-weight: 500;
+        border-radius: 4px;
+        box-shadow: none;
+        min-width: 200px;
+
+        &:hover {
+          background-color: #0a4378;
+          box-shadow: none;
+        }
+
+        &:disabled {
+          background-color: #4caf50; // Green when approved
+          color: #fff;
+          cursor: default;
+        }
+
+        .MuiButton-startIcon {
+          margin-right: 8px;
+        }
+      }
+    }
   }
 
-  // Reminder Box
   .reminder-box {
     background-color: #fff8e1;
     border: 1px solid #ffcc80;
@@ -233,7 +444,6 @@
     }
   }
 
-  // Sub-step Actions
   .substep-actions {
     display: flex;
     justify-content: flex-end;
@@ -287,7 +497,6 @@
     }
   }
 
-  // Legacy styles (keep for compatibility)
   .identifier-form-grid {
     display: flex;
     flex-direction: column;
@@ -335,7 +544,6 @@
     }
   }
 
-  // Continue Button (legacy)
   .continue-button-full {
     background-color: #093566;
     color: #fff;
@@ -367,7 +575,6 @@
 // STEP 2: REVIEW DETAILS PAGE
 // =============================================================================
 .review-details-page {
-  // Success Messages Box
   .success-messages-box {
     background-color: #e8f5e9;
     border: 1px solid #81c784;
@@ -402,7 +609,6 @@
     }
   }
 
-  // Offering Memorandum Upload Section
   .offering-upload-section {
     margin-bottom: 32px;
 
@@ -458,7 +664,6 @@
     }
   }
 
-  // Form Sections
   .form-section {
     margin-bottom: 32px;
 
@@ -521,7 +726,6 @@
     }
   }
 
-  // ESG Green Border
   .esg-green-border {
     .MuiOutlinedInput-root {
       border: 2px solid #4caf50;
@@ -541,7 +745,6 @@
     }
   }
 
-  // ESG Collateral Field
   .esg-collateral-field {
     input {
       color: #d32f2f;
@@ -554,7 +757,6 @@
 // STEP 3: CONFIRM DETAILS PAGE
 // =============================================================================
 .confirm-details-page {
-  // File Uploaded Indicator
   .file-uploaded-indicator {
     margin-bottom: 32px;
 
@@ -579,7 +781,6 @@
     }
   }
 
-  // Form Sections
   .form-section {
     margin-bottom: 32px;
 
@@ -624,7 +825,6 @@
     }
   }
 
-  // Disabled form fields styling
   .MuiTextField-root,
   .MuiFormControl-root {
     .Mui-disabled {
@@ -643,7 +843,6 @@
     }
   }
 
-  // ESG Collateral Field - Red text
   .esg-collateral-field-red {
     input.Mui-disabled {
       color: #d32f2f !important;
@@ -658,6 +857,7 @@
 .wizard-actions {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 16px;
   padding: 16px 48px;
   border-top: 1px solid #e0e0e0;
@@ -680,6 +880,19 @@
 
     .MuiButton-startIcon {
       margin-right: 8px;
+    }
+  }
+
+  .skip-button {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: none;
+    color: #666;
+    margin-left: auto;
+
+    &:hover {
+      background-color: #f5f5f5;
     }
   }
 
