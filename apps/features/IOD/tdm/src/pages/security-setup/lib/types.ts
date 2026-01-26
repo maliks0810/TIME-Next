@@ -8,10 +8,11 @@ export type SecuritySetupStep = 'enter-identifier' | 'review-details' | 'confirm
 export type EnterIdentifierSubStep =
     | 'new-issue' // Sub-step 1: New Issue question
     | 'upload-cdi' // Sub-step 2: Upload CDI & Aladdin CDI ID
-    | 'private-deal' // Sub-step 3: Private Deal question
-    | 'ssap-password' // Sub-step 4: Enter SSAP ID/Password
-    | 'sapi-login' // Sub-step 5: DM log into SAPI
-    | 'bloomberg-identifier'; // Sub-step 6: Enter Bloomberg Identifier
+    | 'private-deal' // Sub-step 3a: Private Deal question
+    | 'ssap-password' // Sub-step 3b: Enter SSAP ID/Password (if private)
+    | 'sapi-login' // Sub-step 3c: Request DM Release (if private)
+    | 'ssap-confirmation' // Sub-step 3d: SSAP Confirmation (if private)
+    | 'bloomberg-identifier'; // Sub-step 4: Enter Bloomberg Identifier
 
 // Step 1: Enter Identifier - NON-PRIVATE FLOW
 export interface IEnterIdentifierFormValues {
@@ -30,6 +31,7 @@ export interface IEnterIdentifierFormValues {
     // Private Deal row
     privateDeal?: string; // Select... dropdown
     ssapIdPassword?: string; // Sample_Code text
+    ssapApproved?: boolean; // SAPI Login approval
 
     // New Issue row
     newIssue?: string; // Select... dropdown
@@ -84,6 +86,7 @@ export interface IReviewDetailsFormValues {
 // Step 3: Confirm Details (read-only review of all data)
 export interface IConfirmDetailsData {
     uploadedFile?: string; // "file.file_extension"
+    ssapIdPassword?: string;
     securityDetails: ISecurityDetails;
     esgFields: IESGFields;
     tradeFields: ITradeFields;

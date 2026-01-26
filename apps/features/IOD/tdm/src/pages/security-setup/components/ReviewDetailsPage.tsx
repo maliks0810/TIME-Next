@@ -75,7 +75,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Aladdin CDI ID</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.aladdinCDIId || 'BDL123456'}
+              value={formValues.securityDetails?.aladdinCDIId || ''}
               disabled
               variant="outlined"
               className="readonly-field"
@@ -85,7 +85,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Identifier</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.identifier || '61779KAA4'}
+              value={formValues.securityDetails?.identifier || ''}
               disabled
               variant="outlined"
               className="readonly-field"
@@ -95,7 +95,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Description</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.description || 'MSBM 2025-NQM7 A1'}
+              value={formValues.securityDetails?.description || ''}
               disabled
               variant="outlined"
               className="readonly-field"
@@ -105,7 +105,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Tranche</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.tranche || 'A'}
+              value={formValues.securityDetails?.tranche || ''}
               disabled
               variant="outlined"
               className="readonly-field"
@@ -115,7 +115,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Sector</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.sector || 'Non-QM'}
+              value={formValues.securityDetails?.sector || ''}
               disabled
               variant="outlined"
               className="readonly-field"
@@ -125,7 +125,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Callable</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.callable || 'Y'}
+              value={formValues.securityDetails?.callable || ''}
               disabled
               variant="outlined"
               className="readonly-field"
@@ -135,7 +135,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Call Date</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.callDate || '9/25/2029'}
+              value={formValues.securityDetails?.callDate || ''}
               disabled
               variant="outlined"
               className="readonly-field"
@@ -145,7 +145,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Price</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.price || '99.30'}
+              value={formValues.securityDetails?.price || ''}
               disabled
               variant="outlined"
               className="readonly-field"
@@ -179,7 +179,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             </label>
             <TextField
               fullWidth
-              value={formValues.esgFields?.esgCollateralType || 'x'}
+              value={formValues.esgFields?.esgCollateralType || ''}
               onChange={(e) => handleESGChange('esgCollateralType', e.target.value)}
               variant="outlined"
               className="esg-collateral-field"

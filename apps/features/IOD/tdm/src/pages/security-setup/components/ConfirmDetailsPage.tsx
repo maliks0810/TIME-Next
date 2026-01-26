@@ -20,6 +20,25 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
         </div>
       </div>
 
+
+      {/* SSAP ID/Password Section */}
+      {data.ssapIdPassword && (
+        <div className="form-section">
+          <h3 className='section-title'>SSAP Credentials</h3>
+          <div className='form-row single-column'>
+            <div className='form-field'>
+              <label className="field-label">SSAP ID/Password</label>
+              <TextField
+                fullWidth
+                value={data.ssapIdPassword}
+                disabled
+                variant='outlined'
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Security Details Section */}
       <div className="form-section">
         <h3 className="section-title">Security Details</h3>

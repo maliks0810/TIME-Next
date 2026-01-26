@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextField } from '@mui/material';
-import { IEnterIdentifierFormValues } from '../../lib/types';
+import { IEnterIdentifierFormValues } from '../lib/types';
 
 interface SSAPPasswordPageProps {
   formValues: IEnterIdentifierFormValues;
@@ -20,7 +20,7 @@ export const SSAPPasswordPage: React.FC<SSAPPasswordPageProps> = ({
   return (
     <div className="substep-content">
       <div className="form-row-group">
-        <label className="field-label">SSAP ID/Password</label>
+        <label className="field-label">SSAP ID/Password *</label>
         <TextField
           fullWidth
           value={formValues.ssapIdPassword || ''}

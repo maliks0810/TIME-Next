@@ -8,12 +8,12 @@ import {
   IEnterIdentifierFormValues,
   EnterIdentifierSubStep
 } from '../lib/types';
-import { NewIssuePage } from './sub-steps/NewIssuePage';
-import { UploadCDIPage } from './sub-steps/UploadCDIPage';
-import { PrivateDealPage } from './sub-steps/PrivateDealPage';
-import { SSAPPasswordPage } from './sub-steps/SSAPPasswordPage';
-import { SAPILoginPage } from './sub-steps/SAPILoginPage';
-import { BloombergIdentifierPage } from './sub-steps/BloombergIdentifierPage';
+import { NewIssuePage } from './NewIssuePage';
+import { UploadCDIPage } from './UploadCDIPage';
+import { PrivateDealPage } from './PrivateDealPage';
+import { SSAPPasswordPage } from './SSAPPasswordPage';
+import { SAPILoginPage } from './SAPILoginPage';
+import { BloombergIdentifierPage } from './BloombergIdentifierPage';
 
 interface EnterIdentifierContainerProps {
   formValues: IEnterIdentifierFormValues;
@@ -205,7 +205,7 @@ export const EnterIdentifierContainer: React.FC<EnterIdentifierContainerProps> =
       case 'ssap-password':
         return <SSAPPasswordPage {...commonProps} />;
       case 'sapi-login':
-        return <SAPILoginPage />;
+        return <SAPILoginPage {...commonProps} />;
       case 'bloomberg-identifier':
         return <BloombergIdentifierPage {...commonProps} />;
       default:
