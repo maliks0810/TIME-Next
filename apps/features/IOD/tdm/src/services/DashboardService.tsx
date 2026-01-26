@@ -1,20 +1,22 @@
-import { ISecurityRequest, ISecurityRequestDocument, securityRequestsMockData } from "../pages/dashboard/lib/SecurityRequest";
-import { ISecurityRequestApi, ISecurityRequestDocumentApi } from './domain-objects/SecurityRequestApi';
+import axios from "axios"
+import { ISecurityRequest, ISecurityRequestDocument } from "../pages/dashboard/lib/SecurityRequest";
+import { SecuritySetupRequest, SecuritySetupRequestDocument } from './domain-objects/DashboardApiResponse';
+import { API_BASE_URL } from "./Environement";
 
-export const transformApiSecurityRequestDocument = (apiData: ISecurityRequestDocumentApi): ISecurityRequestDocument => {
+export const transformDashboardSecuritySetupRequestDocument = (apiData: SecuritySetupRequestDocument): ISecurityRequestDocument => {
   return {
-    id: apiData.id,
+    id: apiData.securitySetupDocumentId,
     fileName: apiData.fileName,
     filePath: apiData.filePath,
   }
 }
 
-export const transformApiSecurityRequestsDashboard = (apiData: ISecurityRequestApi): ISecurityRequest => {
+export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupRequest): ISecurityRequest => {
     return {
-        id: Number(apiData.securitySetupRequestsId),
+        id: Number(apiData.securitySetupRequestId),
         description: apiData.description,
-        identifier: apiData.identifier,
-        createdDate: apiData.createdDate,
+        identifier: apiData.identifierValue,
+        createdDate: new Date(apiData.createdDate),
         createdBy: apiData.createdBy,
         setupStatus: apiData.setupStatus,
         riskAnalyticsStatus: apiData.riskAnalyticsStatus,
@@ -31,7 +33,7 @@ export const transformApiSecurityRequestsDashboard = (apiData: ISecurityRequestA
           cusip: apiData.cusip,
           description: apiData.description,
           newIssue: apiData.newIssue,
-          euSecurity: apiData.euSecurity,
+          euSecurity: apiData.euSecurityVerificationRequired,
           euSecuritizationTipId: apiData.euSecuritizationTipId,
           callDate: apiData.callDate,
           price: apiData.price,
@@ -53,16 +55,23 @@ export const transformApiSecurityRequestsDashboard = (apiData: ISecurityRequestA
           collateral: apiData.collateral,
           ffiecQual: apiData.ffiecQual,
         },
-        securityRequestDocuments: []
+        securityRequestDocuments: apiData.documents.map(transformDashboardSecuritySetupRequestDocument),
     };
 };
 
 export const getSecurityRequestsDashboard = async () : Promise<ISecurityRequest[]> => {
   let securityRequests : ISecurityRequest[] = []
   
-  //const response = await axios.get("");
-  //securityRequests = response.data.map(transformApiSecurityRequestsDashboard);
-  securityRequests = securityRequestsMockData;
+  const baseUrl = API_BASE_URL;
+  const endpoint = "dashboarditems";
+    
+  const response = await axios.get(baseUrl + endpoint);
+  
+  const data = response.data;
+  const securitySetupRequests : SecuritySetupRequest[] = data.dashboard.securitySetupRequestCollection;
+  const mappedSecuritySetupRequests = securitySetupRequests.map(transformDashboardSecuritySetupRequest);
+
+  securityRequests = mappedSecuritySetupRequests;
 
   return securityRequests;
 };

@@ -28,7 +28,7 @@ export interface ISecurityRequestDetails {
   euSecurity: string;
   euSecuritizationTipId: string;
   callDate: string;
-  price: string;
+  price: number;
 }
 
 export interface ISecurityRequestEsgFields {
@@ -82,7 +82,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
       euSecurity: 'No',
       euSecuritizationTipId: 'n/a',
       callDate: '9/25/2029',
-      price: '99.30',
+      price: 99.30,
     },
     securityRequestEsgFields: {
       tcwEsg: 'No',
@@ -133,7 +133,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
       euSecurity: 'No',
       euSecuritizationTipId: 'n/a',
       callDate: '9/25/2029',
-      price: '99.30',
+      price: 99.30,
     },
     securityRequestEsgFields: {
       tcwEsg: 'No',
@@ -184,7 +184,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
       euSecurity: 'No',
       euSecuritizationTipId: 'n/a',
       callDate: '9/25/2029',
-      price: '99.30',
+      price: 99.30,
     },
     securityRequestEsgFields: {
       tcwEsg: 'No',
@@ -235,7 +235,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
       euSecurity: 'No',
       euSecuritizationTipId: 'n/a',
       callDate: '9/25/2029',
-      price: '99.30',
+      price: 99.30,
     },
     securityRequestEsgFields: {
       tcwEsg: 'No',
@@ -286,7 +286,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
       euSecurity: 'No',
       euSecuritizationTipId: 'n/a',
       callDate: '9/25/2029',
-      price: '99.30',
+      price: 99.30,
     },
     securityRequestEsgFields: {
       tcwEsg: 'No',
@@ -337,7 +337,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
       euSecurity: 'No',
       euSecuritizationTipId: 'n/a',
       callDate: '9/25/2029',
-      price: '99.30',
+      price: 99.30,
     },
     securityRequestEsgFields: {
       tcwEsg: 'No',
@@ -388,7 +388,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
       euSecurity: 'No',
       euSecuritizationTipId: 'n/a',
       callDate: '9/25/2029',
-      price: '99.30',
+      price: 99.30,
     },
     securityRequestEsgFields: {
       tcwEsg: 'No',
@@ -439,7 +439,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
       euSecurity: 'No',
       euSecuritizationTipId: 'n/a',
       callDate: '9/25/2029',
-      price: '99.30',
+      price: 99.30,
     },
     securityRequestEsgFields: {
       tcwEsg: 'No',
@@ -490,7 +490,7 @@ export const securityRequestsMockData : ISecurityRequest[] = [
       euSecurity: 'No',
       euSecuritizationTipId: 'n/a',
       callDate: '9/25/2029',
-      price: '99.30',
+      price: 99.30,
     },
     securityRequestEsgFields: {
       tcwEsg: 'No',
