@@ -1,15 +1,19 @@
 import React, { useCallback, useState, ChangeEvent, KeyboardEvent, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, Button, Card, CardContent, CardMedia, Drawer, Grid, InputAdornment, TextField, Typography } from '@mui/material';
-import { Search } from '@mui/icons-material';
-import { DateRangeBox } from 'devextreme-react/date-range-box'
 import DashboardSettings from './DashboardSettings';
 import DashboardChart from './DashboardChart';
 import DashboardGrid from './DashboardGrid';
 import DashboardRequestDetails from './DashboardRequestDetails';
+import { useNavigate } from 'react-router-dom';
+import { Box, Button, Card, CardContent, CardMedia, Drawer, Grid, InputAdornment, TextField, Typography } from '@mui/material';
+import { Search } from '@mui/icons-material';
+import { DateRangeBox } from 'devextreme-react/date-range-box'
 import { setupStatusData, riskManagementStatusData } from '../lib/ChartData';
 import { ISecurityRequest } from '../lib/SecurityRequest'
 import { getSecurityRequestsDashboard } from '../../../services/DashboardService';
+import { useVisibilityChange } from '../../../hooks/useVisibilityChange';
+import { useInterval } from '../../../hooks/useInterval';
+import { getCurrentLocalTime } from '../../../utils/CurrentTime';
+import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
 import '../lib/dashboard.scss';
 
 const Dashboard: React.FC = () => {
@@ -20,19 +24,42 @@ const Dashboard: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | null>();
   const [endDate, setEndDate] = useState<Date | null>();
   const [securityRequestsData, setSecurityRequestsData] = useState<ISecurityRequest[]>();
-  const [filteredSecurityRequestsData, setFilteredSecurityRequestsData] = useState<ISecurityRequest[]>();
+  const [pollingInterval, setPollingInterval] = useState<number | null>(DASHBOARD_POLLING_INTERVAL)
+  const [lastRefreshed, setLastRefreshed] = useState<string>("");
+  const isPageVisible = useVisibilityChange();
   const navigate = useNavigate();
 
+  // poll data when page is visible
   useEffect(() => {
-    const loadData = async () => {
-      const data = await getSecurityRequestsDashboard();
-      setSecurityRequestsData(data);
-      // initialize filtered data with original data
-      setFilteredSecurityRequestsData(data);
-    };
-    
+    if (isPageVisible) {
+      loadData(); 
+      setPollingInterval(DASHBOARD_POLLING_INTERVAL);
+    }
+    else {
+      setPollingInterval(null);
+    }
+  }, [isPageVisible]);
+
+  // poll data in intervals
+  useInterval(() => {
     loadData();
-  }, [setSecurityRequestsData, setFilteredSecurityRequestsData]);
+  }, pollingInterval);
+
+  const loadData = async () => {
+    try {
+      const data = await getSecurityRequestsDashboard(
+        searchValue,
+        startDate,
+        endDate
+      );
+      setSecurityRequestsData(data);
+      const currentTime = getCurrentLocalTime();
+      setLastRefreshed(currentTime);
+    }
+    catch {
+
+    }
+  }
 
   const handleNewSecurityRequestOnClick = () => {
     navigate('/iod/tdm/security-setup');
@@ -58,32 +85,9 @@ const Dashboard: React.FC = () => {
     }
   }, [setEndDate]);
 
-  const handleSearchOnClick = useCallback(() => {
-    const filteredData = getFilterSecurityRequests()      
-    setFilteredSecurityRequestsData(filteredData);
-  }, [searchValue, startDate, endDate, setFilteredSecurityRequestsData]);
-
-  const getFilterSecurityRequests = useCallback(() => {
-    if (securityRequestsData) {
-      let filteredData = securityRequestsData;
-      if (searchValue &&
-          searchValue.trim() !== '') {
-        filteredData = filteredData.filter(s => {
-          return s.identifier.includes(searchValue);
-        });
-      }
-
-      if (startDate && endDate) {
-        filteredData = filteredData.filter(s => {
-          return s.createdDate >= startDate && s.createdDate <= endDate;
-        });
-      }
-      
-      return filteredData;
-    }
-
-    return securityRequestsData;
-  }, [searchValue, startDate, endDate]);
+  const handleSearchOnClick = async () => {
+    await loadData();
+  };
 
   const handleSearchTextFieldKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -112,8 +116,8 @@ const Dashboard: React.FC = () => {
                 <Typography variant="h5">
                   Security Setup Dashboard
                 </Typography>
-                <Typography variant="subtitle2">
-                  Manage Security Setup Requests
+                <Typography variant="subtitle2" sx={{color:'gray'}}>
+                  Manage Security Setup Requests - Last Refreshed: {lastRefreshed}
                 </Typography>
               </Grid>
               <Grid flex={1} display='flex' justifyContent='flex-end'>
@@ -262,7 +266,7 @@ const Dashboard: React.FC = () => {
             {/* DataGrid Section */}
             <Grid>
               <DashboardGrid 
-                securityRequestsData={filteredSecurityRequestsData}
+                securityRequestsData={securityRequestsData}
                 setSelectedSecurityRequest={setSelectedSecurityRequest}
                 setIsRequestDetailsOpen={setIsRequestDetailsOpen}
               />
