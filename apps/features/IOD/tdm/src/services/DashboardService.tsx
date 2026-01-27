@@ -1,7 +1,7 @@
 import axios from "axios"
 import { ISecurityRequest, ISecurityRequestDocument } from "../pages/dashboard/lib/SecurityRequest";
 import { SecuritySetupRequest, SecuritySetupRequestDocument } from './domain-objects/DashboardApiResponse';
-import { API_BASE_URL } from "./Environement";
+import { API_BASE_URL } from "../constants/environmentConstants";
 
 export const transformDashboardSecuritySetupRequestDocument = (apiData: SecuritySetupRequestDocument): ISecurityRequestDocument => {
   return {
@@ -59,19 +59,37 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
     };
 };
 
-export const getSecurityRequestsDashboard = async () : Promise<ISecurityRequest[]> => {
+export const getSecurityRequestsDashboard = async (
+  searchTerm: string,
+  startDate: Date | null | undefined,
+  endDate: Date | null | undefined
+) : Promise<ISecurityRequest[]> => {
   let securityRequests : ISecurityRequest[] = []
   
-  const baseUrl = API_BASE_URL;
-  const endpoint = "dashboarditems";
+  try {
+    const baseUrl = API_BASE_URL;
+    const endpoint = "dashboarditems";
+    const params = {
+      params: {
+        searchTerm: searchTerm ?? "",
+        startDate: startDate ? startDate.toISOString() : null,
+        endDate: endDate ? endDate.toISOString() : null,
+        isPagingEnabled: false,
+      }
+    }
+
+    const response = await axios.get(baseUrl + endpoint, params);
     
-  const response = await axios.get(baseUrl + endpoint);
-  
-  const data = response.data;
-  const securitySetupRequests : SecuritySetupRequest[] = data.dashboard.securitySetupRequestCollection;
-  const mappedSecuritySetupRequests = securitySetupRequests.map(transformDashboardSecuritySetupRequest);
+    const data = response.data;
+    const securitySetupRequests : SecuritySetupRequest[] = data.dashboard.securitySetupRequestCollection;
+    const mappedSecuritySetupRequests = securitySetupRequests.map(transformDashboardSecuritySetupRequest);
 
-  securityRequests = mappedSecuritySetupRequests;
-
-  return securityRequests;
+    securityRequests = mappedSecuritySetupRequests;
+  }
+  catch {
+    
+  }
+  finally {
+    return securityRequests;
+  }
 };
