@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button, IconButton } from '@mui/material';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -9,24 +9,25 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { debounce } from 'lodash';
 import { FormContainer } from '../../../common/components/FormContainer';
 import { HorizontalStepper } from './HorizontalStepper';
-import { ReviewDetailsPage } from './ReviewDetailsPage';
-import { ConfirmDetailsPage } from './ConfirmDetailsPage';
-import { SubmitConfirmationModal } from './SubmitConfirmationModal';
-import {
-  ISecuritySetupWizardData,
-  IEnterIdentifierFormValues,
-  IReviewDetailsFormValues,
-  SecuritySetupFlowType,
-  EnterIdentifierSubStep,
-} from '../lib/types';
-import '../lib/styles.scss';
 import { NewIssuePage } from './NewIssuePage';
 import { UploadCDIPage } from './UploadCDIPage';
 import { PrivateDealPage } from './PrivateDealPage';
 import { SSAPPasswordPage } from './SSAPPasswordPage';
 import { SAPILoginPage } from './SAPILoginPage';
-import { BloombergIdentifierPage } from './BloombergIdentifierPage';
 import { SSAPConfirmationPage } from './SSAPConfirmationPage';
+import { BloombergIdentifierPage } from './BloombergIdentifierPage';
+import { ReviewDetailsPage } from './ReviewDetailsPage';
+import { ConfirmDetailsPage } from './ConfirmDetailsPage';
+import { SubmitConfirmationModal } from './SubmitConfirmationModal';
+import {
+  SecuritySetupFlowType,
+  ISecuritySetupWizardData,
+  IEnterIdentifierFormValues,
+  IReviewDetailsFormValues,
+  EnterIdentifierStep,
+} from '../lib/types';
+import '../lib/styles.scss';
+import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
 
 interface SecuritySetupContainerProps {
   flowType: SecuritySetupFlowType;
@@ -35,7 +36,7 @@ interface SecuritySetupContainerProps {
 }
 
 // Unified step type combining all steps
-type WizardStep = EnterIdentifierSubStep | 'review-details' | 'confirm-details';
+type WizardStep = EnterIdentifierStep | 'review-details' | 'confirm-details';
 
 export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   flowType,
@@ -54,6 +55,23 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       securityDetails: {},
       esgFields: {},
       tradeFields: {},
+    },
+  });
+
+  const {
+    saveStatus,
+    queueWizardSave,
+    forceSave,
+    lastSavedAt,
+    error: saveError
+  } = useSecuritySetupSave({
+    debounceMs: 500,
+    onError: (error) => {
+      console.error('Save failed:', error);
+      // TODO: Optionally show toast notification to user
+    },
+    onSaved: () => {
+      console.log('Wizard data saved successfully');
     },
   });
 
@@ -93,6 +111,23 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     [handleStep2Change]
   );
 
+  const getAllWizardData = useCallback((): Record<string, unknown> => {
+    return {
+      // Step 1 data - all fields from enter identifier form
+      ...wizardData.step1,
+      // Step 2 data - spread nested objects to flat structure
+      securityDetails: wizardData.step2.securityDetails,
+      esgFields: wizardData.step2.esgFields,
+      tradeFields: wizardData.step2.tradeFields,
+      notesInstructions: wizardData.step2.notesInstructions,
+      // Step 3 data (confirm details) - if exists
+      ...(wizardData.step3 && {
+        uploadedFile: wizardData.step3.uploadedFile,
+        isConfirmed: true,
+      }),
+    };
+  }, [wizardData]);
+
   const handleFormChange = useCallback(
     (formState: { values: IEnterIdentifierFormValues | IReviewDetailsFormValues }) => {
       if (currentStep === 'review-details') {
@@ -100,23 +135,44 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       } else if (currentStep !== 'confirm-details' && currentStep !== 'ssap-confirmation') {
         debouncedHandleStep1Change(formState.values as IEnterIdentifierFormValues);
       }
+
+      queueWizardSave(
+        currentStep,
+        getCurrentStepNumber(),
+        getAllWizardData(),
+        'partial'
+      );
     },
-    [currentStep, debouncedHandleStep1Change, debouncedHandleStep2Change]
+    [
+      currentStep,
+      debouncedHandleStep1Change,
+      debouncedHandleStep2Change,
+      queueWizardSave,
+      getAllWizardData,
+    ]
   );
 
   const handleFormSubmit = async (
     values: IEnterIdentifierFormValues | IReviewDetailsFormValues
   ) => {
-    console.log('form values', values);
+    console.log('submitted values', values)
     return Promise.resolve();
   };
 
+  // Cleanup debounced handlers on unmount
   useEffect(() => {
     return () => {
       debouncedHandleStep1Change.cancel();
       debouncedHandleStep2Change.cancel();
     };
   }, [debouncedHandleStep1Change, debouncedHandleStep2Change]);
+
+  // Force save on unmount/navigation away
+  useEffect(() => {
+    return () => {
+      forceSave();
+    };
+  }, [forceSave]);
 
   const markStepComplete = (step: WizardStep) => {
     if (!completedSteps.includes(step)) {
@@ -154,14 +210,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     const currentIndex = completedSteps.indexOf(current);
 
     if (currentIndex > 0) {
-      return completedSteps[currentIndex - 1]
+      return completedSteps[currentIndex - 1];
     }
-
     if (currentIndex === 0) {
-      return null
+      return null;
     }
 
-    // current step not in completed steps, return last completed step
+    // Current step not in completed steps, return last completed step
     if (completedSteps.length > 0) {
       return completedSteps[completedSteps.length - 1];
     }
@@ -197,6 +252,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const handleNext = () => {
     if (!isReadOnly) {
       markStepComplete(currentStep);
+
+      queueWizardSave(
+        currentStep,
+        getCurrentStepNumber(),
+        getAllWizardData(),
+        'complete'
+      );
     }
 
     const nextStep = getNextStep(currentStep);
@@ -236,11 +298,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    await forceSave();
     navigate('/iod/tdm/');
   };
 
-  const handleConfirmSubmit = () => {
+  const handleConfirmSubmit = async () => {
+    await forceSave();
     setShowConfirmModal(false);
     if (onComplete) {
       onComplete(wizardData);
@@ -356,7 +420,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     const commonProps = {
       formValues: wizardData.step1,
       onFormChange: handleStep1Change,
-      isReadOnly: isReadOnly,
+      isReadOnly,
     };
 
     switch (currentStep) {
@@ -369,9 +433,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       case 'ssap-password':
         return <SSAPPasswordPage {...commonProps} />;
       case 'sapi-login':
-        return <SAPILoginPage {...commonProps} />;
+        return <SAPILoginPage {...commonProps} isReadOnly={isReadOnly} />;
       case 'ssap-confirmation':
-        return <SSAPConfirmationPage onSkipToBloomberg={handleSkip} />;
+        return <SSAPConfirmationPage {...commonProps} onSkipToBloomberg={handleSkip} />;
       case 'bloomberg-identifier':
         return <BloombergIdentifierPage {...commonProps} />;
       case 'review-details':
@@ -411,17 +475,45 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   }, [currentStep, wizardData.step1, wizardData.step2]);
 
   const showBackButton = completedSteps.length > 0 && currentStep !== 'ssap-confirmation';
+  const showSkipButton = currentStep === 'private-deal' && wizardData.step1.privateDeal === 'yes';
   const showNextButton = currentStep !== 'ssap-confirmation';
+
+  const renderSaveStatus = () => {
+    return (
+      <div className="save-status" style={{
+        fontSize: '12px',
+        color: '#666',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {saveStatus === 'saving' && <span>💾 Saving...</span>}
+        {saveStatus === 'saved' && lastSavedAt && (
+          <span style={{ color: '#4caf50' }}>
+            ✓ Saved at {lastSavedAt.toLocaleTimeString()}
+          </span>
+        )}
+        {saveStatus === 'error' && saveError && (
+          <span style={{ color: '#f44336' }}>
+            ⚠ Save failed - will retry
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="security-setup-wizard">
       <div className="wizard-header">
         <h1 className="wizard-title">Security Setup Wizard</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <IconButton className="wizard-close-button" onClick={handleClose} aria-label="close">
-            <CloseIcon />
-          </IconButton>
-          <span style={{ fontSize: '14px', cursor: 'pointer' }} onClick={handleClose}>Cancel</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {renderSaveStatus()}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <IconButton className="wizard-close-button" onClick={handleClose} aria-label="close">
+              <CloseIcon />
+            </IconButton>
+            <span style={{ fontSize: '14px', cursor: 'pointer' }} onClick={handleClose}>Cancel</span>
+          </div>
         </div>
       </div>
 
@@ -463,6 +555,15 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             startIcon={<ArrowBackIcon />}
           >
             Back
+          </Button>
+        )}
+        {showSkipButton && (
+          <Button
+            variant="text"
+            className="skip-button"
+            onClick={handleSkip}
+          >
+            Skip
           </Button>
         )}
         {showNextButton && (
