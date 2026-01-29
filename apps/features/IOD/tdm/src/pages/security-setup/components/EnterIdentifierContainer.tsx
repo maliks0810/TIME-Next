@@ -6,7 +6,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
   SecuritySetupFlowType,
   IEnterIdentifierFormValues,
-  EnterIdentifierSubStep
+  EnterIdentifierStep
 } from '../lib/types';
 import { NewIssuePage } from './NewIssuePage';
 import { UploadCDIPage } from './UploadCDIPage';
@@ -27,29 +27,29 @@ export const EnterIdentifierContainer: React.FC<EnterIdentifierContainerProps> =
   onFormChange,
   onContinue,
 }) => {
-  const [currentSubStep, setCurrentSubStep] = useState<EnterIdentifierSubStep>(
-    formValues.currentSubStep || 'new-issue'
+  const [currentStep, setcurrentStep] = useState<EnterIdentifierStep>(
+    formValues.currentStep || 'new-issue'
   );
-  const [completedSubSteps, setCompletedSubSteps] = useState<EnterIdentifierSubStep[]>(
-    formValues.completedSubSteps || []
+  const [completedSteps, setcompletedSteps] = useState<EnterIdentifierStep[]>(
+    formValues.completedSteps || []
   );
   const [isReviewMode, setIsReviewMode] = useState(false);
 
   // Sync state with form values
   useEffect(() => {
     onFormChange({
-      currentSubStep,
-      completedSubSteps,
+      currentStep,
+      completedSteps,
     });
-  }, [currentSubStep, completedSubSteps]);
+  }, [currentStep, completedSteps]);
 
-  const markSubStepComplete = (subStep: EnterIdentifierSubStep) => {
-    if (!completedSubSteps.includes(subStep)) {
-      setCompletedSubSteps([...completedSubSteps, subStep]);
+  const markSubStepComplete = (subStep: EnterIdentifierStep) => {
+    if (!completedSteps.includes(subStep)) {
+      setcompletedSteps([...completedSteps, subStep]);
     }
   };
 
-  const getNextSubStep = (current: EnterIdentifierSubStep): EnterIdentifierSubStep | null => {
+  const getNextSubStep = (current: EnterIdentifierStep): EnterIdentifierStep | null => {
     switch (current) {
       case 'new-issue':
         return formValues.newIssue === 'no' ? 'bloomberg-identifier' : 'upload-cdi';
@@ -68,19 +68,19 @@ export const EnterIdentifierContainer: React.FC<EnterIdentifierContainerProps> =
     }
   };
 
-  const getPreviousSubStep = (): EnterIdentifierSubStep | null => {
-    if (completedSubSteps.length > 0) {
-      return completedSubSteps[completedSubSteps.length - 1];
+  const getPreviousSubStep = (): EnterIdentifierStep | null => {
+    if (completedSteps.length > 0) {
+      return completedSteps[completedSteps.length - 1];
     }
     return null;
   };
 
   const handleNext = () => {
-    markSubStepComplete(currentSubStep);
-    const nextSubStep = getNextSubStep(currentSubStep);
+    markSubStepComplete(currentStep);
+    const nextSubStep = getNextSubStep(currentStep);
 
     if (nextSubStep) {
-      setCurrentSubStep(nextSubStep);
+      setcurrentStep(nextSubStep);
       setIsReviewMode(false);
     } else {
       // All sub-steps completed, proceed to main Step 2
@@ -91,19 +91,19 @@ export const EnterIdentifierContainer: React.FC<EnterIdentifierContainerProps> =
   const handleBack = () => {
     const prevSubStep = getPreviousSubStep();
     if (prevSubStep) {
-      setCurrentSubStep(prevSubStep);
+      setcurrentStep(prevSubStep);
       setIsReviewMode(true); // Enable read-only mode
     }
   };
 
-  const isSubStepComplete = (subStep: EnterIdentifierSubStep): boolean => {
-    return completedSubSteps.includes(subStep);
+  const isSubStepComplete = (subStep: EnterIdentifierStep): boolean => {
+    return completedSteps.includes(subStep);
   };
 
   const canProceed = (): boolean => {
     if (isReviewMode) return true;
 
-    switch (currentSubStep) {
+    switch (currentStep) {
       case 'new-issue':
         return !!formValues.newIssue;
       case 'upload-cdi':
@@ -122,7 +122,7 @@ export const EnterIdentifierContainer: React.FC<EnterIdentifierContainerProps> =
   };
 
   const getSubStepTitle = (): string => {
-    switch (currentSubStep) {
+    switch (currentStep) {
       case 'new-issue':
         return 'Is this a New Issue?';
       case 'upload-cdi':
@@ -141,7 +141,7 @@ export const EnterIdentifierContainer: React.FC<EnterIdentifierContainerProps> =
   };
 
   const renderCompletedMessages = () => {
-    const messages: { subStep: EnterIdentifierSubStep; message: string }[] = [];
+    const messages: { subStep: EnterIdentifierStep; message: string }[] = [];
 
     if (isSubStepComplete('new-issue')) {
       messages.push({
@@ -195,7 +195,7 @@ export const EnterIdentifierContainer: React.FC<EnterIdentifierContainerProps> =
       isReadOnly: isReviewMode,
     };
 
-    switch (currentSubStep) {
+    switch (currentStep) {
       case 'new-issue':
         return <NewIssuePage {...commonProps} />;
       case 'upload-cdi':
@@ -224,7 +224,7 @@ export const EnterIdentifierContainer: React.FC<EnterIdentifierContainerProps> =
       {renderSubStepContent()}
 
       <div className="substep-actions">
-        {completedSubSteps.length > 0 && (
+        {completedSteps.length > 0 && (
           <Button
             variant="outlined"
             className="substep-back-button"
@@ -241,7 +241,7 @@ export const EnterIdentifierContainer: React.FC<EnterIdentifierContainerProps> =
           disabled={!canProceed()}
           endIcon={<ArrowForwardIcon />}
         >
-          {currentSubStep === 'bloomberg-identifier' ? 'Continue to Request Form' : 'Next'}
+          {currentStep === 'bloomberg-identifier' ? 'Continue to Request Form' : 'Next'}
         </Button>
       </div>
     </div>

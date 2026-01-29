@@ -163,8 +163,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">TCW ESG</label>
             <FormControl fullWidth className="esg-green-border">
               <Select
-                value={formValues.esgFields?.tcwESG || ''}
-                onChange={(e) => handleESGChange('tcwESG', e.target.value)}
+                value={formValues.esgFields?.tcwEsgValue || ''}
+                onChange={(e) => handleESGChange('tcwEsgValue', e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="">Select...</MenuItem>
@@ -192,8 +192,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">TCW ESG Type</label>
             <FormControl fullWidth>
               <Select
-                value={formValues.esgFields?.tcwESGType || ''}
-                onChange={(e) => handleESGChange('tcwESGType', e.target.value)}
+                value={formValues.esgFields?.tcwEsgTypeValue || ''}
+                onChange={(e) => handleESGChange('tcwEsgTypeValue', e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="">Select...</MenuItem>
@@ -214,8 +214,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Slicer Type</label>
             <FormControl fullWidth>
               <Select
-                value={formValues.tradeFields?.sliceType || ''}
-                onChange={(e) => handleTradeFieldsChange('sliceType', e.target.value)}
+                value={formValues.tradeFields?.slicerTypeValue || ''}
+                onChange={(e) => handleTradeFieldsChange('slicerTypeValue', e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="">MBS</MenuItem>
@@ -228,8 +228,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">MBS Type</label>
             <FormControl fullWidth>
               <Select
-                value={formValues.tradeFields?.mbsType || ''}
-                onChange={(e) => handleTradeFieldsChange('mbsType', e.target.value)}
+                value={formValues.tradeFields?.mbsTypeValue || ''}
+                onChange={(e) => handleTradeFieldsChange('mbsTypeValue', e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="">Non-Agency</MenuItem>
@@ -245,8 +245,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Loan Credit</label>
             <FormControl fullWidth>
               <Select
-                value={formValues.tradeFields?.loanCredit || ''}
-                onChange={(e) => handleTradeFieldsChange('loanCredit', e.target.value)}
+                value={formValues.tradeFields?.loanCreditValue || ''}
+                onChange={(e) => handleTradeFieldsChange('loanCreditValue', e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="">Non-QM</MenuItem>
@@ -259,8 +259,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">MBS Collateral</label>
             <FormControl fullWidth>
               <Select
-                value={formValues.tradeFields?.mbsCollateral || ''}
-                onChange={(e) => handleTradeFieldsChange('mbsCollateral', e.target.value)}
+                value={formValues.tradeFields?.mbsCollateralValue || ''}
+                onChange={(e) => handleTradeFieldsChange('mbsCollateralValue', e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="">Fixed</MenuItem>
@@ -276,8 +276,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">MBS Collateral Sub</label>
             <FormControl fullWidth>
               <Select
-                value={formValues.tradeFields?.mbsCollateralSub || ''}
-                onChange={(e) => handleTradeFieldsChange('mbsCollateralSub', e.target.value)}
+                value={formValues.tradeFields?.mbsCollateralSubValue || ''}
+                onChange={(e) => handleTradeFieldsChange('mbsCollateralSubValue', e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="">Other</MenuItem>
@@ -290,8 +290,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Sr. Most Cash Flow</label>
             <FormControl fullWidth>
               <Select
-                value={formValues.tradeFields?.srMostCashFlow || ''}
-                onChange={(e) => handleTradeFieldsChange('srMostCashFlow', e.target.value)}
+                value={formValues.tradeFields?.seniorMostCashFlowValue || ''}
+                onChange={(e) => handleTradeFieldsChange('seniorMostCashFlowValue', e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="">Non-Qualifying Mortgage</MenuItem>
@@ -307,8 +307,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Tranche Type</label>
             <FormControl fullWidth>
               <Select
-                value={formValues.tradeFields?.trancheType || ''}
-                onChange={(e) => handleTradeFieldsChange('trancheType', e.target.value)}
+                value={formValues.tradeFields?.trancheTypeValue || ''}
+                onChange={(e) => handleTradeFieldsChange('trancheTypeValue', e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="">SEQ</MenuItem>
@@ -321,8 +321,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Loan Category</label>
             <FormControl fullWidth>
               <Select
-                value={formValues.tradeFields?.loanCategory || ''}
-                onChange={(e) => handleTradeFieldsChange('loanCategory', e.target.value)}
+                value={formValues.tradeFields?.loanCategoryValue || ''}
+                onChange={(e) => handleTradeFieldsChange('loanCategoryValue', e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="">Non-QM</MenuItem>
@@ -338,8 +338,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Collateral</label>
             <FormControl fullWidth>
               <Select
-                value={formValues.tradeFields?.collateral || ''}
-                onChange={(e) => handleTradeFieldsChange('collateral', e.target.value)}
+                value={formValues.tradeFields?.collateralValue || ''}
+                onChange={(e) => handleTradeFieldsChange('collateralValue', e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="">Non-Agency</MenuItem>

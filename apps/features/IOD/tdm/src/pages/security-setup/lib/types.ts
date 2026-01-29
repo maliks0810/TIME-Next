@@ -4,21 +4,21 @@ export type SecuritySetupFlowType = 'private' | 'non-private';
 // Step definitions
 export type SecuritySetupStep = 'enter-identifier' | 'review-details' | 'confirm-details';
 
-// Sub-step definitions for Step 1 (Enter Identifier)
-export type EnterIdentifierSubStep =
-    | 'new-issue' // Sub-step 1: New Issue question
-    | 'upload-cdi' // Sub-step 2: Upload CDI & Aladdin CDI ID
-    | 'private-deal' // Sub-step 3a: Private Deal question
-    | 'ssap-password' // Sub-step 3b: Enter SSAP ID/Password (if private)
-    | 'sapi-login' // Sub-step 3c: Request DM Release (if private)
-    | 'ssap-confirmation' // Sub-step 3d: SSAP Confirmation (if private)
-    | 'bloomberg-identifier'; // Sub-step 4: Enter Bloomberg Identifier
+// Step definitions
+export type EnterIdentifierStep =
+    | 'new-issue' // Step 1: New Issue question
+    | 'upload-cdi' // Step 2: Upload CDI & Aladdin CDI ID
+    | 'private-deal' // Step 3a: Private Deal question
+    | 'ssap-password' // Step 3b: Enter SSAP ID/Password (if private)
+    | 'sapi-login' // Step 3c: Request DM Release (if private)
+    | 'ssap-confirmation' // Step 3d: SSAP Confirmation (if private)
+    | 'bloomberg-identifier'; // Step 4: Enter Bloomberg Identifier
 
-// Step 1: Enter Identifier - NON-PRIVATE FLOW
+// Step 1: Enter Identifier
 export interface IEnterIdentifierFormValues {
-    // Sub-step tracking
-    currentSubStep?: EnterIdentifierSubStep;
-    completedSubSteps?: EnterIdentifierSubStep[];
+    // Step tracking
+    currentStep?: EnterIdentifierStep;
+    completedSteps?: EnterIdentifierStep[];
 
     // Identifier row
     identifierType?: string; // FIGI dropdown
@@ -31,7 +31,7 @@ export interface IEnterIdentifierFormValues {
     // Private Deal row
     privateDeal?: string; // Select... dropdown
     ssapIdPassword?: string; // Sample_Code text
-    ssapApproved?: boolean; // SAPI Login approval
+    ssapApproved?: boolean; // SAPI Login approval status
 
     // New Issue row
     newIssue?: string; // Select... dropdown
@@ -45,34 +45,41 @@ export interface IEnterIdentifierFormValues {
 
 // Step 2: Review Details - Security Details
 export interface ISecurityDetails {
-    aladdinCDIId?: string; // Read-only
-    identifier?: string; // Read-only
-    description?: string; // Read-only
-    tranche?: string; // Read-only
-    sector?: string; // Read-only
-    callable?: string; // Read-only
-    callDate?: string; // Read-only
-    price?: string; // Read-only
+    aladdinCDIId?: string;
+    identifier?: string;
+    description?: string;
+    tranche?: string;
+    sector?: string;
+    callDate?: string; // ISO 8601 date string
+    price?: string; // Display as string, sent as number to API
+    cusip?: string;
+    isCallable?: boolean | null;
+    isEuSecuritizationRequired?: boolean | null;
+    euSecuritizationTipEuId?: string;
+    callable?: string; // "Yes"/"No" display value derived from isCallable
 }
 
 // Step 2: Review Details - ESG Fields
+// All fields are dropdown values that map to API
 export interface IESGFields {
-    tcwESG?: string; // Dropdown with green border
-    esgCollateralType?: string; // "(KLO Only)" - red text, not editable
-    tcwESGType?: string; // Dropdown
+    tcwEsgValue?: string; // TCW ESG dropdown value → API: TcwEsgValue
+    tcwEsgTypeValue?: string; // TCW ESG Type dropdown value → API: TcwEsgTypeValue
+    esgCollateralType?: string; // ESG Collateral Type (KLO Only) → API: EsgCollateralType
 }
 
 // Step 2: Review Details - Trade Fields
+// All fields are dropdown values that map to API
 export interface ITradeFields {
-    sliceType?: string; // MBS
-    mbsType?: string; // Non-Agency
-    loanCredit?: string; // Non-QM
-    mbsCollateral?: string; // Fixed
-    mbsCollateralSub?: string; // Other
-    srMostCashFlow?: string; // Non-Qualifying Mortgage
-    trancheType?: string; // SEQ
-    loanCategory?: string; // Non-QM
-    collateral?: string; // Non-Agency
+    slicerTypeValue?: string; // Slicer Type dropdown → API: SlicerTypeValue
+    mbsTypeValue?: string; // MBS Type dropdown → API: MbsTypeValue
+    loanCreditValue?: string; // Loan Credit dropdown → API: LoanCreditValue
+    mbsCollateralValue?: string; // MBS Collateral dropdown → API: MbsCollateralValue
+    mbsCollateralSubValue?: string; // MBS Collateral Sub dropdown → API: MbsCollateralSubValue
+    seniorMostCashFlowValue?: string; // Senior Most Cash Flow dropdown → API: SeniorMostCashFlowValue
+    trancheTypeValue?: string; // Tranche Type dropdown → API: TrancheTypeValue
+    loanCategoryValue?: string; // Loan Category dropdown → API: LoanCategoryValue
+    collateralValue?: string; // Collateral dropdown → API: CollateralValue
+    ffiecQual?: string; // FFIEC Qualification → API: FfiecQual
 }
 
 // Step 2: All form values combined
@@ -86,7 +93,7 @@ export interface IReviewDetailsFormValues {
 // Step 3: Confirm Details (read-only review of all data)
 export interface IConfirmDetailsData {
     uploadedFile?: string; // "file.file_extension"
-    ssapIdPassword?: string;
+    ssapIdPassword?: string; // SSAP ID/Password from Step 1
     securityDetails: ISecurityDetails;
     esgFields: IESGFields;
     tradeFields: ITradeFields;

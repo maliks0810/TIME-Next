@@ -128,7 +128,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             <label className="field-label">TCW ESG</label>
             <FormControl fullWidth disabled>
               <Select
-                value={data.esgFields?.tcwESG || ''}
+                value={data.esgFields?.tcwEsgValue || ''}
                 displayEmpty
               >
                 <MenuItem value="">Select...</MenuItem>
@@ -156,7 +156,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             <label className="field-label">TCW ESG Type</label>
             <FormControl fullWidth disabled>
               <Select
-                value={data.esgFields?.tcwESGType || ''}
+                value={data.esgFields?.tcwEsgTypeValue || ''}
                 displayEmpty
               >
                 <MenuItem value="">Select...</MenuItem>
@@ -177,7 +177,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             <label className="field-label">Slicer Type</label>
             <FormControl fullWidth disabled>
               <Select
-                value={data.tradeFields?.sliceType || ''}
+                value={data.tradeFields?.slicerTypeValue || ''}
                 displayEmpty
               >
                 <MenuItem value="">MBS</MenuItem>
@@ -188,7 +188,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             <label className="field-label">MBS Type</label>
             <FormControl fullWidth disabled>
               <Select
-                value={data.tradeFields?.mbsType || ''}
+                value={data.tradeFields?.mbsTypeValue || ''}
                 displayEmpty
               >
                 <MenuItem value="">Non-Agency</MenuItem>
@@ -202,7 +202,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             <label className="field-label">Loan Credit</label>
             <FormControl fullWidth disabled>
               <Select
-                value={data.tradeFields?.loanCredit || ''}
+                value={data.tradeFields?.loanCreditValue || ''}
                 displayEmpty
               >
                 <MenuItem value="">Non-QM</MenuItem>
@@ -213,7 +213,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             <label className="field-label">MBS Collateral</label>
             <FormControl fullWidth disabled>
               <Select
-                value={data.tradeFields?.mbsCollateral || ''}
+                value={data.tradeFields?.mbsCollateralValue || ''}
                 displayEmpty
               >
                 <MenuItem value="">Fixed</MenuItem>
@@ -227,7 +227,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             <label className="field-label">MBS Collateral Sub</label>
             <FormControl fullWidth disabled>
               <Select
-                value={data.tradeFields?.mbsCollateralSub || ''}
+                value={data.tradeFields?.mbsCollateralSubValue || ''}
                 displayEmpty
               >
                 <MenuItem value="">Other</MenuItem>
@@ -238,7 +238,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             <label className="field-label">Sr. Most Cash Flow</label>
             <FormControl fullWidth disabled>
               <Select
-                value={data.tradeFields?.srMostCashFlow || ''}
+                value={data.tradeFields?.seniorMostCashFlowValue || ''}
                 displayEmpty
               >
                 <MenuItem value="">Non-Qualifying Mortgage</MenuItem>
@@ -252,7 +252,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             <label className="field-label">Tranche Type</label>
             <FormControl fullWidth disabled>
               <Select
-                value={data.tradeFields?.trancheType || ''}
+                value={data.tradeFields?.trancheTypeValue || ''}
                 displayEmpty
               >
                 <MenuItem value="">SEQ</MenuItem>
@@ -263,7 +263,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             <label className="field-label">Loan Category</label>
             <FormControl fullWidth disabled>
               <Select
-                value={data.tradeFields?.loanCategory || ''}
+                value={data.tradeFields?.loanCategoryValue || ''}
                 displayEmpty
               >
                 <MenuItem value="">Non-QM</MenuItem>
@@ -277,7 +277,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             <label className="field-label">Collateral</label>
             <FormControl fullWidth disabled>
               <Select
-                value={data.tradeFields?.collateral || ''}
+                value={data.tradeFields?.collateralValue || ''}
                 displayEmpty
               >
                 <MenuItem value="">Non-Agency</MenuItem>
