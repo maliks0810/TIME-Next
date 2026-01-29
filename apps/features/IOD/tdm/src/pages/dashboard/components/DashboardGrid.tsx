@@ -2,13 +2,13 @@ import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { Box, Grid } from '@mui/material';
 import { DataGrid } from 'devextreme-react';
 import { Column, DataGridTypes, HeaderFilter, Pager, Paging, Selection } from 'devextreme-react/data-grid';
-import { ISecurityRequest } from '../lib/SecurityRequest'
+import { ISecuritySetupRequest } from '../lib/SecurityRequest'
 import { SetupStatusesRecord, RiskAnalyticsStatusesRecord, ReadyForTradingStatusesRecord } from '../lib/SecurityRequestStatuses';
 import '../lib/dashboard.scss';
 
 type DashboardGridProps = {
-  securityRequestsData: ISecurityRequest[] | undefined;
-  setSelectedSecurityRequest: Dispatch<SetStateAction<ISecurityRequest | undefined>>;
+  securityRequestsData: ISecuritySetupRequest[] | undefined;
+  setSelectedSecurityRequest: Dispatch<SetStateAction<ISecuritySetupRequest | undefined>>;
   setIsRequestDetailsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -98,6 +98,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         className='dashboard-grid'
         columnAutoWidth={false}
         onRowClick={onRowClick}
+        repaintChangesOnly={true}
       >
         <Selection
           mode='single'

@@ -8,7 +8,7 @@ import { Box, Button, Card, CardContent, CardMedia, Drawer, Grid, InputAdornment
 import { Search } from '@mui/icons-material';
 import { DateRangeBox } from 'devextreme-react/date-range-box'
 import { setupStatusData, riskManagementStatusData } from '../lib/ChartData';
-import { ISecurityRequest } from '../lib/SecurityRequest'
+import { ISecuritySetupRequest } from '../lib/SecurityRequest'
 import { getSecurityRequestsDashboard } from '../../../services/DashboardService';
 import { useVisibilityChange } from '../../../hooks/useVisibilityChange';
 import { useInterval } from '../../../hooks/useInterval';
@@ -18,12 +18,12 @@ import '../lib/dashboard.scss';
 
 const Dashboard: React.FC = () => {
   const [isRequestDetailsOpen, setIsRequestDetailsOpen] = useState(false);
-  const [selectedSecurityRequest, setSelectedSecurityRequest] = useState<ISecurityRequest>();
+  const [selectedSecurityRequest, setSelectedSecurityRequest] = useState<ISecuritySetupRequest>();
   const [areSecurityRequestStatsVisible, setAreSecurityRequestStatsVisible] = useState(true);
   const [searchValue, setSearchValue] = useState('');
   const [startDate, setStartDate] = useState<Date | null>();
   const [endDate, setEndDate] = useState<Date | null>();
-  const [securityRequestsData, setSecurityRequestsData] = useState<ISecurityRequest[]>();
+  const [securityRequestsData, setSecurityRequestsData] = useState<ISecuritySetupRequest[]>();
   const [pollingInterval, setPollingInterval] = useState<number | null>(DASHBOARD_POLLING_INTERVAL)
   const [lastRefreshed, setLastRefreshed] = useState<string>("");
   const isPageVisible = useVisibilityChange();
@@ -45,7 +45,7 @@ const Dashboard: React.FC = () => {
     loadData();
   }, pollingInterval);
 
-  const loadData = async () => {
+  const loadData = async () => {   
     try {
       const data = await getSecurityRequestsDashboard(
         searchValue,
