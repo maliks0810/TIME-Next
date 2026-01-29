@@ -1,17 +1,17 @@
 import axios from "axios"
-import { ISecurityRequest, ISecurityRequestDocument } from "../pages/dashboard/lib/SecurityRequest";
-import { SecuritySetupRequest, SecuritySetupRequestDocument } from './domain-objects/DashboardApiResponse';
+import { ISecuritySetupRequest, ISecuritySetupRequestAttachment } from "../pages/dashboard/lib/SecurityRequest";
+import { SecuritySetupRequest, SecuritySetupRequestAttachment } from './domain-objects/DashboardApiResponse';
 import { API_BASE_URL } from "../constants/environmentConstants";
 
-export const transformDashboardSecuritySetupRequestDocument = (apiData: SecuritySetupRequestDocument): ISecurityRequestDocument => {
+export const transformDashboardSecuritySetupRequestDocument = (apiData: SecuritySetupRequestAttachment): ISecuritySetupRequestAttachment => {
   return {
-    id: apiData.securitySetupDocumentId,
+    id: apiData.attachmentId,
     fileName: apiData.fileName,
-    filePath: apiData.filePath,
+    filePath: apiData.fileName + '.' + apiData.fileExtension,
   }
 }
 
-export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupRequest): ISecurityRequest => {
+export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupRequest): ISecuritySetupRequest => {
     return {
         id: Number(apiData.securitySetupRequestId),
         description: apiData.description,
@@ -25,16 +25,16 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
         securityRequestDetails: {
           identifierType: apiData.identifierType,
           identifierValue: apiData.identifierValue,
-          privateDeal: apiData.privateDeal,
-          ssapPassword: apiData.ssapPassword,
-          marketSector: apiData.marketSector,
+          isPrivateDeal: apiData.isPrivateDeal ? 'Yes' : 'No',
+          ssapIdPassword: apiData.ssapIdPassword,
+          marketSectorType: apiData.marketSectorType,
           yellowKey: apiData.yellowKey,
           aladdinCdiId: apiData.aladdinCdiId,
           cusip: apiData.cusip,
           description: apiData.description,
-          newIssue: apiData.newIssue,
-          euSecurity: apiData.euSecurityVerificationRequired,
-          euSecuritizationTipId: apiData.euSecuritizationTipId,
+          isNewIssue: apiData.isNewIssue ? 'Yes' : 'No',
+          isEuSecuritizationRequired: apiData.isEuSecuritizationRequired ? 'Yes' : 'No',
+          euSecuritizationTipEuId: apiData.euSecuritizationTipEuId,
           callDate: apiData.callDate,
           price: apiData.price,
         },
@@ -49,7 +49,7 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
           loanCredit: apiData.loanCredit,
           mbsCollateral: apiData.mbsCollateral,
           mbsCollateralSub: apiData.mbsCollateralSub,
-          srMostCashFlow: apiData.srMostCashFlow,
+          srMostCashFlow: apiData.seniorMostCashFlow,
           trancheType: apiData.trancheType,
           loanCategory: apiData.loanCategory,
           collateral: apiData.collateral,
@@ -63,13 +63,18 @@ export const getSecurityRequestsDashboard = async (
   searchTerm: string,
   startDate: Date | null | undefined,
   endDate: Date | null | undefined
-) : Promise<ISecurityRequest[]> => {
-  let securityRequests : ISecurityRequest[] = []
+) : Promise<ISecuritySetupRequest[]> => {
+  let securityRequests : ISecuritySetupRequest[] = []
   
   try {
     const baseUrl = API_BASE_URL;
     const endpoint = "dashboarditems";
     const params = {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
       params: {
         searchTerm: searchTerm ?? "",
         startDate: startDate ? startDate.toISOString() : null,

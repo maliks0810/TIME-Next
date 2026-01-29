@@ -1,16 +1,18 @@
 import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { Card, CardMedia, Typography, Button, Grid, Box, Divider } from '@mui/material';
 import { CloseSharp, FileCopy, Delete, History, DescriptionOutlined, FileDownloadOutlined } from '@mui/icons-material';
-import { ISecurityRequest } from '../lib/SecurityRequest'
+import { ISecuritySetupRequest } from '../lib/SecurityRequest'
 import '../lib/dashboard.scss';
 
 type DashboardRequestDetailsProps = {
-  securityRequest: ISecurityRequest | undefined;
+  securityRequest: ISecuritySetupRequest | undefined;
   setIsRequestDetailsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ securityRequest, setIsRequestDetailsOpen }) => {
   
+  // TODO: call service to load SecuritySetupRequest on open of Request Details
+
   const closeRequestDetails = useCallback(() => {
     setIsRequestDetailsOpen(false);
   }, [setIsRequestDetailsOpen]);
@@ -100,13 +102,13 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
               <b>{securityRequest.securityRequestDetails.identifierType}:</b> {securityRequest.securityRequestDetails.identifierValue}
             </Typography>
             <Typography variant="subtitle2">
-              <b>Private Deal:</b> {securityRequest.securityRequestDetails.privateDeal}
+              <b>Private Deal:</b> {securityRequest.securityRequestDetails.isPrivateDeal}
             </Typography>
             <Typography variant="subtitle2">
-              <b>SSAP Password:</b> {securityRequest.securityRequestDetails.ssapPassword}
+              <b>SSAP Password:</b> {securityRequest.securityRequestDetails.ssapIdPassword}
             </Typography>
             <Typography variant="subtitle2">
-              <b>Market Sector:</b> {securityRequest.securityRequestDetails.marketSector}
+              <b>Market Sector:</b> {securityRequest.securityRequestDetails.marketSectorType}
             </Typography>
             <Typography variant="subtitle2">
               <b>Yellow Key:</b> {securityRequest.securityRequestDetails.yellowKey}
@@ -151,7 +153,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                   New Issue
                 </Typography>
                 <Typography variant="subtitle2">
-                  {securityRequest.securityRequestDetails.newIssue}
+                  {securityRequest.securityRequestDetails.isNewIssue}
                 </Typography>
               </Grid>
               <Grid size={1}>
@@ -159,7 +161,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                   EU Security
                 </Typography>
                 <Typography variant="subtitle2">
-                  {securityRequest.securityRequestDetails.euSecurity}
+                  {securityRequest.securityRequestDetails.isEuSecuritizationRequired}
                 </Typography>
               </Grid>
               <Grid size={1}>
@@ -167,7 +169,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                   EU Securitization TIP ID
                 </Typography>
                 <Typography variant="subtitle2">
-                  {securityRequest.securityRequestDetails.euSecuritizationTipId}
+                  {securityRequest.securityRequestDetails.euSecuritizationTipEuId}
                 </Typography>
               </Grid>
               <Grid size={1}>
