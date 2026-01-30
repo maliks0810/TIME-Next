@@ -13,15 +13,15 @@ interface EnvironmentConfig {
 
 const environmentConfigs: Record<Environment, EnvironmentConfig> = {
     [ENVIRONMENTS.DEV]: {
-        apiBaseUrl: 'http://tdm-web-service-dev.np.tcw.com',
+        apiBaseUrl: 'https://tdm-web-service-dev.np.tcw.com',
         webAppUrl: 'timenext-sandbox-feature-tdm-main.np.tcw.com',
     },
     [ENVIRONMENTS.QA]: {
-        apiBaseUrl: 'http://tdm-web-service-qa.np.tcw.com',
+        apiBaseUrl: 'https://tdm-web-service-qa.np.tcw.com',
         webAppUrl: 'timenext-qa.np.tcw.com', // TODO: get correct url
     },
     [ENVIRONMENTS.PROD]: {
-        apiBaseUrl: 'http://tdm-web-service.pd.tcw.com',
+        apiBaseUrl: 'https://tdm-web-service.pd.tcw.com',
         webAppUrl: 'timenext.pd.tcw.com', // TODO: get correct url
     },
 };
