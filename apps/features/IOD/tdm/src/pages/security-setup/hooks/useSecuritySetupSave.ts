@@ -85,9 +85,7 @@ export const useSecuritySetupSave = (
      */
     const processBackgroundSave = useCallback(async (payload: ISecuritySetupWizardPayload) => {
         try {
-            console.log('[useSecuritySetupSave] processBackgroundSave called');
             if (!isMountedRef.current) return;
-            console.log('[useSecuritySetupSave] Setting status to saving, calling API...');
             setSaveStatus('saving');
             setError(null);
 
@@ -132,12 +130,6 @@ export const useSecuritySetupSave = (
             accumulatedData: Record<string, unknown>,
             saveType: 'partial' | 'complete' = 'partial'
         ) => {
-            console.log('[useSecuritySetupSave] queueWizardSave called', {
-                step,
-                stepNumber,
-                saveType,
-            });
-
             const payload = {
                 currentStep: step,
                 currentStepNumber: stepNumber,
@@ -146,7 +138,6 @@ export const useSecuritySetupSave = (
                 ...accumulatedData, // Spread all accumulated wizard data
             } as ISecuritySetupWizardPayload;
 
-            console.log('[useSecuritySetupSave] Calling processBackgroundSave directly', payload);
             processBackgroundSave(payload);
         },
         [processBackgroundSave]
@@ -162,7 +153,6 @@ export const useSecuritySetupSave = (
     }, [processBackgroundSave]);
 
     const clearError = useCallback(() => {
-        console.log('[useSecuritySetupSave]clearError called');
         setError(null);
         setSaveStatus('idle');
     }, []);
