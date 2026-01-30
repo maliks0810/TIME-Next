@@ -1,19 +1,24 @@
 // Security Setup Page - Main wrapper
 .security-setup-page {
-  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: #f5f5f5;
   padding: 0;
-  overflow: hidden;
+  min-height:0;
+  flex: 1;
 }
 
 // Security Setup Wizard Container
 .security-setup-wizard {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   background-color: #fff;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 
   .wizard-header {
     background: linear-gradient(135deg, #2c5f7c 0%, #5a9fb8 100%);
@@ -904,6 +909,7 @@
     border-radius: 4px;
     background-color: #093566;
     color: #fff;
+    margin-left: auto;
 
     &:hover {
       background-color: #0a4378;
@@ -917,6 +923,11 @@
     .MuiButton-endIcon {
       margin-left: 8px;
     }
+  }
+
+  // when skip button exists, remove next button's left margin
+  .skip-button ~ .next-button {
+    margin-left: 0;
   }
 }
 

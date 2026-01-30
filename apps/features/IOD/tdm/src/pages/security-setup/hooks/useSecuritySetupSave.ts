@@ -6,8 +6,7 @@
  *
  */
 
-import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
-import { debounce } from 'lodash';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { SecuritySetupService } from '../../../services/SecuritySetupService';
 import {
     ISecuritySetupWizardPayload,
@@ -17,9 +16,6 @@ import {
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 interface UseSecuritySetupSaveOptions {
-    /** Debounce delay in ms (default: 500) */
-    debounceMs?: number;
-
     /** Callback on save error */
     onError?: (error: Error) => void;
 
@@ -42,6 +38,9 @@ interface UseSecuritySetupSaveReturn {
     /** Force immediate save (bypasses debounce) */
     forceSave: () => Promise<void>;
 
+    /** Clear error state to allow retries */
+    clearError: () => void;
+
     /** Last saved timestamp */
     lastSavedAt: Date | null;
 
@@ -55,7 +54,7 @@ interface UseSecuritySetupSaveReturn {
 export const useSecuritySetupSave = (
     options: UseSecuritySetupSaveOptions = {}
 ): UseSecuritySetupSaveReturn => {
-    const { debounceMs = 500, onError, onSaved } = options;
+    const { onError, onSaved } = options;
 
     const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
     const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
@@ -64,6 +63,14 @@ export const useSecuritySetupSave = (
     // Refs for managing async operations
     const pendingPayloadRef = useRef<ISecuritySetupWizardPayload | null>(null);
     const isMountedRef = useRef(true);
+
+    const onErrorRef = useRef(onError);
+    const onSavedRef = useRef(onSaved);
+
+    useEffect(() => {
+        onErrorRef.current = onError;
+        onSavedRef.current = onSaved;
+    }, [onError, onSaved]);
 
     // Cleanup on unmount
     useEffect(() => {
@@ -76,53 +83,39 @@ export const useSecuritySetupSave = (
     /**
      * Process background save - fire and forget pattern
      */
-    const processBackgroundSave = useCallback(
-        async (payload: ISecuritySetupWizardPayload) => {
-            try {
-                if (!isMountedRef.current) return;
-                setSaveStatus('saving');
-                setError(null);
+    const processBackgroundSave = useCallback(async (payload: ISecuritySetupWizardPayload) => {
+        try {
+            console.log('[useSecuritySetupSave] processBackgroundSave called');
+            if (!isMountedRef.current) return;
+            console.log('[useSecuritySetupSave] Setting status to saving, calling API...');
+            setSaveStatus('saving');
+            setError(null);
 
-                await SecuritySetupService.upsertWizardData(payload);
+            await SecuritySetupService.upsertWizardData(payload);
 
-                if (!isMountedRef.current) return;
+            if (!isMountedRef.current) return;
 
-                setSaveStatus('saved');
-                setLastSavedAt(new Date());
-                onSaved?.();
+            setSaveStatus('saved');
+            setLastSavedAt(new Date());
+            onSavedRef.current?.();
 
-                setTimeout(() => {
-                    if (isMountedRef.current) {
-                        setSaveStatus('idle');
-                    }
-                }, 2000);
-            } catch (err) {
-                if (!isMountedRef.current) return;
+            setTimeout(() => {
+                if (isMountedRef.current) {
+                    setSaveStatus('idle');
+                }
+            }, 2000);
+        } catch (err) {
+            if (!isMountedRef.current) return;
 
-                const error = err instanceof Error ? err : new Error('Save failed');
+            const error = err instanceof Error ? err : new Error('Save failed');
 
-                console.error('Save failed:', error.message);
+            console.error('Save failed:', error.message);
 
-                setSaveStatus('error');
-                setError(error);
-                onError?.(error);
-            }
-        },
-        [onError, onSaved]
-    );
-
-    /**
-     * Debounced save function
-     */
-    const debouncedSave = useMemo(
-        () =>
-            debounce((payload: ISecuritySetupWizardPayload) => {
-                pendingPayloadRef.current = payload;
-                // Fire and forget - don't await to keep UI responsive
-                processBackgroundSave(payload);
-            }, debounceMs),
-        [processBackgroundSave, debounceMs]
-    );
+            setSaveStatus('error');
+            setError(error);
+            onErrorRef.current?.(error);
+        }
+    }, []);
 
     /**
      * Queue wizard data for background saving
@@ -139,6 +132,12 @@ export const useSecuritySetupSave = (
             accumulatedData: Record<string, unknown>,
             saveType: 'partial' | 'complete' = 'partial'
         ) => {
+            console.log('[useSecuritySetupSave] queueWizardSave called', {
+                step,
+                stepNumber,
+                saveType,
+            });
+
             const payload = {
                 currentStep: step,
                 currentStepNumber: stepNumber,
@@ -147,33 +146,32 @@ export const useSecuritySetupSave = (
                 ...accumulatedData, // Spread all accumulated wizard data
             } as ISecuritySetupWizardPayload;
 
-            pendingPayloadRef.current = payload;
-            debouncedSave(payload);
+            console.log('[useSecuritySetupSave] Calling processBackgroundSave directly', payload);
+            processBackgroundSave(payload);
         },
-        [debouncedSave]
+        [processBackgroundSave]
     );
 
     /**
      * Force immediate save (bypasses debounce)
      */
     const forceSave = useCallback(async () => {
-        debouncedSave.cancel();
-
         if (pendingPayloadRef.current) {
             await processBackgroundSave(pendingPayloadRef.current);
         }
-    }, [debouncedSave, processBackgroundSave]);
+    }, [processBackgroundSave]);
 
-    useEffect(() => {
-        return () => {
-            debouncedSave.cancel();
-        };
-    }, [debouncedSave]);
+    const clearError = useCallback(() => {
+        console.log('[useSecuritySetupSave]clearError called');
+        setError(null);
+        setSaveStatus('idle');
+    }, []);
 
     return {
         saveStatus,
         queueWizardSave,
         forceSave,
+        clearError,
         lastSavedAt,
         error,
     };
