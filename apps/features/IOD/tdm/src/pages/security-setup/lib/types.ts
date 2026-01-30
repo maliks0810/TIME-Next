@@ -64,7 +64,7 @@ export interface ISecurityDetails {
 export interface IESGFields {
     tcwEsgValue?: string; // TCW ESG dropdown value → API: TcwEsgValue
     tcwEsgTypeValue?: string; // TCW ESG Type dropdown value → API: TcwEsgTypeValue
-    esgCollateralType?: string; // ESG Collateral Type (KLO Only) → API: EsgCollateralType
+    esgCollateralType?: string; // ESG Collateral Type (CLO Only) → API: EsgCollateralType
 }
 
 // Step 2: Review Details - Trade Fields

@@ -250,6 +250,21 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     const nextStep = getNextStep(currentStep);
 
     if (nextStep) {
+      if (currentStep === 'bloomberg-identifier' && nextStep === 'review-details') {
+        // pre-populate step 2 with data from step 1 when moving to review details
+        setWizardData((prev) => ({
+          ...prev,
+          step2: {
+            ...prev.step2,
+            securityDetails: {
+              ...prev.step2.securityDetails,
+              aladdinCDIId: prev.step1.aladdinCDIId || '',
+              identifier: prev.step1.identifierValue || ''
+            }
+          }
+        }))
+      }
+
       if (currentStep === 'review-details') {
         // Prepare confirm data before moving to confirm-details
         setWizardData((prev) => ({
@@ -461,7 +476,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   }, [currentStep, wizardData.step1, wizardData.step2]);
 
   const showBackButton = completedSteps.length > 0 && currentStep !== 'ssap-confirmation';
-  const showSkipButton = currentStep === 'private-deal' && wizardData.step1.privateDeal === 'yes';
   const showNextButton = currentStep !== 'ssap-confirmation';
 
   const renderSaveStatus = () => {
@@ -541,15 +555,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             startIcon={<ArrowBackIcon />}
           >
             Back
-          </Button>
-        )}
-        {showSkipButton && (
-          <Button
-            variant="text"
-            className="skip-button"
-            onClick={handleSkip}
-          >
-            Skip
           </Button>
         )}
         {showNextButton && (

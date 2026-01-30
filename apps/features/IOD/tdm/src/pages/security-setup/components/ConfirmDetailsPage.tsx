@@ -139,14 +139,13 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
           </div>
           <div className="form-field">
             <label className="field-label">
-              ESG Collateral Type <span className="klo-only-text-red">(KLO Only)</span>
+              ESG Collateral Type <span className="klo-only-text-red">(CLO Only)</span>
             </label>
             <TextField
               fullWidth
               value={data.esgFields?.esgCollateralType || 'x'}
               disabled
               variant="outlined"
-              className="esg-collateral-field-red"
             />
           </div>
         </div>

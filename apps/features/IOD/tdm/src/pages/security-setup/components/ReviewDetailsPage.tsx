@@ -14,6 +14,16 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   formValues,
   onFormChange
 }) => {
+
+  const handleSecurityDetailsChange = (field: string, value: string) => {
+    onFormChange({
+      securityDetails: {
+        ...formValues.securityDetails,
+        [field]: value,
+      },
+    });
+  }
+
   const handleESGChange = (field: string, value: string) => {
     onFormChange({
       esgFields: {
@@ -48,7 +58,12 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
         </div>
         <div className="success-message-item">
           <CheckCircleIcon className="success-check-icon" />
-          <span>Security Exists in Aladdin <strong>(Aladdin CDI ID = 123ABC46)</strong></span>
+          <span>
+            Security Exists in Aladdin {formValues.securityDetails?.aladdinCDIId
+              && <strong>
+                (Aladdin CDI ID = {formValues.securityDetails.aladdinCDIId})
+              </strong>}
+          </span>
         </div>
       </div>
 
@@ -76,9 +91,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <TextField
               fullWidth
               value={formValues.securityDetails?.aladdinCDIId || ''}
-              disabled
+              onChange={(e) => handleSecurityDetailsChange('aladdinCDIId', e.target.value)}
               variant="outlined"
-              className="readonly-field"
             />
           </div>
           <div className="form-field">
@@ -86,9 +100,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <TextField
               fullWidth
               value={formValues.securityDetails?.identifier || ''}
-              disabled
+              onChange={(e) => handleSecurityDetailsChange('identifier', e.target.value)}
               variant="outlined"
-              className="readonly-field"
             />
           </div>
           <div className="form-field">
@@ -96,9 +109,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <TextField
               fullWidth
               value={formValues.securityDetails?.description || ''}
-              disabled
+              onChange={(e) => handleSecurityDetailsChange('description', e.target.value)}
               variant="outlined"
-              className="readonly-field"
             />
           </div>
           <div className="form-field">
@@ -106,9 +118,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <TextField
               fullWidth
               value={formValues.securityDetails?.tranche || ''}
-              disabled
+              onChange={(e) => handleSecurityDetailsChange('tranche', e.target.value)}
               variant="outlined"
-              className="readonly-field"
             />
           </div>
           <div className="form-field">
@@ -116,9 +127,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <TextField
               fullWidth
               value={formValues.securityDetails?.sector || ''}
-              disabled
+              onChange={(e) => handleSecurityDetailsChange('sector', e.target.value)}
               variant="outlined"
-              className="readonly-field"
             />
           </div>
           <div className="form-field">
@@ -126,19 +136,18 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <TextField
               fullWidth
               value={formValues.securityDetails?.callable || ''}
-              disabled
+              onChange={(e) => handleSecurityDetailsChange('callable', e.target.value)}
               variant="outlined"
-              className="readonly-field"
             />
           </div>
           <div className="form-field">
             <label className="field-label">Call Date</label>
             <TextField
               fullWidth
+              type="date"
               value={formValues.securityDetails?.callDate || ''}
-              disabled
+              onChange={(e) => handleSecurityDetailsChange('callDate', e.target.value)}
               variant="outlined"
-              className="readonly-field"
             />
           </div>
           <div className="form-field">
@@ -146,9 +155,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <TextField
               fullWidth
               value={formValues.securityDetails?.price || ''}
-              disabled
+              onChange={(e) => handleSecurityDetailsChange('price', e.target.value)}
               variant="outlined"
-              className="readonly-field"
             />
           </div>
         </div>
@@ -175,7 +183,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           </div>
           <div className="form-field">
             <label className="field-label">
-              ESG Collateral Type <span className="klo-only-text">(KLO Only)</span>
+              ESG Collateral Type <span className="klo-only-text">(CLO Only)</span>
             </label>
             <TextField
               fullWidth
