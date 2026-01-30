@@ -62,13 +62,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     saveStatus,
     queueWizardSave,
     forceSave,
+    clearError,
     lastSavedAt,
     error: saveError
   } = useSecuritySetupSave({
-    debounceMs: 500,
     onError: (error) => {
       console.error('Save failed:', error);
-      // TODO: Optionally show toast notification to user
     },
     onSaved: () => {
       console.log('Wizard data saved successfully');
@@ -132,23 +131,16 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     (formState: { values: IEnterIdentifierFormValues | IReviewDetailsFormValues }) => {
       if (currentStep === 'review-details') {
         debouncedHandleStep2Change(formState.values as IReviewDetailsFormValues);
-      } else if (currentStep !== 'confirm-details' && currentStep !== 'ssap-confirmation') {
-        debouncedHandleStep1Change(formState.values as IEnterIdentifierFormValues);
       }
 
-      queueWizardSave(
-        currentStep,
-        getCurrentStepNumber(),
-        getAllWizardData(),
-        'partial'
-      );
+      if (currentStep !== 'confirm-details' && currentStep !== 'ssap-confirmation') {
+        debouncedHandleStep1Change(formState.values as IEnterIdentifierFormValues);
+      }
     },
     [
       currentStep,
       debouncedHandleStep1Change,
       debouncedHandleStep2Change,
-      queueWizardSave,
-      getAllWizardData,
     ]
   );
 
@@ -166,13 +158,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       debouncedHandleStep2Change.cancel();
     };
   }, [debouncedHandleStep1Change, debouncedHandleStep2Change]);
-
-  // Force save on unmount/navigation away
-  useEffect(() => {
-    return () => {
-      forceSave();
-    };
-  }, [forceSave]);
 
   const markStepComplete = (step: WizardStep) => {
     if (!completedSteps.includes(step)) {
@@ -252,6 +237,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const handleNext = () => {
     if (!isReadOnly) {
       markStepComplete(currentStep);
+      clearError();
 
       queueWizardSave(
         currentStep,
@@ -494,8 +480,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           </span>
         )}
         {saveStatus === 'error' && saveError && (
-          <span style={{ color: '#f44336' }}>
-            ⚠ Save failed - will retry
+          <span style={{ color: '#f44336', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            ⚠ {saveError.message}
           </span>
         )}
       </div>

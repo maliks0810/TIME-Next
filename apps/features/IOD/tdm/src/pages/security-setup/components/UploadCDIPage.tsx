@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormControl, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
+import { FormControl, RadioGroup, FormControlLabel, Radio, TextField } from '@mui/material';
 import { IEnterIdentifierFormValues } from '../lib/types';
 
 interface UploadCDIPageProps {
@@ -13,7 +13,7 @@ export const UploadCDIPage: React.FC<UploadCDIPageProps> = ({
   onFormChange,
   isReadOnly,
 }) => {
-  const handleCDIFileChange = (event: SelectChangeEvent<string>) => {
+  const handleCDIFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onFormChange({ cdiFileUploadedToAnser: event.target.value });
   };
 
@@ -26,16 +26,22 @@ export const UploadCDIPage: React.FC<UploadCDIPageProps> = ({
       <div className="form-row-group">
         <label className="field-label">CDI File Uploaded to Anser</label>
         <FormControl fullWidth>
-          <Select
+          <RadioGroup
             value={formValues.cdiFileUploadedToAnser || ''}
             onChange={handleCDIFileChange}
-            displayEmpty
-            disabled={isReadOnly}
+            row
           >
-            <MenuItem value="">Select...</MenuItem>
-            <MenuItem value="yes">Yes</MenuItem>
-            <MenuItem value="no">No</MenuItem>
-          </Select>
+            <FormControlLabel
+              value="yes"
+              control={<Radio disabled={isReadOnly} />}
+              label="Yes"
+            />
+            <FormControlLabel
+              value="no"
+              control={<Radio disabled={isReadOnly} />}
+              label="No"
+            />
+          </RadioGroup>
         </FormControl>
       </div>
 

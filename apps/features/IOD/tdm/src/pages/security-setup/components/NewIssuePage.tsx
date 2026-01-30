@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormControl, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { FormControl, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import { IEnterIdentifierFormValues } from '../lib/types';
 
 interface NewIssuePageProps {
@@ -13,7 +13,7 @@ export const NewIssuePage: React.FC<NewIssuePageProps> = ({
   onFormChange,
   isReadOnly,
 }) => {
-  const handleChange = (event: SelectChangeEvent<string>) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onFormChange({ newIssue: event.target.value });
   };
 
@@ -22,16 +22,22 @@ export const NewIssuePage: React.FC<NewIssuePageProps> = ({
       <div className="form-row-group">
         <label className="field-label">New Issue</label>
         <FormControl fullWidth>
-          <Select
+          <RadioGroup
             value={formValues.newIssue || ''}
             onChange={handleChange}
-            displayEmpty
-            disabled={isReadOnly}
+            row
           >
-            <MenuItem value="">Select...</MenuItem>
-            <MenuItem value="yes">Yes</MenuItem>
-            <MenuItem value="no">No</MenuItem>
-          </Select>
+            <FormControlLabel
+              value="yes"
+              control={<Radio disabled={isReadOnly} />}
+              label="Yes"
+            />
+            <FormControlLabel
+              value="no"
+              control={<Radio disabled={isReadOnly} />}
+              label="No"
+            />
+          </RadioGroup>
         </FormControl>
       </div>
     </div>
