@@ -8,22 +8,25 @@ import { Box, Button, Card, CardContent, CardMedia, Drawer, Grid, InputAdornment
 import { Search } from '@mui/icons-material';
 import { DateRangeBox } from 'devextreme-react/date-range-box'
 import { setupStatusData, riskManagementStatusData } from '../lib/ChartData';
-import { ISecuritySetupRequest } from '../lib/SecurityRequest'
+import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
+import { defaultDashboardSearchParameters, IDashboardSearchParameters } from '../lib/DashboardSearchParameters';
 import { getSecurityRequestsDashboard } from '../../../services/DashboardService';
 import { useVisibilityChange } from '../../../hooks/useVisibilityChange';
 import { useInterval } from '../../../hooks/useInterval';
-import { getCurrentLocalTime } from '../../../utils/CurrentTime';
+import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
 import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
 import '../lib/dashboard.scss';
 
+
 const Dashboard: React.FC = () => {
   const [isRequestDetailsOpen, setIsRequestDetailsOpen] = useState(false);
-  const [selectedSecurityRequest, setSelectedSecurityRequest] = useState<ISecuritySetupRequest>();
-  const [areSecurityRequestStatsVisible, setAreSecurityRequestStatsVisible] = useState(true);
+  const [selectedSecurityRequest, setSelectedSecurityRequest] = useState<IDashboardSecuritySetupRequest>();
+  const [areSecurityRequestStatsVisible, setAreSecurityRequestStatsVisible] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const [startDate, setStartDate] = useState<Date | null>();
-  const [endDate, setEndDate] = useState<Date | null>();
-  const [securityRequestsData, setSecurityRequestsData] = useState<ISecuritySetupRequest[]>();
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [endDate, setEndDate] = useState<Date | null>(new Date());
+  const [searchParameters, setSearchParameters] = useState<IDashboardSearchParameters>(defaultDashboardSearchParameters);
+  const [securityRequestsData, setSecurityRequestsData] = useState<IDashboardSecuritySetupRequest[]>();
   const [pollingInterval, setPollingInterval] = useState<number | null>(DASHBOARD_POLLING_INTERVAL)
   const [lastRefreshed, setLastRefreshed] = useState<string>("");
   const isPageVisible = useVisibilityChange();
@@ -31,8 +34,7 @@ const Dashboard: React.FC = () => {
 
   // poll data when page is visible
   useEffect(() => {
-    if (isPageVisible) {
-      loadData(); 
+    if (isPageVisible) { 
       setPollingInterval(DASHBOARD_POLLING_INTERVAL);
     }
     else {
@@ -42,16 +44,16 @@ const Dashboard: React.FC = () => {
 
   // poll data in intervals
   useInterval(() => {
-    loadData();
+    loadData(searchParameters);
   }, pollingInterval);
 
-  const loadData = async () => {   
+  useEffect(() => {
+    loadData(searchParameters);
+  },[searchParameters]);
+
+  const loadData = useCallback(async (parameters: IDashboardSearchParameters) => {   
     try {
-      const data = await getSecurityRequestsDashboard(
-        searchValue,
-        startDate,
-        endDate
-      );
+      const data = await getSecurityRequestsDashboard(parameters);
       setSecurityRequestsData(data);
       const currentTime = getCurrentLocalTime();
       setLastRefreshed(currentTime);
@@ -59,11 +61,23 @@ const Dashboard: React.FC = () => {
     catch {
 
     }
-  }
+  },[searchParameters, setSecurityRequestsData, setLastRefreshed]);
 
   const handleNewSecurityRequestOnClick = () => {
     navigate('/iod/tdm/security-setup');
   }
+
+  const handleSearchOnClick = useCallback(async ()  => {
+    const currentSearchParameters : IDashboardSearchParameters = {
+      searchTerm: searchValue,
+      startDate: startDate,
+      endDate: endDate,
+    };
+
+    setSearchParameters(currentSearchParameters);
+    await loadData(currentSearchParameters);
+
+  }, [setSearchParameters, searchValue, startDate, endDate]);
 
   const handleSearchTextFieldOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
@@ -71,23 +85,31 @@ const Dashboard: React.FC = () => {
 
   const handleStartDateChange = useCallback((value: string | number | Date | null) => {
     setStartDate(null);
+    let newStartDate : Date | null = null
     if (value) {
-      const newStartDate = new Date(value);
-      setStartDate(newStartDate);
+      if (value instanceof Date) {
+        newStartDate = value;
+      }
+      if (typeof value === 'string' || typeof value === 'number') {
+        newStartDate = new Date(value);
+      }
     }
+    setStartDate(newStartDate);
   }, [setStartDate]);
 
   const handleEndDateChange = useCallback((value: string | number | Date | null) => {
     setEndDate(null);
+    let newEndDate : Date | null = null
     if (value) {
-      const newEndDate = new Date(value);
-      setEndDate(newEndDate);
+      if (value instanceof Date) {
+        newEndDate = value;
+      }
+      if (typeof value === 'string' || typeof value === 'number') {
+        newEndDate = new Date(value);
+      }
     }
+    setEndDate(newEndDate);
   }, [setEndDate]);
-
-  const handleSearchOnClick = async () => {
-    await loadData();
-  };
 
   const handleSearchTextFieldKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -153,6 +175,8 @@ const Dashboard: React.FC = () => {
                     <DateRangeBox
                       className='dashboard-daterangebox'
                       width={'250px'}
+                      startDate={startDate}
+                      endDate={endDate}
                       onStartDateChange={handleStartDateChange}
                       onEndDateChange={handleEndDateChange}
                     />

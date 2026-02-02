@@ -1,9 +1,11 @@
 import axios from "axios"
-import { ISecuritySetupRequest, ISecuritySetupRequestAttachment } from "../pages/dashboard/lib/SecurityRequest";
+import { IDashboardSecuritySetupRequest, IDashboardSecuritySetupRequestAttachment } from "../pages/dashboard/lib/DashboardSecuritySetupRequest";
+import { IDashboardSearchParameters } from "../pages/dashboard/lib/DashboardSearchParameters";
 import { SecuritySetupRequest, SecuritySetupRequestAttachment } from './domain-objects/DashboardApiResponse';
 import { API_BASE_URL } from "../constants/environmentConstants";
+import { getDateFromString, getLocalDateTimeOffsetIsoString } from "../utils/DateTimeHelper";
 
-export const transformDashboardSecuritySetupRequestDocument = (apiData: SecuritySetupRequestAttachment): ISecuritySetupRequestAttachment => {
+export const transformDashboardSecuritySetupRequestDocument = (apiData: SecuritySetupRequestAttachment): IDashboardSecuritySetupRequestAttachment => {
   return {
     id: apiData.attachmentId,
     fileName: apiData.fileName,
@@ -11,7 +13,7 @@ export const transformDashboardSecuritySetupRequestDocument = (apiData: Security
   }
 }
 
-export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupRequest): ISecuritySetupRequest => {
+export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupRequest): IDashboardSecuritySetupRequest => {
     return {
         id: Number(apiData.securitySetupRequestId),
         description: apiData.description,
@@ -35,8 +37,8 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
           isNewIssue: apiData.isNewIssue ? 'Yes' : 'No',
           isEuSecuritizationRequired: apiData.isEuSecuritizationRequired ? 'Yes' : 'No',
           euSecuritizationTipEuId: apiData.euSecuritizationTipEuId,
-          callDate: apiData.callDate,
-          price: apiData.price,
+          callDate: getDateFromString(apiData.callDate),
+          price: apiData.price ? apiData.price.toFixed(2) : '',
         },
         securityRequestEsgFields: {
           tcwEsg: apiData.tcwEsg,
@@ -60,15 +62,14 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
 };
 
 export const getSecurityRequestsDashboard = async (
-  searchTerm: string,
-  startDate: Date | null | undefined,
-  endDate: Date | null | undefined
-) : Promise<ISecuritySetupRequest[]> => {
-  let securityRequests : ISecuritySetupRequest[] = []
+   parameters : IDashboardSearchParameters
+) : Promise<IDashboardSecuritySetupRequest[]> => {
+  let securityRequests : IDashboardSecuritySetupRequest[] = []
   
   try {
     const baseUrl = API_BASE_URL;
     const endpoint = "dashboarditems";
+        
     const params = {
       headers: {
         'Cache-Control': 'no-cache',
@@ -76,9 +77,9 @@ export const getSecurityRequestsDashboard = async (
         'Expires': '0',
       },
       params: {
-        searchTerm: searchTerm ?? "",
-        startDate: startDate ? startDate.toISOString() : null,
-        endDate: endDate ? endDate.toISOString() : null,
+        searchTerm: parameters.searchTerm ?? "",
+        startDate: parameters.startDate ? getLocalDateTimeOffsetIsoString(parameters.startDate) : null,
+        endDate: parameters.endDate ? getLocalDateTimeOffsetIsoString(parameters.endDate) : null,
         isPagingEnabled: false,
       }
     }

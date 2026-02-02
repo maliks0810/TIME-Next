@@ -9,7 +9,7 @@ type DashboardSettingsProps = {
 const DashboardSettings: React.FC<DashboardSettingsProps> = ({setAreSecurityRequestStatsVisible}) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const areDashboardSettingsOpen = Boolean(anchorEl);
-  const [securityRequestStatsSwitchChecked, setSecurityRequestStatsSwitchChecked] = useState(true);
+  const [securityRequestStatsSwitchChecked, setSecurityRequestStatsSwitchChecked] = useState(false);
 
   const handleSettingsMenuClose = () => {
     setAnchorEl(null);
