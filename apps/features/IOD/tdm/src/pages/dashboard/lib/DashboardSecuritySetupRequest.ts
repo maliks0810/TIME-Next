@@ -1,4 +1,4 @@
-export interface ISecuritySetupRequest {
+export interface IDashboardSecuritySetupRequest {
   id: number;
   description: string;
   identifier: string;
@@ -8,13 +8,13 @@ export interface ISecuritySetupRequest {
   riskAnalyticsStatus: string;
   readyForTradingStatus: string;
   processTime: number | null;
-  securityRequestDetails: ISecuritySetupRequestDetails;
-  securityRequestEsgFields: ISecuritySetupRequestEsgFields;
-  securityRequestTradeFields: ISecuritySetupRequestTradeFields;
-  securityRequestDocuments: ISecuritySetupRequestAttachment[];
+  securityRequestDetails: IDashboardSecuritySetupRequestDetails;
+  securityRequestEsgFields: IDashboardSecuritySetupRequestEsgFields;
+  securityRequestTradeFields: IDashboardSecuritySetupRequestTradeFields;
+  securityRequestDocuments: IDashboardSecuritySetupRequestAttachment[];
 }
 
-export interface ISecuritySetupRequestDetails {
+export interface IDashboardSecuritySetupRequestDetails {
   identifierType: string,
   identifierValue: string,
   isPrivateDeal: string,
@@ -27,17 +27,17 @@ export interface ISecuritySetupRequestDetails {
   isNewIssue: string;
   isEuSecuritizationRequired: string;
   euSecuritizationTipEuId: string;
-  callDate: string;
-  price: number;
+  callDate: Date | null;
+  price: string;
 }
 
-export interface ISecuritySetupRequestEsgFields {
+export interface IDashboardSecuritySetupRequestEsgFields {
   tcwEsg: string;
   esgCollateralType: string;
   tcwEsgType: string;
 }
 
-export interface ISecuritySetupRequestTradeFields {
+export interface IDashboardSecuritySetupRequestTradeFields {
   slicerType: string;
   mbsType: string;
   loanCredit: string;
@@ -50,7 +50,7 @@ export interface ISecuritySetupRequestTradeFields {
   ffiecQual: string;
 }
 
-export interface ISecuritySetupRequestAttachment {
+export interface IDashboardSecuritySetupRequestAttachment {
   id: number;
   fileName: string;
   filePath: string;

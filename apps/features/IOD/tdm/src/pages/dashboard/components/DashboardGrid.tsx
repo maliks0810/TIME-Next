@@ -2,13 +2,13 @@ import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { Box, Grid } from '@mui/material';
 import { DataGrid } from 'devextreme-react';
 import { Column, DataGridTypes, HeaderFilter, Pager, Paging, Selection } from 'devextreme-react/data-grid';
-import { ISecuritySetupRequest } from '../lib/SecurityRequest'
-import { SetupStatusesRecord, RiskAnalyticsStatusesRecord, ReadyForTradingStatusesRecord } from '../lib/SecurityRequestStatuses';
+import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
+import { SetupStatusesRecord, RiskAnalyticsStatusesRecord, ReadyForTradingStatusesRecord } from '../lib/DashboardSecuritySetupRequestStatuses';
 import '../lib/dashboard.scss';
 
 type DashboardGridProps = {
-  securityRequestsData: ISecuritySetupRequest[] | undefined;
-  setSelectedSecurityRequest: Dispatch<SetStateAction<ISecuritySetupRequest | undefined>>;
+  securityRequestsData: IDashboardSecuritySetupRequest[] | undefined;
+  setSelectedSecurityRequest: Dispatch<SetStateAction<IDashboardSecuritySetupRequest | undefined>>;
   setIsRequestDetailsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -16,7 +16,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   securityRequestsData,
   setSelectedSecurityRequest,
   setIsRequestDetailsOpen,
-}) => {
+}) => { 
   const cellRenderSetupStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
       const status = data.value;
       const setupStatusProperties = SetupStatusesRecord[status];
@@ -94,6 +94,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
     <>
       <DataGrid
         key='dashboardSecurityRequestsGrid'
+        keyExpr='id'
         dataSource={securityRequestsData}
         className='dashboard-grid'
         columnAutoWidth={false}

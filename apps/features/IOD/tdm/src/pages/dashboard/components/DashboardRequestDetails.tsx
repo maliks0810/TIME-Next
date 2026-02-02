@@ -1,11 +1,12 @@
 import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { Card, CardMedia, Typography, Button, Grid, Box, Divider } from '@mui/material';
 import { CloseSharp, FileCopy, Delete, History, DescriptionOutlined, FileDownloadOutlined } from '@mui/icons-material';
-import { ISecuritySetupRequest } from '../lib/SecurityRequest'
+import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
+import { formatDate } from '../../../utils/DateTimeHelper';
 import '../lib/dashboard.scss';
 
 type DashboardRequestDetailsProps = {
-  securityRequest: ISecuritySetupRequest | undefined;
+  securityRequest: IDashboardSecuritySetupRequest | undefined;
   setIsRequestDetailsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -88,7 +89,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
 
           <Grid>
             <Typography variant="subtitle2">
-              <b>Date Requested:</b> {securityRequest.createdDate.toDateString()}
+              <b>Date Requested:</b> {formatDate(securityRequest.createdDate)}
             </Typography>
             <Typography variant="subtitle2">
               <b>Requested By:</b> {securityRequest.createdBy}
@@ -177,7 +178,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                   Call Date
                 </Typography>
                 <Typography variant="subtitle2">
-                  {securityRequest.securityRequestDetails.callDate}
+                  {formatDate(securityRequest.securityRequestDetails.callDate)}
                 </Typography>
               </Grid>
               <Grid size={1}>
