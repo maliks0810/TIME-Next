@@ -1,11 +1,6 @@
-import {
-    EnterIdentifierStep,
-    ISecurityDetails,
-    IESGFields,
-    ITradeFields,
-} from '../../pages/security-setup/lib/types';
+import { ISecurityDetails, IESGFields, ITradeFields } from '../../pages/security-setup/lib/types';
 
-export type WizardStep = EnterIdentifierStep | 'review-details' | 'confirm-details';
+export type WizardStep = 'enter-identifier' | 'review-details' | 'confirm-details';
 
 // ============================================
 // API Domain & Presentation Objects
@@ -141,46 +136,32 @@ export interface ISecuritySetupWizardPayload {
     saveType: 'partial' | 'complete';
 
     // ============================================
-    // Step 1: New Issue
+    // Step 1: Enter Identifier
     // ============================================
     newIssue?: string | null;
-
-    // ============================================
-    // Step 2: Upload CDI
-    // ============================================
     cdiFileUploadedToAnser?: string | null;
     aladdinCDIId?: string | null;
     uploadedFileReference?: string;
-
-    // ============================================
-    // Step 3: Private Deal
-    // ============================================
     privateDeal?: string | null;
     ssapIdPassword?: string | null;
     ssapApproved?: boolean;
     approvalTimestamp?: string;
     confirmationAcknowledged?: boolean;
     userAction?: 'continue' | 'skip-to-bloomberg';
-
-    // ============================================
-    // Step 4: Bloomberg Identifier
-    // ============================================
     identifierType?: string | null;
     identifierValue?: string | null;
     marketSector?: string | null;
     yellowKey?: string | null;
+    euSecurityVerificationRequired?: string | null;
+    euSecuritizationTipEuId?: string | null;
 
     // ============================================
-    // Step 5: Review Details
+    // Step 2: Review Details (Security Request Template)
     // ============================================
     securityDetails?: ISecurityDetails;
     esgFields?: IESGFields;
     tradeFields?: ITradeFields;
     notesInstructions?: string;
-
-    // ============================================
-    // Step 6: Confirm Details
-    // ============================================
     uploadedFile?: string;
     isConfirmed?: boolean;
 }

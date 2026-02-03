@@ -53,6 +53,8 @@ export const transformToApiDomain = (
         IdentifierValue: payload.identifierValue || '',
         MarketSectorTypeValue: payload.marketSector || '',
         YellowKey: payload.yellowKey || '',
+        IsEuSecuritizationRequired: payload.securityDetails?.isEuSecuritizationRequired ?? null,
+        EuSecuritizationTipEuId: payload.securityDetails?.euSecuritizationTipEuId || '',
 
         // Security Details
         Description: payload.securityDetails?.description || '',
@@ -62,8 +64,6 @@ export const transformToApiDomain = (
         Price: parsePrice(payload.securityDetails?.price),
         IsCallable: payload.securityDetails?.isCallable ?? null,
         Cusip: payload.securityDetails?.cusip || '',
-        IsEuSecuritizationRequired: payload.securityDetails?.isEuSecuritizationRequired ?? null,
-        EuSecuritizationTipEuId: payload.securityDetails?.euSecuritizationTipEuId || '',
 
         // ESG Fields (dropdown values)
         TcwEsgValue: payload.esgFields?.tcwEsgValue || '',
@@ -134,6 +134,8 @@ export const transformFromApiPresentation = (
         identifierValue: presentation.identifierValue || null,
         marketSector: presentation.marketSectorTypeValue || null,
         yellowKey: presentation.yellowKey || null,
+        euSecurityVerificationRequired: presentation.isEuSecuritizationRequired ? 'yes' : 'no',
+        euSecuritizationTipEuId: presentation.euSecuritizationTipEuId || null,
 
         // Security details
         securityDetails: {
@@ -145,8 +147,7 @@ export const transformFromApiPresentation = (
             price: presentation.price?.toString() || undefined,
             isCallable: presentation.isCallable ?? undefined,
             cusip: presentation.cusip || undefined,
-            isEuSecuritizationRequired: presentation.isEuSecuritizationRequired ?? undefined,
-            euSecuritizationTipEuId: presentation.euSecuritizationTipEuId || undefined,
+
             callable: presentation.isCallable ? 'Yes' : 'No',
             identifier: presentation.identifierValue || undefined,
         },

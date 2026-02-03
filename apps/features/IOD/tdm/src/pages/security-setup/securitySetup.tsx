@@ -4,24 +4,37 @@ import { SecuritySetupContainer } from './components/SecuritySetupContainer';
 import { ISecuritySetupWizardData } from './lib/types';
 import './lib/styles.scss';
 import { SecuritySetupService } from '../../services/SecuritySetupService';
+import { ISecuritySetupWizardPayload } from '../../services/domain-objects/SecuritySetupRequestPayload';
 
 const SecuritySetupComponent: React.FC = () => {
   const navigate = useNavigate();
 
   const handleComplete = async (data: ISecuritySetupWizardData) => {
     try {
-      const payload = {
-        currentStep: 'confirm-details' as const,
-        currentStepNumber: 6,
+      const payload: ISecuritySetupWizardPayload = {
+        currentStep: 'confirm-details',
+        currentStepNumber: 3,
         savedAt: new Date().toISOString(),
         saveType: 'complete' as const,
-        ...data.step1,
+        newIssue: data.step1.cdiFileUploadedToAnser,
+        cdiFileUploadedToAnser: data.step1.cdiFileUploadedToAnser,
+        aladdinCDIId: data.step1.aladdinCDIId,
+        privateDeal: data.step1.privateDeal,
+        ssapIdPassword: data.step1.ssapIdPassword,
+        ssapApproved: data.step1.ssapApproved,
+        identifierType: data.step1.identifierType,
+        identifierValue: data.step1.identifierValue,
+        marketSector: data.step1.marketSector,
+        yellowKey: data.step1.yellowKey,
+        euSecurityVerificationRequired: data.step1.euSecurityVerificationRequired,
+        euSecuritizationTipEuId: data.step1.euSecuritizationTipEuId,
         securityDetails: data.step2.securityDetails,
         esgFields: data.step2.esgFields,
         tradeFields: data.step2.tradeFields,
         notesInstructions: data.step2.notesInstructions,
         ...(data.step3 && {
-          uploadedFiles: data.step3.uploadedFile
+          uploadedFiles: data.step3.uploadedFile,
+          isConfirmed: true
         })
       }
 

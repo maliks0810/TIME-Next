@@ -12,36 +12,73 @@
 .security-setup-wizard {
   max-width: 1200px;
   width: 100%;
-  margin: 0 auto;
+  margin: 24px auto;
   background-color: #fff;
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  position: relative;
+
+  // gradient border
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #0D0D0D 0%, #23425C 50%, #A3C0C7 100%);
+    border-radius: 4px 4px 0 0;
+  }
 
   .wizard-header {
-    background: linear-gradient(135deg, #2c5f7c 0%, #5a9fb8 100%);
-    padding: 20px 48px;
+    background: #fff;
+    padding: 24px 48px 20px;
     color: #fff;
     flex-shrink: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-top: 30px;
 
     .wizard-title {
       font-size: 20px;
-      font-weight: 500;
+      font-weight: 600;
       margin: 0;
+      color: #3B3B3D;
     }
 
-    .wizard-close-button {
-      color: #fff;
+    .wizard-close-container {
+      display: flex;
+      align-items: center;
+      gap: 4px;
 
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+      .wizard-close-button {
+        color: #3B3B3D;
+        padding: 8px;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.04);
+        }
+      }
+
+      .wizard-cancel-text {
+        font-size: 14px;
+        color: #3B3B3D;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+          color: #333;
+        }
       }
     }
+
+
   }
 }
 
@@ -128,6 +165,41 @@
     }
   }
 }
+
+  .success-messages-box {
+    background-color: #e8f5e9;
+    border: 1px solid #81c784;
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 32px;
+
+    .success-message-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .success-check-icon {
+        color: #4caf50;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      span {
+        font-size: 13px;
+        color: #2e7d32;
+
+        strong {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
 
 // =============================================================================
 // REMINDER BOX (YELLOW)
@@ -574,45 +646,6 @@
       margin-left: 8px;
     }
   }
-}
-
-// =============================================================================
-// STEP 2: REVIEW DETAILS PAGE
-// =============================================================================
-.review-details-page {
-  .success-messages-box {
-    background-color: #e8f5e9;
-    border: 1px solid #81c784;
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 32px;
-
-    .success-message-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-
-      .success-check-icon {
-        color: #4caf50;
-        font-size: 20px;
-        flex-shrink: 0;
-      }
-
-      span {
-        font-size: 13px;
-        color: #2e7d32;
-
-        strong {
-          font-weight: 600;
-        }
-      }
-    }
-  }
 
   .offering-upload-section {
     margin-bottom: 32px;
@@ -668,6 +701,12 @@
       }
     }
   }
+}
+
+// =============================================================================
+// STEP 2: REVIEW DETAILS PAGE
+// =============================================================================
+.review-details-page {
 
   .form-section {
     margin-bottom: 32px;
@@ -862,8 +901,28 @@
   background-color: #fafafa;
   flex-shrink: 0;
 
+  .save-button {
+    padding: 12px 32px;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: none;
+    border-radius: 4px;
+    background-color: transparent;
+    color: #666;
+    border: 1px solid #d0d0d0;
+    flex: 1;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    .MuiButton-startIcon {
+      margin-right: 8px;
+    }
+  }
+
   .back-button {
-    padding: 10px 32px;
+    padding: 12px 32px;
     font-size: 14px;
     font-weight: 500;
     text-transform: none;
@@ -871,6 +930,7 @@
     background-color: transparent;
     color: #666;
     border: none;
+    flex: 1;
 
     &:hover {
       background-color: #f5f5f5;
@@ -882,7 +942,7 @@
   }
 
   .skip-button {
-    padding: 10px 24px;
+    padding: 12px 24px;
     font-size: 14px;
     font-weight: 500;
     text-transform: none;
@@ -895,7 +955,7 @@
   }
 
   .next-button {
-    padding: 10px 32px;
+    padding: 12px 32px;
     font-size: 14px;
     font-weight: 500;
     text-transform: none;
@@ -903,6 +963,7 @@
     background-color: #093566;
     color: #fff;
     margin-left: auto;
+    flex: 1;
 
     &:hover {
       background-color: #0a4378;
