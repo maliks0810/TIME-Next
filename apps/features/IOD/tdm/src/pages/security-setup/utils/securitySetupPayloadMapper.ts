@@ -15,23 +15,27 @@ export const mapEnterIdentifierToPayload = (
     formValues: IEnterIdentifierFormValues
 ): Partial<ISecuritySetupWizardPayload> => {
     return {
-        // Step 1: New Issue
+        // New Issue
         newIssue: formValues.newIssue || null,
 
-        // Step 2: CDI Upload
+        // CDI Upload
         cdiFileUploadedToAnser: formValues.cdiFileUploadedToAnser || null,
         aladdinCDIId: formValues.aladdinCDIId || null,
 
-        // Step 3: Private Deal
+        // Private Deal
         privateDeal: formValues.privateDeal || null,
         ssapIdPassword: formValues.ssapIdPassword || null,
         ssapApproved: formValues.ssapApproved,
 
-        // Step 4: Bloomberg Identifier
+        // Bloomberg Identifier
         identifierType: formValues.identifierType || null,
         identifierValue: formValues.identifierValue || null,
         marketSector: formValues.marketSector || null,
         yellowKey: formValues.yellowKey || null,
+
+        // EU Security Verification
+        euSecurityVerificationRequired: formValues.euSecurityVerificationRequired || null,
+        euSecuritizationTipEuId: formValues.euSecuritizationTipEuId || null,
     };
 };
 
@@ -55,7 +59,7 @@ export const mapReviewDetailsToPayload = (
  *
  * @param wizardData - Accumulated wizard form data from all steps
  * @param currentStep - Current wizard step
- * @param currentStepNumber - Current step number (1-6)
+ * @param currentStepNumber - Current step number (1-3)
  * @param saveType - 'partial' or 'complete'
  * @returns Complete payload ready for API submission
  */
@@ -111,6 +115,8 @@ export const mapPayloadToFormValues = (
             identifierValue: payload.identifierValue || undefined,
             marketSector: payload.marketSector || undefined,
             yellowKey: payload.yellowKey || undefined,
+            euSecurityVerificationRequired: payload.euSecurityVerificationRequired || undefined,
+            euSecuritizationTipEuId: payload.euSecuritizationTipEuId || undefined,
         },
         reviewDetailsValues: {
             securityDetails: payload.securityDetails,

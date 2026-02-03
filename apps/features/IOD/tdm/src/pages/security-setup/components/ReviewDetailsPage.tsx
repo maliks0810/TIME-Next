@@ -1,19 +1,23 @@
 import React from 'react';
-import { FormControl, MenuItem, Select, TextField, Link } from '@mui/material';
-import { SecuritySetupFlowType, IReviewDetailsFormValues } from '../lib/types';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import { FormControl, MenuItem, Select, TextField } from '@mui/material';
+import { SecuritySetupFlowType, IReviewDetailsFormValues, IEnterIdentifierFormValues } from '../lib/types';
 
 interface ReviewDetailsPageProps {
   formValues: IReviewDetailsFormValues;
   onFormChange: (values: Partial<IReviewDetailsFormValues>) => void;
   flowType?: SecuritySetupFlowType;
+  enterIdentifierValues?: IEnterIdentifierFormValues;
 }
 
 export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   formValues,
-  onFormChange
+  onFormChange,
+  enterIdentifierValues
 }) => {
+
+  React.useEffect(() => {
+    console.log('[Review Details Page] Mounted with enterIdentifierValues:', enterIdentifierValues)
+  }, [])
 
   const handleSecurityDetailsChange = (field: string, value: string) => {
     onFormChange({
@@ -50,37 +54,6 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
 
   return (
     <div className="review-details-page">
-      {/* Success Messages */}
-      <div className="success-messages-box">
-        <div className="success-message-item">
-          <CheckCircleIcon className="success-check-icon" />
-          <span>Security information retrieved from Bloomberg</span>
-        </div>
-        <div className="success-message-item">
-          <CheckCircleIcon className="success-check-icon" />
-          <span>
-            Security Exists in Aladdin {formValues.securityDetails?.aladdinCDIId
-              && <strong>
-                (Aladdin CDI ID = {formValues.securityDetails.aladdinCDIId})
-              </strong>}
-          </span>
-        </div>
-      </div>
-
-      {/* Offering Memorandum Upload */}
-      <div className="offering-upload-section">
-        <h3 className="section-title">Offering Memorandum Upload</h3>
-        <div className="single-upload-box">
-          <InsertDriveFileIcon className="upload-doc-icon" />
-          <div className="upload-text-wrapper">
-            <span className="upload-instruction">Click or drag </span>
-            <Link href="#" className="upload-link">Offering Memorandum</Link>
-            <span className="upload-instruction"> to this area to upload (Optional)</span>
-          </div>
-          <Link href="#" className="upload-memo-link">Upload Offering Memorandum</Link>
-        </div>
-      </div>
-
       {/* Security Details Section */}
       <div className="form-section">
         <h3 className="section-title">Security Details</h3>
