@@ -65,6 +65,8 @@ export default defineConfig(({ mode }) => {
                 '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
                 '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
                 '@platform/platform-shell': path.resolve(__dirname, '.'),
+                '@r2/qre': path.resolve(__dirname, '../features/trap/QRE'),
+                '@r2/arc': path.resolve(__dirname, '../features/trap/arc'),
                 '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
                 // PLOP_INJECT_NEW_FEATURE_APP
             },

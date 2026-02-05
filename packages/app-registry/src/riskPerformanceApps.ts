@@ -1,6 +1,7 @@
 import { ExternalAppMetadata } from '@platform/app-registry';
 import { HighestEnv, InternalAppMetadata } from './types';
 import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
+import { lazy } from 'react';
 
 export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
 {
@@ -39,5 +40,20 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         disabled: false,
         env: HighestEnv.prod
     },
+    {
+        type: 'internal',
+        header: NavbarHeader.RiskPerformance,
+        subHeader: NavbarSubHeader.Risk,
+        id: '@r2/arc',
+        name: 'analytics-risk-controller',
+        title: 'Analytics Risk Controller',
+        env: HighestEnv.prod,
+        path: '/risk/arc',
+        team: 'R2',
+        // component: lazy(() => import('../../../apps/features/trap/arc/src/App')),
+        component: lazy(() => import('@r2/arc/src/App')),
+        description: '',
+    },
+
     // PLOP_INJECT_APP
 ]
