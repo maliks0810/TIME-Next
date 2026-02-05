@@ -24,13 +24,13 @@ export const Footer: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <div className="footer-bottom">
+            {/* <div className="footer-bottom">
                 {footerBottomLinksData?.map((bottomLink, index) => (
                     <a href={bottomLink.url} className="bottom-link" key={index}>
                         {bottomLink.header}
                     </a>
                 ))}
-            </div>
+            </div> */}
         </div>
     );
 }
