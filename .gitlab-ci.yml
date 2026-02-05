@@ -6,7 +6,7 @@ include:
 variables:
   PROJECT_NAME: time-next
   ENABLE_TLS: 'true'
-  DOMAIN: timenext
+  DOMAIN: time
   DEPLOYMENT_NAME: time-next
 
   ## AKS Tags ####################################################################################
