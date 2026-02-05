@@ -18,6 +18,7 @@ export enum NavbarSubHeader {
     Market = 'Market',
     Other = 'Other',
     Performance = 'Performance',
+    Risk = 'Risk',
     Research = 'Research',
     Governance = 'Governance',
     Regulations = 'Regulations',

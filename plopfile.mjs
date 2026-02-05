@@ -52,7 +52,7 @@ plop.setGenerator('app', {
                         case 'Research & Analysis':
                             return ['Fundamental', 'ESG', 'Market', 'Other'];
                         case 'Risk & Performance':
-                            return ['Performance'];
+                            return ['Performance', 'Risk'];
                         case 'Compliance':
                             return ['Research', 'Governance', 'Regulations'];
                         case 'Client Management':

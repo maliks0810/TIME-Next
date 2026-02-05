@@ -34,7 +34,7 @@ export const footerLinksData = [
             },
             {
                 title: 'TRAP',
-                url: 'https://trap-parallel.pd.tcw.com/',
+                url: 'https://trap.pd.tcw.com/',
                 isExternal: true,
             },
             {
