@@ -68,6 +68,7 @@ export default defineConfig(({ mode }) => {
                 '@r2/qre': path.resolve(__dirname, '../features/trap/QRE'),
                 '@r2/arc': path.resolve(__dirname, '../features/trap/arc'),
                 '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
+                '@r2/levered-finance-news': path.resolve(__dirname, '../features/R2/levered-finance-news'),
                 // PLOP_INJECT_NEW_FEATURE_APP
             },
             preserveSymlinks: true,
