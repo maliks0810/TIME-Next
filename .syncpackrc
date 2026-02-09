@@ -32,6 +32,15 @@
         "resolutions",
         "overrides"
     ],
+    "semverGroups": [
+        {
+            "label": "Use exact versions (no ^ or ~) for all deps",
+            "dependencies": ["**"],
+            "packages": ["**"],   
+            "dependencyTypes": ["**"],
+            "range": ""
+        }
+    ],
     "versionGroups": [{
         "label": "React Version",
         "dependencies": [

@@ -199,9 +199,9 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
         header: NavbarHeader.ResearchAnalysis,
         subHeader: NavbarSubHeader.ESG,
         title: 'Securitized ESG Criteria Analyzer',
-        devUrl: 'https://trap-parallel.pd.tcw.com/sustain/esg/analyze', // Please update if dev link available
-        qaUrl: 'https://trap-parallel.pd.tcw.com/sustain/esg/analyze', // Please update if qa link available
-        prodUrl: 'https://trap-parallel.pd.tcw.com/sustain/esg/analyze',
+        devUrl: 'https://trap.pd.tcw.com/sustain/esg/analyze', // Please update if dev link available
+        qaUrl: 'https://trap.pd.tcw.com/sustain/esg/analyze', // Please update if qa link available
+        prodUrl: 'https://trap.pd.tcw.com/sustain/esg/analyze',
         newTab: true,
         disabled: false,
         env: HighestEnv.prod
@@ -211,24 +211,26 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
         header: NavbarHeader.ResearchAnalysis,
         subHeader: NavbarSubHeader.ESG,
         title: 'Securitized Carbon Emissions Analyzer',
-        devUrl: 'https://trap-parallel.pd.tcw.com/sustain/ce/clo', // Please update if dev link available
-        qaUrl: 'https://trap-parallel.pd.tcw.com/sustain/ce/clo', // Please update if qa link available
-        prodUrl: 'https://trap-parallel.pd.tcw.com/sustain/ce/clo',
+        devUrl: 'https://trap.pd.tcw.com/sustain/ce/clo', // Please update if dev link available
+        qaUrl: 'https://trap.pd.tcw.com/sustain/ce/clo', // Please update if qa link available
+        prodUrl: 'https://trap.pd.tcw.com/sustain/ce/clo',
         newTab: true,
         disabled: false,
         env: HighestEnv.prod
     },
     {
-        type: 'external',
+        type: 'internal',
         header: NavbarHeader.ResearchAnalysis,
         subHeader: NavbarSubHeader.Market,
+        id: 'levered-finance-news',
+        name: 'levered-finance-news',
         title: 'Credit News',
-        devUrl: 'https://trap-parallel.pd.tcw.com/leveredfinance/news', // Please update if dev link available
-        qaUrl: 'https://trap-parallel.pd.tcw.com/leveredfinance/news', // Please update if qa link available
-        prodUrl: 'https://trap-parallel.pd.tcw.com/leveredfinance/news',
-        newTab: true,
-        disabled: false,
-        env: HighestEnv.prod
+        path: '/leveredfinance/news',
+        team: 'R2',
+        component: lazy(() => import('@r2/levered-finance-news/src/App')),
+        description: '',
+        env: HighestEnv.prod,
+        
     },
     {
         type: 'external',
@@ -255,5 +257,6 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
         env: HighestEnv.prod,
         component: lazy(() => import('@r2/qre/src/App'))
     },
+
     // PLOP_INJECT_APP
 ]

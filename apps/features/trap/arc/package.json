@@ -1,0 +1,28 @@
+{
+  "name": "@r2/arc",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Analytics Risk Controller",
+  "scripts": {
+    "build": "vite build",
+    "build:sandbox": "vite build --mode sandbox",
+    "build:development": "vite build --mode development",
+    "build:qa": "vite build --mode qa",
+    "build:production": "vite build --mode production",
+    "clean": "rm -rf dist .turbo node_modules",
+    "dev": "vite",
+    "prod": "vite --mode production",
+    "preview": "vite preview --port 3002",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@microsoft/signalr": "10.0.0",
+    "@platform/styles": "1.0.0",
+    "@platform/ui": "1.0.0",
+    "@platform/utils": "1.0.0"
+  },
+  "devDependencies": {
+  }
+}

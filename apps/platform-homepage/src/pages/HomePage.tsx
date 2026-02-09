@@ -268,7 +268,7 @@ const HomePage: React.FC = () => {
                                         <div className="quick-view-link-container" key={i}>
                                             <button
                                                 className="quick-view-link"
-                                                // onClick={() => popupRef.current.showPopup(fav)}
+                                                onClick={() => window.open(fav.url, "_blank", "noopener,noreferrer")}
                                             >
                                                 {fav.title}
                                             </button>

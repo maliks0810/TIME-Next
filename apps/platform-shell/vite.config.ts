@@ -24,7 +24,7 @@ function loadEnvsIn(dirPath, mode, combinedEnv) {
                 });
             }
 
-            loadEnvsIn(subDirPath, mode, combinedEnv);  
+            loadEnvsIn(subDirPath, mode, combinedEnv);
         }
     });
 }
@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => {
     const combinedEnv = {};
     const appsDir = path.resolve(__dirname, '..');
     const featuresDir = path.resolve(appsDir, 'features');
-    const normalizedMode = mode === 'development' ? 'dev' : mode === 'production' ? 'prod' : mode;  
+    const normalizedMode = mode === 'development' ? 'dev' : mode === 'production' ? 'prod' : mode;
 
     loadEnvsIn(appsDir, mode, combinedEnv);
     if (fs.existsSync(featuresDir)) {
@@ -65,8 +65,11 @@ export default defineConfig(({ mode }) => {
                 '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
                 '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
                 '@platform/platform-shell': path.resolve(__dirname, '.'),
+                '@r2/qre': path.resolve(__dirname, '../features/trap/QRE'),
+                '@r2/arc': path.resolve(__dirname, '../features/trap/arc'),
                 '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
                 '@IOD/tdm': path.resolve(__dirname, '../features/IOD/tdm'),
+                '@r2/levered-finance-news': path.resolve(__dirname, '../features/R2/levered-finance-news'),
                 // PLOP_INJECT_NEW_FEATURE_APP
             },
             preserveSymlinks: true,
