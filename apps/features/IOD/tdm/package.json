@@ -24,8 +24,8 @@
     "@mui/icons-material": "7.3.6",
     "@mui/material": "7.3.6",
     "@mui/x-date-pickers": "8.22.1",
-    "final-form": "^4.20.4",
-    "react-final-form": "^6.5.9"
+    "final-form": "4.20.4",
+    "react-final-form": "6.5.9"
   },
   "devDependencies": {}
 }
