@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
@@ -8,6 +8,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SaveIcon from '@mui/icons-material/Save';
 import { HorizontalStepper } from './HorizontalStepper';
+import { EnterIdentifierPage } from './EnterIdentifierPage';
 import { ReviewDetailsPage } from './ReviewDetailsPage';
 import { ConfirmDetailsPage } from './ConfirmDetailsPage';
 import { SubmitConfirmationModal } from './SubmitConfirmationModal';
@@ -19,12 +20,13 @@ import {
 } from '../lib/types';
 import '../lib/styles.scss';
 import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
-import { EnterIdentifierPage } from './EnterIdentifierPage';
+import { ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 
 interface SecuritySetupContainerProps {
   flowType: SecuritySetupFlowType;
   onComplete?: (data: ISecuritySetupWizardData) => void;
   onCancel?: () => void;
+  initialData?: Partial<ISecuritySetupWizardPayload> | null;
 }
 
 // Simple 3-step wizard
@@ -34,6 +36,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   flowType,
   onComplete,
   onCancel,
+  initialData
 }) => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<WizardStep>('enter-identifier');
@@ -49,6 +52,48 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       tradeFields: {},
     },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setWizardData({
+        step1: {
+          newIssue: initialData.newIssue ?? undefined,
+          cdiFileUploadedToAnser: initialData.cdiFileUploadedToAnser ?? undefined,
+          aladdinCDIId: initialData.aladdinCDIId ?? undefined,
+          privateDeal: initialData.privateDeal ?? undefined,
+          ssapIdPassword: initialData.ssapIdPassword ?? undefined,
+          ssapApproved: initialData.ssapApproved ?? undefined,
+          identifierType: initialData.identifierType ?? undefined,
+          identifierValue: initialData.identifierValue ?? undefined,
+          marketSector: initialData.marketSector ?? undefined,
+          yellowKey: initialData.yellowKey ?? undefined,
+          euSecurityVerificationRequired: initialData.euSecurityVerificationRequired ?? undefined,
+          euSecuritizationTipEuId: initialData.euSecuritizationTipEuId ?? undefined,
+        },
+        step2: {
+          securityDetails: initialData.securityDetails ?? {},
+          esgFields: initialData.esgFields ?? {},
+          tradeFields: initialData.tradeFields ?? {},
+          notesInstructions: initialData.notesInstructions ?? undefined
+        },
+      })
+
+      if (initialData.currentStep) {
+        setCurrentStep(initialData.currentStep);
+
+        const completedStepsList: WizardStep[] = [];
+        if (['review-details', 'confirm-details'].includes(initialData.currentStep)) {
+          completedStepsList.push('enter-identifier')
+        }
+
+        if (initialData.currentStep === 'confirm-details') {
+          completedStepsList.push('review-details')
+        }
+
+        setCompletedSteps(completedStepsList);
+      }
+    }
+  }, [initialData])
 
   // Initialize save hook (no session management needed)
   const {
@@ -224,8 +269,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   };
 
   const handleSave = async () => {
-    console.log('[SecuritySetupContainer] handleSave called');
-
     // Clear any previous errors before attempting save
     clearError();
 

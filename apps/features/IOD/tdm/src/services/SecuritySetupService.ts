@@ -1,5 +1,8 @@
 import { getApiBaseUrl } from '../constants/environments';
-import { transformToApiDomain } from '../pages/security-setup/utils/securitySetupApiTransformer';
+import {
+    transformFromApiPresentation,
+    transformToApiDomain,
+} from '../pages/security-setup/utils/securitySetupApiTransformer';
 import {
     ISaveWizardResponse,
     ISecuritySetupWizardPayload,
@@ -50,5 +53,27 @@ export const SecuritySetupService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    getWizardData: async (
+        securitySetupId: string
+    ): Promise<Partial<ISecuritySetupWizardPayload>> => {
+        const response = await fetch(
+            `${API_BASE_URL}${SECURITY_SETUP_ENDPOINT}?securitySetupRequestIds=${securitySetupId}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text().catch(() => response.statusText);
+            throw new Error(`Failed to fetch wizard data:( ${response.status}: ${errorText})`);
+        }
+
+        const presentationData = await response.json();
+        return transformFromApiPresentation(presentationData?.securitySetupRequestCollection?.[0]);
     },
 };
