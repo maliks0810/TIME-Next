@@ -1,4 +1,5 @@
 import React, { Dispatch, SetStateAction, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom'
 import { Card, CardMedia, Typography, Button, Grid, Box, Divider } from '@mui/material';
 import { CloseSharp, FileCopy, Delete, History, DescriptionOutlined, FileDownloadOutlined } from '@mui/icons-material';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
@@ -11,21 +12,29 @@ type DashboardRequestDetailsProps = {
 }
 
 const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ securityRequest, setIsRequestDetailsOpen }) => {
-  
+  const navigate = useNavigate();
+
   // TODO: call service to load SecuritySetupRequest on open of Request Details
 
   const closeRequestDetails = useCallback(() => {
     setIsRequestDetailsOpen(false);
   }, [setIsRequestDetailsOpen]);
-  
-  if (!securityRequest)
-  {
+
+  const handleReviewRequestClick = () => {
+    if (!securityRequest) {
+      throw Error('No security request found.')
+    }
+
+    navigate(`/iod/tdm/security-setup?id=${securityRequest.id}`)
+  }
+
+  if (!securityRequest) {
     return <></>
   }
-  
+
   return (
     <>
-      <Box sx={{width:'550px', padding:'2em', marginTop:'70px'}}>
+      <Box sx={{ width: '550px', padding: '2em', marginTop: '70px' }}>
         <Grid container flexDirection={'column'} spacing={2}>
           <Grid container flexDirection={'row'} justifyContent='space-between'>
             <Grid>
@@ -36,14 +45,14 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             <Grid>
               <Button
                 variant='text'
-                sx={{color:'black'}}
+                sx={{ color: 'black' }}
                 onClick={closeRequestDetails}>
-                  <CloseSharp/>
+                <CloseSharp />
               </Button>
             </Grid>
           </Grid>
           <Grid>
-            <Card elevation={0} sx={{width: '100%'}}>
+            <Card elevation={0} sx={{ width: '100%' }}>
               <CardMedia
                 component='div'
                 className='dashboard-card-media'>
@@ -53,27 +62,27 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
           <Grid>
             <Grid>
               <Typography variant="subtitle1" flex={1}>
-              Actions
+                Actions
               </Typography>
             </Grid>
             <Grid container flexDirection={'row'} spacing={1}>
               <Grid>
-                <Button className='tcw-button-outlined' variant='outlined'><FileCopy sx={{padding:'0px 5px 0px 0px'}}/>Update</Button>
+                <Button className='tcw-button-outlined' variant='outlined'><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Update</Button>
               </Grid>
               <Grid>
-                <Button className='tcw-button-outlined' variant='outlined'><FileCopy sx={{padding:'0px 5px 0px 0px'}}/>Duplicate</Button>
+                <Button className='tcw-button-outlined' variant='outlined'><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Duplicate</Button>
               </Grid>
               <Grid>
-                <Button className='tcw-button-outlined' variant='outlined'><Delete sx={{padding:'0px 5px 0px 0px'}}/>Cancel</Button>
+                <Button className='tcw-button-outlined' variant='outlined'><Delete sx={{ padding: '0px 5px 0px 0px' }} />Cancel</Button>
               </Grid>
               <Grid>
-                <Button className='tcw-button-outlined' variant='outlined'><History sx={{padding:'0px 5px 0px 0px'}}/>View History</Button>
+                <Button className='tcw-button-outlined' variant='outlined'><History sx={{ padding: '0px 5px 0px 0px' }} />View History</Button>
               </Grid>
             </Grid>
           </Grid>
 
-          <Divider flexItem/>
-          
+          <Divider flexItem />
+
           <Grid>
             <Grid>
               <Typography variant="subtitle1">
@@ -82,7 +91,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             </Grid>
             <Grid container flexDirection={'column'} spacing={1}>
               <Grid>
-                <Button className='tcw-button' variant='contained' sx={{width:'100%'}}>Review Request in SRT</Button>
+                <Button className='tcw-button' variant='contained' sx={{ width: '100%' }} onClick={handleReviewRequestClick}>Review Request in SRT</Button>
               </Grid>
             </Grid>
           </Grid>
@@ -96,8 +105,8 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             </Typography>
           </Grid>
 
-          <Divider flexItem/>
-          
+          <Divider flexItem />
+
           <Grid>
             <Typography variant="subtitle2">
               <b>{securityRequest.securityRequestDetails.identifierType}:</b> {securityRequest.securityRequestDetails.identifierValue}
@@ -116,8 +125,8 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             </Typography>
           </Grid>
 
-          <Divider flexItem/>
-          
+          <Divider flexItem />
+
           <Grid>
             <Grid>
               <Typography variant="subtitle1">
@@ -191,9 +200,9 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
               </Grid>
             </Grid>
           </Grid>
-          
-          <Divider flexItem/>
-          
+
+          <Divider flexItem />
+
           <Grid>
             <Grid>
               <Typography variant="subtitle1" flex={1}>
@@ -227,9 +236,9 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
               </Grid>
             </Grid>
           </Grid>
-          
-          <Divider flexItem/>
-          
+
+          <Divider flexItem />
+
           <Grid>
             <Grid>
               <Typography variant="subtitle1" flex={1}>
@@ -319,9 +328,9 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
               </Grid>
             </Grid>
           </Grid>
-          
-          <Divider flexItem/>
-          
+
+          <Divider flexItem />
+
           <Grid>
             <Grid>
               <Typography variant="subtitle1" flex={1}>
@@ -334,7 +343,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                   <Box className='security-request-file-container'>
                     <Grid container flexDirection={'row'} spacing={1}>
                       <Grid alignContent={'center'}>
-                        <DescriptionOutlined/>
+                        <DescriptionOutlined />
                       </Grid>
                       <Grid >
                         <Grid>
@@ -348,9 +357,9 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                           </Typography>
                         </Grid>
                       </Grid>
-                      <Grid alignContent={'center'} sx={{ ml: 'auto'}}>
+                      <Grid alignContent={'center'} sx={{ ml: 'auto' }}>
                         <Button className='tcw-button-text' variant='text'>
-                          <FileDownloadOutlined sx={{padding:'0px 5px 0px 0px'}}/>Download
+                          <FileDownloadOutlined sx={{ padding: '0px 5px 0px 0px' }} />Download
                         </Button>
                       </Grid>
                     </Grid>

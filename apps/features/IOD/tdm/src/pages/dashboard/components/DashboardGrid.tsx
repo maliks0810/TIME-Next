@@ -1,4 +1,5 @@
 import React, { Dispatch, SetStateAction, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom'
 import { Box, Grid } from '@mui/material';
 import { DataGrid } from 'devextreme-react';
 import { Column, DataGridTypes, HeaderFilter, Pager, Paging, Selection } from 'devextreme-react/data-grid';
@@ -16,77 +17,83 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   securityRequestsData,
   setSelectedSecurityRequest,
   setIsRequestDetailsOpen,
-}) => { 
+}) => {
+  const navigate = useNavigate();
+
   const cellRenderSetupStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
-      const status = data.value;
-      const setupStatusProperties = SetupStatusesRecord[status];
+    const status = data.value;
+    const setupStatusProperties = SetupStatusesRecord[status];
 
-      if (status && setupStatusProperties) {
-        const className = 'dashboard-grid-status ' + setupStatusProperties.className;
-        return (
-          <Grid container justifyContent={'center'}>
-            <Box className={className} whiteSpace={'normal'}>
-              {setupStatusProperties.name}
-            </Box>
-          </Grid>
-        )
-      }
-  
-      return <></>;
-    }
-  
-    const cellRenderRiskAnalyticsStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
-      const status = data.value;
-      const riskAnalyticsStatusProperties = RiskAnalyticsStatusesRecord[status]
-
-      if (status && riskAnalyticsStatusProperties) {
-        const className = 'dashboard-grid-status ' + riskAnalyticsStatusProperties.className;
-        return (
-          <Grid container justifyContent={'center'}>
-            <Box className={className} whiteSpace={'normal'}>
-              {riskAnalyticsStatusProperties.name}
-            </Box>
-          </Grid>
-        )
-      }
-  
-      return <></>;
-    }
-  
-    const cellRenderReadyForTrading = (data: DataGridTypes.ColumnCellTemplateData) => {
-      const status = data.value;
-      const readyForTradingStatusProperties = ReadyForTradingStatusesRecord[status]
-      
-      if (status && readyForTradingStatusProperties) {
-        const className = 'dashboard-grid-status ' + readyForTradingStatusProperties.className;
-        return (
-          <Grid container justifyContent={'center'}>
-            <Box className={className} whiteSpace={'normal'}>
-              {readyForTradingStatusProperties.name}
-            </Box>
-          </Grid>
-        )
-      }
-  
-      return <></>;
+    if (status && setupStatusProperties) {
+      const className = 'dashboard-grid-status ' + setupStatusProperties.className;
+      return (
+        <Grid container justifyContent={'center'}>
+          <Box className={className} whiteSpace={'normal'}>
+            {setupStatusProperties.name}
+          </Box>
+        </Grid>
+      )
     }
 
-    const cellRenderProcessTime = (data: DataGridTypes.ColumnCellTemplateData) => {
-      if (data.value){
-        const processTime = data.value.toString() + ' min';
-        return <>{processTime}</>
-      }
+    return <></>;
+  }
 
-       return <></>;
+  const cellRenderRiskAnalyticsStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
+    const status = data.value;
+    const riskAnalyticsStatusProperties = RiskAnalyticsStatusesRecord[status]
+
+    if (status && riskAnalyticsStatusProperties) {
+      const className = 'dashboard-grid-status ' + riskAnalyticsStatusProperties.className;
+      return (
+        <Grid container justifyContent={'center'}>
+          <Box className={className} whiteSpace={'normal'}>
+            {riskAnalyticsStatusProperties.name}
+          </Box>
+        </Grid>
+      )
     }
 
-    const onRowClick = useCallback((e: DataGridTypes.RowClickEvent) => {
-      setSelectedSecurityRequest(e.data);
-      setIsRequestDetailsOpen(true);
-    }, [setSelectedSecurityRequest, setIsRequestDetailsOpen]);
+    return <></>;
+  }
 
-  if (!securityRequestsData)
-  {
+  const cellRenderReadyForTrading = (data: DataGridTypes.ColumnCellTemplateData) => {
+    const status = data.value;
+    const readyForTradingStatusProperties = ReadyForTradingStatusesRecord[status]
+
+    if (status && readyForTradingStatusProperties) {
+      const className = 'dashboard-grid-status ' + readyForTradingStatusProperties.className;
+      return (
+        <Grid container justifyContent={'center'}>
+          <Box className={className} whiteSpace={'normal'}>
+            {readyForTradingStatusProperties.name}
+          </Box>
+        </Grid>
+      )
+    }
+
+    return <></>;
+  }
+
+  const cellRenderProcessTime = (data: DataGridTypes.ColumnCellTemplateData) => {
+    if (data.value) {
+      const processTime = data.value.toString() + ' min';
+      return <>{processTime}</>
+    }
+
+    return <></>;
+  }
+
+  const onRowClick = useCallback((e: DataGridTypes.RowClickEvent) => {
+    setSelectedSecurityRequest(e.data);
+    setIsRequestDetailsOpen(true);
+  }, [setSelectedSecurityRequest, setIsRequestDetailsOpen]);
+
+  const handleRowDbleClick = (e: DataGridTypes.RowDblClickEvent) => {
+    const rowId = e?.data?.id;
+    navigate(`/iod/tdm/security-setup?id=${rowId}`)
+  }
+
+  if (!securityRequestsData) {
     return <></>
   }
 
@@ -99,6 +106,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         className='dashboard-grid'
         columnAutoWidth={false}
         onRowClick={onRowClick}
+        onRowDblClick={handleRowDbleClick}
         repaintChangesOnly={true}
       >
         <Selection
@@ -108,7 +116,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         <HeaderFilter
           visible={true}
         />
-        <Column 
+        <Column
           dataField='description'
           caption='Description'
           width={'10%'}
@@ -168,7 +176,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           showPageSizeSelector={true}
           allowedPageSizes={[10, 20, 30]}
         />
-        
+
       </DataGrid>
     </>
   )

@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SecuritySetupContainer } from './components/SecuritySetupContainer';
 import { ISecuritySetupWizardData } from './lib/types';
 import './lib/styles.scss';
@@ -8,6 +8,33 @@ import { ISecuritySetupWizardPayload } from '../../services/domain-objects/Secur
 
 const SecuritySetupComponent: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [initialData, setInitialData] = useState<Partial<ISecuritySetupWizardPayload> | null>(null)
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const securitySetupId = searchParams.get('id');
+
+  useEffect(() => {
+    if (securitySetupId) {
+      const fetchWizardData = async () => {
+        setIsLoading(true);
+        setLoadError(null);
+
+        try {
+          const savedData = await SecuritySetupService.getWizardData(securitySetupId);
+          setInitialData(savedData);
+        } catch (error) {
+          console.error('Failed to load saved wizard data', error);
+          setLoadError('Failed to load saved data. Please try again.');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+      fetchWizardData();
+    }
+  }, [searchParams])
+
 
   const handleComplete = async (data: ISecuritySetupWizardData) => {
     try {
@@ -51,12 +78,37 @@ const SecuritySetupComponent: React.FC = () => {
     navigate('/iod/tdm/')
   };
 
+  const shouldShowLoading = isLoading || (securitySetupId && !initialData && !loadError)
+  if (shouldShowLoading) {
+    return (
+      <div className="security-setup-page">
+        <div style={{ padding: '40px', textAlign: 'center' }}>
+          <p>Loading saved wizard data...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="security-setup-page">
+        <div style={{ padding: '40px', textAlign: 'center', color: 'red' }}>
+          <>{loadError}</>
+          <button onClick={() => navigate('/iod/tdm/')}>
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="security-setup-page">
       <SecuritySetupContainer
         flowType="non-private" // TODO: determine how to decide flow
         onComplete={handleComplete}
         onCancel={handleCancel}
+        initialData={initialData}
       />
     </div>
   );

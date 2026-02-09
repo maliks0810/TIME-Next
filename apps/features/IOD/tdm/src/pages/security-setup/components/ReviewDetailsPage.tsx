@@ -1,23 +1,24 @@
 import React from 'react';
 import { FormControl, MenuItem, Select, TextField } from '@mui/material';
-import { SecuritySetupFlowType, IReviewDetailsFormValues, IEnterIdentifierFormValues } from '../lib/types';
+import { SecuritySetupFlowType, IReviewDetailsFormValues } from '../lib/types';
 
 interface ReviewDetailsPageProps {
   formValues: IReviewDetailsFormValues;
   onFormChange: (values: Partial<IReviewDetailsFormValues>) => void;
   flowType?: SecuritySetupFlowType;
-  enterIdentifierValues?: IEnterIdentifierFormValues;
 }
 
 export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   formValues,
   onFormChange,
-  enterIdentifierValues
 }) => {
+  const formatDateForInput = (isoDate?: string): string => {
+    if (!isoDate) {
+      return '';
+    }
 
-  React.useEffect(() => {
-    console.log('[Review Details Page] Mounted with enterIdentifierValues:', enterIdentifierValues)
-  }, [])
+    return isoDate.split('T')[0];
+  }
 
   const handleSecurityDetailsChange = (field: string, value: string) => {
     onFormChange({
@@ -118,7 +119,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <TextField
               fullWidth
               type="date"
-              value={formValues.securityDetails?.callDate || ''}
+              value={formatDateForInput(formValues.securityDetails?.callDate)}
               onChange={(e) => handleSecurityDetailsChange('callDate', e.target.value)}
               variant="outlined"
             />
