@@ -12,11 +12,11 @@ export const footerLinksData = [
                 url: 'contact',
                 isExternal: false,
             },
-            {
-                title: 'Support',
-                url: 'https://tcwgroup.atlassian.net/servicedesk/customer/portals',
-                isExternal: true,
-            },
+            // {
+            //     title: 'Support',
+            //     url: 'https://tcwgroup.atlassian.net/servicedesk/customer/portals',
+            //     isExternal: true,
+            // },
             {
                 title: 'Help Desk',
                 url: 'https://help.tcw.com/',
@@ -53,8 +53,8 @@ export const footerLinksData = [
         header: 'Helpful Links',
         links: [
             {
-                title: 'ESG Policies',
-                url: 'https://mytcw.tcw.com/Policies-Procedures',
+                title: 'Policies',
+                url: 'https://mytcw.tcw.com/policies',
                 isExternal: true,
             },
             {
@@ -63,7 +63,7 @@ export const footerLinksData = [
                 isExternal: true,
             },
             {
-                title: 'myTcw',
+                title: 'myTCW',
                 url: 'https://mytcw.tcw.com/',
                 isExternal: true,
             },
