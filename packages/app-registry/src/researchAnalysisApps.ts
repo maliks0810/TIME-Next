@@ -247,12 +247,12 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
     },
     {  
         header: NavbarHeader.ResearchAnalysis,  
-        subHeader: NavbarSubHeader.QRE,  
+        subHeader: NavbarSubHeader.FORGE,  
         type: 'internal',  
         id: '@r2/qre',  
         name: 'R2-Model-Catalog',  
         title: 'Model Catalog',  
-        path: '/qre/catalog',  
+        path: '/forge/catalog',  
         team: 'R2',  
         env: HighestEnv.prod,
         component: lazy(() => import('@r2/qre/src/App'))

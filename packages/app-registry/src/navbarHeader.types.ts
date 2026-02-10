@@ -26,7 +26,7 @@ export enum NavbarSubHeader {
     AssetBackFinance = 'Asset Back Finance',
     AIThemes= 'AI Themes',
     AIUploadTools = 'AI Upload Tools',
-    QRE = 'QRE'
+    FORGE = 'FORGE'
 }
 
 
