@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormControl, RadioGroup, FormControlLabel, Radio } from '@mui/material';
-import { IEnterIdentifierFormValues } from '../lib/types';
+import { IEnterIdentifierFormValues } from '../lib/types/securitySetupTypes';
 
 interface PrivateDealPageProps {
   formValues: IEnterIdentifierFormValues;

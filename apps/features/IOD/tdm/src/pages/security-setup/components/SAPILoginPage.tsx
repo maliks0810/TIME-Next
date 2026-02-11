@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@mui/material';
-import { IEnterIdentifierFormValues } from '../lib/types';
+import { IEnterIdentifierFormValues } from '../lib/types/securitySetupTypes';
 
 interface SAPILoginPageProps {
   formValues: IEnterIdentifierFormValues;

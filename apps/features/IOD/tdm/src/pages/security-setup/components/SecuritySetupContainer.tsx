@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Button, IconButton } from '@mui/material';
+import { Button, IconButton, CircularProgress, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -17,10 +17,11 @@ import {
   ISecuritySetupWizardData,
   IEnterIdentifierFormValues,
   IReviewDetailsFormValues,
-} from '../lib/types';
+} from '../lib/types/securitySetupTypes';
 import '../lib/styles.scss';
 import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
 import { ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
+import { useReferenceData } from '../hooks/useReferenceData';
 
 interface SecuritySetupContainerProps {
   flowType: SecuritySetupFlowType;
@@ -43,6 +44,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const [completedSteps, setCompletedSteps] = useState<WizardStep[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
+
+  const { data: referenceData, loading: loadingReferenceData, error: referenceDataError } = useReferenceData();
 
   const [wizardData, setWizardData] = useState<ISecuritySetupWizardData>({
     step1: {},
@@ -431,6 +434,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             formValues={wizardData.step1}
             onFormChange={handleStep1Change}
             isReadOnly={isReadOnly}
+            referenceData={referenceData}
           />
         );
       case 'review-details':
@@ -439,6 +443,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             flowType={flowType}
             formValues={wizardData.step2}
             onFormChange={handleStep2Change}
+            referenceData={referenceData}
           />
         );
       case 'confirm-details':
@@ -494,6 +499,25 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       </div>
     );
   };
+
+  if (loadingReferenceData) {
+    return (
+      <div>
+        <CircularProgress />
+      </div>
+    )
+  }
+
+
+  if (referenceDataError) {
+    return (
+      <div>
+        <Alert severity='error'>
+          Failed to load dropdown options: {referenceDataError.message}
+        </Alert>
+      </div>
+    )
+  }
 
   return (
     <div className="security-setup-wizard">

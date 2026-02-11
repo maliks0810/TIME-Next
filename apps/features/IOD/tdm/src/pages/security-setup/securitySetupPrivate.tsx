@@ -1,6 +1,6 @@
 import React from 'react';
 import { SecuritySetupContainer } from './components/SecuritySetupContainer'
-import { ISecuritySetupWizardData } from './lib/types';
+import { ISecuritySetupWizardData } from './lib/types/securitySetupTypes';
 import './lib/styles.scss'
 
 export const PrivateSecuritySetup: React.FC = () => {

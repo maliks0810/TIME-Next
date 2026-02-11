@@ -7,7 +7,7 @@ import {
   SecuritySetupFlowType,
   IEnterIdentifierFormValues,
   EnterIdentifierStep
-} from '../lib/types';
+} from '../lib/types/securitySetupTypes';
 import { NewIssuePage } from './NewIssuePage';
 import { UploadCDIPage } from './UploadCDIPage';
 import { PrivateDealPage } from './PrivateDealPage';
