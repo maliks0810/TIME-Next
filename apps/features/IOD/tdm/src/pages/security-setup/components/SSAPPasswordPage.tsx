@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextField } from '@mui/material';
-import { IEnterIdentifierFormValues } from '../lib/types';
+import { IEnterIdentifierFormValues } from '../lib/types/securitySetupTypes';
 
 interface SSAPPasswordPageProps {
   formValues: IEnterIdentifierFormValues;

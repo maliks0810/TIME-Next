@@ -1,32 +1,23 @@
 import React from 'react';
-import { FormControl, MenuItem, Select, SelectChangeEvent, TextField, RadioGroup, FormControlLabel, Radio, Link } from '@mui/material';
+import { FormControl, TextField, RadioGroup, FormControlLabel, Radio, Link } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
-import { IEnterIdentifierFormValues } from '../lib/types';
+import { IEnterIdentifierFormValues } from '../lib/types/securitySetupTypes';
+import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
+import { SelectFormField } from '../../../common/components/SelectFormField';
 
 interface EnterIdentifierPageProps {
   formValues: IEnterIdentifierFormValues;
   onFormChange: (values: Partial<IEnterIdentifierFormValues>) => void;
   isReadOnly?: boolean;
+  referenceData: INormalizedReferenceData | null;
 }
-
-const identifierTypeOptions = [
-  { value: 'FIGI', label: 'FIGI' },
-  { value: 'CUSIP', label: 'CUSIP' },
-  { value: 'ISIN', label: 'ISIN' },
-  { value: 'SEDOL', label: 'SEDOL' },
-];
 
 export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   formValues,
   onFormChange,
   isReadOnly = false,
+  referenceData
 }) => {
-  const handleSelectChange = (field: keyof IEnterIdentifierFormValues) => (
-    event: SelectChangeEvent<string>
-  ) => {
-    onFormChange({ [field]: event.target.value });
-  };
-
   const handleTextChange = (field: keyof IEnterIdentifierFormValues) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -103,20 +94,16 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
         <div className="form-row-group">
           <label className="field-label">Identifier</label>
           <div className="field-inputs-row">
-            <FormControl className="field-input-half">
-              <Select
-                value={formValues.identifierType || 'FIGI'}
-                onChange={handleSelectChange('identifierType')}
-                displayEmpty
-                disabled={isReadOnly}
-              >
-                {identifierTypeOptions.map(option => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.Identifier}
+              value={formValues.identifierType}
+              onChange={(value) => onFormChange({ identifierType: value })}
+              referenceData={referenceData}
+              disabled={isReadOnly}
+              fullWidth={false}
+              className='field-input-half'
+              displayEmpty={false}
+            />
             <TextField
               className="field-input-half"
               value={formValues.identifierValue || ''}
@@ -132,18 +119,16 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
         <div className="form-row-group">
           <label className="field-label">Market Sector</label>
           <div className="field-inputs-row">
-            <FormControl className="field-input-half">
-              <Select
-                value={formValues.marketSector || ''}
-                onChange={handleSelectChange('marketSector')}
-                displayEmpty
-                disabled={isReadOnly}
-              >
-                <MenuItem value="">Select...</MenuItem>
-                <MenuItem value="mortgage">Mortgage</MenuItem>
-                <MenuItem value="corporate">Corporate</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.MarketSector}
+              value={formValues.marketSector}
+              onChange={(value) => onFormChange({ marketSector: value })}
+              referenceData={referenceData}
+              disabled={isReadOnly}
+              fullWidth={false}
+              className='field-input-half'
+              displayEmpty={false}
+            />
             <TextField
               className="field-input-half"
               label="Yellow Key"

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { SecuritySetupContainer } from './components/SecuritySetupContainer';
-import { ISecuritySetupWizardData } from './lib/types';
+import { ISecuritySetupWizardData } from './lib/types/securitySetupTypes';
 import './lib/styles.scss';
 import { SecuritySetupService } from '../../services/SecuritySetupService';
 import { ISecuritySetupWizardPayload } from '../../services/domain-objects/SecuritySetupRequestPayload';

@@ -1,4 +1,8 @@
-import { ISecurityDetails, IESGFields, ITradeFields } from '../../pages/security-setup/lib/types';
+import {
+    ISecurityDetails,
+    IESGFields,
+    ITradeFields,
+} from '../../pages/security-setup/lib/types/securitySetupTypes';
 
 export type WizardStep = 'enter-identifier' | 'review-details' | 'confirm-details';
 

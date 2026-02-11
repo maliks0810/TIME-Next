@@ -1,16 +1,21 @@
 import React from 'react';
-import { FormControl, MenuItem, Select, TextField } from '@mui/material';
-import { SecuritySetupFlowType, IReviewDetailsFormValues } from '../lib/types';
+import { TextField } from '@mui/material';
+import { SecuritySetupFlowType, IReviewDetailsFormValues } from '../lib/types/securitySetupTypes';
+import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
+import { SelectFormField } from '../../../common/components/SelectFormField';
+
 
 interface ReviewDetailsPageProps {
   formValues: IReviewDetailsFormValues;
   onFormChange: (values: Partial<IReviewDetailsFormValues>) => void;
   flowType?: SecuritySetupFlowType;
+  referenceData: INormalizedReferenceData | null;
 }
 
 export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   formValues,
   onFormChange,
+  referenceData
 }) => {
   const formatDateForInput = (isoDate?: string): string => {
     if (!isoDate) {
@@ -142,18 +147,13 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">TCW ESG</label>
-            <FormControl fullWidth className="esg-green-border">
-              <Select
-                value={formValues.esgFields?.tcwEsgValue || ''}
-                onChange={(e) => handleESGChange('tcwEsgValue', e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">Select...</MenuItem>
-                <MenuItem value="yes">Yes</MenuItem>
-                <MenuItem value="no">No</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.IsTotalESGTCW}
+              value={formValues.esgFields?.tcwEsgValue}
+              onChange={(value) => handleESGChange('tcwEsgValue', value)}
+              referenceData={referenceData}
+              label="TCW ESG"
+            />
           </div>
           <div className="form-field">
             <label className="field-label">
@@ -171,18 +171,13 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
 
         <div className="form-row single-column">
           <div className="form-field">
-            <label className="field-label">TCW ESG Type</label>
-            <FormControl fullWidth>
-              <Select
-                value={formValues.esgFields?.tcwEsgTypeValue || ''}
-                onChange={(e) => handleESGChange('tcwEsgTypeValue', e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">Select...</MenuItem>
-                <MenuItem value="type1">Type 1</MenuItem>
-                <MenuItem value="type2">Type 2</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.TcwEsgType}
+              value={formValues.esgFields?.tcwEsgTypeValue}
+              onChange={(value) => handleESGChange('tcwEsgTypeValue', value)}
+              referenceData={referenceData}
+              label="TCW ESG Type"
+            />
           </div>
         </div>
       </div>
@@ -193,142 +188,97 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">Slicer Type</label>
-            <FormControl fullWidth>
-              <Select
-                value={formValues.tradeFields?.slicerTypeValue || ''}
-                onChange={(e) => handleTradeFieldsChange('slicerTypeValue', e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">MBS</MenuItem>
-                <MenuItem value="mbs">MBS</MenuItem>
-                <MenuItem value="abs">ABS</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.Slicer}
+              value={formValues.tradeFields?.slicerTypeValue}
+              onChange={(value) => handleTradeFieldsChange('slicerTypeValue', value)}
+              referenceData={referenceData}
+              label="Slicer Type"
+            />
           </div>
           <div className="form-field">
-            <label className="field-label">MBS Type</label>
-            <FormControl fullWidth>
-              <Select
-                value={formValues.tradeFields?.mbsTypeValue || ''}
-                onChange={(e) => handleTradeFieldsChange('mbsTypeValue', e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">Non-Agency</MenuItem>
-                <MenuItem value="non-agency">Non-Agency</MenuItem>
-                <MenuItem value="agency">Agency</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.MBS}
+              value={formValues.tradeFields?.mbsTypeValue}
+              onChange={(value) => handleTradeFieldsChange('mbsTypeValue', value)}
+              referenceData={referenceData}
+              label="Slicer Type"
+            />
           </div>
         </div>
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">Loan Credit</label>
-            <FormControl fullWidth>
-              <Select
-                value={formValues.tradeFields?.loanCreditValue || ''}
-                onChange={(e) => handleTradeFieldsChange('loanCreditValue', e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">Non-QM</MenuItem>
-                <MenuItem value="non-qm">Non-QM</MenuItem>
-                <MenuItem value="qm">QM</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.LoanCreditType}
+              value={formValues.tradeFields?.loanCreditValue}
+              onChange={(value) => handleTradeFieldsChange('loanCreditValue', value)}
+              referenceData={referenceData}
+              label="Loan Credit"
+            />
           </div>
           <div className="form-field">
-            <label className="field-label">MBS Collateral</label>
-            <FormControl fullWidth>
-              <Select
-                value={formValues.tradeFields?.mbsCollateralValue || ''}
-                onChange={(e) => handleTradeFieldsChange('mbsCollateralValue', e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">Fixed</MenuItem>
-                <MenuItem value="fixed">Fixed</MenuItem>
-                <MenuItem value="floating">Floating</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.MBSCollateral}
+              value={formValues.tradeFields?.mbsCollateralValue}
+              onChange={(value) => handleTradeFieldsChange('mbsCollateralValue', value)}
+              referenceData={referenceData}
+              label="MBS Collateral"
+            />
           </div>
         </div>
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">MBS Collateral Sub</label>
-            <FormControl fullWidth>
-              <Select
-                value={formValues.tradeFields?.mbsCollateralSubValue || ''}
-                onChange={(e) => handleTradeFieldsChange('mbsCollateralSubValue', e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">Other</MenuItem>
-                <MenuItem value="other">Other</MenuItem>
-                <MenuItem value="prime">Prime</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.MBSCollateralSub}
+              value={formValues.tradeFields?.mbsCollateralSubValue}
+              onChange={(value) => handleTradeFieldsChange('mbsCollateralSubValue', value)}
+              referenceData={referenceData}
+              label="MBS Collateral Sub"
+            />
           </div>
           <div className="form-field">
-            <label className="field-label">Sr. Most Cash Flow</label>
-            <FormControl fullWidth>
-              <Select
-                value={formValues.tradeFields?.seniorMostCashFlowValue || ''}
-                onChange={(e) => handleTradeFieldsChange('seniorMostCashFlowValue', e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">Non-Qualifying Mortgage</MenuItem>
-                <MenuItem value="non-qualifying">Non-Qualifying Mortgage</MenuItem>
-                <MenuItem value="qualifying">Qualifying Mortgage</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.SrMostCashFlow}
+              value={formValues.tradeFields?.seniorMostCashFlowValue}
+              onChange={(value) => handleTradeFieldsChange('seniorMostCashFlowValue', value)}
+              referenceData={referenceData}
+              label="Sr. Most Cash Flow"
+            />
           </div>
         </div>
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">Tranche Type</label>
-            <FormControl fullWidth>
-              <Select
-                value={formValues.tradeFields?.trancheTypeValue || ''}
-                onChange={(e) => handleTradeFieldsChange('trancheTypeValue', e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">SEQ</MenuItem>
-                <MenuItem value="seq">SEQ</MenuItem>
-                <MenuItem value="pro-rata">Pro Rata</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.Tranche}
+              value={formValues.tradeFields?.trancheTypeValue}
+              onChange={(value) => handleTradeFieldsChange('trancheTypeValue', value)}
+              referenceData={referenceData}
+              label="Tranche Type"
+            />
           </div>
           <div className="form-field">
-            <label className="field-label">Loan Category</label>
-            <FormControl fullWidth>
-              <Select
-                value={formValues.tradeFields?.loanCategoryValue || ''}
-                onChange={(e) => handleTradeFieldsChange('loanCategoryValue', e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">Non-QM</MenuItem>
-                <MenuItem value="non-qm">Non-QM</MenuItem>
-                <MenuItem value="qm">QM</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.SMSLoanCategory}
+              value={formValues.tradeFields?.loanCategoryValue}
+              onChange={(value) => handleTradeFieldsChange('loanCategoryValue', value)}
+              referenceData={referenceData}
+              label="Loan Category"
+            />
           </div>
         </div>
 
         <div className="form-row single-column">
           <div className="form-field">
-            <label className="field-label">Collateral</label>
-            <FormControl fullWidth>
-              <Select
-                value={formValues.tradeFields?.collateralValue || ''}
-                onChange={(e) => handleTradeFieldsChange('collateralValue', e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">Non-Agency</MenuItem>
-                <MenuItem value="non-agency">Non-Agency</MenuItem>
-                <MenuItem value="agency">Agency</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.Collateral}
+              value={formValues.tradeFields?.collateralValue}
+              onChange={(value) => handleTradeFieldsChange('collateralValue', value)}
+              referenceData={referenceData}
+              label="Collateral"
+            />
           </div>
         </div>
       </div>

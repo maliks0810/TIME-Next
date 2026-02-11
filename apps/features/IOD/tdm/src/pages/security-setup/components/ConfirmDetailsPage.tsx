@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormControl, MenuItem, Select, TextField } from '@mui/material';
-import { IConfirmDetailsData, SecuritySetupFlowType } from '../lib/types';
+import { IConfirmDetailsData, SecuritySetupFlowType } from '../lib/types/securitySetupTypes';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 interface ConfirmDetailsPageProps {

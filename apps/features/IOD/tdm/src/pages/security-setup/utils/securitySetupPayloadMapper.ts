@@ -6,7 +6,10 @@ import {
     ISecuritySetupWizardPayload,
     WizardStep,
 } from '../../../services/domain-objects/SecuritySetupRequestPayload';
-import { IEnterIdentifierFormValues, IReviewDetailsFormValues } from '../lib/types';
+import {
+    IEnterIdentifierFormValues,
+    IReviewDetailsFormValues,
+} from '../lib/types/securitySetupTypes';
 
 /**
  * Maps Enter Identifier form values to payload fields
