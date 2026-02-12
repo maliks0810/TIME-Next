@@ -1,16 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // Component is semi-refactored to use the newassetstable generic. Need to move statusstates out and any other helpers.
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button, message, Form, Tag, Divider, Tooltip } from 'antd';
-import { FileOutlined } from '@ant-design/icons';
 
 import { AnalyticsInputRequestCollection, NewAsset, NoteType } from '../../lib/types';
 import {
     getModelInputById,
     postNewAssetStatus,
-    previewBondFeaturesAPI,
-    previewStaticScenariosAPI,
     publishAnalyticsInput,
     updateAnalyticsInputOverrides,
 } from '../../lib/services';
@@ -24,20 +21,16 @@ import {
 } from '../../lib/helpers';
 import { ModelInputAssumptions } from './components/ModelInputAssumptions';
 import { Notes } from '../Notes';
+import PreviewBondFeaturesModal from './components/PreviewBondFeaturesModal';
+import PreviewStaticScenariosModal from './components/PreviewStaticScenariosModal';
 
 type ModelInputsOverridesProps = {
     selectedRowRequestId?: number | null;
-    selectedRowStatus?: string | null;
-    refreshTable: (param?: number) => void;
-    selectedRow: NewAsset | null;
 };
 
-export function ModelInputsOverrides({
-    selectedRowRequestId,
-    selectedRowStatus,
-    selectedRow,
-    refreshTable,
-}: ModelInputsOverridesProps) {
+const CollateralTypesWithBondFeatureEnabled = ['NQM', 'CES', 'NPL'];
+
+export function ModelInputsOverrides({ selectedRowRequestId }: ModelInputsOverridesProps) {
     const [form] = Form.useForm();
     const [assetInfo, setAssetInfo] = useState<NewAsset | null>(null);
     const [note, setNote] = useState<NoteType | null>(null);
@@ -47,6 +40,29 @@ export function ModelInputsOverrides({
     const userInfo = useUserInfo();
     const username = userInfo.email;
 
+    console.log(assetInfo);
+
+    const checkIsBondFeaturesDisabled = useCallback(() => {
+        if (!assetInfo) {
+            return true;
+        }
+        const assetInfoCollateralType = extractCollateralType(assetInfo?.payload);
+
+        return !CollateralTypesWithBondFeatureEnabled.some(
+            (collatType) => collatType === assetInfoCollateralType
+        );
+    }, [assetInfo]);
+
+    const [isBondPreviewModalOpen, setIsBondPreviewModalOpen] = useState(false);
+    const [isScenariosPreviewModalOpen, setIsScenariosPreviewModalOpen] = useState(false);
+
+    const handleToggleBondPreviewModal = useCallback(() => {
+        setIsBondPreviewModalOpen((prevState) => !prevState);
+    }, []);
+
+    const handleToggleScenariosPreviewModal = useCallback(() => {
+        setIsScenariosPreviewModalOpen((prevState) => !prevState);
+    }, []);
     /**
      * Get the Asset Analytics Setup Id and render the contents
      * @param asset The selected Asset
@@ -94,14 +110,16 @@ export function ModelInputsOverrides({
     }, [assetInfo]);
 
     useEffect(() => {
-        fetchAssetInfo();
-    }, [selectedRow]);
+        if (selectedRowRequestId) {
+            fetchAssetInfo();
+        }
+    }, [selectedRowRequestId]);
 
     const canPublish =
-        !!selectedRowStatus &&
-        normalizeStatus(selectedRowStatus) === 'ANALYTICS INPUT PENDING REVIEW';
-    const canVerifyInAladdin = selectedRowStatus === 'ANALYTICS INPUT SENT TO ALADDIN';
-    const canSave = selectedRowStatus === 'ANALYTICS INPUT PENDING REVIEW';
+        !!assetInfo?.status &&
+        normalizeStatus(assetInfo?.status) === 'ANALYTICS INPUT PENDING REVIEW';
+    const canVerifyInAladdin = assetInfo?.status === 'ANALYTICS INPUT SENT TO ALADDIN';
+    const canSave = assetInfo?.status === 'ANALYTICS INPUT PENDING REVIEW';
 
     const saveInputOverrides = async () => {
         setIsLoading(true);
@@ -143,7 +161,7 @@ export function ModelInputsOverrides({
             form.setFieldValue('collateralType', extractCollateralType(assetInfo?.payload));
             form.setFieldValue('analysisDateInput', assetInfo?.analysisDate);
             form.setFieldValue('noteTextArea', '');
-            refreshTable(selectedRow?.assetAnalyticsSetupId);
+            fetchAssetInfo();
         } catch (err: any) {
             message.error(
                 err?.response?.data?.message ?? 'Failed to verify analytics. Please try again.'
@@ -173,7 +191,7 @@ export function ModelInputsOverrides({
 
         try {
             await postNewAssetStatus(payload);
-            refreshTable(selectedRow?.assetAnalyticsSetupId);
+            fetchAssetInfo();
             messageApi.success('Status updated successfully.');
         } catch (err: any) {
             console.error('Failed to update status:', err);
@@ -255,89 +273,12 @@ export function ModelInputsOverrides({
         try {
             await publishAnalyticsInput(payload);
             messageApi.success('Analytics inputs published successfully.');
-            refreshTable(selectedRow?.assetAnalyticsSetupId);
+            fetchAssetInfo();
         } catch (err: any) {
             console.error('Failed to publish analytics inputs:', err);
             messageApi.error(
                 err?.response?.data?.message ??
                     'Failed to publish analytics inputs. Please try again.'
-            );
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const previewBondFeatures = async () => {
-        if (!assetInfo) {
-            messageApi.warning('Please select a security from the table first.');
-            return;
-        }
-        setIsLoading(true);
-
-        const payload = {
-            assetAnalyticsSetupId: selectedRowRequestId as number,
-            aladdinId: assetInfo.aladdinId,
-        };
-        try {
-            const response = await previewBondFeaturesAPI(payload);
-
-            const blob = new Blob([response.data]);
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `preview_${assetInfo.aladdinId}_bond_features.csv`;
-            document.body.appendChild(a);
-            a.click();
-
-            // Clean up
-            a.remove();
-            window.URL.revokeObjectURL(url);
-
-            messageApi.success('Bond Features Preview File Downloaded. Check Downloads on Browser');
-        } catch (err: any) {
-            console.error('Failed to pull preview file:', err);
-            messageApi.error(
-                err?.response?.data?.message ??
-                    'Failed to download bond feature preview file. Please try again.'
-            );
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const previewStaticScenarios = async () => {
-        if (!assetInfo) {
-            messageApi.warning('Please select a security from the table first.');
-            return;
-        }
-        setIsLoading(true);
-
-        const payload = {
-            assetAnalyticsSetupId: selectedRowRequestId as number,
-            aladdinId: assetInfo.aladdinId,
-        };
-        try {
-            const response = await previewStaticScenariosAPI(payload);
-
-            const blob = new Blob([response.data]);
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `preview_${assetInfo.aladdinId}_static_scenarios.csv`;
-            document.body.appendChild(a);
-            a.click();
-
-            // Clean up
-            a.remove();
-            window.URL.revokeObjectURL(url);
-            messageApi.success(
-                'Static Scenario Preview File Downloaded. Check Downlaods on Browser'
-            );
-        } catch (err: any) {
-            console.error('Failed to pull preview file:', err);
-            messageApi.error(
-                err?.response?.data?.message ??
-                    'Failed to download static scenario preview file. Please try again.'
             );
         } finally {
             setIsLoading(false);
@@ -352,6 +293,20 @@ export function ModelInputsOverrides({
             }}
         >
             {contextHolder}
+            <PreviewBondFeaturesModal
+                assetAnalyticsSetupId={selectedRowRequestId as number}
+                toggleModal={handleToggleBondPreviewModal}
+                isOpen={isBondPreviewModalOpen}
+                aladdinId={assetInfo?.aladdinId as string}
+                messageApi={messageApi}
+            />
+            <PreviewStaticScenariosModal
+                assetAnalyticsSetupId={selectedRowRequestId as number}
+                toggleModal={handleToggleScenariosPreviewModal}
+                isOpen={isScenariosPreviewModalOpen}
+                aladdinId={assetInfo?.aladdinId as string}
+                messageApi={messageApi}
+            />
             <div
                 style={{
                     paddingRight: '32px',
@@ -361,7 +316,7 @@ export function ModelInputsOverrides({
                 }}
             >
                 <h3 style={{ textAlign: 'left' }}>Analytics Input Assumptions</h3>
-                <Tag>{selectedRowStatus}</Tag>
+                <Tag>{assetInfo?.status}</Tag>
             </div>
             <div className="ModelInputsOverridesContainer">
                 <div
@@ -393,16 +348,21 @@ export function ModelInputsOverrides({
                                     Save Input Overrides
                                 </Button>
                             </Form.Item>
-                            <Tooltip title="Preview Bond Features">
+                            <Tooltip
+                                title={
+                                    checkIsBondFeaturesDisabled()
+                                        ? 'Available only for NQM, CES or NPL Collateral Types'
+                                        : null
+                                }
+                            >
                                 <Button
                                     className="previewBondFeatures"
                                     type="primary"
-                                    disabled={!canPublish || isLoading}
-                                    onClick={async () => {
-                                        await previewBondFeatures();
-                                    }}
+                                    disabled={
+                                        !canPublish || isLoading || checkIsBondFeaturesDisabled()
+                                    }
+                                    onClick={handleToggleBondPreviewModal}
                                 >
-                                    <FileOutlined/>
                                     Preview Bond Features
                                 </Button>
                             </Tooltip>
@@ -411,11 +371,8 @@ export function ModelInputsOverrides({
                                     className="previewStaticScenarios"
                                     type="primary"
                                     disabled={!canPublish || isLoading}
-                                    onClick={async () => {
-                                        await previewStaticScenarios();
-                                    }}
+                                    onClick={handleToggleScenariosPreviewModal}
                                 >
-                                    <FileOutlined />
                                     Preview Static Scenarios
                                 </Button>
                             </Tooltip>
@@ -441,7 +398,7 @@ export function ModelInputsOverrides({
                                 //         price: form.getFieldValue('priceInput'),
                                 //         callDate: form.getFieldValue('callDateInput'),
                                 //     });
-                                //     refreshTable(selectedRow?.assetAnalyticsSetupId);;
+                                //     fetchAssetInfo();
                                 // }}
                             >
                                 Download Published Files

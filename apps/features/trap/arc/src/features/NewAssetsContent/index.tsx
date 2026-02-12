@@ -12,17 +12,15 @@ type NewAssetsContentProps = {
     selectedRowRequestId?: number | null;
     selectedRowAladdinId?: string | null;
     selectedRowAssetType?: string | null;
-    selectedRowStatus?: string | null;
-    refreshCallback: (param?: number) => void;
+    onAssetCreated: (assetId: number) => void;
 };
 
 function NewAssetsContent({
     selectedRow,
-    refreshCallback,
     selectedRowAladdinId,
     selectedRowAssetType,
     selectedRowRequestId,
-    selectedRowStatus,
+    onAssetCreated,
 }: NewAssetsContentProps) {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -32,10 +30,7 @@ function NewAssetsContent({
             label: 'Analytics Inputs',
             children: (
                 <ModelInputsOverrides
-                    selectedRow={selectedRow}
                     selectedRowRequestId={selectedRowRequestId}
-                    selectedRowStatus={selectedRowStatus}
-                    refreshTable={refreshCallback}
                 />
             ),
             disabled: false,
@@ -43,17 +38,17 @@ function NewAssetsContent({
         {
             key: 'analytics',
             label: 'Analytics',
-            children: <Analytics refreshCallback={refreshCallback} selectedRow={selectedRow} />,
+            children: <Analytics selectedRow={selectedRow} />,
             disabled: false,
         },
         { key: 'newAssetSetup', label: 'CDI Reader', children: <NewAssetSetup /> },
-    ];   
+    ];
     return (
         <div style={{ width: '75vw', display: 'flex', gap: '4px', flexDirection: 'column' }}>
             <RequestNewAsset
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onAssetCreated={refreshCallback}
+                onAssetCreated={onAssetCreated}
             />
 
             <div className="componentHighlight ModelInputsIdTab">

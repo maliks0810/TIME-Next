@@ -4,7 +4,7 @@ import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
 import { lazy } from 'react';
 
 export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
-{
+    {
         type: 'external',
         header: NavbarHeader.RiskPerformance,
         subHeader: NavbarSubHeader.Performance,
@@ -14,7 +14,7 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         prodUrl: 'https://trap.pd.tcw.com/riskreturn/returns/client-return-portfolio',
         newTab: true,
         disabled: false,
-        env: HighestEnv.prod
+        env: HighestEnv.prod,
     },
     {
         type: 'external',
@@ -26,7 +26,7 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         prodUrl: 'https://trap.pd.tcw.com/riskreturn/returns/attribution-analysis',
         newTab: true,
         disabled: false,
-        env: HighestEnv.prod
+        env: HighestEnv.prod,
     },
     {
         type: 'external',
@@ -38,7 +38,7 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         prodUrl: 'https://trap.pd.tcw.com/riskreturn/returns/returns-overlay-upload',
         newTab: true,
         disabled: false,
-        env: HighestEnv.prod
+        env: HighestEnv.prod,
     },
     {
         type: 'internal',
@@ -56,4 +56,4 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
     },
 
     // PLOP_INJECT_APP
-]
+];

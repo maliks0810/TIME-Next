@@ -17,12 +17,10 @@ const getCardBodyStyles = (isActive?: boolean) =>
 export const StatusItem = ({
     asset,
     handleSelectRow,
-    refreshCallback,
     isActive,
 }: {
     asset: TableRow<NewAsset>;
     handleSelectRow: (asset: NewAsset) => void;
-    refreshCallback: () => void;
     isActive?: boolean;
 }) => {
     const user = useUserInfo();
@@ -39,13 +37,9 @@ export const StatusItem = ({
         };
 
         // Call the Claim
-        claimAsset(payload)
-            .then(() => {
-                refreshCallback();
-            })
-            .catch((e) => {
-                console.warn(e);
-            });
+        claimAsset(payload).catch((e) => {
+            console.warn(e);
+        });
     };
 
     return (

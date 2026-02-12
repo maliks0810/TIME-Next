@@ -42,7 +42,16 @@ const previewStaticScenariosUrl =
     import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/preview-static-scenarios';
 
 const previewAnalyticsOverrideUrl =
-    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/preview-analytics-override';
+    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/preview-analytics';
+
+const downloadBondFeaturesUrl =
+    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/download-bond-features';
+
+const downloadStaticScenariosUrl =
+    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/download-static-scenarios';
+
+const downloadAnalyticsOverrideUrl =
+    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/download-analytics-override';
 
 const newAssetAnalyticsRequestUrl =
     import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/analytics';
@@ -101,15 +110,22 @@ export const publishAnalyticsInput = (
     serviceRequest(publishAnalyticsInputUrl)().post('', payload);
 
 export const previewBondFeaturesAPI = (payload: FilePreviewRequestCollection) =>
-    serviceRequest(previewBondFeaturesUrl)().post('', payload)
+    serviceRequest(previewBondFeaturesUrl)().post('', payload);
 
 export const previewStaticScenariosAPI = (payload: FilePreviewRequestCollection) =>
-    serviceRequest(previewStaticScenariosUrl)().post('', payload)
+    serviceRequest(previewStaticScenariosUrl)().post('', payload);
 
 export const previewAnalyticsOverrideAPI = (payload: FilePreviewRequestCollection) =>
-    serviceRequest(previewAnalyticsOverrideUrl)().post(
-        '', payload
-    );
+    serviceRequest(previewAnalyticsOverrideUrl)().post('', payload);
+
+export const downloadBondFeaturesAPI = (payload: FilePreviewRequestCollection) =>
+    serviceRequest(downloadBondFeaturesUrl)().post('', payload);
+
+export const downloadStaticScenariosAPI = (payload: FilePreviewRequestCollection) =>
+    serviceRequest(downloadStaticScenariosUrl)().post('', payload);
+
+export const downloadAnalyticsOverrideAPI = (payload: FilePreviewRequestCollection) =>
+    serviceRequest(downloadAnalyticsOverrideUrl)().post('', payload);
 
 export const postVerifyAnalytics = (payload: VerifyAnalyticsRequest) =>
     serviceRequest(updateStatusUrl)().post('', {

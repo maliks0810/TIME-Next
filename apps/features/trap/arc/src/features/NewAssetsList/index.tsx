@@ -33,16 +33,10 @@ type TableRow<T = any> = {
 type NewAssetsListProps = {
     newAssets: TableRow<NewAsset>[];
     onRowSelect: (selectedRow: NewAsset) => void;
-    refreshCallback: () => void;
     selectedRowId?: number;
 };
 
-export function NewAssetsList({
-    newAssets,
-    onRowSelect,
-    refreshCallback,
-    selectedRowId,
-}: NewAssetsListProps) {
+export function NewAssetsList({ newAssets, onRowSelect, selectedRowId }: NewAssetsListProps) {
     const { panels, nonEmptyKeys } = useMemo(() => {
         const panels = STATUSES.map((status, idx) => {
             const group = newAssets.filter((asset) => asset.status === normalizeStatus(status));
@@ -58,7 +52,6 @@ export function NewAssetsList({
                                 key={asset.assetAnalyticsSetupId}
                                 asset={asset}
                                 handleSelectRow={onRowSelect}
-                                refreshCallback={refreshCallback}
                                 isActive={asset.assetAnalyticsSetupId === selectedRowId}
                             />
                         ))}
@@ -70,7 +63,7 @@ export function NewAssetsList({
 
         const nonEmptyKeys = panels.filter((p) => p.hasItems).map((p) => p.key);
         return { panels, nonEmptyKeys };
-    }, [newAssets, onRowSelect, refreshCallback]);
+    }, [newAssets, onRowSelect, selectedRowId]);
 
     const [activeKeys, setActiveKeys] = useState<string[]>(nonEmptyKeys);
 
