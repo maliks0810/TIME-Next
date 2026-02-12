@@ -82,23 +82,17 @@ function normalizeApiResponse(src: NewAssetAnalytics): NewAssetAnalytics {
     };
 }
 
-export function Analytics({
-    selectedRow,
-    refreshCallback,
-}: {
-    selectedRow: NewAsset | null;
-    refreshCallback: () => void;
-}) {
+export function Analytics({ selectedRow }: { selectedRow: NewAsset | null }) {
     const [analyticsData, setAnalyticsData] = useState<NewAssetAnalytics | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [latestNote, setLatestNote] = useState<NoteType | null>(null);
 
-    const fetchAnalytics = async (selectedRowId: number) => {
+    const fetchAnalytics = async () => {
         setIsLoading(true);
         setErrorMsg(null);
         try {
-            const { data } = await getAnalyticsById(selectedRowId);
+            const { data } = await getAnalyticsById(selectedRow?.assetAnalyticsSetupId as number);
             if (!data.response) {
                 setErrorMsg('Analytics have not been produced yet');
             } else {
@@ -106,14 +100,15 @@ export function Analytics({
                 setLatestNote(data.notes.response[0]);
             }
         } catch (err: any) {
-            setErrorMsg(err?.message || 'Failed to load analytics.');
+            setErrorMsg(err?.response.data || err?.message || 'Failed to load analytics.');
             setAnalyticsData(null);
         } finally {
             setIsLoading(false);
         }
     };
+
     useEffect(() => {
-        if (selectedRow) fetchAnalytics(selectedRow.assetAnalyticsSetupId);
+        if (selectedRow) fetchAnalytics();
     }, [selectedRow]);
 
     return (
@@ -126,9 +121,9 @@ export function Analytics({
                     ) : (
                         <AnalyticsForm
                             asset={analyticsData}
-                            onRefresh={refreshCallback}
                             selectedRow={selectedRow}
                             latestNote={latestNote}
+                            onRefresh={fetchAnalytics}
                         />
                     )}
                 </div>
