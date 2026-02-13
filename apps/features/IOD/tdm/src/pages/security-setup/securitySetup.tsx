@@ -40,7 +40,7 @@ const SecuritySetupComponent: React.FC = () => {
     try {
       const payload: ISecuritySetupWizardPayload = {
         currentStep: 'confirm-details',
-        currentStepNumber: 3,
+        currentStepNumber: 4,
         savedAt: new Date().toISOString(),
         saveType: 'complete' as const,
         newIssue: data.step1.cdiFileUploadedToAnser,
@@ -65,8 +65,8 @@ const SecuritySetupComponent: React.FC = () => {
         })
       }
 
-      await SecuritySetupService.upsertWizardData(payload)
-      navigate('/iod/tdm/')
+      await SecuritySetupService.upsertWizardData(payload, data.securitySetupRequestId);
+      navigate('/iod/tdm/');
     } catch (error) {
       console.error('Failed to submit security setup', error);
       alert('Failed to submit security setup. Please try again.')

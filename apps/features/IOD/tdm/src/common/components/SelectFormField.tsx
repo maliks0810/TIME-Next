@@ -6,7 +6,7 @@ import { INormalizedReferenceData } from '../../pages/security-setup/lib/types/r
 interface SelectFormFieldProps {
   fieldKey: string;
   value: string | undefined;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
   referenceData: INormalizedReferenceData | null;
   label?: React.ReactNode;
   displayEmpty?: boolean;
@@ -34,7 +34,9 @@ export const SelectFormField: React.FC<SelectFormFieldProps> = ({
   const isLoading = !referenceData || options.length === 0;
 
   const handleChange = (event: SelectChangeEvent<string>) => {
-    onChange(event.target.value);
+    if (onChange) {
+      onChange(event.target.value);
+    }
   };
 
   if (isLoading) {

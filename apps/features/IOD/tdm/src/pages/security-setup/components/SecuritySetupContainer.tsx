@@ -22,6 +22,7 @@ import '../lib/styles.scss';
 import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
 import { ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 import { useReferenceData } from '../hooks/useReferenceData';
+import { SSAPApprovalPage } from './SSAPApprovalPage';
 
 interface SecuritySetupContainerProps {
   flowType: SecuritySetupFlowType;
@@ -30,8 +31,7 @@ interface SecuritySetupContainerProps {
   initialData?: Partial<ISecuritySetupWizardPayload> | null;
 }
 
-// Simple 3-step wizard
-type WizardStep = 'enter-identifier' | 'review-details' | 'confirm-details';
+type WizardStep = 'enter-identifier' | 'ssap-confirmation' | 'review-details' | 'confirm-details';
 
 export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   flowType,
@@ -85,8 +85,16 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         setCurrentStep(initialData.currentStep);
 
         const completedStepsList: WizardStep[] = [];
-        if (['review-details', 'confirm-details'].includes(initialData.currentStep)) {
+        if (['ssap-confirmation', 'review-details', 'confirm-details'].includes(initialData.currentStep)) {
           completedStepsList.push('enter-identifier')
+        }
+
+        if (['review-details', 'confirm-details'].includes(initialData.currentStep)) {
+          const hadPassword = !!(initialData.ssapIdPassword?.trim?.() ?? '');
+
+          if (hadPassword) {
+            completedStepsList.push('ssap-confirmation')
+          }
         }
 
         if (initialData.currentStep === 'confirm-details') {
@@ -105,7 +113,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     forceSave,
     clearError,
     lastSavedAt,
-    error: saveError
+    error: saveError,
+    securitySetupRequestId
   } = useSecuritySetupSave({
     onError: (error) => {
       console.error('Save failed:', error);
@@ -113,6 +122,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     onSaved: () => {
       console.log('Wizard data saved successfully');
     },
+    initialSecuritySetupRequestId: initialData?.securitySetupRequestId
   });
 
   const handleStep1Change = useCallback((values: Partial<IEnterIdentifierFormValues>) => {
@@ -166,9 +176,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
   };
 
+  const hasPasswordFlow = !!(wizardData.step1.ssapIdPassword?.trim?.() ?? '');
+
   const getNextStep = (current: WizardStep): WizardStep | null => {
     switch (current) {
       case 'enter-identifier':
+        return hasPasswordFlow ? 'ssap-confirmation' : 'review-details';
+      case 'ssap-confirmation':
         return 'review-details';
       case 'review-details':
         return 'confirm-details';
@@ -203,6 +217,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     switch (currentStep) {
       case 'enter-identifier':
         return !!wizardData.step1.identifierValue && !!wizardData.step1.marketSector;
+      case 'ssap-confirmation':
       case 'review-details':
       case 'confirm-details':
         return true;
@@ -227,7 +242,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     const nextStep = getNextStep(currentStep);
 
     if (nextStep) {
-      if (currentStep === 'enter-identifier' && nextStep === 'review-details') {
+      if (nextStep === 'review-details') {
         // Pre-populate step2 with data from step1 when moving to review-details
         setWizardData((prev) => ({
           ...prev,
@@ -296,7 +311,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     await forceSave();
     setShowConfirmModal(false);
     if (onComplete) {
-      onComplete(wizardData);
+      onComplete({ ...wizardData, securitySetupRequestId });
     }
   };
 
@@ -308,10 +323,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     switch (currentStep) {
       case 'enter-identifier':
         return 1;
-      case 'review-details':
+      case 'ssap-confirmation':
         return 2;
-      case 'confirm-details':
+      case 'review-details':
         return 3;
+      case 'confirm-details':
+        return 4;
       default:
         return 1;
     }
@@ -320,18 +337,20 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const getStepTitle = (): string => {
     switch (currentStep) {
       case 'enter-identifier':
-        return 'Step 1 of 3: Enter Identifier';
+        return 'Step 1 of 4: Enter Identifier';
+      case 'ssap-confirmation':
+        return 'Step 2 of 4: SSAP Login'
       case 'review-details':
-        return 'Step 2 of 3: Security Request Template';
+        return 'Step 3 of 4: Security Request Template';
       case 'confirm-details':
-        return 'Step 3 of 3: Review Security Data';
+        return 'Step 4 of 4: Review Security Data';
       default:
         return '';
     }
   };
 
   const renderSuccessMessages = () => {
-    if (currentStep === 'review-details') {
+    if (currentStep === 'review-details' || currentStep === 'ssap-confirmation') {
       const messages: { message: string }[] = [];
 
       if (wizardData.step1.newIssue) {
@@ -437,6 +456,14 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             referenceData={referenceData}
           />
         );
+      case 'ssap-confirmation':
+        return (
+          <SSAPApprovalPage
+            formValues={wizardData.step1}
+            onFormChange={handleStep1Change}
+            onProceedToReview={handleNext}
+          />
+        )
       case 'review-details':
         return (
           <ReviewDetailsPage
@@ -456,6 +483,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
                 ...wizardData.step2,
               }
             }
+            referenceData={referenceData}
           />
         );
       default:
@@ -464,7 +492,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   };
 
   const getButtonText = (): string => {
-    if (currentStep === 'enter-identifier') return 'SSAP Request DM Release';
+    if (currentStep === 'enter-identifier') return 'Next';
+    if (currentStep === 'ssap-confirmation') return 'Approve SSAP';
     if (currentStep === 'review-details') return 'Review Request';
     if (currentStep === 'confirm-details') return 'Confirm Request';
     return 'Next';
@@ -536,12 +565,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
       <HorizontalStepper
         currentStepNumber={getCurrentStepNumber()}
-        totalSteps={3}
+        totalSteps={4}
         stepTitle={getStepTitle()}
       />
 
       <div className="wizard-content">
-        {currentStep === 'review-details' || currentStep === 'confirm-details' ? (
+        {currentStep === 'ssap-confirmation' || currentStep === 'review-details' || currentStep === 'confirm-details' ? (
           <>
             {renderSuccessMessages()}
             {renderStepContent()}
@@ -563,7 +592,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             Save
           </Button>
         )}
-        {showBackButton && currentStep !== 'enter-identifier' && (
+        {showBackButton && currentStep !== 'enter-identifier' && currentStep !== 'ssap-confirmation' && (
           <Button
             variant="outlined"
             className="back-button"
@@ -573,7 +602,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             Back
           </Button>
         )}
-        {showNextButton && (
+        {showNextButton && currentStep !== 'ssap-confirmation' && (
           <Button
             variant="contained"
             className="next-button"

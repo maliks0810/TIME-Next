@@ -16,15 +16,12 @@ import {
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 interface UseSecuritySetupSaveOptions {
-    /** Callback on save error */
     onError?: (error: Error) => void;
-
-    /** Callback on successful save */
     onSaved?: () => void;
+    initialSecuritySetupRequestId?: number | null;
 }
 
 interface UseSecuritySetupSaveReturn {
-    /** Current save status */
     saveStatus: SaveStatus;
 
     /** Queue wizard data for saving */
@@ -34,18 +31,11 @@ interface UseSecuritySetupSaveReturn {
         accumulatedData: Record<string, unknown>,
         saveType?: 'partial' | 'complete'
     ) => void;
-
-    /** Force immediate save (bypasses debounce) */
     forceSave: () => Promise<void>;
-
-    /** Clear error state to allow retries */
     clearError: () => void;
-
-    /** Last saved timestamp */
     lastSavedAt: Date | null;
-
-    /** Any pending error */
     error: Error | null;
+    securitySetupRequestId: number | null;
 }
 
 /**
@@ -54,11 +44,16 @@ interface UseSecuritySetupSaveReturn {
 export const useSecuritySetupSave = (
     options: UseSecuritySetupSaveOptions = {}
 ): UseSecuritySetupSaveReturn => {
-    const { onError, onSaved } = options;
+    const { onError, onSaved, initialSecuritySetupRequestId } = options;
 
     const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
     const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
     const [error, setError] = useState<Error | null>(null);
+
+    const [securitySetupRequestId, setSecuritySetupRequestId] = useState<number | null>(
+        initialSecuritySetupRequestId ?? null
+    );
+    const securitySetupRequestIdRef = useRef<number | null>(initialSecuritySetupRequestId ?? null);
 
     // Refs for managing async operations
     const pendingPayloadRef = useRef<ISecuritySetupWizardPayload | null>(null);
@@ -71,6 +66,13 @@ export const useSecuritySetupSave = (
         onErrorRef.current = onError;
         onSavedRef.current = onSaved;
     }, [onError, onSaved]);
+
+    useEffect(() => {
+        if (initialSecuritySetupRequestId != null) {
+            securitySetupRequestIdRef.current = initialSecuritySetupRequestId;
+            setSecuritySetupRequestId(initialSecuritySetupRequestId);
+        }
+    }, [initialSecuritySetupRequestId]);
 
     // Cleanup on unmount
     useEffect(() => {
@@ -89,9 +91,17 @@ export const useSecuritySetupSave = (
             setSaveStatus('saving');
             setError(null);
 
-            await SecuritySetupService.upsertWizardData(payload);
+            const result = await SecuritySetupService.upsertWizardData(
+                payload,
+                securitySetupRequestIdRef.current
+            );
 
             if (!isMountedRef.current) return;
+
+            if (result.data?.securitySetupRequestId && !securitySetupRequestIdRef.current) {
+                securitySetupRequestIdRef.current = result.data.securitySetupRequestId;
+                setSecuritySetupRequestId(result.data.securitySetupRequestId);
+            }
 
             setSaveStatus('saved');
             setLastSavedAt(new Date());
@@ -164,5 +174,6 @@ export const useSecuritySetupSave = (
         clearError,
         lastSavedAt,
         error,
+        securitySetupRequestId,
     };
 };

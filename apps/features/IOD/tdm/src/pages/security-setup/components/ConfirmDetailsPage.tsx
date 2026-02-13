@@ -1,14 +1,17 @@
 import React from 'react';
-import { FormControl, MenuItem, Select, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import { IConfirmDetailsData, SecuritySetupFlowType } from '../lib/types/securitySetupTypes';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { SelectFormField } from '../../../common/components/SelectFormField';
+import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 
 interface ConfirmDetailsPageProps {
   data: IConfirmDetailsData;
   flowType?: SecuritySetupFlowType;
+  referenceData: INormalizedReferenceData | null;
 }
 
-export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) => {
+export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, referenceData }) => {
   return (
     <div className="confirm-details-page">
       {/* File Upload Indicator */}
@@ -125,17 +128,13 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">TCW ESG</label>
-            <FormControl fullWidth disabled>
-              <Select
-                value={data.esgFields?.tcwEsgValue || ''}
-                displayEmpty
-              >
-                <MenuItem value="">Select...</MenuItem>
-                <MenuItem value="yes">Yes</MenuItem>
-                <MenuItem value="no">No</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.IsTotalESGTCW}
+              value={data.esgFields?.tcwEsgValue}
+              referenceData={referenceData}
+              label="TCW ESG"
+              disabled
+            />
           </div>
           <div className="form-field">
             <label className="field-label">
@@ -143,7 +142,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
             </label>
             <TextField
               fullWidth
-              value={data.esgFields?.esgCollateralType || 'x'}
+              value={data.esgFields?.esgCollateralType || ''}
               disabled
               variant="outlined"
             />
@@ -152,17 +151,13 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
 
         <div className="form-row single-column">
           <div className="form-field">
-            <label className="field-label">TCW ESG Type</label>
-            <FormControl fullWidth disabled>
-              <Select
-                value={data.esgFields?.tcwEsgTypeValue || ''}
-                displayEmpty
-              >
-                <MenuItem value="">Select...</MenuItem>
-                <MenuItem value="type1">Type 1</MenuItem>
-                <MenuItem value="type2">Type 2</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.TcwEsgType}
+              value={data.esgFields?.tcwEsgTypeValue}
+              referenceData={referenceData}
+              label="TCW ESG Type"
+              disabled
+            />
           </div>
         </div>
       </div>
@@ -173,115 +168,97 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data }) 
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">Slicer Type</label>
-            <FormControl fullWidth disabled>
-              <Select
-                value={data.tradeFields?.slicerTypeValue || ''}
-                displayEmpty
-              >
-                <MenuItem value="">MBS</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.Slicer}
+              value={data.tradeFields?.slicerTypeValue}
+              referenceData={referenceData}
+              label="Slicer Type"
+              disabled
+            />
           </div>
           <div className="form-field">
-            <label className="field-label">MBS Type</label>
-            <FormControl fullWidth disabled>
-              <Select
-                value={data.tradeFields?.mbsTypeValue || ''}
-                displayEmpty
-              >
-                <MenuItem value="">Non-Agency</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.MBS}
+              value={data.tradeFields?.mbsTypeValue}
+              referenceData={referenceData}
+              label="MBS Type"
+              disabled
+            />
           </div>
         </div>
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">Loan Credit</label>
-            <FormControl fullWidth disabled>
-              <Select
-                value={data.tradeFields?.loanCreditValue || ''}
-                displayEmpty
-              >
-                <MenuItem value="">Non-QM</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.LoanCreditType}
+              value={data.tradeFields?.loanCreditValue}
+              referenceData={referenceData}
+              label="Loan Credit"
+              disabled
+            />
           </div>
           <div className="form-field">
-            <label className="field-label">MBS Collateral</label>
-            <FormControl fullWidth disabled>
-              <Select
-                value={data.tradeFields?.mbsCollateralValue || ''}
-                displayEmpty
-              >
-                <MenuItem value="">Fixed</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.MBSCollateral}
+              value={data.tradeFields?.mbsCollateralValue}
+              referenceData={referenceData}
+              label="MBS Collateral"
+              disabled
+            />
           </div>
         </div>
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">MBS Collateral Sub</label>
-            <FormControl fullWidth disabled>
-              <Select
-                value={data.tradeFields?.mbsCollateralSubValue || ''}
-                displayEmpty
-              >
-                <MenuItem value="">Other</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.MBSCollateralSub}
+              value={data.tradeFields?.mbsCollateralSubValue}
+              referenceData={referenceData}
+              label="MBS Collateral Sub"
+              disabled
+            />
           </div>
           <div className="form-field">
-            <label className="field-label">Sr. Most Cash Flow</label>
-            <FormControl fullWidth disabled>
-              <Select
-                value={data.tradeFields?.seniorMostCashFlowValue || ''}
-                displayEmpty
-              >
-                <MenuItem value="">Non-Qualifying Mortgage</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.SrMostCashFlow}
+              value={data.tradeFields?.seniorMostCashFlowValue}
+              referenceData={referenceData}
+              label="Sr. Most Cash Flow"
+              disabled
+            />
           </div>
         </div>
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">Tranche Type</label>
-            <FormControl fullWidth disabled>
-              <Select
-                value={data.tradeFields?.trancheTypeValue || ''}
-                displayEmpty
-              >
-                <MenuItem value="">SEQ</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.Tranche}
+              value={data.tradeFields?.trancheTypeValue}
+              referenceData={referenceData}
+              label="Tranche Type"
+              disabled
+            />
           </div>
           <div className="form-field">
-            <label className="field-label">Loan Category</label>
-            <FormControl fullWidth disabled>
-              <Select
-                value={data.tradeFields?.loanCategoryValue || ''}
-                displayEmpty
-              >
-                <MenuItem value="">Non-QM</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.SMSLoanCategory}
+              value={data.tradeFields?.loanCategoryValue}
+              referenceData={referenceData}
+              label="Loan Category"
+              disabled
+            />
           </div>
         </div>
 
         <div className="form-row single-column">
           <div className="form-field">
-            <label className="field-label">Collateral</label>
-            <FormControl fullWidth disabled>
-              <Select
-                value={data.tradeFields?.collateralValue || ''}
-                displayEmpty
-              >
-                <MenuItem value="">Non-Agency</MenuItem>
-              </Select>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.Collateral}
+              value={data.tradeFields?.collateralValue}
+              referenceData={referenceData}
+              label="Collateral"
+              disabled
+            />
           </div>
         </div>
       </div>

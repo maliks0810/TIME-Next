@@ -2,7 +2,11 @@
 export type SecuritySetupFlowType = 'private' | 'non-private';
 
 // Step definitions
-export type SecuritySetupStep = 'enter-identifier' | 'review-details' | 'confirm-details';
+export type SecuritySetupStep =
+    | 'enter-identifier'
+    | 'ssap-confirmation'
+    | 'review-details'
+    | 'confirm-details';
 
 // Step definitions
 export type EnterIdentifierStep =
@@ -102,6 +106,7 @@ export interface IConfirmDetailsData {
 
 // Complete wizard data
 export interface ISecuritySetupWizardData {
+    securitySetupRequestId?: number | null;
     step1: IEnterIdentifierFormValues;
     step2: IReviewDetailsFormValues;
     step3?: IConfirmDetailsData;

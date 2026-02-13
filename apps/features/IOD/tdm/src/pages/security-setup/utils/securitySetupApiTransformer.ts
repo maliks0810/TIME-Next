@@ -102,6 +102,9 @@ export const transformFromApiPresentation = (
     presentation: ISecuritySetupRequestPresentation
 ): Partial<ISecuritySetupWizardPayload> => {
     return {
+        // ID for PUT calls
+        securitySetupRequestId: presentation.securitySetupRequestId,
+
         // Wizard metadata
         currentStep: presentation.currentStepDescription as WizardStep,
         currentStepNumber: presentation.currentStepNumber || 1,
