@@ -4,7 +4,11 @@ import {
     ITradeFields,
 } from '../../pages/security-setup/lib/types/securitySetupTypes';
 
-export type WizardStep = 'enter-identifier' | 'review-details' | 'confirm-details';
+export type WizardStep =
+    | 'enter-identifier'
+    | 'ssap-confirmation'
+    | 'review-details'
+    | 'confirm-details';
 
 // ============================================
 // API Domain & Presentation Objects
@@ -134,6 +138,7 @@ export interface ISecuritySetupRequestDomain {
  * All step-specific fields are optional.
  */
 export interface ISecuritySetupWizardPayload {
+    securitySetupRequestId?: number | null;
     currentStep: WizardStep;
     currentStepNumber: number;
     savedAt: string; // ISO 8601 format
@@ -160,7 +165,7 @@ export interface ISecuritySetupWizardPayload {
     euSecuritizationTipEuId?: string | null;
 
     // ============================================
-    // Step 2: Review Details (Security Request Template)
+    // Step 3: Review Details (Security Request Template)
     // ============================================
     securityDetails?: ISecurityDetails;
     esgFields?: IESGFields;

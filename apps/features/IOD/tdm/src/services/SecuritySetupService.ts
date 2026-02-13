@@ -22,16 +22,24 @@ export const SecuritySetupService = {
      * @returns Promise resolving to save response with Presentation object
      */
     upsertWizardData: async (
-        payload: ISecuritySetupWizardPayload
+        payload: ISecuritySetupWizardPayload,
+        securitySetupRequestId?: number | null
     ): Promise<ISaveWizardResponse> => {
         try {
             const domainPayload = transformToApiDomain(payload);
+
+            if (securitySetupRequestId) {
+                domainPayload.SecuritySetupRequestId = securitySetupRequestId;
+            }
+
             const securitySetupPayload = {
                 securitySetupRequests: [domainPayload],
             };
 
+            const method = securitySetupRequestId ? 'PUT' : 'POST';
+
             const response = await fetch(`${API_BASE_URL}${SECURITY_SETUP_ENDPOINT}`, {
-                method: 'POST',
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -43,12 +51,14 @@ export const SecuritySetupService = {
                 throw new Error(`Failed to save wizard data:( ${response.status}: ${errorText})`);
             }
 
-            const results = await response.json();
+            const resData = await response.json();
+
+            const result = resData?.securitySetupRequestCollection?.[0];
 
             return {
-                success: results.length > 0 && !!results[0],
-                data: results[0],
-                errors: results[0]?.errors,
+                success: !!result,
+                data: result,
+                errors: result?.errors,
             };
         } catch (error) {
             throw error;

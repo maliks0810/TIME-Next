@@ -102,7 +102,6 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               disabled={isReadOnly}
               fullWidth={false}
               className='field-input-half'
-              displayEmpty={false}
             />
             <TextField
               className="field-input-half"
@@ -127,7 +126,6 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               disabled={isReadOnly}
               fullWidth={false}
               className='field-input-half'
-              displayEmpty={false}
             />
             <TextField
               className="field-input-half"
