@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Alert } from 'antd';
 import NewAssetsContent from './features/NewAssetsContent';
 import { NewAsset } from './lib/types';
@@ -24,6 +24,12 @@ export default function App() {
             );
         }
     }, [newRequestedRowId, assetTableData]);
+
+    useEffect(() => {
+        if ('Notification' in window) {
+            Notification.requestPermission();
+        }
+    });
 
     return (
         <div className="arcContainer">
