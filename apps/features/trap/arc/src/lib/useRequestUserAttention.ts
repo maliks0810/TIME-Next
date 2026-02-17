@@ -7,6 +7,7 @@ export function useRequestUserAttention() {
     const [isVisible, setIsVisible] = useState(!document.hidden);
     const [isFocused, setIsFocused] = useState(document.hasFocus());
 
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const blinkIntervalRef = useRef<any>(null);
 
     useEffect(() => {
