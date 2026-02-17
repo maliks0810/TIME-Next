@@ -13,7 +13,10 @@ export default function App() {
     const { assetTableData, errorMessage } = useFetchAssetTableData();
 
     useLayoutEffect(() => {
-        if (newRequestedRowId) {
+        if (
+            newRequestedRowId &&
+            assetTableData.some((row) => row.assetAnalyticsSetupId === newRequestedRowId)
+        ) {
             setSelectedRow(
                 () =>
                     ({
@@ -22,6 +25,7 @@ export default function App() {
                         ),
                     }) as unknown as NewAsset
             );
+            setNewRequestedRowId(null);
         }
     }, [newRequestedRowId, assetTableData]);
 
