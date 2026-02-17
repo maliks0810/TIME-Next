@@ -3,15 +3,24 @@ import { useState, useEffect, useRef } from 'react';
 import { extractResponseArray, toRows, formatIso } from './helpers';
 import * as signalR from '@microsoft/signalr';
 import { NewAsset, TableRow } from './types';
+import { useRequestUserAttention } from './useRequestUserAttention';
 
-const WS_BASE_URL = import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/hubs/workflow?workflowGroup=AnalyticsSummary';
+const WS_BASE_URL =
+    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/hubs/workflow?workflowGroup=AnalyticsSummary';
 // const WS_BASE_URL = 'https://rar-arc-service-sandbox.np.tcw.com/api/hubs/workflow/ ';
 
 const RECEIVE_DATA_METHOD = 'ReceiveData';
+const NOTIFU_USER_METHOD = 'NotifyUser';
 
 export const useFetchAssetTableData = () => {
     const [assetTableData, setAssetTableDate] = useState<TableRow<NewAsset>[]>([]);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const { shouldNotify, requestUserAttention } = useRequestUserAttention();
+    const shouldNotifyRef = useRef(shouldNotify);
+
+    useEffect(() => {
+        shouldNotifyRef.current = shouldNotify;
+    }, [shouldNotify]);
 
     const connectionRef = useRef<signalR.HubConnection>(null);
 
@@ -57,6 +66,18 @@ export const useFetchAssetTableData = () => {
                     } catch (err) {
                         console.warn(err);
                         setErrorMessage('Failed to process data');
+                    }
+                });
+
+                connection.on(NOTIFU_USER_METHOD, (data) => {
+                    try {
+                        if (shouldNotifyRef.current) {
+                            const message = JSON.parse(data).response;
+                            requestUserAttention(message);
+                        }
+                    } catch (err) {
+                        console.warn(err);
+                        setErrorMessage('Failed to parse Notification');
                     }
                 });
 
