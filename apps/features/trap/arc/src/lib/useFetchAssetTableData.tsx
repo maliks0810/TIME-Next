@@ -10,6 +10,7 @@ const WS_BASE_URL =
 // const WS_BASE_URL = 'https://rar-arc-service-sandbox.np.tcw.com/api/hubs/workflow/ ';
 
 const RECEIVE_DATA_METHOD = 'ReceiveData';
+const NOTIFU_USER_METHOD = 'NotifyUser';
 
 export const useFetchAssetTableData = () => {
     const [assetTableData, setAssetTableDate] = useState<TableRow<NewAsset>[]>([]);
@@ -60,15 +61,23 @@ export const useFetchAssetTableData = () => {
                             analysisDate: String(itemObj.analysisDate ?? ''),
                         }));
 
-                        if (shouldNotifyRef.current) {
-                            requestUserAttention();
-                        }
-
                         const rows = toRows(items);
                         setAssetTableDate(rows);
                     } catch (err) {
                         console.warn(err);
                         setErrorMessage('Failed to process data');
+                    }
+                });
+
+                connection.on(NOTIFU_USER_METHOD, (data) => {
+                    try {
+                        if (shouldNotifyRef.current) {
+                            const message = JSON.parse(data).response;
+                            requestUserAttention(message);
+                        }
+                    } catch (err) {
+                        console.warn(err);
+                        setErrorMessage('Failed to parse Notification');
                     }
                 });
 
