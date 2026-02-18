@@ -62,7 +62,7 @@ export const transformToApiDomain = (
         CallDate: payload.securityDetails?.callDate || null,
         Tranche: payload.securityDetails?.tranche || '',
         Price: parsePrice(payload.securityDetails?.price),
-        IsCallable: payload.securityDetails?.isCallable ?? null,
+        IsCallable: payload.securityDetails?.isCallable ?? false,
         Cusip: payload.securityDetails?.cusip || '',
 
         // ESG Fields (dropdown values)
@@ -150,8 +150,6 @@ export const transformFromApiPresentation = (
             price: presentation.price?.toString() || undefined,
             isCallable: presentation.isCallable ?? undefined,
             cusip: presentation.cusip || undefined,
-
-            callable: presentation.isCallable ? 'Yes' : 'No',
             identifier: presentation.identifierValue || undefined,
         },
 
