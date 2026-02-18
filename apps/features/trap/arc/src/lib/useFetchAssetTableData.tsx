@@ -71,7 +71,10 @@ export const useFetchAssetTableData = () => {
 
                 connection.on(NOTIFY_USER_METHOD, (data) => {
                     if (shouldNotifyRef.current) {
-                        requestUserAttention(data);
+                        requestUserAttention({
+                            message: data,
+                            url: '/risk/arc'
+                        });
                     }
                 });
 
