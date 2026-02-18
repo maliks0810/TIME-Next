@@ -10,6 +10,7 @@ export function useRequestUserAttention() {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const blinkIntervalRef = useRef<any>(null);
 
+    // Track tab activity
     useEffect(() => {
         const handleVisibilityChange = () => setIsVisible(!document.hidden);
         const handleFocus = () => setIsFocused(true);
@@ -26,6 +27,7 @@ export function useRequestUserAttention() {
         };
     }, []);
 
+    // Remove blinking Tab Title on page focus
     useEffect(() => {
         if (isFocused) {
             document.title = originalTitle;
@@ -36,6 +38,7 @@ export function useRequestUserAttention() {
         }
     }, [isFocused]);
 
+    // Function to show a notification (called when a message is received via SignalR)
     const requestUserAttention = (message = 'Asset Analytics Calculated') => {
         document.title = newNotificationTitle;
 

@@ -10,7 +10,7 @@ const WS_BASE_URL =
 // const WS_BASE_URL = 'https://rar-arc-service-sandbox.np.tcw.com/api/hubs/workflow/ ';
 
 const RECEIVE_DATA_METHOD = 'ReceiveData';
-const NOTIFU_USER_METHOD = 'NotifyUser';
+const NOTIFY_USER_METHOD = 'NotifyUser';
 
 export const useFetchAssetTableData = () => {
     const [assetTableData, setAssetTableDate] = useState<TableRow<NewAsset>[]>([]);
@@ -69,7 +69,7 @@ export const useFetchAssetTableData = () => {
                     }
                 });
 
-                connection.on(NOTIFU_USER_METHOD, (data) => {
+                connection.on(NOTIFY_USER_METHOD, (data) => {
                     if (shouldNotifyRef.current) {
                         requestUserAttention(data);
                     }
