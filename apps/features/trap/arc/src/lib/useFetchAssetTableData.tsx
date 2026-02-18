@@ -70,14 +70,8 @@ export const useFetchAssetTableData = () => {
                 });
 
                 connection.on(NOTIFU_USER_METHOD, (data) => {
-                    try {
-                        if (shouldNotifyRef.current) {
-                            const message = JSON.parse(data).response;
-                            requestUserAttention(message);
-                        }
-                    } catch (err) {
-                        console.warn(err);
-                        setErrorMessage('Failed to parse Notification');
+                    if (shouldNotifyRef.current) {
+                        requestUserAttention(data);
                     }
                 });
 
