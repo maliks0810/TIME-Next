@@ -60,7 +60,6 @@ export interface ISecurityDetails {
     isCallable?: boolean | null;
     isEuSecuritizationRequired?: boolean | null;
     euSecuritizationTipEuId?: string;
-    callable?: string; // "Yes"/"No" display value derived from isCallable
 }
 
 // Step 2: Review Details - ESG Fields

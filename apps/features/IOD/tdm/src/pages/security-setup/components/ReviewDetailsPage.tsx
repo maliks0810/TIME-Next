@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField } from '@mui/material';
+import { FormControl, FormControlLabel, Radio, RadioGroup, TextField } from '@mui/material';
 import { SecuritySetupFlowType, IReviewDetailsFormValues } from '../lib/types/securitySetupTypes';
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { SelectFormField } from '../../../common/components/SelectFormField';
@@ -25,7 +25,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
     return isoDate.split('T')[0];
   }
 
-  const handleSecurityDetailsChange = (field: string, value: string) => {
+  const handleSecurityDetailsChange = (field: string, value: string | boolean | null) => {
     onFormChange({
       securityDetails: {
         ...formValues.securityDetails,
@@ -112,12 +112,27 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           </div>
           <div className="form-field">
             <label className="field-label">Callable</label>
-            <TextField
-              fullWidth
-              value={formValues.securityDetails?.callable || ''}
-              onChange={(e) => handleSecurityDetailsChange('callable', e.target.value)}
-              variant="outlined"
-            />
+            <FormControl fullWidth>
+              <RadioGroup
+                value={formValues.securityDetails?.isCallable === true ? 'yes' : 'no'}
+                onChange={(e) => {
+                  const boolValue: boolean = e.target.value === 'yes'
+                  handleSecurityDetailsChange('isCallable', boolValue)
+                }}
+                row
+              >
+                <FormControlLabel
+                  value="yes"
+                  control={<Radio />}
+                  label="Yes"
+                />
+                <FormControlLabel
+                  value="no"
+                  control={<Radio />}
+                  label="No"
+                />
+              </RadioGroup>
+            </FormControl>
           </div>
           <div className="form-field">
             <label className="field-label">Call Date</label>

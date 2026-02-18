@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField } from '@mui/material';
+import { FormControl, FormControlLabel, Radio, RadioGroup, TextField } from '@mui/material';
 import { IConfirmDetailsData, SecuritySetupFlowType } from '../lib/types/securitySetupTypes';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { SelectFormField } from '../../../common/components/SelectFormField';
@@ -94,12 +94,23 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           </div>
           <div className="form-field">
             <label className="field-label">Callable</label>
-            <TextField
-              fullWidth
-              value={data.securityDetails?.callable || 'Y'}
-              disabled
-              variant="outlined"
-            />
+            <FormControl fullWidth>
+              <RadioGroup
+                value={data.securityDetails?.isCallable === true ? 'yes' : 'no'}
+                row
+              >
+                <FormControlLabel
+                  value="yes"
+                  control={<Radio disabled />}
+                  label="Yes"
+                />
+                <FormControlLabel
+                  value="no"
+                  control={<Radio disabled />}
+                  label="No"
+                />
+              </RadioGroup>
+            </FormControl>
           </div>
           <div className="form-field">
             <label className="field-label">Call Date</label>
