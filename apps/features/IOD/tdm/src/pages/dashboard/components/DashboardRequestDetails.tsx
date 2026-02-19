@@ -67,7 +67,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             </Grid>
             <Grid container flexDirection={'row'} spacing={1}>
               <Grid>
-                <Button className='tcw-button-outlined' variant='outlined'><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Update</Button>
+                <Button className='tcw-button-outlined' variant='outlined' onClick={handleReviewRequestClick}><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Update</Button>
               </Grid>
               <Grid>
                 <Button className='tcw-button-outlined' variant='outlined'><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Duplicate</Button>
@@ -156,6 +156,14 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 </Typography>
                 <Typography variant="subtitle2">
                   {securityRequest.securityRequestDetails.description}
+                </Typography>
+              </Grid>
+              <Grid size={1}>
+                <Typography variant="caption">
+                  Tranche
+                </Typography>
+                <Typography variant="subtitle2">
+                  {securityRequest.securityRequestDetails.tranche}
                 </Typography>
               </Grid>
               <Grid size={1}>
@@ -316,14 +324,6 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 </Typography>
                 <Typography variant="subtitle2" flex={1}>
                   {securityRequest.securityRequestTradeFields.collateral}
-                </Typography>
-              </Grid>
-              <Grid size={1}>
-                <Typography variant="caption" flex={1}>
-                  FFIEC Qual
-                </Typography>
-                <Typography variant="subtitle2" flex={1}>
-                  {securityRequest.securityRequestTradeFields.ffiecQual}
                 </Typography>
               </Grid>
             </Grid>
