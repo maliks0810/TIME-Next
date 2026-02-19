@@ -14,62 +14,63 @@ export const transformDashboardSecuritySetupRequestDocument = (apiData: Security
 }
 
 export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupRequest): IDashboardSecuritySetupRequest => {
-    return {
-        id: Number(apiData.securitySetupRequestId),
-        description: apiData.description,
-        identifier: apiData.identifierValue,
-        createdDate: new Date(apiData.createdDate),
-        createdBy: apiData.createdBy,
-        setupStatus: apiData.setupStatus,
-        riskAnalyticsStatus: apiData.riskAnalyticsStatus,
-        readyForTradingStatus: apiData.readyForTradingStatus,
-        processTime: Number(apiData.processTime),
-        securityRequestDetails: {
-          identifierType: apiData.identifierType,
-          identifierValue: apiData.identifierValue,
-          isPrivateDeal: apiData.isPrivateDeal ? 'Yes' : 'No',
-          ssapIdPassword: apiData.ssapIdPassword,
-          marketSectorType: apiData.marketSectorType,
-          yellowKey: apiData.yellowKey,
-          aladdinCdiId: apiData.aladdinCdiId,
-          cusip: apiData.cusip,
-          description: apiData.description,
-          isNewIssue: apiData.isNewIssue ? 'Yes' : 'No',
-          isEuSecuritizationRequired: apiData.isEuSecuritizationRequired ? 'Yes' : 'No',
-          euSecuritizationTipEuId: apiData.euSecuritizationTipEuId,
-          callDate: getDateFromString(apiData.callDate),
-          price: apiData.price ? apiData.price.toFixed(2) : '',
-        },
-        securityRequestEsgFields: {
-          tcwEsg: apiData.tcwEsg,
-          esgCollateralType: apiData.esgCollateralType,
-          tcwEsgType: apiData.tcwEsgType,
-        },
-        securityRequestTradeFields: {
-          slicerType: apiData.slicerType,
-          mbsType: apiData.mbsType,
-          loanCredit: apiData.loanCredit,
-          mbsCollateral: apiData.mbsCollateral,
-          mbsCollateralSub: apiData.mbsCollateralSub,
-          srMostCashFlow: apiData.seniorMostCashFlow,
-          trancheType: apiData.trancheType,
-          loanCategory: apiData.loanCategory,
-          collateral: apiData.collateral,
-          ffiecQual: apiData.ffiecQual,
-        },
-        securityRequestDocuments: apiData.documents.map(transformDashboardSecuritySetupRequestDocument),
-    };
+  return {
+    id: Number(apiData.securitySetupRequestId),
+    description: apiData.description,
+    identifier: apiData.identifierValue,
+    createdDate: new Date(apiData.createdDate),
+    createdBy: apiData.createdBy,
+    setupStatus: apiData.setupStatus,
+    riskAnalyticsStatus: apiData.riskAnalyticsStatus,
+    readyForTradingStatus: apiData.readyForTradingStatus,
+    processTime: Number(apiData.processTime),
+    securityRequestDetails: {
+      identifierType: apiData.identifierType,
+      identifierValue: apiData.identifierValue,
+      isPrivateDeal: apiData.isPrivateDeal ? 'Yes' : 'No',
+      ssapIdPassword: apiData.ssapIdPassword,
+      marketSectorType: apiData.marketSectorType,
+      yellowKey: apiData.yellowKey,
+      aladdinCdiId: apiData.aladdinCdiId,
+      cusip: apiData.cusip,
+      description: apiData.description,
+      tranche: apiData.tranche,
+      isNewIssue: apiData.isNewIssue ? 'Yes' : 'No',
+      isEuSecuritizationRequired: apiData.isEuSecuritizationRequired ? 'Yes' : 'No',
+      euSecuritizationTipEuId: apiData.euSecuritizationTipEuId,
+      callDate: getDateFromString(apiData.callDate),
+      price: apiData.price ? apiData.price.toFixed(2) : '',
+    },
+    securityRequestEsgFields: {
+      tcwEsg: apiData.tcwEsg,
+      esgCollateralType: apiData.esgCollateralType,
+      tcwEsgType: apiData.tcwEsgType,
+    },
+    securityRequestTradeFields: {
+      slicerType: apiData.slicerType,
+      mbsType: apiData.mbsType,
+      loanCredit: apiData.loanCredit,
+      mbsCollateral: apiData.mbsCollateral,
+      mbsCollateralSub: apiData.mbsCollateralSub,
+      srMostCashFlow: apiData.seniorMostCashFlow,
+      trancheType: apiData.trancheType,
+      loanCategory: apiData.loanCategory,
+      collateral: apiData.collateral,
+      ffiecQual: apiData.ffiecQual,
+    },
+    securityRequestDocuments: apiData.documents.map(transformDashboardSecuritySetupRequestDocument),
+  };
 };
 
 export const getSecurityRequestsDashboard = async (
-   parameters : IDashboardSearchParameters
-) : Promise<IDashboardSecuritySetupRequest[]> => {
-  let securityRequests : IDashboardSecuritySetupRequest[] = []
-  
+  parameters: IDashboardSearchParameters
+): Promise<IDashboardSecuritySetupRequest[]> => {
+  let securityRequests: IDashboardSecuritySetupRequest[] = []
+
   try {
     const baseUrl = API_BASE_URL;
     const endpoint = "dashboarditems";
-        
+
     const params = {
       headers: {
         'Cache-Control': 'no-cache',
@@ -85,15 +86,15 @@ export const getSecurityRequestsDashboard = async (
     }
 
     const response = await axios.get(baseUrl + endpoint, params);
-    
+
     const data = response.data;
-    const securitySetupRequests : SecuritySetupRequest[] = data.dashboard.securitySetupRequestCollection;
+    const securitySetupRequests: SecuritySetupRequest[] = data.dashboard.securitySetupRequestCollection;
     const mappedSecuritySetupRequests = securitySetupRequests.map(transformDashboardSecuritySetupRequest);
 
     securityRequests = mappedSecuritySetupRequests;
   }
   catch {
-    
+
   }
   finally {
     return securityRequests;
