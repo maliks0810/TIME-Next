@@ -33,7 +33,7 @@ export const getCurrentEnvironment = (): Environment => {
     const hostname = window.location.hostname;
 
     if (hostname.includes('dev')) return ENVIRONMENTS.DEV;
-    if (hostname.includes('qa')) return ENVIRONMENTS.QA;
+    if (hostname.includes('qa') || hostname.includes('sandbox')) return ENVIRONMENTS.QA;
     if (hostname.includes('pd') || hostname.includes('prod')) return ENVIRONMENTS.PROD;
 
     // Default to dev for local development
