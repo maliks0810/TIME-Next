@@ -32,9 +32,10 @@ const environmentConfigs: Record<Environment, EnvironmentConfig> = {
 export const getCurrentEnvironment = (): Environment => {
     const hostname = window.location.hostname;
 
-    if (hostname.includes('dev')) return ENVIRONMENTS.DEV;
-    if (hostname.includes('qa') || hostname.includes('sandbox')) return ENVIRONMENTS.QA;
-    if (hostname.includes('pd') || hostname.includes('prod')) return ENVIRONMENTS.PROD;
+    if (hostname.includes('dev') || hostname.includes('-dev')) return ENVIRONMENTS.DEV;
+    if (hostname.includes('qa') || hostname.includes('-main')) return ENVIRONMENTS.QA;
+    if (hostname.includes('pd') || hostname.includes('prod') || hostname.includes('-release'))
+        return ENVIRONMENTS.PROD;
 
     // Default to dev for local development
     return ENVIRONMENTS.DEV;
