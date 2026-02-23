@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => ({
     ],
     server: {
         port: 3003,
+        strictPort: false,
         fs: {
             allow: [
                 path.resolve(__dirname, '../..'),

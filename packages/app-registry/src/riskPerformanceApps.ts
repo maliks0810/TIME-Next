@@ -54,6 +54,5 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         component: lazy(() => import('@r2/arc/src/App')),
         description: '',
     },
-
     // PLOP_INJECT_APP
 ];

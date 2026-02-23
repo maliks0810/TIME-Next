@@ -5,6 +5,7 @@ export * from './hooks/basic-agql-client';
 export * from './hooks/User-Profile/user-loader';
 export { Authenticator } from './hooks/Authentication/authenticator';
 export * from './hooks/Authentication/user-info-context';
+export * from './hooks/User-Profile/update-favorites';
 export * from './hooks/Contexts/generic-data-context';
 export * from 'axios';
 export * as tlog from '@tcw/tlog';
