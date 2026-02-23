@@ -19,9 +19,18 @@ export type AuthIndicator = {
     authorized: boolean;
 }
 
+export type LinkInfoBase = {
+    title: string;
+    url: string;
+    newTab?: boolean;
+    isExternal?: boolean;
+    httpMethod?: string;
+    postBody?: string;
+}
+
 export interface UserFavorite extends LinkInfoBase {
     title: string,
-    url: string,
+    url: string | undefined,
     newTab: boolean,
     clickCount: number
 }

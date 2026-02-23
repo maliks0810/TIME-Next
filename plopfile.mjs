@@ -1,10 +1,78 @@
-import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
 
 export default function (plop) {
     plop.setHelper('dashCase', (text) => {
         return text.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/,'');
+    });
+
+    // ML: Created this to prevent merge conflicts for newly generated apps
+    plop.setActionType('insertAliasRandom', function (answers, config, plopApi) {
+        const filePath = plopApi.renderString(config.path, answers);
+        const marker = config.marker || '// PLOP_INJECT_NEW_FEATURE_APP';
+        const minOffset = config.minOffset ?? 3;
+        const maxOffset = config.maxOffset ?? 7;
+
+        if (minOffset > maxOffset) {
+            throw new Error(`minOffset (${minOffset}) cannot be greater than maxOffset (${maxOffset})`);
+        }
+
+        const src = fs.readFileSync(filePath, 'utf8');
+        const EOL = src.includes('\r\n') ? '\r\n' : '\n';
+        const lines = src.split(/\r?\n/);
+
+        const renderedKey = plopApi.renderString(config.aliasKey, answers);
+        const exists = lines.some(
+        (l) =>
+            l.includes(`${renderedKey}:`) ||
+            l.includes(`'${renderedKey}':`) ||
+            l.includes(`"${renderedKey}":`)
+        );
+        if (exists) {
+        return `Alias "${renderedKey}" already present. Skipped.`;
+        }
+
+        const markerIdx = lines.findIndex((l) => l.includes(marker));
+        if (markerIdx === -1) {
+        throw new Error(`Marker "${marker}" not found in ${filePath}`);
+        }
+
+        // find start of alias block (line with "{")
+        let aliasStartIdx = -1;
+        for (let i = markerIdx; i >= 0; i--) {
+        if (lines[i].includes('alias:')) {
+            let braceLine = i;
+            for (let j = i; j <= i + 2 && j < lines.length; j++) {
+            if (lines[j].includes('{')) {
+                braceLine = j;
+                break;
+            }
+            }
+            aliasStartIdx = braceLine;
+            break;
+        }
+        }
+        if (aliasStartIdx === -1) aliasStartIdx = 0;
+
+        const randOffset = Math.floor(Math.random() * (maxOffset - minOffset + 1)) + minOffset;
+        const minIdx = aliasStartIdx + 1;
+        let insertIdx = Math.max(minIdx, markerIdx - randOffset);
+        while (insertIdx < markerIdx && /^\s*$/.test(lines[insertIdx])) insertIdx++;
+
+        const indent = (lines[markerIdx].match(/^(\s*)/) || ['', ''])[1];
+
+        let aliasLine = plopApi
+        .renderString(
+            config.template || `{{aliasKey}}: path.resolve(__dirname, '{{aliasPath}}')`,
+            answers
+        )
+        .trimEnd();
+        if (!aliasLine.trim().endsWith(',')) aliasLine += ',';
+        aliasLine = indent + aliasLine;
+
+        lines.splice(insertIdx, 0, aliasLine);
+        fs.writeFileSync(filePath, lines.join(EOL), 'utf8');
+
+        return `Inserted alias "${renderedKey}" at line ${insertIdx + 1} (random offset ${randOffset}).`;
     });
 
 plop.setGenerator('app', {
@@ -68,6 +136,12 @@ plop.setGenerator('app', {
         },
         {
             type: 'input',
+            name: 'displayAppName',
+            message: 'What is the title for your application in the Navigation Bar?',
+            default: (answers) => `${answers.appName}`,
+        },
+        {
+            type: 'input',
             name: 'routePath',
             message: 'What route should this feature application be accessible at? (e.g., /pe/appA/):',
             default: (answers) => `/${answers.team}/${answers.appName}/`,
@@ -82,17 +156,10 @@ plop.setGenerator('app', {
             type: 'list',
             name: 'highestEnv',
             message: 'Highest Environment the feature application should be displayed',
-            choices: ['sandbox', 'dev', 'qa', 'prod']
+            choices: ['prod', 'qa', 'dev', 'sandbox']
         },
     ],
     actions: (answers) => {
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-        const usedPortsPath = path.resolve(__dirname, 'plop-templates/config/usedPorts.json');
-        const usedPorts = JSON.parse(fs.readFileSync(usedPortsPath, 'utf-8')).usedPorts;
-        const nextPort = Math.max(...usedPorts) + 1;
-        answers.nextPort = nextPort; 
-
         const navMenuToFileMap = {
             'Portfolio Management': 'portfolioManagementApps',
             'Research & Analysis': 'researchAnalysisApps',
@@ -175,12 +242,6 @@ plop.setGenerator('app', {
             path: 'apps/features/{{team}}/{{appName}}/.env.production',
             templateFile: 'plop-templates/app/.env.production.hbs',
         },
-        {
-            type: 'modify',
-            path: 'plop-templates/config/usedPorts.json',
-            pattern: /"usedPorts": \[/,
-            template: '"usedPorts": [{{nextPort}}, '
-        },
         // Need to update this because it's not updating the file properly
         {
             type: 'modify',  
@@ -192,7 +253,7 @@ plop.setGenerator('app', {
         subHeader: ${subHeaderEnumConversion},
         id: \'{{appName}}\',
         name: \'{{appName}}\',
-        title: \'{{appName}}\',
+        title: \'{{displayAppName}}\',
         env: ${highEnvEnumConversion},
         path: \'{{routePath}}\',
         team: \'{{team}}\',
@@ -201,10 +262,13 @@ plop.setGenerator('app', {
     },$1// PLOP_INJECT_APP`,  
         },
         {
-        type: 'modify',
+        type: 'insertAliasRandom',
         path: 'apps/platform-shell/vite.config.ts',
-        pattern: /(\s*)\/\/ PLOP_INJECT_NEW_FEATURE_APP/,
-        template: `$1'@{{team}}/{{appName}}': path.resolve(__dirname, '../features/{{team}}/{{appName}}'),$1// PLOP_INJECT_NEW_FEATURE_APP`
+        marker: '// PLOP_INJECT_NEW_FEATURE_APP',
+        minOffset: 3,
+        maxOffset: 6,
+        aliasKey: '@{{team}}/{{appName}}',
+        template: `'@{{team}}/{{appName}}': path.resolve(__dirname, '../features/{{team}}/{{appName}}')`,
         },
         function () {
             return `App successfully created. make sure to npm install and then npm run dev`

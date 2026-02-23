@@ -13,7 +13,8 @@ export default defineConfig(({ mode }) => ({
         svgr()
     ],
     server: {
-        port: 3001,
+        port: 3003,
+        strictPort: false,
         fs: {
             allow: [
                 path.resolve(__dirname, '../..'),

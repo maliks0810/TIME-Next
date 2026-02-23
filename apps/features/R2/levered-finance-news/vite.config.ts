@@ -11,7 +11,8 @@ export default defineConfig(({ mode }) => ({
         react()
     ],
     server: {
-        port: 3006,
+        port: 3003,
+        strictPort: false,
         fs: {
             allow: [
                 path.resolve(__dirname, '../..'),

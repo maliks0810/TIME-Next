@@ -5,6 +5,8 @@ import DownArrowSVG from '../../assets/arrow-down.svg?react';
 import arrowUp from '../../assets/arrow-up.png';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { InternalAppMetadata, ExternalAppMetadata } from '@platform/app-registry';
+import { fireAndForget } from './utils';
+import { useUserInfo, useUpdateUserInfo, addToFavorites } from '@platform/utils';
 import { NaviLinkContainer } from './navi-link-container';
 import { IconButton } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -23,6 +25,8 @@ export const TopMenu = (props: {
     const [selectedList, setSelectedList] = useState<any>();
     const popupRef = useRef<any>();
     const navigate = useNavigate();
+    const userInfo = useUserInfo();
+    const updateUserInfo = useUpdateUserInfo();
 
     const handleSubMenuClick = (e: React.MouseEvent<HTMLButtonElement> | undefined) => {
         if (!e) {
@@ -38,30 +42,33 @@ export const TopMenu = (props: {
             popupRef.current.showPopup(link);
         } else if (link.type === 'internal') {
             navigate(link.path);
+            fireAndForget(() => {
+                const updated = addToFavorites(link, userInfo);
+                return updateUserInfo(updated);
+            });
             props.handleClose();
-        }else {
-        props.handleClose();
-
-        fetch(link.url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: link.postBody
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Success:', data);
-        })
-        .catch((error) => {
-            console.error("POST Request failed:", error);
-        });
-    }
+        } else {
+            props.handleClose();
+            fetch(link.url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: link.postBody
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error("POST Request failed:", error);
+            });
+        }
     };
 
     function copyToClipboard(link: (ExternalAppMetadata|InternalAppMetadata)): void {

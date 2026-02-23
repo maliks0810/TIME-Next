@@ -1,12 +1,21 @@
 // @ts-nocheck
 import { forwardRef, useImperativeHandle } from 'react';
+import { fireAndForget } from './utils';
+import { useUserInfo, useUpdateUserInfo, addToFavorites } from '@platform/utils';
 import { useNavigate } from 'react-router-dom';
 
 export const NaviLinkContainer = forwardRef((_props, ref) => {
     const navigate = useNavigate();
+    const userInfo = useUserInfo();
+    const updateUserInfo = useUpdateUserInfo();
 
     useImperativeHandle(ref, () => ({
         showPopup: (linkBase: any) => {
+
+            fireAndForget(() => {
+                const updated = addToFavorites(linkBase, userInfo);
+                return updateUserInfo(updated);
+            });
 
             if (linkBase.newTab) {
                 window.open(linkBase.url, '_blank')?.focus();
