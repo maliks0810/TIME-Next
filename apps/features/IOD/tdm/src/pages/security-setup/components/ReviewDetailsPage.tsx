@@ -217,7 +217,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               value={formValues.tradeFields?.mbsTypeValue}
               onChange={(value) => handleTradeFieldsChange('mbsTypeValue', value)}
               referenceData={referenceData}
-              label="Slicer Type"
+              label="MBS Type"
             />
           </div>
         </div>

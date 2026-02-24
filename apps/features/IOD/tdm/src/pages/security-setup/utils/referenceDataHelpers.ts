@@ -11,12 +11,17 @@ export const toSelectOptions = (
         return [];
     }
 
-    return values.map((item) => ({
-        value: item.FieldDropdownValue,
-        label: item.FieldDropdownValue,
-        description: item.FieldDropdownDescription,
-        id: item.FieldDropdownValueId,
-    }));
+    return values.map((item) => {
+        const description = item.FieldDropdownDescription?.trim();
+        const label = description ?? item.FieldDropdownValue;
+
+        return {
+            value: item.FieldDropdownValue,
+            label,
+            description: item.FieldDropdownDescription,
+            id: item.FieldDropdownValueId,
+        };
+    });
 };
 
 export const getFieldOptions = (
