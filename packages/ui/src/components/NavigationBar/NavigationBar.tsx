@@ -157,9 +157,9 @@ export const Navbar: React.FC = () => {
                 >
                     <div className="profile-dropdown-content">
                         <div className="profile-menu-user-name">{userInfo.name}</div>
-                        <button className="profile-menu-preferences" >
+                        {/* <button className="profile-menu-preferences" >
                             Preferences
-                        </button>
+                        </button> */}
                         <button className="profile-menu-preferences" onClick={handleSendEmail}>
                             Request Support
                         </button>
