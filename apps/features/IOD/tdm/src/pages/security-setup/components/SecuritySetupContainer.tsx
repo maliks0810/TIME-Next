@@ -29,6 +29,7 @@ interface SecuritySetupContainerProps {
   onComplete?: (data: ISecuritySetupWizardData) => void;
   onCancel?: () => void;
   initialData?: Partial<ISecuritySetupWizardPayload> | null;
+  onSecuritySetupIdReady?: (id: number) => void;
 }
 
 type WizardStep = 'enter-identifier' | 'ssap-confirmation' | 'review-details' | 'confirm-details';
@@ -37,7 +38,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   flowType,
   onComplete,
   onCancel,
-  initialData
+  initialData,
+  onSecuritySetupIdReady
 }) => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<WizardStep>('enter-identifier');
@@ -124,6 +126,14 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     },
     initialSecuritySetupRequestId: initialData?.securitySetupRequestId
   });
+
+  // TODO: temp fix - remove when figuring out how to use PUT response
+  useEffect(() => {
+    if (securitySetupRequestId && onSecuritySetupIdReady) {
+      onSecuritySetupIdReady(securitySetupRequestId)
+    }
+  }, [securitySetupRequestId, onSecuritySetupIdReady])
+
 
   const handleStep1Change = useCallback((values: Partial<IEnterIdentifierFormValues>) => {
     setWizardData((prev) => ({
@@ -227,19 +237,17 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   };
 
   const handleNext = () => {
+    const nextStep = getNextStep(currentStep);
     if (!isReadOnly) {
       markStepComplete(currentStep);
       clearError();
 
-      queueWizardSave(
-        currentStep,
-        getCurrentStepNumber(),
-        getAllWizardData(),
-        'complete'
-      );
+      // we need to navigate the user to where they left off, so the step after the one they completed.
+      const stepToSave = nextStep ?? currentStep;
+      const stepNumberToSave = nextStep ? getCurrentStepNumber() + 1 : getCurrentStepNumber();
+      queueWizardSave(stepToSave, stepNumberToSave, getAllWizardData(), 'complete');
     }
 
-    const nextStep = getNextStep(currentStep);
 
     if (nextStep) {
       if (nextStep === 'review-details') {
