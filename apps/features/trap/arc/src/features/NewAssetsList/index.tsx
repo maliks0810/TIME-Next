@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Collapse } from 'antd';
 import { normalizeStatus } from '../../lib/helpers';
 import { NewAsset } from '../../lib/types';
@@ -16,6 +16,7 @@ const STATUSES = [
     'Analytics Pending Review',
     'Analytics Sent To Aladdin',
     'Analytics Verified In Aladdin',
+    'Abandoned',
     'Invalid Request',
 ];
 
@@ -37,6 +38,17 @@ type NewAssetsListProps = {
 };
 
 export function NewAssetsList({ newAssets, onRowSelect, selectedRowId }: NewAssetsListProps) {
+
+    const getStatusLabel = (status:string) =>{
+        switch (status) {
+            case "Abandoned":
+                return "Abandoned (Last 2 days)"
+            case "Analytics Verified In Aladdin":
+                return "Analytics Verified In Aladdin (Last 2 days)"
+            default:
+                return  status;
+        }
+    }
     const { panels, nonEmptyKeys } = useMemo(() => {
         const panels = STATUSES.map((status, idx) => {
             const group = newAssets.filter((asset) => asset.status === normalizeStatus(status));
@@ -44,7 +56,7 @@ export function NewAssetsList({ newAssets, onRowSelect, selectedRowId }: NewAsse
 
             return {
                 key,
-                header: <StatusLabel label={status} count={group.length} />,
+                header: <StatusLabel label={getStatusLabel(status)} count={group.length} />,
                 content: (
                     <div>
                         {group.map((asset) => (

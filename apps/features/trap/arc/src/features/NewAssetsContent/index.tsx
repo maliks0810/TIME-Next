@@ -50,7 +50,6 @@ function NewAssetsContent({
                 onClose={() => setIsModalOpen(false)}
                 onAssetCreated={onAssetCreated}
             />
-
             <div className="componentHighlight ModelInputsIdTab">
                 {selectedRowRequestId ? (
                     <>

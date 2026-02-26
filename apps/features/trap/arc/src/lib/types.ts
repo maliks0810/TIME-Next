@@ -307,7 +307,11 @@ export type RequestedNewAsset = {
 export type RequestNewAssetPayload = {
     assets: Array<RequestedNewAsset>;
 };
-
+export type AbandonAssetPayload = {
+    assetAnalyticsSetupId: number | null | undefined;
+    updatedBy: string;
+    noteText: string;
+}
 export type TRAPDatePickerProps = {
     id?: string;
     style?: React.CSSProperties;
