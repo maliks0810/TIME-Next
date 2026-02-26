@@ -108,7 +108,12 @@ export function Analytics({ selectedRow }: { selectedRow: NewAsset | null }) {
     };
 
     useEffect(() => {
-        if (selectedRow) fetchAnalytics();
+        if (selectedRow) {
+            fetchAnalytics();
+        }
+        else {
+            setAnalyticsData(null);
+        }
     }, [selectedRow]);
 
     return (

@@ -14,6 +14,7 @@ import {
     AnalyticsRequest,
     NoteType,
     FilePreviewRequestCollection,
+    AbandonAssetPayload,
 } from './types';
 
 const DEFAULT_CONTENT_TYPE = 'application/json';
@@ -27,6 +28,8 @@ const downloadFileUrl =
 
 const requestNewAssetUrl =
     import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/request-analytics';
+const abandonAssetUrl =
+    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/abandon';
 
 const getNewAssetAnalyticsInputUrl =
     import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/get-analytics-summary';
@@ -160,6 +163,11 @@ export const requestNewAsset = (
     payload: RequestNewAssetPayload
 ): Promise<{ data: { response: NewAsset[] } }> =>
     serviceRequest(requestNewAssetUrl)().post('', payload);
+
+ export const abandonAsset = (
+    payload: AbandonAssetPayload
+): Promise<void> =>
+    serviceRequest(abandonAssetUrl)().post('', payload);   
 
 export const claimAsset = (
     payload: ClaimAssetPayload

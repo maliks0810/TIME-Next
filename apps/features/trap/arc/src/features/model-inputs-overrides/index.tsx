@@ -23,6 +23,7 @@ import { ModelInputAssumptions } from './components/ModelInputAssumptions';
 import { Notes } from '../Notes';
 import PreviewBondFeaturesModal from './components/PreviewBondFeaturesModal';
 import PreviewStaticScenariosModal from './components/PreviewStaticScenariosModal';
+import { AbandonAsset } from './components/AbandonAsset';
 
 type ModelInputsOverridesProps = {
     selectedRowRequestId?: number | null;
@@ -112,14 +113,20 @@ export function ModelInputsOverrides({ selectedRowRequestId }: ModelInputsOverri
     useEffect(() => {
         if (selectedRowRequestId) {
             fetchAssetInfo();
+        } else {
+            form.resetFields();
+            setAssetInfo(null);
         }
     }, [selectedRowRequestId]);
 
+    const [isAbandonModalOpen, setIsAbandonModalOpen] = useState<boolean>(false);
+    const handleToggleAbandonModal = useCallback(() => { setIsAbandonModalOpen((isOpen) => !isOpen) },[])
     const canPublish =
         !!assetInfo?.status &&
         normalizeStatus(assetInfo?.status) === 'ANALYTICS INPUT PENDING REVIEW';
     const canVerifyInAladdin = assetInfo?.status === 'ANALYTICS INPUT SENT TO ALADDIN';
     const canSave = assetInfo?.status === 'ANALYTICS INPUT PENDING REVIEW';
+    const canAbandon = assetInfo?.status && assetInfo?.status != 'ANALYTICS VERIFIED IN ALADDIN' && assetInfo?.status != 'ABANDONED';
 
     const saveInputOverrides = async () => {
         setIsLoading(true);
@@ -224,8 +231,8 @@ export function ModelInputsOverrides({ selectedRowRequestId }: ModelInputsOverri
             typeof editedPrice === 'number'
                 ? editedPrice
                 : typeof assetInfo.price === 'number'
-                  ? assetInfo.price
-                  : null;
+                    ? assetInfo.price
+                    : null;
 
         let effectiveCallDate = (editedCallDate ?? '').trim();
         if (!effectiveCallDate) {
@@ -278,7 +285,7 @@ export function ModelInputsOverrides({ selectedRowRequestId }: ModelInputsOverri
             console.error('Failed to publish analytics inputs:', err);
             messageApi.error(
                 err?.response?.data?.message ??
-                    'Failed to publish analytics inputs. Please try again.'
+                'Failed to publish analytics inputs. Please try again.'
             );
         } finally {
             setIsLoading(false);
@@ -306,6 +313,12 @@ export function ModelInputsOverrides({ selectedRowRequestId }: ModelInputsOverri
                 isOpen={isScenariosPreviewModalOpen}
                 aladdinId={assetInfo?.aladdinId as string}
                 messageApi={messageApi}
+            />
+            <AbandonAsset
+                isOpen={isAbandonModalOpen}
+                assetAnalyticsSetupId={selectedRowRequestId}
+                onClose={handleToggleAbandonModal}
+                refreshAssetInfo={fetchAssetInfo}
             />
             <div
                 style={{
@@ -413,17 +426,25 @@ export function ModelInputsOverrides({ selectedRowRequestId }: ModelInputsOverri
                             >
                                 Run Analytics
                             </Button>
+                            <Button
+                                type="primary"
+                                disabled={!canAbandon}
+                                loading={isLoading}
+                                onClick={handleToggleAbandonModal}
+                            >
+                                Abandon
+                            </Button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <Divider />
-            <div style={{ maxHeight: 'calc(100vh - 700px)', height: '100%', overflow: 'auto' }}>
+            <div style={{ height: '100%', overflow: 'auto' }}>
                 <Notes
                     selectedRow={assetInfo}
                     noteType="AIOR"
-                    //isNoteEditable={selectedRow?.status === 'ANALYTICS INPUT PENDING REVIEW'}
+                //isNoteEditable={selectedRow?.status === 'ANALYTICS INPUT PENDING REVIEW'}
                 />
             </div>
         </Form>
