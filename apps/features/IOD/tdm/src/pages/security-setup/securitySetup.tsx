@@ -8,12 +8,15 @@ import { ISecuritySetupWizardPayload } from '../../services/domain-objects/Secur
 
 const SecuritySetupComponent: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [initialData, setInitialData] = useState<Partial<ISecuritySetupWizardPayload> | null>(null)
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const securitySetupId = searchParams.get('id');
+  // TODO: remove once we sort out using POST/PUT response
+  const [idFromSave] = useState<string | null>(null);
+
+  const securitySetupId = searchParams.get('id') || idFromSave;
 
   useEffect(() => {
     if (securitySetupId) {
@@ -33,7 +36,7 @@ const SecuritySetupComponent: React.FC = () => {
       }
       fetchWizardData();
     }
-  }, [searchParams])
+  }, [securitySetupId])
 
 
   const handleComplete = async (data: ISecuritySetupWizardData) => {
@@ -109,6 +112,7 @@ const SecuritySetupComponent: React.FC = () => {
         onComplete={handleComplete}
         onCancel={handleCancel}
         initialData={initialData}
+        onSecuritySetupIdReady={(id) => setSearchParams({ id: `${id}` }, { replace: true })}
       />
     </div>
   );
