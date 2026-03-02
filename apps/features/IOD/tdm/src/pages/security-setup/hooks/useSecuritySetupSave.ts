@@ -30,8 +30,8 @@ interface UseSecuritySetupSaveReturn {
         stepNumber: number,
         accumulatedData: Record<string, unknown>,
         saveType?: 'partial' | 'complete'
-    ) => void;
-    forceSave: () => Promise<void>;
+    ) => Promise<Partial<ISecuritySetupWizardPayload> | null>;
+    forceSave: () => Promise<Partial<ISecuritySetupWizardPayload> | null>;
     clearError: () => void;
     lastSavedAt: Date | null;
     error: Error | null;
@@ -83,47 +83,60 @@ export const useSecuritySetupSave = (
     }, []);
 
     /**
-     * Process background save - fire and forget pattern
+     * Call the API and return the transformed response so callers can merge server
+     * data into wizard state.  Also captures securitySetupRequestId from POST responses.
      */
-    const processBackgroundSave = useCallback(async (payload: ISecuritySetupWizardPayload) => {
-        try {
-            if (!isMountedRef.current) return;
-            setSaveStatus('saving');
-            setError(null);
-
-            const result = await SecuritySetupService.upsertWizardData(
-                payload,
-                securitySetupRequestIdRef.current
-            );
-
-            if (!isMountedRef.current) return;
-
-            if (result.data?.securitySetupRequestId && !securitySetupRequestIdRef.current) {
-                securitySetupRequestIdRef.current = result.data.securitySetupRequestId;
-                setSecuritySetupRequestId(result.data.securitySetupRequestId);
-            }
-
-            setSaveStatus('saved');
-            setLastSavedAt(new Date());
-            onSavedRef.current?.();
-
-            setTimeout(() => {
-                if (isMountedRef.current) {
-                    setSaveStatus('idle');
+    const processBackgroundSave = useCallback(
+        async (
+            payload: ISecuritySetupWizardPayload
+        ): Promise<Partial<ISecuritySetupWizardPayload> | null> => {
+            try {
+                if (!isMountedRef.current) {
+                    return null;
                 }
-            }, 2000);
-        } catch (err) {
-            if (!isMountedRef.current) return;
+                setSaveStatus('saving');
+                setError(null);
 
-            const error = err instanceof Error ? err : new Error('Save failed');
+                const savedData = await SecuritySetupService.upsertWizardData(
+                    payload,
+                    securitySetupRequestIdRef.current
+                );
 
-            console.error('Save failed:', error.message);
+                if (!isMountedRef.current) {
+                    return null;
+                }
 
-            setSaveStatus('error');
-            setError(error);
-            onErrorRef.current?.(error);
-        }
-    }, []);
+                // Capture the id from a POST so subsequent calls use PUT
+                if (savedData.securitySetupRequestId && !securitySetupRequestIdRef.current) {
+                    securitySetupRequestIdRef.current = savedData.securitySetupRequestId;
+                    setSecuritySetupRequestId(savedData.securitySetupRequestId);
+                }
+
+                setSaveStatus('saved');
+                setLastSavedAt(new Date());
+                onSavedRef.current?.();
+
+                setTimeout(() => {
+                    if (isMountedRef.current) {
+                        setSaveStatus('idle');
+                    }
+                }, 2000);
+
+                return savedData;
+            } catch (err) {
+                if (err instanceof Error && err.name === 'AbortError') return null;
+                if (!isMountedRef.current) return null;
+
+                const error = err instanceof Error ? err : new Error('Save failed');
+                console.error('Save failed:', error.message);
+                setSaveStatus('error');
+                setError(error);
+                onErrorRef.current?.(error);
+                return null;
+            }
+        },
+        []
+    );
 
     /**
      * Queue wizard data for background saving
@@ -139,7 +152,7 @@ export const useSecuritySetupSave = (
             stepNumber: number,
             accumulatedData: Record<string, unknown>,
             saveType: 'partial' | 'complete' = 'partial'
-        ) => {
+        ): Promise<Partial<ISecuritySetupWizardPayload> | null> => {
             const payload = {
                 currentStep: step,
                 currentStepNumber: stepNumber,
@@ -148,7 +161,8 @@ export const useSecuritySetupSave = (
                 ...accumulatedData, // Spread all accumulated wizard data
             } as ISecuritySetupWizardPayload;
 
-            processBackgroundSave(payload);
+            pendingPayloadRef.current = payload;
+            return processBackgroundSave(payload);
         },
         [processBackgroundSave]
     );
@@ -156,10 +170,11 @@ export const useSecuritySetupSave = (
     /**
      * Force immediate save (bypasses debounce)
      */
-    const forceSave = useCallback(async () => {
+    const forceSave = useCallback((): Promise<Partial<ISecuritySetupWizardPayload> | null> => {
         if (pendingPayloadRef.current) {
-            await processBackgroundSave(pendingPayloadRef.current);
+            return processBackgroundSave(pendingPayloadRef.current);
         }
+        return Promise.resolve(null);
     }, [processBackgroundSave]);
 
     const clearError = useCallback(() => {
