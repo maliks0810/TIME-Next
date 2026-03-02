@@ -3,10 +3,7 @@ import {
     transformFromApiPresentation,
     transformToApiDomain,
 } from '../pages/security-setup/utils/securitySetupApiTransformer';
-import {
-    ISaveWizardResponse,
-    ISecuritySetupWizardPayload,
-} from './domain-objects/SecuritySetupRequestPayload';
+import { ISecuritySetupWizardPayload } from './domain-objects/SecuritySetupRequestPayload';
 
 const API_BASE_URL = getApiBaseUrl();
 const SECURITY_SETUP_ENDPOINT = '/securitysetuprequests';
@@ -24,45 +21,35 @@ export const SecuritySetupService = {
     upsertWizardData: async (
         payload: ISecuritySetupWizardPayload,
         securitySetupRequestId?: number | null
-    ): Promise<ISaveWizardResponse> => {
-        try {
-            const domainPayload = transformToApiDomain(payload);
+    ): Promise<Partial<ISecuritySetupWizardPayload>> => {
+        const domainPayload = transformToApiDomain(payload);
 
-            if (securitySetupRequestId) {
-                domainPayload.SecuritySetupRequestId = securitySetupRequestId;
-            }
-
-            const securitySetupPayload = {
-                securitySetupRequests: [domainPayload],
-            };
-
-            const method = securitySetupRequestId ? 'PUT' : 'POST';
-
-            const response = await fetch(`${API_BASE_URL}${SECURITY_SETUP_ENDPOINT}`, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(securitySetupPayload),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text().catch(() => response.statusText);
-                throw new Error(`Failed to save wizard data:( ${response.status}: ${errorText})`);
-            }
-
-            const resData = await response.json();
-
-            const result = resData?.securitySetupRequestCollection?.[0];
-
-            return {
-                success: !!result,
-                data: result,
-                errors: result?.errors,
-            };
-        } catch (error) {
-            throw error;
+        if (securitySetupRequestId) {
+            domainPayload.SecuritySetupRequestId = securitySetupRequestId;
         }
+
+        const securitySetupPayload = {
+            securitySetupRequests: [domainPayload],
+        };
+
+        const method = securitySetupRequestId ? 'PUT' : 'POST';
+
+        const response = await fetch(`${API_BASE_URL}${SECURITY_SETUP_ENDPOINT}`, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(securitySetupPayload),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text().catch(() => response.statusText);
+            throw new Error(`Failed to save wizard data (${response.status}): ${errorText}`);
+        }
+
+        const rsponseData = await response.json();
+        const rawResponse = rsponseData?.securitySetupRequestCollection?.[0];
+        return transformFromApiPresentation(rawResponse);
     },
 
     getWizardData: async (
@@ -80,7 +67,7 @@ export const SecuritySetupService = {
 
         if (!response.ok) {
             const errorText = await response.text().catch(() => response.statusText);
-            throw new Error(`Failed to fetch wizard data:( ${response.status}: ${errorText})`);
+            throw new Error(`Failed to fetch wizard data: ( ${response.status}: ${errorText})`);
         }
 
         const presentationData = await response.json();

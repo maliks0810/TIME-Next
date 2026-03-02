@@ -99,8 +99,9 @@ export const transformToApiDomain = (
  * @returns Frontend internal payload
  */
 export const transformFromApiPresentation = (
-    presentation: ISecuritySetupRequestPresentation
+    presentation: ISecuritySetupRequestPresentation | null | undefined
 ): Partial<ISecuritySetupWizardPayload> => {
+    if (!presentation) return {};
     return {
         // ID for PUT calls
         securitySetupRequestId: presentation.securitySetupRequestId,

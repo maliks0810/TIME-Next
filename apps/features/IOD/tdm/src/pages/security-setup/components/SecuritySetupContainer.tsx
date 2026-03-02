@@ -9,6 +9,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SaveIcon from '@mui/icons-material/Save';
 import { HorizontalStepper } from './HorizontalStepper';
 import { EnterIdentifierPage } from './EnterIdentifierPage';
+import { SSAPApprovalPage } from './SSAPApprovalPage';
 import { ReviewDetailsPage } from './ReviewDetailsPage';
 import { ConfirmDetailsPage } from './ConfirmDetailsPage';
 import { SubmitConfirmationModal } from './SubmitConfirmationModal';
@@ -22,14 +23,12 @@ import '../lib/styles.scss';
 import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
 import { ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 import { useReferenceData } from '../hooks/useReferenceData';
-import { SSAPApprovalPage } from './SSAPApprovalPage';
 
 interface SecuritySetupContainerProps {
   flowType: SecuritySetupFlowType;
   onComplete?: (data: ISecuritySetupWizardData) => void;
   onCancel?: () => void;
   initialData?: Partial<ISecuritySetupWizardPayload> | null;
-  onSecuritySetupIdReady?: (id: number) => void;
 }
 
 type WizardStep = 'enter-identifier' | 'ssap-confirmation' | 'review-details' | 'confirm-details';
@@ -39,7 +38,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   onComplete,
   onCancel,
   initialData,
-  onSecuritySetupIdReady
 }) => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<WizardStep>('enter-identifier');
@@ -79,36 +77,31 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           securityDetails: initialData.securityDetails ?? {},
           esgFields: initialData.esgFields ?? {},
           tradeFields: initialData.tradeFields ?? {},
-          notesInstructions: initialData.notesInstructions ?? undefined
+          notesInstructions: initialData.notesInstructions ?? undefined,
         },
-      })
+      });
 
       if (initialData.currentStep) {
-        setCurrentStep(initialData.currentStep);
+        setCurrentStep(initialData.currentStep as WizardStep);
 
         const completedStepsList: WizardStep[] = [];
         if (['ssap-confirmation', 'review-details', 'confirm-details'].includes(initialData.currentStep)) {
-          completedStepsList.push('enter-identifier')
+          completedStepsList.push('enter-identifier');
         }
-
         if (['review-details', 'confirm-details'].includes(initialData.currentStep)) {
           const hadPassword = !!(initialData.ssapIdPassword?.trim?.() ?? '');
-
           if (hadPassword) {
-            completedStepsList.push('ssap-confirmation')
+            completedStepsList.push('ssap-confirmation');
           }
         }
-
         if (initialData.currentStep === 'confirm-details') {
-          completedStepsList.push('review-details')
+          completedStepsList.push('review-details');
         }
-
         setCompletedSteps(completedStepsList);
       }
     }
-  }, [initialData])
+  }, [initialData]);
 
-  // Initialize save hook (no session management needed)
   const {
     saveStatus,
     queueWizardSave,
@@ -116,24 +109,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     clearError,
     lastSavedAt,
     error: saveError,
-    securitySetupRequestId
+    securitySetupRequestId,
   } = useSecuritySetupSave({
     onError: (error) => {
       console.error('Save failed:', error);
     },
-    onSaved: () => {
-      console.log('Wizard data saved successfully');
-    },
-    initialSecuritySetupRequestId: initialData?.securitySetupRequestId
+    initialSecuritySetupRequestId: initialData?.securitySetupRequestId,
   });
-
-  // TODO: temp fix - remove when figuring out how to use PUT response
-  useEffect(() => {
-    if (securitySetupRequestId && onSecuritySetupIdReady) {
-      onSecuritySetupIdReady(securitySetupRequestId)
-    }
-  }, [securitySetupRequestId, onSecuritySetupIdReady])
-
 
   const handleStep1Change = useCallback((values: Partial<IEnterIdentifierFormValues>) => {
     setWizardData((prev) => ({
@@ -222,7 +204,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   };
 
   const canProceed = (): boolean => {
-    if (isReadOnly) return true;
+    if (saveStatus === 'saving') {
+      return false;
+    }
+    if (isReadOnly) {
+      return true;
+    }
 
     switch (currentStep) {
       case 'enter-identifier':
@@ -236,34 +223,49 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const nextStep = getNextStep(currentStep);
+
     if (!isReadOnly) {
       markStepComplete(currentStep);
       clearError();
 
-      // we need to navigate the user to where they left off, so the step after the one they completed.
+      // Save with the next step so resuming from ?id= lands on the correct step.
       const stepToSave = nextStep ?? currentStep;
       const stepNumberToSave = nextStep ? getCurrentStepNumber() + 1 : getCurrentStepNumber();
-      queueWizardSave(stepToSave, stepNumberToSave, getAllWizardData(), 'complete');
-    }
 
+      const savedData = await queueWizardSave(stepToSave, stepNumberToSave, getAllWizardData(), 'complete');
 
-    if (nextStep) {
-      if (nextStep === 'review-details') {
-        // Pre-populate step2 with data from step1 when moving to review-details
+      if (savedData) {
+        // Merge server response into wizard state.
         setWizardData((prev) => ({
           ...prev,
+          step1: {
+            ...prev.step1,
+            newIssue: savedData.newIssue ?? prev.step1.newIssue,
+            cdiFileUploadedToAnser: savedData.cdiFileUploadedToAnser ?? prev.step1.cdiFileUploadedToAnser,
+            aladdinCDIId: savedData.aladdinCDIId ?? prev.step1.aladdinCDIId,
+            privateDeal: savedData.privateDeal ?? prev.step1.privateDeal,
+            ssapIdPassword: savedData.ssapIdPassword ?? prev.step1.ssapIdPassword,
+            ssapApproved: savedData.ssapApproved ?? prev.step1.ssapApproved,
+            identifierType: savedData.identifierType ?? prev.step1.identifierType,
+            identifierValue: savedData.identifierValue ?? prev.step1.identifierValue,
+            marketSector: savedData.marketSector ?? prev.step1.marketSector,
+            yellowKey: savedData.yellowKey ?? prev.step1.yellowKey,
+            euSecurityVerificationRequired: savedData.euSecurityVerificationRequired ?? prev.step1.euSecurityVerificationRequired,
+            euSecuritizationTipEuId: savedData.euSecuritizationTipEuId ?? prev.step1.euSecuritizationTipEuId,
+          },
           step2: {
-            ...prev.step2,
-            securityDetails: {
-              ...prev.step2.securityDetails,
-              aladdinCDIId: prev.step1.aladdinCDIId || '',
-              identifier: prev.step1.identifierValue || '',
-            },
+            securityDetails: savedData.securityDetails ?? prev.step2.securityDetails,
+            esgFields: savedData.esgFields ?? prev.step2.esgFields,
+            tradeFields: savedData.tradeFields ?? prev.step2.tradeFields,
+            notesInstructions: savedData.notesInstructions ?? prev.step2.notesInstructions,
           },
         }));
       }
+    }
+
+    if (nextStep) {
       if (currentStep === 'review-details') {
         // Prepare confirm data before moving to confirm-details
         setWizardData((prev) => ({
@@ -347,7 +349,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       case 'enter-identifier':
         return 'Step 1 of 4: Enter Identifier';
       case 'ssap-confirmation':
-        return 'Step 2 of 4: SSAP Login'
+        return 'Step 2 of 4: SSAP Login';
       case 'review-details':
         return 'Step 3 of 4: Security Request Template';
       case 'confirm-details':
@@ -471,7 +473,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             onFormChange={handleStep1Change}
             onProceedToReview={handleNext}
           />
-        )
+        );
       case 'review-details':
         return (
           <ReviewDetailsPage
@@ -485,12 +487,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         return (
           <ConfirmDetailsPage
             flowType={flowType}
-            data={
-              wizardData.step3 || {
-                uploadedFile: '',
-                ...wizardData.step2,
-              }
-            }
+            data={{
+              uploadedFile: wizardData.step3?.uploadedFile ?? '',
+              ssapIdPassword: wizardData.step1.ssapIdPassword,
+              ...wizardData.step2,
+            }}
             referenceData={referenceData}
           />
         );
@@ -539,21 +540,23 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   if (loadingReferenceData) {
     return (
-      <div>
+      <div className="security-setup-wizard" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
         <CircularProgress />
       </div>
-    )
+    );
   }
-
 
   if (referenceDataError) {
     return (
-      <div>
-        <Alert severity='error'>
+      <div className="security-setup-wizard" style={{ padding: '40px' }}>
+        <Alert severity="error">
           Failed to load dropdown options: {referenceDataError.message}
+          <Button onClick={() => window.location.reload()} style={{ marginLeft: '16px' }}>
+            Retry
+          </Button>
         </Alert>
       </div>
-    )
+    );
   }
 
   return (

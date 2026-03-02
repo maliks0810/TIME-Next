@@ -8,36 +8,33 @@ import { ISecuritySetupWizardPayload } from '../../services/domain-objects/Secur
 
 const SecuritySetupComponent: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [initialData, setInitialData] = useState<Partial<ISecuritySetupWizardPayload> | null>(null)
+  const [searchParams] = useSearchParams();
+  const [initialData, setInitialData] = useState<Partial<ISecuritySetupWizardPayload> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  // TODO: remove once we sort out using POST/PUT response
-  const [idFromSave] = useState<string | null>(null);
-
-  const securitySetupId = searchParams.get('id') || idFromSave;
-
+  const securitySetupId = searchParams.get('id');
   useEffect(() => {
-    if (securitySetupId) {
-      const fetchWizardData = async () => {
-        setIsLoading(true);
-        setLoadError(null);
-
-        try {
-          const savedData = await SecuritySetupService.getWizardData(securitySetupId);
-          setInitialData(savedData);
-        } catch (error) {
-          console.error('Failed to load saved wizard data', error);
-          setLoadError('Failed to load saved data. Please try again.');
-        } finally {
-          setIsLoading(false);
-        }
-      }
-      fetchWizardData();
+    if (!securitySetupId) {
+      return;
     }
-  }, [securitySetupId])
 
+    const fetchWizardData = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+
+      try {
+        const savedData = await SecuritySetupService.getWizardData(securitySetupId);
+        setInitialData(savedData);
+      } catch (error) {
+        console.error('Failed to load saved wizard data', error);
+        setLoadError('Failed to load saved data. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchWizardData();
+  }, [securitySetupId]);
 
   const handleComplete = async (data: ISecuritySetupWizardData) => {
     try {
@@ -46,7 +43,7 @@ const SecuritySetupComponent: React.FC = () => {
         currentStepNumber: 4,
         savedAt: new Date().toISOString(),
         saveType: 'complete' as const,
-        newIssue: data.step1.cdiFileUploadedToAnser,
+        newIssue: data.step1.newIssue,
         cdiFileUploadedToAnser: data.step1.cdiFileUploadedToAnser,
         aladdinCDIId: data.step1.aladdinCDIId,
         privateDeal: data.step1.privateDeal,
@@ -66,15 +63,14 @@ const SecuritySetupComponent: React.FC = () => {
           uploadedFiles: data.step3.uploadedFile,
           isConfirmed: true
         })
-      }
+      };
 
       await SecuritySetupService.upsertWizardData(payload, data.securitySetupRequestId);
       navigate('/iod/tdm/');
     } catch (error) {
-      console.error('Failed to submit security setup', error);
-      alert('Failed to submit security setup. Please try again.')
+      console.error('Failed to submit security setup:', error);
+      alert('Failed to submit security setup. Please try again.');
     }
-
   };
 
   const handleCancel = () => {
@@ -89,20 +85,20 @@ const SecuritySetupComponent: React.FC = () => {
           <p>Loading saved wizard data...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (loadError) {
     return (
       <div className="security-setup-page">
         <div style={{ padding: '40px', textAlign: 'center', color: 'red' }}>
-          <>{loadError}</>
+          <p>{loadError}</p>
           <button onClick={() => navigate('/iod/tdm/')}>
             Return to Dashboard
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -112,7 +108,6 @@ const SecuritySetupComponent: React.FC = () => {
         onComplete={handleComplete}
         onCancel={handleCancel}
         initialData={initialData}
-        onSecuritySetupIdReady={(id) => setSearchParams({ id: `${id}` }, { replace: true })}
       />
     </div>
   );
