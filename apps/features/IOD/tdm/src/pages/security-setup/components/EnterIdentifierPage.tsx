@@ -61,7 +61,13 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           <FormControl fullWidth>
             <RadioGroup
               value={formValues.newIssue || ''}
-              onChange={(e) => onFormChange({ newIssue: e.target.value })}
+              onChange={(e) => {
+                const newIssue = e.target.value;
+                onFormChange({
+                  newIssue,
+                  ...(newIssue === 'no' ? { aladdinCDIId: undefined } : {})
+                })
+              }}
               row
             >
               <FormControlLabel
@@ -87,7 +93,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             onChange={handleTextChange('aladdinCDIId')}
             placeholder="BDL123456"
             variant="outlined"
-            disabled={isReadOnly}
+            disabled={isReadOnly || formValues.newIssue?.toLocaleLowerCase() === 'no'}
           />
         </div>
 
@@ -148,7 +154,13 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           <FormControl fullWidth>
             <RadioGroup
               value={formValues.euSecurityVerificationRequired || ''}
-              onChange={(e) => onFormChange({ euSecurityVerificationRequired: e.target.value })}
+              onChange={(e) => {
+                const euSecurityVerificationRequired = e.target.value;
+                onFormChange({
+                  euSecurityVerificationRequired,
+                  ...(euSecurityVerificationRequired === 'no' ? { euSecuritizationTipEuId: undefined } : {})
+                })
+              }}
               row
             >
               <FormControlLabel
@@ -173,7 +185,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             onChange={handleTextChange('euSecuritizationTipEuId')}
             placeholder="Sample_TIP_ID"
             variant="outlined"
-            disabled={isReadOnly}
+            disabled={isReadOnly || formValues.euSecurityVerificationRequired?.toLocaleLowerCase() === 'no'}
           />
         </div>
 
