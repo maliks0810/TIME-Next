@@ -123,7 +123,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
 
         {/* Market Sector */}
         <div className="form-row-group">
-          <label className="field-label">Market Sector</label>
+          <label className="field-label">Market Sector/Yellow Key</label>
           <div className="field-inputs-row">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.MarketSector}
