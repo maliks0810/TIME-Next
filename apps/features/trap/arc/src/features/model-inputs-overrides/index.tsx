@@ -41,8 +41,6 @@ export function ModelInputsOverrides({ selectedRowRequestId }: ModelInputsOverri
     const userInfo = useUserInfo();
     const username = userInfo.email;
 
-    console.log(assetInfo);
-
     const checkIsBondFeaturesDisabled = useCallback(() => {
         if (!assetInfo) {
             return true;

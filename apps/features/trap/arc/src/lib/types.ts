@@ -78,6 +78,8 @@ export interface NewAsset {
     claimedBy?: string;
     claimedAt?: string;
     analysisDate: string;
+
+    assetSubType?: string | null;
 }
 
 export type AnalyticsByIdResponse = {
@@ -85,9 +87,9 @@ export type AnalyticsByIdResponse = {
     response: NewAssetAnalytics;
 };
 
-export type NewAssetAnalyticsRepsonse = Omit<NewAssetAnalytics, 'aladdinId' | 'newRequestId'> & {
-    aladdinID: string;
-    newRequestID: string;
+export type NewAssetAnalyticsRepsonse = {
+    notes: { response: NoteType[] };
+    response: NewAsset;
 };
 
 export type NewAssetAnalytics = {

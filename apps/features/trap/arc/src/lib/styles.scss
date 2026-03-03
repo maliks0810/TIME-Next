@@ -274,3 +274,51 @@
     align-self: flex-end;
     min-width: 240px;
 }
+
+.assetInfoContainer {
+    width: 100%;
+    display: flex;
+    padding: 16px;
+    justify-content: space-between;
+    background-image: linear-gradient(#fef6ff, #ffffff3a);
+    box-shadow: 1px 1px 8px rgb(228, 237, 237);
+    border-radius: 4px;
+}
+
+.testBorder {
+    border: 1px solid red;
+}
+
+.claimButton {
+    background: #c979e415;
+    color: #a02cc7;
+    font-weight: 500;
+}
+
+.advanceButton {
+    background: #95c7661f;
+    color: #709e46;
+    font-weight: 500;
+}
+
+.securitySettingsHeader {
+    border-radius: 4px 4px 0 0;
+    padding-left: 8px;
+    background-image: linear-gradient(to right, #287064, #cfe7e7);
+    color: #fff;
+}
+
+.securitySettingsContainer {
+    margin: 12px 0;
+    box-shadow: 1px 1px 8px rgb(228, 237, 237);
+
+    .ant-descriptions-view {
+        border-radius: 0px 0px 4px 4px !important;
+    }
+
+    .ant-descriptions-item-label,
+    .ant-descriptions-item-content {
+        padding: 2px 2px 2px 8px !important;
+        height: 25px;
+    }
+}

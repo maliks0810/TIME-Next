@@ -1,4 +1,5 @@
 import { Button, Card } from 'antd';
+import { useSearchParams } from 'react-router-dom';
 import { ClaimAssetPayload, NewAsset, TableRow } from '../../../lib/types';
 import { claimAsset } from '../../../lib/services';
 import { useUserInfo } from '@platform/utils';
@@ -16,13 +17,12 @@ const getCardBodyStyles = (isActive?: boolean) =>
 
 export const StatusItem = ({
     asset,
-    handleSelectRow,
     isActive,
 }: {
     asset: TableRow<NewAsset>;
-    handleSelectRow: (asset: NewAsset) => void;
     isActive?: boolean;
 }) => {
+    const [, setSearchParams] = useSearchParams();
     const user = useUserInfo();
     const handleClaim = () => {
         // Generate the Claim Payload
@@ -42,13 +42,19 @@ export const StatusItem = ({
         });
     };
 
+    const handleSelectAsset = () => {
+        const params = new URLSearchParams();
+        params.set('assetId', asset.assetAnalyticsSetupId + '');
+        setSearchParams(params);
+    };
+
     return (
         <div style={{ padding: '4px 0' }}>
             <Card
                 styles={{
                     body: getCardBodyStyles(isActive),
                 }}
-                onClick={() => handleSelectRow(asset.raw)}
+                onClick={handleSelectAsset}
             >
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <div>
