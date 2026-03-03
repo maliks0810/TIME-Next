@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Descriptions } from 'antd';
 import { getSecuritySettings } from './lib/services';
 import { SecuritySettingsType } from './lib/types';
-import { convertDateToPST } from '../../lib/helpers';
 
 export default function SecuritySettings({
     selectedAssetId,
@@ -51,7 +50,7 @@ export default function SecuritySettings({
                             {securitySettingItem.overnightRisk}
                         </Descriptions.Item>
                         <Descriptions.Item label="Analytics Date">
-                            {convertDateToPST(securitySettingItem.analysisDate ?? '')}
+                            {securitySettingItem.analysisDate}
                         </Descriptions.Item>
                         <Descriptions.Item label="OAD/OAC Multiplier">
                             {securitySettingItem.oadOacMultiplier}
