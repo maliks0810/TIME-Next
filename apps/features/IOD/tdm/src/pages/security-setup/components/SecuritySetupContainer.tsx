@@ -391,11 +391,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           message: `Market Sector: ${wizardData.step1.marketSector}`,
         });
       }
-      if (wizardData.step1.yellowKey) {
-        messages.push({
-          message: `Yellow Key: ${wizardData.step1.yellowKey}`,
-        });
-      }
+//      if (wizardData.step1.yellowKey) {
+//        messages.push({
+//          message: `Yellow Key: ${wizardData.step1.yellowKey}`,
+//        });
+//      }
       if (wizardData.step1.euSecurityVerificationRequired) {
         messages.push({
           message: `EU Security Verification Required: ${wizardData.step1.euSecurityVerificationRequired === 'yes' ? 'Yes' : 'No'}`,
