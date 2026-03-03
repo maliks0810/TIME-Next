@@ -204,7 +204,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   };
 
   const canProceed = (): boolean => {
-    if (saveStatus === 'saving') {
+    if (saveStatus === 'saving' || saveStatus === 'saved') {
       return false;
     }
     if (isReadOnly) {
@@ -472,6 +472,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             formValues={wizardData.step1}
             onFormChange={handleStep1Change}
             onProceedToReview={handleNext}
+            isSaving={saveStatus === 'saving' || saveStatus === 'saved'}
           />
         );
       case 'review-details':

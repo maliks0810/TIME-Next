@@ -6,11 +6,13 @@ interface SSAPApprovalPageProps {
   formValues: IEnterIdentifierFormValues;
   onFormChange: (values: Partial<IEnterIdentifierFormValues>) => void;
   onProceedToReview: () => void;
+  isSaving?: boolean;
 }
 
 export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
   onFormChange,
-  onProceedToReview
+  onProceedToReview,
+  isSaving
 }) => {
   const handleRequestRelease = () => {
     onFormChange({ ssapApproved: true });
@@ -28,6 +30,7 @@ export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
             variant="contained"
             className="approve-ssap-button"
             onClick={handleRequestRelease}
+            disabled={isSaving}
           >
             SSAP Security Released
           </Button>
