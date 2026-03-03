@@ -18,6 +18,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   isReadOnly = false,
   referenceData
 }) => {
+  const isYellowKeyVisable = false;
   const handleTextChange = (field: keyof IEnterIdentifierFormValues) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -127,15 +128,17 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               fullWidth={false}
               className='field-input-half'
             />
-            <TextField
-              className="field-input-half"
-              label="Yellow Key"
-              value={formValues.yellowKey || ''}
-              onChange={handleTextChange('yellowKey')}
-              placeholder="MTGE"
-              variant="outlined"
-              disabled={isReadOnly}
-            />
+            {isYellowKeyVisable && (
+              <TextField
+                className="field-input-half"
+                label="Yellow Key"
+                value={formValues.yellowKey || ''}
+                onChange={handleTextChange('yellowKey')}
+                placeholder="MTGE"
+                variant="outlined"
+                disabled={isReadOnly}
+              />
+            )}
           </div>
         </div>
 
