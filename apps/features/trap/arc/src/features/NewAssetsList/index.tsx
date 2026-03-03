@@ -4,21 +4,9 @@ import { normalizeStatus } from '../../lib/helpers';
 import { NewAsset } from '../../lib/types';
 import { StatusLabel } from './components/StatusLabel';
 import { StatusItem } from './components/StatusItem';
+import { STATUSES } from '../../lib/constants';
 
 const { Panel } = Collapse;
-
-const STATUSES = [
-    // 'Analytics Requested', Mark C: Comment this out as this step is not needed.
-    'Analytics Input Pending Review',
-    'Analytics Input Sent To Aladdin',
-    // 'Analytics Input Verified In Aladdin', Mark C: Comment this out as this step is not needed.
-    'Analytics Calculation In Progress',
-    'Analytics Pending Review',
-    'Analytics Sent To Aladdin',
-    'Analytics Verified In Aladdin',
-    'Abandoned',
-    'Invalid Request',
-];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO: MC.  Will clean this up later
 type TableRow<T = any> = {
@@ -33,22 +21,20 @@ type TableRow<T = any> = {
 
 type NewAssetsListProps = {
     newAssets: TableRow<NewAsset>[];
-    onRowSelect: (selectedRow: NewAsset) => void;
     selectedRowId?: number;
 };
 
-export function NewAssetsList({ newAssets, onRowSelect, selectedRowId }: NewAssetsListProps) {
-
-    const getStatusLabel = (status:string) =>{
+export function NewAssetsList({ newAssets, selectedRowId }: NewAssetsListProps) {
+    const getStatusLabel = (status: string) => {
         switch (status) {
-            case "Abandoned":
-                return "Abandoned (Last 2 days)"
-            case "Analytics Verified In Aladdin":
-                return "Analytics Verified In Aladdin (Last 2 days)"
+            case 'Abandoned':
+                return 'Abandoned (Last 2 days)';
+            case 'Analytics Verified In Aladdin':
+                return 'Analytics Verified In Aladdin (Last 2 days)';
             default:
-                return  status;
+                return status;
         }
-    }
+    };
     const { panels, nonEmptyKeys } = useMemo(() => {
         const panels = STATUSES.map((status, idx) => {
             const group = newAssets.filter((asset) => asset.status === normalizeStatus(status));
@@ -63,7 +49,6 @@ export function NewAssetsList({ newAssets, onRowSelect, selectedRowId }: NewAsse
                             <StatusItem
                                 key={asset.assetAnalyticsSetupId}
                                 asset={asset}
-                                handleSelectRow={onRowSelect}
                                 isActive={asset.assetAnalyticsSetupId === selectedRowId}
                             />
                         ))}
@@ -75,7 +60,7 @@ export function NewAssetsList({ newAssets, onRowSelect, selectedRowId }: NewAsse
 
         const nonEmptyKeys = panels.filter((p) => p.hasItems).map((p) => p.key);
         return { panels, nonEmptyKeys };
-    }, [newAssets, onRowSelect, selectedRowId]);
+    }, [newAssets, selectedRowId]);
 
     const [activeKeys, setActiveKeys] = useState<string[]>(nonEmptyKeys);
 

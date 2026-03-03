@@ -1,6 +1,7 @@
 import { Form, InputNumber, message, Modal, Select, Input } from 'antd';
-import { requestNewAsset } from '../../../lib/services';
+import { useSearchParams } from 'react-router-dom';
 import { useUserInfo } from '@platform/utils';
+import { requestNewAsset } from '../../../lib/services';
 import { TRAPDatePicker } from '../../../lib/helpers';
 
 const initialFormValues = {
@@ -9,18 +10,11 @@ const initialFormValues = {
     assetType: 'NARMBS',
 };
 
-export const RequestNewAsset = ({
-    isOpen,
-    onClose,
-    onAssetCreated,
-}: {
-    isOpen: boolean;
-    onClose: () => void;
-    onAssetCreated: (assetId: number) => void;
-}) => {
+export const RequestNewAsset = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
     const [form] = Form.useForm();
     const user = useUserInfo();
     const [messageApi, contextHolder] = message.useMessage();
+    const [, setSearchParams] = useSearchParams();
 
     const price = Form.useWatch('priceInputNA', form);
     const callDate = Form.useWatch('callDateInputNA', form);
@@ -37,6 +31,12 @@ export const RequestNewAsset = ({
             'callDateInputNA',
             'analysisDate',
         ]);
+    };
+
+    const handleSelectAsset = (assetAnalyticsSetupId: number) => {
+        const params = new URLSearchParams();
+        params.set('assetId', assetAnalyticsSetupId + '');
+        setSearchParams(params);
     };
 
     const handleOk = async () => {
@@ -75,7 +75,7 @@ export const RequestNewAsset = ({
 
             messageApi.success('New Asset succesfully requested.');
             const createdAsset = response[0];
-            onAssetCreated(createdAsset.assetAnalyticsSetupId);
+            handleSelectAsset(createdAsset.assetAnalyticsSetupId);
             onClose();
             handleResetForm();
         } catch (e) {

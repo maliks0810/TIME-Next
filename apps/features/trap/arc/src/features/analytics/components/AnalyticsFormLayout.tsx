@@ -16,7 +16,7 @@ export default function AnalyticsFormLayout({ asset, selectedRow }: AnalyticsFor
             <Divider style={{ margin: '12px 0' }} />
             <div
                 style={{
-                    maxHeight: 'calc(100vh - 330px)',
+                    maxHeight: 'calc(100vh - 510px)',
                     overflow: 'auto',
                 }}
             >

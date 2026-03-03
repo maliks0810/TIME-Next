@@ -5,15 +5,14 @@ import * as signalR from '@microsoft/signalr';
 import { NewAsset, TableRow } from './types';
 import { useRequestUserAttention } from './useRequestUserAttention';
 
-const WS_BASE_URL =
-    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/hubs/workflow?workflowGroup=AnalyticsSummary';
-// const WS_BASE_URL = 'https://rar-arc-service-sandbox.np.tcw.com/api/hubs/workflow/ ';
+const WS_BASE_URL = import.meta.env.VITE_R2_TRAP_ARC_SERVICE;
 
 const RECEIVE_DATA_METHOD = 'ReceiveData';
 const NOTIFY_USER_METHOD = 'NotifyUser';
 
-export const useFetchAssetTableData = () => {
+export const useFetchAssetTableData = (endpoint: string) => {
     const [assetTableData, setAssetTableDate] = useState<TableRow<NewAsset>[]>([]);
+    const [latestUpdateTimestamp, setLatestUpdateTimestamp] = useState(0);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const { shouldNotify, requestUserAttention } = useRequestUserAttention();
     const shouldNotifyRef = useRef(shouldNotify);
@@ -28,7 +27,7 @@ export const useFetchAssetTableData = () => {
         const connect = async () => {
             try {
                 const connection = new signalR.HubConnectionBuilder()
-                    .withUrl(WS_BASE_URL, {
+                    .withUrl(WS_BASE_URL + endpoint, {
                         skipNegotiation: true,
                         transport: signalR.HttpTransportType.WebSockets,
                     })
@@ -63,6 +62,7 @@ export const useFetchAssetTableData = () => {
 
                         const rows = toRows(items);
                         setAssetTableDate(rows);
+                        setLatestUpdateTimestamp(Date.now());
                     } catch (err) {
                         console.warn(err);
                         setErrorMessage('Failed to process data');
@@ -73,7 +73,7 @@ export const useFetchAssetTableData = () => {
                     if (shouldNotifyRef.current) {
                         requestUserAttention({
                             message: data,
-                            url: '/risk/arc'
+                            url: '/risk/arc',
                         });
                     }
                 });
@@ -118,5 +118,5 @@ export const useFetchAssetTableData = () => {
         };
     }, []); // empty deps to run on mount/dismount only
 
-    return { assetTableData, errorMessage };
+    return { assetTableData, errorMessage, latestUpdateTimestamp };
 };

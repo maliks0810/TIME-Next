@@ -1,38 +1,36 @@
 import { memo, useState } from 'react';
-import { Button, Divider, Tabs } from 'antd';
+import { Button, Tabs } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { Analytics } from '../analytics';
 import { ModelInputsOverrides } from '../model-inputs-overrides';
 import { NewAssetSetup } from '../new-asset-setup';
 import { NewAsset } from '../../lib/types';
 import { RequestNewAsset } from '../model-inputs-overrides/components/RequestNewAsset';
-import AddIcon from '@mui/icons-material/Add';
+import { AssetInfo } from '../AssetInfo';
+import SecuritySettings from '../SecuritySettings';
 
 type NewAssetsContentProps = {
     selectedRow: NewAsset | null;
     selectedRowRequestId?: number | null;
-    selectedRowAladdinId?: string | null;
-    selectedRowAssetType?: string | null;
-    onAssetCreated: (assetId: number) => void;
+    latestUpdateTimestamp: number;
 };
 
 function NewAssetsContent({
     selectedRow,
-    selectedRowAladdinId,
-    selectedRowAssetType,
     selectedRowRequestId,
-    onAssetCreated,
+    latestUpdateTimestamp,
 }: NewAssetsContentProps) {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+    const handleToggleRequestModal = () => {
+        setIsModalOpen((isOpen) => !isOpen);
+    };
 
     const items = [
         {
             key: 'modelIO',
             label: 'Analytics Inputs',
-            children: (
-                <ModelInputsOverrides
-                    selectedRowRequestId={selectedRowRequestId}
-                />
-            ),
+            children: <ModelInputsOverrides selectedRowRequestId={selectedRowRequestId} />,
             disabled: false,
         },
         {
@@ -45,42 +43,25 @@ function NewAssetsContent({
     ];
     return (
         <div style={{ width: '75vw', display: 'flex', gap: '4px', flexDirection: 'column' }}>
-            <RequestNewAsset
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onAssetCreated={onAssetCreated}
+            <RequestNewAsset isOpen={isModalOpen} onClose={handleToggleRequestModal} />
+
+            <AssetInfo
+                selectedAssetId={selectedRowRequestId}
+                latestUpdateTimestamp={latestUpdateTimestamp}
             />
-            <div className="componentHighlight ModelInputsIdTab">
-                {selectedRowRequestId ? (
-                    <>
-                        <div style={{ marginTop: '22px' }}>
-                            <span>
-                                Request ID: <strong>{selectedRowRequestId}</strong>
-                            </span>
-                            <Divider type="vertical" />
-                            <span>
-                                Aladdin ID: <strong>{selectedRowAladdinId}</strong>
-                            </span>
-                            <Divider type="vertical" />
-                            <span>
-                                Asset Type: <strong>{selectedRowAssetType}</strong>
-                            </span>
-                        </div>
-                    </>
-                ) : (
-                    <p>Please Select a Security</p>
-                )}
-                <div style={{ marginTop: '18px', marginRight: '16px' }}>
-                    <Button style={{ marginLeft: 12 }} onClick={() => setIsModalOpen(true)}>
-                        <AddIcon />
-                        New Asset
-                    </Button>
-                </div>
-            </div>
+            <SecuritySettings
+                selectedAssetId={selectedRowRequestId}
+                latestUpdateTimestamp={latestUpdateTimestamp}
+            />
             <div className="componentHighlight tabsWrapper">
                 <Tabs
                     className="niArcContent"
                     defaultActiveKey="modelIO"
+                    tabBarExtraContent={
+                        <Button onClick={handleToggleRequestModal}>
+                            <PlusOutlined /> New Asset
+                        </Button>
+                    }
                     items={items}
                     style={{ flex: 1, overflow: 'auto' }}
                 />

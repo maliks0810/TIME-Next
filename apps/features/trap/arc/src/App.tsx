@@ -1,5 +1,6 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'antd';
+import { useSearchParams } from 'react-router-dom';
 import NewAssetsContent from './features/NewAssetsContent';
 import { NewAsset } from './lib/types';
 import './lib/styles.scss';
@@ -7,27 +8,30 @@ import '../src/lib/styles.scss';
 import { NewAssetsList } from './features/NewAssetsList';
 import { useFetchAssetTableData } from './lib/useFetchAssetTableData';
 
+const NEW_ASSETS_LIST_ENDPOINT = '/api/hubs/workflow?workflowGroup=AnalyticsSummary';
+
 export default function App() {
     const [selectedRow, setSelectedRow] = useState<NewAsset | null>(null);
-    const [newRequestedRowId, setNewRequestedRowId] = useState<number | null>(null);
-    const { assetTableData, errorMessage } = useFetchAssetTableData();
+    const [searchParams] = useSearchParams();
+    const { assetTableData, errorMessage, latestUpdateTimestamp } =
+        useFetchAssetTableData(NEW_ASSETS_LIST_ENDPOINT);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
+        const assetId = searchParams.get('assetId');
         if (
-            newRequestedRowId &&
-            assetTableData.some((row) => row.assetAnalyticsSetupId === newRequestedRowId)
+            assetId &&
+            assetTableData.some((row) => row.assetAnalyticsSetupId === Number(assetId))
         ) {
             setSelectedRow(
                 () =>
                     ({
                         ...assetTableData.find(
-                            (row) => row.assetAnalyticsSetupId === newRequestedRowId
+                            (row) => row.assetAnalyticsSetupId === Number(assetId)
                         ),
                     }) as unknown as NewAsset
             );
-            setNewRequestedRowId(null);
         }
-    }, [newRequestedRowId, assetTableData]);
+    }, [searchParams.get('assetId'), assetTableData]);
 
     useEffect(() => {
         if ('Notification' in window) {
@@ -47,15 +51,12 @@ export default function App() {
                 />
             )}
             <NewAssetsContent
-                selectedRowAladdinId={selectedRow?.aladdinId}
-                selectedRowAssetType={selectedRow?.assetType}
                 selectedRowRequestId={selectedRow?.assetAnalyticsSetupId}
                 selectedRow={selectedRow}
-                onAssetCreated={setNewRequestedRowId}
+                latestUpdateTimestamp={latestUpdateTimestamp}
             />
             <NewAssetsList
                 newAssets={assetTableData}
-                onRowSelect={setSelectedRow}
                 selectedRowId={selectedRow?.assetAnalyticsSetupId}
             />
         </div>
