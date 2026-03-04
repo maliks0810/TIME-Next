@@ -9,7 +9,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SaveIcon from '@mui/icons-material/Save';
 import { HorizontalStepper } from './HorizontalStepper';
 import { EnterIdentifierPage } from './EnterIdentifierPage';
-import { SSAPApprovalPage } from './SSAPApprovalPage';
+import { SSAPApprovalPage, UserInput } from './SSAPApprovalPage';
 import { ReviewDetailsPage } from './ReviewDetailsPage';
 import { ConfirmDetailsPage } from './ConfirmDetailsPage';
 import { SubmitConfirmationModal } from './SubmitConfirmationModal';
@@ -63,9 +63,10 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           newIssue: initialData.newIssue ?? undefined,
           cdiFileUploadedToAnser: initialData.cdiFileUploadedToAnser ?? undefined,
           aladdinCDIId: initialData.aladdinCDIId ?? undefined,
-          privateDeal: initialData.privateDeal ?? undefined,
+          isPrivateDeal: initialData.isPrivateDeal ?? undefined,
           ssapIdPassword: initialData.ssapIdPassword ?? undefined,
-          ssapApproved: initialData.ssapApproved ?? undefined,
+          isSsapReleaseRequestSentToDm: initialData.isSsapReleaseRequestSentToDm ?? false,
+          isSsapReleasedByDm: initialData.isSsapReleasedByDm ?? false,
           identifierType: initialData.identifierType ?? undefined,
           identifierValue: initialData.identifierValue ?? undefined,
           marketSector: initialData.marketSector ?? undefined,
@@ -223,7 +224,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
   };
 
-  const handleNext = async () => {
+  // TODO: formValues being passed is a temp fix, need to remove when introducing app level state
+  const handleNext = async (userInput?: UserInput | null) => {
     const nextStep = getNextStep(currentStep);
 
     if (!isReadOnly) {
@@ -234,7 +236,16 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       const stepToSave = nextStep ?? currentStep;
       const stepNumberToSave = nextStep ? getCurrentStepNumber() + 1 : getCurrentStepNumber();
 
-      const savedData = await queueWizardSave(stepToSave, stepNumberToSave, getAllWizardData(), 'complete');
+      let allData = getAllWizardData();
+
+      if (userInput) {
+        allData = {
+          ...allData,
+          isSsapReleasedByDm: userInput.isSsapReleasedByDm || false
+        }
+      }
+
+      const savedData = await queueWizardSave(stepToSave, stepNumberToSave, allData, 'complete');
 
       if (savedData) {
         // Merge server response into wizard state.
@@ -245,9 +256,10 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             newIssue: savedData.newIssue ?? prev.step1.newIssue,
             cdiFileUploadedToAnser: savedData.cdiFileUploadedToAnser ?? prev.step1.cdiFileUploadedToAnser,
             aladdinCDIId: savedData.aladdinCDIId ?? prev.step1.aladdinCDIId,
-            privateDeal: savedData.privateDeal ?? prev.step1.privateDeal,
+            isPrivateDeal: savedData.isPrivateDeal ?? prev.step1.isPrivateDeal,
             ssapIdPassword: savedData.ssapIdPassword ?? prev.step1.ssapIdPassword,
-            ssapApproved: savedData.ssapApproved ?? prev.step1.ssapApproved,
+            isSsapReleaseRequestSentToDm: savedData.isSsapReleaseRequestSentToDm ?? prev.step1.isSsapReleaseRequestSentToDm,
+            isSsapReleasedByDm: savedData.isSsapReleasedByDm ?? prev.step1.isSsapReleasedByDm,
             identifierType: savedData.identifierType ?? prev.step1.identifierType,
             identifierValue: savedData.identifierValue ?? prev.step1.identifierValue,
             marketSector: savedData.marketSector ?? prev.step1.marketSector,
@@ -285,6 +297,69 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
   };
 
+  // TODO : bypass stupid type-check problem, snowflake function for button - remove later
+  const handleButtonNext = async () => {
+    const nextStep = getNextStep(currentStep);
+
+    if (!isReadOnly) {
+      markStepComplete(currentStep);
+      clearError();
+
+      // Save with the next step so resuming from ?id= lands on the correct step.
+      const stepToSave = nextStep ?? currentStep;
+      const stepNumberToSave = nextStep ? getCurrentStepNumber() + 1 : getCurrentStepNumber();
+
+      const savedData = await queueWizardSave(stepToSave, stepNumberToSave, getAllWizardData(), 'complete');
+
+      if (savedData) {
+        // Merge server response into wizard state.
+        setWizardData((prev) => ({
+          ...prev,
+          step1: {
+            ...prev.step1,
+            newIssue: savedData.newIssue ?? prev.step1.newIssue,
+            cdiFileUploadedToAnser: savedData.cdiFileUploadedToAnser ?? prev.step1.cdiFileUploadedToAnser,
+            aladdinCDIId: savedData.aladdinCDIId ?? prev.step1.aladdinCDIId,
+            isPrivateDeal: savedData.isPrivateDeal ?? prev.step1.isPrivateDeal,
+            ssapIdPassword: savedData.ssapIdPassword ?? prev.step1.ssapIdPassword,
+            isSsapReleaseRequestSentToDm: savedData.isSsapReleaseRequestSentToDm ?? prev.step1.isSsapReleaseRequestSentToDm,
+            isSsapReleasedByDm: savedData.isSsapReleasedByDm ?? prev.step1.isSsapReleasedByDm,
+            identifierType: savedData.identifierType ?? prev.step1.identifierType,
+            identifierValue: savedData.identifierValue ?? prev.step1.identifierValue,
+            marketSector: savedData.marketSector ?? prev.step1.marketSector,
+            yellowKey: savedData.yellowKey ?? prev.step1.yellowKey,
+            euSecurityVerificationRequired: savedData.euSecurityVerificationRequired ?? prev.step1.euSecurityVerificationRequired,
+            euSecuritizationTipEuId: savedData.euSecuritizationTipEuId ?? prev.step1.euSecuritizationTipEuId,
+          },
+          step2: {
+            securityDetails: savedData.securityDetails ?? prev.step2.securityDetails,
+            esgFields: savedData.esgFields ?? prev.step2.esgFields,
+            tradeFields: savedData.tradeFields ?? prev.step2.tradeFields,
+            notesInstructions: savedData.notesInstructions ?? prev.step2.notesInstructions,
+          },
+        }));
+      }
+    }
+
+    if (nextStep) {
+      if (currentStep === 'review-details') {
+        // Prepare confirm data before moving to confirm-details
+        setWizardData((prev) => ({
+          ...prev,
+          step3: {
+            uploadedFile: 'file.file_extension',
+            ssapIdPassword: prev.step1.ssapIdPassword,
+            ...prev.step2,
+          },
+        }));
+      }
+      setCurrentStep(nextStep);
+      setIsReadOnly(false);
+    } else if (currentStep === 'confirm-details') {
+      // Final step - show confirmation modal
+      setShowConfirmModal(true);
+    }
+  };
 
   const handleBack = () => {
     const prevStep = getPreviousStep(currentStep);
@@ -319,7 +394,14 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     await forceSave();
     setShowConfirmModal(false);
     if (onComplete) {
-      onComplete({ ...wizardData, securitySetupRequestId });
+      const completeData = {
+        ...wizardData,
+        isReviewed: true,
+        reviewedBy: 'TDM Web Api',
+        reviewedDate: new Date().toISOString()
+      }
+
+      onComplete({ ...completeData, securitySetupRequestId });
     }
   };
 
@@ -371,9 +453,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           message: `Aladdin CDI ID: ${wizardData.step1.aladdinCDIId}`,
         });
       }
-      if (wizardData.step1.privateDeal) {
+      if (wizardData.step1.isPrivateDeal) {
         messages.push({
-          message: `Private Deal: ${wizardData.step1.privateDeal === 'yes' ? 'Yes' : 'No'}`,
+          message: `Private Deal: ${wizardData.step1.isPrivateDeal ? 'Yes' : 'No'}`,
         });
       }
       if (wizardData.step1.ssapIdPassword) {
@@ -430,9 +512,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           message: `Identifier: ${wizardData.step1.identifierType || 'FIGI'} ${wizardData.step1.identifierValue}`,
         });
       }
-      if (wizardData.step1.privateDeal) {
+      if (wizardData.step1.isPrivateDeal) {
         messages.push({
-          message: `Private Deal: ${wizardData.step1.privateDeal === 'yes' ? 'Yes' : 'No'}`,
+          message: `Private Deal: ${wizardData.step1.isPrivateDeal}`,
         });
       }
 
@@ -616,7 +698,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           <Button
             variant="contained"
             className="next-button"
-            onClick={handleNext}
+            onClick={handleButtonNext}
             disabled={!canProceed()}
             endIcon={
               currentStep === 'confirm-details' ? (

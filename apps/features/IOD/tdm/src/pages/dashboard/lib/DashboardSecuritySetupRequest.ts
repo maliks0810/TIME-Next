@@ -17,7 +17,7 @@ export interface IDashboardSecuritySetupRequest {
 export interface IDashboardSecuritySetupRequestDetails {
     identifierType: string;
     identifierValue: string;
-    isPrivateDeal: string;
+    isPrivateDeal: boolean;
     ssapIdPassword: string;
     marketSectorType: string;
     yellowKey: string;

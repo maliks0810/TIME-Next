@@ -12,29 +12,29 @@ export const toSelectOptions = (
         return [];
     }
 
-    if(isSelectValueOptions){
+    if (isSelectValueOptions) {
         return values.map((item) => {
-            const description = item.FieldDropdownValue?.trim();
-            const label = description ?? item.FieldDropdownValue;
-            
+            const description = item.fieldDropdownValue?.trim();
+            const label = description ?? item.fieldDropdownValue;
+
             return {
-                value: item.FieldDropdownValue,
+                value: item.fieldDropdownValue,
                 label,
-                description: item.FieldDropdownDescription,
-                id: item.FieldDropdownValueId,
+                description: item.fieldDropdownDescription,
+                id: item.fieldDropdownValueId,
             };
-        });        
+        });
     }
 
     return values.map((item) => {
-        const description = item.FieldDropdownDescription?.trim();
-        const label = description ?? item.FieldDropdownValue;
+        const description = item.fieldDropdownDescription?.trim();
+        const label = description ?? item.fieldDropdownValue;
 
         return {
-            value: item.FieldDropdownValue,
+            value: item.fieldDropdownValue,
             label,
-            description: item.FieldDropdownDescription,
-            id: item.FieldDropdownValueId,
+            description: item.fieldDropdownDescription,
+            id: item.fieldDropdownValueId,
         };
     });
 };
@@ -55,5 +55,5 @@ export const getFieldOptions = (
 
     const selectValueOptions: string[] = ['Market Sector'];
     const isSelectValueOptions: boolean = selectValueOptions.includes(fieldKey);
-    return toSelectOptions(fieldData.FieldDropdownValues,isSelectValueOptions);
+    return toSelectOptions(fieldData.fieldDropdownValues, isSelectValueOptions);
 };

@@ -57,7 +57,7 @@ export const ReferenceDataService = {
         const byKey: ReferenceDataCollection = {};
 
         response.referenceData.forEach((refData) => {
-            byKey[refData.FieldDropdownKey] = refData;
+            byKey[refData.fieldDropdownKey] = refData;
         });
 
         return {
