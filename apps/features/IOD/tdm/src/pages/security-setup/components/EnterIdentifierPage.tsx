@@ -22,7 +22,11 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   const handleTextChange = (field: keyof IEnterIdentifierFormValues) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    onFormChange({ [field]: event.target.value });
+    onFormChange({
+      [field]: event.target.value,
+      isSsapReleaseRequestSentToDm: !!formValues.ssapIdPassword,
+      isPrivateDeal: !!formValues.ssapIdPassword,
+    });
   };
 
   return (

@@ -1,12 +1,12 @@
 export interface IReferenceDataKeyValue {
-    FieldDropdownValueId: number;
-    FieldDropdownValue: string;
-    FieldDropdownDescription?: string;
+    fieldDropdownValueId: number;
+    fieldDropdownValue: string;
+    fieldDropdownDescription?: string;
 }
 
 export interface IReferenceData {
-    FieldDropdownKey: string;
-    FieldDropdownValues: IReferenceDataKeyValue[];
+    fieldDropdownKey: string;
+    fieldDropdownValues: IReferenceDataKeyValue[];
 }
 
 export type ReferenceDataCollection = Record<string, IReferenceData>;

@@ -2,10 +2,12 @@ import React from 'react';
 import { Button } from '@mui/material';
 import { IEnterIdentifierFormValues } from '../lib/types/securitySetupTypes';
 
+export type UserInput = { isSsapReleasedByDm: boolean }
+
 interface SSAPApprovalPageProps {
   formValues: IEnterIdentifierFormValues;
   onFormChange: (values: Partial<IEnterIdentifierFormValues>) => void;
-  onProceedToReview: () => void;
+  onProceedToReview: (userInput?: UserInput) => void;
   isSaving?: boolean;
 }
 
@@ -15,8 +17,8 @@ export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
   isSaving
 }) => {
   const handleRequestRelease = () => {
-    onFormChange({ ssapApproved: true });
-    onProceedToReview();
+    onFormChange({ isSsapReleasedByDm: true });
+    onProceedToReview({ isSsapReleasedByDm: true });
   };
 
   return (

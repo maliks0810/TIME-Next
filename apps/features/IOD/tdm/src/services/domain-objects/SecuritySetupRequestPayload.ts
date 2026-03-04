@@ -151,9 +151,10 @@ export interface ISecuritySetupWizardPayload {
     cdiFileUploadedToAnser?: string | null;
     aladdinCDIId?: string | null;
     uploadedFileReference?: string;
-    privateDeal?: string | null;
+    isPrivateDeal?: boolean | null;
     ssapIdPassword?: string | null;
-    ssapApproved?: boolean;
+    isSsapReleaseRequestSentToDm?: boolean;
+    isSsapReleasedByDm?: boolean;
     approvalTimestamp?: string;
     confirmationAcknowledged?: boolean;
     userAction?: 'continue' | 'skip-to-bloomberg';
@@ -173,6 +174,10 @@ export interface ISecuritySetupWizardPayload {
     notesInstructions?: string;
     uploadedFile?: string;
     isConfirmed?: boolean;
+
+    isReviewed?: boolean;
+    reviewedBy?: string;
+    reviewedDate?: string;
 }
 
 /**

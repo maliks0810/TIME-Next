@@ -33,9 +33,10 @@ export interface IEnterIdentifierFormValues {
     yellowKey?: string; // MTGE text
 
     // Private Deal row
-    privateDeal?: string; // Select... dropdown
+    isPrivateDeal?: boolean; // Select... dropdown
     ssapIdPassword?: string; // Sample_Code text
-    ssapApproved?: boolean; // SAPI Login approval status
+    isSsapReleaseRequestSentToDm?: boolean; // SSAP Request Sent to DM
+    isSsapReleasedByDm?: boolean; // SSAP Released
 
     // New Issue row
     newIssue?: string; // Select... dropdown
@@ -109,6 +110,9 @@ export interface ISecuritySetupWizardData {
     step1: IEnterIdentifierFormValues;
     step2: IReviewDetailsFormValues;
     step3?: IConfirmDetailsData;
+    reviewedDate?: string;
+    isReviewed?: boolean;
+    reviewedBy?: string;
 }
 
 // Success messages for Step 2

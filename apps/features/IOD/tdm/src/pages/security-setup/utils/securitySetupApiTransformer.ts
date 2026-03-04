@@ -45,10 +45,10 @@ export const transformToApiDomain = (
                   ? false
                   : null,
         AladdinCdiId: payload.aladdinCDIId || '',
-        IsPrivateDeal:
-            payload.privateDeal === 'yes' ? true : payload.privateDeal === 'no' ? false : null,
+        IsPrivateDeal: payload.isPrivateDeal || false,
         SsapIdPassword: payload.ssapIdPassword || '',
-        IsSsapReleaseRequestSentToDm: payload.ssapApproved || null,
+        IsSsapReleaseRequestSentToDm: payload.isSsapReleaseRequestSentToDm || false,
+        IsSsapReleasedByDm: payload.isSsapReleasedByDm || false,
         IdentifierTypeValue: payload.identifierType || '',
         IdentifierValue: payload.identifierValue || '',
         MarketSectorTypeValue: payload.marketSector || '',
@@ -84,6 +84,10 @@ export const transformToApiDomain = (
 
         // Notes
         NoteInstructions: payload.notesInstructions || '',
+
+        IsReviewed: payload.isReviewed || null,
+        ReviewedBy: payload.reviewedBy || undefined,
+        ReviewedDate: payload.reviewedDate || null,
 
         // Wizard metadata
         CurrentStepDescription: payload.currentStep,
@@ -126,14 +130,10 @@ export const transformFromApiPresentation = (
                   ? 'no'
                   : null,
         aladdinCDIId: presentation.aladdinCdiId || null,
-        privateDeal:
-            presentation.isPrivateDeal === true
-                ? 'yes'
-                : presentation.isPrivateDeal === false
-                  ? 'no'
-                  : null,
+        isPrivateDeal: presentation.isPrivateDeal,
         ssapIdPassword: presentation.ssapIdPassword || null,
-        ssapApproved: presentation.isSsapReleasedByDm || undefined,
+        isSsapReleaseRequestSentToDm: presentation.isSsapReleaseRequestSentToDm || false,
+        isSsapReleasedByDm: presentation.isSsapReleasedByDm || false,
         identifierType: presentation.identifierTypeValue || null,
         identifierValue: presentation.identifierValue || null,
         marketSector: presentation.marketSectorTypeValue || null,

@@ -27,7 +27,7 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
     securityRequestDetails: {
       identifierType: apiData.identifierType,
       identifierValue: apiData.identifierValue,
-      isPrivateDeal: apiData.isPrivateDeal ? 'Yes' : 'No',
+      isPrivateDeal: apiData.isPrivateDeal,
       ssapIdPassword: apiData.ssapIdPassword,
       marketSectorType: apiData.marketSectorType,
       yellowKey: apiData.yellowKey,

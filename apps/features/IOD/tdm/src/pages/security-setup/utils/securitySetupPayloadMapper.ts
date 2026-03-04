@@ -26,9 +26,10 @@ export const mapEnterIdentifierToPayload = (
         aladdinCDIId: formValues.aladdinCDIId || null,
 
         // Private Deal
-        privateDeal: formValues.privateDeal || null,
+        isPrivateDeal: formValues.isPrivateDeal || false,
         ssapIdPassword: formValues.ssapIdPassword || null,
-        ssapApproved: formValues.ssapApproved,
+        isSsapReleaseRequestSentToDm: formValues.isSsapReleaseRequestSentToDm,
+        isSsapReleasedByDm: formValues.isSsapReleasedByDm,
 
         // Bloomberg Identifier
         identifierType: formValues.identifierType || null,
@@ -111,9 +112,10 @@ export const mapPayloadToFormValues = (
             newIssue: payload.newIssue || undefined,
             cdiFileUploadedToAnser: payload.cdiFileUploadedToAnser || undefined,
             aladdinCDIId: payload.aladdinCDIId || undefined,
-            privateDeal: payload.privateDeal || undefined,
+            isPrivateDeal: payload.isPrivateDeal || undefined,
             ssapIdPassword: payload.ssapIdPassword || undefined,
-            ssapApproved: payload.ssapApproved,
+            isSsapReleaseRequestSentToDm: payload.isSsapReleaseRequestSentToDm,
+            isSsapReleasedByDm: payload.isSsapReleasedByDm,
             identifierType: payload.identifierType || undefined,
             identifierValue: payload.identifierValue || undefined,
             marketSector: payload.marketSector || undefined,

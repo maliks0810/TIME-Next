@@ -46,9 +46,10 @@ const SecuritySetupComponent: React.FC = () => {
         newIssue: data.step1.newIssue,
         cdiFileUploadedToAnser: data.step1.cdiFileUploadedToAnser,
         aladdinCDIId: data.step1.aladdinCDIId,
-        privateDeal: data.step1.privateDeal,
+        isPrivateDeal: data.step1.isPrivateDeal,
         ssapIdPassword: data.step1.ssapIdPassword,
-        ssapApproved: data.step1.ssapApproved,
+        isSsapReleaseRequestSentToDm: data.step1.isSsapReleaseRequestSentToDm,
+        isSsapReleasedByDm: data.step1.isSsapReleasedByDm,
         identifierType: data.step1.identifierType,
         identifierValue: data.step1.identifierValue,
         marketSector: data.step1.marketSector,
@@ -62,7 +63,10 @@ const SecuritySetupComponent: React.FC = () => {
         ...(data.step3 && {
           uploadedFiles: data.step3.uploadedFile,
           isConfirmed: true
-        })
+        }),
+        isReviewed: data.isReviewed,
+        reviewedBy: data.reviewedBy,
+        reviewedDate: data.reviewedDate
       };
 
       await SecuritySetupService.upsertWizardData(payload, data.securitySetupRequestId);
