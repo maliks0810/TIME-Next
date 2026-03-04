@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogActions, Button } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
@@ -13,6 +13,19 @@ export const SubmitConfirmationModal: React.FC<SubmitConfirmationModalProps> = (
   onClose,
   onConfirm,
 }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setIsSubmitting(false);
+    }
+  }, [open]);
+
+  const handleConfirm = () => {
+    setIsSubmitting(true);
+    onConfirm();
+  }
+
   return (
     <Dialog
       open={open}
@@ -33,10 +46,18 @@ export const SubmitConfirmationModal: React.FC<SubmitConfirmationModalProps> = (
         </div>
       </DialogContent>
       <DialogActions className="submit-modal-actions">
-        <Button onClick={onConfirm} variant="contained" className="submit-button">
+        <Button
+          onClick={handleConfirm}
+          variant="contained"
+          className="submit-button"
+          disabled={isSubmitting}
+        >
           Confirm Request
         </Button>
-        <Button onClick={onClose} className="cancel-button">
+        <Button
+          onClick={onClose}
+          className="cancel-button"
+        >
           Cancel
         </Button>
       </DialogActions>
