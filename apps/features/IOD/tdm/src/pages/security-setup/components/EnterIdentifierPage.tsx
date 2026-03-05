@@ -18,6 +18,12 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   isReadOnly = false,
   referenceData
 }) => {
+  const getDefaultNewIssue = (ssapIdPassword?: string) => {
+    return ssapIdPassword?.trim() ? 'yes' : 'no';
+  }
+
+  const effectiveNewIssue = getDefaultNewIssue(formValues.ssapIdPassword);
+
   const isYellowKeyVisable = false;
   const handleTextChange = (field: keyof IEnterIdentifierFormValues) => (
     event: React.ChangeEvent<HTMLInputElement>
@@ -52,7 +58,16 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           <TextField
             fullWidth
             value={formValues.ssapIdPassword || ''}
-            onChange={handleTextChange('ssapIdPassword')}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              const ssapIdPassword = e.target.value;
+              const newIssue = getDefaultNewIssue(ssapIdPassword);
+
+              onFormChange({
+                ssapIdPassword,
+                newIssue,
+                ...(newIssue === 'no' ? { aladdinCDIId: undefined } : {})
+              })
+            }}
             placeholder="Sample_Code"
             variant="outlined"
             disabled={isReadOnly}
@@ -64,7 +79,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           <label className="field-label">New Issue *</label>
           <FormControl fullWidth>
             <RadioGroup
-              value={formValues.newIssue || ''}
+              value={effectiveNewIssue}
               onChange={(e) => {
                 const newIssue = e.target.value;
                 onFormChange({
@@ -97,7 +112,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             onChange={handleTextChange('aladdinCDIId')}
             placeholder="BDL123456"
             variant="outlined"
-            disabled={isReadOnly || formValues.newIssue?.toLocaleLowerCase() === 'no'}
+            disabled={isReadOnly || effectiveNewIssue.toLowerCase() === 'no'}
           />
         </div>
 

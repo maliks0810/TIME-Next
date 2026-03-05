@@ -7,6 +7,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CheckIcon from '@mui/icons-material/Check';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SaveIcon from '@mui/icons-material/Save';
+import { useUserInfo } from '@platform/utils';
 import { HorizontalStepper } from './HorizontalStepper';
 import { EnterIdentifierPage } from './EnterIdentifierPage';
 import { SSAPApprovalPage, UserInput } from './SSAPApprovalPage';
@@ -46,6 +47,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const [isReadOnly, setIsReadOnly] = useState(false);
 
   const { data: referenceData, loading: loadingReferenceData, error: referenceDataError } = useReferenceData();
+
+  const { name: currentUser } = useUserInfo();
 
   const [wizardData, setWizardData] = useState<ISecuritySetupWizardData>({
     step1: {},
@@ -397,7 +400,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       const completeData = {
         ...wizardData,
         isReviewed: true,
-        reviewedBy: 'TDM Web Api',
+        reviewedBy: currentUser,
         reviewedDate: new Date().toISOString()
       }
 
