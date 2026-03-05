@@ -91,7 +91,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             </Grid>
             <Grid container flexDirection={'column'} spacing={1}>
               <Grid>
-                <Button className='tcw-button' variant='contained' sx={{ width: '100%' }} onClick={handleReviewRequestClick}>Review Request in SRT</Button>
+                <Button className='tcw-button' variant='contained' sx={{ width: '100%' }} onClick={handleReviewRequestClick}>Review Request</Button>
               </Grid>
             </Grid>
           </Grid>
