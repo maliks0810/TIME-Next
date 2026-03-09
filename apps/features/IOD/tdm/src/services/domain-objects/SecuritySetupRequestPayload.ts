@@ -121,9 +121,9 @@ export interface ISecuritySetupRequestDomain {
     CurrentStepNumber?: number | null;
     SaveType?: string;
     IsActive?: boolean;
-    CreatedBy?: string;
-    CreatedDate?: string; // ISO 8601 DateTimeOffset
-    UpdatedBy?: string;
+    CreatedBy?: string | null;
+    CreatedDate?: string | null; // ISO 8601 DateTimeOffset
+    UpdatedBy?: string | null;
     UpdatedDate?: string | null; // ISO 8601 DateTimeOffset
 }
 
@@ -175,9 +175,13 @@ export interface ISecuritySetupWizardPayload {
     uploadedFile?: string;
     isConfirmed?: boolean;
 
-    isReviewed?: boolean;
-    reviewedBy?: string;
-    reviewedDate?: string;
+    isReviewed?: boolean | null;
+    reviewedBy?: string | null;
+    reviewedDate?: string | null;
+    createdBy?: string | null;
+    createdDate?: string | null;
+    updatedBy?: string | null;
+    updatedDate?: string | null;
 }
 
 /**

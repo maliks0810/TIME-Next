@@ -7,6 +7,7 @@
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useUserInfo } from '@platform/utils';
 import { SecuritySetupService } from '../../../services/SecuritySetupService';
 import {
     ISecuritySetupWizardPayload,
@@ -54,6 +55,8 @@ export const useSecuritySetupSave = (
         initialSecuritySetupRequestId ?? null
     );
     const securitySetupRequestIdRef = useRef<number | null>(initialSecuritySetupRequestId ?? null);
+
+    const { name: currentUser } = useUserInfo();
 
     // Refs for managing async operations
     const pendingPayloadRef = useRef<ISecuritySetupWizardPayload | null>(null);
@@ -153,11 +156,14 @@ export const useSecuritySetupSave = (
             accumulatedData: Record<string, unknown>,
             saveType: 'partial' | 'complete' = 'partial'
         ): Promise<Partial<ISecuritySetupWizardPayload> | null> => {
+            const currentDate = new Date().toISOString();
             const payload = {
                 currentStep: step,
                 currentStepNumber: stepNumber,
-                savedAt: new Date().toISOString(),
+                savedAt: currentDate,
                 saveType,
+                updatedBy: currentUser,
+                updatedDate: currentDate,
                 ...accumulatedData, // Spread all accumulated wizard data
             } as ISecuritySetupWizardPayload;
 

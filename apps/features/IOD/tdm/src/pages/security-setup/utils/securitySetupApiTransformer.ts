@@ -88,6 +88,10 @@ export const transformToApiDomain = (
         IsReviewed: payload.isReviewed || null,
         ReviewedBy: payload.reviewedBy || undefined,
         ReviewedDate: payload.reviewedDate || null,
+        CreatedBy: payload.createdBy || undefined,
+        CreatedDate: payload.createdDate || undefined,
+        UpdatedBy: payload.updatedBy || undefined,
+        UpdatedDate: payload.updatedDate || undefined,
 
         // Wizard metadata
         CurrentStepDescription: payload.currentStep,
@@ -177,5 +181,16 @@ export const transformFromApiPresentation = (
 
         // Notes
         notesInstructions: presentation.noteInstructions || undefined,
+
+        // Review metadata
+        isReviewed: presentation.isReviewed || undefined,
+        reviewedBy: presentation.reviewedBy || undefined,
+        reviewedDate: presentation.reviewedDate || undefined,
+
+        // Audit metadata
+        createdBy: presentation.createdBy || undefined,
+        createdDate: presentation.createdDate || undefined,
+        updatedBy: presentation.updatedBy || undefined,
+        updatedDate: presentation.updatedDate || undefined,
     };
 };
