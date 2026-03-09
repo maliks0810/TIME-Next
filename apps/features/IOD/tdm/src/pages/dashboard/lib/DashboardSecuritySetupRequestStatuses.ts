@@ -21,28 +21,12 @@ export const SetupStatuses: IStatusProperties[] = [
       className: 'status-yellow'
     },
     {
-      name: 'Request Completed',
+      name: 'Request Submitted',
+      className: 'status-orange'
+    },
+    {
+      name: 'Security Review Complete',
       className: 'status-darkorange'
-    },
-    {
-      name: 'Security Risk Analytics Requested',
-      className: 'status-red'
-    },
-    {
-      name: 'Security Risk Analytics In Progress',
-      className: 'status-purple'
-    },
-    {
-      name: 'Security Risk Analytics Complete',
-      className: 'status-lightblue'
-    },
-    {
-      name: 'Security Review',
-      className: 'status-orange'
-    },
-    {
-      name: 'Security CDF Review',
-      className: 'status-orange'
     },
     {
       name: 'Security Setup Complete',
