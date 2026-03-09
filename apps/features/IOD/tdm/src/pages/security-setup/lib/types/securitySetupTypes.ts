@@ -113,6 +113,10 @@ export interface ISecuritySetupWizardData {
     reviewedDate?: string;
     isReviewed?: boolean;
     reviewedBy?: string;
+    updatedBy?: string;
+    updatedDate?: string;
+    createdBy?: string;
+    createdDate?: string;
 }
 
 // Success messages for Step 2

@@ -57,6 +57,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       esgFields: {},
       tradeFields: {},
     },
+    updatedBy: currentUser
   });
 
   useEffect(() => {
@@ -83,6 +84,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           tradeFields: initialData.tradeFields ?? {},
           notesInstructions: initialData.notesInstructions ?? undefined,
         },
+        updatedBy: currentUser
       });
 
       if (initialData.currentStep) {
@@ -164,6 +166,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     };
   }, [wizardData]);
 
+  const getAuditFields = useCallback(() => {
+    if (securitySetupRequestId == null) {
+      return { createdBy: currentUser, createdDate: new Date().toISOString() };
+    }
+    return { updatedBy: currentUser, updatedDate: new Date().toISOString() };
+  }, [securitySetupRequestId, currentUser]);
+
   // No form handlers needed since components manage their own state directly
 
   const markStepComplete = (step: WizardStep) => {
@@ -244,6 +253,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       if (userInput) {
         allData = {
           ...allData,
+          ...getAuditFields(),
           isSsapReleasedByDm: userInput.isSsapReleasedByDm || false
         }
       }
@@ -312,7 +322,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       const stepToSave = nextStep ?? currentStep;
       const stepNumberToSave = nextStep ? getCurrentStepNumber() + 1 : getCurrentStepNumber();
 
-      const savedData = await queueWizardSave(stepToSave, stepNumberToSave, getAllWizardData(), 'complete');
+      const savedData = await queueWizardSave(stepToSave, stepNumberToSave, { ...getAllWizardData(), ...getAuditFields() }, 'complete');
 
       if (savedData) {
         // Merge server response into wizard state.
@@ -382,7 +392,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     queueWizardSave(
       currentStep,
       getCurrentStepNumber(),
-      getAllWizardData(),
+      { ...getAllWizardData(), ...getAuditFields() },
       'partial'
     );
   };
@@ -399,6 +409,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     if (onComplete) {
       const completeData = {
         ...wizardData,
+        ...getAuditFields(),
         isReviewed: true,
         reviewedBy: currentUser,
         reviewedDate: new Date().toISOString()

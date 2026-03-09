@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useUserInfo } from '@platform/utils';
 import { SecuritySetupContainer } from './components/SecuritySetupContainer';
 import { ISecuritySetupWizardData } from './lib/types/securitySetupTypes';
 import './lib/styles.scss';
@@ -12,6 +13,8 @@ const SecuritySetupComponent: React.FC = () => {
   const [initialData, setInitialData] = useState<Partial<ISecuritySetupWizardPayload> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const { name: currentUser } = useUserInfo();
 
   const securitySetupId = searchParams.get('id');
   useEffect(() => {
@@ -66,7 +69,9 @@ const SecuritySetupComponent: React.FC = () => {
         }),
         isReviewed: data.isReviewed,
         reviewedBy: data.reviewedBy,
-        reviewedDate: data.reviewedDate
+        reviewedDate: data.reviewedDate,
+        updatedBy: currentUser,
+        updatedDate: new Date().toISOString()
       };
 
       await SecuritySetupService.upsertWizardData(payload, data.securitySetupRequestId);
