@@ -29,6 +29,7 @@ const Dashboard: React.FC = () => {
   const [securityRequestsData, setSecurityRequestsData] = useState<IDashboardSecuritySetupRequest[]>();
   const [pollingInterval, setPollingInterval] = useState<number | null>(DASHBOARD_POLLING_INTERVAL)
   const [lastRefreshed, setLastRefreshed] = useState<string>("");
+  const [isPolling, setIsPolling] = useState<boolean>(false);
   const isPageVisible = useVisibilityChange();
   const navigate = useNavigate();
 
@@ -44,7 +45,9 @@ const Dashboard: React.FC = () => {
 
   // poll data in intervals
   useInterval(() => {
-    loadData(searchParameters);
+    if (!isPolling){
+      loadData(searchParameters);
+    }
   }, pollingInterval);
 
   useEffect(() => {
@@ -53,6 +56,7 @@ const Dashboard: React.FC = () => {
 
   const loadData = useCallback(async (parameters: IDashboardSearchParameters) => {   
     try {
+      setIsPolling(true);
       const data = await getSecurityRequestsDashboard(parameters);
       setSecurityRequestsData(data);
       const currentTime = getCurrentLocalTime();
@@ -61,7 +65,10 @@ const Dashboard: React.FC = () => {
     catch {
 
     }
-  },[searchParameters, setSecurityRequestsData, setLastRefreshed]);
+    finally {
+      setIsPolling(false);
+    }
+  },[searchParameters, setSecurityRequestsData, setLastRefreshed, setIsPolling]);
 
   const handleNewSecurityRequestOnClick = () => {
     navigate('/iod/tdm/security-setup');
