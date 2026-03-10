@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormControl, FormControlLabel, Radio, RadioGroup, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import { IConfirmDetailsData, SecuritySetupFlowType } from '../lib/types/securitySetupTypes';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { SelectFormField } from '../../../common/components/SelectFormField';
@@ -84,33 +84,24 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             />
           </div>
           <div className="form-field">
-            <label className="field-label">Sector</label>
-            <TextField
-              fullWidth
-              value={data.securityDetails?.sector || 'Non-QM'}
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.Sector}
+              value={data.securityDetails?.sectorValue}
+              onChange={() => { }}
+              referenceData={referenceData}
+              label="Sector"
               disabled
-              variant="outlined"
             />
           </div>
           <div className="form-field">
-            <label className="field-label">Callable</label>
-            <FormControl fullWidth>
-              <RadioGroup
-                value={data.securityDetails?.isCallable === true ? 'yes' : 'no'}
-                row
-              >
-                <FormControlLabel
-                  value="yes"
-                  control={<Radio disabled />}
-                  label="Yes"
-                />
-                <FormControlLabel
-                  value="no"
-                  control={<Radio disabled />}
-                  label="No"
-                />
-              </RadioGroup>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.Callable}
+              value={data.securityDetails?.callableValue}
+              onChange={() => { }}
+              referenceData={referenceData}
+              label="Callable"
+              disabled
+            />
           </div>
           <div className="form-field">
             <label className="field-label">Call Date</label>

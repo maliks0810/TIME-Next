@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormControl, FormControlLabel, Radio, RadioGroup, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import { SecuritySetupFlowType, IReviewDetailsFormValues } from '../lib/types/securitySetupTypes';
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { SelectFormField } from '../../../common/components/SelectFormField';
@@ -102,37 +102,22 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             />
           </div>
           <div className="form-field">
-            <label className="field-label">Sector</label>
-            <TextField
-              fullWidth
-              value={formValues.securityDetails?.sector || ''}
-              onChange={(e) => handleSecurityDetailsChange('sector', e.target.value)}
-              variant="outlined"
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.Sector}
+              value={formValues.securityDetails?.sectorValue}
+              onChange={(value) => handleSecurityDetailsChange('sectorValue', value)}
+              referenceData={referenceData}
+              label="Sector"
             />
           </div>
           <div className="form-field">
-            <label className="field-label">Callable</label>
-            <FormControl fullWidth>
-              <RadioGroup
-                value={formValues.securityDetails?.isCallable === true ? 'yes' : 'no'}
-                onChange={(e) => {
-                  const boolValue: boolean = e.target.value === 'yes'
-                  handleSecurityDetailsChange('isCallable', boolValue)
-                }}
-                row
-              >
-                <FormControlLabel
-                  value="yes"
-                  control={<Radio />}
-                  label="Yes"
-                />
-                <FormControlLabel
-                  value="no"
-                  control={<Radio />}
-                  label="No"
-                />
-              </RadioGroup>
-            </FormControl>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.Callable}
+              value={formValues.securityDetails?.callableValue}
+              onChange={(value) => handleSecurityDetailsChange('callableValue', value)}
+              referenceData={referenceData}
+              label="Callable"
+            />
           </div>
           <div className="form-field">
             <label className="field-label">Call Date</label>

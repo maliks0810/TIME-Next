@@ -54,11 +54,11 @@ export interface ISecurityDetails {
     identifier?: string;
     description?: string;
     tranche?: string;
-    sector?: string;
+    sectorValue?: string;
     callDate?: string; // ISO 8601 date string
     price?: string; // Display as string, sent as number to API
     cusip?: string;
-    isCallable?: boolean | null;
+    callableValue?: string;
     isEuSecuritizationRequired?: boolean | null;
     euSecuritizationTipEuId?: string;
 }
