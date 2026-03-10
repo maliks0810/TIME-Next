@@ -48,4 +48,8 @@ export enum ReferenceDataFieldKey {
     Tranche = 'TRANCHE',
     SMSLoanCategory = 'SMSLoanCategory',
     Collateral = 'COLLATERAL',
+
+    // Review Details - Security Details fields
+    Callable = 'Callable',
+    Sector = 'Sector',
 }

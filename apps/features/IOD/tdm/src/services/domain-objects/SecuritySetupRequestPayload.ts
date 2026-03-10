@@ -33,11 +33,11 @@ export interface ISecuritySetupRequestPresentation {
     isEuSecuritizationRequired: boolean | null;
     euSecuritizationTipEuId: string | null;
     description: string | null;
-    sector: string | null;
+    sectorValue: string | null;
     callDate: string | null; // ISO 8601 DateTimeOffset
     tranche: string | null;
     price: number | null; // decimal in C#
-    isCallable: boolean | null;
+    callableValue: string | null;
     tcwEsgValue: string | null;
     tcwEsgTypeValue: string | null;
     esgCollateralType: string | null;
@@ -90,11 +90,11 @@ export interface ISecuritySetupRequestDomain {
     IsEuSecuritizationRequired?: boolean | null;
     EuSecuritizationTipEuId?: string;
     Description?: string;
-    Sector?: string;
+    SectorValue?: string;
     CallDate?: string | null; // ISO 8601 DateTimeOffset
     Tranche?: string;
     Price?: number | null; // decimal in C#
-    IsCallable?: boolean | null;
+    CallableValue?: string | null;
     TcwEsgValue?: string;
     TcwEsgTypeValue?: string;
     EsgCollateralType?: string;

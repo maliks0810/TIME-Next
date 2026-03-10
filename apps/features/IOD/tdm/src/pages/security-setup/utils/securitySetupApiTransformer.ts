@@ -58,11 +58,11 @@ export const transformToApiDomain = (
 
         // Security Details
         Description: payload.securityDetails?.description || '',
-        Sector: payload.securityDetails?.sector || '',
+        SectorValue: payload.securityDetails?.sectorValue || '',
         CallDate: payload.securityDetails?.callDate || null,
         Tranche: payload.securityDetails?.tranche || '',
         Price: parsePrice(payload.securityDetails?.price),
-        IsCallable: payload.securityDetails?.isCallable ?? false,
+        CallableValue: payload.securityDetails?.callableValue || null,
         Cusip: payload.securityDetails?.cusip || '',
 
         // ESG Fields (dropdown values)
@@ -150,10 +150,10 @@ export const transformFromApiPresentation = (
             aladdinCDIId: presentation.aladdinCdiId || undefined,
             description: presentation.description || undefined,
             tranche: presentation.tranche || undefined,
-            sector: presentation.sector || undefined,
+            sectorValue: presentation.sectorValue || undefined,
             callDate: presentation.callDate || undefined,
             price: presentation.price?.toString() || undefined,
-            isCallable: presentation.isCallable ?? undefined,
+            callableValue: presentation.callableValue || undefined,
             cusip: presentation.cusip || undefined,
             identifier: presentation.identifierValue || undefined,
         },
