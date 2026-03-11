@@ -48,8 +48,20 @@ export const RiskAnalyticsStatuses: IStatusProperties[] = [
       className: 'status-blue'
     },
     {
-      name: 'Analytics Verified In Aladdin',
+      name: 'Analytics In Progress',
+      className: 'status-orange'
+    },
+    {
+      name: 'Analytics In Progress (Manual)',
+      className: 'status-darkorange'
+    },
+    {
+      name: 'Analytics Complete',
       className: 'status-green'
+    },
+    {
+      name: 'Analytics Error',
+      className: 'status-red'
     },
 ];
 
