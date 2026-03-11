@@ -2,6 +2,7 @@ import {
     ISecurityDetails,
     IESGFields,
     ITradeFields,
+    ISpeedOverrides,
 } from '../../pages/security-setup/lib/types/securitySetupTypes';
 
 export type WizardStep =
@@ -41,6 +42,12 @@ export interface ISecuritySetupRequestPresentation {
     tranche: string | null;
     price: number | null; // decimal in C#
     callableValue: string | null;
+    prepaymentTypeValue: string | null;
+    defaultTypeValue: string | null;
+    prepaymentSpeed: number | null;
+    defaultSpeed: number | null;
+    severity: number | null;
+    delinquency: number | null;
     tcwEsgValue: string | null;
     tcwEsgTypeValue: string | null;
     esgCollateralType: string | null;
@@ -101,6 +108,12 @@ export interface ISecuritySetupRequestDomain {
     Tranche?: string;
     Price?: number | null; // decimal in C#
     CallableValue?: string | null;
+    PrepaymentTypeValue: string | null;
+    DefaultTypeValue: string | null;
+    PrepaymentSpeed: number | null;
+    DefaultSpeed: number | null;
+    Severity: number | null;
+    Delinquency: number | null;
     TcwEsgValue?: string;
     TcwEsgTypeValue?: string;
     EsgCollateralType?: string;
@@ -180,6 +193,7 @@ export interface ISecuritySetupWizardPayload {
     securityDetails?: ISecurityDetails;
     esgFields?: IESGFields;
     tradeFields?: ITradeFields;
+    speedOverrides?: ISpeedOverrides;
     notesInstructions?: string;
     uploadedFile?: string;
     isConfirmed?: boolean;

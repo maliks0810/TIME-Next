@@ -52,4 +52,8 @@ export enum ReferenceDataFieldKey {
     // Review Details - Security Details fields
     Callable = 'Callable',
     Sector = 'Sector',
+
+    // Review Details - Speed Overrides fields
+    PrepaymentType = 'Prepayment Type',
+    DefaultType = 'Default Type',
 }

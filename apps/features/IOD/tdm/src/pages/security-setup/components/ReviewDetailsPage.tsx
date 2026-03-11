@@ -52,6 +52,38 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
     });
   };
 
+
+  const handleSpeedOverridesChange = (field: string, value: string | number | null) => {
+    const updated = {
+      ...formValues.speedOverrides,
+      [field]: value,
+    };
+
+    onFormChange({
+      speedOverrides: updated
+    });
+  };
+
+  const toNumericValue = (userInput: string): number | null => {
+    if (userInput === '') return null;
+    const num = parseFloat(userInput);
+    return isNaN(num) ? null : num;
+  }
+
+  // programmatically clamp field within [min, max]
+  const clampField = (field: string, min: number, max: number) => {
+    const current = (formValues.speedOverrides as Record<string, unknown>)?.[field];
+
+    if (typeof current !== 'number' || isNaN(current)) {
+      return;
+    }
+
+    const clamped = Math.min(max, Math.max(min, current));
+    if (clamped !== current) {
+      handleSpeedOverridesChange(field, clamped);
+    }
+  }
+
   const handleNotesChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     onFormChange({
       notesInstructions: event.target.value,
@@ -283,8 +315,88 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
         </div>
       </div>
 
-      {/* Notes / Instructions Section */}
+      {/* Speed Overrides Section */}
       <div className="form-section">
+        <h3 className="section-title">Speed Overrides</h3>
+
+        <div className="form-row two-column">
+          <div className="form-field">
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.PrepaymentType}
+              value={formValues.speedOverrides?.prepaymentTypeValue ?? undefined}
+              onChange={(value) => handleSpeedOverridesChange('prepaymentTypeValue', value)}
+              referenceData={referenceData}
+              label="Prepayment Type"
+            />
+          </div>
+          <div className="form-field">
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.DefaultType}
+              value={formValues.speedOverrides?.defaultTypeValue ?? undefined}
+              onChange={(value) => handleSpeedOverridesChange('defaultTypeValue', value)}
+              referenceData={referenceData}
+              label="Default Type"
+            />
+          </div>
+        </div>
+
+        <div className="form-row two-column">
+          <div className="form-field">
+            <label className="field-label">Prepayment Speed</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={formValues.speedOverrides?.prepaymentSpeed ?? ''}
+              onChange={(e) => handleSpeedOverridesChange('prepaymentSpeed', toNumericValue(e.target.value))}
+              variant="outlined"
+              {...({ slotProps: { htmlInput: { inputMode: 'decimal' } } })}
+            />
+          </div>
+          <div className="form-field">
+            <label className="field-label">Default Speed</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={formValues.speedOverrides?.defaultSpeed ?? ''}
+              onChange={(e) => handleSpeedOverridesChange('defaultSpeed', toNumericValue(e.target.value))}
+              variant="outlined"
+              {...({ slotProps: { htmlInput: { inputMode: 'decimal' } } })}
+            />
+          </div>
+        </div>
+
+        <div className="form-row two-column">
+          <div className="form-field">
+            <label className="field-label">Severity (0-100)</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={formValues.speedOverrides?.severity ?? ''}
+              onChange={(e) => handleSpeedOverridesChange('severity', toNumericValue(e.target.value))}
+              onBlur={() => clampField('severity', 0, 100)}
+              variant="outlined"
+              // TODO: investigate why min/max attributes are not enforced
+              {...({ slotProps: { htmlInput: { min: 0, max: 100, inputMode: 'decimal' } } })}
+            />
+          </div>
+          <div className="form-field">
+            <label className="field-label">Delinquency (0-100)</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={formValues.speedOverrides?.delinquency ?? ''}
+              onChange={(e) => handleSpeedOverridesChange('delinquency', toNumericValue(e.target.value))}
+              onBlur={() => clampField('delinquency', 0, 100)}
+              variant="outlined"
+              // TODO: investigate why min/max attributes are not enforced
+              {...({ slotProps: { htmlInput: { min: 0, max: 100, inputMode: 'decimal' } } })}
+            />
+          </div>
+        </div>
+      </div >
+
+      {/* Notes / Instructions Section */}
+      <div className="form-section" >
         <h3 className="section-title">Notes / Instructions</h3>
         <TextField
           fullWidth
@@ -296,6 +408,6 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           placeholder=""
         />
       </div>
-    </div>
+    </div >
   );
 };

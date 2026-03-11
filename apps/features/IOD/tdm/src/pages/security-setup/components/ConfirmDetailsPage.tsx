@@ -51,7 +51,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Aladdin CDI ID</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.aladdinCDIId || 'BDL123456'}
+              value={data.securityDetails?.aladdinCDIId || ''}
               disabled
               variant="outlined"
             />
@@ -60,7 +60,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Identifier</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.identifier || '61779KAA4'}
+              value={data.securityDetails?.identifier || ''}
               disabled
               variant="outlined"
             />
@@ -69,7 +69,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Description</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.description || 'MSBM 2025-NQM7 A1'}
+              value={data.securityDetails?.description || ''}
               disabled
               variant="outlined"
             />
@@ -78,7 +78,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Tranche</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.tranche || 'A'}
+              value={data.securityDetails?.tranche || ''}
               disabled
               variant="outlined"
             />
@@ -107,7 +107,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Call Date</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.callDate || '9/25/2029'}
+              value={data.securityDetails?.callDate || ''}
               disabled
               variant="outlined"
             />
@@ -116,7 +116,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Price</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.price || '99.30'}
+              value={data.securityDetails?.price || ''}
               disabled
               variant="outlined"
             />
@@ -264,6 +264,81 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           </div>
         </div>
       </div>
+
+      {/* Speed Overrides Section */}
+      <div className="form-section">
+        <h3 className="section-title">Speed Overrides</h3>
+        <div className="form-row two-column">
+          <div className="form-field">
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.PrepaymentType}
+              value={data.speedOverrides?.prepaymentTypeValue}
+              onChange={() => { }}
+              referenceData={referenceData}
+              label="Prepayment Type"
+              disabled
+            />
+          </div>
+          <div className="form-field">
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.DefaultType}
+              value={data.speedOverrides?.defaultTypeValue}
+              onChange={() => { }}
+              referenceData={referenceData}
+              label="Default Type"
+              disabled
+            />
+          </div>
+        </div>
+        <div className="form-row two-column">
+          <div className="form-field">
+            <label className="field-label">Prepayment Speed</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={data.speedOverrides?.prepaymentSpeed}
+              onChange={() => { }}
+              variant="outlined"
+              disabled
+            />
+          </div>
+          <div className="form-field">
+            <label className="field-label">Default Speed</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={data.speedOverrides?.defaultSpeed}
+              onChange={() => { }}
+              variant="outlined"
+              disabled
+            />
+          </div>
+        </div>
+        <div className="form-row two-column">
+          <div className="form-field">
+            <label className="field-label">Severity (0-100)</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={data.speedOverrides?.severity}
+              onChange={() => { }}
+              variant="outlined"
+              disabled
+            />
+          </div>
+          <div className="form-field">
+            <label className="field-label">Delinquency (0-100)</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={data.speedOverrides?.delinquency}
+              onChange={() => { }}
+              variant="outlined"
+              disabled
+            />
+          </div>
+        </div>
+      </div >
 
       {/* Notes / Instructions Section */}
       <div className="form-section">
