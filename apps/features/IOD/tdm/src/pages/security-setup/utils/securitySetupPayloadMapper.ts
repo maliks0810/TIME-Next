@@ -38,8 +38,13 @@ export const mapEnterIdentifierToPayload = (
         yellowKey: formValues.yellowKey || null,
 
         // EU Security Verification
-        euSecurityVerificationRequired: formValues.euSecurityVerificationRequired || null,
+        isEuSecuritizationRequired: formValues.isEuSecuritizationRequired || null,
         euSecuritizationTipEuId: formValues.euSecuritizationTipEuId || null,
+
+        // Deal Name
+        intexDealName: formValues.intexDealName || null,
+        intexPassword: formValues.intexPassword || null,
+        dealName: formValues.dealName || null,
     };
 };
 
@@ -120,8 +125,11 @@ export const mapPayloadToFormValues = (
             identifierValue: payload.identifierValue || undefined,
             marketSector: payload.marketSector || undefined,
             yellowKey: payload.yellowKey || undefined,
-            euSecurityVerificationRequired: payload.euSecurityVerificationRequired || undefined,
+            isEuSecuritizationRequired: payload.isEuSecuritizationRequired || undefined,
             euSecuritizationTipEuId: payload.euSecuritizationTipEuId || undefined,
+            intexDealName: payload.intexDealName || undefined,
+            intexPassword: payload.intexPassword || undefined,
+            dealName: payload.dealName || undefined,
         },
         reviewDetailsValues: {
             securityDetails: payload.securityDetails,

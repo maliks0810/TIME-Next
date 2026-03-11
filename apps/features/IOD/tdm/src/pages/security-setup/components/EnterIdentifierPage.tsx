@@ -52,6 +52,40 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           </div>
         </div>
 
+        <div className="form-row two-column">
+          <div>
+            <label className="field-label">Intex Deal Name</label>
+            <TextField
+              value={formValues.intexDealName || ''}
+              onChange={handleTextChange('intexDealName')}
+              variant="outlined"
+              disabled={isReadOnly}
+            />
+          </div>
+          <div>
+            <label className="field-label">Intex Password</label>
+            <TextField
+              value={formValues.intexPassword || ''}
+              onChange={handleTextChange('intexPassword')}
+              variant="outlined"
+              disabled={isReadOnly}
+            />
+          </div>
+        </div>
+
+        {/* Deal Name */}
+        <div className="form-row single-column">
+          <div>
+            <label className="field-label">Deal Name</label>
+            <TextField
+              value={formValues.dealName || ''}
+              onChange={handleTextChange('dealName')}
+              variant="outlined"
+              disabled={isReadOnly}
+            />
+          </div>
+        </div>
+
         {/* Private Deal SSAP ID/Password */}
         <div className="form-row-group">
           <label className="field-label">Private Deal SSAP ID/Password</label>
@@ -172,23 +206,23 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           <label className="field-label">EU Security Verification Required *</label>
           <FormControl fullWidth>
             <RadioGroup
-              value={formValues.euSecurityVerificationRequired || ''}
+              value={String(formValues.isEuSecuritizationRequired) || ''}
               onChange={(e) => {
-                const euSecurityVerificationRequired = e.target.value;
+                const value = e.target.value === "true" ? true : false;
                 onFormChange({
-                  euSecurityVerificationRequired,
-                  ...(euSecurityVerificationRequired === 'no' ? { euSecuritizationTipEuId: undefined } : {})
+                  isEuSecuritizationRequired: value,
+                  ...(value === false ? { euSecuritizationTipEuId: undefined } : {})
                 })
               }}
               row
             >
               <FormControlLabel
-                value="yes"
+                value="true"
                 control={<Radio disabled={isReadOnly} />}
                 label="Yes"
               />
               <FormControlLabel
-                value="no"
+                value="false"
                 control={<Radio disabled={isReadOnly} />}
                 label="No"
               />
@@ -204,7 +238,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             onChange={handleTextChange('euSecuritizationTipEuId')}
             placeholder="Sample_TIP_ID"
             variant="outlined"
-            disabled={isReadOnly || formValues.euSecurityVerificationRequired?.toLocaleLowerCase() === 'no'}
+            disabled={isReadOnly || formValues.isEuSecuritizationRequired === false}
           />
         </div>
 

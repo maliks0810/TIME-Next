@@ -75,8 +75,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           identifierValue: initialData.identifierValue ?? undefined,
           marketSector: initialData.marketSector ?? undefined,
           yellowKey: initialData.yellowKey ?? undefined,
-          euSecurityVerificationRequired: initialData.euSecurityVerificationRequired ?? undefined,
+          isEuSecuritizationRequired: initialData.isEuSecuritizationRequired ?? undefined,
           euSecuritizationTipEuId: initialData.euSecuritizationTipEuId ?? undefined,
+          intexDealName: initialData.intexDealName ?? undefined,
+          intexPassword: initialData.intexPassword ?? undefined,
+          dealName: initialData.dealName ?? undefined,
         },
         step2: {
           securityDetails: initialData.securityDetails ?? {},
@@ -277,8 +280,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             identifierValue: savedData.identifierValue ?? prev.step1.identifierValue,
             marketSector: savedData.marketSector ?? prev.step1.marketSector,
             yellowKey: savedData.yellowKey ?? prev.step1.yellowKey,
-            euSecurityVerificationRequired: savedData.euSecurityVerificationRequired ?? prev.step1.euSecurityVerificationRequired,
+            isEuSecuritizationRequired: savedData.isEuSecuritizationRequired ?? prev.step1.isEuSecuritizationRequired,
             euSecuritizationTipEuId: savedData.euSecuritizationTipEuId ?? prev.step1.euSecuritizationTipEuId,
+            intexDealName: savedData.intexDealName ?? prev.step1.intexDealName,
+            intexPassword: savedData.intexPassword ?? prev.step1.intexPassword,
+            dealName: savedData.dealName ?? prev.step1.dealName,
           },
           step2: {
             securityDetails: savedData.securityDetails ?? prev.step2.securityDetails,
@@ -341,8 +347,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             identifierValue: savedData.identifierValue ?? prev.step1.identifierValue,
             marketSector: savedData.marketSector ?? prev.step1.marketSector,
             yellowKey: savedData.yellowKey ?? prev.step1.yellowKey,
-            euSecurityVerificationRequired: savedData.euSecurityVerificationRequired ?? prev.step1.euSecurityVerificationRequired,
+            isEuSecuritizationRequired: savedData.isEuSecuritizationRequired ?? prev.step1.isEuSecuritizationRequired,
             euSecuritizationTipEuId: savedData.euSecuritizationTipEuId ?? prev.step1.euSecuritizationTipEuId,
+            intexDealName: savedData.intexDealName ?? prev.step1.intexDealName,
+            intexPassword: savedData.intexPassword ?? prev.step1.intexPassword,
+            dealName: savedData.dealName ?? prev.step1.dealName,
           },
           step2: {
             securityDetails: savedData.securityDetails ?? prev.step2.securityDetails,
@@ -492,9 +501,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       //          message: `Yellow Key: ${wizardData.step1.yellowKey}`,
       //        });
       //      }
-      if (wizardData.step1.euSecurityVerificationRequired) {
+      if (wizardData.step1.isEuSecuritizationRequired) {
         messages.push({
-          message: `EU Security Verification Required: ${wizardData.step1.euSecurityVerificationRequired === 'yes' ? 'Yes' : 'No'}`,
+          message: `EU Security Verification Required: ${wizardData.step1.isEuSecuritizationRequired === true ? 'Yes' : 'No'}`,
         });
       }
       if (wizardData.step1.euSecuritizationTipEuId) {
