@@ -74,15 +74,6 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
     return <></>;
   }
 
-  const cellRenderProcessTime = (data: DataGridTypes.ColumnCellTemplateData) => {
-    if (data.value) {
-      const processTime = data.value.toString() + ' min';
-      return <>{processTime}</>
-    }
-
-    return <></>;
-  }
-
   const onRowClick = useCallback((e: DataGridTypes.RowClickEvent) => {
     setSelectedSecurityRequest(e.data);
     setIsRequestDetailsOpen(true);
@@ -159,13 +150,6 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           alignment='center'
           width={'10%'}
           cellRender={cellRenderReadyForTrading}
-        />
-        <Column
-          dataField='processTime'
-          caption='Process Time'
-          width={'10%'}
-          alignment='center'
-          cellRender={cellRenderProcessTime}
         />
         <Paging
           enabled={true}

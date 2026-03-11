@@ -44,8 +44,13 @@ export interface IEnterIdentifierFormValues {
     aladdinCDIId?: string; // BDL123456 text
 
     // EU Security row
-    euSecurityVerificationRequired?: string; // Select... dropdown
+    isEuSecuritizationRequired?: boolean; // Select... dropdown
     euSecuritizationTipEuId?: string; // x text
+
+    // Deal Name row
+    intexDealName?: string;
+    intexPassword?: string;
+    dealName?: string;
 }
 
 // Step 2: Review Details - Security Details
@@ -59,8 +64,6 @@ export interface ISecurityDetails {
     price?: string; // Display as string, sent as number to API
     cusip?: string;
     callableValue?: string;
-    isEuSecuritizationRequired?: boolean | null;
-    euSecuritizationTipEuId?: string;
 }
 
 // Step 2: Review Details - ESG Fields

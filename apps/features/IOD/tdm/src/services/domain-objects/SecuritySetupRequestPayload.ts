@@ -32,6 +32,9 @@ export interface ISecuritySetupRequestPresentation {
     yellowKey: string | null;
     isEuSecuritizationRequired: boolean | null;
     euSecuritizationTipEuId: string | null;
+    intexDealName?: string | null;
+    intexPassword?: string | null;
+    dealName?: string | null;
     description: string | null;
     sectorValue: string | null;
     callDate: string | null; // ISO 8601 DateTimeOffset
@@ -89,6 +92,9 @@ export interface ISecuritySetupRequestDomain {
     YellowKey?: string;
     IsEuSecuritizationRequired?: boolean | null;
     EuSecuritizationTipEuId?: string;
+    IntexDealName?: string;
+    IntexPassword?: string;
+    DealName?: string;
     Description?: string;
     SectorValue?: string;
     CallDate?: string | null; // ISO 8601 DateTimeOffset
@@ -162,8 +168,11 @@ export interface ISecuritySetupWizardPayload {
     identifierValue?: string | null;
     marketSector?: string | null;
     yellowKey?: string | null;
-    euSecurityVerificationRequired?: string | null;
+    isEuSecuritizationRequired?: boolean | null;
     euSecuritizationTipEuId?: string | null;
+    intexDealName?: string | null;
+    intexPassword?: string | null;
+    dealName?: string | null;
 
     // ============================================
     // Step 3: Review Details (Security Request Template)

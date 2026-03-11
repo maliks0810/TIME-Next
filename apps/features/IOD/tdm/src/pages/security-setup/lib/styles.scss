@@ -335,6 +335,33 @@
       }
     }
 
+    .form-row {
+      margin-bottom: 16px;
+
+      &.two-column {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px 24px;
+      }
+
+      &.single-column {
+        max-width: calc(50% - 12px);
+      }
+
+      .field-label {
+        display: block;
+        font-size: 13px;
+        color: #1a1a1a;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .MuiFormControl-root,
+      .MuiTextField-root {
+        width: 100%;
+      }
+    }
+
     .sapi-instruction-box {
       background-color: #e3f2fd;
       border: 1px solid #90caf9;

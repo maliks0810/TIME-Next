@@ -53,8 +53,11 @@ export const transformToApiDomain = (
         IdentifierValue: payload.identifierValue || '',
         MarketSectorTypeValue: payload.marketSector || '',
         YellowKey: payload.yellowKey || '',
-        IsEuSecuritizationRequired: payload.securityDetails?.isEuSecuritizationRequired ?? null,
-        EuSecuritizationTipEuId: payload.securityDetails?.euSecuritizationTipEuId || '',
+        IsEuSecuritizationRequired: payload.isEuSecuritizationRequired ?? null,
+        EuSecuritizationTipEuId: payload.euSecuritizationTipEuId || '',
+        IntexDealName: payload.intexDealName || '',
+        IntexPassword: payload.intexPassword || '',
+        DealName: payload.dealName || '',
 
         // Security Details
         Description: payload.securityDetails?.description || '',
@@ -142,8 +145,11 @@ export const transformFromApiPresentation = (
         identifierValue: presentation.identifierValue || null,
         marketSector: presentation.marketSectorTypeValue || null,
         yellowKey: presentation.yellowKey || null,
-        euSecurityVerificationRequired: presentation.isEuSecuritizationRequired ? 'yes' : 'no',
+        isEuSecuritizationRequired: presentation.isEuSecuritizationRequired,
         euSecuritizationTipEuId: presentation.euSecuritizationTipEuId || null,
+        intexDealName: presentation.intexDealName || null,
+        intexPassword: presentation.intexPassword || null,
+        dealName: presentation.dealName || null,
 
         // Security details
         securityDetails: {
