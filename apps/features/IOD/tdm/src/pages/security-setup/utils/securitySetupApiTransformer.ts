@@ -35,6 +35,18 @@ export const transformToApiDomain = (
         return isNaN(parsed) ? null : parsed;
     };
 
+    // helper to coerce string or number to number | null
+    const toNumberOrNull = (value?: string | number | null): number | null => {
+        if (!value) return null;
+
+        if (typeof value === 'number') {
+            return isNaN(value) ? null : value;
+        }
+
+        const parsed = parseFloat(value.toString().trim());
+        return isNaN(parsed) ? null : parsed;
+    };
+
     return {
         // Map frontend fields to C# Domain Object properties
         IsNewIssue: payload.newIssue === 'yes' ? true : payload.newIssue === 'no' ? false : null,
@@ -67,6 +79,13 @@ export const transformToApiDomain = (
         Price: parsePrice(payload.securityDetails?.price),
         CallableValue: payload.securityDetails?.callableValue || null,
         Cusip: payload.securityDetails?.cusip || '',
+
+        PrepaymentTypeValue: payload.speedOverrides?.prepaymentTypeValue || null,
+        DefaultTypeValue: payload.speedOverrides?.defaultTypeValue || null,
+        PrepaymentSpeed: toNumberOrNull(payload.speedOverrides?.prepaymentSpeed) || null,
+        DefaultSpeed: toNumberOrNull(payload.speedOverrides?.defaultSpeed) || null,
+        Severity: toNumberOrNull(payload.speedOverrides?.severity) || null,
+        Delinquency: toNumberOrNull(payload.speedOverrides?.delinquency) || null,
 
         // ESG Fields (dropdown values)
         TcwEsgValue: payload.esgFields?.tcwEsgValue || '',
@@ -169,6 +188,16 @@ export const transformFromApiPresentation = (
             tcwEsgValue: presentation.tcwEsgValue || undefined,
             tcwEsgTypeValue: presentation.tcwEsgTypeValue || undefined,
             esgCollateralType: presentation.esgCollateralType || undefined,
+        },
+
+        // Speed overrides
+        speedOverrides: {
+            prepaymentTypeValue: presentation.prepaymentTypeValue || undefined,
+            defaultTypeValue: presentation.defaultTypeValue || undefined,
+            prepaymentSpeed: presentation.prepaymentSpeed || undefined,
+            defaultSpeed: presentation.defaultSpeed || undefined,
+            severity: presentation.severity || undefined,
+            delinquency: presentation.delinquency || undefined,
         },
 
         // Trade fields (dropdown values)

@@ -11,14 +11,14 @@ export type SecuritySetupStep =
 // Step definitions
 export type EnterIdentifierStep =
     | 'new-issue' // Step 1: New Issue question
-    | 'upload-cdi' // Step 2: Upload CDI & Aladdin CDI ID
+    | 'upload-cdi' // Upload CDI & Aladdin CDI ID
     | 'private-deal' // Step 3a: Private Deal question
     | 'ssap-password' // Step 3b: Enter SSAP ID/Password (if private)
     | 'sapi-login' // Step 3c: Request DM Release (if private)
     | 'ssap-confirmation' // Step 3d: SSAP Confirmation (if private)
     | 'bloomberg-identifier'; // Step 4: Enter Bloomberg Identifier
 
-// Step 1: Enter Identifier
+// Enter Identifier
 export interface IEnterIdentifierFormValues {
     // Step tracking
     currentStep?: EnterIdentifierStep;
@@ -53,7 +53,7 @@ export interface IEnterIdentifierFormValues {
     dealName?: string;
 }
 
-// Step 2: Review Details - Security Details
+// Review Details - Security Details
 export interface ISecurityDetails {
     aladdinCDIId?: string;
     identifier?: string;
@@ -66,7 +66,7 @@ export interface ISecurityDetails {
     callableValue?: string;
 }
 
-// Step 2: Review Details - ESG Fields
+// Review Details - ESG Fields
 // All fields are dropdown values that map to API
 export interface IESGFields {
     tcwEsgValue?: string; // TCW ESG dropdown value → API: TcwEsgValue
@@ -74,7 +74,17 @@ export interface IESGFields {
     esgCollateralType?: string; // ESG Collateral Type (CLO Only) → API: EsgCollateralType
 }
 
-// Step 2: Review Details - Trade Fields
+// Review Details - Speed Overrides
+export interface ISpeedOverrides {
+    prepaymentTypeValue?: string;
+    defaultTypeValue?: string;
+    prepaymentSpeed?: number | null;
+    defaultSpeed?: number | null;
+    severity?: number | null;
+    delinquency?: number | null;
+}
+
+// Review Details - Trade Fields
 // All fields are dropdown values that map to API
 export interface ITradeFields {
     slicerTypeValue?: string; // Slicer Type dropdown → API: SlicerTypeValue
@@ -89,21 +99,23 @@ export interface ITradeFields {
     ffiecQual?: string; // FFIEC Qualification → API: FfiecQual
 }
 
-// Step 2: All form values combined
+// All form values combined
 export interface IReviewDetailsFormValues {
     securityDetails: ISecurityDetails;
     esgFields: IESGFields;
     tradeFields: ITradeFields;
+    speedOverrides: ISpeedOverrides;
     notesInstructions?: string; // Textarea at bottom
 }
 
-// Step 3: Confirm Details (read-only review of all data)
+// Confirm Details (read-only review of all data)
 export interface IConfirmDetailsData {
     uploadedFile?: string; // "file.file_extension"
     ssapIdPassword?: string; // SSAP ID/Password from Step 1
     securityDetails: ISecurityDetails;
     esgFields: IESGFields;
     tradeFields: ITradeFields;
+    speedOverrides: ISpeedOverrides;
     notesInstructions?: string;
 }
 

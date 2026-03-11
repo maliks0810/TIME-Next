@@ -34,6 +34,74 @@ interface SecuritySetupContainerProps {
 
 type WizardStep = 'enter-identifier' | 'ssap-confirmation' | 'review-details' | 'confirm-details';
 
+const mergeWizardDataWithSaveResponse = (
+  prev: ISecuritySetupWizardData,
+  savedData: Partial<ISecuritySetupWizardPayload>
+): Pick<ISecuritySetupWizardData, 'step1' | 'step2'> => {
+  const mergedStep1: IEnterIdentifierFormValues = {
+    ...prev.step1,
+    newIssue: savedData.newIssue ?? prev.step1.newIssue,
+    cdiFileUploadedToAnser: savedData.cdiFileUploadedToAnser ?? prev.step1.cdiFileUploadedToAnser,
+    aladdinCDIId: savedData.aladdinCDIId ?? prev.step1.aladdinCDIId,
+    isPrivateDeal: savedData.isPrivateDeal ?? prev.step1.isPrivateDeal,
+    ssapIdPassword: savedData.ssapIdPassword ?? prev.step1.ssapIdPassword,
+    isSsapReleaseRequestSentToDm: savedData.isSsapReleaseRequestSentToDm ?? prev.step1.isSsapReleaseRequestSentToDm,
+    isSsapReleasedByDm: savedData.isSsapReleasedByDm ?? prev.step1.isSsapReleasedByDm,
+    identifierType: savedData.identifierType ?? prev.step1.identifierType,
+    identifierValue: savedData.identifierValue ?? prev.step1.identifierValue,
+    marketSector: savedData.marketSector ?? prev.step1.marketSector,
+    yellowKey: savedData.yellowKey ?? prev.step1.yellowKey,
+    isEuSecuritizationRequired: savedData.isEuSecuritizationRequired ?? undefined,
+    euSecuritizationTipEuId: savedData.euSecuritizationTipEuId ?? prev.step1.euSecuritizationTipEuId,
+    intexDealName: savedData.intexDealName ?? undefined,
+    intexPassword: savedData.intexPassword ?? undefined,
+    dealName: savedData.dealName ?? undefined,
+  };
+
+  const mergedStep2: IReviewDetailsFormValues = {
+    securityDetails: {
+      ...prev.step2.securityDetails,
+      aladdinCDIId: savedData.securityDetails?.aladdinCDIId ?? prev.step2.securityDetails?.aladdinCDIId,
+      identifier: savedData.securityDetails?.identifier ?? prev.step2.securityDetails?.identifier,
+      description: savedData.securityDetails?.description ?? prev.step2.securityDetails?.description,
+      tranche: savedData.securityDetails?.tranche ?? prev.step2.securityDetails?.tranche,
+      sectorValue: savedData.securityDetails?.sectorValue ?? prev.step2.securityDetails?.sectorValue,
+      callDate: savedData.securityDetails?.callDate ?? prev.step2.securityDetails?.callDate,
+      price: savedData.securityDetails?.price ?? prev.step2.securityDetails?.price,
+      cusip: savedData.securityDetails?.cusip ?? prev.step2.securityDetails?.cusip,
+      callableValue: savedData.securityDetails?.callableValue ?? prev.step2.securityDetails?.callableValue,
+    },
+    esgFields: {
+      tcwEsgValue: savedData.esgFields?.tcwEsgValue ?? prev.step2.esgFields?.tcwEsgValue,
+      tcwEsgTypeValue: savedData.esgFields?.tcwEsgTypeValue ?? prev.step2.esgFields?.tcwEsgTypeValue,
+      esgCollateralType: savedData.esgFields?.esgCollateralType ?? prev.step2.esgFields?.esgCollateralType,
+    },
+    tradeFields: {
+      slicerTypeValue: savedData.tradeFields?.slicerTypeValue ?? prev.step2.tradeFields?.slicerTypeValue,
+      mbsTypeValue: savedData.tradeFields?.mbsTypeValue ?? prev.step2.tradeFields?.mbsTypeValue,
+      loanCreditValue: savedData.tradeFields?.loanCreditValue ?? prev.step2.tradeFields?.loanCreditValue,
+      mbsCollateralValue: savedData.tradeFields?.mbsCollateralValue ?? prev.step2.tradeFields?.mbsCollateralValue,
+      mbsCollateralSubValue: savedData.tradeFields?.mbsCollateralSubValue ?? prev.step2.tradeFields?.mbsCollateralSubValue,
+      seniorMostCashFlowValue: savedData.tradeFields?.seniorMostCashFlowValue ?? prev.step2.tradeFields?.seniorMostCashFlowValue,
+      trancheTypeValue: savedData.tradeFields?.trancheTypeValue ?? prev.step2.tradeFields?.trancheTypeValue,
+      loanCategoryValue: savedData.tradeFields?.loanCategoryValue ?? prev.step2.tradeFields?.loanCategoryValue,
+      collateralValue: savedData.tradeFields?.collateralValue ?? prev.step2.tradeFields?.collateralValue,
+      ffiecQual: savedData.tradeFields?.ffiecQual ?? prev.step2.tradeFields?.ffiecQual,
+    },
+    speedOverrides: {
+      prepaymentTypeValue: savedData.speedOverrides?.prepaymentTypeValue ?? prev.step2.speedOverrides?.prepaymentTypeValue,
+      defaultTypeValue: savedData.speedOverrides?.defaultTypeValue ?? prev.step2.speedOverrides?.defaultTypeValue,
+      prepaymentSpeed: savedData.speedOverrides?.prepaymentSpeed ?? prev.step2.speedOverrides?.prepaymentSpeed,
+      defaultSpeed: savedData.speedOverrides?.defaultSpeed ?? prev.step2.speedOverrides?.defaultSpeed,
+      severity: savedData.speedOverrides?.severity ?? prev.step2.speedOverrides?.severity,
+      delinquency: savedData.speedOverrides?.delinquency ?? prev.step2.speedOverrides?.delinquency,
+    },
+    notesInstructions: savedData.notesInstructions ?? prev.step2.notesInstructions,
+  };
+
+  return { step1: mergedStep1, step2: mergedStep2 }
+}
+
 export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   flowType,
   onComplete,
@@ -56,6 +124,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       securityDetails: {},
       esgFields: {},
       tradeFields: {},
+      speedOverrides: {}
     },
     updatedBy: currentUser
   });
@@ -85,6 +154,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           securityDetails: initialData.securityDetails ?? {},
           esgFields: initialData.esgFields ?? {},
           tradeFields: initialData.tradeFields ?? {},
+          speedOverrides: initialData.speedOverrides ?? {},
           notesInstructions: initialData.notesInstructions ?? undefined,
         },
         updatedBy: currentUser
@@ -160,6 +230,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       securityDetails: wizardData.step2.securityDetails,
       esgFields: wizardData.step2.esgFields,
       tradeFields: wizardData.step2.tradeFields,
+      speedOverrides: wizardData.step2.speedOverrides,
       notesInstructions: wizardData.step2.notesInstructions,
       // Step 3 data (confirm details) - if exists
       ...(wizardData.step3 && {
@@ -265,49 +336,25 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
       if (savedData) {
         // Merge server response into wizard state.
-        setWizardData((prev) => ({
-          ...prev,
-          step1: {
-            ...prev.step1,
-            newIssue: savedData.newIssue ?? prev.step1.newIssue,
-            cdiFileUploadedToAnser: savedData.cdiFileUploadedToAnser ?? prev.step1.cdiFileUploadedToAnser,
-            aladdinCDIId: savedData.aladdinCDIId ?? prev.step1.aladdinCDIId,
-            isPrivateDeal: savedData.isPrivateDeal ?? prev.step1.isPrivateDeal,
-            ssapIdPassword: savedData.ssapIdPassword ?? prev.step1.ssapIdPassword,
-            isSsapReleaseRequestSentToDm: savedData.isSsapReleaseRequestSentToDm ?? prev.step1.isSsapReleaseRequestSentToDm,
-            isSsapReleasedByDm: savedData.isSsapReleasedByDm ?? prev.step1.isSsapReleasedByDm,
-            identifierType: savedData.identifierType ?? prev.step1.identifierType,
-            identifierValue: savedData.identifierValue ?? prev.step1.identifierValue,
-            marketSector: savedData.marketSector ?? prev.step1.marketSector,
-            yellowKey: savedData.yellowKey ?? prev.step1.yellowKey,
-            isEuSecuritizationRequired: savedData.isEuSecuritizationRequired ?? prev.step1.isEuSecuritizationRequired,
-            euSecuritizationTipEuId: savedData.euSecuritizationTipEuId ?? prev.step1.euSecuritizationTipEuId,
-            intexDealName: savedData.intexDealName ?? prev.step1.intexDealName,
-            intexPassword: savedData.intexPassword ?? prev.step1.intexPassword,
-            dealName: savedData.dealName ?? prev.step1.dealName,
-          },
-          step2: {
-            securityDetails: savedData.securityDetails ?? prev.step2.securityDetails,
-            esgFields: savedData.esgFields ?? prev.step2.esgFields,
-            tradeFields: savedData.tradeFields ?? prev.step2.tradeFields,
-            notesInstructions: savedData.notesInstructions ?? prev.step2.notesInstructions,
-          },
-        }));
+        setWizardData((prev) => {
+          const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
+
+          return {
+            ...prev,
+            step1: mergedStep1,
+            step2: mergedStep2,
+            ...(currentStep === 'review-details' && {
+              // TODO: get real attachments file from api
+              uploadedFile: 'file.file.extension',
+              ssapIdPassword: mergedStep1.ssapIdPassword,
+              ...mergedStep2
+            })
+          }
+        });
       }
     }
 
     if (nextStep) {
-      if (currentStep === 'review-details') {
-        // Prepare confirm data before moving to confirm-details
-        setWizardData((prev) => ({
-          ...prev,
-          step3: {
-            uploadedFile: 'file.file_extension',
-            ssapIdPassword: prev.step1.ssapIdPassword,
-            ...prev.step2,
-          },
-        }));
-      }
       setCurrentStep(nextStep);
       setIsReadOnly(false);
     } else if (currentStep === 'confirm-details') {
@@ -332,49 +379,25 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
       if (savedData) {
         // Merge server response into wizard state.
-        setWizardData((prev) => ({
-          ...prev,
-          step1: {
-            ...prev.step1,
-            newIssue: savedData.newIssue ?? prev.step1.newIssue,
-            cdiFileUploadedToAnser: savedData.cdiFileUploadedToAnser ?? prev.step1.cdiFileUploadedToAnser,
-            aladdinCDIId: savedData.aladdinCDIId ?? prev.step1.aladdinCDIId,
-            isPrivateDeal: savedData.isPrivateDeal ?? prev.step1.isPrivateDeal,
-            ssapIdPassword: savedData.ssapIdPassword ?? prev.step1.ssapIdPassword,
-            isSsapReleaseRequestSentToDm: savedData.isSsapReleaseRequestSentToDm ?? prev.step1.isSsapReleaseRequestSentToDm,
-            isSsapReleasedByDm: savedData.isSsapReleasedByDm ?? prev.step1.isSsapReleasedByDm,
-            identifierType: savedData.identifierType ?? prev.step1.identifierType,
-            identifierValue: savedData.identifierValue ?? prev.step1.identifierValue,
-            marketSector: savedData.marketSector ?? prev.step1.marketSector,
-            yellowKey: savedData.yellowKey ?? prev.step1.yellowKey,
-            isEuSecuritizationRequired: savedData.isEuSecuritizationRequired ?? prev.step1.isEuSecuritizationRequired,
-            euSecuritizationTipEuId: savedData.euSecuritizationTipEuId ?? prev.step1.euSecuritizationTipEuId,
-            intexDealName: savedData.intexDealName ?? prev.step1.intexDealName,
-            intexPassword: savedData.intexPassword ?? prev.step1.intexPassword,
-            dealName: savedData.dealName ?? prev.step1.dealName,
-          },
-          step2: {
-            securityDetails: savedData.securityDetails ?? prev.step2.securityDetails,
-            esgFields: savedData.esgFields ?? prev.step2.esgFields,
-            tradeFields: savedData.tradeFields ?? prev.step2.tradeFields,
-            notesInstructions: savedData.notesInstructions ?? prev.step2.notesInstructions,
-          },
-        }));
+        setWizardData((prev) => {
+          const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
+
+          return {
+            ...prev,
+            step1: mergedStep1,
+            step2: mergedStep2,
+            ...(currentStep === 'review-details' && {
+              // TODO: get real attachments file from api
+              uploadedFile: 'file.file.extension',
+              ssapIdPassword: mergedStep1.ssapIdPassword,
+              ...mergedStep2
+            })
+          }
+        });
       }
     }
 
     if (nextStep) {
-      if (currentStep === 'review-details') {
-        // Prepare confirm data before moving to confirm-details
-        setWizardData((prev) => ({
-          ...prev,
-          step3: {
-            uploadedFile: 'file.file_extension',
-            ssapIdPassword: prev.step1.ssapIdPassword,
-            ...prev.step2,
-          },
-        }));
-      }
       setCurrentStep(nextStep);
       setIsReadOnly(false);
     } else if (currentStep === 'confirm-details') {
@@ -592,9 +615,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           <ConfirmDetailsPage
             flowType={flowType}
             data={{
-              uploadedFile: wizardData.step3?.uploadedFile ?? '',
-              ssapIdPassword: wizardData.step1.ssapIdPassword,
+              ...wizardData.step1,
               ...wizardData.step2,
+              uploadedFile: wizardData.step3?.uploadedFile
             }}
             referenceData={referenceData}
           />
