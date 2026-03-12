@@ -68,7 +68,7 @@ export const mapReviewDetailsToPayload = (
  *
  * @param wizardData - Accumulated wizard form data from all steps
  * @param currentStep - Current wizard step
- * @param currentStepNumber - Current step number (1-3)
+ * @param currentStepNumber - Current step number (1-4)
  * @param saveType - 'partial' or 'complete'
  * @returns Complete payload ready for API submission
  */

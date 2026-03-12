@@ -1,8 +1,8 @@
 import React from 'react';
 
 interface StepperProps {
-  currentStepNumber: number; // 1-6
-  totalSteps: number; // 6
+  currentStepNumber: number; // 1-4
+  totalSteps: number; // 4
   stepTitle: string;
 }
 
