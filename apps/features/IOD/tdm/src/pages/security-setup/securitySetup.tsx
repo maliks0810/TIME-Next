@@ -65,6 +65,7 @@ const SecuritySetupComponent: React.FC = () => {
         securityDetails: data.step2.securityDetails,
         esgFields: data.step2.esgFields,
         tradeFields: data.step2.tradeFields,
+        speedOverrides: data.step2.speedOverrides,
         notesInstructions: data.step2.notesInstructions,
         ...(data.step3 && {
           uploadedFiles: data.step3.uploadedFile,

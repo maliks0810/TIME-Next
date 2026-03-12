@@ -125,13 +125,13 @@ export interface ISecuritySetupWizardData {
     step1: IEnterIdentifierFormValues;
     step2: IReviewDetailsFormValues;
     step3?: IConfirmDetailsData;
-    reviewedDate?: string;
-    isReviewed?: boolean;
-    reviewedBy?: string;
-    updatedBy?: string;
-    updatedDate?: string;
-    createdBy?: string;
-    createdDate?: string;
+    reviewedDate?: string | null;
+    isReviewed?: boolean | null;
+    reviewedBy?: string | null;
+    updatedBy?: string | null;
+    updatedDate?: string | null;
+    createdBy?: string | null;
+    createdDate?: string | null;
 }
 
 // Success messages for Step 2

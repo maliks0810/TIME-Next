@@ -184,7 +184,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const {
     saveStatus,
     queueWizardSave,
-    forceSave,
     clearError,
     lastSavedAt,
     error: saveError,
@@ -435,19 +434,33 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   };
 
   const handleConfirmSubmit = async () => {
-    // Force final save before completing wizard
-    await forceSave();
-    setShowConfirmModal(false);
-    if (onComplete) {
-      const completeData = {
+    // Ensure final submit gets the correct data for PUT call
+    const finalSavedData = await queueWizardSave(
+      'confirm-details',
+      4,
+      {
         ...wizardData,
         ...getAuditFields(),
         isReviewed: true,
         reviewedBy: currentUser,
         reviewedDate: new Date().toISOString()
-      }
+      },
+      'complete'
+    )
+    setShowConfirmModal(false);
 
-      onComplete({ ...completeData, securitySetupRequestId });
+    if (onComplete) {
+      if (finalSavedData) {
+        const { step1, step2 } = mergeWizardDataWithSaveResponse(wizardData, finalSavedData);
+        onComplete({
+          ...finalSavedData,
+          step1,
+          step2,
+          securitySetupRequestId,
+        })
+      } else {
+        onComplete({ ...wizardData, securitySetupRequestId });
+      }
     }
   };
 
