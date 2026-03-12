@@ -713,32 +713,40 @@
     margin: 0;
     padding-bottom: 80px;
   }
+  .ssap-approval-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
 
-  .approve-ssap-button {
-    align-self: flex-end;
-    background-color: #093566;
-    color: #fff;
-    text-transform: none;
-    padding: 12px 32px;
-    font-size: 15px;
-    font-weight: 500;
-    border-radius: 4px;
-    box-shadow: none;
-    min-width: 200px;
-
-    &:hover {
-      background-color: #0a4378;
-      box-shadow: none;
-    }
-
-    &:disabled {
-      background-color: #b0b0b0;
+    .button {
+      background-color: #093566;
       color: #fff;
-      cursor: default;
+      text-transform: none;
+      padding: 12px 32px;
+      font-size: 15px;
+      font-weight: 500;
+      border-radius: 4px;
+      box-shadow: none;
+
+      &:hover {
+        background-color: #0a4378;
+        box-shadow: none;
+      }
+
+      &:disabled {
+        background-color: #b0b0b0;
+        color: #fff;
+        cursor: default;
+      }
     }
 
-    .MuiButton-startIcon {
-      margin-right: 8px;
+    .approve-ssap-button {
+      min-width: 200px;
+
+      .MuiButton-startIcon {
+        margin-right: 8px;
+      }
     }
   }
 }

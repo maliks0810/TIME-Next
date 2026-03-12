@@ -20,6 +20,49 @@ import {
     WizardStep,
 } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 
+export const getStepNumber = (step: WizardStep): number => {
+    switch (step) {
+        case 'enter-identifier':
+            return 1;
+        case 'ssap-confirmation':
+            return 2;
+        case 'review-details':
+            return 3;
+        case 'confirm-details':
+            return 4;
+        default:
+            return 1;
+    }
+};
+
+// For backwards compatibility for the legacy dynamic steps
+const getStepFromPresentation = (
+    stepDescription: string | null,
+    stepNumber: number | null
+): WizardStep => {
+    switch (stepDescription) {
+        case 'enter-identifier':
+        case 'ssap-confirmation':
+        case 'review-details':
+        case 'confirm-details':
+            return stepDescription;
+        default:
+            if (stepNumber === 1) {
+                return 'enter-identifier';
+            }
+            if (stepNumber === 2) {
+                return 'ssap-confirmation';
+            }
+            if (stepNumber === 3) {
+                return 'review-details';
+            }
+            if (stepNumber != null && stepNumber >= 4) {
+                return 'confirm-details';
+            }
+            return 'enter-identifier';
+    }
+};
+
 /**
  * Transform frontend payload to API Domain object format
  *
@@ -132,13 +175,18 @@ export const transformFromApiPresentation = (
     presentation: ISecuritySetupRequestPresentation | null | undefined
 ): Partial<ISecuritySetupWizardPayload> => {
     if (!presentation) return {};
+    const currentStep = getStepFromPresentation(
+        presentation.currentStepDescription,
+        presentation.currentStepNumber
+    );
+
     return {
         // ID for PUT calls
         securitySetupRequestId: presentation.securitySetupRequestId,
 
         // Wizard metadata
-        currentStep: presentation.currentStepDescription as WizardStep,
-        currentStepNumber: presentation.currentStepNumber || 1,
+        currentStep,
+        currentStepNumber: getStepNumber(currentStep),
         savedAt: presentation.updatedDate || presentation.createdDate,
         saveType: (presentation.saveType as 'partial' | 'complete') || 'partial',
 

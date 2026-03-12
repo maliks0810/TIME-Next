@@ -24,6 +24,7 @@ import '../lib/styles.scss';
 import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
 import { ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 import { useReferenceData } from '../hooks/useReferenceData';
+import { getStepNumber } from '../utils/securitySetupApiTransformer';
 
 interface SecuritySetupContainerProps {
   flowType: SecuritySetupFlowType;
@@ -468,19 +469,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     setShowConfirmModal(false);
   };
 
+
   const getCurrentStepNumber = (): number => {
-    switch (currentStep) {
-      case 'enter-identifier':
-        return 1;
-      case 'ssap-confirmation':
-        return 2;
-      case 'review-details':
-        return 3;
-      case 'confirm-details':
-        return 4;
-      default:
-        return 1;
-    }
+    return getStepNumber(currentStep);
   };
 
   const getStepTitle = (): string => {
@@ -612,6 +603,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             onFormChange={handleStep1Change}
             onProceedToReview={handleNext}
             isSaving={saveStatus === 'saving' || saveStatus === 'saved'}
+            onBack={() => {
+              setCurrentStep('enter-identifier');
+            }}
           />
         );
       case 'review-details':
