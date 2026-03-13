@@ -30,7 +30,8 @@ interface UseSecuritySetupSaveReturn {
         step: WizardStep,
         stepNumber: number,
         accumulatedData: Record<string, unknown>,
-        saveType?: 'partial' | 'complete'
+        saveType?: 'partial' | 'complete',
+        options?: { isSaveOnly?: boolean }
     ) => Promise<Partial<ISecuritySetupWizardPayload> | null>;
     forceSave: () => Promise<Partial<ISecuritySetupWizardPayload> | null>;
     clearError: () => void;
@@ -91,7 +92,8 @@ export const useSecuritySetupSave = (
      */
     const processBackgroundSave = useCallback(
         async (
-            payload: ISecuritySetupWizardPayload
+            payload: ISecuritySetupWizardPayload,
+            options?: { isSaveOnly?: boolean }
         ): Promise<Partial<ISecuritySetupWizardPayload> | null> => {
             try {
                 if (!isMountedRef.current) {
@@ -102,7 +104,8 @@ export const useSecuritySetupSave = (
 
                 const savedData = await SecuritySetupService.upsertWizardData(
                     payload,
-                    securitySetupRequestIdRef.current
+                    securitySetupRequestIdRef.current,
+                    options
                 );
 
                 if (!isMountedRef.current) {
@@ -154,7 +157,8 @@ export const useSecuritySetupSave = (
             step: WizardStep,
             stepNumber: number,
             accumulatedData: Record<string, unknown>,
-            saveType: 'partial' | 'complete' = 'partial'
+            saveType: 'partial' | 'complete' = 'partial',
+            options?: { isSaveOnly?: boolean }
         ): Promise<Partial<ISecuritySetupWizardPayload> | null> => {
             const currentDate = new Date().toISOString();
             const payload = {
@@ -168,7 +172,7 @@ export const useSecuritySetupSave = (
             } as ISecuritySetupWizardPayload;
 
             pendingPayloadRef.current = payload;
-            return processBackgroundSave(payload);
+            return processBackgroundSave(payload, options);
         },
         [processBackgroundSave]
     );
