@@ -341,7 +341,6 @@ export const ANALYST_COLOR_PALETTE = [
   '#CB197B',
   '#D76712',
   '#CE1F00',
-  '#D4D4D4',
   '#FF637F',
   '#2B5876',
   '#4E4376',
