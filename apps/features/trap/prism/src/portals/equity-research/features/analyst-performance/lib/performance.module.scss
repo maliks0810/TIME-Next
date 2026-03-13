@@ -1,10 +1,14 @@
 .kpiDescriptions {
   width: 100%;
+  border-inline-end: none !important;
+  border: none !important;
 
   :global(.ant-descriptions),
   :global(.ant-descriptions-view) {
     width: 100%;
     display: block;
+    border-inline-end: none !important;
+    border: none !important;
   }
 
   :global(.ant-descriptions-view table) {
@@ -19,18 +23,23 @@
 
   :global(.ant-descriptions-row > td) {
     width: auto;
+    border-inline-end: none !important;
+    border: none !important;
   }
 
   :global(.ant-descriptions-item-label) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    border-inline-end: none !important;
+    border: none !important;
   }
 }
 
 .twoCol {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border: none;
   gap: 8px;
   width: 100%;
   min-width: 0;

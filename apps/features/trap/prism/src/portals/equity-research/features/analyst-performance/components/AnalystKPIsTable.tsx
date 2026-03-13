@@ -242,7 +242,7 @@ const AnalystKPIsTable: React.FC<Props> = ({ kpiData, loading, selectedRange }) 
           </div>
         </Descriptions.Item>
 
-        <Descriptions.Item label="Annualized Return (CAGR)">
+        <Descriptions.Item label="Ann. Return (CAGR)">
           <div className={styles.twoColCellBlock}>
             <TwoCol
               left={current ? toPercent(current.portfolio.cagr) : dash}
