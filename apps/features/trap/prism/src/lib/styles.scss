@@ -1,0 +1,130 @@
+.parent-container {
+    width: 100%;
+    min-width: 100%;
+}
+
+.TCW-Text {
+    display: flex;
+    font-size: large;
+    font-weight: bold;
+    text-align: left !important;
+    justify-content: flex-start;
+}
+
+.buylist-icon {
+    display: flex;
+    justify-content: center;
+}
+
+.equity-loading-spin {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    z-index: 1;
+}
+
+.equity-list {
+    font-family: 'Lato';
+    font-size: 12px;
+
+    &-segmented {
+        align-items: center;
+        font-size: 14px;
+    }
+
+    &-search {
+        width: 10%;
+        float: right;
+    }
+}
+
+// Coverage Screen Styling
+.analyst-coverage-container .dx-datagrid {
+    padding: 12px;
+    margin: 12px;
+    font-family: 'Lato';
+    font-size: 12px;
+    text-align: left;
+    overflow: hidden;
+    justify-content: space-between;
+}
+
+.analyst-coverage-headers .dx-datagrid .dx-datagrid-headers {
+    background-color: #22425f;
+    color: white;
+    text-align: 'center';
+}
+
+.analyst-coverage-headers .dx-datagrid-headers .dx-datagrid-content {
+    background-color: #22425f;
+}
+
+.analyst-coverage-headers .dx-datagrid-headers .dx-header-row .dx-datagrid-text-content {
+    color: white;
+}
+
+.analyst-coverage-datagrid .dx-datagrid {
+    .dx-datagrid-rowsview .dx-datagrid-table .dx-group-row > tr .dx-row.dx-freespace-row > td {
+        background-color: white;
+    }
+
+    .dx-data-row {
+        background-color: white;
+
+        &:hover td {
+            background-color: rgb(210, 227, 234);
+            transition: background 0.2s;
+        }
+    }
+
+    .dx-row-alt {
+        background-color: var(--light-gray-color) !important;
+    }
+}
+
+.analystPerformanceContainer {
+    display: flex;
+    justify-content: space-between;
+    padding: 24px 32px;
+    width: 95%;
+}
+
+.analystPerformanceChartContainer {
+    width: 75%;
+    padding: 0 24px;
+    background-color: white;
+}
+
+.analystPerformanceRightSideContainer {
+    width: 20%;
+    margin-left: 24px;
+}
+
+.analystPerformanceCheckboxesContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background-color: white;
+}
+
+.analystPerformanceKpisContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 24px;
+    background-color: white;
+}
+
+.analystPerformanceSpinContainer {
+    width: 100%;
+    height: 37vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.equity-dashboard {
+    margin: 0 2%;
+}
