@@ -420,13 +420,18 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     // Clear any previous errors before attempting save
     clearError();
 
-    // Queue save with current data (partial save, not step completion)
-    queueWizardSave(
+    // Save-only POST then redirect to dashboard.
+    const savedData = await queueWizardSave(
       currentStep,
       getCurrentStepNumber(),
       { ...getAllWizardData(), ...getAuditFields() },
-      'partial'
+      'partial',
+      { isSaveOnly: true }
     );
+
+    if (savedData) {
+      navigate('/iod/tdm/');
+    }
   };
 
   const handleClose = async () => {

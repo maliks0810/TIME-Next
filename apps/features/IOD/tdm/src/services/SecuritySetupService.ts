@@ -16,11 +16,14 @@ export const SecuritySetupService = {
      * Upsert wizard data to the API (non-blocking)
      *
      * @param payload - Complete wizard data to save/update
+     * @param securitySetupRequestId - ID from initial POST; triggers PUT when provided
+     * @param options - optional flags (isSaveOnly)
      * @returns Promise resolving to save response with Presentation object
      */
     upsertWizardData: async (
         payload: ISecuritySetupWizardPayload,
-        securitySetupRequestId?: number | null
+        securitySetupRequestId?: number | null,
+        options?: { isSaveOnly?: boolean }
     ): Promise<Partial<ISecuritySetupWizardPayload>> => {
         const domainPayload = transformToApiDomain(payload);
 
@@ -29,6 +32,7 @@ export const SecuritySetupService = {
         }
 
         const securitySetupPayload = {
+            ...(options?.isSaveOnly === true && { isSaveOnly: true }),
             securitySetupRequests: [domainPayload],
         };
 
