@@ -1,0 +1,55 @@
+.kpiDescriptions {
+  width: 100%;
+
+  :global(.ant-descriptions),
+  :global(.ant-descriptions-view) {
+    width: 100%;
+    display: block;
+  }
+
+  :global(.ant-descriptions-view table) {
+    width: 100% !important;
+    min-width: 100%;
+    table-layout: fixed;
+  }
+
+  :global(.ant-descriptions-row > th) {
+    width: 300px;
+  }
+
+  :global(.ant-descriptions-row > td) {
+    width: auto;
+  }
+
+  :global(.ant-descriptions-item-label) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.twoColCell {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.twoColCellBlock {
+  min-width: 0;
+  white-space: normal;
+  overflow: hidden; /* changed from visible */
+}
+
+.twoColRight {
+  text-align: right;
+  justify-self: end;
+}

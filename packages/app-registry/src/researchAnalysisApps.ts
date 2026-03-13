@@ -257,6 +257,18 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
         env: HighestEnv.prod,
         component: lazy(() => import('@r2/qre/src/App'))
     },
-
+    {
+        type: 'internal',
+        header: NavbarHeader.ResearchAnalysis,
+        subHeader: NavbarSubHeader.Fundamental,
+        id: 'equity-dashboard',
+        name: 'equity-dashboard',
+        title: 'Equity Dashboard',
+        env: HighestEnv.prod,
+        path: '/prism/equity-research/dashboard',
+        team: 'R2',
+        component: lazy(() => import('@r2/prism/src/portals/equity-research/index')),
+        description: '',
+    },
     // PLOP_INJECT_APP
 ]
