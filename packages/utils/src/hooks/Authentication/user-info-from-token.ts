@@ -18,13 +18,14 @@ export const useOktaUserInfo = () : {get: () => Promise<UserInfo>} => {
         userInfo.login = userInfo.claims.ad_samaccountname as string;
         userInfo.isAdmin =  groups ? (groups as string[])?.includes(ADMIN_GROUP) : false;
         userInfo.idToken = idToken ?? '';
+        userInfo.TIME_Role = userInfo.TIME_Role;
         return userInfo;        
     }}
 }
 
 export const getUserInfoFromIdToken = (idToken: string | undefined): UserInfo => {
 
-    const userInfo: UserInfo = { idToken: "", name: "Unknown", email: "", login: "", phone: "", isAdmin: false, claims: [] };
+    const userInfo: UserInfo = { idToken: "", name: "Unknown", email: "", login: "", phone: "", isAdmin: false, claims: [], TIME_Role: "" };
 
     if (idToken) {
         try {
@@ -39,6 +40,7 @@ export const getUserInfoFromIdToken = (idToken: string | undefined): UserInfo =>
             console.log(parsedToken);
             userInfo.name = swapNameOrder(parsedToken.name);
             userInfo.email = parsedToken.email;
+            userInfo.TIME_Role = parsedToken.TIME_Role;
         }
         catch (e) {
             console.log("Invalid ID Token: " + e);

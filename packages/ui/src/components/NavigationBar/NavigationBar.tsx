@@ -29,7 +29,21 @@ export const Navbar: React.FC = () => {
     const userInfo = useUserInfo();
     const handleHomeClick = () => {
         setOpenMenu(null);
-        navigate('/');
+        // ML: When more roles come in add to the switch statement
+        switch (userInfo?.TIME_Role) {
+            case 'Risk Manager':
+                navigate('/risk/arc', { replace: true });
+                break;
+
+            case 'EquityResearch':
+                navigate('/prism/equity-research/dashboard', { replace: true });
+                break;
+
+
+            default:
+                navigate('/', { replace: true });
+                break;
+        }
     };
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>, menuName: string) => {
