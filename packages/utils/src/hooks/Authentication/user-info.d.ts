@@ -11,6 +11,7 @@ export type UserInfo = {
     isAdmin: boolean;
     favorites?: UserFavorite[];
     authorizations?: AuthIndicator[];
+    TIME_Role?: string;
 };
 
 export type AuthIndicator = {
