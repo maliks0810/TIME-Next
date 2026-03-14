@@ -1,4 +1,5 @@
 export const STATUSES = [
+    'Manual',
     'Analytics Input Pending Review',
     'Analytics Input Sent To Aladdin',
     'Analytics Calculation In Progress',

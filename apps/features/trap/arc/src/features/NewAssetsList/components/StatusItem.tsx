@@ -1,19 +1,17 @@
-import { Button, Card } from 'antd';
+import { Card } from 'antd';
 import { useSearchParams } from 'react-router-dom';
-import { ClaimAssetPayload, NewAsset, TableRow } from '../../../lib/types';
-import { claimAsset } from '../../../lib/services';
-import { useUserInfo } from '@platform/utils';
+import { NewAsset, TableRow } from '../../../lib/types';
 
 const getCardBodyStyles = (isActive?: boolean) =>
     isActive
         ? {
-              padding: '6px 8px',
-              border: '1px solid #0080ffff',
-              borderRadius: 8,
-          }
+            padding: '6px 6px',
+            border: '1px solid #0080ffff',
+            borderRadius: 8,
+        }
         : {
-              padding: '6px 8px',
-          };
+            padding: '6px 6px',
+        };
 
 export const StatusItem = ({
     asset,
@@ -23,24 +21,6 @@ export const StatusItem = ({
     isActive?: boolean;
 }) => {
     const [, setSearchParams] = useSearchParams();
-    const user = useUserInfo();
-    const handleClaim = () => {
-        // Generate the Claim Payload
-        const payload: ClaimAssetPayload = {
-            claims: [
-                {
-                    anchorType: 'NAAID',
-                    anchorId: asset.assetAnalyticsSetupId as number,
-                    claimedBy: user.email as string,
-                },
-            ],
-        };
-
-        // Call the Claim
-        claimAsset(payload).catch((e) => {
-            console.warn(e);
-        });
-    };
 
     const handleSelectAsset = () => {
         const params = new URLSearchParams();
@@ -64,7 +44,7 @@ export const StatusItem = ({
                     <div style={{ display: 'flex' }}>
                         <div>
                             {asset.raw.claimedBy ? (
-                                <div style={{ color: '#9ca3af', fontSize: 12 }}>
+                                <div style={{ color: '#9ca3af', fontSize: 12, wordBreak: 'break-all' }}>
                                     <div>Claimed By: {asset.raw.claimedBy}</div>
                                     <div>Claimed At: {asset.raw.claimedAt}</div>
                                 </div>
@@ -75,15 +55,6 @@ export const StatusItem = ({
                                 </div>
                             ) : null}
                         </div>
-                        {user.email !== asset.raw.claimedBy ? (
-                            <Button
-                                onClick={handleClaim}
-                                type="text"
-                                style={{ color: '#59d75dff' }}
-                            >
-                                + Claim
-                            </Button>
-                        ) : null}
                     </div>
                 </div>
             </Card>

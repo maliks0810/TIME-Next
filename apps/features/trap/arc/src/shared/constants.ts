@@ -1,4 +1,5 @@
 export const STATUSES = [
+    'Manual',
     'Analytics Input Pending Review',
     'Analytics Input Sent To Aladdin',
     'Analytics Calculation In Progress',
@@ -16,4 +17,6 @@ export enum STATUSES_ENUM {
     ANALYTICS_PENDING_REVIEW = 'Analytics Pending Review',
     ANALYTICS_SENT_TO_ALADDIN = 'Analytics Sent To Aladdin',
     ANALYTICS_VERIFIED_IN_ALADDIN = 'Analytics Verified In Aladdin',
+    ABANDONED = 'Abandon',
+    INVALID_REQUEST = 'Invalid Request',
 }

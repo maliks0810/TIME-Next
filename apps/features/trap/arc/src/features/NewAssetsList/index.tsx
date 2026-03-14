@@ -4,7 +4,7 @@ import { normalizeStatus } from '../../lib/helpers';
 import { NewAsset } from '../../lib/types';
 import { StatusLabel } from './components/StatusLabel';
 import { StatusItem } from './components/StatusItem';
-import { STATUSES } from '../../lib/constants';
+import { STATUSES } from '../../shared/constants';
 
 const { Panel } = Collapse;
 
@@ -69,7 +69,7 @@ export function NewAssetsList({ newAssets, selectedRowId }: NewAssetsListProps) 
     }, [nonEmptyKeys]);
 
     return (
-        <div style={{ width: '25vw' }}>
+        <div style={{ width: '20vw' }}>
             <Collapse
                 defaultActiveKey={activeKeys}
                 onChange={(keys) => {
