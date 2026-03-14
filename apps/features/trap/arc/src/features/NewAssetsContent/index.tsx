@@ -1,50 +1,101 @@
-import { memo, useState } from 'react';
-import { Button, Tabs } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
-import { Analytics } from '../analytics';
-import { ModelInputsOverrides } from '../model-inputs-overrides';
-import { NewAssetSetup } from '../new-asset-setup';
-import { NewAsset } from '../../lib/types';
-import { RequestNewAsset } from '../model-inputs-overrides/components/RequestNewAsset';
+import { memo, useEffect, useState } from 'react';
+import { Form, message } from 'antd';
 import { AssetInfo } from '../AssetInfo';
 import SecuritySettings from '../SecuritySettings';
+import { AnalyticsTable } from '../AnalyticsTable';
+import { ActionBar } from '../ActionBar';
+import { UtilityBar } from '../UtilityBar';
+import { RowDataType } from '../AnalyticsTable/lib/types';
+import { AnalyticsRequest } from '../../lib/types';
+import { useUserInfo } from '@platform/utils';
+import { updateAnalyticsOverrides } from '../../lib/services';
+
+const getValueToPublish = (row: RowDataType) => {
+    switch (true) {
+        case row?.override && String(row.override).trim() !== '':
+            return row.override;
+        case row?.anser && String(row.anser).trim() !== '':
+            return row.anser;
+        default:
+            return '';
+    }
+};
 
 type NewAssetsContentProps = {
-    selectedRow: NewAsset | null;
     selectedRowRequestId?: number | null;
+    selectedRowAladdinId?: string;
+    selectedStatus?: string;
     latestUpdateTimestamp: number;
 };
 
 function NewAssetsContent({
-    selectedRow,
     selectedRowRequestId,
     latestUpdateTimestamp,
+    selectedStatus,
+    selectedRowAladdinId,
 }: NewAssetsContentProps) {
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [form] = Form.useForm();
+    const [isAnalitycsSavePending, setIsAnalitycsSavePending] = useState(false);
+    const [isActionInprogress, setIsActionInprogress] = useState(false);
 
-    const handleToggleRequestModal = () => {
-        setIsModalOpen((isOpen) => !isOpen);
+    const [messageApi, contextHolder] = message.useMessage();
+    const user = useUserInfo();
+
+    const handleSaveAnalyticsOverride = async () => {
+        const fields = form.getFieldValue('rows') || {};
+
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        const valuesToPublish = Object.keys(fields).reduce((acc: any, key: string) => {
+            if (fields[key]?.valueToPublish) {
+                acc[key] = fields[key].valueToPublish;
+            }
+
+            return acc;
+        }, {});
+
+        if (!user.email || !selectedRowRequestId) return;
+        setIsAnalitycsSavePending(true);
+        try {
+            await updateAnalyticsOverrides({
+                assets: [
+                    {
+                        ...valuesToPublish,
+                        noteText: form.getFieldValue('noteTextArea'),
+                        noteType: 'AOR',
+                        modifiedBy: user.email,
+                    } satisfies AnalyticsRequest,
+                ],
+            });
+            messageApi.success('Analytics updated successfully.');
+            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        } catch (err: any) {
+            messageApi.error(
+                err?.response?.data?.message ??
+                'Failed to update analytics. Please try again.'
+            );
+        } finally {
+            setIsAnalitycsSavePending(false);
+        }
     };
 
-    const items = [
-        {
-            key: 'modelIO',
-            label: 'Analytics Inputs',
-            children: <ModelInputsOverrides selectedRowRequestId={selectedRowRequestId} />,
-            disabled: false,
-        },
-        {
-            key: 'analytics',
-            label: 'Analytics',
-            children: <Analytics selectedRow={selectedRow} />,
-            disabled: false,
-        },
-        { key: 'newAssetSetup', label: 'CDI Reader', children: <NewAssetSetup /> },
-    ];
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const handleValuesChange = (changedValues: any, allValues: any) => {
+        if (changedValues.rows) {
+            const changedRowName = Object.keys(changedValues.rows)[0];
+            form.setFieldValue(
+                ['rows', changedRowName, 'valueToPublish'],
+                getValueToPublish(allValues.rows[changedRowName])
+            );
+        }
+    };
+
+    useEffect(() => {
+        form.setFieldValue('noteTextArea', "");
+    }, [selectedRowRequestId]);
+
     return (
         <div style={{ width: '75vw', display: 'flex', gap: '4px', flexDirection: 'column' }}>
-            <RequestNewAsset isOpen={isModalOpen} onClose={handleToggleRequestModal} />
-
+            {contextHolder}
             <AssetInfo
                 selectedAssetId={selectedRowRequestId}
                 latestUpdateTimestamp={latestUpdateTimestamp}
@@ -53,19 +104,34 @@ function NewAssetsContent({
                 selectedAssetId={selectedRowRequestId}
                 latestUpdateTimestamp={latestUpdateTimestamp}
             />
-            <div className="componentHighlight tabsWrapper">
-                <Tabs
-                    className="niArcContent"
-                    defaultActiveKey="modelIO"
-                    tabBarExtraContent={
-                        <Button onClick={handleToggleRequestModal}>
-                            <PlusOutlined /> New Asset
-                        </Button>
-                    }
-                    items={items}
-                    style={{ flex: 1, overflow: 'auto' }}
+            <Form
+                form={form}
+                onValuesChange={handleValuesChange}
+                onFinish={handleSaveAnalyticsOverride}
+                key={`${latestUpdateTimestamp}_${selectedRowRequestId}`}
+            >
+                <div style={{ display: 'flex', gap: 16 }}>
+                    <div style={{ flex: 1 }}>
+                        <ActionBar selectedAssetStatus={selectedStatus} setIsActionInprogress={setIsActionInprogress} />
+                    </div>
+
+                    <div style={{ flex: 1 }}>
+                        <UtilityBar
+                            selectedAssetStatus={selectedStatus}
+                            isAnalitycsSavePending={isAnalitycsSavePending}
+                            selectedAladdinId={selectedRowAladdinId}
+                            selectedRowRequestId={selectedRowRequestId as number}
+                        />
+                    </div>
+                </div>
+                <AnalyticsTable
+                    selectedAssetId={selectedRowRequestId}
+                    selectedStatus={selectedStatus}
+                    latestUpdateTimestamp={latestUpdateTimestamp}
+                    form={form}
+                    isActionInprogress={isActionInprogress}
                 />
-            </div>
+            </Form>
         </div>
     );
 }

@@ -1,23 +1,24 @@
 import { useEffect, useState } from 'react';
-import { Card } from 'antd';
+import { Modal, Space } from 'antd';
 import { getNotes } from '../../lib/services';
-import { NewAsset, NoteType } from '../../lib/types';
+import { NoteType } from '../../lib/types';
 import { convertDateToPST } from '../../lib/helpers';
 
 export function Notes({
-    selectedRow,
-    noteType,
+    assetAnalyticsSetupId,
+    isOpen = false,
+    handleClose,
 }: {
-    selectedRow: NewAsset | null;
-    noteType: string | null;
+    assetAnalyticsSetupId: number;
+    isOpen: boolean;
+    handleClose: (isOpen: boolean) => void;
 }) {
     const [notes, setNotes] = useState<NoteType[] | null>(null);
 
     const fetchNotes = async () => {
         try {
-            const { data } = await getNotes(selectedRow?.assetAnalyticsSetupId as number);
+            const { data } = await getNotes(assetAnalyticsSetupId);
             const filteredNotes = (data?.response ?? [])
-                .filter((n) => n.noteType === noteType)
                 .sort((a, b) => {
                     const da = new Date(a.lastModifiedDate).getTime();
                     const db = new Date(b.lastModifiedDate).getTime();
@@ -31,38 +32,42 @@ export function Notes({
     };
 
     useEffect(() => {
-        if (selectedRow) {
+        if (assetAnalyticsSetupId) {
             fetchNotes();
         }
-    }, [selectedRow]);
+    }, [assetAnalyticsSetupId]);
 
     return notes?.length && notes?.length > 0 ? (
-        <div>
-            <h4>Note Audit</h4>
-            {notes?.map((note) => (
+        <Modal
+            width={1000}
+            title="Note Audit"
+            open={isOpen}
+            cancelText="Close"
+            onCancel={() => handleClose(false)}
+            okButtonProps={{ style: { display: 'none' } }}
+        >
+            {notes?.map((note, index) => (
                 <div
-                    style={{ padding: 4 }}
+                    style={{ padding: 4, backgroundColor: index % 2 === 0 ? "whitesmoke" : "unset" }}
                     key={note.reviewNoteId + note.anchorId + note.lastModifiedDate}
                 >
-                    <Card>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <div>
-                                <div style={{ wordWrap: 'break-word', maxWidth: 700 }}>
-                                    Note: {note.noteText}
-                                </div>
-                                <div style={{ color: '#9ca3af', fontSize: 12 }}>
-                                    {note.noteType}
-                                </div>
+                    <Space align="start">
+                        <div style={{ width: 600 }}>
+                            <div style={{ wordWrap: 'break-word' }}>
+                                <b>Note:</b> {note.noteText}
                             </div>
-
-                            <div>
-                                <div>Updated By: {note.lastModifiedBy}</div>
-                                <div>Updated AT: {convertDateToPST(note.lastModifiedDate)}</div>
+                            <div style={{ marginTop: 2, color: '#9ca3af', fontSize: 12 }}>
+                                {note.noteType}
                             </div>
                         </div>
-                    </Card>
+
+                        <div style={{ width: 330, wordBreak: 'break-all' }}>
+                            <div><b>Updated By:</b> {note.lastModifiedBy}</div>
+                            <div><b>Updated AT:</b> {convertDateToPST(note.lastModifiedDate)}</div>
+                        </div>
+                    </Space>
                 </div>
             ))}
-        </div>
+        </Modal>
     ) : null;
 }

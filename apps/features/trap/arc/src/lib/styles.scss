@@ -1,8 +1,9 @@
 .arcContainer {
     width: 100%;
     display: flex;
+    justify-content: space-around;
     gap: 16px;
-    padding: 16px;
+    padding: 16px 10px 16px 16px;
     overflow: hidden;
     height: 100%;
     font-family: 'Lato';
@@ -277,8 +278,9 @@
 
 .assetInfoContainer {
     width: 100%;
+    height: 100%;
     display: flex;
-    padding: 16px;
+    padding: 4px 8px;
     justify-content: space-between;
     background-image: linear-gradient(#fef6ff, #ffffff3a);
     box-shadow: 1px 1px 8px rgb(228, 237, 237);
@@ -309,7 +311,7 @@
 }
 
 .securitySettingsContainer {
-    margin: 12px 0;
+    margin: 4px 0 2px 0px;
     box-shadow: 1px 1px 8px rgb(228, 237, 237);
 
     .ant-descriptions-view {
@@ -320,5 +322,65 @@
     .ant-descriptions-item-content {
         padding: 2px 2px 2px 8px !important;
         height: 25px;
+    }
+}
+
+.actionBarContainer {
+    margin: 0px 0 4px 0px;
+    box-shadow: 1px 1px 8px rgb(228, 237, 237);
+}
+
+.actionBarHeader {
+    border-radius: 4px 4px 0 0;
+    padding-left: 8px;
+    background-image: linear-gradient(to right, #b86544, #e7dccf);
+    color: #fff;
+}
+
+.actionBarButtonsContainer {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+}
+
+.analyticsTableContainer {
+    font-size: 12px;
+
+    .custom-table-container {
+        box-shadow: 1px 1px 8px rgb(228, 237, 237);
+        border-radius: 4px;
+        overflow: auto;
+        flex: 1;
+    }
+
+    .custom-table {
+        background-image: linear-gradient(#f1fff4, #ffffff3a);
+    }
+
+    .custom-table th {
+        background: #d2f5d9;
+        width: 25%;
+        font-size: 12px;
+        font-weight: 700;
+        color: #1a1a2e;
+        padding: 10px 12px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .custom-table td {
+        padding: 4px;
+        vertical-align: middle;
+    }
+
+    .custom-table tr:hover td {
+        background: #e8f4ff;
+        transition: background 0.15s;
+    }
+
+    .ant-input-disabled {
+        cursor: not-allowed !important;
+        opacity: 0.9 !important;
     }
 }

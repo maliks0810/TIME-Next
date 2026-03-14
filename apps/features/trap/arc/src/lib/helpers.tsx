@@ -87,6 +87,244 @@ export function extractCollateralType(payload: unknown): string {
     return '';
 }
 
+export function extractCallable(payload: unknown): string {
+    const tryParse = (s: string): any | null => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return null;
+        }
+    };
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const call = arr.find((x: any) => String(x?.type).toUpperCase() === 'CALLABLE');
+        if (!call) return '';
+
+        return call?.parameters?.callable;
+    }
+
+    if (typeof payload === 'string') {
+        const s1 = payload.trim();
+        const obj1 = tryParse(s1);
+        if (obj1) {
+            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
+            return extractCallable(obj2);
+        }
+
+        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+
+export function extractPrepaymentType(payload: unknown): string {
+    const tryParse = (s: string): any | null => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return null;
+        }
+    };
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const speed = arr.find((x: any) => String(x?.type).toUpperCase() === 'SPEED_OVERRIDES');
+        if (!speed) return '';
+
+        return speed?.parameters?.prepaymentType;
+    }
+
+    if (typeof payload === 'string') {
+        const s1 = payload.trim();
+        const obj1 = tryParse(s1);
+        if (obj1) {
+            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
+            return extractPrepaymentType(obj2);
+        }
+
+        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+
+export function extractPrepaymentSpeed(payload: unknown): string {
+    const tryParse = (s: string): any | null => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return null;
+        }
+    };
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const speed = arr.find((x: any) => String(x?.type).toUpperCase() === 'SPEED_OVERRIDES');
+        if (!speed) return '';
+
+        return speed?.parameters?.prepaymentSpeed;
+    }
+
+    if (typeof payload === 'string') {
+        const s1 = payload.trim();
+        const obj1 = tryParse(s1);
+        if (obj1) {
+            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
+            return extractPrepaymentSpeed(obj2);
+        }
+
+        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+
+export function extractDefaultType(payload: unknown): string {
+    const tryParse = (s: string): any | null => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return null;
+        }
+    };
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const speed = arr.find((x: any) => String(x?.type).toUpperCase() === 'SPEED_OVERRIDES');
+        if (!speed) return '';
+
+        return speed?.parameters?.defaultType;
+    }
+
+    if (typeof payload === 'string') {
+        const s1 = payload.trim();
+        const obj1 = tryParse(s1);
+        if (obj1) {
+            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
+            return extractDefaultType(obj2);
+        }
+
+        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+
+export function extractDefaultSpeed(payload: unknown): string {
+    const tryParse = (s: string): any | null => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return null;
+        }
+    };
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const speed = arr.find((x: any) => String(x?.type).toUpperCase() === 'SPEED_OVERRIDES');
+        if (!speed) return '';
+
+        return speed?.parameters?.defaultSpeed;
+    }
+
+    if (typeof payload === 'string') {
+        const s1 = payload.trim();
+        const obj1 = tryParse(s1);
+        if (obj1) {
+            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
+            return extractDefaultSpeed(obj2);
+        }
+
+        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+
+export function extractSeverity(payload: unknown): string {
+    const tryParse = (s: string): any | null => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return null;
+        }
+    };
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const speed = arr.find((x: any) => String(x?.type).toUpperCase() === 'SPEED_OVERRIDES');
+        if (!speed) return '';
+
+        return speed?.parameters?.severity;
+    }
+
+    if (typeof payload === 'string') {
+        const s1 = payload.trim();
+        const obj1 = tryParse(s1);
+        if (obj1) {
+            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
+            return extractSeverity(obj2);
+        }
+
+        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+
+export function extractDelinquency(payload: unknown): string {
+    const tryParse = (s: string): any | null => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return null;
+        }
+    };
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const speed = arr.find((x: any) => String(x?.type).toUpperCase() === 'SPEED_OVERRIDES');
+        if (!speed) return '';
+
+        return speed?.parameters?.delinquency;
+    }
+
+    if (typeof payload === 'string') {
+        const s1 = payload.trim();
+        const obj1 = tryParse(s1);
+        if (obj1) {
+            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
+            return extractDelinquency(obj2);
+        }
+
+        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+
+
 export const normalizeStatus = (s?: string | null) => (s ?? '').trim().toUpperCase();
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null;

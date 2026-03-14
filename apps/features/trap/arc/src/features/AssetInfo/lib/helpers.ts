@@ -1,5 +1,5 @@
 import { normalizeStatus } from '../../../lib/helpers';
-import { STATUSES_ENUM } from '../../../lib/constants';
+import { STATUSES_ENUM } from '../../../shared/constants';
 
 export const parseDate = (dateString?: string): Date => {
     if (dateString?.includes('T')) {
@@ -55,7 +55,7 @@ export const convertDateToPST = (dateString = ''): string => {
 };
 
 export const getElapsed = (date: Date) => {
-    const diffMs = Date.now() - date.getTime();
+    const diffMs = Math.abs(Date.now() - date.getTime());
 
     const totalSeconds = Math.floor(diffMs / 1000);
     const seconds = totalSeconds % 60;
@@ -98,3 +98,8 @@ export const getNextStatus = (currentStatus?: string) => {
             return '---';
     }
 };
+
+export const checkIsTimerShown = (status?: string) =>
+    status !== normalizeStatus(STATUSES_ENUM.ANALYTICS_VERIFIED_IN_ALADDIN) &&
+    status !== normalizeStatus(STATUSES_ENUM.ABANDONED) &&
+    status !== normalizeStatus(STATUSES_ENUM.INVALID_REQUEST);
