@@ -46,5 +46,14 @@ export interface SecuritySetupRequest {
     loanCategory: string;
     collateral: string;
     ffiecQual: string;
+    intexDealName: string;
+    intexPassword: string;
+    dealName: string;
+    prepaymentTypeValue: string;
+    defaultTypeValue: string;
+    prepaymentSpeed: number;
+    defaultSpeed: number;
+    severity: number;
+    delinquency: number;
     documents: SecuritySetupRequestAttachment[];
 }

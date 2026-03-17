@@ -334,6 +334,103 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
           <Grid>
             <Grid>
               <Typography variant="subtitle1" flex={1}>
+                <b>Intex Fields</b>
+              </Typography>
+            </Grid>
+            <Grid container flexDirection={'row'} columns={2} spacing={1}>
+              <Grid size={1}>
+                <Typography variant="caption">
+                  Intex Deal Name
+                </Typography>
+                <Typography variant="subtitle2" flex={1}>
+                  {securityRequest.securityRequestIntexFields.intexDealName}
+                </Typography>
+              </Grid>
+              <Grid size={1}>
+                <Typography variant="caption">
+                  Intex Password
+                </Typography>
+                <Typography variant="subtitle2">
+                  {securityRequest.securityRequestIntexFields.intexPassword}
+                </Typography>
+              </Grid>
+              <Grid size={1}>
+                <Typography variant="caption">
+                  Deal Name
+                </Typography>
+                <Typography variant="subtitle2">
+                  {securityRequest.securityRequestIntexFields.dealName}
+                </Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <Divider flexItem />
+
+          <Grid>
+            <Grid>
+              <Typography variant="subtitle1" flex={1}>
+                ARC Field
+              </Typography>
+            </Grid>
+            <Grid container flexDirection={'row'} columns={2} spacing={1}>
+              <Grid size={1}>
+                <Typography variant="caption">
+                  Prepayment Type Value
+                </Typography>
+                <Typography variant="subtitle2">
+                  {securityRequest.securityRequestArcFields.prepaymentTypeValue}
+                </Typography>
+              </Grid>
+
+              <Grid size={1}>
+                <Typography variant="caption">
+                  Default Type Value
+                </Typography>
+                <Typography variant="subtitle2">
+                  {securityRequest.securityRequestArcFields.defaultTypeValue}
+                </Typography>
+              </Grid>
+              <Grid size={1}>
+                <Typography variant="caption">
+                  Prepayment Speed
+                </Typography>
+                <Typography variant="subtitle2">
+                  {securityRequest.securityRequestArcFields.prepaymentSpeed}
+                </Typography>
+              </Grid>
+              <Grid size={1}>
+                <Typography variant="caption">
+                  Default Speed
+                </Typography>
+                <Typography variant="subtitle2">
+                  {securityRequest.securityRequestArcFields.defaultSpeed}
+                </Typography>
+              </Grid>
+              <Grid size={1}>
+                <Typography variant="caption">
+                  Severity
+                </Typography>
+                <Typography variant="subtitle2">
+                  {securityRequest.securityRequestArcFields.severity}
+                </Typography>
+              </Grid>
+              <Grid size={1}>
+                <Typography variant="caption">
+                  Delinquency
+                </Typography>
+                <Typography variant="subtitle2">
+                  {securityRequest.securityRequestArcFields.delinquency}
+                </Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <Divider flexItem />
+
+          <Grid>
+            <Grid>
+              <Typography variant="subtitle1" flex={1}>
                 Documents
               </Typography>
             </Grid>

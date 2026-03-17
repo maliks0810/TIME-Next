@@ -58,6 +58,19 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
       collateral: apiData.collateral,
       ffiecQual: apiData.ffiecQual,
     },
+    securityRequestIntexFields: {
+      intexDealName: apiData.intexDealName,
+      intexPassword: apiData.intexPassword,
+      dealName: apiData.dealName
+    },
+    securityRequestArcFields: {
+      prepaymentTypeValue: apiData.prepaymentTypeValue,
+      defaultTypeValue: apiData.defaultTypeValue,
+      prepaymentSpeed: apiData.prepaymentSpeed,
+      defaultSpeed: apiData.defaultSpeed,
+      severity: apiData.severity,
+      delinquency: apiData.delinquency,
+    },
     securityRequestDocuments: apiData.documents.map(transformDashboardSecuritySetupRequestDocument),
   };
 };

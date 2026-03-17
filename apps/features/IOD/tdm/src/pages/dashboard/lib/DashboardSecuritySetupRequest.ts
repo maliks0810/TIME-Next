@@ -11,6 +11,8 @@ export interface IDashboardSecuritySetupRequest {
     securityRequestDetails: IDashboardSecuritySetupRequestDetails;
     securityRequestEsgFields: IDashboardSecuritySetupRequestEsgFields;
     securityRequestTradeFields: IDashboardSecuritySetupRequestTradeFields;
+    securityRequestIntexFields: IDashboardSecuritySetupRequestIntexFields;
+    securityRequestArcFields: IDashboardSecuritySetupRequestArcFields;
     securityRequestDocuments: IDashboardSecuritySetupRequestAttachment[];
 }
 
@@ -49,6 +51,21 @@ export interface IDashboardSecuritySetupRequestTradeFields {
     loanCategory: string;
     collateral: string;
     ffiecQual: string;
+}
+
+export interface IDashboardSecuritySetupRequestIntexFields {
+    intexDealName: string;
+    intexPassword: string;
+    dealName: string;
+}
+
+export interface IDashboardSecuritySetupRequestArcFields {
+    prepaymentTypeValue: string;
+    defaultTypeValue: string;
+    prepaymentSpeed: number;
+    defaultSpeed: number;
+    severity: number;
+    delinquency: number;
 }
 
 export interface IDashboardSecuritySetupRequestAttachment {
