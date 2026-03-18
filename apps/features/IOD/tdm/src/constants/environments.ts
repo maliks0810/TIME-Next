@@ -1,4 +1,5 @@
 export const ENVIRONMENTS = {
+    LOCAL: 'local',
     DEV: 'dev',
     QA: 'qa',
     PROD: 'prod',
@@ -11,7 +12,12 @@ interface EnvironmentConfig {
     webAppUrl: string;
 }
 
+// TODO SOURCE BASE URL FROM PLOP ENVIRONMENT FILES...
 const environmentConfigs: Record<Environment, EnvironmentConfig> = {
+    [ENVIRONMENTS.LOCAL]: {
+        apiBaseUrl: 'https://localhost:44336',
+        webAppUrl: 'timenext-sandbox-feature-tdm-main.np.tcw.com',
+    },
     [ENVIRONMENTS.DEV]: {
         apiBaseUrl: 'https://tdm-web-service-dev.np.tcw.com',
         webAppUrl: 'timenext-sandbox-feature-tdm-main.np.tcw.com',
@@ -39,6 +45,8 @@ export const getCurrentEnvironment = (): Environment => {
 
     // Default to dev for local development
     return ENVIRONMENTS.DEV;
+    //return ENVIRONMENTS.LOCAL;
+
 };
 
 /**

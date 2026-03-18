@@ -54,6 +54,8 @@ const mergeWizardDataWithSaveResponse = (
     yellowKey: savedData.yellowKey ?? prev.step1.yellowKey,
     isEuSecuritizationRequired: savedData.isEuSecuritizationRequired ?? undefined,
     euSecuritizationTipEuId: savedData.euSecuritizationTipEuId ?? prev.step1.euSecuritizationTipEuId,
+    euSecuritizationStatus: savedData.euSecuritizationStatus ?? prev.step1.euSecuritizationStatus,
+    erisaStatus: savedData.erisaStatus ?? prev.step1.erisaStatus,
     intexDealName: savedData.intexDealName ?? undefined,
     intexPassword: savedData.intexPassword ?? undefined,
     dealName: savedData.dealName ?? undefined,
@@ -147,6 +149,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           yellowKey: initialData.yellowKey ?? undefined,
           isEuSecuritizationRequired: initialData.isEuSecuritizationRequired ?? undefined,
           euSecuritizationTipEuId: initialData.euSecuritizationTipEuId ?? undefined,
+          euSecuritizationStatus: initialData.euSecuritizationStatus ?? undefined,
+          erisaStatus: initialData.erisaStatus ?? undefined,
           intexDealName: initialData.intexDealName ?? undefined,
           intexPassword: initialData.intexPassword ?? undefined,
           dealName: initialData.dealName ?? undefined,
@@ -291,8 +295,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   };
 
   function isValidString(str: string | null | undefined): boolean {
-  // Returns false for null, undefined, and ""
-  return !!str;
+    // Returns false for null, undefined, and ""
+    return !!str;
   }
   
   const canProceed = (): boolean => {
@@ -308,7 +312,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         if(!isValidString(wizardData.step1.identifierValue) || 
            !isValidString(wizardData.step1.marketSector) ||
            (wizardData.step1.isEuSecuritizationRequired && 
-            !isValidString(wizardData.step1.euSecuritizationTipEuId))
+            !isValidString(wizardData.step1.euSecuritizationTipEuId) &&
+            !isValidString(wizardData.step1.euSecuritizationStatus)) ||
+            !isValidString(wizardData.step1.erisaStatus)
           )
         {
           return false;

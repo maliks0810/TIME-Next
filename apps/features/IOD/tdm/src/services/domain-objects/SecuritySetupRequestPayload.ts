@@ -33,6 +33,8 @@ export interface ISecuritySetupRequestPresentation {
     yellowKey: string | null;
     isEuSecuritizationRequired: boolean | null;
     euSecuritizationTipEuId: string | null;
+    euSecuritizationStatusValue?: string | null;
+    erisaStatusValue?: string | null;
     intexDealName?: string | null;
     intexPassword?: string | null;
     dealName?: string | null;
@@ -99,6 +101,8 @@ export interface ISecuritySetupRequestDomain {
     YellowKey?: string;
     IsEuSecuritizationRequired?: boolean | null;
     EuSecuritizationTipEuId?: string;
+    EuSecuritizationStatusValue?: string | null;
+    ErisaStatusValue?: string | null;
     IntexDealName?: string;
     IntexPassword?: string;
     DealName?: string;
@@ -183,6 +187,8 @@ export interface ISecuritySetupWizardPayload {
     yellowKey?: string | null;
     isEuSecuritizationRequired?: boolean | null;
     euSecuritizationTipEuId?: string | null;
+    euSecuritizationStatus?: string | null;
+    erisaStatus?: string | null;
     intexDealName?: string | null;
     intexPassword?: string | null;
     dealName?: string | null;

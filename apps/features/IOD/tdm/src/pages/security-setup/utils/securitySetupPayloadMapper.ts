@@ -40,7 +40,8 @@ export const mapEnterIdentifierToPayload = (
         // EU Security Verification
         isEuSecuritizationRequired: formValues.isEuSecuritizationRequired || null,
         euSecuritizationTipEuId: formValues.euSecuritizationTipEuId || null,
-
+        euSecuritizationStatus: formValues.euSecuritizationStatus || null,
+        erisaStatus: formValues.erisaStatus || null,
         // Deal Name
         intexDealName: formValues.intexDealName || null,
         intexPassword: formValues.intexPassword || null,
@@ -127,6 +128,8 @@ export const mapPayloadToFormValues = (
             yellowKey: payload.yellowKey || undefined,
             isEuSecuritizationRequired: payload.isEuSecuritizationRequired || undefined,
             euSecuritizationTipEuId: payload.euSecuritizationTipEuId || undefined,
+            euSecuritizationStatus: payload.euSecuritizationStatus|| undefined,
+            erisaStatus: payload.erisaStatus || undefined,
             intexDealName: payload.intexDealName || undefined,
             intexPassword: payload.intexPassword || undefined,
             dealName: payload.dealName || undefined,

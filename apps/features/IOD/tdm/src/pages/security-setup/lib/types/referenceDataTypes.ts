@@ -56,4 +56,6 @@ export enum ReferenceDataFieldKey {
     // Review Details - Speed Overrides fields
     PrepaymentType = 'Prepayment Type',
     DefaultType = 'Default Type',
+    EuSecuritizationStatus = 'EU Securitization Status',
+    ErisaStatus = 'ERISA Status'
 }
