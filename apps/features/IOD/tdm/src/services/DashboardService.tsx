@@ -40,6 +40,7 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
       euSecuritizationTipEuId: apiData.euSecuritizationTipEuId,
       callDate: getDateFromString(apiData.callDate),
       price: apiData.price ? apiData.price.toFixed(2) : '',
+      callableValue: apiData.callableValue?.toLowerCase() === "y" ? "Yes" : apiData.callableValue?.toLowerCase() === "n" ? "No" : "",
     },
     securityRequestEsgFields: {
       tcwEsg: apiData.tcwEsg,
