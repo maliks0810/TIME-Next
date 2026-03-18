@@ -290,6 +290,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     return null;
   };
 
+  function isValidString(str: string | null | undefined): boolean {
+  // Returns false for null, undefined, and ""
+  return !!str;
+  }
+  
   const canProceed = (): boolean => {
     if (saveStatus === 'saving' || saveStatus === 'saved') {
       return false;
@@ -300,7 +305,15 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
     switch (currentStep) {
       case 'enter-identifier':
-        return !!wizardData.step1.identifierValue && !!wizardData.step1.marketSector;
+        if(!isValidString(wizardData.step1.identifierValue) || 
+           !isValidString(wizardData.step1.marketSector) ||
+           (wizardData.step1.isEuSecuritizationRequired && 
+            !isValidString(wizardData.step1.euSecuritizationTipEuId))
+          )
+        {
+          return false;
+        }
+        return true;
       case 'ssap-confirmation':
       case 'review-details':
       case 'confirm-details':
