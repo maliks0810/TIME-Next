@@ -1,24 +1,23 @@
 import { useCallback, useState } from 'react';
 import PreviewStaticScenariosModal from '../Modals/PreviewStaticScenariosModal';
-import { Button } from 'antd';
-import { normalizeStatus } from '../../../lib/helpers';
+import { Button, Tooltip } from 'antd';
+import { extractCallable } from '../../../lib/helpers';
 import { MessageInstance } from 'antd/es/message/interface';
+import { PREVIEW_STATIC_BUTTON_TEXT } from '../../../shared/constants';
 
 type PreviewStaticScenariosButtonProps = {
     messageApi: MessageInstance;
-    selectedAssetStatus?: string;
     selectedAladdinId?: string;
+    selectedPayload?: string;
 };
 export const PreviewStaticScenariosButton = ({
-    selectedAssetStatus,
     messageApi,
     selectedAladdinId,
+    selectedPayload,
 }: PreviewStaticScenariosButtonProps) => {
     const [isScenariosPreviewModalOpen, setIsScenariosPreviewModalOpen] = useState(false);
 
-    const canPublish =
-        !!selectedAssetStatus &&
-        normalizeStatus(selectedAssetStatus) === 'ANALYTICS INPUT PENDING REVIEW';
+    const canPublish = !!selectedAladdinId && extractCallable(selectedPayload) != 'N';
 
     const handleToggleScenariosPreviewModal = useCallback(() => {
         setIsScenariosPreviewModalOpen((prevState) => !prevState);
@@ -32,14 +31,16 @@ export const PreviewStaticScenariosButton = ({
                 aladdinId={selectedAladdinId as string}
                 messageApi={messageApi}
             />
-            <Button
-                className="previewStaticScenarios"
-                type="primary"
-                disabled={!canPublish}
-                onClick={handleToggleScenariosPreviewModal}
-            >
-                Preview Static Scenarios
-            </Button>
+            <Tooltip title={PREVIEW_STATIC_BUTTON_TEXT} placement='top'>
+                <Button
+                    className="previewStaticScenarios"
+                    type="primary"
+                    disabled={!canPublish}
+                    onClick={handleToggleScenariosPreviewModal}
+                >
+                    Preview Static Scenarios
+                </Button>
+            </Tooltip>
         </div>
     );
 };

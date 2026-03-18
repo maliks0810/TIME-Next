@@ -11,13 +11,15 @@ type UtilityBarProps = {
     selectedAssetStatus?: string;
     selectedAladdinId?: string;
     selectedRowRequestId: number;
+    selectedPayload?: string
 };
 
 export const UtilityBar = ({
     selectedAssetStatus,
     selectedAladdinId,
     isAnalitycsSavePending,
-    selectedRowRequestId
+    selectedRowRequestId,
+    selectedPayload
 }: UtilityBarProps) => {
     const [messageApi, contextHolder] = message.useMessage();
     const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
@@ -28,8 +30,8 @@ export const UtilityBar = ({
             label: (
                 <PreviewBondFeaturesButton
                     messageApi={messageApi}
-                    selectedAssetStatus={selectedAssetStatus}
                     selectedAladdinId={selectedAladdinId}
+                    selectedPayload={selectedPayload}
                 />
             ),
         },
@@ -38,8 +40,8 @@ export const UtilityBar = ({
             label: (
                 <PreviewStaticScenariosButton
                     messageApi={messageApi}
-                    selectedAssetStatus={selectedAssetStatus}
                     selectedAladdinId={selectedAladdinId}
+                    selectedPayload={selectedPayload}
                 />
             ),
         },

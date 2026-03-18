@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
-import { Button } from 'antd';
+import { Button, Tooltip } from 'antd';
 import PreviewAnalyticsModal from '../Modals/PreviewAnalyticsModal';
 import { normalizeStatus } from '../../../lib/helpers';
-import { STATUSES_ENUM } from '../../../shared/constants';
+import { PREVIEW_ANALYTICS_BUTTON_TEXT, STATUSES_ENUM } from '../../../shared/constants';
 import { MessageInstance } from 'antd/es/message/interface';
 
 type PreviewAnalyticsButtonProps = {
@@ -35,14 +35,16 @@ export const PreviewAnalyticsButton = ({
                 toggleModal={handleTogglePreviewAnalyticsOverrideModal}
                 messageApi={messageApi}
             />
-            <Button
-                className="previewStaticScenarios"
-                type="primary"
-                disabled={!canPreviewAnalytics}
-                onClick={handleTogglePreviewAnalyticsOverrideModal}
-            >
-                Preview Analytics
-            </Button>
+            <Tooltip title={PREVIEW_ANALYTICS_BUTTON_TEXT} placement='top'>
+                <Button
+                    className="previewStaticScenarios"
+                    type="primary"
+                    disabled={!canPreviewAnalytics}
+                    onClick={handleTogglePreviewAnalyticsOverrideModal}
+                >
+                    Preview Analytics
+                </Button>
+            </Tooltip>
         </div>
     );
 };

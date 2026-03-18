@@ -46,7 +46,7 @@ export const AssetInfoInput = ({
                     rules={[{ required: required, message: `Please Provide ${title}` }]}
                 >
                     <Input
-                        style={{ ...style, minWidth: '90px' }}
+                        style={{ minWidth: '90px', ...style }}
                         value={value ?? ''}
                         disabled={disabled}
                         size="small"
@@ -55,7 +55,7 @@ export const AssetInfoInput = ({
                     />
                 </Form.Item>
             </div>
-            <div style={{ fontSize: 9, color: titleColor }}>{title}</div>
+            <div style={{ fontSize: 9, color: titleColor }}>{title}{required && '*'}</div>
         </div>
     );
 };

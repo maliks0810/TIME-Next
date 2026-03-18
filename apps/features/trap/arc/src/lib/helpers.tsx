@@ -53,6 +53,37 @@ export function extractCallDate(payload: unknown): string {
     return '';
 }
 
+export function extractCallDateText(payload: unknown): string {
+    const tryParse = (s: string): any | null => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return null;
+        }
+    };
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const call = arr.find((x: any) => String(x?.type).toUpperCase() === 'CALL_DATE');
+        if (!call) return '';
+
+        return call?.parameters?.callDate;
+    }
+
+    if (typeof payload === 'string') {
+        const s1 = payload.trim();
+        const obj1 = tryParse(s1);
+        if (obj1) {
+            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
+            return extractCallDateText(obj2);
+        }
+    }
+
+    return '';
+}
+
 export function extractCollateralType(payload: unknown): string {
     const tryParse = (s: string): any | null => {
         try {
@@ -463,3 +494,8 @@ export function formatIso(iso?: string | null): string {
     if (!d.isValid()) return '';
     return d.format('YYYY-MM-DD hh:mm A');
 }
+
+export const hasValue = (v: unknown) =>
+    v !== null &&
+    v !== undefined &&
+    !(typeof v === 'string' && v.trim() === '');

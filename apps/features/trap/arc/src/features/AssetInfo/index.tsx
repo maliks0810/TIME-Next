@@ -10,7 +10,7 @@ import { claimAsset } from '../../lib/services';
 import { useUserInfo } from '@platform/utils';
 import { updateAnalyticsInputOverrides } from '../../lib/services';
 
-import { extractCallable, extractCallDate, extractCollateralType, extractDefaultSpeed, extractDefaultType, extractDelinquency, extractPrepaymentSpeed, extractPrepaymentType, extractSeverity } from '../../lib/helpers';
+import { extractCallable, extractCallDate, extractCollateralType, extractDefaultSpeed, extractDefaultType, extractDelinquency, extractPrepaymentSpeed, extractPrepaymentType, extractSeverity, hasValue, extractCallDateText } from '../../lib/helpers';
 import { AssetInfoInput } from './components/AssetInfoInput';
 import { AssetInfoSelectCollateralType } from './components/AssetInfoSelectCollateralType';
 import { AssetInfoDatePicker } from './components/AssetInfoDatePicker';
@@ -33,7 +33,15 @@ export const AssetInfo = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [messageApi, contextHolder] = message.useMessage();
 
-    const canSave = assetInfo?.status === 'ANALYTICS INPUT PENDING REVIEW' || assetInfo?.status === 'MANUAL';
+    const callableVal = Form.useWatch('callable', form);
+    const callDateVal = Form.useWatch('callDateInput', form);
+    const priceVal = Form.useWatch('priceInput', form);
+    const analysisDateVal = Form.useWatch('analysisDateInput', form);
+    const collateralTypeVal = Form.useWatch('collateralType', form);
+    const overrideNotesVal = Form.useWatch('noteTextArea', form);
+
+    const isCallDateValid = (callableVal === 'Y' || callableVal === 'C') ? hasValue(callDateVal) : true;
+    const canSave = hasValue(callableVal) && isCallDateValid && hasValue(priceVal) && hasValue(analysisDateVal) && hasValue(collateralTypeVal) && hasValue(overrideNotesVal);
 
     useEffect(() => {
         if (selectedAssetId) {
@@ -62,12 +70,14 @@ export const AssetInfo = ({
         });
     };
     useEffect(() => {
+        const callableInputVal = extractCallable(assetInfo?.payload);
+        const callDateInputVal = callableInputVal === 'Y' ? extractCallDate(assetInfo?.payload) : (callableInputVal === 'C' ? extractCallDateText(assetInfo?.payload) : '');
+        form.setFieldValue('callable', callableInputVal);
         form.setFieldValue('selectStatus', assetInfo?.status);
         form.setFieldValue('priceInput', assetInfo?.price);
-        form.setFieldValue('callDateInput', extractCallDate(assetInfo?.payload));
+        form.setFieldValue('callDateInput', callDateInputVal);
         form.setFieldValue('analysisDateInput', assetInfo?.analysisDate);
         form.setFieldValue('collateralType', extractCollateralType(assetInfo?.payload));
-        form.setFieldValue('callable', extractCallable(assetInfo?.payload));
         form.setFieldValue('prepaymentType', extractPrepaymentType(assetInfo?.payload));
         form.setFieldValue('prepaymentSpeedInput', extractPrepaymentSpeed(assetInfo?.payload));
         form.setFieldValue('defaultType', extractDefaultType(assetInfo?.payload));
@@ -87,6 +97,39 @@ export const AssetInfo = ({
     const saveInputOverrides = async () => {
         setIsLoading(true);
         try {
+            const payloadObj = [];
+            payloadObj.push(...[
+                {
+                    type: 'COLLATERAL_TYPE',
+                    parameters: {
+                        collateralType: form.getFieldValue('collateralType'),
+                    },
+                },
+                {
+                    "type": "CALLABLE",
+                    "parameters": {
+                        "callable": form.getFieldValue('callable')
+                    }
+                },
+                {
+                    "type": "SPEED_OVERRIDES",
+                    "parameters": {
+                        "prepaymentType": form.getFieldValue('prepaymentType'),
+                        "prepaymentSpeed": form.getFieldValue('prepaymentSpeedInput') as number,
+                        "defaultType": form.getFieldValue('defaultType'),
+                        "defaultSpeed": form.getFieldValue('defaultSpeedInput') as number,
+                        "severity": form.getFieldValue('severityInput') as number,
+                        "delinquency": form.getFieldValue('delinquencyInput') as number,
+                    }
+                }
+            ]);
+            if ((callableVal === 'Y' || callableVal === 'C') && hasValue(callDateVal)) {
+                payloadObj.push(
+                    {
+                        type: 'CALL_DATE',
+                        parameters: { callDate: form.getFieldValue('callDateInput') },
+                    });
+            }
             const requestPayload = {
                 assets: [
                     {
@@ -98,35 +141,7 @@ export const AssetInfo = ({
                         assetType: assetInfo?.assetType,
                         analysisDate: form.getFieldValue('analysisDateInput'),
                         price: form.getFieldValue('priceInput'),
-                        payload: [
-                            {
-                                type: 'CALL_DATE',
-                                parameters: { callDate: form.getFieldValue('callDateInput') },
-                            },
-                            {
-                                type: 'COLLATERAL_TYPE',
-                                parameters: {
-                                    collateralType: form.getFieldValue('collateralType'),
-                                },
-                            },
-                            {
-                                "type": "CALLABLE",
-                                "parameters": {
-                                    "callable": form.getFieldValue('callable')
-                                }
-                            },
-                            {
-                                "type": "SPEED_OVERRIDES",
-                                "parameters": {
-                                    "prepaymentType": form.getFieldValue('prepaymentType'),
-                                    "prepaymentSpeed": form.getFieldValue('prepaymentSpeedInput') as number,
-                                    "defaultType": form.getFieldValue('defaultType'),
-                                    "defaultSpeed": form.getFieldValue('defaultSpeedInput') as number,
-                                    "severity": form.getFieldValue('severityInput') as number,
-                                    "delinquency": form.getFieldValue('delinquencyInput') as number,
-                                }
-                            }
-                        ],
+                        payload: payloadObj,
                         cdiCduBlob: assetInfo?.cdiCduBlob,
                         modifiedBy: user.email,
                         assetSubType: null,
@@ -163,6 +178,11 @@ export const AssetInfo = ({
     return (
         <Form
             form={form}
+            onValuesChange={(changedValues) => {
+                if (changedValues.hasOwnProperty('callable')) {
+                    form.resetFields(['callDateInput']);
+                }
+            }}
             onFinish={async () => {
                 await saveInputOverrides();
             }}
@@ -210,23 +230,41 @@ export const AssetInfo = ({
                         value={assetInfo?.price}
                         formItemName="priceInput"
                         inputType="number"
-                        required= {true}
+                        required={true}
                         controls={false}
                     />
                     <AssetInfoDatePicker
                         title="Analysis Date"
                         value={assetInfo?.analysisDate}
                         formItemName="analysisDateInput"
+                        required={true}
+
                     />
                     <AssetInfoCallable
                         title="Callable"
                         value={extractCallable(assetInfo?.payload)}
+                        required={true}
                     />
-                    <AssetInfoDatePicker
-                        title="Call Date"
-                        value={extractCallDate(assetInfo?.payload)}
-                        formItemName="callDateInput"
-                    />
+                    {
+                        (callableVal === 'Y' || callableVal === 'C')
+                        && (
+                            (callableVal === 'Y') ? <AssetInfoDatePicker
+                                title="Call Date"
+                                value={extractCallDate(assetInfo?.payload)}
+                                formItemName="callDateInput"
+                                required={true}
+                            />
+                                : <AssetInfoInput
+                                    title="Call Date Text"
+                                    value={extractCallDateText(assetInfo?.payload)}
+                                    formItemName="callDateInput"
+                                    inputType="input"
+                                    required={true}
+                                    style={{width: 142}}
+                                />
+                        )
+                    }
+
                 </div>
                 <Divider type="vertical" style={{ height: '100%', padding: 0 }} />
                 <div style={{ flex: 0.5 }}>
@@ -239,7 +277,7 @@ export const AssetInfo = ({
                         value={extractPrepaymentSpeed(assetInfo?.payload)}
                         formItemName="prepaymentSpeedInput"
                         inputType="number"
-                        required= {false}
+                        required={false}
                         controls={false}
                     />
                     <AssetInfoDefaultType
@@ -296,7 +334,7 @@ export const AssetInfo = ({
                         inputType="textArea"
                         formItemName="noteTextArea"
                         style={{ minHeight: 160, width: '90%' }}
-                        required= {true}
+                        required={true}
                     />
                     <Form.Item noStyle>
                         <div style={{ display: 'flex', justifyContent: 'end', paddingBottom: 4 }}>
