@@ -32,6 +32,7 @@ export interface IDashboardSecuritySetupRequestDetails {
     euSecuritizationTipEuId: string;
     callDate: Date | null;
     price: string;
+    callableValue: string;
 }
 
 export interface IDashboardSecuritySetupRequestEsgFields {

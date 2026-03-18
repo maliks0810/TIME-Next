@@ -206,6 +206,14 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                   {securityRequest.securityRequestDetails.price}
                 </Typography>
               </Grid>
+              <Grid size={1}>
+                <Typography variant="caption">
+                  Callable
+                </Typography>
+                <Typography variant="subtitle2">
+                  {securityRequest.securityRequestDetails.callableValue}
+                </Typography>
+              </Grid>
             </Grid>
           </Grid>
 

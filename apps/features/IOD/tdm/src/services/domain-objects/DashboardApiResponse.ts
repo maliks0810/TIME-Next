@@ -33,6 +33,7 @@ export interface SecuritySetupRequest {
     callDate: string;
     tranche: string;
     price: number;
+    callableValue: string;
     tcwEsg: string;
     esgCollateralType: string;
     tcwEsgType: string;
