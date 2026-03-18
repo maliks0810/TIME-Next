@@ -20,6 +20,8 @@ export interface SecuritySetupRequest {
     setupStatus: string;
     riskAnalyticsStatus: string;
     readyForTradingStatus: string;
+    euSecuritizationStatus: string;
+    erisaStatus: string;
     processTime: number | null;
     isPrivateDeal: boolean;
     ssapIdPassword: string;

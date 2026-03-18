@@ -80,6 +80,44 @@ export const ReadyForTradingStatuses: IStatusProperties[] = [
     },
 ];
 
+export const EuSecuritizationStatuses: IStatusProperties[] = [
+    {
+      name: 'Not Started',
+      className: 'status-gray'
+    },
+    {
+      name: 'Review In Progress',
+      className: 'status-orange'
+    },
+    {
+      name: 'Review Completed',
+      className: 'status-green'
+    },
+    {
+      name: 'Not Required',
+      className: 'status-green'
+    },
+];
+
+export const ErisaStatuses: IStatusProperties[] = [
+    {
+      name: 'Not Started',
+      className: 'status-gray'
+    },
+    {
+      name: 'Review In Progress',
+      className: 'status-orange'
+    },
+    {
+      name: 'Review Completed',
+      className: 'status-green'
+    },
+    {
+      name: 'Not Required',
+      className: 'status-green'
+    },
+];
+
 export const SetupStatusesRecord: Record<string, IStatusProperties> = SetupStatuses.reduce((rec, statusProperty) => {
   rec[statusProperty.name] = statusProperty;
   return rec;
@@ -91,6 +129,16 @@ export const RiskAnalyticsStatusesRecord: Record<string, IStatusProperties> = Ri
 }, {} as Record<string, IStatusProperties>);
 
 export const ReadyForTradingStatusesRecord: Record<string, IStatusProperties> = ReadyForTradingStatuses.reduce((rec, statusProperty) => {
+  rec[statusProperty.name] = statusProperty;
+  return rec;
+}, {} as Record<string, IStatusProperties>);
+
+export const EuSecuritizationStatusesRecord: Record<string, IStatusProperties> = EuSecuritizationStatuses.reduce((rec, statusProperty) => {
+  rec[statusProperty.name] = statusProperty;
+  return rec;
+}, {} as Record<string, IStatusProperties>);
+
+export const ErisaStatusesRecord: Record<string, IStatusProperties> = ErisaStatuses.reduce((rec, statusProperty) => {
   rec[statusProperty.name] = statusProperty;
   return rec;
 }, {} as Record<string, IStatusProperties>);

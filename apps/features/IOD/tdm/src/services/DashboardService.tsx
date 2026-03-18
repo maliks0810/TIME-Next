@@ -23,6 +23,8 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
     setupStatus: apiData.setupStatus,
     riskAnalyticsStatus: apiData.riskAnalyticsStatus,
     readyForTradingStatus: apiData.readyForTradingStatus,
+    euSecuritizationStatus: apiData.euSecuritizationStatus,
+    erisaStatus: apiData.erisaStatus,
     processTime: Number(apiData.processTime),
     securityRequestDetails: {
       identifierType: apiData.identifierType,

@@ -4,7 +4,12 @@ import { Box, Grid } from '@mui/material';
 import { DataGrid } from 'devextreme-react';
 import { Column, DataGridTypes, HeaderFilter, Pager, Paging, Selection } from 'devextreme-react/data-grid';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
-import { SetupStatusesRecord, RiskAnalyticsStatusesRecord, ReadyForTradingStatusesRecord } from '../lib/DashboardSecuritySetupRequestStatuses';
+import { 
+  SetupStatusesRecord, 
+  RiskAnalyticsStatusesRecord, 
+  ReadyForTradingStatusesRecord,
+  EuSecuritizationStatusesRecord,
+  ErisaStatusesRecord } from '../lib/DashboardSecuritySetupRequestStatuses';
 import '../lib/dashboard.scss';
 
 type DashboardGridProps = {
@@ -66,6 +71,42 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         <Grid container justifyContent={'center'}>
           <Box className={className} whiteSpace={'normal'}>
             {readyForTradingStatusProperties.name}
+          </Box>
+        </Grid>
+      )
+    }
+
+    return <></>;
+  }
+
+  const cellRenderEuSecuritizationStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
+    const status = data.value;
+    const euSecuritizationStatusProperties = EuSecuritizationStatusesRecord[status]
+
+    if (status && euSecuritizationStatusProperties) {
+      const className = 'dashboard-grid-status ' + euSecuritizationStatusProperties.className;
+      return (
+        <Grid container justifyContent={'center'}>
+          <Box className={className} whiteSpace={'normal'}>
+            {euSecuritizationStatusProperties.name}
+          </Box>
+        </Grid>
+      )
+    }
+
+    return <></>;
+  }
+
+  const cellRenderErisaStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
+    const status = data.value;
+    const erisaStatusProperties = ErisaStatusesRecord[status]
+
+    if (status && erisaStatusProperties) {
+      const className = 'dashboard-grid-status ' + erisaStatusProperties.className;
+      return (
+        <Grid container justifyContent={'center'}>
+          <Box className={className} whiteSpace={'normal'}>
+            {erisaStatusProperties.name}
           </Box>
         </Grid>
       )
@@ -143,6 +184,20 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           alignment='center'
           width={'20%'}
           cellRender={cellRenderRiskAnalyticsStatus}
+        />
+        <Column
+          dataField='euSecuritizationStatus'
+          caption='Eu Securtization Status'
+          alignment='center'
+          width={'20%'}
+          cellRender={cellRenderEuSecuritizationStatus}
+        />
+        <Column
+          dataField='erisaStatus'
+          caption='Erisa Status'
+          alignment='center'
+          width={'20%'}
+          cellRender={cellRenderErisaStatus}
         />
         <Column
           dataField='readyForTradingStatus'

@@ -59,6 +59,8 @@ const SecuritySetupComponent: React.FC = () => {
         yellowKey: data.step1.yellowKey,
         isEuSecuritizationRequired: data.step1.isEuSecuritizationRequired,
         euSecuritizationTipEuId: data.step1.euSecuritizationTipEuId,
+        euSecuritizationStatus: data.step1.euSecuritizationStatus,
+        erisaStatus: data.step1.erisaStatus,
         intexDealName: data.step1.intexDealName,
         intexPassword: data.step1.intexPassword,
         dealName: data.step1.dealName,

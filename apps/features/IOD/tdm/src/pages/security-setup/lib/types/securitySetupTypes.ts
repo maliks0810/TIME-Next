@@ -51,6 +51,8 @@ export interface IEnterIdentifierFormValues {
     intexDealName?: string;
     intexPassword?: string;
     dealName?: string;
+    euSecuritizationStatus?: string;
+    erisaStatus?: string;
 }
 
 // Review Details - Security Details

@@ -7,6 +7,8 @@ export interface IDashboardSecuritySetupRequest {
     setupStatus: string;
     riskAnalyticsStatus: string;
     readyForTradingStatus: string;
+    euSecuritizationStatus: string;
+    erisaStatus: string;
     processTime: number | null;
     securityRequestDetails: IDashboardSecuritySetupRequestDetails;
     securityRequestEsgFields: IDashboardSecuritySetupRequestEsgFields;
