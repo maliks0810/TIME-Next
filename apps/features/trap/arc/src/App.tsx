@@ -3,7 +3,7 @@ import { Alert, Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import NewAssetsContent from './features/NewAssetsContent';
-import { NewAsset } from './lib/types';
+import { NewAsset, TableRow } from './lib/types';
 import './lib/styles.scss';
 import '../src/lib/styles.scss';
 import { NewAssetsList } from './features/NewAssetsList';
@@ -13,7 +13,7 @@ import { RequestNewAsset } from './features/RequestNewAsset';
 const NEW_ASSETS_LIST_ENDPOINT = '/api/hubs/workflow?workflowGroup=AnalyticsSummary';
 
 export default function App() {
-    const [selectedRow, setSelectedRow] = useState<NewAsset | null>(null);
+    const [selectedRow, setSelectedRow] = useState<TableRow<NewAsset> | null>(null);
     const [searchParams] = useSearchParams();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const { assetTableData, errorMessage, latestUpdateTimestamp } =
@@ -35,7 +35,7 @@ export default function App() {
                         ...assetTableData.find(
                             (row) => row.assetAnalyticsSetupId === Number(assetId)
                         ),
-                    }) as unknown as NewAsset
+                    }) as TableRow<NewAsset>
             );
         }
     }, [searchParams.get('assetId'), assetTableData]);
@@ -64,6 +64,7 @@ export default function App() {
                 selectedRowAladdinId={selectedRow?.aladdinId}
                 latestUpdateTimestamp={latestUpdateTimestamp}
                 selectedStatus={selectedRow?.status}
+                selectedPayload={selectedRow?.raw?.payload}
             />
             <div>
                 <div

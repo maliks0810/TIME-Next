@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Button } from 'antd';
+import { Button, Tooltip } from 'antd';
 import { useUserInfo } from '@platform/utils';
 import { useSearchParams } from 'react-router-dom';
 import { publishAnalytics, postVerifyAnalytics } from '../lib/services';
 import { normalizeStatus } from '../../../lib/helpers';
 import { MessageInstance } from 'antd/es/message/interface';
+import { PUBLISH_ANALYTICS_BUTTON_HELPTEXT } from '../../../shared/constants';
 
 type PublishAnalyticsButtonProps = {
     messageApi: MessageInstance;
@@ -54,14 +55,16 @@ export const PublishAnalyticsButton = ({
     }, [isLoading]);
 
     return (
-        <Button
-            type="primary"
-            onClick={handlePublishAnalytics}
-            loading={isLoading}
-            disabled={publishAnalyticsDisabled}
-            size="small"
-        >
-            Publish Analytics
-        </Button>
+        <Tooltip title={PUBLISH_ANALYTICS_BUTTON_HELPTEXT} placement='top'>
+            <Button
+                type="primary"
+                onClick={handlePublishAnalytics}
+                loading={isLoading}
+                disabled={publishAnalyticsDisabled}
+                size="small"
+            >
+                Publish Analytics
+            </Button>
+        </Tooltip>
     );
 };

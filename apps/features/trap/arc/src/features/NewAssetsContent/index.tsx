@@ -26,6 +26,7 @@ type NewAssetsContentProps = {
     selectedRowAladdinId?: string;
     selectedStatus?: string;
     latestUpdateTimestamp: number;
+    selectedPayload?: string
 };
 
 function NewAssetsContent({
@@ -33,6 +34,7 @@ function NewAssetsContent({
     latestUpdateTimestamp,
     selectedStatus,
     selectedRowAladdinId,
+    selectedPayload
 }: NewAssetsContentProps) {
     const [form] = Form.useForm();
     const [isAnalitycsSavePending, setIsAnalitycsSavePending] = useState(false);
@@ -112,7 +114,7 @@ function NewAssetsContent({
             >
                 <div style={{ display: 'flex', gap: 16 }}>
                     <div style={{ flex: 1 }}>
-                        <ActionBar selectedAssetStatus={selectedStatus} setIsActionInprogress={setIsActionInprogress} />
+                        <ActionBar selectedAssetStatus={selectedStatus} selectedPayload= {selectedPayload} setIsActionInprogress={setIsActionInprogress} />
                     </div>
 
                     <div style={{ flex: 1 }}>
@@ -121,6 +123,7 @@ function NewAssetsContent({
                             isAnalitycsSavePending={isAnalitycsSavePending}
                             selectedAladdinId={selectedRowAladdinId}
                             selectedRowRequestId={selectedRowRequestId as number}
+                            selectedPayload={selectedPayload}
                         />
                     </div>
                 </div>

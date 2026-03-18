@@ -7,10 +7,11 @@ import { message } from 'antd';
 
 type ActionBarProps = {
     selectedAssetStatus?: string;
+    selectedPayload?: string;
     setIsActionInprogress: (isActionInProgress: boolean) => void;
 };
 
-export const ActionBar = ({ selectedAssetStatus, setIsActionInprogress }: ActionBarProps) => {
+export const ActionBar = ({ selectedAssetStatus, selectedPayload, setIsActionInprogress }: ActionBarProps) => {
     const [messageApi, contextHolder] = message.useMessage();
 
     return (
@@ -18,10 +19,11 @@ export const ActionBar = ({ selectedAssetStatus, setIsActionInprogress }: Action
             {contextHolder}
             <div className="actionBarHeader">Action Bar</div>
             <div className="actionBarButtonsContainer">
-                <PublishButton messageApi={messageApi} selectedAssetStatus={selectedAssetStatus} setIsActionInprogress={setIsActionInprogress} />
+                <PublishButton messageApi={messageApi} selectedAssetStatus={selectedAssetStatus} selectedPayload={selectedPayload} setIsActionInprogress={setIsActionInprogress} />
                 <RunAnalyticsButton
                     messageApi={messageApi}
                     selectedAssetStatus={selectedAssetStatus}
+                    selectedPayload={selectedPayload}
                 />
                 <PublishAnalyticsButton
                     messageApi={messageApi}

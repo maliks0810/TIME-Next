@@ -2,8 +2,9 @@ import { Form, InputNumber, message, Modal, Select, Input, FormInstance } from '
 import { useSearchParams } from 'react-router-dom';
 import { useUserInfo } from '@platform/utils';
 import { requestNewAsset } from '../../lib/services';
-import { TRAPDatePicker } from '../../lib/helpers';
+import { hasValue, TRAPDatePicker } from '../../lib/helpers';
 import { PayloadItem, RequestedNewAsset, RequestNewAssetPayload } from '../../lib/types';
+import { CALLABLE_OPTIONS } from '../../shared/constants';
 
 const initialFormValues = {
     assetClass: 'DEBT-FI',
@@ -29,6 +30,8 @@ export const RequestNewAsset = ({
 
     const analysisDate = Form.useWatch('analysisDate', form);
     const collateralType = Form.useWatch('collateralType', form);
+    const callable = Form.useWatch('callableInput', form);
+    const callDate = Form.useWatch('callDateInputNA', form);
 
     const handleResetForm = () => {
         form.resetFields([
@@ -56,17 +59,11 @@ export const RequestNewAsset = ({
         setSearchParams(params);
     };
 
-    const hasValue = (v: unknown) =>
-        v !== null &&
-        v !== undefined &&
-        !(typeof v === 'string' && v.trim() === '');
-
     const buildNewAssetRequest = (
         formInstance: FormInstance,
         currentUser: { email: string }
     ): RequestNewAssetPayload => {
         // pull raw values once (use your *actual* Form.Item names)
-        const callDateValue = formInstance.getFieldValue('callDateInputNA');
         const callableValue = formInstance.getFieldValue('callableInput'); // Y | N | C
         const collateralTypeValue = formInstance.getFieldValue('collateralType');
 
@@ -80,7 +77,8 @@ export const RequestNewAsset = ({
         const payload: PayloadItem[] = [];
 
         // CALL_DATE (only if provided)
-        if (hasValue(callDateValue)) {
+        if (isCallDateValid) {
+            const callDateValue = formInstance.getFieldValue('callDateInputNA');
             payload.push({
                 type: 'CALL_DATE',
                 parameters: { callDate: callDateValue },
@@ -162,8 +160,10 @@ export const RequestNewAsset = ({
         handleResetForm();
     };
 
+    const isCallDateValid = (callable === 'Y' || callable === 'C') ? hasValue(callDate) : true;
+
     // Call date is optional (per your requirement). Require only aladdinId + price.
-    const okDisabled = !(aladdinId && price && collateralType && analysisDate);
+    const okDisabled = !(hasValue(aladdinId) && hasValue(price) && hasValue(collateralType) && hasValue(analysisDate) && hasValue(callable) && isCallDateValid);
 
     return (
         <>
@@ -188,6 +188,11 @@ export const RequestNewAsset = ({
                 <Form
                     form={form}
                     initialValues={initialFormValues}
+                    onValuesChange={(changedValues) => {
+                        if (changedValues.hasOwnProperty('callableInput')) {
+                            form.resetFields(['callDateInputNA']);
+                        }
+                    }}
                     style={{
                         display: 'grid',
                         gridTemplateColumns: '120px 1fr',
@@ -314,31 +319,40 @@ export const RequestNewAsset = ({
                     </Form.Item>
 
                     <label htmlFor="callableInput">
-                        <strong>Callable</strong>
+                        <strong>Callable*</strong>
                     </label>
-                    <Form.Item noStyle name="callableInput">
+                    <Form.Item noStyle name="callableInput" required>
                         <Select
                             id="callableInput"
                             style={{ width: '120px' }}
-                            options={[
-                                { label: 'Yes (Y)', value: 'Y' },
-                                { label: 'No (N)', value: 'N' },
-                                { label: 'Clean up (C)', value: 'C' },
-                            ]}
+                            options={CALLABLE_OPTIONS}
                         />
                     </Form.Item>
 
-                    <label htmlFor="callDateInputNA">
-                        <strong>Call Date</strong>
-                    </label>
-                    <Form.Item name="callDateInputNA" noStyle>
-                        <TRAPDatePicker
-                            id="callDateInputNA"
-                            style={{ width: '140px' }}
-                            placeholder="Select Call Date"
-                            format="YYYY-MM-DD"
-                            allowClear
-                        />
+                    {
+                        (callable === 'Y' || callable === 'C') && <label htmlFor="callDateInputNA">
+                            <strong>Call Date{callable === 'C' ? ' (Text)' : ''}*</strong>
+                        </label>
+                    }
+
+                    <Form.Item name="callDateInputNA" noStyle required>
+                        {
+                            callable === 'Y' && <TRAPDatePicker
+                                id="callDateInputNA"
+                                style={{ width: '140px' }}
+                                placeholder="Select Call Date"
+                                format="YYYY-MM-DD"
+                                allowClear
+                            />
+                        }
+                        {
+                            callable === 'C' && <Input
+                                id="callDateInputNA"
+                                style={{ width: '200px' }}
+                                placeholder="Put Down Call date text"
+                                allowClear
+                            />
+                        }
                     </Form.Item>
 
                     <label htmlFor="prepaymentTypeInput">

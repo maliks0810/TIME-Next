@@ -1,23 +1,30 @@
 import { useUserInfo } from '@platform/utils';
 import { useState } from 'react';
-import { Button, Modal } from 'antd';
+import { Button, Modal, Tooltip } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { postNewAssetStatus } from '../lib/services';
 import { MessageInstance } from 'antd/es/message/interface';
+import { extractCallable, extractCollateralType } from '../../../lib/helpers';
+import { COMMON_COLLATERAL_TYPES, RUN_ANALYTICS_BUTTON_HELPTEXT } from '../../../shared/constants';
 
 type RunAnalyticsProps = {
     messageApi: MessageInstance;
     selectedAssetStatus?: string;
+    selectedPayload?: string;
 };
 
-export const RunAnalyticsButton = ({ messageApi, selectedAssetStatus }: RunAnalyticsProps) => {
+export const RunAnalyticsButton = ({ messageApi, selectedAssetStatus, selectedPayload }: RunAnalyticsProps) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isRunAnaltyicsModalOpen, setIsRunAnaltyicsModalOpen] = useState(false);
     const [searchParams] = useSearchParams();
     const userInfo = useUserInfo();
     const username = userInfo.email;
 
-    const canVerifyInAladdin = selectedAssetStatus === 'ANALYTICS INPUT SENT TO ALADDIN' || selectedAssetStatus === 'MANUAL' || selectedAssetStatus === 'INVALID REQUEST';  
+    const canRunAnalytics = (selectedAssetStatus === 'ANALYTICS INPUT SENT TO ALADDIN' 
+    || selectedAssetStatus === 'MANUAL'  
+    || selectedAssetStatus === 'INVALID REQUEST')
+    || (selectedAssetStatus === 'ANALYTICS INPUT PENDING REVIEW' && !COMMON_COLLATERAL_TYPES.includes(extractCollateralType(selectedPayload)) 
+            && extractCallable(selectedPayload)=== 'N');
 
     const conditionalOnClickAction = async () => {
 
@@ -75,17 +82,19 @@ export const RunAnalyticsButton = ({ messageApi, selectedAssetStatus }: RunAnaly
             onCancel={handleRunAnaltyicsCloseModal}
         >
         </Modal>
-        <Button
-            type="primary"
-            size="small"
-            disabled={!canVerifyInAladdin}
-            loading={isLoading}
-            onClick={async () => {
-                await conditionalOnClickAction();
-            }}
-        >
-            Run Analytics
-        </Button>
+        <Tooltip title={RUN_ANALYTICS_BUTTON_HELPTEXT} placement='top'>
+            <Button
+                type="primary"
+                size="small"
+                disabled={!canRunAnalytics}
+                loading={isLoading}
+                onClick={async () => {
+                    await conditionalOnClickAction();
+                }}
+            >
+                Run Analytics
+            </Button>
+        </Tooltip>
     </div>
     );
 };

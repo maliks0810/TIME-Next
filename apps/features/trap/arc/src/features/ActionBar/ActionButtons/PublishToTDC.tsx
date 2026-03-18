@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Button, Modal } from 'antd';
+import { Button, Modal, Tooltip } from 'antd';
 import { useUserInfo } from '@platform/utils';
 import { useSearchParams } from 'react-router-dom';
 import { postVerifyAnalyticsOnAladdin } from '../lib/services';
 import { normalizeStatus } from '../../../lib/helpers';
 import { MessageInstance } from 'antd/es/message/interface';
+import { PUBLISH_TDC_BUTTON_HELPTEXT } from '../../../shared/constants';
 
 type PublishToTDCButtonProps = {
     messageApi: MessageInstance;
@@ -31,6 +32,7 @@ export const PublishToTDCButton = ({
         !!selectedAssetStatus
             ? (normalizeStatus(selectedAssetStatus) !== 'ANALYTICS SENT TO ALADDIN' && normalizeStatus(selectedAssetStatus) !== 'MANUAL')
             : true;
+
     const conditionalOnClickAction = async () => {
 
         if (normalizeStatus(selectedAssetStatus) == 'MANUAL') {
@@ -76,15 +78,17 @@ export const PublishToTDCButton = ({
                 onCancel={handlePublishToTDCCloseModal}
             >
             </Modal>
-            <Button
-                type="primary"
-                onClick={conditionalOnClickAction}
-                loading={isLoading}
-                disabled={verifyOnAladdinDisabled}
-                size="small"
-            >
-                Publish to TDC
-            </Button>
+            <Tooltip title={PUBLISH_TDC_BUTTON_HELPTEXT} placement='top'>
+                <Button
+                    type="primary"
+                    onClick={conditionalOnClickAction}
+                    loading={isLoading}
+                    disabled={verifyOnAladdinDisabled}
+                    size="small"
+                >
+                    Publish to TDC
+                </Button>
+            </Tooltip>
         </div>
     );
 };

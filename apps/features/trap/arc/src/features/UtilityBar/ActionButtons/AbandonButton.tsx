@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
-import { Button } from 'antd';
+import { Button, Tooltip } from 'antd';
 import { AbandonAssetModal } from '../Modals/AbandonAssetModal';
+import { ABANDON_BUTTON_HELPTEXT } from '../../../shared/constants';
 
 type AbandonButtonProps = {
     selectedAssetStatus?: string;
@@ -20,14 +21,16 @@ export const AbandonButton = ({ selectedAssetStatus }: AbandonButtonProps) => {
     return (
         <>
             <AbandonAssetModal isOpen={isAbandonModalOpen} onClose={handleToggleAbandonModal} />
-            <Button
-                type="primary"
-                disabled={!canAbandon}
-                size="small"
-                onClick={handleToggleAbandonModal}
-            >
-                Abandon
-            </Button>
+            <Tooltip title={ABANDON_BUTTON_HELPTEXT} placement='top' popupVisible={false}>
+                <Button
+                    type="primary"
+                    disabled={!canAbandon}
+                    size="small"
+                    onClick={handleToggleAbandonModal}
+                >
+                    Abandon
+                </Button>
+            </Tooltip>
         </>
     );
 };

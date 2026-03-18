@@ -1,37 +1,32 @@
 import { useCallback, useState } from 'react';
 import PreviewBondFeaturesModal from '../Modals/PreviewBondFeaturesModal';
-import { Button } from 'antd';
-import { normalizeStatus } from '../../../lib/helpers';
+import { Button, Tooltip } from 'antd';
 import { MessageInstance } from 'antd/es/message/interface';
-
-// const CollateralTypesWithBondFeatureEnabled = ['NQM', 'CES', 'NPL'];
+import { extractCollateralType } from '../../../lib/helpers';
+import { COMMON_COLLATERAL_TYPES, PREVIEW_BOND_BUTTON_TEXT } from '../../../shared/constants';
 
 type PreviewBondFeaturesButtonProps = {
     messageApi: MessageInstance;
-    selectedAssetStatus?: string;
     selectedAladdinId?: string;
+    selectedPayload?: string
 };
 export const PreviewBondFeaturesButton = ({
-    selectedAssetStatus,
     messageApi,
     selectedAladdinId,
+    selectedPayload
 }: PreviewBondFeaturesButtonProps) => {
     const [isBondPreviewModalOpen, setIsBondPreviewModalOpen] = useState(false);
 
-    // const checkIsBondFeaturesDisabled = useCallback(() => {
-    //     if (!assetInfo) {
-    //         return true;
-    //     }
-    //     const assetInfoCollateralType = extractCollateralType(assetInfo?.payload);
+    const checkIsBondFeaturesDisabled = () => {
+        if (!selectedPayload) {
+            return true;
+        }
+        const assetInfoCollateralType = extractCollateralType(selectedPayload);
 
-    //     return !CollateralTypesWithBondFeatureEnabled.some(
-    //         (collatType) => collatType === assetInfoCollateralType
-    //     );
-    // }, [assetInfo]);
+        return !COMMON_COLLATERAL_TYPES.includes(assetInfoCollateralType);
+    };
 
-    const canPublish =
-        !!selectedAssetStatus &&
-        normalizeStatus(selectedAssetStatus) === 'ANALYTICS INPUT PENDING REVIEW';
+    const canPublish = !!selectedAladdinId &&!checkIsBondFeaturesDisabled();
 
     const handleToggleBondPreviewModal = useCallback(() => {
         setIsBondPreviewModalOpen((prevState) => !prevState);
@@ -45,14 +40,16 @@ export const PreviewBondFeaturesButton = ({
                 aladdinId={selectedAladdinId as string}
                 messageApi={messageApi}
             />
-            <Button
-                className="previewStaticScenarios"
-                type="primary"
-                disabled={!canPublish}
-                onClick={handleToggleBondPreviewModal}
-            >
-                Preview Bond Features
-            </Button>
+            <Tooltip title={PREVIEW_BOND_BUTTON_TEXT} placement='top'>
+                <Button
+                    className="previewBondFeatures"
+                    type="primary"
+                    disabled={!canPublish}
+                    onClick={handleToggleBondPreviewModal}
+                >
+                    Preview Bond Features
+                </Button>
+            </Tooltip>
         </div>
     );
 };
