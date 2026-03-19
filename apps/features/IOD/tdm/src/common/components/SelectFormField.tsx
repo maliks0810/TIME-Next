@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormControl, MenuItem, Select, SelectChangeEvent, Skeleton } from '@mui/material';
+import { FormControl, FormHelperText, MenuItem, Select, SelectChangeEvent, Skeleton } from '@mui/material';
 import { getFieldOptions } from '../../pages/security-setup/utils/referenceDataHelpers';
 import { INormalizedReferenceData } from '../../pages/security-setup/lib/types/referenceDataTypes';
 
@@ -15,6 +15,7 @@ interface SelectFormFieldProps {
   fullWidth?: boolean;
   className?: string;
   showDescriptions?: boolean;
+  errorText?: string | null;
 }
 
 export const SelectFormField: React.FC<SelectFormFieldProps> = ({
@@ -29,6 +30,7 @@ export const SelectFormField: React.FC<SelectFormFieldProps> = ({
   fullWidth = true,
   className,
   showDescriptions = true,
+  errorText = null
 }) => {
   const options = getFieldOptions(referenceData, fieldKey);
   const isLoading = !referenceData || options.length === 0;
@@ -44,7 +46,7 @@ export const SelectFormField: React.FC<SelectFormFieldProps> = ({
   }
 
   return (
-    <FormControl fullWidth={fullWidth} className={className}>
+    <FormControl fullWidth={fullWidth} className={className} error={!!errorText}>
       {label && <label className="field-label">{label}</label>}
       <Select
         value={value || ''}
@@ -67,6 +69,7 @@ export const SelectFormField: React.FC<SelectFormFieldProps> = ({
           </MenuItem>
         ))}
       </Select>
+      {errorText && <FormHelperText>{errorText}</FormHelperText>}
     </FormControl>
   );
 };

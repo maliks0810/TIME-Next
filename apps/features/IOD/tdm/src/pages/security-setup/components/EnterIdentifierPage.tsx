@@ -10,13 +10,15 @@ interface EnterIdentifierPageProps {
   onFormChange: (values: Partial<IEnterIdentifierFormValues>) => void;
   isReadOnly?: boolean;
   referenceData: INormalizedReferenceData | null;
+  selectFieldErrors?: Partial<Record<string, string>>;
 }
 
 export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   formValues,
   onFormChange,
   isReadOnly = false,
-  referenceData
+  referenceData,
+  selectFieldErrors = {}
 }) => {
   const getDefaultNewIssue = (ssapIdPassword?: string) => {
     return ssapIdPassword?.trim() ? 'yes' : 'no';
@@ -162,6 +164,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               disabled={isReadOnly}
               fullWidth={false}
               className='field-input-half'
+              errorText={selectFieldErrors[ReferenceDataFieldKey.Identifier] ?? null}
             />
             <TextField
               className="field-input-half"
@@ -186,6 +189,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               disabled={isReadOnly}
               fullWidth={false}
               className='field-input-half'
+              errorText={selectFieldErrors[ReferenceDataFieldKey.MarketSector] ?? null}
             />
             {isYellowKeyVisable && (
               <TextField
