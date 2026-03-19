@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
 
   // poll data when page is visible
   useEffect(() => {
-    if (isPageVisible) { 
+    if (isPageVisible) {
       setPollingInterval(DASHBOARD_POLLING_INTERVAL);
     }
     else {
@@ -45,16 +45,16 @@ const Dashboard: React.FC = () => {
 
   // poll data in intervals
   useInterval(() => {
-    if (!isPolling){
+    if (!isPolling) {
       loadData(searchParameters);
     }
   }, pollingInterval);
 
   useEffect(() => {
     loadData(searchParameters);
-  },[searchParameters]);
+  }, [searchParameters]);
 
-  const loadData = useCallback(async (parameters: IDashboardSearchParameters) => {   
+  const loadData = useCallback(async (parameters: IDashboardSearchParameters) => {
     try {
       setIsPolling(true);
       const data = await getSecurityRequestsDashboard(parameters);
@@ -68,14 +68,14 @@ const Dashboard: React.FC = () => {
     finally {
       setIsPolling(false);
     }
-  },[searchParameters, setSecurityRequestsData, setLastRefreshed, setIsPolling]);
+  }, [searchParameters, setSecurityRequestsData, setLastRefreshed, setIsPolling]);
 
   const handleNewSecurityRequestOnClick = () => {
     navigate('/iod/tdm/security-setup');
   }
 
-  const handleSearchOnClick = useCallback(async ()  => {
-    const currentSearchParameters : IDashboardSearchParameters = {
+  const handleSearchOnClick = useCallback(async () => {
+    const currentSearchParameters: IDashboardSearchParameters = {
       searchTerm: searchValue,
       startDate: startDate,
       endDate: endDate,
@@ -92,7 +92,7 @@ const Dashboard: React.FC = () => {
 
   const handleStartDateChange = useCallback((value: string | number | Date | null) => {
     setStartDate(null);
-    let newStartDate : Date | null = null
+    let newStartDate: Date | null = null
     if (value) {
       if (value instanceof Date) {
         newStartDate = value;
@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
 
   const handleEndDateChange = useCallback((value: string | number | Date | null) => {
     setEndDate(null);
-    let newEndDate : Date | null = null
+    let newEndDate: Date | null = null
     if (value) {
       if (value instanceof Date) {
         newEndDate = value;
@@ -125,27 +125,28 @@ const Dashboard: React.FC = () => {
     }
   };
 
+
   const handleSetRequestDetailsOpen = useCallback((isOpen: boolean) => () => {
     setIsRequestDetailsOpen(isOpen);
   }, [setIsRequestDetailsOpen]);
 
   return (
-    <Box sx={{p:'2em'}}>
-      <Card sx={{width:'100%'}}>
+    <Box sx={{ p: '2em' }}>
+      <Card sx={{ width: '100%' }}>
         <CardMedia
           component="div"
           className='dashboard-card-media'>
         </CardMedia>
-        <CardContent sx={{padding:'2em'}}>
+        <CardContent sx={{ padding: '2em' }}>
           <Grid container display='flex' flexDirection='column' spacing={2}>
-            
+
             {/* Title Section */}
             <Grid container display='flex' flexDirection='row' height='60px'>
               <Grid flex={1}>
                 <Typography variant="h5">
                   Security Setup Dashboard
                 </Typography>
-                <Typography variant="subtitle2" sx={{color:'gray'}}>
+                <Typography variant="subtitle2" sx={{ color: 'gray' }}>
                   Manage Security Setup Requests - Last Refreshed: {lastRefreshed}
                 </Typography>
               </Grid>
@@ -169,7 +170,7 @@ const Dashboard: React.FC = () => {
                     input: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <Search/>
+                          <Search />
                         </InputAdornment>
                       ),
                     },
@@ -193,8 +194,8 @@ const Dashboard: React.FC = () => {
                       onClick={handleSearchOnClick}
                       className='tcw-button'
                       variant='contained'
-                      sx={{pl:'4em', pr:'4em'}}>
-                        Search
+                      sx={{ pl: '4em', pr: '4em' }}>
+                      Search
                     </Button>
                   </Grid>
                   <Grid flex={1} display='flex' justifyContent='flex-end'>
@@ -202,101 +203,101 @@ const Dashboard: React.FC = () => {
                       className='tcw-button'
                       variant='contained'
                       onClick={handleNewSecurityRequestOnClick}>
-                        + New Security Request
+                      + New Security Request
                     </Button>
                   </Grid>
                 </Grid>
               </Grid>
             </Grid>
-            
+
             {/* Stats Section */}
             {areSecurityRequestStatsVisible && (
-            <Grid container display='flex' flexDirection='row' columns={4} spacing={2}>
-              <Grid flex={1}>
-                <Card elevation={0} className='dashboard-card'>
-                  <CardMedia
-                    component="div"
-                    className='dashboard-card-media'>
-                  </CardMedia>
-                  <CardContent sx={{height:'90%', textAlign:'center'}}>
-                    <Typography variant="subtitle1">
+              <Grid container display='flex' flexDirection='row' columns={4} spacing={2}>
+                <Grid flex={1}>
+                  <Card elevation={0} className='dashboard-card'>
+                    <CardMedia
+                      component="div"
+                      className='dashboard-card-media'>
+                    </CardMedia>
+                    <CardContent sx={{ height: '90%', textAlign: 'center' }}>
+                      <Typography variant="subtitle1">
                         Total Requests
                       </Typography>
-                    <Grid container display={'flex'} height={'100%'} alignContent={'center'}>
-                      <Typography variant="h2" width={'100%'}>
-                        <b>16</b>
-                      </Typography>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid flex={1}>
-                <Card elevation={0} className='dashboard-card'>
-                  <CardMedia
-                    component="div"
-                    className='dashboard-card-media'>
-                  </CardMedia>
-                  <CardContent sx={{height:'90%', textAlign:'center'}}>
-                    <Typography variant="subtitle1">
+                      <Grid container display={'flex'} height={'100%'} alignContent={'center'}>
+                        <Typography variant="h2" width={'100%'}>
+                          <b>16</b>
+                        </Typography>
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid flex={1}>
+                  <Card elevation={0} className='dashboard-card'>
+                    <CardMedia
+                      component="div"
+                      className='dashboard-card-media'>
+                    </CardMedia>
+                    <CardContent sx={{ height: '90%', textAlign: 'center' }}>
+                      <Typography variant="subtitle1">
                         Average Setup Time
-                    </Typography>
-                    <Grid container height={'100%'} alignContent={'center'} justifyContent={'center'}>
-                      <Grid>
-                        <Typography variant='h2'>
-                          <b>20</b>
-                        </Typography>
-                      </Grid>
-                      <Grid>
-                        <Typography variant='h5' height={'100%'} alignContent={'flex-end'} lineHeight={2}>
-                          min
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid flex={1}>
-                <Card elevation={0} className='dashboard-card'>
-                  <CardMedia
-                    component="div"
-                    className='dashboard-card-media'>
-                  </CardMedia>
-                  <CardContent>
-                    <Grid display='flex' flexDirection='column' textAlign='center'>
-                      <Typography variant="subtitle1" flex={1}>
-                        Setup Status
                       </Typography>
-                      <DashboardChart
-                        chartData={setupStatusData}
-                      />
-                    </Grid>
-                  </CardContent>
-                </Card>
+                      <Grid container height={'100%'} alignContent={'center'} justifyContent={'center'}>
+                        <Grid>
+                          <Typography variant='h2'>
+                            <b>20</b>
+                          </Typography>
+                        </Grid>
+                        <Grid>
+                          <Typography variant='h5' height={'100%'} alignContent={'flex-end'} lineHeight={2}>
+                            min
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid flex={1}>
+                  <Card elevation={0} className='dashboard-card'>
+                    <CardMedia
+                      component="div"
+                      className='dashboard-card-media'>
+                    </CardMedia>
+                    <CardContent>
+                      <Grid display='flex' flexDirection='column' textAlign='center'>
+                        <Typography variant="subtitle1" flex={1}>
+                          Setup Status
+                        </Typography>
+                        <DashboardChart
+                          chartData={setupStatusData}
+                        />
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid flex={1}>
+                  <Card elevation={0} className='dashboard-card'>
+                    <CardMedia
+                      component="div"
+                      className='dashboard-card-media'>
+                    </CardMedia>
+                    <CardContent>
+                      <Grid display='flex' flexDirection='column' textAlign='center'>
+                        <Typography variant="subtitle1" flex={1}>
+                          Risk Management Status
+                        </Typography>
+                        <DashboardChart
+                          chartData={riskManagementStatusData}
+                        />
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </Grid>
               </Grid>
-              <Grid flex={1}>
-                <Card elevation={0} className='dashboard-card'>
-                  <CardMedia
-                    component="div"
-                    className='dashboard-card-media'>
-                  </CardMedia>
-                  <CardContent>
-                    <Grid display='flex' flexDirection='column' textAlign='center'>
-                      <Typography variant="subtitle1" flex={1}>
-                        Risk Management Status
-                      </Typography>
-                      <DashboardChart
-                        chartData={riskManagementStatusData}
-                      />
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
             )}
 
             {/* DataGrid Section */}
             <Grid>
-              <DashboardGrid 
+              <DashboardGrid
                 securityRequestsData={securityRequestsData}
                 setSelectedSecurityRequest={setSelectedSecurityRequest}
                 setIsRequestDetailsOpen={setIsRequestDetailsOpen}
@@ -305,22 +306,29 @@ const Dashboard: React.FC = () => {
           </Grid>
         </CardContent>
       </Card>
-      
+
       {/* Request Details Flyout */}
-      <Drawer
-        open={isRequestDetailsOpen}
-        onClose={handleSetRequestDetailsOpen(false)}
-        variant='persistent'
-        anchor='right'
-        disablePortal={true}
-        hideBackdrop={true}
-      >
-        <DashboardRequestDetails
-          securityRequest={selectedSecurityRequest}
-          setIsRequestDetailsOpen={setIsRequestDetailsOpen}
-        />
-      </Drawer>
-    </Box>
+      <>
+        <Drawer
+          open={isRequestDetailsOpen}
+          onClose={handleSetRequestDetailsOpen(false)}
+          anchor='right'
+          disablePortal={true}
+          hideBackdrop={false}
+          slotProps={{
+            backdrop: {
+              sx: { backgroundColor: 'transparent' }
+            }
+          }}
+
+        >
+          <DashboardRequestDetails
+            securityRequest={selectedSecurityRequest}
+            setIsRequestDetailsOpen={setIsRequestDetailsOpen}
+          />
+        </Drawer>
+      </>
+    </Box >
   )
 }
 
