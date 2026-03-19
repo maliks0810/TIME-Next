@@ -80,7 +80,11 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   }
 
   const cellRenderEuSecuritizationStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
-    const status = data.value;
+    var status = data.value;
+    if (!status)
+    {
+      status = 'Not Selected'
+    }
     const euSecuritizationStatusProperties = EuSecuritizationStatusesRecord[status]
 
     if (status && euSecuritizationStatusProperties) {
@@ -98,7 +102,11 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   }
 
   const cellRenderErisaStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
-    const status = data.value;
+    var status = data.value;
+    if (!status)
+    {
+      status = 'Not Selected'
+    }
     const erisaStatusProperties = ErisaStatusesRecord[status]
 
     if (status && erisaStatusProperties) {

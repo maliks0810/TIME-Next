@@ -74,6 +74,8 @@ const mergeWizardDataWithSaveResponse = (
       price: savedData.securityDetails?.price ?? prev.step2.securityDetails?.price,
       cusip: savedData.securityDetails?.cusip ?? prev.step2.securityDetails?.cusip,
       callableValue: savedData.securityDetails?.callableValue ?? prev.step2.securityDetails?.callableValue,
+      euSecuritizationStatus: savedData.securityDetails?.euSecuritizationStatus ?? prev.step2.securityDetails.euSecuritizationStatus,
+      erisaStatus: savedData.securityDetails?.erisaStatus ?? prev.step2.securityDetails.erisaStatus,
     },
     esgFields: {
       tcwEsgValue: savedData.esgFields?.tcwEsgValue ?? prev.step2.esgFields?.tcwEsgValue,
@@ -212,6 +214,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         ...prev.step1,
         ...values,
       },
+      step2:{
+        ...prev.step2,
+        securityDetails:{
+          euSecuritizationStatus: values.euSecuritizationStatus,
+          erisaStatus: values.erisaStatus
+        }
+      }
     }));
   }, [clearError, saveStatus]);
 
@@ -462,9 +471,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     const savedData = await queueWizardSave(
       currentStep,
       getCurrentStepNumber(),
-      { ...getAllWizardData(), ...getAuditFields() },
-      'partial',
-      { isSaveOnly: true }
+      { 
+        ...getAllWizardData(), 
+        ...getAuditFields() },
+        'partial',
+        { 
+          isSaveOnly: true 
+        }
     );
 
     if (savedData) {

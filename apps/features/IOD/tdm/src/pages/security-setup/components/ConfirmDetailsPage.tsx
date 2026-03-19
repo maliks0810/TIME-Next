@@ -340,6 +340,38 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
         </div>
       </div >
 
+      {/* Eu Securitization Status */}
+      <div className="form-section" >
+        <div className="form-row single-column">
+          <div className="form-field">
+            <h3 className="section-title">EU Securitization Status</h3>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
+              value={data.securityDetails?.euSecuritizationStatus}
+              onChange={() => { }}
+              referenceData={referenceData}
+              disabled
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Eu Securitization Status */}
+      <div className="form-section" >
+        <div className="form-row single-column">
+          <div className="form-field">
+            <h3 className="section-title">ERISA Status</h3>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.ErisaStatus}
+              value={data.securityDetails?.erisaStatus}
+              onChange={() => { }}
+              referenceData={referenceData}
+              disabled
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Notes / Instructions Section */}
       <div className="form-section">
         <h3 className="section-title">Notes / Instructions</h3>
