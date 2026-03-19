@@ -66,6 +66,8 @@ export interface ISecurityDetails {
     price?: string; // Display as string, sent as number to API
     cusip?: string;
     callableValue?: string;
+    euSecuritizationStatus?: string;
+    erisaStatus?: string;
 }
 
 // Review Details - ESG Fields

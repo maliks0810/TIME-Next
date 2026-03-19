@@ -395,6 +395,38 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
         </div>
       </div >
 
+      {/* Eu Securitization Status */}
+      <div className="form-section" >
+        <div className="form-row single-column">
+          <div className="form-field">
+            <h3 className="section-title">EU Securitization Status</h3>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
+              value={formValues.securityDetails?.euSecuritizationStatus}
+              onChange={(value) => handleSecurityDetailsChange('euSecuritizationStatus', value)}
+              referenceData={referenceData}
+              fullWidth={false}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Eu Securitization Status */}
+      <div className="form-section" >
+        <div className="form-row single-column">
+          <div className="form-field">
+            <h3 className="section-title">ERISA Status</h3>
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.ErisaStatus}
+              value={formValues.securityDetails?.erisaStatus}
+              onChange={(value) => handleSecurityDetailsChange('erisaStatus', value)}
+              referenceData={referenceData}
+              fullWidth={false}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Notes / Instructions Section */}
       <div className="form-section" >
         <h3 className="section-title">Notes / Instructions</h3>

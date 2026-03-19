@@ -280,14 +280,6 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               className='field-input-half'
             />
         </div>
-
-        {/* Reminder Box */}
-        <div className="reminder-box">
-          <div className="reminder-title">Reminder</div>
-          <div className="reminder-text">
-            Start ERISA Process: Ensure that the ERISA Process has been kicked off if applicable
-          </div>
-        </div>
       </div>
     </div>
   );

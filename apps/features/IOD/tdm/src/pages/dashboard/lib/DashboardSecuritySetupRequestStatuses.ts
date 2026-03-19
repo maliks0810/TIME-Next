@@ -82,15 +82,23 @@ export const ReadyForTradingStatuses: IStatusProperties[] = [
 
 export const EuSecuritizationStatuses: IStatusProperties[] = [
     {
-      name: 'Not Started',
+      name: 'Not Selected',
       className: 'status-gray'
     },
     {
-      name: 'Review In Progress',
+      name: 'EU Securitization Requested',
       className: 'status-orange'
     },
     {
-      name: 'Review Completed',
+      name: 'EU Securitization in Progress',
+      className: 'status-blue'
+    },
+    {
+      name: 'EU Securitization Compliant',
+      className: 'status-green'
+    },
+    {
+      name: 'EU Securitization Not Compliant',
       className: 'status-green'
     },
     {
@@ -101,15 +109,23 @@ export const EuSecuritizationStatuses: IStatusProperties[] = [
 
 export const ErisaStatuses: IStatusProperties[] = [
     {
-      name: 'Not Started',
+      name: 'Not Selected',
       className: 'status-gray'
     },
     {
-      name: 'Review In Progress',
+      name: 'ERISA Requested',
       className: 'status-orange'
     },
     {
-      name: 'Review Completed',
+      name: 'ERISA in Progress',
+      className: 'status-blue'
+    },
+    {
+      name: 'ERISA Eligible',
+      className: 'status-green'
+    },
+    {
+      name: 'ERISA Ineligible',
       className: 'status-green'
     },
     {

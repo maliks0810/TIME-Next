@@ -44,8 +44,8 @@ export const getCurrentEnvironment = (): Environment => {
         return ENVIRONMENTS.PROD;
 
     // Default to dev for local development
-    return ENVIRONMENTS.DEV;
-    //return ENVIRONMENTS.LOCAL;
+    //return ENVIRONMENTS.DEV;
+    return ENVIRONMENTS.LOCAL;
 
 };
 

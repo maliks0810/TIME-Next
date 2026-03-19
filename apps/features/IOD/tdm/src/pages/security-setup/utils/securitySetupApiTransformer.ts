@@ -110,8 +110,12 @@ export const transformToApiDomain = (
         YellowKey: payload.yellowKey || '',
         IsEuSecuritizationRequired: payload.isEuSecuritizationRequired ?? null,
         EuSecuritizationTipEuId: payload.euSecuritizationTipEuId || '',
-        EuSecuritizationStatusValue: payload.euSecuritizationStatus || null,
-        ErisaStatusValue: payload.erisaStatus || null,
+        EuSecuritizationStatusValue: !!payload.securityDetails?.euSecuritizationStatus ?
+            (payload.securityDetails?.euSecuritizationStatus) :
+            (payload.euSecuritizationStatus || null),
+        ErisaStatusValue: !!payload.securityDetails?.erisaStatus ? 
+            (payload.securityDetails?.erisaStatus) :
+            (payload.erisaStatus || null),
         IntexDealName: payload.intexDealName || '',
         IntexPassword: payload.intexPassword || '',
         DealName: payload.dealName || '',
@@ -233,6 +237,8 @@ export const transformFromApiPresentation = (
             callableValue: presentation.callableValue || undefined,
             cusip: presentation.cusip || undefined,
             identifier: presentation.identifierValue || undefined,
+            euSecuritizationStatus: presentation.euSecuritizationStatusValue || undefined,
+            erisaStatus: presentation.erisaStatusValue || undefined
         },
 
         // ESG fields (dropdown values)
