@@ -48,7 +48,21 @@ export const SecuritySetupService = {
 
         if (!response.ok) {
             const errorText = await response.text().catch(() => response.statusText);
-            throw new Error(`Failed to save wizard data (${response.status}): ${errorText}`);
+            let apiMessage: string | null = null;
+
+            try {
+                const parsed = JSON.parse(errorText);
+                apiMessage = parsed?.Exception?.message ?? parsed?.message ?? null;
+                if (apiMessage) {
+                    throw new Error(apiMessage);
+                }
+            } catch {
+                // fall through to generic error message below
+            }
+
+            throw new Error(
+                apiMessage ?? `Failed to save wizard data (${response.status}): ${errorText}`
+            );
         }
 
         const rsponseData = await response.json();

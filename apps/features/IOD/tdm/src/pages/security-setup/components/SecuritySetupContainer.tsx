@@ -25,6 +25,7 @@ import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
 import { ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 import { useReferenceData } from '../hooks/useReferenceData';
 import { getStepNumber } from '../utils/securitySetupApiTransformer';
+import { ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 
 interface SecuritySetupContainerProps {
   flowType: SecuritySetupFlowType;
@@ -201,6 +202,10 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   });
 
   const handleStep1Change = useCallback((values: Partial<IEnterIdentifierFormValues>) => {
+    if (saveStatus === 'error') {
+      clearError();
+    }
+
     setWizardData((prev) => ({
       ...prev,
       step1: {
@@ -208,7 +213,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         ...values,
       },
     }));
-  }, []);
+  }, [clearError, saveStatus]);
 
   const handleStep2Change = useCallback((values: Partial<IReviewDetailsFormValues>) => {
     setWizardData((prev) => ({
@@ -219,6 +224,17 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       },
     }));
   }, []);
+
+  const saveErrorMessage = saveStatus === 'error' ? (saveError?.message || '') : '';
+
+  const isInvalidMarketSector = !!saveErrorMessage.includes('Invalid Market Sector');
+  const isInvalidIdentifier = !!saveErrorMessage.includes('Invalide Identifier');
+
+  const selectFieldErrors: Partial<Record<string, string>> = isInvalidMarketSector
+    ? { [ReferenceDataFieldKey.MarketSector]: saveErrorMessage }
+    : isInvalidIdentifier
+      ? { [ReferenceDataFieldKey.Identifier]: saveErrorMessage }
+      : {};
 
   // Note: No debouncing needed since we're not using FormContainer
   // Each component manages its own state updates directly
@@ -298,7 +314,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     // Returns false for null, undefined, and ""
     return !!str;
   }
-  
+
   const canProceed = (): boolean => {
     if (saveStatus === 'saving' || saveStatus === 'saved') {
       return false;
@@ -309,14 +325,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
     switch (currentStep) {
       case 'enter-identifier':
-        if(!isValidString(wizardData.step1.identifierValue) || 
-           !isValidString(wizardData.step1.marketSector) ||
-           (wizardData.step1.isEuSecuritizationRequired && 
+        if (!isValidString(wizardData.step1.identifierValue) ||
+          !isValidString(wizardData.step1.marketSector) ||
+          (wizardData.step1.isEuSecuritizationRequired &&
             !isValidString(wizardData.step1.euSecuritizationTipEuId) &&
             !isValidString(wizardData.step1.euSecuritizationStatus)) ||
-            !isValidString(wizardData.step1.erisaStatus)
-          )
-        {
+          !isValidString(wizardData.step1.erisaStatus)
+        ) {
           return false;
         }
         return true;
@@ -353,24 +368,26 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
       const savedData = await queueWizardSave(stepToSave, stepNumberToSave, allData, 'complete');
 
-      if (savedData) {
-        // Merge server response into wizard state.
-        setWizardData((prev) => {
-          const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
-
-          return {
-            ...prev,
-            step1: mergedStep1,
-            step2: mergedStep2,
-            ...(currentStep === 'review-details' && {
-              // TODO: get real attachments file from api
-              uploadedFile: 'file.file.extension',
-              ssapIdPassword: mergedStep1.ssapIdPassword,
-              ...mergedStep2
-            })
-          }
-        });
+      if (!savedData) {
+        // save failed - stay on current step to display error
+        return
       }
+      // Merge server response into wizard state.
+      setWizardData((prev) => {
+        const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
+
+        return {
+          ...prev,
+          step1: mergedStep1,
+          step2: mergedStep2,
+          ...(currentStep === 'review-details' && {
+            // TODO: get real attachments file from api
+            uploadedFile: 'file.file.extension',
+            ssapIdPassword: mergedStep1.ssapIdPassword,
+            ...mergedStep2
+          })
+        }
+      });
     }
 
     if (nextStep) {
@@ -396,24 +413,26 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
       const savedData = await queueWizardSave(stepToSave, stepNumberToSave, { ...getAllWizardData(), ...getAuditFields() }, 'complete');
 
-      if (savedData) {
-        // Merge server response into wizard state.
-        setWizardData((prev) => {
-          const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
-
-          return {
-            ...prev,
-            step1: mergedStep1,
-            step2: mergedStep2,
-            ...(currentStep === 'review-details' && {
-              // TODO: get real attachments file from api
-              uploadedFile: 'file.file.extension',
-              ssapIdPassword: mergedStep1.ssapIdPassword,
-              ...mergedStep2
-            })
-          }
-        });
+      if (!savedData) {
+        // save failed - stay on current step to display error
+        return
       }
+      // Merge server response into wizard state.
+      setWizardData((prev) => {
+        const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
+
+        return {
+          ...prev,
+          step1: mergedStep1,
+          step2: mergedStep2,
+          ...(currentStep === 'review-details' && {
+            // TODO: get real attachments file from api
+            uploadedFile: 'file.file.extension',
+            ssapIdPassword: mergedStep1.ssapIdPassword,
+            ...mergedStep2
+          })
+        }
+      });
     }
 
     if (nextStep) {
@@ -618,6 +637,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             onFormChange={handleStep1Change}
             isReadOnly={isReadOnly}
             referenceData={referenceData}
+            selectFieldErrors={selectFieldErrors}
           />
         );
       case 'ssap-confirmation':
@@ -689,7 +709,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         )}
         {saveStatus === 'error' && saveError && (
           <span style={{ color: '#f44336', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            ⚠ {saveError.message}
+            ⚠ Failed to save wizard data
           </span>
         )}
       </div>
