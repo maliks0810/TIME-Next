@@ -67,7 +67,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   const toNumericValue = (userInput: string): number | null => {
     if (userInput === '') return null;
     const num = parseFloat(userInput);
-    return isNaN(num) ? null : num;
+    //return isNaN(num) ? null : num;
+    return !Number.isInteger(num) || isNaN(num) ? null : num;
   }
 
   // programmatically clamp field within [min, max]
