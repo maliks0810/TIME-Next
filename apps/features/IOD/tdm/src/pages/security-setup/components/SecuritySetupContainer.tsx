@@ -214,9 +214,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         ...prev.step1,
         ...values,
       },
-      step2:{
+      step2: {
         ...prev.step2,
-        securityDetails:{
+        securityDetails: {
           euSecuritizationStatus: values.euSecuritizationStatus,
           erisaStatus: values.erisaStatus
         }
@@ -471,13 +471,14 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     const savedData = await queueWizardSave(
       currentStep,
       getCurrentStepNumber(),
-      { 
-        ...getAllWizardData(), 
-        ...getAuditFields() },
-        'partial',
-        { 
-          isSaveOnly: true 
-        }
+      {
+        ...getAllWizardData(),
+        ...getAuditFields()
+      },
+      'partial',
+      {
+        isSaveOnly: true
+      }
     );
 
     if (savedData) {
@@ -784,16 +785,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       </div>
 
       <div className="wizard-actions">
-        {currentStep === 'enter-identifier' && (
-          <Button
-            variant="outlined"
-            className="save-button"
-            onClick={handleSave}
-            startIcon={<SaveIcon />}
-          >
-            Save
-          </Button>
-        )}
         {showBackButton && currentStep !== 'enter-identifier' && currentStep !== 'ssap-confirmation' && (
           <Button
             variant="outlined"
@@ -802,6 +793,16 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             startIcon={<ArrowBackIcon />}
           >
             Back
+          </Button>
+        )}
+        {(currentStep === 'enter-identifier' || currentStep === 'review-details') && (
+          <Button
+            variant="outlined"
+            className="save-button"
+            onClick={handleSave}
+            startIcon={<SaveIcon />}
+          >
+            Save
           </Button>
         )}
         {showNextButton && currentStep !== 'ssap-confirmation' && (
