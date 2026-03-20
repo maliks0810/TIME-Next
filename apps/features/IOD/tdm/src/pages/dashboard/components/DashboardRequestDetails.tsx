@@ -33,8 +33,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
   }
 
   const setCancelDesabled = () => {
-    if(securityRequest.setupStatus === 'Cancelled')
-    {
+    if (securityRequest.setupStatus === 'Cancelled') {
       return true;
     }
     return false;
@@ -148,14 +147,6 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 </Typography>
                 <Typography variant="subtitle2">
                   {securityRequest.securityRequestDetails.aladdinCdiId}
-                </Typography>
-              </Grid>
-              <Grid size={1}>
-                <Typography variant="caption">
-                  CUSIP
-                </Typography>
-                <Typography variant="subtitle2">
-                  {securityRequest.securityRequestDetails.cusip}
                 </Typography>
               </Grid>
               <Grid size={1}>
