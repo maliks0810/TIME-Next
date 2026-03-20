@@ -36,6 +36,10 @@ export const SetupStatuses: IStatusProperties[] = [
       name: 'Ready for Trading',
       className: 'status-green'
     },
+    {
+      name: 'Cancelled',
+      className: 'status-purple'
+    },
 ];
 
 export const RiskAnalyticsStatuses: IStatusProperties[] = [
