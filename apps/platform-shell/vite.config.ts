@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 function loadEnvsIn(dirPath, mode, combinedEnv) {
-    fs.readdirSync(dirPath).forEach(subDir => {
+    fs.readdirSync(dirPath).forEach((subDir) => {
         const subDirPath = path.join(dirPath, subDir);
 
         if (fs.statSync(subDirPath).isDirectory()) {
@@ -24,7 +24,7 @@ function loadEnvsIn(dirPath, mode, combinedEnv) {
                 });
             }
 
-            loadEnvsIn(subDirPath, mode, combinedEnv);  
+            loadEnvsIn(subDirPath, mode, combinedEnv);
         }
     });
 }
@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => {
     const combinedEnv = {};
     const appsDir = path.resolve(__dirname, '..');
     const featuresDir = path.resolve(appsDir, 'features');
-    const normalizedMode = mode === 'development' ? 'dev' : mode === 'production' ? 'prod' : mode;  
+    const normalizedMode = mode === 'development' ? 'dev' : mode === 'production' ? 'prod' : mode;
 
     loadEnvsIn(appsDir, mode, combinedEnv);
     if (fs.existsSync(featuresDir)) {
@@ -41,21 +41,16 @@ export default defineConfig(({ mode }) => {
     }
 
     return {
-        plugins: [
-            react(),
-            svgr()
-        ],
+        plugins: [react(), svgr()],
         server: {
             port: 5173,
             strictPort: true,
             fs: {
-                allow: [
-                    path.resolve(__dirname, '../..'),
-                ],
+                allow: [path.resolve(__dirname, '../..')],
             },
             watch: {
                 usePolling: true,
-            }
+            },
         },
         resolve: {
             alias: {
@@ -68,6 +63,7 @@ export default defineConfig(({ mode }) => {
                 '@platform/platform-shell': path.resolve(__dirname, '.'),
                 '@r2/qre': path.resolve(__dirname, '../features/trap/QRE'),
                 '@r2/arc': path.resolve(__dirname, '../features/trap/arc'),
+                '@r2/core': path.resolve(__dirname, '../features/trap/core'),
                 '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
                 '@r2/levered-finance-news': path.resolve(__dirname, '../features/R2/levered-finance-news'),
                 // PLOP_INJECT_NEW_FEATURE_APP
@@ -75,9 +71,23 @@ export default defineConfig(({ mode }) => {
             preserveSymlinks: true,
         },
         optimizeDeps: {
-            include: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@emotion/react', '@emotion/styled'],
-            exclude: ['react/jsx-runtime','@platform/ui', '@platform/styles', '@platform/app-registry', '@platform/utils', '@platform/homepage'],
-            entries: ['src/**/*.tsx', '../**/src/**/*.tsx', '../../packages/**/*.tsx']
+            include: [
+                'react',
+                'react-dom',
+                'react-router-dom',
+                '@mui/material',
+                '@emotion/react',
+                '@emotion/styled',
+            ],
+            exclude: [
+                'react/jsx-runtime',
+                '@platform/ui',
+                '@platform/styles',
+                '@platform/app-registry',
+                '@platform/utils',
+                '@platform/homepage',
+            ],
+            entries: ['src/**/*.tsx', '../**/src/**/*.tsx', '../../packages/**/*.tsx'],
         },
         build: {
             assetsInlineLimit: 60000,
@@ -91,19 +101,21 @@ export default defineConfig(({ mode }) => {
                         okta: ['@okta/okta-auth-js', '@okta/okta-react'],
                         apollo: ['@apollo/client'],
                         axios: ['axios'],
-                        graphql:['graphql'],
-                        lodash: ['lodash']
+                        graphql: ['graphql'],
+                        lodash: ['lodash'],
                     },
                 },
             },
         },
-        define: Object.entries(combinedEnv).reduce((acc,[key, value])  => {
-            acc[`import.meta.env.${key}`] = JSON.stringify(value);
-            return acc;
-        }, {} as Record<string, string>),
+        define: Object.entries(combinedEnv).reduce(
+            (acc, [key, value]) => {
+                acc[`import.meta.env.${key}`] = JSON.stringify(value);
+                return acc;
+            },
+            {} as Record<string, string>
+        ),
         // define: {
         //     'process.env.NODE_ENV': JSON.stringify(mode === 'prod' ? 'production': 'development'),
         // }
-    }
-
+    };
 });

@@ -96,7 +96,7 @@ export const Navbar: React.FC = () => {
                 url: url,    
                 newTab: item.newTab,
                 disabled: item.disabled,
-                path: item.path,
+                path: item.entryPointUrl ? item.entryPointUrl : item.path,
                 type: item.type
             });
         });

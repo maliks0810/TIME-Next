@@ -1,0 +1,25 @@
+{
+    "name": "@r2/core",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Core Workflow",
+    "scripts": {
+        "build": "vite build",
+        "build:sandbox": "vite build --mode sandbox",
+        "build:development": "vite build --mode development",
+        "build:qa": "vite build --mode qa",
+        "build:production": "vite build --mode production",
+        "clean": "rm -rf dist .turbo node_modules",
+        "dev": "vite",
+        "prod": "vite --mode production",
+        "preview": "vite preview --port 3002",
+        "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+        "type-check": "tsc --noEmit"
+    },
+    "dependencies": {
+        "react-grid-layout": "2.2.2",
+        "@ant-design/icons": "5.6.1"
+    },
+    "devDependencies": {}
+}

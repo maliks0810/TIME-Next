@@ -1,0 +1,103 @@
+
+html, body, #root { height: 100%; margin: 0; }
+
+/* Global typography: keep UI between 11px–12px */
+html { font-size: 12px; }
+body {
+  font-size: 12px;
+  background: #0b1220;
+}
+
+/* Ant Design baseline text */
+.ant-typography,
+.ant-form-item-label > label,
+.ant-input,
+.ant-select,
+.ant-btn,
+.ant-menu,
+.ant-tabs,
+.ant-table,
+.ant-modal,
+.ant-drawer {
+  font-size: 12px;
+}
+
+/* Smaller secondary/helper text */
+.ant-typography-secondary,
+.ant-card-extra,
+.ant-form-item-explain,
+.ant-form-item-extra,
+.ant-table-thead > tr > th,
+.ant-tag {
+  font-size: 11px;
+}
+
+/* Tab labels */
+.ant-tabs-tab {
+  font-size: 12px;
+}
+
+.rgl-grid {
+  height: 100%;
+}
+
+.rgl-item {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.rgl-item .react-resizable-handle {
+  opacity: 0.6;
+}
+
+.widget-frame {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.12);
+  cursor: default; /* ✅ was move */
+  font-size: 12px;
+}
+
+/* ✅ Only this region should indicate drag */
+.widget-drag-handle {
+  cursor: grab;
+  user-select: none;
+}
+
+.widget-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* ✅ Prevent any drag-like UX on interactive controls */
+.rgl-no-drag {
+  cursor: pointer;
+}
+
+.widget-body {
+  padding: 12px;
+  overflow: auto;
+  flex: 1;
+  font-size: 11px;
+}
+
+/* TRAP Landing: Tabs are used as a BAR ONLY (content is rendered outside). */
+.trap-tabs-bar-only .ant-tabs-content-holder {
+  display: none !important;
+}
+
+/* Remove default nav margin so reserved height stays consistent */
+.trap-tabs-bar-only .ant-tabs-nav {
+  margin: 0 !important;
+}
