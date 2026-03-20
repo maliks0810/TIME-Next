@@ -107,7 +107,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Call Date</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.callDate || ''}
+              value={new Date(data.securityDetails?.callDate || "").toLocaleDateString("en-US")}
               disabled
               variant="outlined"
             />
