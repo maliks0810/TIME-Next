@@ -4,12 +4,13 @@ import { Box, Grid } from '@mui/material';
 import { DataGrid } from 'devextreme-react';
 import { Column, DataGridTypes, HeaderFilter, Pager, Paging, Selection } from 'devextreme-react/data-grid';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
-import { 
-  SetupStatusesRecord, 
-  RiskAnalyticsStatusesRecord, 
+import {
+  SetupStatusesRecord,
+  RiskAnalyticsStatusesRecord,
   ReadyForTradingStatusesRecord,
   EuSecuritizationStatusesRecord,
-  ErisaStatusesRecord } from '../lib/DashboardSecuritySetupRequestStatuses';
+  ErisaStatusesRecord
+} from '../lib/DashboardSecuritySetupRequestStatuses';
 import '../lib/dashboard.scss';
 
 type DashboardGridProps = {
@@ -81,8 +82,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 
   const cellRenderEuSecuritizationStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
     var status = data.value;
-    if (!status)
-    {
+    if (!status) {
       status = 'Not Selected'
     }
     const euSecuritizationStatusProperties = EuSecuritizationStatusesRecord[status]
@@ -103,8 +103,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 
   const cellRenderErisaStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
     var status = data.value;
-    if (!status)
-    {
+    if (!status) {
       status = 'Not Selected'
     }
     const erisaStatusProperties = ErisaStatusesRecord[status]
@@ -170,7 +169,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           dataField='createdDate'
           caption='Created On'
           dataType='date'
-          format={'MMM dd, yyyy'}
+          format="MMM dd, yyyy hh:mm"
           width={'10%'}
           sortOrder='desc'
         />
