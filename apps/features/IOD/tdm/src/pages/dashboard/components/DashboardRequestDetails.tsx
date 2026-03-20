@@ -32,6 +32,14 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
     return <></>
   }
 
+  const setCancelDesabled = () => {
+    if(securityRequest.setupStatus === 'Cancelled')
+    {
+      return true;
+    }
+    return false;
+  }
+
   return (
     <>
       <Box sx={{ width: '550px', padding: '2em', marginTop: '70px' }}>
@@ -73,7 +81,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Button className='tcw-button-outlined' variant='outlined'><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Duplicate</Button>
               </Grid>
               <Grid>
-                <Button className='tcw-button-outlined' variant='outlined'><Delete sx={{ padding: '0px 5px 0px 0px' }} />Cancel</Button>
+                <Button className='tcw-button-outlined' variant='outlined' disabled={setCancelDesabled()}><Delete sx={{ padding: '0px 5px 0px 0px' }} />Cancel</Button>
               </Grid>
               <Grid>
                 <Button className='tcw-button-outlined' variant='outlined'><History sx={{ padding: '0px 5px 0px 0px' }} />View History</Button>
