@@ -1,6 +1,10 @@
-import { type InternalAppMetadata, type ExternalAppMetadata, type TeamMetadata,
-         type AppRegistry, 
-         HighestEnv} from './types';
+import {
+    type InternalAppMetadata,
+    type ExternalAppMetadata,
+    type TeamMetadata,
+    type AppRegistry,
+    HighestEnv,
+} from './types';
 import { defaultApps } from './defaultApps';
 import { portfolioManagementApps } from './portfolioManagementApps';
 import { researchAnalysisApps } from './researchAnalysisApps';
@@ -10,12 +14,13 @@ import { complianceApps } from './complianceApps';
 import { supportApps } from './supportApps';
 import { aiProductsApps } from './aiProductsApps';
 import { productApps } from './productsApps';
+import { coreApps } from './coreApps';
 
 const currentEnv = import.meta.env.VITE_APP_ENV;
 
 // going to use discriminated union
 // order matters
-const apps: (InternalAppMetadata|ExternalAppMetadata)[] = [
+const apps: (InternalAppMetadata | ExternalAppMetadata)[] = [
     ...defaultApps,
     ...portfolioManagementApps,
     ...researchAnalysisApps,
@@ -24,47 +29,50 @@ const apps: (InternalAppMetadata|ExternalAppMetadata)[] = [
     ...complianceApps,
     ...productApps,
     ...aiProductsApps,
-    ...supportApps
-
-]
+    ...supportApps,
+    ...coreApps,
+];
 
 const teams: TeamMetadata[] = [
     {
         id: 'platform',
         name: 'platform',
         displayName: 'Platform Engineering',
-        apps: ['home']
-    }
-]
+        apps: ['home'],
+    },
+];
 
 class AppRegistryImpl implements AppRegistry {
-    apps: Map<string, InternalAppMetadata|ExternalAppMetadata>;
+    apps: Map<string, InternalAppMetadata | ExternalAppMetadata>;
     teams: Map<string, TeamMetadata>;
     currentEnv: HighestEnv;
 
     constructor(currentEnv: string) {
         this.currentEnv = this.convertToHighestEnv(currentEnv);
-        this.apps = new Map(apps.map(app => [app.title, app]));
-        this.teams = new Map(teams.map(team => [team.id, team]));
+        this.apps = new Map(apps.map((app) => [app.title, app]));
+        this.teams = new Map(teams.map((team) => [team.id, team]));
     }
 
     getApp(id: string): InternalAppMetadata | ExternalAppMetadata | undefined {
         return this.apps.get(id);
     }
 
-    getTeamApp(teamId: string): (InternalAppMetadata|ExternalAppMetadata)[] {
+    getTeamApp(teamId: string): (InternalAppMetadata | ExternalAppMetadata)[] {
         const team = this.teams.get(teamId);
         if (!team) return [];
-        return team.apps.map(appId => this.apps.get(appId))
-            .filter((app): app is InternalAppMetadata => app !== undefined);  
+        return team.apps
+            .map((appId) => this.apps.get(appId))
+            .filter((app): app is InternalAppMetadata => app !== undefined);
     }
 
-    getAllApps(): (InternalAppMetadata|ExternalAppMetadata)[] {
-        return Array.from(this.apps.values()).filter(app => this.isAppAvailableInCurrentEnv(app.env));
+    getAllApps(): (InternalAppMetadata | ExternalAppMetadata)[] {
+        return Array.from(this.apps.values()).filter((app) =>
+            this.isAppAvailableInCurrentEnv(app.env)
+        );
     }
 
-    getNavigationItems(): (InternalAppMetadata|ExternalAppMetadata)[] {
-        return this.getAllApps().filter(app => !app.requiresAuth || app.path !== '/')
+    getNavigationItems(): (InternalAppMetadata | ExternalAppMetadata)[] {
+        return this.getAllApps().filter((app) => !app.requiresAuth || app.path !== '/');
     }
 
     // Logic is if HighestEnv is Prod, it will be displayed in all env.
@@ -75,7 +83,7 @@ class AppRegistryImpl implements AppRegistry {
         return appEnvIndex >= currentEnvIndex;
     }
 
-    private convertToHighestEnv(env: string): HighestEnv {  
+    private convertToHighestEnv(env: string): HighestEnv {
         switch (env) {
             case 'sandbox':
                 return HighestEnv.sandbox;

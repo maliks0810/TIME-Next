@@ -12,6 +12,7 @@ export interface InternalAppMetadata {
     subHeader?: string;
     order?: number;
     component?: React.LazyExoticComponent<React.ComponentType>;
+    entryPointUrl?: string;
     url?: string;
     description?: string;
     requiresAuth?: boolean;

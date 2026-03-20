@@ -1,0 +1,504 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+import React from 'react';
+import { message } from 'antd';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import {
+    getTemplateVersion,
+    listTemplateVersions,
+    listTemplates,
+    listWidgetDefinitions,
+    publishTemplateVersion,
+    updateDraftVersion,
+} from '../../../api/trap';
+import type { WidgetDefinition, WidgetLayout } from '../../../state/types';
+import { widgetRegistry } from '../../../registry/widgetRegistry';
+
+import type { DesignerWidgetInstance } from '../types/workflowDesigner.types';
+import {
+    coreWidgetToDesigner,
+    designerWidgetToCore,
+    safeJsonParse,
+    uid,
+} from '../utils/workflowDesigner.utils';
+
+export function useWorkflowDesigner() {
+    const nav = useNavigate();
+    const location = useLocation();
+
+    const [loading, setLoading] = React.useState(false);
+    const [loaded, setLoaded] = React.useState<any>(null);
+
+    const [widgetDefs, setWidgetDefs] = React.useState<WidgetDefinition[]>([]);
+    const [selectedWidgetDefId, setSelectedWidgetDefId] = React.useState<string>('');
+    const [selectedWidgetVariantId, setSelectedWidgetVariantId] = React.useState<
+        string | undefined
+    >(undefined);
+    const [widgetSearch, setWidgetSearch] = React.useState('');
+    const [selectedCategory, setSelectedCategory] = React.useState<string>('All');
+
+    const [layout, setLayout] = React.useState<WidgetLayout[]>([]);
+    const [widgetsById, setWidgetsById] = React.useState<Record<string, DesignerWidgetInstance>>(
+        {}
+    );
+
+    const [defaultContextJson, setDefaultContextJson] = React.useState<string>('{}');
+    const [isDraftSaved, setIsDraftSaved] = React.useState(true);
+    const [widgetPickerOpen, setWidgetPickerOpen] = React.useState(false);
+
+    const removingIdsRef = React.useRef<Set<string>>(new Set());
+
+    const params = React.useMemo(() => new URLSearchParams(location.search), [location.search]);
+    const routeTemplateId = params.get('templateId') ?? '';
+    const routeVersionId = params.get('versionId') ?? '';
+
+    const [templateId, setTemplateId] = React.useState(routeTemplateId);
+    const [versionId, setVersionId] = React.useState(routeVersionId);
+
+    React.useEffect(() => {
+        if (!isDraftSaved) {
+            saveDraft();
+        }
+    }, [isDraftSaved]);
+
+    React.useEffect(() => {
+        setTemplateId(routeTemplateId);
+        setVersionId(routeVersionId);
+    }, [routeTemplateId, routeVersionId]);
+
+    const loadTemplateMeta = React.useCallback(async (tid: string) => {
+        const templates = await listTemplates();
+        return templates.find((t: any) => t.id === tid) ?? null;
+    }, []);
+
+    const loadedStatus = String(loaded?.status ?? '').toUpperCase();
+    const isPublished = loadedStatus === 'PUBLISHED';
+    const isDraft = loadedStatus === 'DRAFT';
+    const hasWidgets = layout.length > 0 && Object.keys(widgetsById ?? {}).length > 0;
+
+    const saveDisabledReason =
+        !templateId || !versionId
+            ? 'Create or load a draft first'
+            : isPublished
+              ? 'Published versions are immutable'
+              : !hasWidgets
+                ? 'Add at least one widget before saving'
+                : undefined;
+
+    const publishDisabledReason =
+        !templateId || !versionId
+            ? 'Create or load a draft first'
+            : isPublished
+              ? 'This version is already published'
+              : !isDraft
+                ? 'Only draft versions can be published'
+                : !hasWidgets
+                  ? 'Add at least one widget before publishing'
+                  : !isDraftSaved
+                    ? 'Save draft before publishing'
+                    : undefined;
+
+    const designerWidgetDefs = React.useMemo(() => {
+        const kind = String(loaded?.kind ?? '').toLowerCase();
+
+        return (widgetDefs as any[]).filter((d: any) => {
+            const entry = widgetRegistry[String(d?.id ?? '')];
+            if (!entry) return false;
+
+            const visibleIn = entry.visibleIn ?? [];
+
+            if (kind === 'landing') return visibleIn.includes('landing');
+            if (kind === 'workflow') return visibleIn.includes('workflow');
+
+            return true;
+        });
+    }, [widgetDefs, loaded]);
+
+    const widgetDefById = React.useMemo(() => {
+        const m: Record<string, any> = {};
+        for (const d of designerWidgetDefs as any[]) m[String(d.id)] = d;
+        return m;
+    }, [designerWidgetDefs]);
+
+    const selectedWidgetDef = React.useMemo(
+        () => (designerWidgetDefs as any[]).find((d: any) => d.id === selectedWidgetDefId),
+        [designerWidgetDefs, selectedWidgetDefId]
+    );
+
+    const widgetCategories = React.useMemo(() => {
+        const set = new Set<string>();
+
+        for (const d of designerWidgetDefs as any[]) {
+            const entry = widgetRegistry[String(d?.id ?? '')];
+            const category = String(
+                d?.category ?? d?.uiHints?.category ?? entry?.category ?? 'Other'
+            );
+            set.add(category);
+        }
+
+        return ['All', ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+    }, [designerWidgetDefs]);
+
+    const filteredWidgetDefs = React.useMemo(() => {
+        const q = widgetSearch.trim().toLowerCase();
+
+        return (designerWidgetDefs as any[])
+            .filter((d: any) => {
+                const entry = widgetRegistry[String(d?.id ?? '')];
+                const category = String(
+                    d?.category ?? d?.uiHints?.category ?? entry?.category ?? 'Other'
+                );
+                if (selectedCategory !== 'All' && category !== selectedCategory) return false;
+
+                if (!q) return true;
+
+                const hay = [
+                    d?.name,
+                    d?.description,
+                    d?.category,
+                    d?.uiHints?.category,
+                    ...(Array.isArray(d?.tags) ? d.tags : []),
+                ]
+                    .filter(Boolean)
+                    .join(' ')
+                    .toLowerCase();
+
+                return hay.includes(q);
+            })
+            .sort((a: any, b: any) => String(a?.name ?? '').localeCompare(String(b?.name ?? '')));
+    }, [designerWidgetDefs, widgetSearch, selectedCategory]);
+
+    React.useEffect(() => {
+        if (!widgetCategories.includes(selectedCategory)) {
+            setSelectedCategory('All');
+        }
+    }, [widgetCategories, selectedCategory]);
+
+    const hydrateFromTemplateVersion = React.useCallback((tv: any) => {
+        const w = tv?.widgets;
+        const nextMap: Record<string, DesignerWidgetInstance> = {};
+
+        if (Array.isArray(w) && w.length) {
+            w.forEach((it: any) => {
+                const dw = coreWidgetToDesigner(it);
+                nextMap[dw.instanceId] = dw;
+            });
+        }
+
+        setWidgetsById(nextMap);
+        setLayout(Array.isArray(tv?.layout) ? tv.layout : []);
+
+        if (tv?.defaultContext !== undefined) {
+            setDefaultContextJson(JSON.stringify(tv?.defaultContext ?? {}, null, 2));
+        } else {
+            setDefaultContextJson('{}');
+        }
+
+        setIsDraftSaved(true);
+    }, []);
+
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const defs = await listWidgetDefinitions();
+                setWidgetDefs(defs);
+            } catch (e: any) {
+                message.error(e?.message ?? 'Failed to load widget definitions');
+            }
+        })();
+    }, []);
+
+    React.useEffect(() => {
+        if (!templateId || !versionId) return;
+
+        (async () => {
+            try {
+                const tv = await getTemplateVersion(templateId, versionId);
+                const templateMeta = await loadTemplateMeta(templateId);
+
+                const enriched = {
+                    ...tv,
+                    name: templateMeta?.name ?? tv?.name,
+                    kind: templateMeta?.kind ?? tv?.kind,
+                    templateName: templateMeta?.name,
+                    templateKind: templateMeta?.kind,
+                };
+
+                setLoaded(enriched);
+                hydrateFromTemplateVersion(enriched);
+            } catch {
+                try {
+                    const versions = await listTemplateVersions(templateId);
+                    const sorted = [...versions].sort(
+                        (a, b) => Number(b.version ?? 0) - Number(a.version ?? 0)
+                    );
+                    const fallback =
+                        sorted.find((v) => v.id === versionId) ??
+                        sorted.find((v) => v.status === 'DRAFT') ??
+                        sorted.find((v) => v.status === 'PUBLISHED') ??
+                        sorted[0];
+
+                    if (!fallback?.id) return;
+
+                    setVersionId(fallback.id);
+                    nav(
+                        `designer?templateId=${encodeURIComponent(templateId)}&versionId=${encodeURIComponent(fallback.id)}`,
+                        { replace: true }
+                    );
+
+                    const tv = await getTemplateVersion(templateId, fallback.id);
+                    const templateMeta = await loadTemplateMeta(templateId);
+
+                    const enriched = {
+                        ...tv,
+                        name: templateMeta?.name ?? tv?.name,
+                        kind: templateMeta?.kind ?? tv?.kind,
+                        templateName: templateMeta?.name,
+                        templateKind: templateMeta?.kind,
+                    };
+
+                    setLoaded(enriched);
+                    hydrateFromTemplateVersion(enriched);
+                } catch {
+                    // ignore
+                }
+            }
+        })();
+    }, [templateId, versionId, nav, hydrateFromTemplateVersion, loadTemplateMeta]);
+
+    const addWidget = React.useCallback(async () => {
+        if (!selectedWidgetDef) {
+            message.error('Pick a widget definition first');
+            return;
+        }
+
+        const variant =
+            (selectedWidgetDef.variants ?? []).find((v: any) => v.id === selectedWidgetVariantId) ??
+            selectedWidgetDef.variants?.[0];
+
+        const gridMeta = variant?.grid;
+        const w = gridMeta?.defaultW ?? 4;
+        const h = gridMeta?.defaultH ?? 3;
+        console.log(variant, h, gridMeta);
+        const instanceId = uid('wi');
+        const nextY =
+            (layout.reduce((m, it) => Math.max(m, (it.y ?? 0) + (it.h ?? 1)), 0) ?? 0) + 1;
+
+        const item: WidgetLayout = {
+            i: instanceId,
+            x: 0,
+            y: nextY,
+            w,
+            h,
+            minW: gridMeta?.minW,
+            minH: gridMeta?.minH,
+            maxW: gridMeta?.maxW,
+            maxH: gridMeta?.maxH,
+        };
+
+        setLayout((prev) => [...prev, item]);
+
+        setWidgetsById((prev) => ({
+            ...prev,
+            [instanceId]: {
+                instanceId,
+                widgetDefinitionId: selectedWidgetDef.id,
+                widgetDefinitionVersion: (selectedWidgetDef as any).version ?? 1,
+                variantId: variant?.id,
+                config: { params: {} },
+            },
+        }));
+
+        setIsDraftSaved(false);
+        setWidgetPickerOpen(false);
+    }, [layout, selectedWidgetDef, selectedWidgetVariantId]);
+
+    const removeWidget = React.useCallback((instanceId: string) => {
+        removingIdsRef.current.add(instanceId);
+        setIsDraftSaved(false);
+
+        setLayout((prev) => prev.filter((x) => x.i !== instanceId));
+        setWidgetsById((prev) => {
+            const next = { ...prev };
+            delete next[instanceId];
+            return next;
+        });
+
+        setTimeout(() => removingIdsRef.current.delete(instanceId), 0);
+    }, []);
+
+    const onLayoutChange = React.useCallback((current: any[]) => {
+        const removed = removingIdsRef.current;
+        const next = (current as any[]).filter((it) => !removed.has(it.i));
+        setLayout(next as any);
+        setIsDraftSaved(false);
+    }, []);
+
+    const saveDraft = React.useCallback(async () => {
+        if (!templateId || !versionId) {
+            message.error('templateId and versionId are required');
+            return;
+        }
+
+        if (saveDisabledReason) {
+            message.warning(saveDisabledReason);
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const defaultContext = safeJsonParse(defaultContextJson, {});
+
+            const cleanLayout = (layout ?? []).map((it: any) => ({
+                i: it.i,
+                x: Number(it.x ?? 0),
+                y: Number(it.y ?? 0),
+                w: Number(it.w ?? 0),
+                h: Number(it.h ?? 0),
+                minW: it.minW != null ? Number(it.minW) : undefined,
+                minH: it.minH != null ? Number(it.minH) : undefined,
+                maxW: it.maxW != null ? Number(it.maxW) : undefined,
+                maxH: it.maxH != null ? Number(it.maxH) : undefined,
+            }));
+
+            const widgetsCore = Object.values(widgetsById ?? {}).map(designerWidgetToCore);
+
+            const payload = {
+                id: versionId,
+                templateId,
+                defaultContext,
+                layout: cleanLayout,
+                widgets: widgetsCore,
+            };
+
+            const updated = await updateDraftVersion(templateId, versionId, payload);
+            const templateMeta = await loadTemplateMeta(templateId);
+
+            const enriched = {
+                ...updated,
+                name: templateMeta?.name ?? updated?.name,
+                kind: templateMeta?.kind ?? updated?.kind,
+                templateName: templateMeta?.name,
+                templateKind: templateMeta?.kind,
+            };
+
+            setVersionId(updated.id);
+            setLoaded(enriched);
+            hydrateFromTemplateVersion(enriched);
+            setIsDraftSaved(true);
+
+            nav(
+                `?templateId=${encodeURIComponent(templateId)}&versionId=${encodeURIComponent(updated.id)}`,
+                { replace: true }
+            );
+
+            message.success('Draft saved');
+        } catch (e: any) {
+            message.error(e?.message ?? String(e));
+        } finally {
+            setLoading(false);
+        }
+    }, [
+        templateId,
+        versionId,
+        saveDisabledReason,
+        defaultContextJson,
+        layout,
+        widgetsById,
+        nav,
+        hydrateFromTemplateVersion,
+        loadTemplateMeta,
+    ]);
+
+    const publish = React.useCallback(async () => {
+        if (!templateId || !versionId) {
+            message.error('templateId and versionId are required');
+            return;
+        }
+
+        if (publishDisabledReason) {
+            message.warning(publishDisabledReason);
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const published = await publishTemplateVersion(templateId, versionId);
+            const templateMeta = await loadTemplateMeta(templateId);
+
+            const enriched = {
+                ...published,
+                name: templateMeta?.name ?? published?.name,
+                kind: templateMeta?.kind ?? published?.kind,
+                templateName: templateMeta?.name,
+                templateKind: templateMeta?.kind,
+            };
+
+            setVersionId(published.id);
+            setLoaded(enriched);
+            hydrateFromTemplateVersion(enriched);
+            message.success('Published');
+            nav('..');
+        } catch (e: any) {
+            message.error(e?.message ?? String(e));
+        } finally {
+            setLoading(false);
+        }
+    }, [
+        templateId,
+        versionId,
+        publishDisabledReason,
+        nav,
+        hydrateFromTemplateVersion,
+        loadTemplateMeta,
+    ]);
+
+    return {
+        nav,
+
+        loading,
+        loaded,
+
+        templateId,
+        versionId,
+
+        widgetSearch,
+        selectedCategory,
+        selectedWidgetDefId,
+        selectedWidgetVariantId,
+
+        layout,
+        widgetsById,
+        defaultContextJson,
+        isDraftSaved,
+        widgetPickerOpen,
+
+        loadedStatus,
+        isPublished,
+        isDraft,
+        hasWidgets,
+        saveDisabledReason,
+        publishDisabledReason,
+
+        designerWidgetDefs,
+        widgetDefById,
+        selectedWidgetDef,
+        widgetCategories,
+        filteredWidgetDefs,
+        removingIdsRef,
+
+        setWidgetSearch,
+        setSelectedCategory,
+        setSelectedWidgetDefId,
+        setSelectedWidgetVariantId,
+        setLayout,
+        setDefaultContextJson,
+        setWidgetPickerOpen,
+
+        addWidget,
+        removeWidget,
+        onLayoutChange,
+        saveDraft,
+        publish,
+    };
+}
