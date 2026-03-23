@@ -88,9 +88,9 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           </div>
         </div>
 
-        {/* Private Deal SSAP ID/Password */}
+        {/* BBG SSAP */}
         <div className="form-row-group">
-          <label className="field-label">Private Deal SSAP ID/Password</label>
+          <label className="field-label">BBG SSAP</label>
           <TextField
             fullWidth
             value={formValues.ssapIdPassword || ''}
@@ -215,11 +215,11 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                 const value = e.target.value === "true" ? true : false;
                 onFormChange({
                   isEuSecuritizationRequired: value,
-                  ...(value === false ? 
-                    { 
+                  ...(value === false ?
+                    {
                       euSecuritizationTipEuId: undefined,
-                      euSecuritizationStatus: "Not Required" 
-                    } : 
+                      euSecuritizationStatus: "Not Required"
+                    } :
                     {
                       euSecuritizationStatus: undefined
                     })
@@ -245,14 +245,14 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
         <div className="form-row-group">
           <label className="field-label">EU Securitization Status *</label>
           <SelectFormField
-              fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
-              value={formValues.euSecuritizationStatus}
-              onChange={(value) => onFormChange({ euSecuritizationStatus: value })}
-              referenceData={referenceData}
-              disabled={isReadOnly || formValues.isEuSecuritizationRequired === false}
-              fullWidth={false}
-              className='field-input-half'
-            />
+            fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
+            value={formValues.euSecuritizationStatus}
+            onChange={(value) => onFormChange({ euSecuritizationStatus: value })}
+            referenceData={referenceData}
+            disabled={isReadOnly || formValues.isEuSecuritizationRequired === false}
+            fullWidth={false}
+            className='field-input-half'
+          />
         </div>
 
         <div className="form-row-group">
@@ -271,14 +271,14 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
         <div className="form-row-group">
           <label className="field-label">Erisa Status *</label>
           <SelectFormField
-              fieldKey={ReferenceDataFieldKey.ErisaStatus}
-              value={formValues.erisaStatus}
-              onChange={(value) => onFormChange({ erisaStatus: value })}
-              referenceData={referenceData}
-              disabled={isReadOnly}
-              fullWidth={false}
-              className='field-input-half'
-            />
+            fieldKey={ReferenceDataFieldKey.ErisaStatus}
+            value={formValues.erisaStatus}
+            onChange={(value) => onFormChange({ erisaStatus: value })}
+            referenceData={referenceData}
+            disabled={isReadOnly}
+            fullWidth={false}
+            className='field-input-half'
+          />
         </div>
       </div>
     </div>
