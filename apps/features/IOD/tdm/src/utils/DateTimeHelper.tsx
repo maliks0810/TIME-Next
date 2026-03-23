@@ -1,29 +1,29 @@
 export const getCurrentLocalTime = () => {
-  const options : Intl.DateTimeFormatOptions = {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      timeZoneName: 'short',
-      hour12: true,
-    };
+  const options: Intl.DateTimeFormatOptions = {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short',
+    hour12: true,
+  };
   return new Intl.DateTimeFormat('en-US', options).format(new Date());
 }
 
-export const formatDate = (date : Date | null) : string | null => {
-  if (!date){
+export const formatDate = (date: Date | null): string | null => {
+  if (!date) {
     return '';
   }
-  
-  const options : Intl.DateTimeFormatOptions = {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric',
-    };
+
+  const options: Intl.DateTimeFormatOptions = {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+  };
 
   return new Intl.DateTimeFormat('en-US', options).format(date);
 }
 
-export const getLocalDateTimeOffsetIsoString = (date: Date) : string => {
+export const getLocalDateTimeOffsetIsoString = (date: Date): string => {
   // Get local timezone offset
   const now = new Date();
   const offsetMinutes = now.getTimezoneOffset();
@@ -46,14 +46,14 @@ export const getLocalDateTimeOffsetIsoString = (date: Date) : string => {
   return `${year}-${month}-${day}T${hour}:${minute}:${second}.${ms}${sign}${offsetTimeHour}:${offsetTimeMinutes}`;
 }
 
-export const getDateFromString = (dateString: string) : Date | null => {
+export const getDateFromString = (dateString: string): Date | null => {
   if (typeof dateString !== 'string' || dateString.trim() === '') {
     return null;
   }
-  
+
   const date = new Date(dateString);
 
-  if (!isNaN(date.getTime())) {
+  if (isNaN(date.getTime())) {
     return null;
   }
 
