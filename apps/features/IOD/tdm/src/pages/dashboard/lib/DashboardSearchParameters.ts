@@ -9,3 +9,13 @@ export const defaultDashboardSearchParameters : IDashboardSearchParameters = {
   startDate: new Date(),
   endDate: new Date(),
 }
+
+export interface IDashboardDetailsDeleteParameters {
+  securitySetupRequestId: string;
+  updatedBy: string;  
+}
+
+export const defaultDashboardDetailsDeleteParameters : IDashboardDetailsDeleteParameters = {
+  securitySetupRequestId: '',
+  updatedBy: '',
+}
