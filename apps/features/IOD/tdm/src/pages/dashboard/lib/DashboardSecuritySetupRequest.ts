@@ -18,6 +18,26 @@ export interface IDashboardSecuritySetupRequest {
     securityRequestDocuments: IDashboardSecuritySetupRequestAttachment[];
 }
 
+export interface IDashboardDeleteSecuritySetupRequest{
+    id: number;
+    description: string;
+    identifier: string;
+    createdDate: Date;
+    createdBy: string;
+    setupStatus: string;
+    riskAnalyticsStatus: string;
+    readyForTradingStatus: string;
+    euSecuritizationStatus: string;
+    erisaStatus: string;
+    processTime: number | null;
+    securityRequestDetails: IDashboardSecuritySetupRequestDetails;
+    securityRequestEsgFields: IDashboardSecuritySetupRequestEsgFields;
+    securityRequestTradeFields: IDashboardSecuritySetupRequestTradeFields;
+    securityRequestIntexFields: IDashboardSecuritySetupRequestIntexFields;
+    securityRequestArcFields: IDashboardSecuritySetupRequestArcFields;
+    isCancelled: boolean;
+}
+
 export interface IDashboardSecuritySetupRequestDetails {
     identifierType: string;
     identifierValue: string;
@@ -74,5 +94,5 @@ export interface IDashboardSecuritySetupRequestArcFields {
 export interface IDashboardSecuritySetupRequestAttachment {
     id: number;
     fileName: string;
-    filePath: string;
+    sharepointWebUrl: string;
 }

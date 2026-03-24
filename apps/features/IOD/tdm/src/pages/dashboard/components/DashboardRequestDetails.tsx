@@ -1,10 +1,13 @@
-import React, { Dispatch, SetStateAction, useCallback } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useState} from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Card, CardMedia, Typography, Button, Grid, Box, Divider } from '@mui/material';
 import { CloseSharp, FileCopy, Delete, History, DescriptionOutlined, FileDownloadOutlined } from '@mui/icons-material';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
 import { formatDate } from '../../../utils/DateTimeHelper';
 import '../lib/dashboard.scss';
+import { defaultDashboardDetailsDeleteParameters, IDashboardDetailsDeleteParameters } from '../lib/DashboardSearchParameters';
+import { deleteSecurityRequests } from '../../../services/DashboardService';
+import { useUserInfo } from '@platform/utils';
 
 type DashboardRequestDetailsProps = {
   securityRequest: IDashboardSecuritySetupRequest | undefined;
@@ -13,6 +16,9 @@ type DashboardRequestDetailsProps = {
 
 const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ securityRequest, setIsRequestDetailsOpen }) => {
   const navigate = useNavigate();
+  const [searchDeleteParameters, setSearchDeleteParameters] = useState<IDashboardDetailsDeleteParameters>(defaultDashboardDetailsDeleteParameters);
+  const { name: currentUser } = useUserInfo();
+  
 
   // TODO: call service to load SecuritySetupRequest on open of Request Details
 
@@ -33,11 +39,47 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
   }
 
   const setCancelDesabled = () => {
-    if (securityRequest.setupStatus === 'Cancelled') {
+    if(securityRequest.setupStatus === 'Cancelled' ||
+      securityRequest.setupStatus === 'Request Submitted'
+    )
+    {
       return true;
     }
     return false;
   }
+
+  const cancelSecurityRequest = useCallback(async (parameters: IDashboardDetailsDeleteParameters) => {
+    try{
+      const data = await deleteSecurityRequests(parameters);      
+      if(data.isCancelled === true)
+      {
+        alert("Security request has been cancelled!!!");
+      }
+    }
+    catch {
+
+    }
+    finally {
+    }
+  }, [searchDeleteParameters]);
+
+  const handleCancelOnClick = useCallback(async () => {
+    const currentCancelParameters: IDashboardDetailsDeleteParameters = {
+      securitySetupRequestId: '',
+      updatedBy: '',
+    };
+
+    const userConfirmed: boolean = window.confirm("Are you sure you want to cancel this security request?");    
+    if (userConfirmed) {
+        setSearchDeleteParameters(currentCancelParameters);
+        currentCancelParameters.securitySetupRequestId = securityRequest.id.toString();
+        currentCancelParameters.updatedBy = currentUser ?? '';
+
+        await cancelSecurityRequest(currentCancelParameters);
+    }
+
+  }, [setSearchDeleteParameters]);
+
 
   return (
     <>
@@ -79,8 +121,8 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
               <Grid>
                 <Button className='tcw-button-outlined' variant='outlined'><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Duplicate</Button>
               </Grid>
-              <Grid>
-                <Button className='tcw-button-outlined' variant='outlined' disabled={setCancelDesabled()}><Delete sx={{ padding: '0px 5px 0px 0px' }} />Cancel</Button>
+              <Grid>                
+                <Button onClick={handleCancelOnClick} className='tcw-button-outlined' variant='outlined' disabled={setCancelDesabled()}><Delete sx={{ padding: '0px 5px 0px 0px' }} />Cancel</Button>
               </Grid>
               <Grid>
                 <Button className='tcw-button-outlined' variant='outlined'><History sx={{ padding: '0px 5px 0px 0px' }} />View History</Button>
@@ -457,7 +499,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                         </Grid>
                         <Grid alignContent={'center'}>
                           <Typography variant="caption" flex={1}>
-                            {securityRequestDocument.filePath}
+                            {securityRequestDocument.sharepointWebUrl}
                           </Typography>
                         </Grid>
                       </Grid>
