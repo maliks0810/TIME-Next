@@ -1,6 +1,6 @@
 import axios from "axios"
 import { IDashboardDeleteSecuritySetupRequest, IDashboardSecuritySetupRequest, IDashboardSecuritySetupRequestAttachment } from "../pages/dashboard/lib/DashboardSecuritySetupRequest";
-import { IDashboardDetailsDeleteParameters, IDashboardSearchParameters } from "../pages/dashboard/lib/DashboardSearchParameters";
+import { IDashboardDetailsDeleteParameters, IDashboardSearchParameters, IDuplicateSecuritySetupRequestParameters } from "../pages/dashboard/lib/DashboardSearchParameters";
 import { DeleteSecuritySetupRequest, SecuritySetupRequest, SecuritySetupRequestAttachment } from './domain-objects/DashboardApiResponse';
 import { API_BASE_URL } from "../constants/environmentConstants";
 import { getDateFromString, getLocalDateTimeOffsetIsoString } from "../utils/DateTimeHelper";
@@ -217,5 +217,24 @@ export const deleteSecurityRequests = async (
   }
   finally {
     return delSecurityRequests;
+  }
+}
+
+export const duplicateSecuritySetupRequest = async (
+  parameters: IDuplicateSecuritySetupRequestParameters
+) => {
+  try {
+    const baseUrl = API_BASE_URL;
+    const endpoint = "securitysetuprequests/clone";
+
+    const payload = {
+      securitySetupRequestId: parameters.securitySetupRequestId,
+      userName: parameters.userName
+    }
+
+    await axios.post(baseUrl + endpoint, payload)
+  }
+  catch {
+
   }
 }

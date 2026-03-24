@@ -5,9 +5,10 @@ import { CloseSharp, FileCopy, Delete, History, DescriptionOutlined, FileDownloa
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
 import { formatDate } from '../../../utils/DateTimeHelper';
 import '../lib/dashboard.scss';
-import { defaultDashboardDetailsDeleteParameters, IDashboardDetailsDeleteParameters } from '../lib/DashboardSearchParameters';
-import { deleteSecurityRequests } from '../../../services/DashboardService';
+import { IDashboardDetailsDeleteParameters, IDuplicateSecuritySetupRequestParameters } from '../lib/DashboardSearchParameters';
+import { deleteSecurityRequests, duplicateSecuritySetupRequest } from '../../../services/DashboardService';
 import { useUserInfo } from '@platform/utils';
+import { ConfirmationModal } from '../../../common/components/ConfirmationModal';
 
 type DashboardRequestDetailsProps = {
   securityRequest: IDashboardSecuritySetupRequest | undefined;
@@ -16,7 +17,8 @@ type DashboardRequestDetailsProps = {
 
 const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ securityRequest, setIsRequestDetailsOpen }) => {
   const navigate = useNavigate();
-  const [searchDeleteParameters, setSearchDeleteParameters] = useState<IDashboardDetailsDeleteParameters>(defaultDashboardDetailsDeleteParameters);
+  const [isDuplicateConfirmationOpen, setIsDuplicateConfirmationOpen] = useState<boolean>(false);
+  const [isCancelConfirmationOpen, setIsCancelConfirmationOpen] = useState<boolean>(false);
   const { name: currentUser } = useUserInfo();
   
 
@@ -38,7 +40,17 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
     return <></>
   }
 
-  const setCancelDesabled = () => {
+  const isDuplicateButtonDisabled = () => {
+    if (securityRequest.setupStatus === 'Request Initiated' ||
+      securityRequest.setupStatus === 'Pending DM SSAP Review' ||
+      securityRequest.setupStatus === 'Pending Trader Details') {
+        return true;
+      }
+
+      return false;
+  }
+
+  const isCancelButtonDisabled = () => {
     if(securityRequest.setupStatus === 'Cancelled' ||
       securityRequest.setupStatus === 'Request Submitted'
     )
@@ -48,38 +60,67 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
     return false;
   }
 
-  const cancelSecurityRequest = useCallback(async (parameters: IDashboardDetailsDeleteParameters) => {
-    try{
-      const data = await deleteSecurityRequests(parameters);      
-      if(data.isCancelled === true)
-      {
-        alert("Security request has been cancelled!!!");
-      }
-    }
-    catch {
+  const handleCancelOnClick = () => {
+    // open confirmation
+    setIsCancelConfirmationOpen(true);
+  }
+  
+  const handleCancelConfirmationClose = () => {
+    // close confirmation
+    setIsCancelConfirmationOpen(false);
+  }
 
-    }
-    finally {
-    }
-  }, [searchDeleteParameters]);
-
-  const handleCancelOnClick = useCallback(async () => {
+  const handleCancelConfirmationConfirm = async () => {
     const currentCancelParameters: IDashboardDetailsDeleteParameters = {
-      securitySetupRequestId: '',
-      updatedBy: '',
+      securitySetupRequestId: securityRequest.id.toString(),
+      updatedBy: currentUser ?? '',
     };
 
-    const userConfirmed: boolean = window.confirm("Are you sure you want to cancel this security request?");    
-    if (userConfirmed) {
-        setSearchDeleteParameters(currentCancelParameters);
-        currentCancelParameters.securitySetupRequestId = securityRequest.id.toString();
-        currentCancelParameters.updatedBy = currentUser ?? '';
-
-        await cancelSecurityRequest(currentCancelParameters);
+    try {
+      await deleteSecurityRequests(currentCancelParameters);
     }
+    catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`DuplicateSecuritySetupRequest: ${error.message}`);
+      }
+      throw error;
+    }
+    finally {
+      // close confirmation
+      setIsCancelConfirmationOpen(false);
+    }
+  };
 
-  }, [setSearchDeleteParameters]);
+  const handleDuplicateOnClick = () => {
+    // open confirmation
+    setIsDuplicateConfirmationOpen(true);
+  };
 
+  const handleDuplicateConfirmationClose = () => {
+    // close confirmation
+    setIsDuplicateConfirmationOpen(false);
+  };
+
+  const handleDuplicateConfirmationConfirm = async () => {
+    const parameters: IDuplicateSecuritySetupRequestParameters = {
+      securitySetupRequestId: securityRequest.id,
+      userName: currentUser ?? '',
+    };
+
+    try {
+      await duplicateSecuritySetupRequest(parameters);
+    }
+    catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`DuplicateSecuritySetupRequest: ${error.message}`);
+      }
+      throw error;
+    }
+    finally {
+      // close confirmation
+      setIsDuplicateConfirmationOpen(false);
+    }
+  }
 
   return (
     <>
@@ -119,10 +160,10 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Button className='tcw-button-outlined' variant='outlined' onClick={handleReviewRequestClick}><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Update</Button>
               </Grid>
               <Grid>
-                <Button className='tcw-button-outlined' variant='outlined'><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Duplicate</Button>
+                <Button onClick={handleDuplicateOnClick} className='tcw-button-outlined' variant='outlined' disabled={isDuplicateButtonDisabled()}><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Duplicate</Button>
               </Grid>
               <Grid>                
-                <Button onClick={handleCancelOnClick} className='tcw-button-outlined' variant='outlined' disabled={setCancelDesabled()}><Delete sx={{ padding: '0px 5px 0px 0px' }} />Cancel</Button>
+                <Button onClick={handleCancelOnClick} className='tcw-button-outlined' variant='outlined' disabled={isCancelButtonDisabled()}><Delete sx={{ padding: '0px 5px 0px 0px' }} />Cancel</Button>
               </Grid>
               <Grid>
                 <Button className='tcw-button-outlined' variant='outlined'><History sx={{ padding: '0px 5px 0px 0px' }} />View History</Button>
@@ -517,6 +558,20 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
 
         </Grid>
       </Box>
+      <ConfirmationModal
+        header={"Duplicate Security Setup Request"}
+        body={"Are you sure you want to duplicate this Security Setup Request?"}
+        open={isDuplicateConfirmationOpen}
+        onClose={handleDuplicateConfirmationClose}
+        onConfirm={handleDuplicateConfirmationConfirm}
+      />
+      <ConfirmationModal
+        header={"Cancel Security Setup Request"}
+        body={"Are you sure you want to cancel this Security Setup Request?"}
+        open={isCancelConfirmationOpen}
+        onClose={handleCancelConfirmationClose}
+        onConfirm={handleCancelConfirmationConfirm}
+      />
     </>
   )
 }

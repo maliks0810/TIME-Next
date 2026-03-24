@@ -23,6 +23,13 @@ $dashboard-light-gray: #f3f3f5;
   text-transform: initial !important;
 }
 
+.tcw-button-outlined:disabled
+{
+  color:#bbb !important;
+  border-color: #bbb !important;
+  text-transform: initial !important;
+}
+
 .tcw-button-text
 {
   color: var(--tcw-blue-color) !important;
