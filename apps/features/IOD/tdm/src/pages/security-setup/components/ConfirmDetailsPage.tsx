@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField } from '@mui/material';
+import { Divider, TextField } from '@mui/material';
 import { IConfirmDetailsData, SecuritySetupFlowType } from '../lib/types/securitySetupTypes';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { SelectFormField } from '../../../common/components/SelectFormField';
@@ -22,25 +22,6 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <span className="file-name-text">file.file_extension</span>
         </div>
       </div>
-
-
-      {/* SSAP ID/Password Section */}
-      {data.ssapIdPassword && (
-        <div className="form-section">
-          <h3 className='section-title'>SSAP Credentials</h3>
-          <div className='form-row single-column'>
-            <div className='form-field'>
-              <label className="field-label">SSAP ID/Password</label>
-              <TextField
-                fullWidth
-                value={data.ssapIdPassword}
-                disabled
-                variant='outlined'
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Security Details Section */}
       <div className="form-section">
@@ -83,6 +64,32 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
               variant="outlined"
             />
           </div>
+        </div>
+
+        {/* SSAP ID/Password Section */}
+        {data.ssapIdPassword && (
+          <div className="form-section">
+            <h3 className='section-title'>SSAP Credentials</h3>
+            <div className='form-row single-column'>
+              <div className='form-field'>
+                <label className="field-label">SSAP ID/Password</label>
+                <TextField
+                  fullWidth
+                  value={data.ssapIdPassword}
+                  disabled
+                  variant='outlined'
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <Divider flexItem style={{ marginBottom: '18px' }} />
+
+      <div className="form-section">
+        <h3 className="section-title">Risk Details</h3>
+        <div className="form-row two-column">
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Sector}
@@ -122,7 +129,94 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             />
           </div>
         </div>
+
+        <div className="form-row two-column">
+          <div className="form-field">
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.PrepaymentType}
+              value={data.speedOverrides?.prepaymentTypeValue}
+              onChange={() => { }}
+              referenceData={referenceData}
+              label="Prepayment Type"
+              disabled
+            />
+          </div>
+          <div className="form-field">
+            <SelectFormField
+              fieldKey={ReferenceDataFieldKey.DefaultType}
+              value={data.speedOverrides?.defaultTypeValue}
+              onChange={() => { }}
+              referenceData={referenceData}
+              label="Default Type"
+              disabled
+            />
+          </div>
+        </div>
+
+        <div className="form-row two-column">
+          <div className="form-field">
+            <label className="field-label">Prepayment Speed</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={data.speedOverrides?.prepaymentSpeed}
+              onChange={() => { }}
+              variant="outlined"
+              disabled
+            />
+          </div>
+          <div className="form-field">
+            <label className="field-label">Default Speed</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={data.speedOverrides?.defaultSpeed}
+              onChange={() => { }}
+              variant="outlined"
+              disabled
+            />
+          </div>
+        </div>
+        <div className="form-row two-column">
+          <div className="form-field">
+            <label className="field-label">Severity (0-100)</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={data.speedOverrides?.severity}
+              onChange={() => { }}
+              variant="outlined"
+              disabled
+            />
+          </div>
+          <div className="form-field">
+            <label className="field-label">Delinquency (0-100)</label>
+            <TextField
+              fullWidth
+              type="number"
+              value={data.speedOverrides?.delinquency}
+              onChange={() => { }}
+              variant="outlined"
+              disabled
+            />
+          </div>
+        </div>
+
+        {/* Notes / Instructions Section */}
+        <div className="form-section">
+          <label className="field-label">Notes / Instructions</label>
+          <TextField
+            fullWidth
+            multiline
+            rows={2}
+            value={data.notesInstructions || ''}
+            disabled
+            variant="outlined"
+          />
+        </div>
       </div>
+
+      <Divider flexItem style={{ marginBottom: '18px' }} />
 
       {/* ESG Fields Section */}
       <div className="form-section">
@@ -163,6 +257,8 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           </div>
         </div>
       </div>
+
+      <Divider flexItem style={{ marginBottom: '18px' }} />
 
       {/* Trader Fields Section */}
       <div className="form-section">
@@ -265,86 +361,14 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
         </div>
       </div>
 
-      {/* Speed Overrides Section */}
-      <div className="form-section">
-        <h3 className="section-title">Speed Overrides</h3>
-        <div className="form-row two-column">
-          <div className="form-field">
-            <SelectFormField
-              fieldKey={ReferenceDataFieldKey.PrepaymentType}
-              value={data.speedOverrides?.prepaymentTypeValue}
-              onChange={() => { }}
-              referenceData={referenceData}
-              label="Prepayment Type"
-              disabled
-            />
-          </div>
-          <div className="form-field">
-            <SelectFormField
-              fieldKey={ReferenceDataFieldKey.DefaultType}
-              value={data.speedOverrides?.defaultTypeValue}
-              onChange={() => { }}
-              referenceData={referenceData}
-              label="Default Type"
-              disabled
-            />
-          </div>
-        </div>
-        <div className="form-row two-column">
-          <div className="form-field">
-            <label className="field-label">Prepayment Speed</label>
-            <TextField
-              fullWidth
-              type="number"
-              value={data.speedOverrides?.prepaymentSpeed}
-              onChange={() => { }}
-              variant="outlined"
-              disabled
-            />
-          </div>
-          <div className="form-field">
-            <label className="field-label">Default Speed</label>
-            <TextField
-              fullWidth
-              type="number"
-              value={data.speedOverrides?.defaultSpeed}
-              onChange={() => { }}
-              variant="outlined"
-              disabled
-            />
-          </div>
-        </div>
-        <div className="form-row two-column">
-          <div className="form-field">
-            <label className="field-label">Severity (0-100)</label>
-            <TextField
-              fullWidth
-              type="number"
-              value={data.speedOverrides?.severity}
-              onChange={() => { }}
-              variant="outlined"
-              disabled
-            />
-          </div>
-          <div className="form-field">
-            <label className="field-label">Delinquency (0-100)</label>
-            <TextField
-              fullWidth
-              type="number"
-              value={data.speedOverrides?.delinquency}
-              onChange={() => { }}
-              variant="outlined"
-              disabled
-            />
-          </div>
-        </div>
-      </div >
+      <Divider flexItem style={{ marginBottom: '18px' }} />
 
       {/* Eu Securitization Status */}
       <div className="form-section" >
-        <div className="form-row single-column">
+        <h3 className="section-title">EU Securitization Status & ERISA</h3>
+        <div className="form-row two-column">
           <div className="form-field">
-            <h3 className="section-title">EU Securitization Status</h3>
+            <label className="field-label">EU Securitization Status</label>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
               value={data.securityDetails?.euSecuritizationStatus}
@@ -353,14 +377,9 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
               disabled
             />
           </div>
-        </div>
-      </div>
-
-      {/* Eu Securitization Status */}
-      <div className="form-section" >
-        <div className="form-row single-column">
+          {/* ERISA Status */}
           <div className="form-field">
-            <h3 className="section-title">ERISA Status</h3>
+            <label className="field-label">ERISA Status</label>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.ErisaStatus}
               value={data.securityDetails?.erisaStatus}
@@ -370,19 +389,6 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             />
           </div>
         </div>
-      </div>
-
-      {/* Notes / Instructions Section */}
-      <div className="form-section">
-        <h3 className="section-title">Notes / Instructions</h3>
-        <TextField
-          fullWidth
-          multiline
-          rows={4}
-          value={data.notesInstructions || ''}
-          disabled
-          variant="outlined"
-        />
       </div>
     </div>
   );
