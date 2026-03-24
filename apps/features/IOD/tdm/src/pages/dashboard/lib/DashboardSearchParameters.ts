@@ -19,3 +19,8 @@ export const defaultDashboardDetailsDeleteParameters : IDashboardDetailsDeletePa
   securitySetupRequestId: '',
   updatedBy: '',
 }
+
+export interface IDuplicateSecuritySetupRequestParameters {
+  securitySetupRequestId: number;
+  userName: string;
+}
