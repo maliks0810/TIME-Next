@@ -54,60 +54,63 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           </div>
         </div>
 
-        <div className="form-row two-column">
-          <div>
-            <label className="field-label">Intex Deal Name</label>
-            <TextField
-              value={formValues.intexDealName || ''}
-              onChange={handleTextChange('intexDealName')}
-              variant="outlined"
-              disabled={isReadOnly}
-            />
-          </div>
-          <div>
-            <label className="field-label">Intex Password</label>
-            <TextField
-              value={formValues.intexPassword || ''}
-              onChange={handleTextChange('intexPassword')}
-              variant="outlined"
-              disabled={isReadOnly}
-            />
-          </div>
-        </div>
-
-        {/* Deal Name */}
-        <div className="form-row single-column">
-          <div>
+        <div className="form-row">
+          {/* Deal Name */}
+          <div className="form-row-group">
             <label className="field-label">Deal Name</label>
             <TextField
+              fullWidth
               value={formValues.dealName || ''}
               onChange={handleTextChange('dealName')}
               variant="outlined"
               disabled={isReadOnly}
+              placeholder="Sample Deal Name"
             />
           </div>
-        </div>
 
-        {/* BBG SSAP */}
-        <div className="form-row-group">
-          <label className="field-label">BBG SSAP</label>
-          <TextField
-            fullWidth
-            value={formValues.ssapIdPassword || ''}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const ssapIdPassword = e.target.value;
-              const newIssue = getDefaultNewIssue(ssapIdPassword);
+          <div className="form-row two-column">
+            {/* EU Securitization Status */}
+            <div className="form-row-group">
+              <label className="field-label">EU Securitization Status *</label>
+              <SelectFormField
+                fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
+                value={formValues.euSecuritizationStatus}
+                onChange={(value) => onFormChange({ euSecuritizationStatus: value })}
+                referenceData={referenceData}
+                disabled={isReadOnly || formValues.isEuSecuritizationRequired === false}
+                fullWidth={false}
+                className='field-input-half'
+              />
+            </div>
 
-              onFormChange({
-                ssapIdPassword,
-                newIssue,
-                ...(newIssue === 'no' ? { aladdinCDIId: undefined } : {})
-              })
-            }}
-            placeholder="Sample_Code"
-            variant="outlined"
-            disabled={isReadOnly}
-          />
+            <div className="form-row-group">
+              <label className="field-label">EU Securitization TIP EU ID *</label>
+              <TextField
+                fullWidth
+                value={formValues.euSecuritizationTipEuId || ''}
+                onChange={handleTextChange('euSecuritizationTipEuId')}
+                placeholder="Sample_TIP_ID"
+                variant="outlined"
+                disabled={isReadOnly || formValues.isEuSecuritizationRequired === false}
+              />
+            </div>
+
+            {/* Erisa Status */}
+            <div className="form-row-group">
+              <label className="field-label">Erisa Status *</label>
+              <SelectFormField
+                fieldKey={ReferenceDataFieldKey.ErisaStatus}
+                value={formValues.erisaStatus}
+                onChange={(value) => onFormChange({ erisaStatus: value })}
+                referenceData={referenceData}
+                disabled={isReadOnly}
+                fullWidth={false}
+                className='field-input-half'
+              />
+            </div>
+          </div>
+
+
         </div>
 
         {/* New Issue */}
@@ -152,10 +155,54 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           />
         </div>
 
-        {/* Bloomberg Identifier */}
+        {/* Intex Fields */}
+        <div className="form-row two-column">
+          <div>
+            <label className="field-label">Intex Deal Name</label>
+            <TextField
+              value={formValues.intexDealName || ''}
+              onChange={handleTextChange('intexDealName')}
+              variant="outlined"
+              disabled={isReadOnly}
+            />
+          </div>
+          <div>
+            <label className="field-label">Intex Password</label>
+            <TextField
+              value={formValues.intexPassword || ''}
+              onChange={handleTextChange('intexPassword')}
+              variant="outlined"
+              disabled={isReadOnly}
+            />
+          </div>
+        </div>
+
+        {/* BBG SSAP / Password */}
         <div className="form-row-group">
-          <label className="field-label">Identifier *</label>
-          <div className="field-inputs-row">
+          <label className="field-label">BBG SSAP / Password</label>
+          <TextField
+            fullWidth
+            value={formValues.ssapIdPassword || ''}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              const ssapIdPassword = e.target.value;
+              const newIssue = getDefaultNewIssue(ssapIdPassword);
+
+              onFormChange({
+                ssapIdPassword,
+                newIssue,
+                ...(newIssue === 'no' ? { aladdinCDIId: undefined } : {})
+              })
+            }}
+            placeholder="Sample_Code"
+            variant="outlined"
+            disabled={isReadOnly}
+          />
+        </div>
+
+        {/* Bloomberg Identifier */}
+        <div className="form-row two-column">
+          <div>
+            <label className="field-label">Identifier Type *</label>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Identifier}
               value={formValues.identifierType}
@@ -166,6 +213,9 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               className='field-input-half'
               errorText={selectFieldErrors[ReferenceDataFieldKey.Identifier] ?? null}
             />
+          </div>
+          <div>
+            <label className="field-label">Identifier</label>
             <TextField
               className="field-input-half"
               value={formValues.identifierValue || ''}
@@ -205,82 +255,9 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           </div>
         </div>
 
-        {/* EU Security Verification */}
-        <div className="form-row-group">
-          <label className="field-label">EU Security Verification Required *</label>
-          <FormControl fullWidth>
-            <RadioGroup
-              value={String(formValues.isEuSecuritizationRequired) || ''}
-              onChange={(e) => {
-                const value = e.target.value === "true" ? true : false;
-                onFormChange({
-                  isEuSecuritizationRequired: value,
-                  ...(value === false ?
-                    {
-                      euSecuritizationTipEuId: undefined,
-                      euSecuritizationStatus: "Not Required"
-                    } :
-                    {
-                      euSecuritizationStatus: undefined
-                    })
-                })
-              }}
-              row
-            >
-              <FormControlLabel
-                value="true"
-                control={<Radio disabled={isReadOnly} />}
-                label="Yes"
-              />
-              <FormControlLabel
-                value="false"
-                control={<Radio disabled={isReadOnly} />}
-                label="No"
-              />
-            </RadioGroup>
-          </FormControl>
-        </div>
 
-        {/* EU Securitization Status */}
-        <div className="form-row-group">
-          <label className="field-label">EU Securitization Status *</label>
-          <SelectFormField
-            fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
-            value={formValues.euSecuritizationStatus}
-            onChange={(value) => onFormChange({ euSecuritizationStatus: value })}
-            referenceData={referenceData}
-            disabled={isReadOnly || formValues.isEuSecuritizationRequired === false}
-            fullWidth={false}
-            className='field-input-half'
-          />
-        </div>
 
-        <div className="form-row-group">
-          <label className="field-label">EU Securitization TIP EU ID *</label>
-          <TextField
-            fullWidth
-            value={formValues.euSecuritizationTipEuId || ''}
-            onChange={handleTextChange('euSecuritizationTipEuId')}
-            placeholder="Sample_TIP_ID"
-            variant="outlined"
-            disabled={isReadOnly || formValues.isEuSecuritizationRequired === false}
-          />
-        </div>
-
-        {/* Erisa Status */}
-        <div className="form-row-group">
-          <label className="field-label">Erisa Status *</label>
-          <SelectFormField
-            fieldKey={ReferenceDataFieldKey.ErisaStatus}
-            value={formValues.erisaStatus}
-            onChange={(value) => onFormChange({ erisaStatus: value })}
-            referenceData={referenceData}
-            disabled={isReadOnly}
-            fullWidth={false}
-            className='field-input-half'
-          />
-        </div>
       </div>
-    </div>
+    </div >
   );
 };
