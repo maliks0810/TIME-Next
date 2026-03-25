@@ -185,6 +185,74 @@ export function extractPrepaymentType(payload: unknown): string {
     return '';
 }
 
+export function extractInfoInterestRateScenarioType(payload: unknown): string {
+    const tryParse = (s: string): any | null => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return null;
+        }
+    };
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const secruitySettings = arr.find((x: any) => String(x?.type).toUpperCase() === 'SECURITY_SETTINGS');
+        if (!secruitySettings) return '';
+
+        return secruitySettings?.parameters?.interestRateScenario;
+    }
+
+    if (typeof payload === 'string') {
+        const s1 = payload.trim();
+        const obj1 = tryParse(s1);
+        if (obj1) {
+            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
+            return extractInfoInterestRateScenarioType(obj2);
+        }
+
+        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+export function extractInfoModelFamilyOverrideType(payload: unknown): string {
+    const tryParse = (s: string): any | null => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return null;
+        }
+    };
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const secruitySettings = arr.find((x: any) => String(x?.type).toUpperCase() === 'SECURITY_SETTINGS');
+        if (!secruitySettings) return '';
+
+        return secruitySettings?.parameters?.modelFamilyOverride;
+    }
+
+    if (typeof payload === 'string') {
+        const s1 = payload.trim();
+        const obj1 = tryParse(s1);
+        if (obj1) {
+            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
+            return extractInfoModelFamilyOverrideType(obj2);
+        }
+
+        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+
+
 export function extractPrepaymentSpeed(payload: unknown): string {
     const tryParse = (s: string): any | null => {
         try {
@@ -355,6 +423,51 @@ export function extractDelinquency(payload: unknown): string {
     return '';
 }
 
+export function speedOverridesExist(payload: unknown): boolean {
+    if (!payload) return false;
+
+    let obj: any;
+
+    if (typeof payload === 'string') {
+        try {
+            obj = JSON.parse(payload);
+        } catch {
+            return false;
+        }
+    } else if (typeof payload === 'object') {
+        obj = payload;
+    } else {
+        return false;
+    }
+
+    const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+    if (!arr.length) return false;
+
+    const speedNode = arr.find(
+        (x: any) => String(x?.type).toUpperCase() === 'SPEED_OVERRIDES'
+    );
+
+    if (!speedNode || typeof speedNode.parameters !== 'object') {
+        return false;
+    }
+
+    const SPEED_OVERRIDE_KEYS = [
+        'prepaymentType',
+        'prepaymentSpeed',
+        'defaultType',
+        'defaultSpeed',
+        'severity',
+        'delinquency'
+    ];
+
+    return SPEED_OVERRIDE_KEYS.some((key) => {
+        const val = speedNode.parameters[key];
+        return (
+            typeof val === 'number' ||
+            (typeof val === 'string' && val.trim().length > 0)
+        );
+    });
+}
 
 export const normalizeStatus = (s?: string | null) => (s ?? '').trim().toUpperCase();
 

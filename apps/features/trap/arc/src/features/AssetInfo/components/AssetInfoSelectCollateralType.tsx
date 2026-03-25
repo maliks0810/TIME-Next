@@ -24,8 +24,8 @@ export const AssetInfoSelectCollateralType = ({
                             { label: 'Non-Qualified Mortgage (NQM)', value: 'NQM' },
                             { label: 'Qualified Mortgage (QM)', value: 'QM' },
                             { label: 'Non-Performing Loan (NPL)', value: 'NPL' },
-                            { label: 'Home Equity Line of Credit(HELOC)', value: 'HELOC' },
-                            { label: 'Re-Processing Loans(RPL)', value: 'RPL' },
+                            { label: 'Home Equity Line of Credit (HELOC)', value: 'HELOC' },
+                            { label: 'Re-Performing Loan (RPL)', value: 'RPL' },
                         ]}
                     />
                 </Form.Item>

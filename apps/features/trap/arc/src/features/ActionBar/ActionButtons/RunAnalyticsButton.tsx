@@ -4,7 +4,7 @@ import { Button, Modal, Tooltip } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { postNewAssetStatus } from '../lib/services';
 import { MessageInstance } from 'antd/es/message/interface';
-import { extractCallable, extractCollateralType } from '../../../lib/helpers';
+import { extractCallable, extractCollateralType, speedOverridesExist} from '../../../lib/helpers';
 import { COMMON_COLLATERAL_TYPES, RUN_ANALYTICS_BUTTON_HELPTEXT } from '../../../shared/constants';
 
 type RunAnalyticsProps = {
@@ -24,7 +24,7 @@ export const RunAnalyticsButton = ({ messageApi, selectedAssetStatus, selectedPa
     || selectedAssetStatus === 'MANUAL'  
     || selectedAssetStatus === 'INVALID REQUEST')
     || (selectedAssetStatus === 'ANALYTICS INPUT PENDING REVIEW' && !COMMON_COLLATERAL_TYPES.includes(extractCollateralType(selectedPayload)) 
-            && extractCallable(selectedPayload)=== 'N');
+            && extractCallable(selectedPayload)=== 'N' && !speedOverridesExist(selectedPayload));
 
     const conditionalOnClickAction = async () => {
 

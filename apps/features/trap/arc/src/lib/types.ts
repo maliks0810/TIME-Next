@@ -297,6 +297,7 @@ export type PayloadItem =
   | { type: 'CALL_DATE'; parameters: { callDate: string } }
   | { type: 'CALLABLE'; parameters: { callable: string } }
   | { type: 'COLLATERAL_TYPE'; parameters: { collateralType: string } }
+  | { type: 'SECURITY_SETTINGS'; parameters: { interestRateScenario: string,modelFamilyOverride:string } }
   | {
       type: 'SPEED_OVERRIDES';
       parameters: {

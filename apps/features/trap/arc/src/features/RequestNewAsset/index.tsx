@@ -4,12 +4,14 @@ import { useUserInfo } from '@platform/utils';
 import { requestNewAsset } from '../../lib/services';
 import { hasValue, TRAPDatePicker } from '../../lib/helpers';
 import { PayloadItem, RequestedNewAsset, RequestNewAssetPayload } from '../../lib/types';
-import { CALLABLE_OPTIONS } from '../../shared/constants';
+import { CALLABLE_OPTIONS, PREPAYMENT_TYPE_OPTIONS_ALL, PREPAYMENT_TYPE_OPTIONS_CMBS } from '../../shared/constants';
 
 const initialFormValues = {
     assetClass: 'DEBT-FI',
     instrumentType: 'SD',
     assetType: 'NARMBS',
+    interestRateScenario: 'Forward',
+    modelFamilyOverride: 'BRS v6.5'
 };
 
 export const RequestNewAsset = ({
@@ -32,6 +34,16 @@ export const RequestNewAsset = ({
     const collateralType = Form.useWatch('collateralType', form);
     const callable = Form.useWatch('callableInput', form);
     const callDate = Form.useWatch('callDateInputNA', form);
+    const interestRateScenario = Form.useWatch('interestRateScenario', form);
+    const modelFamilyOverride = Form.useWatch('modelFamilyOverride', form);
+    const prepayTypeOptions = modelFamilyOverride === 'BRS v2.2'
+        ? PREPAYMENT_TYPE_OPTIONS_CMBS
+        : PREPAYMENT_TYPE_OPTIONS_ALL;
+    const defaultTypeInput = Form.useWatch('defaultTypeInput', form);
+    const defaultSpeedInput = Form.useWatch('defaultSpeedInput', form);
+    const prepaymentTypeInput = Form.useWatch('prepaymentTypeInput', form);
+    const prepaymanetSpeedInput = Form.useWatch('prepaymanetSpeedInput', form);
+
 
     const handleResetForm = () => {
         form.resetFields([
@@ -50,6 +62,8 @@ export const RequestNewAsset = ({
             'defaultSpeedInput',
             'severityInput',
             'delinquencyInput',
+            'interestRateScenario',
+            'modelFamilyOverride'
         ]);
     };
 
@@ -73,6 +87,8 @@ export const RequestNewAsset = ({
         const defaultSpeedValue = formInstance.getFieldValue('defaultSpeedInput');
         const severityValue = formInstance.getFieldValue('severityInput');
         const delinquencyValue = formInstance.getFieldValue('delinquencyInput');
+        const interestRateScenarioValue = formInstance.getFieldValue('interestRateScenario');
+        const modelFamilyOverrideValue = formInstance.getFieldValue('modelFamilyOverride');
 
         const payload: PayloadItem[] = [];
 
@@ -98,6 +114,14 @@ export const RequestNewAsset = ({
             payload.push({
                 type: 'COLLATERAL_TYPE',
                 parameters: { collateralType: collateralTypeValue },
+            });
+        }
+
+        // SECURITY_SETTINGS (only if provided)
+        if (hasValue(interestRateScenarioValue) || hasValue(modelFamilyOverrideValue)) {
+            payload.push({
+                type: 'SECURITY_SETTINGS',
+                parameters: { interestRateScenario: interestRateScenarioValue, modelFamilyOverride: modelFamilyOverrideValue },
             });
         }
 
@@ -163,7 +187,10 @@ export const RequestNewAsset = ({
     const isCallDateValid = (callable === 'Y' || callable === 'C') ? hasValue(callDate) : true;
 
     // Call date is optional (per your requirement). Require only aladdinId + price.
-    const okDisabled = !(hasValue(aladdinId) && hasValue(price) && hasValue(collateralType) && hasValue(analysisDate) && hasValue(callable) && isCallDateValid);
+    const okDisabled = !(hasValue(aladdinId) && hasValue(price) && hasValue(collateralType) && hasValue(analysisDate)
+        && hasValue(callable) && isCallDateValid && hasValue(interestRateScenario) && hasValue(modelFamilyOverride)
+        && ((hasValue(defaultTypeInput) && hasValue(defaultSpeedInput)) || !hasValue(defaultTypeInput) )
+        && ((hasValue(prepaymentTypeInput) && hasValue(prepaymanetSpeedInput)) || !hasValue(prepaymentTypeInput)));
 
     return (
         <>
@@ -273,7 +300,7 @@ export const RequestNewAsset = ({
                                 { label: 'Qualified Mortgage (QM)', value: 'QM' },
                                 { label: 'Non Performing Loan (NPL)', value: 'NPL' },
                                 { label: 'Home Equity Line of Credit (HELOC)', value: 'HELOC' },
-                                { label: 'Re-Performing Loans (RPL)', value: 'RPL' },
+                                { label: 'Re-Performing Loan (RPL)', value: 'RPL' },
                             ]}
                         />
                     </Form.Item>
@@ -315,6 +342,39 @@ export const RequestNewAsset = ({
                             placeholder="Select Analysis Date"
                             format="YYYY-MM-DD"
                             allowClear
+                        />
+                    </Form.Item>
+
+                    <label htmlFor="interestRateScenario">
+                        <strong>Interest Rate Scenario</strong>
+                    </label>
+                    <Form.Item noStyle name="interestRateScenario">
+                        <Select
+                            // id="interestRateScenario"
+                            defaultValue="Forward"
+                            style={{ width: '120px' }}
+                            options={[
+                                { label: 'Forward', value: 'Forward' },
+                                { label: 'Nominal', value: 'Nominal' }
+                            ]}
+                        />
+                    </Form.Item>
+
+                    <label htmlFor="modelFamilyOverride">
+                        <strong>Model Family Override</strong>
+                    </label>
+                    <Form.Item noStyle name="modelFamilyOverride">
+                        <Select
+                            // id="modelFamilyOverride"
+                            defaultValue="BRS v6.5"
+                            style={{ width: '120px' }}
+                            options={[
+                                { label: 'BRS v6.5', value: 'BRS v6.5' },
+                                { label: 'BRS v6.4', value: 'BRS v6.4' },
+                                { label: 'BRS v2.2', value: 'BRS v2.2' },
+                                { label: 'BRCLO v2.01', value: 'BRCLO v2.01' },
+                                { label: 'STATIC', value: 'STATIC' }
+                            ]}
                         />
                     </Form.Item>
 
@@ -362,15 +422,7 @@ export const RequestNewAsset = ({
                         <Select
                             id="prepaymentTypeInput"
                             style={{ width: '90px' }}
-                            options={[
-                                { label: 'ABS', value: 'ABS' },
-                                { label: 'CPJ', value: 'CPJ' },
-                                { label: 'CPR', value: 'CPR' },
-                                { label: 'HEP', value: 'HEP' },
-                                { label: 'MHP', value: 'MHP' },
-                                { label: 'PPC', value: 'PPC' },
-                                { label: 'PSA', value: 'PSA' },
-                            ]}
+                            options={prepayTypeOptions}
                         />
                     </Form.Item>
 

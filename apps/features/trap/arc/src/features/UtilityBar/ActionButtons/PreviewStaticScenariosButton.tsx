@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import PreviewStaticScenariosModal from '../Modals/PreviewStaticScenariosModal';
 import { Button, Tooltip } from 'antd';
-import { extractCallable } from '../../../lib/helpers';
+import { extractCallable, speedOverridesExist } from '../../../lib/helpers';
 import { MessageInstance } from 'antd/es/message/interface';
 import { PREVIEW_STATIC_BUTTON_TEXT } from '../../../shared/constants';
 
@@ -17,7 +17,7 @@ export const PreviewStaticScenariosButton = ({
 }: PreviewStaticScenariosButtonProps) => {
     const [isScenariosPreviewModalOpen, setIsScenariosPreviewModalOpen] = useState(false);
 
-    const canPublish = !!selectedAladdinId && extractCallable(selectedPayload) != 'N';
+    const canPublish = !!selectedAladdinId && (extractCallable(selectedPayload) != 'N' || speedOverridesExist(selectedPayload));
 
     const handleToggleScenariosPreviewModal = useCallback(() => {
         setIsScenariosPreviewModalOpen((prevState) => !prevState);

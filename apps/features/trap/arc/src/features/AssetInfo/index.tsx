@@ -9,8 +9,8 @@ import { ClaimAssetPayload } from '../../lib/types';
 import { claimAsset } from '../../lib/services';
 import { useUserInfo } from '@platform/utils';
 import { updateAnalyticsInputOverrides } from '../../lib/services';
-
-import { extractCallable, extractCallDate, extractCollateralType, extractDefaultSpeed, extractDefaultType, extractDelinquency, extractPrepaymentSpeed, extractPrepaymentType, extractSeverity, hasValue, extractCallDateText } from '../../lib/helpers';
+import { PayloadItem} from '../../lib/types';
+import { extractCallable, extractCallDate, extractCollateralType, extractDefaultSpeed, extractDefaultType, extractDelinquency, extractPrepaymentSpeed, extractPrepaymentType, extractSeverity, hasValue, extractCallDateText, extractInfoInterestRateScenarioType, extractInfoModelFamilyOverrideType } from '../../lib/helpers';
 import { AssetInfoInput } from './components/AssetInfoInput';
 import { AssetInfoSelectCollateralType } from './components/AssetInfoSelectCollateralType';
 import { AssetInfoDatePicker } from './components/AssetInfoDatePicker';
@@ -18,6 +18,9 @@ import { NoteType } from '../../shared/types';
 import { AssetInfoCallable } from './components/AssetInfoCallable';
 import { AssetInfoPrepaymentType } from './components/AssetInfoPrepaymentType';
 import { AssetInfoDefaultType } from './components/AssetInfoDefaultType';
+import { AssetInfoInterestRateScenarioType } from './components/AssetInfoInterestRateScenarioType';
+import { AssetInfoModelFamilyOverrideType } from './components/AssetInfoModelFamilyOverrideType';
+import { PREPAYMENT_TYPE_OPTIONS_ALL, PREPAYMENT_TYPE_OPTIONS_CMBS } from '../../shared/constants';
 
 export const AssetInfo = ({
     selectedAssetId,
@@ -39,6 +42,12 @@ export const AssetInfo = ({
     const analysisDateVal = Form.useWatch('analysisDateInput', form);
     const collateralTypeVal = Form.useWatch('collateralType', form);
     const overrideNotesVal = Form.useWatch('noteTextArea', form);
+    const prepaymentType= Form.useWatch('prepaymentType', form);
+    const defaultType = Form.useWatch('defaultType', form);
+    const modelFamilyOverride = Form.useWatch('modelFamilyOverrideType', form);
+    const prepayTypeOptions = modelFamilyOverride === 'BRS v2.2'
+                ? PREPAYMENT_TYPE_OPTIONS_CMBS
+                : PREPAYMENT_TYPE_OPTIONS_ALL;
 
     const isCallDateValid = (callableVal === 'Y' || callableVal === 'C') ? hasValue(callDateVal) : true;
     const canSave = hasValue(callableVal) && isCallDateValid && hasValue(priceVal) && hasValue(analysisDateVal) && hasValue(collateralTypeVal) && hasValue(overrideNotesVal);
@@ -85,6 +94,8 @@ export const AssetInfo = ({
         form.setFieldValue('severityInput', extractSeverity(assetInfo?.payload));
         form.setFieldValue('delinquencyInput', extractDelinquency(assetInfo?.payload));
         form.setFieldValue('noteTextArea', note?.noteText);
+        form.setFieldValue('interestRateScenarioType', extractInfoInterestRateScenarioType(assetInfo?.payload));
+        form.setFieldValue('modelFamilyOverrideType', extractInfoModelFamilyOverrideType(assetInfo?.payload));
     }, [assetInfo]);
 
     useEffect(() => {
@@ -97,39 +108,85 @@ export const AssetInfo = ({
     const saveInputOverrides = async () => {
         setIsLoading(true);
         try {
-            const payloadObj = [];
-            payloadObj.push(...[
-                {
+            const payloadObj: PayloadItem[] = [];
+            // helpers
+            const hasValue = (v: string) => v !== null && v !== undefined && v !== '';
+
+            
+            // read values once
+            const collateralTypeValue = form.getFieldValue('collateralType');
+            const callableValue = form.getFieldValue('callable');
+            const callDateValue = form.getFieldValue('callDateInput');
+
+            const interestRateScenarioValue = form.getFieldValue('interestRateScenarioType');
+            const modelFamilyOverrideValue = form.getFieldValue('modelFamilyOverrideType');
+
+            const prepaymentTypeValue = form.getFieldValue('prepaymentType');
+            const prepaymentSpeedValue = form.getFieldValue('prepaymentSpeedInput');
+            const defaultTypeValue = form.getFieldValue('defaultType');
+            const defaultSpeedValue = form.getFieldValue('defaultSpeedInput');
+            const severityValue = form.getFieldValue('severityInput');
+            const delinquencyValue = form.getFieldValue('delinquencyInput');
+
+            // COLLATERAL_TYPE
+            if (hasValue(collateralTypeValue)) {
+                payloadObj.push({
                     type: 'COLLATERAL_TYPE',
                     parameters: {
-                        collateralType: form.getFieldValue('collateralType'),
+                        collateralType: collateralTypeValue,
                     },
-                },
-                {
-                    "type": "CALLABLE",
-                    "parameters": {
-                        "callable": form.getFieldValue('callable')
-                    }
-                },
-                {
-                    "type": "SPEED_OVERRIDES",
-                    "parameters": {
-                        "prepaymentType": form.getFieldValue('prepaymentType'),
-                        "prepaymentSpeed": form.getFieldValue('prepaymentSpeedInput') as number,
-                        "defaultType": form.getFieldValue('defaultType'),
-                        "defaultSpeed": form.getFieldValue('defaultSpeedInput') as number,
-                        "severity": form.getFieldValue('severityInput') as number,
-                        "delinquency": form.getFieldValue('delinquencyInput') as number,
-                    }
-                }
-            ]);
-            if ((callableVal === 'Y' || callableVal === 'C') && hasValue(callDateVal)) {
-                payloadObj.push(
-                    {
-                        type: 'CALL_DATE',
-                        parameters: { callDate: form.getFieldValue('callDateInput') },
-                    });
+                });
             }
+
+            // CALLABLE
+            if (hasValue(callableValue)) {
+                payloadObj.push({
+                    type: 'CALLABLE',
+                    parameters: {
+                        callable: callableValue,
+                    },
+                });
+            }
+
+            // CALL_DATE (only if callable + valid call date)
+            if ((callableValue === 'Y' || callableValue === 'C') && hasValue(callDateValue)) {
+                payloadObj.push({
+                    type: 'CALL_DATE',
+                    parameters: {
+                        callDate: callDateValue,
+                    },
+                });
+            }
+
+            // SECURITY_SETTINGS
+            if (hasValue(interestRateScenarioValue) || hasValue(modelFamilyOverrideValue)) {
+                payloadObj.push({
+                    type: 'SECURITY_SETTINGS',
+                    parameters: { interestRateScenario: interestRateScenarioValue, modelFamilyOverride:modelFamilyOverrideValue },
+                });
+            }
+
+            // SPEED_OVERRIDES (only if at least one field exists)
+            const speedOverridesParams = {
+                ...(hasValue(prepaymentTypeValue) ? { prepaymentType: prepaymentTypeValue } : {}),
+                ...(hasValue(prepaymentSpeedValue)
+                    ? { prepaymentSpeed: Number(prepaymentSpeedValue) }
+                    : {}),
+                ...(hasValue(defaultTypeValue) ? { defaultType: defaultTypeValue } : {}),
+                ...(hasValue(defaultSpeedValue)
+                    ? { defaultSpeed: Number(defaultSpeedValue) }
+                    : {}),
+                ...(hasValue(severityValue) ? { severity: Number(severityValue) } : {}),
+                ...(hasValue(delinquencyValue) ? { delinquency: Number(delinquencyValue) } : {}),
+            };
+
+            if (Object.keys(speedOverridesParams).length > 0) {
+                payloadObj.push({
+                    type: 'SPEED_OVERRIDES',
+                    parameters: speedOverridesParams,
+                });
+            }
+
             const requestPayload = {
                 assets: [
                     {
@@ -164,6 +221,8 @@ export const AssetInfo = ({
             form.setFieldValue('defaultSpeed', extractDefaultSpeed(assetInfo?.payload));
             form.setFieldValue('severity', extractSeverity(assetInfo?.payload));
             form.setFieldValue('delinquency', extractDelinquency(assetInfo?.payload));
+            form.setFieldValue('interestRateScenarioType', extractInfoInterestRateScenarioType(assetInfo?.payload));
+            form.setFieldValue('modelFamilyOverrideType', extractInfoModelFamilyOverrideType(assetInfo?.payload));
 
             /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         } catch (err: any) {
@@ -200,31 +259,10 @@ export const AssetInfo = ({
                         title="Collateral Type"
                         value={extractCollateralType(assetInfo?.payload)}
                     />
-                </div>
-                <Divider type="vertical" style={{ height: '100%', padding: 0 }} />
-                <div style={{ flex: 1 }}>
                     <AssetInfoItem title="Current State" value={assetInfo?.status} />
-                    <AssetInfoItem
-                        title="Analytics Date/Time Start"
-                        value={convertDateToPST(assetInfo?.createdDate)}
-                    />
-                    {checkIsTimerShown(assetInfo?.status) ? (
-                        <TimeElapsed
-                            title="Time since requested"
-                            initialDate={assetInfo?.createdDate}
-                            selectedAssetId={selectedAssetId}
-                        />
-                    ) : null}
-                    {checkIsTimerShown(assetInfo?.status) ? (
-                        <TimeElapsed
-                            title="Time in Current State"
-                            initialDate={assetInfo?.lastModifiedDate}
-                            selectedAssetId={selectedAssetId}
-                        />
-                    ) : null}
                 </div>
                 <Divider type="vertical" style={{ height: '100%', padding: 0 }} />
-                <div style={{ flex: 0.8 }}>
+                <div style={{ flex: 0.9 }}>
                     <AssetInfoInput
                         title="Price"
                         value={assetInfo?.price}
@@ -233,13 +271,39 @@ export const AssetInfo = ({
                         required={true}
                         controls={false}
                     />
+                     <AssetInfoInterestRateScenarioType
+                        title="Interest Rate Scenario"
+                        value={extractInfoInterestRateScenarioType(assetInfo?.payload)}
+                    />
+                    <AssetInfoModelFamilyOverrideType
+                        title="Model Family Override"
+                        value={extractInfoModelFamilyOverrideType(assetInfo?.payload)}
+                    />
+                    <AssetInfoItem title="Overnight Risk" value='Enabled' />
+                    <AssetInfoItem title="OAD/OAC Multiplier" value='Enabled' />
+                </div>
+                <Divider type="vertical" style={{ height: '100%', padding: 0 }} />
+                <div style={{ flex: 0.7 }}>
                     <AssetInfoDatePicker
                         title="Analysis Date"
                         value={assetInfo?.analysisDate}
                         formItemName="analysisDateInput"
                         required={true}
-
                     />
+                    {checkIsTimerShown(assetInfo?.status) ? (
+                        <TimeElapsed
+                            title="Time in Current State"
+                            initialDate={assetInfo?.lastModifiedDate}
+                            selectedAssetId={selectedAssetId}
+                        />
+                    ) : null}
+                    {checkIsTimerShown(assetInfo?.status) ? (
+                        <TimeElapsed
+                            title="Time since requested"
+                            initialDate={assetInfo?.createdDate}
+                            selectedAssetId={selectedAssetId}
+                        />
+                    ) : null}
                     <AssetInfoCallable
                         title="Callable"
                         value={extractCallable(assetInfo?.payload)}
@@ -271,13 +335,16 @@ export const AssetInfo = ({
                     <AssetInfoPrepaymentType
                         title="Prepayment Type"
                         value={extractPrepaymentType(assetInfo?.payload)}
+                        options={prepayTypeOptions}
                     />
                     <AssetInfoInput
                         title="Prepayment Speed"
                         value={extractPrepaymentSpeed(assetInfo?.payload)}
                         formItemName="prepaymentSpeedInput"
                         inputType="number"
-                        required={false}
+                        required={
+                            hasValue(prepaymentType)?true:false
+                        }
                         controls={false}
                     />
                     <AssetInfoDefaultType
@@ -289,11 +356,14 @@ export const AssetInfo = ({
                         value={extractDefaultSpeed(assetInfo?.payload)}
                         formItemName="defaultSpeedInput"
                         inputType="number"
+                        required={
+                            hasValue(defaultType)?true:false
+                        }
                         controls={false}
-                    />
+                    />                    
                 </div>
                 <Divider type="vertical" style={{ height: '100%', padding: 0 }} />
-                <div style={{ flex: '0 1 0%' }}>
+                <div style={{ flex: 0.7 }}>
                     <AssetInfoInput
                         title="Severity"
                         value={extractSeverity(assetInfo?.payload)}
