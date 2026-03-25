@@ -23,6 +23,7 @@ import {
 import '../lib/styles.scss';
 import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
 import { ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
+import { SecuritySetupService } from '../../../services/SecuritySetupService';
 import { useReferenceData } from '../hooks/useReferenceData';
 import { getStepNumber } from '../utils/securitySetupApiTransformer';
 import { ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
@@ -119,6 +120,10 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const [completedSteps, setCompletedSteps] = useState<WizardStep[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
+  const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [fileUploadError, setFileUploadError] = useState<string | null>(null);
 
   const { data: referenceData, loading: loadingReferenceData, error: referenceDataError } = useReferenceData();
 
@@ -276,6 +281,36 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     return { updatedBy: currentUser, updatedDate: new Date().toISOString() };
   }, [securitySetupRequestId, currentUser]);
 
+  const handleFileUpload = useCallback(
+    (file: File) => {
+      setFileUploadError(null);
+      setPendingUploadFile(file);
+    }, []);
+
+  const uploadPendingFile = useCallback(async (requestId: number): Promise<boolean> => {
+
+    if (!pendingUploadFile) {
+      return true;
+    }
+
+    setIsUploadingFile(true);
+    setFileUploadError(null);
+    try {
+
+
+      await SecuritySetupService.uploadAttachment(requestId, currentUser || '', pendingUploadFile);
+      setUploadedFileName(pendingUploadFile.name);
+      setPendingUploadFile(null);
+      return true;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to upload file.';
+      setFileUploadError(msg);
+      return false;
+    } finally {
+      setIsUploadingFile(false);
+    }
+  }, [pendingUploadFile, currentUser])
+
   // No form handlers needed since components manage their own state directly
 
   const markStepComplete = (step: WizardStep) => {
@@ -381,6 +416,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         // save failed - stay on current step to display error
         return
       }
+
+      const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
+      if (requestId) {
+        await uploadPendingFile(requestId);
+      }
+
       // Merge server response into wizard state.
       setWizardData((prev) => {
         const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
@@ -426,6 +467,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         // save failed - stay on current step to display error
         return
       }
+
+      const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
+      if (requestId) {
+        await uploadPendingFile(requestId);
+      }
+
       // Merge server response into wizard state.
       setWizardData((prev) => {
         const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
@@ -482,6 +529,15 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     );
 
     if (savedData) {
+      const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
+      if (requestId) {
+        const uploadSuccess = uploadPendingFile(requestId);
+
+        if (!uploadSuccess) {
+          // let user see upload error
+          return;
+        }
+      }
       navigate('/iod/tdm/');
     }
   };
@@ -652,6 +708,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             isReadOnly={isReadOnly}
             referenceData={referenceData}
             selectFieldErrors={selectFieldErrors}
+            onFileUpload={handleFileUpload}
+            selectedFileName={pendingUploadFile?.name || null}
+            uploadedFileName={uploadedFileName}
+            isUploadingFile={isUploadingFile}
+            fileUploadError={fileUploadError}
           />
         );
       case 'ssap-confirmation':

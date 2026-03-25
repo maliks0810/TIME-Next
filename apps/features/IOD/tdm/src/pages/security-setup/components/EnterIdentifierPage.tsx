@@ -1,6 +1,7 @@
 import React from 'react';
-import { FormControl, TextField, RadioGroup, FormControlLabel, Radio, Link } from '@mui/material';
+import { FormControl, TextField, RadioGroup, FormControlLabel, Radio, CircularProgress } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { IEnterIdentifierFormValues } from '../lib/types/securitySetupTypes';
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { SelectFormField } from '../../../common/components/SelectFormField';
@@ -12,6 +13,11 @@ interface EnterIdentifierPageProps {
   isReadOnly?: boolean;
   referenceData: INormalizedReferenceData | null;
   selectFieldErrors?: Partial<Record<string, string>>;
+  onFileUpload?: (file: File) => void;
+  selectedFileName?: string | null;
+  uploadedFileName?: string | null;
+  isUploadingFile?: boolean;
+  fileUploadError?: string | null;
 }
 
 export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
@@ -19,8 +25,24 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   onFormChange,
   isReadOnly = false,
   referenceData,
-  selectFieldErrors = {}
+  selectFieldErrors = {},
+  onFileUpload,
+  selectedFileName,
+  uploadedFileName,
+  isUploadingFile = false,
+  fileUploadError
 }) => {
+
+  const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onFileUpload) {
+      await onFileUpload(file);
+    }
+
+    // reset input so same file can be re-selected if needed
+    e.target.value = '';
+  }
+
   const getDefaultNewIssue = (ssapIdPassword?: string) => {
     return ssapIdPassword?.trim() ? 'yes' : 'no';
   }
@@ -32,8 +54,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
 
-    if (field == "ssapIdPassword")
-    {
+    if (field == "ssapIdPassword") {
       const ssapIdPassword = event.target.value;
       const newIssue = getDefaultNewIssue(ssapIdPassword);
       const isPrivateDeal = !isNullOrEmpty(ssapIdPassword);
@@ -61,14 +82,58 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
         {/* Offering Memorandum Upload */}
         <div className="offering-upload-section">
           <h3 className="section-title">Offering Memorandum Upload</h3>
-          <div className="single-upload-box">
-            <InsertDriveFileIcon className="upload-doc-icon" />
-            <div className="upload-text-wrapper">
-              <span className="upload-instruction">Click or drag </span>
-              <Link href="#" className="upload-link">Offering Memorandum</Link>
-              <span className="upload-instruction"> to this area to upload (Optional)</span>
-            </div>
-            <Link href="#" className="upload-memo-link">Upload Offering Memorandum</Link>
+          <div className='single-upload-box'>
+            <input
+              id='memorandum-upload-input'
+              type='file'
+              style={{ display: 'none' }}
+              onChange={handleFileInputChange}
+              disabled={isReadOnly || isUploadingFile}
+            />
+            <label
+              htmlFor='memorandum-upload-input'
+              className={`memorandum-upload-box${isReadOnly || isUploadingFile ? '' : ' memorandum-upload-box--clickable'}`}
+            >
+              {isUploadingFile ? (
+                <CircularProgress size={24} className='upload-progress-icon' />
+              ) : uploadedFileName ? (
+                <CheckCircleIcon className='upload-success-icon' />
+              ) : (
+                <InsertDriveFileIcon className='upload-doc-icon' />
+              )}
+              <div className="upload-text-wrapper">
+                {isUploadingFile ? (
+                  <span className='upload-instruction'> Uploading file...</span>
+                ) : uploadedFileName ? (
+                  <span className='upload-instruction'>{uploadedFileName}</span>
+                ) : selectedFileName ? (
+                  <>
+                    <span className='upload-instruction'>
+                      {selectedFileName}
+                    </span>
+                    <br />
+                    <span>
+                      will upload when you save or proceed to the next step.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="upload-instruction">
+                      Click or drag Offering Memorandum to this area to upload (Optional)
+                    </span>
+                    <br />
+                    <span className="upload-instruction">
+                      Upload Offering Memorandum
+                    </span>
+                  </>
+                )}
+              </div>
+            </label>
+            {fileUploadError && (
+              <span className='upload-error-text'>
+                {fileUploadError}
+              </span>
+            )}
           </div>
         </div>
 
