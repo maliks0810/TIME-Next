@@ -29,7 +29,7 @@ export const transformDashboardDeleteSecuritySetupRequest = (apiData: DeleteSecu
     securityRequestDetails: {
       identifierType: apiData.securitySetupRequest.identifierType,
       identifierValue: apiData.securitySetupRequest.identifierValue,
-      isPrivateDeal: apiData.securitySetupRequest.isPrivateDeal,
+      isPrivateDeal: apiData.securitySetupRequest.isPrivateDeal ? 'Yes' : 'No',
       ssapIdPassword: apiData.securitySetupRequest.ssapIdPassword,
       marketSectorType: apiData.securitySetupRequest.marketSectorType,
       yellowKey: apiData.securitySetupRequest.yellowKey,
@@ -94,7 +94,7 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
     securityRequestDetails: {
       identifierType: apiData.identifierType,
       identifierValue: apiData.identifierValue,
-      isPrivateDeal: apiData.isPrivateDeal,
+      isPrivateDeal: apiData.isPrivateDeal ? 'Yes' : 'No',
       ssapIdPassword: apiData.ssapIdPassword,
       marketSectorType: apiData.marketSectorType,
       yellowKey: apiData.yellowKey,
@@ -140,6 +140,7 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
       delinquency: apiData.delinquency,
     },
     securityRequestDocuments: apiData.documents.map(transformDashboardSecuritySetupRequestDocument),
+    noteInstructions: apiData.noteInstructions,
   };
 };
 
