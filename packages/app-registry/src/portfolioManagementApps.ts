@@ -58,7 +58,7 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         subHeader: NavbarSubHeader.AladdinPortfolioManagement,
         id: 'tdm',
         name: 'TDM',
-        title: 'TDM',
+        title: 'Security Setup Dashboard',
         env: HighestEnv.prod,
         path: '/iod/tdm/*',
         team: 'IOD',
