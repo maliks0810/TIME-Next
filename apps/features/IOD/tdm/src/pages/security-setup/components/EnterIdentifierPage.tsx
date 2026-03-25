@@ -4,6 +4,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { IEnterIdentifierFormValues } from '../lib/types/securitySetupTypes';
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { SelectFormField } from '../../../common/components/SelectFormField';
+import { isNullOrEmpty } from '../../../utils/StringHelper';
 
 interface EnterIdentifierPageProps {
   formValues: IEnterIdentifierFormValues;
@@ -30,10 +31,27 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   const handleTextChange = (field: keyof IEnterIdentifierFormValues) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+
+    if (field == "ssapIdPassword")
+    {
+      const ssapIdPassword = event.target.value;
+      const newIssue = getDefaultNewIssue(ssapIdPassword);
+      const isPrivateDeal = !isNullOrEmpty(ssapIdPassword);
+      const isSsapReleaseRequestSentToDm = isPrivateDeal;
+
+      onFormChange({
+        ssapIdPassword,
+        newIssue,
+        isPrivateDeal,
+        isSsapReleaseRequestSentToDm,
+        ...(newIssue === 'no' ? { aladdinCDIId: undefined } : {})
+      });
+
+      return;
+    }
+
     onFormChange({
       [field]: event.target.value,
-      isSsapReleaseRequestSentToDm: !!formValues.ssapIdPassword,
-      isPrivateDeal: !!formValues.ssapIdPassword,
     });
   };
 
@@ -184,16 +202,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           <TextField
             fullWidth
             value={formValues.ssapIdPassword || ''}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const ssapIdPassword = e.target.value;
-              const newIssue = getDefaultNewIssue(ssapIdPassword);
-
-              onFormChange({
-                ssapIdPassword,
-                newIssue,
-                ...(newIssue === 'no' ? { aladdinCDIId: undefined } : {})
-              })
-            }}
+            onChange={handleTextChange('ssapIdPassword')}
             placeholder="Sample_Code"
             variant="outlined"
             disabled={isReadOnly}
