@@ -122,12 +122,26 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
     return <></>;
   }
 
+  let clickTimer: NodeJS.Timeout | null = null;
+
   const onRowClick = useCallback((e: DataGridTypes.RowClickEvent) => {
-    setSelectedSecurityRequest(e.data);
-    setIsRequestDetailsOpen(true);
+
+    // Clear previous timer to prevent single click firing
+    if (clickTimer) clearTimeout(clickTimer);
+
+    clickTimer = setTimeout(() => {
+      // Execute single-click logic here
+      setSelectedSecurityRequest(e.data);
+      setIsRequestDetailsOpen(true);      
+      }, 250); // 250ms buffer
+
   }, [setSelectedSecurityRequest, setIsRequestDetailsOpen]);
 
   const handleRowDbleClick = (e: DataGridTypes.RowDblClickEvent) => {
+
+      // Clear timer so the single click action doesn't fire
+    if (clickTimer) clearTimeout(clickTimer);
+
     const rowId = e?.data?.id;
     navigate(`/iod/tdm/security-setup?id=${rowId}`)
   }
@@ -143,9 +157,9 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         keyExpr='id'
         dataSource={securityRequestsData}
         className='dashboard-grid'
-        columnAutoWidth={false}
-        onRowClick={onRowClick}
+        columnAutoWidth={false}        
         onRowDblClick={handleRowDbleClick}
+        onRowClick={onRowClick}
         repaintChangesOnly={true}
       >
         <Selection
