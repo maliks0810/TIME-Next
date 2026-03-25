@@ -7,6 +7,7 @@ import { ISecuritySetupWizardPayload } from './domain-objects/SecuritySetupReque
 
 const API_BASE_URL = getApiBaseUrl();
 const SECURITY_SETUP_ENDPOINT = '/securitysetuprequests';
+const ATTACHMENTS_ENDPOINT = '/securitysetuprequests/attachments';
 
 /**
  * Service for managing Security Setup wizard persistence
@@ -90,5 +91,44 @@ export const SecuritySetupService = {
 
         const presentationData = await response.json();
         return transformFromApiPresentation(presentationData?.securitySetupRequestCollection?.[0]);
+    },
+
+    uploadAttachment: async (
+        securitySetupRequestId: number,
+        createdBy: string,
+        file: File
+    ): Promise<void> => {
+        const formData = new FormData();
+        formData.append(
+            'SecuritySetupRequestAttachmentRequest.SecuritySetupRequestId',
+            `${securitySetupRequestId}`
+        );
+        formData.append('SecuritySetupRequestAttachmentRequest.CreatedBy', createdBy);
+        formData.append('File', file);
+
+        const response = await fetch(`${API_BASE_URL}${ATTACHMENTS_ENDPOINT}`, {
+            method: 'POST',
+
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text().catch(() => response.statusText);
+            let apiMessage: string | null = null;
+
+            try {
+                const parsed = JSON.parse(errorText);
+                apiMessage = parsed?.Exception?.message ?? parsed?.message ?? null;
+                if (apiMessage) {
+                    throw new Error(apiMessage);
+                }
+            } catch {
+                // fall through to generic error message below
+            }
+
+            throw new Error(
+                apiMessage ?? `Failed to upload file attachment (${response.status}): ${errorText}`
+            );
+        }
     },
 };
