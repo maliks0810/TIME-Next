@@ -3,9 +3,11 @@ import { Form, Select } from 'antd';
 export const AssetInfoPrepaymentType = ({
     value,
     title,
+    options
 }: {
     value?: string;
     title: string;
+    options: { label: string; value: string; }[]
 }) => {
     return (
         <div style={{ marginBottom: 8 }}>
@@ -19,15 +21,7 @@ export const AssetInfoPrepaymentType = ({
                         id="prepaymentType"
                         style={{ width: '90px' }}
                         value={value}
-                        options={[
-                            { label: 'ABS', value: 'ABS' },
-                            { label: 'CPJ', value: 'CPJ' },
-                            { label: 'CPR', value: 'CPR' },
-                            { label: 'HEP', value: 'HEP' },
-                            { label: 'MHP', value: 'MHP' },
-                            { label: 'PPC', value: 'PPC' },
-                            { label: 'PSA', value: 'PSA' }
-                        ]}
+                        options={options}
                     />
                 </Form.Item>
             </div>

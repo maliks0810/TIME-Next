@@ -3,7 +3,7 @@ import { Button, Tooltip } from 'antd';
 import { useUserInfo } from '@platform/utils';
 import { useSearchParams } from 'react-router-dom';
 import { publishAnalyticsInput } from '../lib/services';
-import { extractCallable, extractCollateralType, normalizeStatus } from '../../../lib/helpers';
+import { extractCallable, extractCollateralType, normalizeStatus, speedOverridesExist } from '../../../lib/helpers';
 import { MessageInstance } from 'antd/es/message/interface';
 import { COMMON_COLLATERAL_TYPES, PUBLISH_BUTTON_HELPTEXT } from '../../../shared/constants';
 
@@ -22,7 +22,7 @@ export const PublishButton = ({ selectedAssetStatus, messageApi, selectedPayload
 
     const canPublish = normalizeStatus(selectedAssetStatus) === 'ANALYTICS INPUT PENDING REVIEW'
         && (COMMON_COLLATERAL_TYPES.includes(extractCollateralType(selectedPayload))
-        || extractCallable(selectedPayload) !== 'N');
+        || extractCallable(selectedPayload) !== 'N' || speedOverridesExist(selectedPayload));
 
     const publishOverrides = async () => {
         const assetId = searchParams.get('assetId');

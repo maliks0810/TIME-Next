@@ -1,7 +1,6 @@
 import { memo, useEffect, useState } from 'react';
 import { Form, message } from 'antd';
 import { AssetInfo } from '../AssetInfo';
-import SecuritySettings from '../SecuritySettings';
 import { AnalyticsTable } from '../AnalyticsTable';
 import { ActionBar } from '../ActionBar';
 import { UtilityBar } from '../UtilityBar';
@@ -102,10 +101,10 @@ function NewAssetsContent({
                 selectedAssetId={selectedRowRequestId}
                 latestUpdateTimestamp={latestUpdateTimestamp}
             />
-            <SecuritySettings
+            {/* <SecuritySettings
                 selectedAssetId={selectedRowRequestId}
                 latestUpdateTimestamp={latestUpdateTimestamp}
-            />
+            /> */}
             <Form
                 form={form}
                 onValuesChange={handleValuesChange}

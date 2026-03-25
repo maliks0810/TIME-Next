@@ -29,11 +29,29 @@ export const CALLABLE_OPTIONS = [
     { label: 'Clean up (C)', value: 'C' },
 ];
 
-export const PUBLISH_BUTTON_HELPTEXT = 'Enabled for callable assets in ANALYTICS INPUT PENDING REVIEW status and for collateral type is CES, NPL or NQM.';
+export const PREPAYMENT_TYPE_OPTIONS_ALL = [
+    { label: 'ABS', value: 'ABS' },
+    { label: 'CPJ', value: 'CPJ' },
+    { label: 'CPR', value: 'CPR' },
+    { label: 'HEP', value: 'HEP' },
+    { label: 'MHP', value: 'MHP' },
+    { label: 'PPC', value: 'PPC' },
+    { label: 'PSA', value: 'PSA' }
+];
+
+export const PREPAYMENT_TYPE_OPTIONS_CMBS = [
+    { label: 'ABS', value: 'ABS' },
+    { label: 'CPJ', value: 'CPJ' },
+    { label: 'CPP', value: 'CPP' },
+    { label: 'CPR', value: 'CPR' },
+    { label: 'CPY', value: 'CPY' }
+];
+
+export const PUBLISH_BUTTON_HELPTEXT = 'Enabled for call/speed overridable assets in ANALYTICS INPUT PENDING REVIEW status and for collateral type is CES, NPL or NQM.';
 export const PUBLISH_ANALYTICS_BUTTON_HELPTEXT = 'Enabled for assets whose status is ANALYTICS PENDING REVIEW.';
 export const PUBLISH_TDC_BUTTON_HELPTEXT = 'Enabled for assets whose status is ANALYTICS SENT TO ALADDIN or MANUAL';
-export const RUN_ANALYTICS_BUTTON_HELPTEXT = 'Enabled for non callable bonds rightaway, for other bonds only when Status is ANALYTICS INPUT SENT TO ALADDIN, MANUAL, ANALYTICS INPUT PENDING REVIEW or INVALID REQUEST.';
+export const RUN_ANALYTICS_BUTTON_HELPTEXT = 'Enabled for no override required bonds rightaway, for other bonds only when Status is ANALYTICS INPUT SENT TO ALADDIN, MANUAL, ANALYTICS INPUT PENDING REVIEW or INVALID REQUEST.';
 export const ABANDON_BUTTON_HELPTEXT = 'Enabled only when status is neither ANALYTICS VERIFIED IN ALADDIN nor ABANDONED.';
 export const PREVIEW_BOND_BUTTON_TEXT = 'Enabled only when collateral type is CES, NPL or NQM';
 export const PREVIEW_ANALYTICS_BUTTON_TEXT = 'Enabled only when analytics are available.';
-export const PREVIEW_STATIC_BUTTON_TEXT = 'Enabled only for callable assets.';
+export const PREVIEW_STATIC_BUTTON_TEXT = 'Enabled only when an asset has call/speed overrides.';
