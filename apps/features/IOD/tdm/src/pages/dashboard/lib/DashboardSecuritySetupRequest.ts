@@ -16,6 +16,7 @@ export interface IDashboardSecuritySetupRequest {
     securityRequestIntexFields: IDashboardSecuritySetupRequestIntexFields;
     securityRequestArcFields: IDashboardSecuritySetupRequestArcFields;
     securityRequestDocuments: IDashboardSecuritySetupRequestAttachment[];
+    noteInstructions: string;
 }
 
 export interface IDashboardDeleteSecuritySetupRequest{
@@ -41,7 +42,7 @@ export interface IDashboardDeleteSecuritySetupRequest{
 export interface IDashboardSecuritySetupRequestDetails {
     identifierType: string;
     identifierValue: string;
-    isPrivateDeal: boolean;
+    isPrivateDeal: string;
     ssapIdPassword: string;
     marketSectorType: string;
     yellowKey: string;

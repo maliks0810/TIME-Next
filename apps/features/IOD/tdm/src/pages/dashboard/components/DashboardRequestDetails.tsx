@@ -20,7 +20,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
   const [isDuplicateConfirmationOpen, setIsDuplicateConfirmationOpen] = useState<boolean>(false);
   const [isCancelConfirmationOpen, setIsCancelConfirmationOpen] = useState<boolean>(false);
   const { name: currentUser } = useUserInfo();
-  
+
 
   // TODO: call service to load SecuritySetupRequest on open of Request Details
 
@@ -201,7 +201,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             <Typography variant="subtitle2">
               <b>{securityRequest.securityRequestDetails.identifierType}:</b> {securityRequest.securityRequestDetails.identifierValue}
             </Typography>
-            <Typography variant="subtitle2">
+            <Typography variant="subtitle2">              
               <b>Private Deal:</b> {securityRequest.securityRequestDetails.isPrivateDeal}
             </Typography>
             <Typography variant="subtitle2">
@@ -365,7 +365,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                   Loan Credit
                 </Typography>
                 <Typography variant="subtitle2" flex={1}>
-                  {securityRequest.securityRequestTradeFields.loanCategory}
+                  {securityRequest.securityRequestTradeFields.loanCredit}
                 </Typography>
               </Grid>
               <Grid size={1}>
@@ -460,7 +460,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
           <Grid>
             <Grid>
               <Typography variant="subtitle1" flex={1}>
-                ARC Field
+                <b>ARC Field</b>
               </Typography>
             </Grid>
             <Grid container flexDirection={'row'} columns={2} spacing={1}>
@@ -520,8 +520,21 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
 
           <Grid>
             <Grid>
+                <Typography variant="subtitle1">
+                  <b>Notes / Instructions</b>
+                </Typography>
+                <Typography variant="subtitle2">
+                  {securityRequest.noteInstructions}
+                </Typography>
+            </Grid>
+          </Grid>
+
+          <Divider flexItem />
+
+          <Grid>
+            <Grid>
               <Typography variant="subtitle1" flex={1}>
-                Documents
+                <b>Documents</b>
               </Typography>
             </Grid>
             <Grid container flexDirection={'row'} columns={1} spacing={1}>

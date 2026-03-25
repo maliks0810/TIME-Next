@@ -59,6 +59,7 @@ export interface SecuritySetupRequest {
     severity: number;
     delinquency: number;
     documents: SecuritySetupRequestAttachment[];
+    noteInstructions: string;
 }
 
 export interface DelSecuritySetupRequest {
