@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FormControl, TextField, RadioGroup, FormControlLabel, Radio, CircularProgress } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
@@ -32,6 +32,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   isUploadingFile = false,
   fileUploadError
 }) => {
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,6 +42,32 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
 
     // reset input so same file can be re-selected if needed
     e.target.value = '';
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+
+    if (!isReadOnly && !isUploadingFile) {
+      setIsDragOver(true);
+    }
+  }
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+
+    setIsDragOver(false);
+    if (isReadOnly || isUploadingFile) {
+      return;
+    }
+
+    const file = e.dataTransfer.files?.[0];
+    if (file && onFileUpload) {
+      onFileUpload(file);
+    }
   }
 
   const getDefaultNewIssue = (ssapIdPassword?: string) => {
@@ -92,7 +119,11 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             />
             <label
               htmlFor='memorandum-upload-input'
-              className={`memorandum-upload-box${isReadOnly || isUploadingFile ? '' : ' memorandum-upload-box--clickable'}`}
+              className={`memorandum-upload-box${isReadOnly || isUploadingFile ? '' : ' memorandum-upload-box--clickable'}
+                ${isDragOver ? ' memorandum-upload-box--drag-over' : ''}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
             >
               {isUploadingFile ? (
                 <CircularProgress size={24} className='upload-progress-icon' />
