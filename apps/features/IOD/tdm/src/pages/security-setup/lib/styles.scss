@@ -263,6 +263,11 @@
       }
     }
 
+    .memorandum-upload-box--drag-over {
+      border-color: darkgrey;
+      background-color: #f5f5f5;
+    }
+
     .upload-doc-icon,
     .upload-progress-icon,
     .upload-success-icon {
