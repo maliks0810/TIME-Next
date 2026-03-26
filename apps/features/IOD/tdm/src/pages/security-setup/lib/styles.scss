@@ -878,30 +878,6 @@
 // CONFIRM DETAILS PAGE
 // =============================================================================
 .confirm-details-page {
-  .file-uploaded-indicator {
-    margin-bottom: 32px;
-
-    .file-indicator-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px;
-      background-color: #f5f5f5;
-      border-radius: 4px;
-      margin-top: 12px;
-
-      .file-paperclip-icon {
-        color: #666;
-        font-size: 20px;
-      }
-
-      .file-name-text {
-        font-size: 13px;
-        color: #093566;
-      }
-    }
-  }
-
   .form-section {
     margin-bottom: 32px;
 
@@ -1192,6 +1168,34 @@
     }
   }
 }
+
+// =============================================================================
+// FILE UPLOADED SECTION
+// =============================================================================
+  .file-uploaded-indicator {
+    margin-bottom: 32px;
+
+    .file-indicator-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      margin-top: 12px;
+
+      .file-paperclip-icon {
+        color: #666;
+        font-size: 20px;
+      }
+
+      .file-name-text {
+        font-size: 13px;
+        color: #093566;
+      }
+    }
+  }
+
 
 // =============================================================================
 // RESPONSIVE ADJUSTMENTS

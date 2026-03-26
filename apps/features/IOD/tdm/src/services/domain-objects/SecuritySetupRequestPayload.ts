@@ -79,7 +79,15 @@ export interface ISecuritySetupRequestPresentation {
     createdBy: string;
     createdDate: string; // ISO 8601 DateTimeOffset
     updatedBy: string | null;
-    updatedDate: string | null; // ISO 8601 DateTimeOffset
+    updatedDate: string | null; // ISO 8601 DateTimeOffset,
+    attachments?: ISecuritySetupRequestAttachment[] | null;
+}
+
+export interface ISecuritySetupRequestAttachment {
+    attachmentId: number;
+    securitySetupRequestId: number;
+    sharepointWebUrl: string;
+    fileName: string;
 }
 
 /**
@@ -211,6 +219,7 @@ export interface ISecuritySetupWizardPayload {
     createdDate?: string | null;
     updatedBy?: string | null;
     updatedDate?: string | null;
+    attachments?: ISecuritySetupRequestAttachment[];
 }
 
 /**

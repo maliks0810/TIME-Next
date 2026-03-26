@@ -110,6 +110,14 @@ export interface IReviewDetailsFormValues {
     tradeFields: ITradeFields;
     speedOverrides: ISpeedOverrides;
     notesInstructions?: string; // Textarea at bottom
+    attachments?: ISecurityAttachmentData[];
+}
+
+export interface ISecurityAttachmentData {
+    attachmentId: number;
+    securitySetupRequestId: number;
+    sharepointWebUrl: string;
+    fileName: string;
 }
 
 // Confirm Details (read-only review of all data)
@@ -121,6 +129,7 @@ export interface IConfirmDetailsData {
     tradeFields: ITradeFields;
     speedOverrides: ISpeedOverrides;
     notesInstructions?: string;
+    attachments?: ISecurityAttachmentData[];
 }
 
 // Complete wizard data

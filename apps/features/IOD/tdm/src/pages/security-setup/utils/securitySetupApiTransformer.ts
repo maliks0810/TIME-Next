@@ -110,12 +110,12 @@ export const transformToApiDomain = (
         YellowKey: payload.yellowKey || '',
         IsEuSecuritizationRequired: payload.isEuSecuritizationRequired ?? null,
         EuSecuritizationTipEuId: payload.euSecuritizationTipEuId || '',
-        EuSecuritizationStatusValue: !!payload.securityDetails?.euSecuritizationStatus ?
-            (payload.securityDetails?.euSecuritizationStatus) :
-            (payload.euSecuritizationStatus || null),
-        ErisaStatusValue: !!payload.securityDetails?.erisaStatus ? 
-            (payload.securityDetails?.erisaStatus) :
-            (payload.erisaStatus || null),
+        EuSecuritizationStatusValue: !!payload.securityDetails?.euSecuritizationStatus
+            ? payload.securityDetails?.euSecuritizationStatus
+            : payload.euSecuritizationStatus || null,
+        ErisaStatusValue: !!payload.securityDetails?.erisaStatus
+            ? payload.securityDetails?.erisaStatus
+            : payload.erisaStatus || null,
         IntexDealName: payload.intexDealName || '',
         IntexPassword: payload.intexPassword || '',
         DealName: payload.dealName || '',
@@ -238,7 +238,7 @@ export const transformFromApiPresentation = (
             cusip: presentation.cusip || undefined,
             identifier: presentation.identifierValue || undefined,
             euSecuritizationStatus: presentation.euSecuritizationStatusValue || undefined,
-            erisaStatus: presentation.erisaStatusValue || undefined
+            erisaStatus: presentation.erisaStatusValue || undefined,
         },
 
         // ESG fields (dropdown values)
@@ -285,5 +285,11 @@ export const transformFromApiPresentation = (
         createdDate: presentation.createdDate || undefined,
         updatedBy: presentation.updatedBy || undefined,
         updatedDate: presentation.updatedDate || undefined,
+
+        // Attachments
+        attachments:
+            presentation.attachments && presentation?.attachments?.length > 0
+                ? presentation.attachments
+                : undefined,
     };
 };
