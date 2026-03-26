@@ -1,5 +1,5 @@
 import React from 'react';
-import { Divider, TextField } from '@mui/material';
+import { Divider, Link, TextField } from '@mui/material';
 import { IConfirmDetailsData, SecuritySetupFlowType } from '../lib/types/securitySetupTypes';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { SelectFormField } from '../../../common/components/SelectFormField';
@@ -12,16 +12,32 @@ interface ConfirmDetailsPageProps {
 }
 
 export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, referenceData }) => {
+  const attachments = data.attachments ?? [];
+
   return (
     <div className="confirm-details-page">
-      {/* File Upload Indicator */}
-      <div className="file-uploaded-indicator">
-        <h3 className="section-title">Offering Memorandum Upload</h3>
-        <div className="file-indicator-item">
-          <AttachFileIcon className="file-paperclip-icon" />
-          <span className="file-name-text">file.file_extension</span>
-        </div>
-      </div>
+      {/* Offering Memorandum Uploaded File */}
+      {attachments.length > 0 &&
+        (<div className="file-uploaded-indicator">
+          <h3 className="section-title">Offering Memorandum Upload</h3>
+          <div className="file-indicator-item">
+            <AttachFileIcon className="file-paperclip-icon" />
+            <div className="upload-text-wrapper">
+              {attachments.map((doc) => (
+                <div className="file-name-text" key={doc.attachmentId}>
+                  <Link
+                    href={doc.sharepointWebUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="upload-link"
+                  >
+                    {doc.fileName}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>)}
 
       {/* Security Details Section */}
       <div className="form-section">

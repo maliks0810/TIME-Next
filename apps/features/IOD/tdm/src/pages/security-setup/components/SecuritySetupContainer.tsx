@@ -22,7 +22,7 @@ import {
 } from '../lib/types/securitySetupTypes';
 import '../lib/styles.scss';
 import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
-import { ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
+import { ISecuritySetupRequestAttachment, ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 import { SecuritySetupService } from '../../../services/SecuritySetupService';
 import { useReferenceData } from '../hooks/useReferenceData';
 import { getStepNumber } from '../utils/securitySetupApiTransformer';
@@ -104,6 +104,7 @@ const mergeWizardDataWithSaveResponse = (
       delinquency: savedData.speedOverrides?.delinquency ?? prev.step2.speedOverrides?.delinquency,
     },
     notesInstructions: savedData.notesInstructions ?? prev.step2.notesInstructions,
+    attachments: savedData.attachments?.length ? savedData.attachments : prev.step2.attachments
   };
 
   return { step1: mergedStep1, step2: mergedStep2 }
@@ -121,7 +122,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null);
-  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [fileUploadError, setFileUploadError] = useState<string | null>(null);
 
@@ -169,6 +169,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           tradeFields: initialData.tradeFields ?? {},
           speedOverrides: initialData.speedOverrides ?? {},
           notesInstructions: initialData.notesInstructions ?? undefined,
+          attachments: initialData.attachments ?? []
         },
         updatedBy: currentUser
       });
@@ -269,6 +270,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       // Step 3 data (confirm details) - if exists
       ...(wizardData.step3 && {
         uploadedFile: wizardData.step3.uploadedFile,
+        attachments: wizardData.step3.attachments,
         isConfirmed: true,
       }),
     };
@@ -287,25 +289,26 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       setPendingUploadFile(file);
     }, []);
 
-  const uploadPendingFile = useCallback(async (requestId: number): Promise<boolean> => {
+  const uploadPendingFile = useCallback(async (requestId: number): Promise<ISecuritySetupRequestAttachment[] | null> => {
 
     if (!pendingUploadFile) {
-      return true;
+      return [];
     }
 
     setIsUploadingFile(true);
     setFileUploadError(null);
     try {
-
-
-      await SecuritySetupService.uploadAttachment(requestId, currentUser || '', pendingUploadFile);
-      setUploadedFileName(pendingUploadFile.name);
+      const uploadedAttachments = await SecuritySetupService.uploadAttachment(
+        requestId,
+        currentUser || '',
+        pendingUploadFile
+      );
       setPendingUploadFile(null);
-      return true;
+      return uploadedAttachments || [];
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to upload file.';
       setFileUploadError(msg);
-      return false;
+      return null;
     } finally {
       setIsUploadingFile(false);
     }
@@ -418,23 +421,26 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       }
 
       const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
-      if (requestId) {
-        await uploadPendingFile(requestId);
-      }
+      const freshAttachments = requestId ? await uploadPendingFile(requestId) : [];
 
       // Merge server response into wizard state.
       setWizardData((prev) => {
         const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
+        const resolvedAttachments = (freshAttachments && freshAttachments.length > 0)
+          ? freshAttachments
+          : mergedStep2.attachments ?? prev.step2.attachments ?? [];
 
         return {
           ...prev,
           step1: mergedStep1,
-          step2: mergedStep2,
+          step2: {
+            ...mergedStep2,
+            attachments: resolvedAttachments
+          },
           ...(currentStep === 'review-details' && {
-            // TODO: get real attachments file from api
-            uploadedFile: 'file.file.extension',
             ssapIdPassword: mergedStep1.ssapIdPassword,
-            ...mergedStep2
+            ...mergedStep2,
+            attachments: resolvedAttachments,
           })
         }
       });
@@ -469,21 +475,25 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       }
 
       const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
-      if (requestId) {
-        await uploadPendingFile(requestId);
-      }
+      const freshAttachments = requestId ?
+        await uploadPendingFile(requestId) : [];
 
       // Merge server response into wizard state.
       setWizardData((prev) => {
         const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
+        const resolvedAttachments = (freshAttachments && freshAttachments.length > 0)
+          ? freshAttachments
+          : mergedStep2.attachments ?? prev.step2.attachments ?? [];
 
         return {
           ...prev,
           step1: mergedStep1,
-          step2: mergedStep2,
+          step2: {
+            ...mergedStep2,
+            attachments: resolvedAttachments
+          },
           ...(currentStep === 'review-details' && {
-            // TODO: get real attachments file from api
-            uploadedFile: 'file.file.extension',
+            attachments: resolvedAttachments,
             ssapIdPassword: mergedStep1.ssapIdPassword,
             ...mergedStep2
           })
@@ -531,9 +541,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     if (savedData) {
       const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
       if (requestId) {
-        const uploadSuccess = uploadPendingFile(requestId);
+        const uploadedAttachments = uploadPendingFile(requestId);
 
-        if (!uploadSuccess) {
+        if (!uploadedAttachments) {
           // let user see upload error
           return;
         }
@@ -710,7 +720,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             selectFieldErrors={selectFieldErrors}
             onFileUpload={handleFileUpload}
             selectedFileName={pendingUploadFile?.name || null}
-            uploadedFileName={uploadedFileName}
+            uploadedFileName={wizardData.step2.attachments?.[0]?.fileName || null}
             isUploadingFile={isUploadingFile}
             fileUploadError={fileUploadError}
           />
@@ -734,6 +744,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             formValues={wizardData.step2}
             onFormChange={handleStep2Change}
             referenceData={referenceData}
+            attachments={wizardData.step2.attachments ?? []}
           />
         );
       case 'confirm-details':
@@ -743,7 +754,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             data={{
               ...wizardData.step1,
               ...wizardData.step2,
-              uploadedFile: wizardData.step3?.uploadedFile
+              uploadedFile: wizardData.step3?.uploadedFile,
+              attachments: wizardData.step3?.attachments ?? wizardData.step2.attachments ?? []
             }}
             referenceData={referenceData}
           />

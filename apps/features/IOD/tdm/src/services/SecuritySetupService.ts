@@ -3,7 +3,10 @@ import {
     transformFromApiPresentation,
     transformToApiDomain,
 } from '../pages/security-setup/utils/securitySetupApiTransformer';
-import { ISecuritySetupWizardPayload } from './domain-objects/SecuritySetupRequestPayload';
+import {
+    ISecuritySetupWizardPayload,
+    ISecuritySetupRequestAttachment,
+} from './domain-objects/SecuritySetupRequestPayload';
 
 const API_BASE_URL = getApiBaseUrl();
 const SECURITY_SETUP_ENDPOINT = '/securitysetuprequests';
@@ -97,7 +100,7 @@ export const SecuritySetupService = {
         securitySetupRequestId: number,
         createdBy: string,
         file: File
-    ): Promise<void> => {
+    ): Promise<ISecuritySetupRequestAttachment[] | null> => {
         const formData = new FormData();
         formData.append(
             'SecuritySetupRequestAttachmentRequest.SecuritySetupRequestId',
@@ -130,5 +133,9 @@ export const SecuritySetupService = {
                 apiMessage ?? `Failed to upload file attachment (${response.status}): ${errorText}`
             );
         }
+
+        const responseData = await response.json().catch(() => null);
+        const attachments = responseData?.securitySetupRequestAttachmentCollection;
+        return attachments;
     },
 };

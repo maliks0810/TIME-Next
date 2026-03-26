@@ -1,21 +1,23 @@
 import React from 'react';
-import { Divider, TextField } from '@mui/material';
-import { SecuritySetupFlowType, IReviewDetailsFormValues } from '../lib/types/securitySetupTypes';
+import { Divider, Link, TextField } from '@mui/material';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { SecuritySetupFlowType, IReviewDetailsFormValues, ISecurityAttachmentData } from '../lib/types/securitySetupTypes';
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { SelectFormField } from '../../../common/components/SelectFormField';
-
 
 interface ReviewDetailsPageProps {
   formValues: IReviewDetailsFormValues;
   onFormChange: (values: Partial<IReviewDetailsFormValues>) => void;
   flowType?: SecuritySetupFlowType;
   referenceData: INormalizedReferenceData | null;
+  attachments?: ISecurityAttachmentData[];
 }
 
 export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   formValues,
   onFormChange,
-  referenceData
+  referenceData,
+  attachments = []
 }) => {
   const formatDateForInput = (isoDate?: string): string => {
     if (!isoDate) {
@@ -93,6 +95,30 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
 
   return (
     <div className="review-details-page">
+      {/* Offering Memorandum Uploaded File */}
+      {attachments.length > 0 &&
+        (<div className="file-uploaded-indicator">
+          <h3 className="section-title">Offering Memorandum Upload</h3>
+          <div className="file-indicator-item">
+            <AttachFileIcon className="file-paperclip-icon" />
+            <div className="upload-text-wrapper">
+              {attachments.map((doc) => (
+                <div className="file-name-text" key={doc.attachmentId}>
+                  <Link
+                    href={doc.sharepointWebUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="upload-link"
+                  >
+                    {doc.fileName}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>)}
+
+
       {/* Security Details Section */}
       <div className="form-section">
         <h3 className="section-title">Security Details</h3>

@@ -1,7 +1,7 @@
-import React, { Dispatch, SetStateAction, useCallback, useState} from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
-import { Card, CardMedia, Typography, Button, Grid, Box, Divider } from '@mui/material';
-import { CloseSharp, FileCopy, Delete, History, DescriptionOutlined, FileDownloadOutlined } from '@mui/icons-material';
+import { Card, CardMedia, Typography, Button, Grid, Box, Divider, Link } from '@mui/material';
+import { CloseSharp, FileCopy, Delete, History, DescriptionOutlined } from '@mui/icons-material';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
 import { formatDate } from '../../../utils/DateTimeHelper';
 import '../lib/dashboard.scss';
@@ -44,17 +44,16 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
     if (securityRequest.setupStatus === 'Request Initiated' ||
       securityRequest.setupStatus === 'Pending DM SSAP Review' ||
       securityRequest.setupStatus === 'Pending Trader Details') {
-        return true;
-      }
+      return true;
+    }
 
-      return false;
+    return false;
   }
 
   const isCancelButtonDisabled = () => {
-    if(securityRequest.setupStatus === 'Cancelled' ||
+    if (securityRequest.setupStatus === 'Cancelled' ||
       securityRequest.setupStatus === 'Request Submitted'
-    )
-    {
+    ) {
       return true;
     }
     return false;
@@ -64,7 +63,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
     // open confirmation
     setIsCancelConfirmationOpen(true);
   }
-  
+
   const handleCancelConfirmationClose = () => {
     // close confirmation
     setIsCancelConfirmationOpen(false);
@@ -162,7 +161,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
               <Grid>
                 <Button onClick={handleDuplicateOnClick} className='tcw-button-outlined' variant='outlined' disabled={isDuplicateButtonDisabled()}><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Duplicate</Button>
               </Grid>
-              <Grid>                
+              <Grid>
                 <Button onClick={handleCancelOnClick} className='tcw-button-outlined' variant='outlined' disabled={isCancelButtonDisabled()}><Delete sx={{ padding: '0px 5px 0px 0px' }} />Cancel</Button>
               </Grid>
               <Grid>
@@ -186,6 +185,43 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             </Grid>
           </Grid>
 
+          <Divider flexItem />
+
+          <Grid>
+            <Grid>
+              <Typography variant="subtitle1" flex={1}>
+                Documents
+              </Typography>
+            </Grid>
+            <Grid container flexDirection={'row'} columns={1} spacing={1}>
+              {securityRequest.securityRequestDocuments.map(securityRequestDocument => (
+                <Grid key={securityRequestDocument.id} size={1}>
+                  <Box className='security-request-file-container'>
+                    <Grid container flexDirection={'row'} spacing={1}>
+                      <Grid alignContent={'center'}>
+                        <DescriptionOutlined />
+                      </Grid>
+                      <Grid >
+                        <Grid>
+                          <Link
+                            href={securityRequestDocument.sharepointWebUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="upload-link"
+                          >
+                            {securityRequestDocument.fileName}
+                          </Link>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </Grid>
+
+          <Divider flexItem />
+
           <Grid>
             <Typography variant="subtitle2">
               <b>Date Requested:</b> {formatDate(securityRequest.createdDate)}
@@ -201,7 +237,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             <Typography variant="subtitle2">
               <b>{securityRequest.securityRequestDetails.identifierType}:</b> {securityRequest.securityRequestDetails.identifierValue}
             </Typography>
-            <Typography variant="subtitle2">              
+            <Typography variant="subtitle2">
               <b>Private Deal:</b> {securityRequest.securityRequestDetails.isPrivateDeal}
             </Typography>
             <Typography variant="subtitle2">
@@ -520,55 +556,14 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
 
           <Grid>
             <Grid>
-                <Typography variant="subtitle1">
-                  <b>Notes / Instructions</b>
-                </Typography>
-                <Typography variant="subtitle2">
-                  {securityRequest.noteInstructions}
-                </Typography>
-            </Grid>
-          </Grid>
-
-          <Divider flexItem />
-
-          <Grid>
-            <Grid>
-              <Typography variant="subtitle1" flex={1}>
-                <b>Documents</b>
+              <Typography variant="subtitle1">
+                <b>Notes / Instructions</b>
+              </Typography>
+              <Typography variant="subtitle2">
+                {securityRequest.noteInstructions}
               </Typography>
             </Grid>
-            <Grid container flexDirection={'row'} columns={1} spacing={1}>
-              {securityRequest.securityRequestDocuments.map(securityRequestDocument => (
-                <Grid key={securityRequestDocument.id} size={1}>
-                  <Box className='security-request-file-container'>
-                    <Grid container flexDirection={'row'} spacing={1}>
-                      <Grid alignContent={'center'}>
-                        <DescriptionOutlined />
-                      </Grid>
-                      <Grid >
-                        <Grid>
-                          <Typography variant="subtitle2" flex={1}>
-                            {securityRequestDocument.fileName}
-                          </Typography>
-                        </Grid>
-                        <Grid alignContent={'center'}>
-                          <Typography variant="caption" flex={1}>
-                            {securityRequestDocument.sharepointWebUrl}
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                      <Grid alignContent={'center'} sx={{ ml: 'auto' }}>
-                        <Button className='tcw-button-text' variant='text'>
-                          <FileDownloadOutlined sx={{ padding: '0px 5px 0px 0px' }} />Download
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
           </Grid>
-
         </Grid>
       </Box>
       <ConfirmationModal
