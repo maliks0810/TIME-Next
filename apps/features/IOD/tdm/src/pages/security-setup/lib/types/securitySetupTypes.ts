@@ -18,6 +18,17 @@ export type EnterIdentifierStep =
     | 'ssap-confirmation' // Step 3d: SSAP Confirmation (if private)
     | 'bloomberg-identifier'; // Step 4: Enter Bloomberg Identifier
 
+export enum SecuritySetupStatus {
+    RequestInitiated = 1,
+    PendingDmSsapReview = 2,
+    PendingTraderDetails = 3,
+    RequestSubmitted = 4,
+    SecurityReviewComplete = 5,
+    SecuritySetupComplete = 6,
+    ReadyForTrading = 7,
+    Cancelled = 8,
+}
+
 // Enter Identifier
 export interface IEnterIdentifierFormValues {
     // Step tracking
