@@ -232,7 +232,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           <label className="field-label">New Issue *</label>
           <FormControl fullWidth>
             <RadioGroup
-              //value={effectiveNewIssue}
+              value={effectiveNewIssue}
               defaultValue={'yes'}
               onChange={(e) => {
                 const newIssue = e.target.value;
