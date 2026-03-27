@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Card, CardMedia, Typography, Button, Grid, Box, Divider, Link } from '@mui/material';
-import { CloseSharp, FileCopy, Delete, History, DescriptionOutlined } from '@mui/icons-material';
+import { CloseSharp, FileCopy, Delete, DescriptionOutlined } from '@mui/icons-material';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
 import { formatDate } from '../../../utils/DateTimeHelper';
 import '../lib/dashboard.scss';
@@ -43,6 +43,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
   const isDuplicateButtonDisabled = () => {
     if (securityRequest.setupStatus === 'Request Initiated' ||
       securityRequest.setupStatus === 'Pending DM SSAP Review' ||
+      securityRequest.setupStatus === 'Cancelled' ||
       securityRequest.setupStatus === 'Pending Trader Details') {
       return true;
     }
@@ -164,9 +165,6 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
               <Grid>
                 <Button onClick={handleCancelOnClick} className='tcw-button-outlined' variant='outlined' disabled={isCancelButtonDisabled()}><Delete sx={{ padding: '0px 5px 0px 0px' }} />Cancel</Button>
               </Grid>
-              <Grid>
-                <Button className='tcw-button-outlined' variant='outlined'><History sx={{ padding: '0px 5px 0px 0px' }} />View History</Button>
-              </Grid>
             </Grid>
           </Grid>
 
@@ -246,9 +244,6 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             <Typography variant="subtitle2">
               <b>Market Sector:</b> {securityRequest.securityRequestDetails.marketSectorType}
             </Typography>
-            <Typography variant="subtitle2">
-              <b>Yellow Key:</b> {securityRequest.securityRequestDetails.yellowKey}
-            </Typography>
           </Grid>
 
           <Divider flexItem />
@@ -290,14 +285,6 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 </Typography>
                 <Typography variant="subtitle2">
                   {securityRequest.securityRequestDetails.isNewIssue}
-                </Typography>
-              </Grid>
-              <Grid size={1}>
-                <Typography variant="caption">
-                  EU Security
-                </Typography>
-                <Typography variant="subtitle2">
-                  {securityRequest.securityRequestDetails.isEuSecuritizationRequired}
                 </Typography>
               </Grid>
               <Grid size={1}>
