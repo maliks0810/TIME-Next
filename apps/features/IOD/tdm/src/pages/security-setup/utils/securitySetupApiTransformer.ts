@@ -190,6 +190,8 @@ export const transformFromApiPresentation = (
         // ID for PUT calls
         securitySetupRequestId: presentation.securitySetupRequestId,
 
+        securitySetupStatusId: presentation.securitySetupStatusId || null,
+
         // Wizard metadata
         currentStep,
         currentStepNumber: getStepNumber(currentStep),

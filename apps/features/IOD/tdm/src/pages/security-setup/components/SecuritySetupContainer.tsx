@@ -16,6 +16,7 @@ import { ConfirmDetailsPage } from './ConfirmDetailsPage';
 import { SubmitConfirmationModal } from './SubmitConfirmationModal';
 import {
   SecuritySetupFlowType,
+  SecuritySetupStatus,
   ISecuritySetupWizardData,
   IEnterIdentifierFormValues,
   IReviewDetailsFormValues,
@@ -124,6 +125,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [fileUploadError, setFileUploadError] = useState<string | null>(null);
+
+  const isCancelled = initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
 
   const { data: referenceData, loading: loadingReferenceData, error: referenceDataError } = useReferenceData();
 
@@ -363,6 +366,10 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   }
 
   const canProceed = (): boolean => {
+    if (isCancelled) {
+      return currentStep !== 'confirm-details';
+    }
+
     if (saveStatus === 'saving' || saveStatus === 'saved') {
       return false;
     }
@@ -395,7 +402,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const handleNext = async (userInput?: UserInput | null) => {
     const nextStep = getNextStep(currentStep);
 
-    if (!isReadOnly) {
+    if (!isReadOnly && !isCancelled) {
       markStepComplete(currentStep);
       clearError();
 
@@ -446,10 +453,15 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       });
     }
 
+    if (isCancelled) {
+      markStepComplete(currentStep);
+      clearError();
+    }
+
     if (nextStep) {
       setCurrentStep(nextStep);
       setIsReadOnly(false);
-    } else if (currentStep === 'confirm-details') {
+    } else if (currentStep === 'confirm-details' && !isCancelled) {
       // Final step - show confirmation modal
       setShowConfirmModal(true);
     }
@@ -459,7 +471,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const handleButtonNext = async () => {
     const nextStep = getNextStep(currentStep);
 
-    if (!isReadOnly) {
+    if (!isReadOnly && !isCancelled) {
       markStepComplete(currentStep);
       clearError();
 
@@ -501,10 +513,15 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       });
     }
 
+    if (isCancelled) {
+      markStepComplete(currentStep);
+      clearError();
+    }
+
     if (nextStep) {
       setCurrentStep(nextStep);
       setIsReadOnly(false);
-    } else if (currentStep === 'confirm-details') {
+    } else if (currentStep === 'confirm-details' && !isCancelled) {
       // Final step - show confirmation modal
       setShowConfirmModal(true);
     }
@@ -715,7 +732,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           <EnterIdentifierPage
             formValues={wizardData.step1}
             onFormChange={handleStep1Change}
-            isReadOnly={isReadOnly}
+            isReadOnly={isReadOnly || isCancelled}
             referenceData={referenceData}
             selectFieldErrors={selectFieldErrors}
             onFileUpload={handleFileUpload}
@@ -731,6 +748,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             formValues={wizardData.step1}
             onFormChange={handleStep1Change}
             onProceedToReview={handleNext}
+            isReadOnly={isCancelled}
             isSaving={saveStatus === 'saving' || saveStatus === 'saved'}
             onBack={() => {
               setCurrentStep('enter-identifier');
@@ -874,6 +892,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             className="save-button"
             onClick={handleSave}
             startIcon={<SaveIcon />}
+            disabled={isCancelled && currentStep !== 'review-details'}
           >
             Save
           </Button>

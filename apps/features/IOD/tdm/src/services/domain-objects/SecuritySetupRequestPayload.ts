@@ -220,6 +220,7 @@ export interface ISecuritySetupWizardPayload {
     updatedBy?: string | null;
     updatedDate?: string | null;
     attachments?: ISecuritySetupRequestAttachment[];
+    securitySetupStatusId?: number | null;
 }
 
 /**
