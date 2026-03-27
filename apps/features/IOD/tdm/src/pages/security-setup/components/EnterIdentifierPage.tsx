@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormControl, TextField, RadioGroup, FormControlLabel, Radio, CircularProgress } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
@@ -33,6 +33,21 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   fileUploadError
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
+
+  useEffect(() => {
+    // if a request was duplicated, calculate these fields on load
+    const ssapIdPassword = formValues.ssapIdPassword;
+    const newIssue = getDefaultNewIssue(ssapIdPassword);
+    const isPrivateDeal = !isNullOrEmpty(ssapIdPassword);
+    const isSsapReleaseRequestSentToDm = isPrivateDeal;
+
+    onFormChange({
+      newIssue,
+      isPrivateDeal,
+      isSsapReleaseRequestSentToDm,
+      ...(newIssue === 'no' ? { aladdinCDIId: undefined } : {})
+    });
+  }, []);
 
   const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
