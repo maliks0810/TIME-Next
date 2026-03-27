@@ -89,7 +89,8 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
     return ssapIdPassword?.trim() ? 'yes' : 'no';
   }
 
-  const effectiveNewIssue = getDefaultNewIssue(formValues.ssapIdPassword);
+  const effectiveNewIssue = formValues.newIssue
+    || (formValues.ssapIdPassword?.trim() ? getDefaultNewIssue(formValues.ssapIdPassword) : '');
 
   const isYellowKeyVisable = false;
   const handleTextChange = (field: keyof IEnterIdentifierFormValues) => (
