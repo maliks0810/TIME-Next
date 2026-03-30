@@ -11,13 +11,15 @@ interface ReviewDetailsPageProps {
   flowType?: SecuritySetupFlowType;
   referenceData: INormalizedReferenceData | null;
   attachments?: ISecurityAttachmentData[];
+  isReadOnly?: boolean;
 }
 
 export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   formValues,
   onFormChange,
   referenceData,
-  attachments = []
+  attachments = [],
+  isReadOnly = false,
 }) => {
   const formatDateForInput = (isoDate?: string): string => {
     if (!isoDate) {
@@ -130,6 +132,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={formValues.securityDetails?.aladdinCDIId || ''}
               onChange={(e) => handleSecurityDetailsChange('aladdinCDIId', e.target.value)}
+              disabled={isReadOnly}
               variant="outlined"
             />
           </div>
@@ -139,6 +142,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={formValues.securityDetails?.identifier || ''}
               onChange={(e) => handleSecurityDetailsChange('identifier', e.target.value)}
+              disabled={isReadOnly}
               variant="outlined"
             />
           </div>
@@ -148,6 +152,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={formValues.securityDetails?.description || ''}
               onChange={(e) => handleSecurityDetailsChange('description', e.target.value)}
+              disabled={isReadOnly}
               variant="outlined"
             />
           </div>
@@ -157,6 +162,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={formValues.securityDetails?.tranche || ''}
               onChange={(e) => handleSecurityDetailsChange('tranche', e.target.value)}
+              disabled={isReadOnly}
               variant="outlined"
             />
           </div>
@@ -176,6 +182,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleSecurityDetailsChange('sectorValue', value)}
               referenceData={referenceData}
               label="Sector"
+              disabled={isReadOnly}
             />
           </div>
           <div className="form-field">
@@ -185,6 +192,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleSecurityDetailsChange('callableValue', value)}
               referenceData={referenceData}
               label="Callable"
+              disabled={isReadOnly}
             />
           </div>
           <div className="form-field">
@@ -194,6 +202,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               type="date"
               value={formatDateForInput(formValues.securityDetails?.callDate)}
               onChange={(e) => handleSecurityDetailsChange('callDate', e.target.value)}
+              disabled={isReadOnly}
               variant="outlined"
             />
           </div>
@@ -203,6 +212,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={formValues.securityDetails?.price || ''}
               onChange={(e) => handleSecurityDetailsChange('price', e.target.value)}
+              disabled={isReadOnly}
               variant="outlined"
             />
           </div>
@@ -216,6 +226,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleSpeedOverridesChange('prepaymentTypeValue', value)}
               referenceData={referenceData}
               label="Prepayment Type"
+              disabled={isReadOnly}
             />
           </div>
           <div className="form-field">
@@ -225,6 +236,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleSpeedOverridesChange('defaultTypeValue', value)}
               referenceData={referenceData}
               label="Default Type"
+              disabled={isReadOnly}
             />
           </div>
         </div>
@@ -237,6 +249,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               type="number"
               value={formValues.speedOverrides?.prepaymentSpeed ?? ''}
               onChange={(e) => handleSpeedOverridesChange('prepaymentSpeed', toNumericValue(e.target.value))}
+              disabled={isReadOnly}
               variant="outlined"
               {...({ slotProps: { htmlInput: { inputMode: 'decimal' } } })}
             />
@@ -248,6 +261,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               type="number"
               value={formValues.speedOverrides?.defaultSpeed ?? ''}
               onChange={(e) => handleSpeedOverridesChange('defaultSpeed', toNumericValue(e.target.value))}
+              disabled={isReadOnly}
               variant="outlined"
               {...({ slotProps: { htmlInput: { inputMode: 'decimal' } } })}
             />
@@ -263,6 +277,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               value={formValues.speedOverrides?.severity ?? ''}
               onChange={(e) => handleSpeedOverridesChange('severity', toNumericValue(e.target.value))}
               onBlur={() => clampField('severity', 0, 100)}
+              disabled={isReadOnly}
               variant="outlined"
               // TODO: investigate why min/max attributes are not enforced
               {...({ slotProps: { htmlInput: { min: 0, max: 100, inputMode: 'decimal' } } })}
@@ -276,6 +291,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               value={formValues.speedOverrides?.delinquency ?? ''}
               onChange={(e) => handleSpeedOverridesChange('delinquency', toNumericValue(e.target.value))}
               onBlur={() => clampField('delinquency', 0, 100)}
+              disabled={isReadOnly}
               variant="outlined"
               // TODO: investigate why min/max attributes are not enforced
               {...({ slotProps: { htmlInput: { min: 0, max: 100, inputMode: 'decimal' } } })}
@@ -292,6 +308,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             rows={2}
             value={formValues.notesInstructions || ''}
             onChange={handleNotesChange}
+            disabled={isReadOnly}
             variant="outlined"
             placeholder=""
           />
@@ -312,6 +329,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleESGChange('tcwEsgValue', value)}
               referenceData={referenceData}
               label="TCW ESG"
+              disabled={isReadOnly}
             />
           </div>
           <div className="form-field">
@@ -322,6 +340,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={formValues.esgFields?.esgCollateralType || ''}
               onChange={(e) => handleESGChange('esgCollateralType', e.target.value)}
+              disabled={isReadOnly}
               variant="outlined"
               className="esg-collateral-field"
             />
@@ -336,6 +355,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleESGChange('tcwEsgTypeValue', value)}
               referenceData={referenceData}
               label="TCW ESG Type"
+              disabled={isReadOnly}
             />
           </div>
         </div>
@@ -355,6 +375,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('slicerTypeValue', value)}
               referenceData={referenceData}
               label="Slicer Type"
+              disabled={isReadOnly}
             />
           </div>
           <div className="form-field">
@@ -364,6 +385,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('mbsTypeValue', value)}
               referenceData={referenceData}
               label="MBS Type"
+              disabled={isReadOnly}
             />
           </div>
         </div>
@@ -376,6 +398,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('loanCreditValue', value)}
               referenceData={referenceData}
               label="Loan Credit"
+              disabled={isReadOnly}
             />
           </div>
           <div className="form-field">
@@ -385,6 +408,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('mbsCollateralValue', value)}
               referenceData={referenceData}
               label="MBS Collateral"
+              disabled={isReadOnly}
             />
           </div>
         </div>
@@ -397,6 +421,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('mbsCollateralSubValue', value)}
               referenceData={referenceData}
               label="MBS Collateral Sub"
+              disabled={isReadOnly}
             />
           </div>
           <div className="form-field">
@@ -406,6 +431,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('seniorMostCashFlowValue', value)}
               referenceData={referenceData}
               label="Sr. Most Cash Flow"
+              disabled={isReadOnly}
             />
           </div>
         </div>
@@ -418,6 +444,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('trancheTypeValue', value)}
               referenceData={referenceData}
               label="Tranche Type"
+              disabled={isReadOnly}
             />
           </div>
           <div className="form-field">
@@ -427,6 +454,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('loanCategoryValue', value)}
               referenceData={referenceData}
               label="Loan Category"
+              disabled={isReadOnly}
             />
           </div>
         </div>
@@ -439,6 +467,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('collateralValue', value)}
               referenceData={referenceData}
               label="Collateral"
+              disabled={isReadOnly}
             />
           </div>
         </div>
@@ -458,6 +487,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleSecurityDetailsChange('euSecuritizationStatus', value)}
               referenceData={referenceData}
               fullWidth={false}
+              disabled={isReadOnly}
             />
           </div>
           {/* ERISA Status */}
@@ -469,6 +499,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleSecurityDetailsChange('erisaStatus', value)}
               referenceData={referenceData}
               fullWidth={false}
+              disabled={isReadOnly}
             />
           </div>
         </div>

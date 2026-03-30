@@ -40,6 +40,10 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
     return <></>
   }
 
+  const isUpdateButtonDisabled = () => {
+    return securityRequest.setupStatus === 'Cancelled'
+  }
+
   const isDuplicateButtonDisabled = () => {
     if (securityRequest.setupStatus === 'Request Initiated' ||
       securityRequest.setupStatus === 'Pending DM SSAP Review' ||
@@ -157,7 +161,9 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
             </Grid>
             <Grid container flexDirection={'row'} spacing={1}>
               <Grid>
-                <Button className='tcw-button-outlined' variant='outlined' onClick={handleReviewRequestClick}><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Update</Button>
+                <Button onClick={handleReviewRequestClick} className='tcw-button-outlined' variant='outlined' disabled={isUpdateButtonDisabled()}>
+                  <FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Update
+                </Button>
               </Grid>
               <Grid>
                 <Button onClick={handleDuplicateOnClick} className='tcw-button-outlined' variant='outlined' disabled={isDuplicateButtonDisabled()}><FileCopy sx={{ padding: '0px 5px 0px 0px' }} />Duplicate</Button>
