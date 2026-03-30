@@ -26,6 +26,7 @@ export const AssetInfoSelectCollateralType = ({
                             { label: 'Non-Performing Loan (NPL)', value: 'NPL' },
                             { label: 'Home Equity Line of Credit (HELOC)', value: 'HELOC' },
                             { label: 'Re-Performing Loan (RPL)', value: 'RPL' },
+                            { label: 'Single Family Rental (SFR)', value: 'SFR' },
                         ]}
                     />
                 </Form.Item>
