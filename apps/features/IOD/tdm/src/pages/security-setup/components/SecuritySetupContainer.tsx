@@ -763,6 +763,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             onFormChange={handleStep2Change}
             referenceData={referenceData}
             attachments={wizardData.step2.attachments ?? []}
+            isReadOnly={isCancelled}
           />
         );
       case 'confirm-details':
@@ -892,7 +893,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             className="save-button"
             onClick={handleSave}
             startIcon={<SaveIcon />}
-            disabled={isCancelled && currentStep !== 'review-details'}
+            disabled={isCancelled}
           >
             Save
           </Button>
