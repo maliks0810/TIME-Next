@@ -645,11 +645,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           message: `Aladdin CDI ID: ${wizardData.step1.aladdinCDIId}`,
         });
       }
-      if (wizardData.step1.isPrivateDeal) {
-        messages.push({
-          message: `Private Deal: ${wizardData.step1.isPrivateDeal ? 'Yes' : 'No'}`,
-        });
-      }
       if (wizardData.step1.ssapIdPassword) {
         messages.push({
           message: `Private Deal SSAP ID/Password: ${wizardData.step1.ssapIdPassword}`,
@@ -702,11 +697,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       if (wizardData.step1.identifierValue) {
         messages.push({
           message: `Identifier: ${wizardData.step1.identifierType || 'FIGI'} ${wizardData.step1.identifierValue}`,
-        });
-      }
-      if (wizardData.step1.isPrivateDeal) {
-        messages.push({
-          message: `Private Deal: ${wizardData.step1.isPrivateDeal}`,
         });
       }
 

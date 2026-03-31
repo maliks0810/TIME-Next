@@ -242,9 +242,6 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
               <b>{securityRequest.securityRequestDetails.identifierType}:</b> {securityRequest.securityRequestDetails.identifierValue}
             </Typography>
             <Typography variant="subtitle2">
-              <b>Private Deal:</b> {securityRequest.securityRequestDetails.isPrivateDeal}
-            </Typography>
-            <Typography variant="subtitle2">
               <b>SSAP Password:</b> {securityRequest.securityRequestDetails.ssapIdPassword}
             </Typography>
             <Typography variant="subtitle2">
