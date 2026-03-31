@@ -445,6 +445,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             attachments: resolvedAttachments
           },
           ...(currentStep === 'review-details' && {
+            ...mergedStep1,
             ssapIdPassword: mergedStep1.ssapIdPassword,
             ...mergedStep2,
             attachments: resolvedAttachments,
@@ -505,6 +506,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             attachments: resolvedAttachments
           },
           ...(currentStep === 'review-details' && {
+            ...mergedStep1,
             attachments: resolvedAttachments,
             ssapIdPassword: mergedStep1.ssapIdPassword,
             ...mergedStep2
