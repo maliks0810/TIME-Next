@@ -295,13 +295,19 @@ export const RequestNewAsset = ({
                                 backgroundColor: 'white',
                             }}
                             options={[
-                                { label: 'Close Ended Second (CES)', value: 'CES' },
+                                { label: 'Closed-End Second (CES)', value: 'CES' },
                                 { label: 'Non-Qualified Mortgage (NQM)', value: 'NQM' },
-                                { label: 'Qualified Mortgage (QM)', value: 'QM' },
-                                { label: 'Non Performing Loan (NPL)', value: 'NPL' },
+                                { label: 'Prime Jumbo (PJ)', value: 'PJ' },
+                                { label: 'Non-Performing Loan (NPL)', value: 'NPL' },
                                 { label: 'Home Equity Line of Credit (HELOC)', value: 'HELOC' },
                                 { label: 'Re-Performing Loan (RPL)', value: 'RPL' },
                                 { label: 'Single Family Rental (SFR)', value: 'SFR' },
+                                { label: 'Agency Investor (AGI)', value: 'AGI' },
+                                { label: 'Residential Transition Loans (RTL)', value: 'RTL' },
+                                { label: 'Legacy (LEG)', value: 'LEG' },
+                                { label: 'Credit Risk Transfer (CRT)', value: 'CRT' },
+                                { label: 'Manufactured Housing (MH)', value: 'MH' },
+                                { label: 'Other (OTH)', value: 'OTH' },
                             ]}
                         />
                     </Form.Item>
