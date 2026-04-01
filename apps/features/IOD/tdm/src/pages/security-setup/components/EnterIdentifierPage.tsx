@@ -254,7 +254,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                 const newIssue = e.target.value;
                 onFormChange({
                   newIssue,
-                  ...(newIssue === 'no' ? { aladdinCDIId: undefined } : {})
+                  ...(newIssue === 'no' ? { aladdinCDIId: undefined, ssapIdPassword : undefined } : {})
                 })
               }}
               row
@@ -317,7 +317,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             onChange={handleTextChange('ssapIdPassword')}
             placeholder="Sample_Code"
             variant="outlined"
-            disabled={isReadOnly}
+            disabled={isReadOnly || effectiveNewIssue.toLowerCase() === 'no'}
           />
         </div>
 
