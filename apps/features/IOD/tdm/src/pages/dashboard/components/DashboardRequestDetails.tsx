@@ -57,7 +57,10 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
 
   const isCancelButtonDisabled = () => {
     if (securityRequest.setupStatus === 'Cancelled' ||
-      securityRequest.setupStatus === 'Request Submitted'
+      securityRequest.setupStatus === 'Request Submitted' ||
+      securityRequest.setupStatus === 'Security Review Complete' ||
+      securityRequest.setupStatus === 'Security Setup Complete' ||
+      securityRequest.setupStatus === 'Ready for Trading'
     ) {
       return true;
     }

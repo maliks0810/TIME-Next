@@ -81,7 +81,7 @@ export const transformDashboardDeleteSecuritySetupRequest = (apiData: DeleteSecu
 export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupRequest): IDashboardSecuritySetupRequest => {
   return {
     id: Number(apiData.securitySetupRequestId),
-    description: apiData.description,
+    description: apiData.setupStatus.toLowerCase() === 'request initiated' ? apiData.dealName : apiData.description,
     identifier: apiData.identifierValue,
     createdDate: new Date(apiData.createdDate),
     createdBy: apiData.createdBy,
