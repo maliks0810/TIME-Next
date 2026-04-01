@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Button, IconButton, CircularProgress, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
@@ -143,6 +143,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     updatedBy: currentUser
   });
 
+  // cache data after receiving response from upsert api
+  const step2CacheRef = useRef<unknown>(null);
+
   useEffect(() => {
     if (initialData) {
       setWizardData({
@@ -234,14 +237,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   }, [clearError, saveStatus]);
 
   const handleStep2Change = useCallback((values: Partial<IReviewDetailsFormValues>) => {
-    setWizardData((prev) => ({
-      ...prev,
-      step2: {
-        ...prev.step2,
-        ...values,
-      },
-    }));
-  }, []);
+    setWizardData((prev) => {
+      const updated = { ...prev.step2, ...values };
+      step2CacheRef.current = updated;
+
+      return { ...prev, step2: updated };
+    });
+  }, [clearError, saveStatus]);
 
   const saveErrorMessage = saveStatus === 'error' ? (saveError?.message || '') : '';
 
@@ -436,14 +438,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         const resolvedAttachments = (freshAttachments && freshAttachments.length > 0)
           ? freshAttachments
           : mergedStep2.attachments ?? prev.step2.attachments ?? [];
+        const finalStep2 = { ...mergedStep2, attachments: resolvedAttachments };
+        step2CacheRef.current = finalStep2;
 
         return {
           ...prev,
           step1: mergedStep1,
-          step2: {
-            ...mergedStep2,
-            attachments: resolvedAttachments
-          },
+          step2: finalStep2,
           ...(currentStep === 'review-details' && {
             ...mergedStep1,
             ssapIdPassword: mergedStep1.ssapIdPassword,
@@ -460,6 +461,10 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
 
     if (nextStep) {
+      const cachedStep2 = step2CacheRef.current;
+      if (nextStep === 'review-details' && cachedStep2 !== null) {
+        setWizardData((prev) => ({ ...prev, step2: cachedStep2 as IReviewDetailsFormValues }));
+      }
       setCurrentStep(nextStep);
       setIsReadOnly(false);
     } else if (currentStep === 'confirm-details' && !isCancelled) {
@@ -497,14 +502,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         const resolvedAttachments = (freshAttachments && freshAttachments.length > 0)
           ? freshAttachments
           : mergedStep2.attachments ?? prev.step2.attachments ?? [];
+        const finalStep2 = { ...mergedStep2, attachments: resolvedAttachments };
+        step2CacheRef.current = finalStep2;
 
         return {
           ...prev,
           step1: mergedStep1,
-          step2: {
-            ...mergedStep2,
-            attachments: resolvedAttachments
-          },
+          step2: finalStep2,
           ...(currentStep === 'review-details' && {
             ...mergedStep1,
             attachments: resolvedAttachments,
@@ -521,6 +525,10 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
 
     if (nextStep) {
+      const cachedStep2 = step2CacheRef.current;
+      if (nextStep === 'review-details' && cachedStep2 !== null) {
+        setWizardData((prev) => ({ ...prev, step2: cachedStep2 as IReviewDetailsFormValues }));
+      }
       setCurrentStep(nextStep);
       setIsReadOnly(false);
     } else if (currentStep === 'confirm-details' && !isCancelled) {
