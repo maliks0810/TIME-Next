@@ -30,7 +30,7 @@ export const SetupStatuses: IStatusProperties[] = [
     },
     {
       name: 'Security Setup Complete',
-      className: 'status-darkorange'
+      className: 'status-green'
     },
     {
       name: 'Ready for Trading',

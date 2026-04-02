@@ -89,6 +89,14 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
     return ssapIdPassword?.trim() ? 'yes' : 'no';
   }
 
+  const setEuSecuritizationTipEuId = (euSecuritizationStatusValue?: string) => {
+    if(euSecuritizationStatusValue === 'Not Required')
+    {
+      {formValues.euSecuritizationTipEuId = undefined} ;
+    }
+    return formValues.euSecuritizationTipEuId || '';
+  }
+
   const effectiveNewIssue = formValues.newIssue
     || (formValues.ssapIdPassword?.trim() ? getDefaultNewIssue(formValues.ssapIdPassword) : '');
 
@@ -217,11 +225,11 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               <label className="field-label">EU Securitization TIP EU ID *</label>
               <TextField
                 fullWidth
-                value={formValues.euSecuritizationTipEuId || ''}
+                value={setEuSecuritizationTipEuId(formValues.euSecuritizationStatus)}
                 onChange={handleTextChange('euSecuritizationTipEuId')}
                 placeholder="Sample_TIP_ID"
                 variant="outlined"
-                disabled={isReadOnly || formValues.isEuSecuritizationRequired === false}
+                disabled={isReadOnly || formValues.isEuSecuritizationRequired === false || formValues.euSecuritizationStatus === 'Not Required'}
               />
             </div>
 
