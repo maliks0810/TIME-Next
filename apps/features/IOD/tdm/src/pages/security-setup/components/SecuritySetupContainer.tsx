@@ -378,13 +378,15 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
 
     switch (currentStep) {
-      case 'enter-identifier':
+      case 'enter-identifier':        
         if (!isValidString(wizardData.step1.identifierValue) ||
           !isValidString(wizardData.step1.marketSector) ||
-          (wizardData.step1.isEuSecuritizationRequired &&
-            !isValidString(wizardData.step1.euSecuritizationTipEuId) &&
-            !isValidString(wizardData.step1.euSecuritizationStatus)) ||
-          !isValidString(wizardData.step1.erisaStatus)
+          !isValidString(wizardData.step1.euSecuritizationStatus) ||
+          (wizardData.step1.euSecuritizationStatus != 'Not Required' &&
+            !isValidString(wizardData.step1.euSecuritizationTipEuId)) ||
+          !isValidString(wizardData.step1.erisaStatus) ||
+          (wizardData.step1.newIssue?.toLowerCase() === 'yes' &&
+            !isValidString(wizardData.step1.aladdinCDIId))
         ) {
           return false;
         }
