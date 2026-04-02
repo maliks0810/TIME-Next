@@ -183,7 +183,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           dataField='createdDate'
           caption='Created On'
           dataType='date'
-          format="MMM dd, yyyy hh:mm"
+          format="MMM dd, yyyy hh:mm a"
           width={'10%'}
           sortOrder='desc'
         />
