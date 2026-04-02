@@ -215,7 +215,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         />
         <Column
           dataField='erisaStatus'
-          caption='Erisa Status'
+          caption='ERISA Status'
           alignment='center'
           width={'20%'}
           cellRender={cellRenderErisaStatus}
