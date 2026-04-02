@@ -340,7 +340,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={formValues.esgFields?.esgCollateralType || ''}
               onChange={(e) => handleESGChange('esgCollateralType', e.target.value)}
-              disabled={isReadOnly}
+              // temp disabled for IOD-8453
+              disabled
               variant="outlined"
               className="esg-collateral-field"
             />
