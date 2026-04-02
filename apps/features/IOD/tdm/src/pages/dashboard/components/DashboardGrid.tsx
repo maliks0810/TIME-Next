@@ -208,7 +208,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         />
         <Column
           dataField='euSecuritizationStatus'
-          caption='Eu Securtization Status'
+          caption='EU Securitization Status'
           alignment='center'
           width={'20%'}
           cellRender={cellRenderEuSecuritizationStatus}
