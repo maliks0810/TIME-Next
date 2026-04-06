@@ -222,7 +222,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             </div>
 
             <div className="form-row-group">
-              <label className="field-label">EU Securitization TIP EU ID *</label>
+              <label className="field-label">EU Securitization TIP EU ID</label>
               <TextField
                 fullWidth
                 value={setEuSecuritizationTipEuId(formValues.euSecuritizationStatus)}
