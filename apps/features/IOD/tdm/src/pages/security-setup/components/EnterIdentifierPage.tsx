@@ -49,6 +49,18 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
     });
   }, []);
 
+  const normalizeYesNo = (value: unknown): string => {
+    if (value === 'yes' || value === true) {
+      return 'yes'
+    }
+
+    if (value === 'no' || value === false) {
+      return 'no'
+    }
+
+    return ''
+  }
+
   const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && onFileUpload) {
@@ -90,14 +102,13 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   }
 
   const setEuSecuritizationTipEuId = (euSecuritizationStatusValue?: string) => {
-    if(euSecuritizationStatusValue === 'Not Required')
-    {
-      {formValues.euSecuritizationTipEuId = undefined} ;
+    if (euSecuritizationStatusValue === 'Not Required') {
+      { formValues.euSecuritizationTipEuId = undefined };
     }
     return formValues.euSecuritizationTipEuId || '';
   }
 
-  const effectiveNewIssue = formValues.newIssue
+  const effectiveNewIssue = normalizeYesNo(formValues.newIssue)
     || (formValues.ssapIdPassword?.trim() ? getDefaultNewIssue(formValues.ssapIdPassword) : '');
 
   const isYellowKeyVisable = false;
@@ -107,17 +118,22 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
 
     if (field == "ssapIdPassword") {
       const ssapIdPassword = event.target.value;
-      const newIssue = getDefaultNewIssue(ssapIdPassword);
       const isPrivateDeal = !isNullOrEmpty(ssapIdPassword);
       const isSsapReleaseRequestSentToDm = isPrivateDeal;
 
-      onFormChange({
+      const updates: Partial<IEnterIdentifierFormValues> = {
         ssapIdPassword,
-        newIssue,
         isPrivateDeal,
         isSsapReleaseRequestSentToDm,
-        ...(newIssue === 'no' ? { aladdinCDIId: undefined } : {})
-      });
+      }
+
+      // only auto-select "yes" when user enters a ssap value.
+      // do not auto push "no" on clear - silently overwrites radio selection and wipes aladdinCdiId
+      if (ssapIdPassword.trim()) {
+        updates.newIssue = 'yes';
+      }
+
+      onFormChange(updates);
 
       return;
     }
@@ -262,7 +278,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                 const newIssue = e.target.value;
                 onFormChange({
                   newIssue,
-                  ...(newIssue === 'no' ? { aladdinCDIId: undefined, ssapIdPassword : undefined } : {})
+                  ...(newIssue === 'no' ? { aladdinCDIId: undefined, ssapIdPassword: undefined } : {})
                 })
               }}
               row
