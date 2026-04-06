@@ -9,7 +9,7 @@ import { Search } from '@mui/icons-material';
 import { DateRangeBox } from 'devextreme-react/date-range-box'
 import { setupStatusData, riskManagementStatusData } from '../lib/ChartData';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
-import { defaultDashboardSearchParameters, IDashboardSearchParameters } from '../lib/DashboardSearchParameters';
+import { getDefaultDashboardSearchParameters, IDashboardSearchParameters, updateDashboardSearchParameter } from '../lib/DashboardSearchParameters';
 import { getSecurityRequestsDashboard } from '../../../services/DashboardService';
 import { useVisibilityChange } from '../../../hooks/useVisibilityChange';
 import { useInterval } from '../../../hooks/useInterval';
@@ -17,15 +17,14 @@ import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
 import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
 import '../lib/dashboard.scss';
 
-
 const Dashboard: React.FC = () => {
   const [isRequestDetailsOpen, setIsRequestDetailsOpen] = useState(false);
   const [selectedSecurityRequest, setSelectedSecurityRequest] = useState<IDashboardSecuritySetupRequest>();
   const [areSecurityRequestStatsVisible, setAreSecurityRequestStatsVisible] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
-  const [endDate, setEndDate] = useState<Date | null>(new Date());
-  const [searchParameters, setSearchParameters] = useState<IDashboardSearchParameters>(defaultDashboardSearchParameters);
+  const [startDate, setStartDate] = useState<Date | null | undefined>(new Date());
+  const [endDate, setEndDate] = useState<Date | null | undefined>(new Date());
+  const [searchParameters, setSearchParameters] = useState<IDashboardSearchParameters>(getDefaultDashboardSearchParameters);
   const [securityRequestsData, setSecurityRequestsData] = useState<IDashboardSecuritySetupRequest[]>();
   const [pollingInterval, setPollingInterval] = useState<number | null>(DASHBOARD_POLLING_INTERVAL)
   const [lastRefreshed, setLastRefreshed] = useState<string>("");
@@ -51,6 +50,9 @@ const Dashboard: React.FC = () => {
   }, pollingInterval);
 
   useEffect(() => {
+    setSearchValue(searchParameters.searchTerm);
+    setStartDate(searchParameters.startDate);
+    setEndDate(searchParameters.endDate);
     loadData(searchParameters);
   }, [searchParameters]);
 
@@ -88,6 +90,7 @@ const Dashboard: React.FC = () => {
 
   const handleSearchTextFieldOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
+    updateDashboardSearchParameter({searchTerm: e.target.value});
   };
 
   const handleStartDateChange = useCallback((value: string | number | Date | null) => {
@@ -102,6 +105,7 @@ const Dashboard: React.FC = () => {
       }
     }
     setStartDate(newStartDate);
+    updateDashboardSearchParameter({startDate: newStartDate});
   }, [setStartDate]);
 
   const handleEndDateChange = useCallback((value: string | number | Date | null) => {
@@ -116,6 +120,7 @@ const Dashboard: React.FC = () => {
       }
     }
     setEndDate(newEndDate);
+    updateDashboardSearchParameter({endDate: newEndDate});
   }, [setEndDate]);
 
   const handleSearchTextFieldKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -124,7 +129,6 @@ const Dashboard: React.FC = () => {
       handleSearchOnClick();
     }
   };
-
 
   const handleSetRequestDetailsOpen = useCallback((isOpen: boolean) => () => {
     setIsRequestDetailsOpen(isOpen);

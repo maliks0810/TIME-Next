@@ -1,7 +1,8 @@
-import React, { Dispatch, SetStateAction, useCallback } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Box, Grid } from '@mui/material';
 import { DataGrid } from 'devextreme-react';
+import { ChangedOptionInfo } from 'devextreme-react/cjs/common/core/events';
 import { Column, DataGridTypes, HeaderFilter, Pager, Paging, Selection } from 'devextreme-react/data-grid';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
 import {
@@ -11,7 +12,13 @@ import {
   EuSecuritizationStatusesRecord,
   ErisaStatusesRecord
 } from '../lib/DashboardSecuritySetupRequestStatuses';
+import { 
+  getDefaultDashboardGridFilters,
+  IDashboardGridFilters,
+  updateDashboardGridFilters
+} from '../lib/DashboardSearchParameters';
 import '../lib/dashboard.scss';
+import { SortOrder } from 'devextreme/common';
 
 type DashboardGridProps = {
   securityRequestsData: IDashboardSecuritySetupRequest[] | undefined;
@@ -24,6 +31,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   setSelectedSecurityRequest,
   setIsRequestDetailsOpen,
 }) => {
+  const [gridFilters, setGridFilters] = useState<IDashboardGridFilters>(getDefaultDashboardGridFilters);
   const navigate = useNavigate();
 
   const cellRenderSetupStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
@@ -146,6 +154,153 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
     navigate(`/iod/tdm/security-setup?id=${rowId}`)
   }
 
+  const getSortOrder = (columnName: string) : SortOrder | undefined => {
+    const sortColumn = gridFilters.sortColumn;
+    const sortDirection = gridFilters.sortDirection;
+
+    if (sortColumn === columnName && sortDirection) {
+      if (sortDirection === 'asc' || sortDirection === 'desc') {
+        return sortDirection as SortOrder;
+      }
+    }
+
+    return undefined;
+  };
+
+  const handleOptionChanged = (e: ChangedOptionInfo) => {
+    if (e.fullName?.startsWith("columns")) {
+      const isFilterValueChange = e.fullName.includes("filterValues");
+      const isSortOrderChange = e.fullName.includes("sortOrder");
+
+      // Description column
+      if (e.fullName.includes("columns[0]")) {
+        if (isFilterValueChange) {
+          setGridFilters(updateDashboardGridFilters({
+            descriptionFilter: e.value,
+          }));
+        }
+        if (isSortOrderChange) {
+          setGridFilters(updateDashboardGridFilters({
+            sortColumn: "description",
+            sortDirection: e.value,
+          }));
+        }
+      }
+      // Identifier column
+      if (e.fullName.includes("columns[1]")) {
+        if (isFilterValueChange) {
+          setGridFilters(updateDashboardGridFilters({
+            identifierFilter: e.value,
+          }));
+        }
+        if (isSortOrderChange) {
+          setGridFilters(updateDashboardGridFilters({
+            sortColumn: "identifier",
+            sortDirection: e.value
+          }));
+        }
+      }
+      // Created Date column
+      if (e.fullName.includes("columns[2]")) {
+        if (isFilterValueChange) { 
+          setGridFilters(updateDashboardGridFilters({
+            createdDateFilter: e.value,
+          }));
+        }
+        if (isSortOrderChange) {
+          setGridFilters(updateDashboardGridFilters({
+            sortColumn: "createdDate",
+            sortDirection: e.value,
+          }));
+        }
+      }
+      // Created By column
+      if (e.fullName.includes("columns[3]")) {
+        if (isFilterValueChange) {
+          setGridFilters(updateDashboardGridFilters({
+            createdByFilter: e.value,
+          }));
+        }
+        if (isSortOrderChange) {
+          setGridFilters(updateDashboardGridFilters({
+            sortColumn: "createdBy",
+            sortDirection: e.value,
+          }));
+        }
+      }
+      // Setup Status column
+      if (e.fullName.includes("columns[4]")) {
+        if (isFilterValueChange) {
+          setGridFilters(updateDashboardGridFilters({
+            setupStatusFilter: e.value,
+          }));
+        }
+        if (isSortOrderChange) {
+          setGridFilters(updateDashboardGridFilters({
+            sortColumn: "setupStatus",
+            sortDirection: e.value,
+          }));
+        }
+      }
+      // Risk Analytics Status column
+      if (e.fullName.includes("columns[5]")) {
+        if (isFilterValueChange) {
+          setGridFilters(updateDashboardGridFilters({
+            riskAnalyticsStatusFilter: e.value,
+          }));
+        }
+        if (isSortOrderChange) {
+          setGridFilters(updateDashboardGridFilters({
+            sortColumn: "riskAnalyticsStatus",
+            sortDirection: e.value,
+          }));
+        }
+      }
+      // EU Securitization Status column
+      if (e.fullName.includes("columns[6]")) {
+        if (isFilterValueChange) {
+          setGridFilters(updateDashboardGridFilters({
+            euSecuritizationStatusFilter: e.value,
+          }));
+        }
+        if (isSortOrderChange) {
+          setGridFilters(updateDashboardGridFilters({
+            sortColumn: "euSecuritizationStatus",
+            sortDirection: e.value,
+          }));
+        }
+      }
+      // Erisa Status column
+      if (e.fullName.includes("columns[7]")) {
+        if (isFilterValueChange) {
+          setGridFilters(updateDashboardGridFilters({
+            erisaStatusFilter: e.value,
+          }));
+        }
+        if (isSortOrderChange) {
+          setGridFilters(updateDashboardGridFilters({
+            sortColumn: "erisaStatus",
+            sortDirection: e.value,
+          }));
+        }
+      }
+      // Ready For Trading column
+      if (e.fullName.includes("columns[8]")) {
+        if (isFilterValueChange) {
+          setGridFilters(updateDashboardGridFilters({
+            readyForTradingStatusFilter: e.value,
+          }));
+        }
+        if (isSortOrderChange) {
+          setGridFilters(updateDashboardGridFilters({
+            sortColumn: "readyForTradingStatus",
+            sortDirection: e.value,
+          }));
+        }
+      }
+    }
+  }
+
   if (!securityRequestsData) {
     return <></>
   }
@@ -160,6 +315,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         columnAutoWidth={false}        
         onRowDblClick={handleRowDbleClick}
         onRowClick={onRowClick}
+        onOptionChanged={handleOptionChanged}
         repaintChangesOnly={true}
       >
         <Selection
@@ -173,11 +329,15 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           dataField='description'
           caption='Description'
           width={'10%'}
+          sortOrder={getSortOrder("description")}
+          filterValues={gridFilters.descriptionFilter}
         />
         <Column
           dataField='identifier'
           caption='Identifier'
           width={'10%'}
+          sortOrder={getSortOrder("identifier")}
+          filterValues={gridFilters.identifierFilter}
         />
         <Column
           dataField='createdDate'
@@ -185,12 +345,15 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           dataType='date'
           format="MMM dd, yyyy hh:mm a"
           width={'10%'}
-          sortOrder='desc'
+          sortOrder={getSortOrder("createdDate")}
+          filterValues={gridFilters.createdDateFilter}
         />
         <Column
           dataField='createdBy'
           caption='Requested By'
           width={'10%'}
+          sortOrder={getSortOrder("createdBy")}
+          filterValues={gridFilters.createdByFilter}
         />
         <Column
           dataField='setupStatus'
@@ -198,6 +361,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           alignment='center'
           width={'20%'}
           cellRender={cellRenderSetupStatus}
+          sortOrder={getSortOrder("setupStatus")}
+          filterValues={gridFilters.setupStatusFilter}
         />
         <Column
           dataField='riskAnalyticsStatus'
@@ -205,6 +370,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           alignment='center'
           width={'20%'}
           cellRender={cellRenderRiskAnalyticsStatus}
+          sortOrder={getSortOrder("riskAnalyticsStatus")}
+          filterValues={gridFilters.riskAnalyticsStatusFilter}
         />
         <Column
           dataField='euSecuritizationStatus'
@@ -212,6 +379,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           alignment='center'
           width={'20%'}
           cellRender={cellRenderEuSecuritizationStatus}
+          sortOrder={getSortOrder("euSecuritizationStatus")}
+          filterValues={gridFilters.euSecuritizationStatusFilter}
         />
         <Column
           dataField='erisaStatus'
@@ -219,6 +388,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           alignment='center'
           width={'20%'}
           cellRender={cellRenderErisaStatus}
+          sortOrder={getSortOrder("erisaStatus")}
+          filterValues={gridFilters.erisaStatusFilter}
         />
         <Column
           dataField='readyForTradingStatus'
@@ -226,6 +397,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           alignment='center'
           width={'10%'}
           cellRender={cellRenderReadyForTrading}
+          sortOrder={getSortOrder("readyForTradingStatus")}
+          filterValues={gridFilters.readyForTradingStatusFilter}
         />
         <Paging
           enabled={true}
