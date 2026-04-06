@@ -382,8 +382,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         if (!isValidString(wizardData.step1.identifierValue) ||
           !isValidString(wizardData.step1.marketSector) ||
           !isValidString(wizardData.step1.euSecuritizationStatus) ||
-          (wizardData.step1.euSecuritizationStatus != 'Not Required' &&
-            !isValidString(wizardData.step1.euSecuritizationTipEuId)) ||
           !isValidString(wizardData.step1.erisaStatus) ||
           (wizardData.step1.newIssue?.toLowerCase() === 'yes' &&
             !isValidString(wizardData.step1.aladdinCDIId))
