@@ -887,7 +887,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             className="save-button"
             onClick={handleSave}
             startIcon={<SaveIcon />}
-            disabled={isCancelled}
+            disabled={isCancelled
+              || (currentStep === 'enter-identifier' && isReadOnly)
+            }
           >
             Save
           </Button>
