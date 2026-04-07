@@ -379,7 +379,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
     switch (currentStep) {
       case 'enter-identifier':
-        if (!isValidString(wizardData.step1.identifierValue) ||
+        if (!isValidString(wizardData.step1.identifierType) ||
+          !isValidString(wizardData.step1.identifierValue) ||
           !isValidString(wizardData.step1.marketSector) ||
           !isValidString(wizardData.step1.euSecuritizationStatus) ||
           !isValidString(wizardData.step1.erisaStatus) ||

@@ -68,11 +68,15 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
     });
   };
 
-  const toNumericValue = (userInput: string): number | null => {
+
+  function roundToTwo(num: number): number {
+    return +(Math.round(Number(num + "e+2")) + "e-2");
+  }
+
+  const toTwoDecimalValue = (userInput: string): number | null => {
     if (userInput === '') return null;
     const num = parseFloat(userInput);
-    //return isNaN(num) ? null : num;
-    return !Number.isInteger(num) || isNaN(num) ? null : num;
+    return isNaN(num) ? null : roundToTwo(num);
   }
 
   // programmatically clamp field within [min, max]
@@ -248,7 +252,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               type="number"
               value={formValues.speedOverrides?.prepaymentSpeed ?? ''}
-              onChange={(e) => handleSpeedOverridesChange('prepaymentSpeed', toNumericValue(e.target.value))}
+              onChange={(e) => handleSpeedOverridesChange('prepaymentSpeed', toTwoDecimalValue(e.target.value))}
               disabled={isReadOnly}
               variant="outlined"
               {...({ slotProps: { htmlInput: { inputMode: 'decimal' } } })}
@@ -260,7 +264,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               type="number"
               value={formValues.speedOverrides?.defaultSpeed ?? ''}
-              onChange={(e) => handleSpeedOverridesChange('defaultSpeed', toNumericValue(e.target.value))}
+              onChange={(e) => handleSpeedOverridesChange('defaultSpeed', toTwoDecimalValue(e.target.value))}
               disabled={isReadOnly}
               variant="outlined"
               {...({ slotProps: { htmlInput: { inputMode: 'decimal' } } })}
@@ -275,7 +279,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               type="number"
               value={formValues.speedOverrides?.severity ?? ''}
-              onChange={(e) => handleSpeedOverridesChange('severity', toNumericValue(e.target.value))}
+              onChange={(e) => handleSpeedOverridesChange('severity', toTwoDecimalValue(e.target.value))}
               onBlur={() => clampField('severity', 0, 100)}
               disabled={isReadOnly}
               variant="outlined"
@@ -289,7 +293,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               type="number"
               value={formValues.speedOverrides?.delinquency ?? ''}
-              onChange={(e) => handleSpeedOverridesChange('delinquency', toNumericValue(e.target.value))}
+              onChange={(e) => handleSpeedOverridesChange('delinquency', toTwoDecimalValue(e.target.value))}
               onBlur={() => clampField('delinquency', 0, 100)}
               disabled={isReadOnly}
               variant="outlined"
