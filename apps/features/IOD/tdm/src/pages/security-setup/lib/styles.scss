@@ -756,9 +756,15 @@
   }
   .ssap-approval-actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     gap: 16px;
+    width: min(900px, 100%);
+    margin: 0 auto;
+
+    .MuiButton-root {
+      flex: 1 1 0;
+    }
 
     .button {
       background-color: #093566;
