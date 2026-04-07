@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
+import { ArrowBack, ArrowForward } from '@mui/icons-material';
 import { IEnterIdentifierFormValues } from '../lib/types/securitySetupTypes';
 
 export type UserInput = { isSsapReleasedByDm: boolean }
@@ -15,12 +15,15 @@ interface SSAPApprovalPageProps {
 }
 
 export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
+  formValues,
   onFormChange,
   onProceedToReview,
   onBack,
   isReadOnly,
   isSaving
 }) => {
+  const isSsapApproved = !!formValues.isSsapReleasedByDm;
+
   const handleRequestRelease = () => {
     onFormChange({ isSsapReleasedByDm: true });
     onProceedToReview({ isSsapReleasedByDm: true });
@@ -47,10 +50,21 @@ export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
               variant="contained"
               className="approve-ssap-button button"
               onClick={handleRequestRelease}
-              disabled={isSaving || isReadOnly}
+              disabled={isSaving || isReadOnly || isSsapApproved}
             >
               SSAP Security Released
             </Button>
+            {isSsapApproved && !isSaving && (
+              <Button
+                variant="contained"
+                className="button"
+                onClick={() => onProceedToReview()}
+                disabled={isSaving}
+                endIcon={<ArrowForward />}
+              >
+                Next
+              </Button>
+            )}
           </div>
         </div>
       </div>
