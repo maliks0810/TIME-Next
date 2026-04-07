@@ -4,8 +4,8 @@ import DashboardChart from './DashboardChart';
 import DashboardGrid from './DashboardGrid';
 import DashboardRequestDetails from './DashboardRequestDetails';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Card, CardContent, CardMedia, Drawer, Grid, InputAdornment, TextField, Typography } from '@mui/material';
-import { Search } from '@mui/icons-material';
+import { Box, Button, Card, CardContent, CardMedia, Drawer, Grid, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
+import { Clear, Search } from '@mui/icons-material';
 import { DateRangeBox } from 'devextreme-react/date-range-box'
 import { setupStatusData, riskManagementStatusData } from '../lib/ChartData';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
@@ -93,6 +93,10 @@ const Dashboard: React.FC = () => {
     updateDashboardSearchParameter({searchTerm: e.target.value});
   };
 
+  const handleSearchValueClear = () => {
+    setSearchValue('');
+  };
+
   const handleStartDateChange = useCallback((value: string | number | Date | null) => {
     setStartDate(null);
     let newStartDate: Date | null = null
@@ -173,8 +177,16 @@ const Dashboard: React.FC = () => {
                   slotProps={{
                     input: {
                       startAdornment: (
-                        <InputAdornment position="start">
+                        <InputAdornment position='start'>
                           <Search />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            onClick={handleSearchValueClear}>
+                            <Clear />
+                          </IconButton>
                         </InputAdornment>
                       ),
                     },
