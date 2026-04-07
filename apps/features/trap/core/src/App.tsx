@@ -8,6 +8,7 @@ import TemplateDesignerPage from './features/workflow-designer/WorkflowDesignerP
 import WidgetStudioConfigurePage from './features/widget-studio/WidgetStudioConfigurePage';
 
 import { ThemeContext, getThemeConfig, ThemeName } from './theme/ThemeContext';
+import { AdminPanel } from './features/AdminPanel';
 
 const { Content } = Layout;
 
@@ -69,6 +70,7 @@ export default function App() {
                         <Routes>
                             <Route path="/" element={<TrapLandingPage />} />
                             <Route path="designer" element={<TemplateDesignerPage />} />
+                            <Route path="admin" element={<AdminPanel />} />
                             <Route
                                 path="studio/configure"
                                 element={<WidgetStudioConfigurePage />}

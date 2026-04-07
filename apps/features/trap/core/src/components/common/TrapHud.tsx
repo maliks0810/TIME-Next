@@ -4,13 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Dropdown, Space, Typography } from 'antd';
 import {
     AppstoreOutlined,
+    ArrowRightOutlined,
     BgColorsOutlined,
     CheckOutlined,
-    ExportOutlined,
     PlusOutlined,
     SettingOutlined,
 } from '@ant-design/icons';
 
+import { useUserInfo } from '@platform/utils';
 import {
     useTheme,
     THEME_OPTIONS,
@@ -20,6 +21,7 @@ import {
 import { ConfigureUserModal } from '../../features/workflow-launcher/components/ConfigureUserModal';
 import WorkflowLauncherModal from '../../features/workflow-launcher/components/WorkflowLauncherModal';
 import { WorkflowLaunchSelection } from '../../features/workflow-launcher/types/workflowLauncher.types';
+import { IS_PROD, ALLOWED_USERS_LIST } from '../../utils/constants';
 
 type TrapHudProps = {
     onExport: () => void;
@@ -36,6 +38,7 @@ export default function TrapHud({
 }: TrapHudProps) {
     const nav = useNavigate();
     const { themeName, setTheme } = useTheme();
+    const { email } = useUserInfo();
     const [launchModalOpen, setLaunchModalOpen] = React.useState(false);
     const [configureModalOpen, setConfigureModalOpen] = React.useState(false);
     const [currentDebugUser, setCurrentDebugUser] = React.useState(() =>
@@ -110,6 +113,10 @@ export default function TrapHud({
 
     const handleSettingsMenuClick = ({ key }: { key: string }) => {
         switch (key) {
+            case 'admin-panel':
+                nav('admin', { replace: true });
+                break;
+
             case 'debug-user-jane':
                 localStorage.setItem('debug-user', 'jane');
                 setCurrentDebugUser('jane');
@@ -127,6 +134,7 @@ export default function TrapHud({
                 setCurrentDebugUser(null);
                 nav('.', { replace: true });
                 break;
+
             case 'debug-user-configure':
                 setConfigureModalOpen(true);
                 break;
@@ -156,6 +164,83 @@ export default function TrapHud({
             },
         ];
     };
+
+    const getProtectedSettings = () =>
+        !IS_PROD || ALLOWED_USERS_LIST.includes(email)
+            ? [
+                  { type: 'divider' as const },
+                  {
+                      key: 'admin-panel',
+                      label: (
+                          <Space
+                              size={8}
+                              style={{ width: '100%', justifyContent: 'space-between' }}
+                          >
+                              <span>Admin Panel</span>
+                              <ArrowRightOutlined />
+                          </Space>
+                      ),
+                  },
+                  { type: 'divider' as const },
+                  { key: 'debug-user-header', label: 'Debug User', disabled: true },
+                  ...renderCurrentUserOption(),
+                  {
+                      key: 'debug-user-jane',
+                      label: (
+                          <Space
+                              size={8}
+                              style={{ width: '100%', justifyContent: 'space-between' }}
+                          >
+                              <span>Jane</span>
+                              {currentDebugUser === 'jane' ? (
+                                  <CheckOutlined />
+                              ) : (
+                                  <span style={{ width: 14 }} />
+                              )}
+                          </Space>
+                      ),
+                  },
+                  {
+                      key: 'debug-user-john',
+                      label: (
+                          <Space
+                              size={8}
+                              style={{ width: '100%', justifyContent: 'space-between' }}
+                          >
+                              <span>John</span>
+                              {currentDebugUser === 'john' ? (
+                                  <CheckOutlined />
+                              ) : (
+                                  <span style={{ width: 14 }} />
+                              )}
+                          </Space>
+                      ),
+                  },
+                  {
+                      key: 'debug-user-clear',
+                      label: (
+                          <Space
+                              size={8}
+                              style={{ width: '100%', justifyContent: 'space-between' }}
+                          >
+                              <span>Clear</span>
+                          </Space>
+                      ),
+                  },
+                  { type: 'divider' as const },
+                  {
+                      key: 'debug-user-configure',
+                      label: (
+                          <Space
+                              size={8}
+                              style={{ width: '100%', justifyContent: 'space-between' }}
+                          >
+                              <span>Configure User</span>
+                          </Space>
+                      ),
+                  },
+              ]
+            : [];
     const settingsMenu = {
         items: [
             {
@@ -179,53 +264,7 @@ export default function TrapHud({
                     ...makeThemeChildren(MOVIE_THEME_OPTIONS),
                 ],
             },
-            { type: 'divider' as const },
-            { key: 'debug-user-header', label: 'Debug User', disabled: true },
-            ...renderCurrentUserOption(),
-            {
-                key: 'debug-user-jane',
-                label: (
-                    <Space size={8} style={{ width: '100%', justifyContent: 'space-between' }}>
-                        <span>Jane</span>
-                        {currentDebugUser === 'jane' ? (
-                            <CheckOutlined />
-                        ) : (
-                            <span style={{ width: 14 }} />
-                        )}
-                    </Space>
-                ),
-            },
-            {
-                key: 'debug-user-john',
-                label: (
-                    <Space size={8} style={{ width: '100%', justifyContent: 'space-between' }}>
-                        <span>John</span>
-                        {currentDebugUser === 'john' ? (
-                            <CheckOutlined />
-                        ) : (
-                            <span style={{ width: 14 }} />
-                        )}
-                    </Space>
-                ),
-            },
-            {
-                key: 'debug-user-clear',
-                label: (
-                    <Space size={8} style={{ width: '100%', justifyContent: 'space-between' }}>
-                        <span>Clear</span>
-                    </Space>
-                ),
-            },
-
-            { type: 'divider' as const },
-            {
-                key: 'debug-user-configure',
-                label: (
-                    <Space size={8} style={{ width: '100%', justifyContent: 'space-between' }}>
-                        <span>Configure User</span>
-                    </Space>
-                ),
-            },
+            ...getProtectedSettings(),
             { type: 'divider' as const },
             {
                 key: 'settings-placeholder',
