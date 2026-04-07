@@ -19,7 +19,8 @@
     },
     "dependencies": {
         "react-grid-layout": "2.2.2",
-        "@ant-design/icons": "5.6.1"
+        "@ant-design/icons": "5.6.1",
+        "@monaco-editor/react": "4.7.0"
     },
     "devDependencies": {}
 }
