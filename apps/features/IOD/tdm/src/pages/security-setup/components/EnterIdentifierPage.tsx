@@ -74,7 +74,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
 
-    if (!isReadOnly && !isUploadingFile) {
+    if (!isUploadingFile) {
       setIsDragOver(true);
     }
   }
@@ -87,7 +87,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
     e.preventDefault();
 
     setIsDragOver(false);
-    if (isReadOnly || isUploadingFile) {
+    if (isUploadingFile) {
       return;
     }
 
@@ -155,11 +155,11 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               type='file'
               style={{ display: 'none' }}
               onChange={handleFileInputChange}
-              disabled={isReadOnly || isUploadingFile}
+              disabled={isUploadingFile}
             />
             <label
               htmlFor='memorandum-upload-input'
-              className={`memorandum-upload-box${isReadOnly || isUploadingFile ? '' : ' memorandum-upload-box--clickable'}
+              className={`memorandum-upload-box${isUploadingFile ? '' : ' memorandum-upload-box--clickable'}
                 ${isDragOver ? ' memorandum-upload-box--drag-over' : ''}`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}

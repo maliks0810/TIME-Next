@@ -292,19 +292,14 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       setPendingUploadFile(file);
     }, []);
 
-  const uploadPendingFile = useCallback(async (requestId: number): Promise<ISecuritySetupRequestAttachment[] | null> => {
-
-    if (!pendingUploadFile) {
-      return [];
-    }
-
+  const uploadFile = useCallback(async (requestId: number, file: File): Promise<ISecuritySetupRequestAttachment[] | null> => {
     setIsUploadingFile(true);
     setFileUploadError(null);
     try {
       const uploadedAttachments = await SecuritySetupService.uploadAttachment(
         requestId,
         currentUser || '',
-        pendingUploadFile
+        file
       );
       setPendingUploadFile(null);
       return uploadedAttachments || [];
@@ -315,7 +310,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     } finally {
       setIsUploadingFile(false);
     }
-  }, [pendingUploadFile, currentUser])
+  }, [currentUser])
 
   // No form handlers needed since components manage their own state directly
 
@@ -403,7 +398,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const handleNext = async (userInput?: UserInput | null) => {
     const nextStep = getNextStep(currentStep);
 
-    if (!isReadOnly && !isCancelled) {
+    const fileToUpload = pendingUploadFile;
+    const shouldPersistAndUpload = !isCancelled && (!isReadOnly ||
+      (currentStep === 'enter-identifier' && fileToUpload))
+
+    if (shouldPersistAndUpload) {
       markStepComplete(currentStep);
       clearError();
 
@@ -429,7 +428,22 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       }
 
       const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
-      const freshAttachments = requestId ? await uploadPendingFile(requestId) : [];
+      let freshAttachments: ISecuritySetupRequestAttachment[] = [];
+
+      // capture the current file the user added
+      if (fileToUpload) {
+        if (!requestId) {
+          setFileUploadError('Cannot upload file: missing Security Setup Request ID');
+          return;
+        }
+
+        const uploadResult = await uploadFile(requestId, fileToUpload);
+        if (!uploadResult) {
+          return;
+        }
+
+        freshAttachments = uploadResult;
+      }
 
       // Merge server response into wizard state.
       setWizardData((prev) => {
@@ -473,7 +487,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const handleButtonNext = async () => {
     const nextStep = getNextStep(currentStep);
 
-    if (!isReadOnly && !isCancelled) {
+    const fileToUpload = pendingUploadFile;
+    const shouldPersistAndUpload = !isCancelled && (!isReadOnly ||
+      (currentStep === 'enter-identifier' && fileToUpload))
+
+    if (shouldPersistAndUpload) {
       markStepComplete(currentStep);
       clearError();
 
@@ -489,9 +507,22 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       }
 
       const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
-      const freshAttachments = requestId ?
-        await uploadPendingFile(requestId) : [];
+      let freshAttachments: ISecuritySetupRequestAttachment[] = [];
 
+      // capture the current file the user added
+      if (fileToUpload) {
+        if (!requestId) {
+          setFileUploadError('Cannot upload file: missing Security Setup Request ID');
+          return;
+        }
+
+        const uploadResult = await uploadFile(requestId, fileToUpload);
+        if (!uploadResult) {
+          return;
+        }
+
+        freshAttachments = uploadResult;
+      }
       // Merge server response into wizard state.
       setWizardData((prev) => {
         const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
@@ -530,9 +561,18 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
   };
 
+  const resetUploadState = () => {
+    setPendingUploadFile(null);
+    setFileUploadError(null);
+  }
+
   const handleBack = () => {
     const prevStep = getPreviousStep(currentStep);
     if (prevStep) {
+      if (prevStep === 'enter-identifier') {
+        resetUploadState();
+      }
+
       setCurrentStep(prevStep);
       setIsReadOnly(true); // Enable read-only mode when going back
     } else if (onCancel) {
@@ -559,9 +599,14 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     );
 
     if (savedData) {
-      const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
-      if (requestId) {
-        const uploadedAttachments = uploadPendingFile(requestId);
+      if (pendingUploadFile) {
+        const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
+        if (!requestId) {
+          setFileUploadError('Cannot upload file: missing Security Setup Request ID');
+          return;
+        }
+
+        const uploadedAttachments = await uploadFile(requestId, pendingUploadFile);
 
         if (!uploadedAttachments) {
           // let user see upload error
@@ -730,7 +775,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             selectFieldErrors={selectFieldErrors}
             onFileUpload={handleFileUpload}
             selectedFileName={pendingUploadFile?.name || null}
-            uploadedFileName={wizardData.step2.attachments?.[0]?.fileName || null}
             isUploadingFile={isUploadingFile}
             fileUploadError={fileUploadError}
           />
@@ -744,6 +788,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             isReadOnly={isCancelled}
             isSaving={saveStatus === 'saving' || saveStatus === 'saved'}
             onBack={() => {
+              resetUploadState();
               setCurrentStep('enter-identifier');
             }}
           />
