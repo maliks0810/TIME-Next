@@ -37,7 +37,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   useEffect(() => {
     // if a request was duplicated, calculate these fields on load
     const ssapIdPassword = formValues.ssapIdPassword;
-    const newIssue = getDefaultNewIssue(ssapIdPassword);
+    const newIssue = formValues.newIssue
     const isPrivateDeal = !isNullOrEmpty(ssapIdPassword);
     const isSsapReleaseRequestSentToDm = isPrivateDeal;
 
@@ -97,10 +97,6 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
     }
   }
 
-  const getDefaultNewIssue = (ssapIdPassword?: string) => {
-    return ssapIdPassword?.trim() ? 'yes' : 'no';
-  }
-
   const setEuSecuritizationTipEuId = (euSecuritizationStatusValue?: string) => {
     if (euSecuritizationStatusValue === 'Not Required') {
       { formValues.euSecuritizationTipEuId = undefined };
@@ -108,14 +104,12 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
     return formValues.euSecuritizationTipEuId || '';
   }
 
-  const effectiveNewIssue = normalizeYesNo(formValues.newIssue)
-    || (formValues.ssapIdPassword?.trim() ? getDefaultNewIssue(formValues.ssapIdPassword) : '');
+  const effectiveNewIssue = normalizeYesNo(formValues.newIssue);
 
   const isYellowKeyVisable = false;
   const handleTextChange = (field: keyof IEnterIdentifierFormValues) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-
     if (field == "ssapIdPassword") {
       const ssapIdPassword = event.target.value;
       const isPrivateDeal = !isNullOrEmpty(ssapIdPassword);
