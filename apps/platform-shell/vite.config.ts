@@ -67,9 +67,6 @@ export default defineConfig(({ mode }) => {
                 '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
                 '@r2/levered-finance-news': path.resolve(__dirname, '../features/R2/levered-finance-news'),
                 '@IOD/tdm': path.resolve(__dirname, '../features/IOD/tdm'),
-                '@r2/core': path.resolve(__dirname, '../features/trap/core'),
-                '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
-                '@r2/levered-finance-news': path.resolve(__dirname,'../features/R2/levered-finance-news'),
                 // PLOP_INJECT_NEW_FEATURE_APP
             },
             preserveSymlinks: true,
