@@ -1,6 +1,14 @@
-import TdmPage from './pages/TdmPage';
-
+import { Routes, Route } from 'react-router-dom';
+import Dashboard from './pages/dashboard/components/Dashboard';
+import SecuritySetup from './pages/security-setup/securitySetup';
+import 'devextreme/dist/css/dx.light.css';
 
 export default function App() {
-    return <TdmPage />;
+    return (
+      <Routes>
+        <Route index element={<Dashboard />} />
+        <Route path="*" element={<Dashboard />} />
+        <Route path="/security-setup" element={<SecuritySetup />} />
+      </Routes>
+    )
 }

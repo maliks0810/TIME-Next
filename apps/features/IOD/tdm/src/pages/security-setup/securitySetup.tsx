@@ -1,0 +1,133 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useUserInfo } from '@platform/utils';
+import { SecuritySetupContainer } from './components/SecuritySetupContainer';
+import { ISecuritySetupWizardData } from './lib/types/securitySetupTypes';
+import './lib/styles.scss';
+import { SecuritySetupService } from '../../services/SecuritySetupService';
+import { ISecuritySetupWizardPayload } from '../../services/domain-objects/SecuritySetupRequestPayload';
+
+const SecuritySetupComponent: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [initialData, setInitialData] = useState<Partial<ISecuritySetupWizardPayload> | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const { name: currentUser } = useUserInfo();
+
+  const securitySetupId = searchParams.get('id');
+  useEffect(() => {
+    if (!securitySetupId) {
+      return;
+    }
+
+    const fetchWizardData = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+
+      try {
+        const savedData = await SecuritySetupService.getWizardData(securitySetupId);
+        setInitialData(savedData);
+      } catch (error) {
+        console.error('Failed to load saved wizard data', error);
+        setLoadError('Failed to load saved data. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchWizardData();
+  }, [securitySetupId]);
+
+  const handleComplete = async (data: ISecuritySetupWizardData) => {
+    try {
+      const payload: ISecuritySetupWizardPayload = {
+        currentStep: 'confirm-details',
+        currentStepNumber: 4,
+        savedAt: new Date().toISOString(),
+        saveType: 'complete' as const,
+        newIssue: data.step1.newIssue,
+        cdiFileUploadedToAnser: data.step1.cdiFileUploadedToAnser,
+        aladdinCDIId: data.step1.aladdinCDIId,
+        isPrivateDeal: data.step1.isPrivateDeal,
+        ssapIdPassword: data.step1.ssapIdPassword,
+        isSsapReleaseRequestSentToDm: data.step1.isSsapReleaseRequestSentToDm,
+        isSsapReleasedByDm: data.step1.isSsapReleasedByDm,
+        identifierType: data.step1.identifierType,
+        identifierValue: data.step1.identifierValue,
+        marketSector: data.step1.marketSector,
+        yellowKey: data.step1.yellowKey,
+        isEuSecuritizationRequired: data.step1.isEuSecuritizationRequired,
+        euSecuritizationTipEuId: data.step1.euSecuritizationTipEuId,
+        euSecuritizationStatus: data.step1.euSecuritizationStatus,
+        erisaStatus: data.step1.erisaStatus,
+        intexDealName: data.step1.intexDealName,
+        intexPassword: data.step1.intexPassword,
+        dealName: data.step1.dealName,
+        securityDetails: data.step2.securityDetails,
+        esgFields: data.step2.esgFields,
+        tradeFields: data.step2.tradeFields,
+        speedOverrides: data.step2.speedOverrides,
+        notesInstructions: data.step2.notesInstructions,
+        ...(data.step3 && {
+          uploadedFiles: data.step3.uploadedFile,
+          isConfirmed: true
+        }),
+        isReviewed: data.isReviewed,
+        reviewedBy: data.reviewedBy,
+        reviewedDate: data.reviewedDate,
+        updatedBy: currentUser,
+        updatedDate: new Date().toISOString()
+      };
+
+      await SecuritySetupService.upsertWizardData(payload, data.securitySetupRequestId);
+      navigate('/iod/tdm/');
+    } catch (error) {
+      console.error('Failed to submit security setup:', error);
+      alert('Failed to submit security setup. Please try again.');
+    }
+  };
+
+  const handleCancel = () => {
+    navigate('/iod/tdm/')
+  };
+
+  const shouldShowLoading = isLoading || (securitySetupId && !initialData && !loadError)
+  if (shouldShowLoading) {
+    return (
+      <div className="security-setup-page">
+        <div style={{ padding: '40px', textAlign: 'center' }}>
+          <p>Loading saved wizard data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="security-setup-page">
+        <div style={{ padding: '40px', textAlign: 'center', color: 'red' }}>
+          <p>{loadError}</p>
+          <button onClick={() => navigate('/iod/tdm/')}>
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="security-setup-page">
+      <SecuritySetupContainer
+        flowType="non-private" // TODO: determine how to decide flow
+        onComplete={handleComplete}
+        onCancel={handleCancel}
+        initialData={initialData}
+      />
+    </div>
+  );
+};
+
+const SecuritySetup: React.FC = () => <SecuritySetupComponent />;
+
+export default SecuritySetup;

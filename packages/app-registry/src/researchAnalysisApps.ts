@@ -2,7 +2,7 @@ import { ExternalAppMetadata } from '@platform/app-registry';
 import { lazy } from 'react';
 import { HighestEnv, InternalAppMetadata } from './types';
 import { NavbarHeader, NavbarSubHeader } from './navbarHeader.types';
-  
+
 export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
     {
         header: NavbarHeader.ResearchAnalysis,
@@ -230,7 +230,7 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
         component: lazy(() => import('@r2/levered-finance-news/src/App')),
         description: '',
         env: HighestEnv.prod,
-        
+
     },
     {
         type: 'external',
@@ -245,15 +245,15 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
         disabled: false,
         env: HighestEnv.prod
     },
-    {  
-        header: NavbarHeader.ResearchAnalysis,  
-        subHeader: NavbarSubHeader.FORGE,  
-        type: 'internal',  
-        id: '@r2/qre',  
-        name: 'R2-Model-Catalog',  
-        title: 'Model Catalog',  
-        path: '/forge/catalog',  
-        team: 'R2',  
+    {
+        header: NavbarHeader.ResearchAnalysis,
+        subHeader: NavbarSubHeader.FORGE,
+        type: 'internal',
+        id: '@r2/qre',
+        name: 'R2-Model-Catalog',
+        title: 'Model Catalog',
+        path: '/forge/catalog',
+        team: 'R2',
         env: HighestEnv.prod,
         component: lazy(() => import('@r2/qre/src/App'))
     },
