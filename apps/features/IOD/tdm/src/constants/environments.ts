@@ -28,7 +28,7 @@ const environmentConfigs: Record<Environment, EnvironmentConfig> = {
     },
     [ENVIRONMENTS.PROD]: {
         apiBaseUrl: 'https://tdm-web-service.pd.tcw.com',
-        webAppUrl: 'timenext.pd.tcw.com', // TODO: get correct url
+        webAppUrl: 'https://time.pd.tcw.com/'
     },
 };
 
