@@ -51,7 +51,20 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         prodUrl: 'http://localhost:5406/tools/iralaunchpad/?tdenv=prod&mode=legacy',
         newTab: false,
         disabled: false,
-        env: HighestEnv.prod
+        env: HighestEnv.prod,
+    },
+    {
+        type: 'internal',
+        header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.AladdinPortfolioManagement,
+        id: 'tdm',
+        name: 'TDM',
+        title: 'Security Setup Dashboard',
+        env: HighestEnv.prod,
+        path: '/iod/tdm/*',
+        team: 'IOD',
+        component: lazy(() => import('@IOD/tdm/src/App')),
+        description: '',
     },
     // PLOP_INJECT_APP
 ]
