@@ -7,17 +7,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig(({ mode }) => ({
-    plugins: [
-        react()
-    ],
+    plugins: [react()],
     server: {
         port: 3003,
         strictPort: false,
         fs: {
-            allow: [
-                path.resolve(__dirname, '../..'),
-            ],
-        }
+            allow: [path.resolve(__dirname, '../..')],
+        },
     },
     resolve: {
         alias: {

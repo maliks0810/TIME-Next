@@ -57,7 +57,10 @@ export default defineConfig(({ mode }) => {
                 '@': path.resolve(__dirname, './src'),
                 '@platform/ui': path.resolve(__dirname, '../../packages/ui/src'),
                 '@platform/styles': path.resolve(__dirname, '../../packages/styles/src'),
-                '@platform/app-registry': path.resolve(__dirname, '../../packages/app-registry/src'),
+                '@platform/app-registry': path.resolve(
+                    __dirname,
+                    '../../packages/app-registry/src'
+                ),
                 '@platform/utils': path.resolve(__dirname, '../../packages/utils/src'),
                 '@platform/homepage': path.resolve(__dirname, '../platform-homepage'),
                 '@platform/platform-shell': path.resolve(__dirname, '.'),
@@ -67,7 +70,12 @@ export default defineConfig(({ mode }) => {
                 '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
                 '@r2/levered-finance-news': path.resolve(__dirname, '../features/R2/levered-finance-news'),
                 '@IOD/tdm': path.resolve(__dirname, '../features/IOD/tdm'),
-                '@r2/levered-finance-news': path.resolve(__dirname, '../features/R2/levered-finance-news'),
+                '@r2/core': path.resolve(__dirname, '../features/trap/core'),
+                '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
+                '@r2/levered-finance-news': path.resolve(
+                    __dirname,
+                    '../features/R2/levered-finance-news'
+                ),
                 // PLOP_INJECT_NEW_FEATURE_APP
             },
             preserveSymlinks: true,
