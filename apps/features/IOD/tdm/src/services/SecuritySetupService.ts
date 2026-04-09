@@ -1,0 +1,141 @@
+import { getApiBaseUrl } from '../constants/environments';
+import {
+    transformFromApiPresentation,
+    transformToApiDomain,
+} from '../pages/security-setup/utils/securitySetupApiTransformer';
+import {
+    ISecuritySetupWizardPayload,
+    ISecuritySetupRequestAttachment,
+} from './domain-objects/SecuritySetupRequestPayload';
+
+const API_BASE_URL = getApiBaseUrl();
+const SECURITY_SETUP_ENDPOINT = '/securitysetuprequests';
+const ATTACHMENTS_ENDPOINT = '/securitysetuprequests/attachments';
+
+/**
+ * Service for managing Security Setup wizard persistence
+ */
+export const SecuritySetupService = {
+    /**
+     * Upsert wizard data to the API (non-blocking)
+     *
+     * @param payload - Complete wizard data to save/update
+     * @param securitySetupRequestId - ID from initial POST; triggers PUT when provided
+     * @param options - optional flags (isSaveOnly)
+     * @returns Promise resolving to save response with Presentation object
+     */
+    upsertWizardData: async (
+        payload: ISecuritySetupWizardPayload,
+        securitySetupRequestId?: number | null,
+        options?: { isSaveOnly?: boolean }
+    ): Promise<Partial<ISecuritySetupWizardPayload>> => {
+        const domainPayload = transformToApiDomain(payload);
+
+        if (securitySetupRequestId) {
+            domainPayload.SecuritySetupRequestId = securitySetupRequestId;
+        }
+
+        const securitySetupPayload = {
+            ...(options?.isSaveOnly === true && { isSaveOnly: true }),
+            securitySetupRequests: [domainPayload],
+        };
+
+        const method = securitySetupRequestId ? 'PUT' : 'POST';
+
+        const response = await fetch(`${API_BASE_URL}${SECURITY_SETUP_ENDPOINT}`, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(securitySetupPayload),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text().catch(() => response.statusText);
+            let apiMessage: string | null = null;
+
+            try {
+                const parsed = JSON.parse(errorText);
+                apiMessage = parsed?.Exception?.message ?? parsed?.message ?? null;
+                if (apiMessage) {
+                    throw new Error(apiMessage);
+                }
+            } catch {
+                // fall through to generic error message below
+            }
+
+            throw new Error(
+                apiMessage ?? `Failed to save wizard data (${response.status}): ${errorText}`
+            );
+        }
+
+        const rsponseData = await response.json();
+        const rawResponse = rsponseData?.securitySetupRequestCollection?.[0];
+        return transformFromApiPresentation(rawResponse);
+    },
+
+    getWizardData: async (
+        securitySetupId: string
+    ): Promise<Partial<ISecuritySetupWizardPayload>> => {
+        const response = await fetch(
+            `${API_BASE_URL}${SECURITY_SETUP_ENDPOINT}?securitySetupRequestIds=${securitySetupId}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text().catch(() => response.statusText);
+            throw new Error(`Failed to fetch wizard data: ( ${response.status}: ${errorText})`);
+        }
+
+        const presentationData = await response.json();
+        return transformFromApiPresentation(presentationData?.securitySetupRequestCollection?.[0]);
+    },
+
+    uploadAttachment: async (
+        securitySetupRequestId: number,
+        createdBy: string,
+        file: File
+    ): Promise<ISecuritySetupRequestAttachment[] | null> => {
+        const formData = new FormData();
+        formData.append(
+            'SecuritySetupRequestAttachmentRequest.SecuritySetupRequestId',
+            `${securitySetupRequestId}`
+        );
+        formData.append('SecuritySetupRequestAttachmentRequest.CreatedBy', createdBy);
+        formData.append('File', file);
+
+        const response = await fetch(`${API_BASE_URL}${ATTACHMENTS_ENDPOINT}`, {
+            method: 'POST',
+
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text().catch(() => response.statusText);
+            let apiMessage: string | null = null;
+
+            try {
+                const parsed = JSON.parse(errorText);
+                apiMessage = parsed?.Exception?.message ?? parsed?.message ?? null;
+                if (apiMessage) {
+                    throw new Error(apiMessage);
+                }
+            } catch {
+                // fall through to generic error message below
+            }
+
+            throw new Error(
+                apiMessage ?? `Failed to upload file attachment (${response.status}): ${errorText}`
+            );
+        }
+
+        const responseData = await response.json().catch(() => null);
+        const attachments = responseData?.securitySetupRequestAttachmentCollection;
+        return attachments;
+    },
+};

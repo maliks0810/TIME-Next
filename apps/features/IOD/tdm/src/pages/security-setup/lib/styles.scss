@@ -1,0 +1,1253 @@
+// Security Setup Page - Main wrapper
+.security-setup-page {
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+  padding: 0;
+  min-height:0;
+  flex: 1;
+}
+
+// Security Setup Wizard Container
+.security-setup-wizard {
+  max-width: 1200px;
+  width: 100%;
+  margin: 24px auto;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  position: relative;
+
+  // gradient border
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #0D0D0D 0%, #23425C 50%, #A3C0C7 100%);
+    border-radius: 4px 4px 0 0;
+  }
+
+  .wizard-header {
+    background: #fff;
+    padding: 24px 48px 20px;
+    color: #fff;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 30px;
+
+    .wizard-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+      color: #3B3B3D;
+    }
+
+    .wizard-close-container {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      .wizard-close-button {
+        color: #3B3B3D;
+        padding: 8px;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.04);
+        }
+      }
+
+      .wizard-cancel-text {
+        font-size: 14px;
+        color: #3B3B3D;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+          color: #333;
+        }
+      }
+    }
+
+
+  }
+}
+
+.progress-stepper {
+  padding: 24px 48px 16px;
+  background-color: #fff;
+  flex-shrink: 0;
+
+  .progress-stepper-header {
+    margin-bottom: 12px;
+
+    .progress-stepper-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+  }
+
+  .progress-segments-container {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+
+    .progress-segment {
+      flex: 1;
+      height: 6px;
+      background-color: #e0e0e0;
+      border-radius: 3px;
+      transition: background-color 0.3s ease;
+
+      &.active {
+        background-color: #093566;
+      }
+    }
+  }
+}
+
+.wizard-content {
+  flex: 1 1 auto;
+  padding: 0 48px 24px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+// =============================================================================
+// SUCCESS MESSAGES (GREEN BOX)
+// =============================================================================
+.substep-success-messages {
+  background-color: #e8f5e9;
+  border: 1px solid #81c784;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+
+  .substep-success-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .substep-success-icon {
+      color: #4caf50;
+      font-size: 20px;
+      flex-shrink: 0;
+
+      &.pending {
+        color: #ff9800; // Orange for pending
+      }
+    }
+
+    span {
+      font-size: 13px;
+      color: #2e7d32;
+      line-height: 1.4;
+
+      &.pending {
+        color: #e65100; // Darker orange for pending text
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+  .success-messages-box {
+    background-color: #e8f5e9;
+    border: 1px solid #81c784;
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 32px;
+
+    .success-message-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .success-check-icon {
+        color: #4caf50;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      span {
+        font-size: 13px;
+        color: #2e7d32;
+
+        strong {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+
+// =============================================================================
+// REMINDER BOX (YELLOW)
+// =============================================================================
+.reminder-box {
+  background-color: #fff8e1;
+  border: 1px solid #ffcc80;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin-top: 24px;
+
+  .reminder-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e65100;
+    margin-bottom: 8px;
+  }
+
+  .reminder-text {
+    font-size: 13px;
+    color: #5d4037;
+    line-height: 1.5;
+  }
+}
+
+// =============================================================================
+// COMMON FORM STYLES
+// =============================================================================
+
+.substep-content {
+  margin-bottom: 32px;
+
+  .offering-upload-section {
+    margin-bottom: 32px;
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #000;
+      margin: 0 0 20px 0;
+    }
+
+    .memorandum-upload-box {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      border: 2px solid #d0d0d0;
+      border-radius: 4px;
+      padding: 48px 24px;
+      text-align: center;
+      background-color: #fafafa;
+      transition: all 0.2s ease;
+    }
+
+    .memorandum-upload-box--clickable {
+      cursor:pointer;
+
+      &:hover {
+        border-color: darkgrey;
+        background-color: #f5f5f5;
+      }
+    }
+
+    .memorandum-upload-box--drag-over {
+      border-color: darkgrey;
+      background-color: #f5f5f5;
+    }
+
+    .upload-doc-icon,
+    .upload-progress-icon,
+    .upload-success-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .upload-doc-icon {
+      color: #999;
+
+      &--pending {
+        color: darkblue;
+      }
+    }
+
+    .upload-progress-icon {
+      color: darkblue;
+    }
+
+    .upload-success-icon {
+      color:greenyellow;
+    }
+
+    .upload-text-wrapper {
+      margin-bottom: 12px;
+
+      .upload-instruction {
+        font-size: 14px;
+        color: #666;
+      }
+
+      .upload-link {
+        font-size: 14px;
+        color: darkblue;
+        font-weight: 500;
+      }
+
+      .upload-pending-note {
+        display: block;
+        margin-top:4px;
+        font-size: 12px;
+        color: darkblue;
+        font-style: italic;
+      }
+
+      .upload-memo-link {
+        font-size: 13px;
+        color: darkblue;
+        text-decoration: none;
+      }
+
+      .upload-error-text {
+        display: inline-block;
+        margin-top: 8px;
+        font-size: 12px;
+        color: red;
+      }
+    }
+  }
+
+  .form-row-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .field-label {
+      font-size: 13px;
+      color: #1a1a1a;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .field-inputs-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+
+      .field-input-half {
+        width: 100%;
+      }
+
+      .field-label-inline {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 8px;
+        font-weight: 400;
+      }
+    }
+  }
+}
+
+// =============================================================================
+// STEP 1: ENTER IDENTIFIER PAGE (WITH SUB-STEPS)
+// =============================================================================
+.enter-identifier-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 0;
+
+  .substep-header {
+    margin-bottom: 24px;
+
+    .substep-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 0;
+    }
+  }
+
+  .substep-content {
+    margin-bottom: 32px;
+
+    .form-row-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .field-label {
+        font-size: 13px;
+        color: #1a1a1a;
+        font-weight: 500;
+        margin: 0;
+      }
+
+      .field-inputs-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+
+        .field-input-half {
+          width: 100%;
+        }
+      }
+
+      .field-inputs-row-triple {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+
+        .field-input-third {
+          width: 100%;
+        }
+
+        .field-label-inline {
+          font-size: 12px;
+          color: #666;
+          margin-bottom: 8px;
+          font-weight: 400;
+        }
+      }
+    }
+
+    .form-row {
+      margin-bottom: 16px;
+
+      &.two-column {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px 24px;
+      }
+
+      &.single-column {
+        max-width: calc(50% - 12px);
+      }
+
+      .field-label {
+        display: block;
+        font-size: 13px;
+        color: #1a1a1a;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .MuiFormControl-root,
+      .MuiTextField-root {
+        width: 100%;
+      }
+    }
+
+    .sapi-instruction-box {
+      background-color: #e3f2fd;
+      border: 1px solid #90caf9;
+      border-radius: 4px;
+      padding: 24px;
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1565c0;
+        margin: 0 0 16px 0;
+      }
+
+      p {
+        font-size: 14px;
+        color: #0d47a1;
+        line-height: 1.6;
+        margin: 0 0 12px 0;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    .ssap-request-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 0;
+      gap: 24px;
+
+      .ssap-request-button {
+        background-color: #3f51b5;
+        color: #fff;
+        text-transform: none;
+        padding: 12px 32px;
+        font-size: 15px;
+        font-weight: 500;
+        border-radius: 4px;
+        box-shadow: none;
+        min-width: 240px;
+
+        &:hover {
+          background-color: #303f9f;
+          box-shadow: none;
+        }
+
+        &:disabled {
+          background-color: #b0b0b0;
+          color: #fff;
+        }
+      }
+    }
+
+    .ssap-confirmation-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 0;
+
+      .ssap-confirmation-box {
+        max-width: 600px;
+        text-align: center;
+        padding: 32px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #fafafa;
+
+        .ssap-confirmation-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #1a1a1a;
+          margin: 0 0 16px 0;
+        }
+
+        .ssap-confirmation-text {
+          font-size: 14px;
+          color: #666;
+          line-height: 1.6;
+          margin: 0 0 24px 0;
+        }
+
+        .ssap-confirmation-actions {
+          display: flex;
+          gap: 16px;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .go-to-dashboard-button {
+          background-color: #3f51b5;
+          color: #fff;
+          text-transform: none;
+          padding: 10px 24px;
+          font-size: 14px;
+          font-weight: 500;
+          border-radius: 4px;
+          box-shadow: none;
+
+          &:hover {
+            background-color: #303f9f;
+            box-shadow: none;
+          }
+        }
+
+        .skip-to-step4-button {
+          color: #666;
+          border-color: #ccc;
+          text-transform: none;
+          padding: 10px 24px;
+          font-size: 14px;
+          font-weight: 500;
+          border-radius: 4px;
+          box-shadow: none;
+
+          &:hover {
+            background-color: #f5f5f5;
+            border-color: #999;
+          }
+        }
+      }
+    }
+  }
+
+  .reminder-box {
+    background-color: #fff8e1;
+    border: 1px solid #ffcc80;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-top: 24px;
+
+    .reminder-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e65100;
+      margin-bottom: 8px;
+    }
+
+    .reminder-text {
+      font-size: 13px;
+      color: #5d4037;
+      line-height: 1.5;
+    }
+  }
+
+  .substep-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 32px;
+
+    .substep-back-button {
+      background-color: #fff;
+      color: #093566;
+      border: 1px solid #093566;
+      text-transform: none;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 4px;
+      box-shadow: none;
+
+      &:hover {
+        background-color: #f5f5f5;
+        box-shadow: none;
+      }
+
+      .MuiButton-startIcon {
+        margin-right: 8px;
+      }
+    }
+
+    .substep-next-button {
+      background-color: #093566;
+      color: #fff;
+      text-transform: none;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 4px;
+      box-shadow: none;
+
+      &:hover {
+        background-color: #0a4378;
+        box-shadow: none;
+      }
+
+      &:disabled {
+        background-color: #b0b0b0;
+        color: #fff;
+      }
+
+      .MuiButton-endIcon {
+        margin-left: 8px;
+      }
+    }
+  }
+
+  .identifier-form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 32px;
+
+    .form-row-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .field-label {
+        font-size: 13px;
+        color: #1a1a1a;
+        font-weight: 500;
+        margin: 0;
+      }
+
+      .field-inputs-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+
+        .field-input-half {
+          width: 100%;
+        }
+      }
+
+      .field-inputs-row-triple {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+
+        .field-input-third {
+          width: 100%;
+        }
+
+        .field-label-inline {
+          font-size: 12px;
+          color: #666;
+          margin-bottom: 8px;
+          font-weight: 400;
+        }
+      }
+    }
+  }
+
+  .continue-button-full {
+    background-color: #093566;
+    color: #fff;
+    text-transform: none;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 4px;
+    width: 100%;
+    box-shadow: none;
+
+    &:hover {
+      background-color: #0a4378;
+      box-shadow: none;
+    }
+
+    &:disabled {
+      background-color: #b0b0b0;
+      color: #fff;
+    }
+
+    .MuiButton-endIcon {
+      margin-left: 8px;
+    }
+  }
+}
+
+
+// =============================================================================
+// SSAP Approval
+// =============================================================================
+.ssap-approval-container {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+  gap: 16px;
+  padding: 24px 0;
+
+  .ssap-approval-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .ssap-approval-instruction {
+    font-size: 14px;
+    color: #1a1a1a;
+    margin: 0;
+    padding-bottom: 80px;
+  }
+  .ssap-approval-actions {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 16px;
+    width: min(900px, 100%);
+    margin: 0 auto;
+
+    .MuiButton-root {
+      flex: 1 1 0;
+    }
+
+    .button {
+      background-color: #093566;
+      color: #fff;
+      text-transform: none;
+      padding: 12px 32px;
+      font-size: 15px;
+      font-weight: 500;
+      border-radius: 4px;
+      box-shadow: none;
+
+      &:hover {
+        background-color: #0a4378;
+        box-shadow: none;
+      }
+
+      &:disabled {
+        background-color: #b0b0b0;
+        color: #fff;
+        cursor: default;
+      }
+    }
+
+    .approve-ssap-button {
+      min-width: 200px;
+
+      .MuiButton-startIcon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+// =============================================================================
+// REVIEW DETAILS PAGE
+// =============================================================================
+.review-details-page {
+
+  .form-section {
+    margin-bottom: 32px;
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 0 0 20px 0;
+    }
+  }
+
+  .form-row {
+    margin-bottom: 16px;
+
+    &.two-column {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px 24px;
+    }
+
+    &.single-column {
+      max-width: calc(50% - 12px);
+
+      .form-field {
+        width: 100%;
+      }
+    }
+  }
+
+  .form-field {
+    .field-label {
+      display: block;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 8px;
+      font-weight: 500;
+
+      .klo-only-text {
+        color: #d32f2f;
+        font-weight: 400;
+      }
+    }
+
+    .MuiFormControl-root,
+    .MuiTextField-root {
+      width: 100%;
+    }
+  }
+
+  // Read-only fields (grey background)
+  .readonly-field {
+    .MuiInputBase-input.Mui-disabled {
+      background-color: #f5f5f5;
+      color: #666;
+      -webkit-text-fill-color: #666;
+    }
+
+    .MuiOutlinedInput-notchedOutline {
+      border-color: #e0e0e0;
+    }
+  }
+
+  .esg-green-border {
+    .MuiOutlinedInput-root {
+      border: 2px solid #4caf50;
+      border-radius: 4px;
+
+      .MuiOutlinedInput-notchedOutline {
+        border: none;
+      }
+
+      &:hover .MuiOutlinedInput-notchedOutline {
+        border: none;
+      }
+
+      &.Mui-focused .MuiOutlinedInput-notchedOutline {
+        border: none;
+      }
+    }
+  }
+}
+
+// =============================================================================
+// CONFIRM DETAILS PAGE
+// =============================================================================
+.confirm-details-page {
+  .form-section {
+    margin-bottom: 32px;
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 0 0 20px 0;
+    }
+  }
+
+  .form-row {
+    margin-bottom: 16px;
+
+    &.two-column {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px 24px;
+    }
+
+    &.single-column {
+      max-width: calc(50% - 12px);
+
+      .form-field {
+        width: 100%;
+      }
+    }
+  }
+
+  .form-field {
+    .field-label {
+      display: block;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 8px;
+      font-weight: 500;
+
+      .klo-only-text-red {
+        color: #d32f2f;
+        font-weight: 400;
+      }
+    }
+  }
+}
+
+ // DISABLED STYLING
+  .MuiTextField-root,
+  .MuiFormControl-root {
+    .Mui-disabled {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+
+      input,
+      .MuiSelect-select {
+        color: #999;
+        -webkit-text-fill-color: #999;
+      }
+
+      fieldset {
+        border-color: #e0e0e0 !important;
+      }
+    }
+  }
+
+  .esg-collateral-field-red {
+    input.Mui-disabled {
+      color: #d32f2f !important;
+      -webkit-text-fill-color: #d32f2f !important;
+    }
+  }
+
+// =============================================================================
+// WIZARD ACTIONS (FOOTER BUTTONS)
+// =============================================================================
+.wizard-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 48px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #fafafa;
+  flex-shrink: 0;
+
+  .save-button {
+    padding: 12px 32px;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: none;
+    border-radius: 4px;
+    background-color: transparent;
+    color: #666;
+    border: 1px solid #d0d0d0;
+    flex: 1;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    .MuiButton-startIcon {
+      margin-right: 8px;
+    }
+  }
+
+  .back-button {
+    padding: 12px 32px;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: none;
+    border-radius: 4px;
+    background-color: transparent;
+    color: #666;
+    border: 1px solid #d0d0d0;
+    flex: 1;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    .MuiButton-startIcon {
+      margin-right: 8px;
+    }
+  }
+
+  .skip-button {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: none;
+    color: #666;
+    margin-left: auto;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+
+  .next-button {
+    padding: 12px 32px;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: none;
+    border-radius: 4px;
+    background-color: #093566;
+    color: #fff;
+    margin-left: auto;
+    flex: 1;
+
+    &:hover {
+      background-color: #0a4378;
+    }
+
+    &:disabled {
+      background-color: #b0b0b0;
+      color: #fff;
+    }
+
+    .MuiButton-endIcon {
+      margin-left: 8px;
+    }
+  }
+
+  // when skip button exists, remove next button's left margin
+  .skip-button ~ .next-button {
+    margin-left: 0;
+  }
+}
+
+// =============================================================================
+// SUBMIT CONFIRMATION MODAL
+// =============================================================================
+.submit-confirmation-modal {
+  .MuiDialog-paper {
+    border-radius: 8px;
+    padding: 8px;
+  }
+
+  .submit-modal-content {
+    padding: 24px 24px 16px;
+
+    .submit-modal-header {
+      margin-bottom: 24px;
+
+      .submit-modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+      }
+    }
+
+    .submit-modal-body {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+
+      .warning-icon {
+        color: #ff9800;
+        font-size: 32px;
+        flex-shrink: 0;
+      }
+
+      .submit-modal-message {
+        font-size: 14px;
+        color: #333;
+        margin: 6px 0 0 0;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .submit-modal-actions {
+    padding: 16px 24px;
+    gap: 12px;
+
+    .cancel-button {
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      text-transform: none;
+      border-radius: 4px;
+      background-color: #f5f5f5;
+      color: #666;
+      border: 1px solid #d0d0d0;
+
+      &:hover {
+        background-color: #e8e8e8;
+        border-color: #b0b0b0;
+      }
+    }
+
+    .submit-now-button {
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      text-transform: none;
+      border-radius: 4px;
+      background-color: #093566;
+      color: #fff;
+
+      &:hover {
+        background-color: #0a4378;
+      }
+    }
+  }
+}
+
+// =============================================================================
+// SHARED FORM FIELD STYLES
+// =============================================================================
+.form-field {
+  .MuiOutlinedInput-root {
+    background-color: #fff;
+    border-radius: 4px;
+
+    &:hover .MuiOutlinedInput-notchedOutline {
+      border-color: #093566;
+    }
+
+    &.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: #093566;
+      border-width: 2px;
+    }
+  }
+
+  .MuiInputBase-input {
+    font-size: 14px;
+    padding: 10px 14px;
+    color: #333;
+
+    &::placeholder {
+      color: #999;
+      opacity: 1;
+    }
+  }
+
+  .MuiSelect-select {
+    font-size: 14px;
+    padding: 10px 14px;
+    color: #333;
+  }
+
+  .MuiInputLabel-root {
+    font-size: 13px;
+    color: #666;
+
+    &.Mui-focused {
+      color: #093566;
+    }
+  }
+}
+
+// =============================================================================
+// FILE UPLOADED SECTION
+// =============================================================================
+  .file-uploaded-indicator {
+    margin-bottom: 32px;
+
+    .file-indicator-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      margin-top: 12px;
+
+      .file-paperclip-icon {
+        color: #666;
+        font-size: 20px;
+      }
+
+      .file-name-text {
+        font-size: 13px;
+        color: #093566;
+      }
+    }
+  }
+
+
+// =============================================================================
+// RESPONSIVE ADJUSTMENTS
+// =============================================================================
+@media (max-width: 1024px) {
+  .security-setup-wizard {
+    max-width: 100%;
+  }
+
+  .wizard-content {
+    padding: 0 24px 24px;
+  }
+
+  .enter-identifier-page {
+    .identifier-form-grid {
+      .form-row-group {
+        grid-template-columns: 1fr;
+
+        .field-label {
+          padding-top: 0;
+        }
+
+        .field-inputs,
+        .field-inputs-triple {
+          grid-template-columns: 1fr;
+        }
+      }
+    }
+  }
+
+  .form-row.two-column {
+    grid-template-columns: 1fr !important;
+  }
+
+  .form-row.single-column {
+    max-width: 100% !important;
+  }
+}
+
+.MuiButtonBase-root.Mui-disabled {
+  pointer-events: auto;
+  cursor: not-allowed;
+}
