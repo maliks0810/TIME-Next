@@ -379,7 +379,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           !isValidString(wizardData.step1.identifierValue) ||
           !isValidString(wizardData.step1.marketSector) ||
           !isValidString(wizardData.step1.euSecuritizationStatus) ||
-          !isValidString(wizardData.step1.erisaStatus)) {
+          !isValidString(wizardData.step1.erisaStatus) ||
+          !isValidString(wizardData.step1.newIssue)) {
           return false;
         }
         return true;
