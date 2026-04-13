@@ -264,6 +264,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     return {
       // Step 1 data - all fields from enter identifier form
       ...wizardData.step1,
+      aladdinCDIId: wizardData.step1.aladdinCDIId?.trim() || 'N/A',
       // Step 2 data - spread nested objects to flat structure
       securityDetails: wizardData.step2.securityDetails,
       esgFields: wizardData.step2.esgFields,
@@ -378,10 +379,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           !isValidString(wizardData.step1.identifierValue) ||
           !isValidString(wizardData.step1.marketSector) ||
           !isValidString(wizardData.step1.euSecuritizationStatus) ||
-          !isValidString(wizardData.step1.erisaStatus) ||
-          (wizardData.step1.newIssue?.toLowerCase() === 'yes' &&
-            !isValidString(wizardData.step1.aladdinCDIId))
-        ) {
+          !isValidString(wizardData.step1.erisaStatus)) {
           return false;
         }
         return true;

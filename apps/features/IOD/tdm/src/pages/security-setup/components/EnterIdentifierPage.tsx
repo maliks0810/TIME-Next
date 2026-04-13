@@ -293,7 +293,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
 
         {/* Aladdin CDI ID */}
         <div className="form-row-group">
-          <label className="field-label">Aladdin CDI ID *</label>
+          <label className="field-label">Aladdin CDI ID</label>
           <TextField
             fullWidth
             value={formValues.aladdinCDIId || ''}
