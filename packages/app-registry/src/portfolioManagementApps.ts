@@ -65,5 +65,18 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         component: lazy(() => import('@IOD/tdm/src/App')),
         description: '',
     },
+    {
+        type: 'internal',
+        header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.AladdinPortfolioManagement,
+        id: 'bskt-composition',
+        name: 'bskt-composition',
+        title: 'Etf Basket Negotiation',
+        env: HighestEnv.prod,
+        path: '/IOD/bskt-composition/',
+        team: 'IOD',
+        component: lazy(() => import('@IOD/bskt-composition/src/App')),
+        description: '',
+    },
     // PLOP_INJECT_APP
 ]
