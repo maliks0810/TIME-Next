@@ -1,0 +1,427 @@
+.card {
+  position: relative;
+  border: 1px solid #dfe6f2;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.cardTopGradient {
+  height: 6px;
+  /* ✅ light → dark (fixed) */
+  background: linear-gradient(90deg, #a3c0c7 0%, #23425c 55%, #0d0d0d 100%);
+}
+
+.cardContent {
+  padding-top: 16px;
+}
+
+.mainGridWrapper {
+  font-family: Roboto, Arial, sans-serif;
+}
+
+.mainGridWrapper :global(.dx-datagrid) {
+  border: none;
+}
+
+.mainGridWrapper :global(.dx-datagrid-headers) {
+  background: transparent;
+}
+
+.mainGridWrapper :global(.dx-datagrid-headers .dx-datagrid-table) {
+  border-collapse: separate !important;
+}
+
+.mainGridWrapper :global(.dx-header-row > td) {
+  background: #013d7d;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+  text-align: center;
+  border: none;
+  border-radius: 4px 4px 0 0;
+  background-clip: padding-box;
+}
+
+.mainGridWrapper :global(.dx-header-row > td:not(:first-child)) {
+  box-shadow: inset 2px 0 0 #ffffff;
+}
+
+.mainGridWrapper :global(.dx-row > td) {
+  border: none;
+  border-bottom: 1px solid #eef0f4;
+  padding: 8px 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.mainGridWrapper :global(.dx-row:last-child > td) {
+  border-bottom: none;
+}
+
+
+
+.actionsCell {
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+  width: 100%;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.actionsCell::before {
+  content: "";
+  display: block;
+  width: 28px;  
+  flex: 0 0 28px;
+}
+
+.actionsButtons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.actionsArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;     
+  flex: 0 0 28px;
+  margin-left: 6px;  
+}
+
+
+
+/* ===========================
+   Popup (Publish / Details)
+   =========================== */
+
+.popupNoScroll :global(.dx-popup-content) {
+  padding: 0 !important;
+  overflow: visible !important;
+  border-top: none !important;
+}
+
+.popupRoot {
+  font-family: Roboto, Arial, sans-serif;
+  background: #ffffff;
+}
+
+.popupHeaderWrap {
+  width: 100%;
+}
+
+.popupHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+}
+
+.popupTitleText {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.popupHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.popupCloseIcon {
+  color: #111827;
+}
+
+.popupHeaderGradientBar {
+  height: 6px;
+  width: 97%;
+  margin-left: 1%;
+  margin-right: 1%;
+  /* ✅ light → dark (fixed) */
+  background: linear-gradient(90deg, #a3c0c7 0%, #23425c 55%, #0d0d0d 100%);
+}
+
+/* Summary layout */
+.popupBody {
+  padding: 18px 20px 16px;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: 110px auto;
+  row-gap: 10px;
+  column-gap: 8px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.summaryLabel {
+  /* ✅ slightly larger + strong like mock */
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 18px;
+}
+
+.summaryValue {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  line-height: 18px;
+}
+
+.summaryValueRow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.seeDetailsBtn {
+  height: 30px !important;
+  padding: 0 14px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  background: #013d7d !important;
+  box-shadow: none !important;
+}
+
+/* Overrides */
+.overridesBlock {
+  margin-top: 6px;
+}
+
+.overridesTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.overridesHint {
+  font-size: 13px;
+  /* ✅ darker + slightly heavier italic */
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.overrideTable {
+  display: grid;
+  grid-template-columns: 110px auto;
+  row-gap: 8px;
+  column-gap: 10px;
+  align-items: center;
+}
+
+.overrideHeaderCell {
+  /* ✅ match “Basket ID” strength */
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  padding-bottom: 4px;
+}
+
+.overrideCell {
+  /* ✅ Cash Fee label closer in size/weight to headers */
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Footer */
+.popupFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 18px;
+}
+
+.popupPrimaryBtn {
+  height: 34px !important;
+  min-width: 130px !important;
+  border-radius: 6px !important;
+  text-transform: none !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  background: #013d7d !important;
+  box-shadow: none !important;
+}
+
+.popupCancelBtn {
+  height: 34px !important;
+  min-width: 110px !important;
+  border-radius: 6px !important;
+  text-transform: none !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #111827 !important;
+  border-color: #d1d5db !important;
+}
+
+/* ===========================
+   Details View Styling
+   =========================== */
+
+.popupBodyDetails {
+  padding: 18px 20px 16px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.detailsCard {
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px 18px;
+}
+
+.detailsItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailsK {
+  font-size: 12px;
+  font-weight: 400;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.detailsV {
+  font-size: 12px;
+  font-weight: 500;  /* ✅ Changed from 600 to 400 (normal weight) */
+  color: #111827;
+}
+
+.compositionTitle {
+  font-size: 18px;  /* ✅ Match Basket Details title */
+  font-weight: 600;  /* ✅ Match Basket Details title */
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.compositionGridNarrow {
+  width:90%;
+  margin-left: 7%;
+}
+
+/* ✅ Apply same grid styling as main grid */
+.popupGridWrapper {
+  font-family: Roboto, Arial, sans-serif;
+}
+
+.popupGridWrapper :global(.dx-datagrid) {
+  border: none;
+}
+
+.popupGridWrapper :global(.dx-datagrid-headers) {
+  background: transparent;
+}
+
+.popupGridWrapper :global(.dx-datagrid-headers .dx-datagrid-table) {
+  border-collapse: separate !important;
+}
+
+.popupGridWrapper :global(.dx-header-row > td) {
+  background: #013d7d;
+  color: #ffffff !important; 
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 12px;
+  text-align: center;
+  border: none;
+  border-radius: 4px 4px 0 0;
+  background-clip: padding-box;
+}
+
+.popupGridWrapper :global(.dx-header-row > td:not(:first-child)) {
+  box-shadow: inset 2px 0 0 #ffffff;
+}
+
+.popupGridWrapper :global(.dx-row > td) {
+  border: none;
+  border-bottom: 1px solid #eef0f4;
+  padding: 8px 12px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 13px;
+  color: #111827;
+}
+
+.popupGridWrapper :global(.dx-row:last-child > td) {
+  border-bottom: none;
+}
+
+/*.popupGridWrapper :global(.dx-row:hover > td) {
+  background-color: #f9fafb;
+}*/
+
+.popupExportBtn {
+  height: 30px !important;
+  padding: 0 12px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  color: #013d7d !important;
+}
+
+
+/* Basket Information details panel */
+.detailPanel {
+  padding: 12px 16px 16px;
+  background: #f3f4f6;
+  font-family: Roboto, Arial, sans-serif;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #111827;
+}
+
+.infoSection {
+  background: #ffffff;
+  border: 1px solid #e6ebf5;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px 24px;
+}
+
+.kv .k {
+  font-size: 12px;
+  color: #717182;
+  margin-bottom: 2px;
+}
+
+.kv .v {
+  font-size: 12px;
+  font-weight: 500;
+  color: #111827;
+}
+/* End of: Basket Information details panel */
