@@ -264,7 +264,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     return {
       // Step 1 data - all fields from enter identifier form
       ...wizardData.step1,
-      aladdinCDIId: wizardData.step1.aladdinCDIId?.trim() || 'N/A',
+      aladdinCDIId: wizardData.step2.securityDetails?.aladdinCDIId?.trim() || wizardData.step1.aladdinCDIId?.trim() || 'N/A',
       // Step 2 data - spread nested objects to flat structure
       securityDetails: wizardData.step2.securityDetails,
       esgFields: wizardData.step2.esgFields,
