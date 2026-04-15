@@ -66,6 +66,7 @@ export default defineConfig(({ mode }) => {
                 '@r2/core': path.resolve(__dirname, '../features/trap/core'),
                 '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
                 '@IOD/bskt-composition': path.resolve(__dirname, '../features/IOD/bskt-composition'),
+                '@IOD/tdm': path.resolve(__dirname, '../features/IOD/tdm'),
                 '@r2/levered-finance-news': path.resolve(__dirname, '../features/R2/levered-finance-news'),
                 '@IOD/tdm': path.resolve(__dirname, '../features/IOD/tdm'),
                 // PLOP_INJECT_NEW_FEATURE_APP
