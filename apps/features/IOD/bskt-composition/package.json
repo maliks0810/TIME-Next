@@ -1,9 +1,9 @@
 {
-  "name": "@r2/prism",
+  "name": "@IOD/bskt-composition",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Propritary Research and Issuer Screening Module",
+  "description": "BBG BSKT UI - Basket Trading Platform outputs with Aladdin for ETF creation and redemption workflows",
   "scripts": {
     "build": "vite build",
     "build:sandbox": "vite build --mode sandbox",
@@ -12,18 +12,17 @@
     "build:production": "vite build --mode production",
     "clean": "rm -rf dist .turbo node_modules",
     "dev": "vite",
+    "sandbox": "vite --mode sandbox",
     "prod": "vite --mode production",
-    "preview": "vite preview --port 3002",
+    "preview": "vite preview --port 3003",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@platform/styles": "1.0.0",
     "@platform/ui": "1.0.0",
-    "@platform/utils": "1.0.0",
-    "@tanstack/react-query": "5.90.20"
+    "@platform/utils": "1.0.0"
   },
   "devDependencies": {
-    "@tanstack/react-query-devtools": "5.91.2"
   }
 }

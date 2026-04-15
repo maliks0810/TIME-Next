@@ -1,0 +1,1 @@
+export type BasketState = "Proposed" | "In Aladdin" | "Published" | "Retracted" | "Rejected";
