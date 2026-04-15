@@ -1,4 +1,3 @@
-#
 include:
   - project: 'tcw-group/technology/platform-engineering/development-operations/cicd-configurations'
     ref: 'main'
@@ -15,4 +14,4 @@ variables:
   APPLICATION_TYPE: 'time-next-monorepo'
   APPLICATION_SENSITIVITY: 'private'
   ################################################################################################
-  
+

@@ -14,7 +14,7 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         prodUrl: 'https://tod.pd.tcw.com/',
         newTab: true,
         disabled: false,
-        env: HighestEnv.prod,
+        env: HighestEnv.prod
     },
     {
         header: NavbarHeader.PortfolioManagement,
@@ -26,7 +26,7 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         prodUrl: 'https://sector-summary-webapp.pd.tcw.com/credit/home',
         newTab: true,
         disabled: false,
-        env: HighestEnv.prod,
+        env: HighestEnv.prod
     },
     {
         header: NavbarHeader.PortfolioManagement,
@@ -38,7 +38,7 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         prodUrl: 'http://localhost:5406/tools/iralaunchpad/?tdenv=prod&mode=aladdin',
         newTab: false,
         disabled: false,
-        env: HighestEnv.prod,
+        env: HighestEnv.prod
     },
     {
         header: NavbarHeader.PortfolioManagement,
