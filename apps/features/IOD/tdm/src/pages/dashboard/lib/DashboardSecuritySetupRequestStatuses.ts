@@ -25,8 +25,12 @@ export const SetupStatuses: IStatusProperties[] = [
       className: 'status-orange'
     },
     {
+      name: 'Security Review In Progress',
+      className: 'status-orange'
+    },
+    {
       name: 'Security Review Complete',
-      className: 'status-darkorange'
+      className: 'status-orange'
     },
     {
       name: 'Security Setup Complete',
