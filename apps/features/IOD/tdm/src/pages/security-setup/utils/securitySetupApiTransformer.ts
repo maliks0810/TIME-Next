@@ -109,7 +109,9 @@ export const transformToApiDomain = (
         MarketSectorTypeValue: payload.marketSector || '',
         YellowKey: payload.yellowKey || '',
         IsEuSecuritizationRequired: payload.isEuSecuritizationRequired ?? null,
-        EuSecuritizationTipEuId: payload.euSecuritizationTipEuId || '',
+        EuSecuritizationTipEuId: !!payload.securityDetails?.euSecuritizationTipEuId
+            ? payload.securityDetails?.euSecuritizationTipEuId
+            : payload.euSecuritizationTipEuId || undefined,
         EuSecuritizationStatusValue: !!payload.securityDetails?.euSecuritizationStatus
             ? payload.securityDetails?.euSecuritizationStatus
             : payload.euSecuritizationStatus || null,
@@ -239,6 +241,7 @@ export const transformFromApiPresentation = (
             callableValue: presentation.callableValue || undefined,
             cusip: presentation.cusip || undefined,
             identifier: presentation.identifierValue || undefined,
+            euSecuritizationTipEuId: presentation.euSecuritizationTipEuId || undefined,
             euSecuritizationStatus: presentation.euSecuritizationStatusValue || undefined,
             erisaStatus: presentation.erisaStatusValue || undefined,
         },

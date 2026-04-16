@@ -21,6 +21,15 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   attachments = [],
   isReadOnly = false,
 }) => {
+  const isEuSecuritizationTipDisabled = formValues.securityDetails?.euSecuritizationStatus?.toLowerCase() === 'not required' || formValues.securityDetails?.euSecuritizationStatus?.toLowerCase() === '';
+
+  const setEuSecuritizationTipEuId = (euSecuritizationStatusValue?: string) => {
+    if (euSecuritizationStatusValue === 'Not Required') {
+      formValues.securityDetails.euSecuritizationTipEuId = undefined;
+    }
+    return formValues.securityDetails.euSecuritizationTipEuId || '';
+  }
+
   const formatDateForInput = (isoDate?: string): string => {
     if (!isoDate) {
       return '';
@@ -495,17 +504,31 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               disabled={isReadOnly}
             />
           </div>
-          {/* ERISA Status */}
           <div className="form-field">
-            <label className="field-label">ERISA Status</label>
-            <SelectFormField
-              fieldKey={ReferenceDataFieldKey.ErisaStatus}
-              value={formValues.securityDetails?.erisaStatus}
-              onChange={(value) => handleSecurityDetailsChange('erisaStatus', value)}
-              referenceData={referenceData}
-              fullWidth={false}
-              disabled={isReadOnly}
+            <label className="field-label">EU Securitization TIP EU ID</label>
+            <TextField
+              fullWidth
+              value={setEuSecuritizationTipEuId(formValues.securityDetails?.euSecuritizationStatus)}
+              onChange={(e) => handleSecurityDetailsChange('euSecuritizationTipEuId', e.target.value)}
+              disabled={isReadOnly || isEuSecuritizationTipDisabled}
+              variant="outlined"
             />
+          </div>
+        </div>
+        <div className="form-row two-column">
+          <div className="form-field">
+            {/* ERISA Status */}
+            <div className="form-field">
+              <label className="field-label">ERISA Status</label>
+              <SelectFormField
+                fieldKey={ReferenceDataFieldKey.ErisaStatus}
+                value={formValues.securityDetails?.erisaStatus}
+                onChange={(value) => handleSecurityDetailsChange('erisaStatus', value)}
+                referenceData={referenceData}
+                fullWidth={false}
+                disabled={isReadOnly}
+              />
+            </div>
           </div>
         </div>
       </div>

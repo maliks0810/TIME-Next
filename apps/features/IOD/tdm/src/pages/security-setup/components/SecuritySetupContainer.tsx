@@ -77,6 +77,7 @@ const mergeWizardDataWithSaveResponse = (
       cusip: savedData.securityDetails?.cusip ?? prev.step2.securityDetails?.cusip,
       callableValue: savedData.securityDetails?.callableValue ?? prev.step2.securityDetails?.callableValue,
       euSecuritizationStatus: savedData.securityDetails?.euSecuritizationStatus ?? prev.step2.securityDetails.euSecuritizationStatus,
+      euSecuritizationTipEuId: savedData.securityDetails?.euSecuritizationTipEuId ?? prev.step2.securityDetails.euSecuritizationTipEuId,
       erisaStatus: savedData.securityDetails?.erisaStatus ?? prev.step2.securityDetails.erisaStatus,
     },
     esgFields: {
@@ -229,6 +230,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         securityDetails: {
           ...prev.step2.securityDetails,
           euSecuritizationStatus: values.euSecuritizationStatus,
+          euSecuritizationTipEuId: values.euSecuritizationTipEuId,
           erisaStatus: values.erisaStatus
         }
       }

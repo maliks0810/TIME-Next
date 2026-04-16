@@ -393,16 +393,29 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
               disabled
             />
           </div>
-          {/* ERISA Status */}
           <div className="form-field">
-            <label className="field-label">ERISA Status</label>
-            <SelectFormField
-              fieldKey={ReferenceDataFieldKey.ErisaStatus}
-              value={data.securityDetails?.erisaStatus}
-              onChange={() => { }}
-              referenceData={referenceData}
+            <label className="field-label">EU Securitization TIP EU ID</label>
+            <TextField
+              fullWidth
+              value={data.securityDetails?.euSecuritizationTipEuId || ''}
               disabled
+              variant="outlined"
             />
+          </div>
+        </div>
+        <div className="form-row two-column">
+          <div className="form-field">
+            {/* ERISA Status */}
+            <div className="form-field">
+              <label className="field-label">ERISA Status</label>
+              <SelectFormField
+                fieldKey={ReferenceDataFieldKey.ErisaStatus}
+                value={data.securityDetails?.erisaStatus}
+                onChange={() => { }}
+                referenceData={referenceData}
+                disabled
+              />
+            </div>
           </div>
         </div>
       </div>

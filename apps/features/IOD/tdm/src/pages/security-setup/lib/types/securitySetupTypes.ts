@@ -78,6 +78,7 @@ export interface ISecurityDetails {
     cusip?: string;
     callableValue?: string;
     euSecuritizationStatus?: string;
+    euSecuritizationTipEuId?: string;
     erisaStatus?: string;
 }
 
