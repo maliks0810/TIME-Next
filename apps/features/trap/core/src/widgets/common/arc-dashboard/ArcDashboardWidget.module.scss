@@ -1,0 +1,23 @@
+.grid {
+    height: 100%;
+    [class*='dx-datagrid-rowsview'] {
+        height: 100%;
+        overflow: auto;
+    }
+    [class*='dx-gridbase-container'] {
+        overflow: auto;
+    }
+    [class*='dx-datagrid-headers'] {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    [class*='dx-column-lines dx-row-alt dx-state-hover'] > td {
+        background-color: #dbeafe !important;
+    }
+
+    [class*='dx-column-lines dx-state-hover'] > td {
+        background-color: #dbeafe !important;
+    }
+}

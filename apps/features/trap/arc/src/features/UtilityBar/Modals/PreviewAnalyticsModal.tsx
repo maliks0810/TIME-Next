@@ -58,11 +58,13 @@ export default function PreviewAnalyticsModal({
     isOpen,
     toggleModal,
     messageApi,
+    assetId,
 }: {
     aladdinId: string;
     isOpen: boolean;
     toggleModal: () => void;
     messageApi: MessageInstance;
+    assetId?: string;
 }) {
     const [isLoading, setIsLoading] = useState(false);
     const [isFileLoading, setIsFileLoading] = useState(false);
@@ -77,7 +79,7 @@ export default function PreviewAnalyticsModal({
     };
 
     const fetchPreviewAnalyticsOverride = async () => {
-        const assetAnalyticsSetupId = searchParams.get('assetId');
+        const assetAnalyticsSetupId = searchParams.get('assetId') || assetId;
 
         if (!assetAnalyticsSetupId) {
             return;
@@ -110,7 +112,7 @@ export default function PreviewAnalyticsModal({
     }, [isOpen]);
 
     const downloadAnalyticsOverride = async () => {
-        const assetAnalyticsSetupId = searchParams.get('assetId');
+        const assetAnalyticsSetupId = searchParams.get('assetId') || assetId;
 
         if (!assetAnalyticsSetupId) {
             return;

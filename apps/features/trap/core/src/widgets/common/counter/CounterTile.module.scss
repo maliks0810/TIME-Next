@@ -1,0 +1,36 @@
+.container {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+        margin: 0;
+        font-size: 1em;
+    }
+
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    height: 100%;
+}
+.top {
+    order: 0;
+}
+.bottom {
+    order: 1;
+    margin-top: auto !important;
+}
+.content {
+    display: flex;
+    align-items: flex-end;
+}
+.prefix {
+    flex: 0;
+}
+.suffix {
+    flex: 0;
+}
+.value {
+    flex: 1;
+    font-size: 1.5rem;
+}
