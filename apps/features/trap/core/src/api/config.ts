@@ -1,5 +1,4 @@
-export const GRAPHQL_URL =
-    import.meta.env.VITE_APP_GRAPHQL_URL ?? ' https://rar-trap-agql-qa.np.tcw.com';
+export const GRAPHQL_URL = import.meta.env.VITE_APP_GRAPHQL_URL;
 
 // Optional defaults (leave blank to select from Templates list at runtime)
 export const DEFAULT_TEMPLATE_VERSION_ID = import.meta.env.VITE_DEFAULT_TEMPLATE_VERSION_ID ?? '';

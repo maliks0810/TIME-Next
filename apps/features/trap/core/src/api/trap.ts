@@ -4,7 +4,7 @@
 
 type GqlResponse<T> = { data?: T; errors?: Array<{ message: string }> };
 
-const GRAPHQL_URL = import.meta.env.VITE_APP_GRAPHQL_URL || ' https://rar-trap-agql-qa.np.tcw.com';
+const GRAPHQL_URL = import.meta.env.VITE_APP_GRAPHQL_URL;
 
 function getIdentityHeaders(): Record<string, string> {
     const debugUser = localStorage.getItem('debug-user');
@@ -67,6 +67,8 @@ export type TemplateSummary = {
     createdByUserId?: string;
     updatedByUserId?: string;
     sourceTemplateId?: string | null;
+    scopeType?: 'USER' | 'AUDIENCE';
+    scopeKey?: Record<string, string>;
     class1?: string;
     class2?: string;
     class3?: string;

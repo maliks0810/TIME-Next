@@ -16,11 +16,13 @@ type WidgetPickerModalProps = {
     selectedWidgetDefId: string;
     selectedWidgetVariantId?: string;
     selectedWidgetDef?: any;
+    selectedParams: { [key: string]: string | number };
     onClose: () => void;
     onSearchChange: (value: string) => void;
     onCategoryChange: (value: string) => void;
     onSelectWidget: (widgetId: string) => void;
     onSelectVariant: (variantId?: string) => void;
+    onSelectParams: (params?: any) => void;
     onAddWidget: () => void;
 };
 
@@ -28,6 +30,9 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
     const { token } = theme.useToken();
     const { themeName } = useTheme();
     const surfaceMeta = getThemeSurfaceMeta(themeName);
+
+    const selectedWidgetRequiredFields = props.selectedWidgetDef?.configSchema?.required;
+    const isSelectedWidgetHasRequiredFields = selectedWidgetRequiredFields?.length > 0;
 
     const isDarkHud =
         themeName === 'dark' ||
@@ -218,6 +223,95 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                     </div>
                                 </div>
 
+                                {isSelectedWidgetHasRequiredFields
+                                    ? selectedWidgetRequiredFields?.map((requiredField: string) => {
+                                          let inputComponent;
+                                          if (
+                                              props.selectedWidgetDef.configSchema.properties[
+                                                  requiredField
+                                              ]?.enum
+                                          ) {
+                                              const selectValue = props.selectedParams[
+                                                  requiredField
+                                              ]
+                                                  ? props.selectedParams[requiredField]
+                                                  : props.selectedWidgetDef.configSchema.properties[
+                                                        requiredField
+                                                    ]?.enum[0];
+                                              inputComponent = (
+                                                  <Select
+                                                      value={selectValue}
+                                                      onChange={(fieldName) =>
+                                                          props.onSelectParams(
+                                                              (params: {
+                                                                  [key: string]: string;
+                                                              }) => ({
+                                                                  ...params,
+                                                                  [requiredField]: fieldName,
+                                                              })
+                                                          )
+                                                      }
+                                                      placeholder={
+                                                          props.selectedWidgetDef.configSchema
+                                                              .properties[requiredField]?.title
+                                                      }
+                                                      style={{ width: '100%', marginTop: 8 }}
+                                                      options={(
+                                                          props.selectedWidgetDef.configSchema
+                                                              .properties[requiredField]?.enum ?? []
+                                                      ).map((fieldName: string) => ({
+                                                          value: fieldName,
+                                                          label: fieldName,
+                                                      }))}
+                                                  />
+                                              );
+                                          } else {
+                                              const inputValue = props.selectedParams[requiredField]
+                                                  ? props.selectedParams[requiredField]
+                                                  : props.selectedWidgetDef.configSchema.properties[
+                                                        requiredField
+                                                    ]?.default;
+
+                                              inputComponent = (
+                                                  <Input
+                                                      value={inputValue}
+                                                      style={{ width: '100%', marginTop: 8 }}
+                                                      onChange={(e) =>
+                                                          props.onSelectParams(
+                                                              (params: {
+                                                                  [key: string]: string;
+                                                              }) => ({
+                                                                  ...params,
+                                                                  [requiredField]: e.target.value,
+                                                              })
+                                                          )
+                                                      }
+                                                      placeholder={
+                                                          props.selectedWidgetDef.configSchema
+                                                              .properties[requiredField]?.title
+                                                      }
+                                                  />
+                                              );
+                                          }
+
+                                          return (
+                                              <div key={requiredField}>
+                                                  <Typography.Text
+                                                      strong
+                                                      style={{ fontSize: 12, color: titleColor }}
+                                                  >
+                                                      {
+                                                          props.selectedWidgetDef.configSchema
+                                                              .properties[requiredField]?.title
+                                                      }
+                                                      *
+                                                  </Typography.Text>
+                                                  {inputComponent}
+                                              </div>
+                                          );
+                                      })
+                                    : null}
+
                                 <div>
                                     <Typography.Text
                                         strong
@@ -231,9 +325,9 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                         placeholder="Widget variant"
                                         style={{ width: '100%', marginTop: 8 }}
                                         options={(props.selectedWidgetDef?.variants ?? []).map(
-                                            (v: any) => ({
-                                                value: v.id,
-                                                label: v.label,
+                                            (variant: any) => ({
+                                                value: variant.id,
+                                                label: variant.label,
                                             })
                                         )}
                                     />
@@ -293,7 +387,11 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                     <button
                                         key={d.id}
                                         type="button"
-                                        onClick={() => props.onSelectWidget(d.id)}
+                                        onClick={() => {
+                                            props.onSelectWidget(d.id);
+                                            // params cleanup on selected widget change
+                                            props.onSelectParams({});
+                                        }}
                                         style={{
                                             textAlign: 'left',
                                             borderRadius: 18,
@@ -369,7 +467,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                                         name: d.name,
                                                         description: d.description,
                                                         category:
-                                                            d?.category ?? d?.uiHints?.category,
+                                                            d?.uiHints?.category ?? d?.category,
                                                         datasetId: d?.datasetId,
                                                         variants: Array.isArray(d?.variants)
                                                             ? d.variants.map((v: any) => ({
@@ -395,7 +493,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                             }}
                                         >
                                             <Tag style={{ marginInlineEnd: 0 }}>
-                                                {d?.category ?? d?.uiHints?.category ?? 'Other'}
+                                                {d?.uiHints?.category ?? d?.category ?? 'Other'}
                                             </Tag>
                                             {Array.isArray(d?.variants) && d.variants.length > 0 ? (
                                                 <Tag color="blue" style={{ marginInlineEnd: 0 }}>

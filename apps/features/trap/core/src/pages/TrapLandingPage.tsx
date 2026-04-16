@@ -12,7 +12,7 @@ import { cloneTemplate, openTemplate } from '../api/trap';
 import type { ContextBus, WorkflowContext } from '../state/contextBus';
 import { createContextBus } from '../state/contextBus';
 
-import { getDefaultLandingTemplate, setDefaultLandingTemplate } from '../utils/userPreferences';
+import { setDefaultLandingTemplate } from '../utils/userPreferences';
 
 type WorkflowTabModel = {
     key: string;
@@ -47,17 +47,10 @@ export default function TrapLandingPage() {
 
     const [activeKey, setActiveKey] = React.useState<string>('landing');
     const [workflows, setWorkflows] = React.useState<WorkflowTabModel[]>([]);
-    const [landingSelection, setLandingSelection] = React.useState<HudLandingSelection | undefined>(
-        () => {
-            const saved = getDefaultLandingTemplate();
-            if (!saved?.templateId || !saved?.versionId) return undefined;
 
-            return {
-                templateId: saved.templateId,
-                templateVersionId: saved.versionId,
-            };
-        }
-    );
+    const [landingSelection, setLandingSelection] = React.useState<
+        HudLandingSelection | undefined
+    >();
 
     const addWorkflowTab = React.useCallback((ws: OpenWorkflowRequest) => {
         setWorkflows((prev) => {

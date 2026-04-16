@@ -3,7 +3,10 @@ import { Card, theme } from 'antd';
 
 import { useTheme, getThemeSurfaceMeta } from '../../theme/ThemeContext';
 
-export default function WidgetCardShell(props: { children: React.ReactNode }) {
+export default function WidgetCardShell(props: {
+    style?: Record<string, string>;
+    children: React.ReactNode;
+}) {
     const { token } = theme.useToken();
     const { themeName } = useTheme();
     const surfaceMeta = getThemeSurfaceMeta(themeName);
@@ -32,8 +35,9 @@ export default function WidgetCardShell(props: { children: React.ReactNode }) {
               background: token.colorBgContainer,
           };
 
+    const style = { ...cardStyle, ...props.style };
     return (
-        <Card size="small" bodyStyle={{ padding: 12, height: '100%' }} style={cardStyle}>
+        <Card size="small" bodyStyle={{ padding: 12, height: '100%' }} style={style}>
             {props.children}
         </Card>
     );
