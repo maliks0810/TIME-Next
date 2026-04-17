@@ -55,3 +55,4 @@ export const ABANDON_BUTTON_HELPTEXT = 'Enabled only when status is neither ANAL
 export const PREVIEW_BOND_BUTTON_TEXT = 'Enabled only when collateral type is CES, NPL or NQM';
 export const PREVIEW_ANALYTICS_BUTTON_TEXT = 'Enabled only when analytics are available.';
 export const PREVIEW_STATIC_BUTTON_TEXT = 'Enabled only when an asset has call/speed overrides.';
+export const MANUAL_BUTTON_HELP_TEXT = 'Click this button to switch to manual mode.';
