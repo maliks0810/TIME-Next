@@ -30,3 +30,9 @@ export const postVerifyAnalyticsOnAladdin = (payload: PublishRequestPayload) =>
         ...payload,
         status: 'ANALYTICS VERIFIED IN ALADDIN',
     });
+
+export const postPushToManual = (payload: PublishRequestPayload) =>
+    serviceRequest(updateStatusUrl)().post('', {
+        ...payload,
+        status: 'MANUAL',
+    });
