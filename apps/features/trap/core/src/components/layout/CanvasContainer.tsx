@@ -3,7 +3,7 @@ import React from 'react';
 import GridLayout from 'react-grid-layout';
 
 export const APP_SHELL_WIDTH = 1920;
-export const CANVAS_WIDTH = 1888;
+export const CANVAS_WIDTH = 12;
 
 type CanvasContainerProps = {
     children: React.ReactNode;
@@ -50,7 +50,7 @@ export default function CanvasContainer({
                         margin: [0, 0],
                         containerPadding: [0, 0],
                     }}
-                    width={CANVAS_WIDTH}
+                    width={APP_SHELL_WIDTH}
                     layout={layout as any}
                     onLayoutChange={(layout: any) => {
                         if (!isInitialLoading && onLayoutChange) {
