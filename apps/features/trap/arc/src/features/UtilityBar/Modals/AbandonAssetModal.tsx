@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { message, Modal, Input } from 'antd';
-import { useUserInfo } from '@platform/utils';
 import { abandonAsset } from '../lib/services';
 
 export const AbandonAssetModal = ({
@@ -12,8 +11,6 @@ export const AbandonAssetModal = ({
     onClose: () => void;
     assetAnalyticsSetupId?: number | null | undefined;
 }) => {
-    const user = useUserInfo();
-    const useremail = user.email;
     const [messageApi, contextHolder] = message.useMessage();
     const [notes, setNotes] = useState<string>();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -29,7 +26,6 @@ export const AbandonAssetModal = ({
             await abandonAsset({
                 assetAnalyticsSetupId,
                 noteText: notes ? notes : '',
-                updatedBy: useremail,
             });
 
             messageApi.success('Asset Abandoned succesfully.');

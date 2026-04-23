@@ -1,4 +1,3 @@
-import axios from 'axios';
 import {
     UpdateStatusRequest,
     AnalyticsInputRequestCollection,
@@ -17,8 +16,7 @@ import {
     AbandonAssetPayload,
 } from './types';
 
-const DEFAULT_CONTENT_TYPE = 'application/json';
-const DEFAULT_TIMEOUT = 120000; // 2 min
+import { serviceRequest } from './serviceUtils';
 
 const statusCheckUrl =
     import.meta.env.VITE_R2_TRAP_PRISM_SERVICE + '/api/v1/new-asset/status?user=gatska';
@@ -74,24 +72,6 @@ const getModelInputByIdUrl =
     import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/get-analytics-input-by-id';
 
 const claimAssetUrl = import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/claim-asset?';
-
-export const generateUUID = (): string => crypto.randomUUID();
-
-export const serviceRequest =
-    (
-        baseURL: string,
-        contentType: string = DEFAULT_CONTENT_TYPE,
-        timeout: number = DEFAULT_TIMEOUT
-    ) =>
-    () =>
-        axios.create({
-            baseURL,
-            timeout,
-            headers: {
-                'Content-Type': contentType,
-                'X-Correlation-ID': generateUUID(),
-            },
-        });
 
 export const fetchStatus = () => serviceRequest(statusCheckUrl)().post<StatusResponse>('');
 

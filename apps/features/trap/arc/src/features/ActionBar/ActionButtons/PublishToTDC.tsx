@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Button, Modal, Tooltip } from 'antd';
-import { useUserInfo } from '@platform/utils';
 import { useSearchParams } from 'react-router-dom';
 import { postVerifyAnalyticsOnAladdin } from '../lib/services';
 import { normalizeStatus } from '../../../lib/helpers';
@@ -20,8 +19,6 @@ export const PublishToTDCButton = ({
 }: PublishToTDCButtonProps) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [searchParams] = useSearchParams();
-    const userInfo = useUserInfo();
-    const username = userInfo.email;
     const [isPublishToTDCModalOpen, setIsPublishToTDCModalOpen] = useState<boolean>(false);
 
     const handlePublishToTDCCloseModal = () => {
@@ -43,12 +40,11 @@ export const PublishToTDCButton = ({
     }
     const handleVerifyOnAladdin = async () => {
         const assetId = searchParams.get('assetId');
-        if (!username || !assetId) return;
+        if (!assetId) return;
         setIsLoading(true);
         try {
             await postVerifyAnalyticsOnAladdin({
                 assetAnalyticsSetupId: +assetId,
-                updatedBy: username,
             });
             messageApi.success('Verification on Aladdin recorded.');
             /* eslint-disable-next-line @typescript-eslint/no-explicit-any */

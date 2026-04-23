@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Button, Modal, Tooltip } from 'antd';
-import { useUserInfo } from '@platform/utils';
 import { useSearchParams } from 'react-router-dom';
 import { postPushToManual } from '../lib/services';
 import { normalizeStatus } from '../../../lib/helpers';
@@ -20,8 +19,6 @@ export const PushToManualButton = ({
 }: PushToManualButtonProps) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [searchParams] = useSearchParams();
-    const userInfo = useUserInfo();
-    const username = userInfo.email;
     const [isPushtoManualModalOpen, setIsPushtoManualModalOpen] = useState<boolean>(false);
 
     const handlePushtoManualCloseModal = () => {
@@ -43,12 +40,11 @@ export const PushToManualButton = ({
     }
     const handlePushToManual = async () => {
         const assetId = searchParams.get('assetId');
-        if (!username || !assetId) return;
+        if (!assetId) return;
         setIsLoading(true);
         try {
             await postPushToManual({
                 assetAnalyticsSetupId: +assetId,
-                updatedBy: username,
             });
             messageApi.success('Pushed to Manual Bucket.');
             /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
