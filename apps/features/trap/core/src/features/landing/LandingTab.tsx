@@ -8,7 +8,7 @@ import { Alert } from 'antd';
 export default function LandingTab(props: LandingTabProps) {
     const { bus, snapshot, openWorkflowFromRecent, compiledLandingVersion, hasLanding, isLoading } =
         useLanding(props);
-    console.log(compiledLandingVersion, isLoading);
+
     if (isLoading) {
         return null;
     }

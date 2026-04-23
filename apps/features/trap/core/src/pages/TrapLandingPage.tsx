@@ -13,6 +13,7 @@ import type { ContextBus, WorkflowContext } from '../state/contextBus';
 import { createContextBus } from '../state/contextBus';
 
 import { setDefaultLandingTemplate } from '../utils/userPreferences';
+import { useGetActiveTab, useSetActiveTab } from '../state/Tabs/hooks';
 
 type WorkflowTabModel = {
     key: string;
@@ -45,8 +46,9 @@ const TAB_BAR_HEIGHT = 48;
 export default function TrapLandingPage() {
     const nav = useNavigate();
 
-    const [activeKey, setActiveKey] = React.useState<string>('landing');
     const [workflows, setWorkflows] = React.useState<WorkflowTabModel[]>([]);
+    const activeKey = useGetActiveTab();
+    const setActiveKey = useSetActiveTab();
 
     const [landingSelection, setLandingSelection] = React.useState<
         HudLandingSelection | undefined
@@ -68,16 +70,21 @@ export default function TrapLandingPage() {
         setWorkflows((prev) => {
             const next = prev.filter((x) => x.workflowId !== workflow);
 
-            setActiveKey((current) => {
-                if (current !== workflow) return current;
-                if (next.length === 0) return 'landing';
+            let newActiveKey;
 
+            if (activeKey !== workflow) {
+                newActiveKey = activeKey;
+            } else if (next.length === 0) {
+                newActiveKey = 'landing';
+            } else {
                 const closedIdx = prev.findIndex((x) => x.workflowId === workflow);
                 const fallback =
                     next[Math.min(closedIdx, next.length - 1)] ?? next[next.length - 1];
 
-                return fallback?.workflowId ?? 'landing';
-            });
+                newActiveKey = fallback?.workflowId ?? 'landing';
+            }
+
+            setActiveKey(newActiveKey);
 
             return next;
         });

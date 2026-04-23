@@ -8,20 +8,11 @@ import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingSt
 import styles from './ArcDashboardWidget.module.scss';
 import { PreviewCustomCellRenderer } from './PreviewCustomCellRenderer';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PreviewModals } from './PreviewModals';
 import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState';
-
-export interface AnalyticsSummaryData {
-    assetAnalyticsSetupId: number;
-    aladdinId: string;
-    assetType: string;
-    status: string;
-    createdDate: string;
-    lastModifiedDate: string;
-    claimedBy: string;
-    collateralType: string;
-}
+import { useGetWidgetValue } from '../../../state/Widgets/hooks';
+import { COUNTER_TILE_STORE_KEY } from '../../constants';
 
 export default function ArcDashboardWidget(props: WidgetComponentProps) {
     const [messageApi, contextHolder] = message.useMessage();
@@ -34,6 +25,29 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
         aladdinId: null,
         assetId: null,
     });
+
+    const counterTileValue = useGetWidgetValue({
+        channelId: props?.widgetInstance?.config?.params?.channel,
+        key: COUNTER_TILE_STORE_KEY,
+    });
+    const [dataSource, setDataSource] = useState<any[]>(props.result?.rows as any[]);
+
+    useEffect(() => {
+        if (props.result?.rows) {
+            setDataSource(props.result?.rows as any[]);
+        }
+    }, [props.result?.rows]);
+
+    useEffect(() => {
+        const originalRows = props.result?.rows as any;
+        if (counterTileValue && originalRows?.length > 0) {
+            setDataSource(() =>
+                originalRows?.filter(({ status }: any) => status === counterTileValue)
+            );
+        } else {
+            setDataSource(originalRows);
+        }
+    }, [counterTileValue]);
 
     if (props.loading) {
         return (
@@ -67,7 +81,7 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
             </WidgetCardShell>
         );
     }
-    const { columns = [], rows = [] } = props.result;
+
     return (
         <>
             {contextHolder}
@@ -78,9 +92,10 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
             />
             <WidgetCardShell>
                 <DataGrid
+                    key={props.widgetInstance.id}
                     className={styles.grid}
                     /* TODO: fix rows type */
-                    dataSource={rows as Array<{ assetAnalyticsSetupId: string }>}
+                    dataSource={dataSource as Array<{ assetAnalyticsSetupId: string }>}
                     allowColumnReordering={false}
                     rowAlternationEnabled
                     hoverStateEnabled
@@ -104,7 +119,7 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
                     />
                     <HeaderFilter visible />
                     {/* TODO: fix columns type */}
-                    {(columns as Array<unknown>).map((columnOptions: any) => (
+                    {(props.result.columns as Array<unknown>).map((columnOptions: any) => (
                         <Column {...columnOptions} key={columnOptions.dataField} />
                     ))}
                     <Column
@@ -113,7 +128,7 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
                         allowFiltering={false}
                         allowSorting={false}
                         alignment="center"
-                        width="4vw"
+                        width={60}
                         cellRender={({ data }) => (
                             <PreviewCustomCellRenderer
                                 data={data}

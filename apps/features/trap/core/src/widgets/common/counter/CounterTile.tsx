@@ -5,6 +5,9 @@ import styles from './CounterTile.module.scss';
 import { Typography } from 'antd';
 import { useMemo } from 'react';
 import { WidgetConfigProperty } from '../../../features/widget-studio/components/PropertyConfig';
+import { useGetWidgetValue, useSetWidgetValue } from '../../../state/Widgets/hooks';
+import { COUNTER_TILE_STORE_KEY } from '../../constants';
+import { useGetActiveTab } from '../../../state/Tabs/hooks';
 
 const getWidgetValues = (
     config: Record<string, any>,
@@ -31,12 +34,25 @@ const getWidgetValues = (
         numberFormat,
     };
 };
+
 export const CounterTileWidget = (props: WidgetComponentProps) => {
     const {
         widgetInstance: { config = {} },
         widgetDefinition,
         result,
     } = props;
+
+    const key = COUNTER_TILE_STORE_KEY;
+
+    const setWidgetValueToChannel = useSetWidgetValue();
+    const counterTileValue = useGetWidgetValue({
+        channelId: config.params?.channel,
+        key,
+    });
+    const activeTab = useGetActiveTab();
+
+    const channelId = config.params?.channel;
+    const value = config.params?.filter || null;
 
     const configSchema = widgetDefinition?.configSchema;
     const properties = configSchema?.properties || {};
@@ -45,6 +61,15 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
         () => getWidgetValues(config, properties),
         [config, properties]
     );
+
+    const handleClick = () => {
+        setWidgetValueToChannel({
+            key,
+            channelId,
+            value: counterTileValue === value ? null : value,
+            activeTab,
+        });
+    };
 
     const widgetStyles = useMemo(() => {
         const styleObject = { titlePosition: '' };
@@ -92,8 +117,11 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
 
     return (
         <WidgetCardShell style={widgetColor}>
-            <div className={styles.container}>
-                <Typography.Title level={5} className={widgetStyles.titlePosition}>
+            <div className={styles.container} onClick={handleClick}>
+                <Typography.Title
+                    level={5}
+                    className={`${widgetStyles.titlePosition} ${value === counterTileValue ? styles.activeTile : ''}`}
+                >
                     {widgetTextTitle}
                 </Typography.Title>
                 <div className={styles.content}>
