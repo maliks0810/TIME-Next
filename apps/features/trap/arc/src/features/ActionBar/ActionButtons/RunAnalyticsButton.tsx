@@ -53,7 +53,6 @@ export const RunAnalyticsButton = ({ messageApi, selectedAssetStatus, selectedPa
         const payload = {
             assetAnalyticsSetupId: +assetId,
             status,
-            updatedBy: username,
         };
 
         try {

@@ -1,6 +1,5 @@
 export type AbandonAssetPayload = {
     assetAnalyticsSetupId: number | null | undefined;
-    updatedBy: string;
     noteText: string;
 };
 

@@ -6,7 +6,6 @@ import { ActionBar } from '../ActionBar';
 import { UtilityBar } from '../UtilityBar';
 import { RowDataType } from '../AnalyticsTable/lib/types';
 import { AnalyticsRequest } from '../../lib/types';
-import { useUserInfo } from '@platform/utils';
 import { updateAnalyticsOverrides } from '../../lib/services';
 
 const getValueToPublish = (row: RowDataType) => {
@@ -40,7 +39,6 @@ function NewAssetsContent({
     const [isActionInprogress, setIsActionInprogress] = useState(false);
 
     const [messageApi, contextHolder] = message.useMessage();
-    const user = useUserInfo();
 
     const handleSaveAnalyticsOverride = async () => {
         const fields = form.getFieldValue('rows') || {};
@@ -54,7 +52,7 @@ function NewAssetsContent({
             return acc;
         }, {});
 
-        if (!user.email || !selectedRowRequestId) return;
+        if (!selectedRowRequestId) return;
         setIsAnalitycsSavePending(true);
         try {
             await updateAnalyticsOverrides({
@@ -63,7 +61,6 @@ function NewAssetsContent({
                         ...valuesToPublish,
                         noteText: form.getFieldValue('noteTextArea'),
                         noteType: 'AOR',
-                        modifiedBy: user.email,
                     } satisfies AnalyticsRequest,
                 ],
             });

@@ -170,7 +170,6 @@ export type NewAssetAnalytics = {
 export type UpdateStatusRequest = {
     assetAnalyticsSetupId: number;
     status: string;
-    updatedBy: string;
 };
 
 export type Scenario = {
@@ -183,7 +182,6 @@ export type AnalyticsInputRequest = {
     aladdinId: string;
     assetType: string;
     price: number;
-    updatedBy: string | undefined;
     payload: Scenario[];
 };
 
@@ -229,14 +227,12 @@ export type AnalyticsRequest = {
     yieldToWorst: number | null;
     zvWal: number | null;
     zvYield: number | null;
-    modifiedBy: string;
 
     staticYield: number | null;
     modelOad: number | null;
     modelOac: number | null;
     volDur: number | null;
     assetId: string | null;
-    claimedBy: string | null;
     claimedAt: string | null;
     oav: number | null;
     inflDuration: number | null;
@@ -280,7 +276,6 @@ export type AnalyticsStatus =
 
 export type VerifyAnalyticsRequest = {
     assetAnalyticsSetupId: number;
-    updatedBy: string;
 };
 
 export type PublishAnalyticsInputResponse = {
@@ -331,9 +326,9 @@ export type RequestNewAssetPayload = {
 
 export type AbandonAssetPayload = {
     assetAnalyticsSetupId: number | null | undefined;
-    updatedBy: string;
     noteText: string;
 };
+
 export type TRAPDatePickerProps = {
     id?: string;
     style?: React.CSSProperties;
@@ -353,7 +348,6 @@ export type AnchorType = 'NAAID';
 export type Claim = {
     anchorType: AnchorType;
     anchorId: number;
-    claimedBy: string;
 };
 
 export type ClaimAssetPayload = {
