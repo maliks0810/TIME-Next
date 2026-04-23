@@ -17,8 +17,7 @@ export const LinkWidget = ({ widgetInstance, widgetDefinition }: WidgetComponent
 
     const url = useMemo(() => {
         const url = config?.params?.url;
-        const sanitizedUrl = url.replaceAll('https://', '').replaceAll('http://');
-        return `https://${sanitizedUrl}`;
+        return url ? `https://${url?.replaceAll('https://', '').replaceAll('http://')}` : '';
     }, [config]);
 
     const target = useMemo(() => (isNewTab ? '_blank' : '_self'), [isNewTab]);

@@ -12,6 +12,11 @@
     justify-content: space-between;
     flex-direction: column;
     height: 100%;
+    cursor: pointer;
+}
+
+.activeTile {
+    border-bottom: 2px solid rgb(0, 195, 255);
 }
 .top {
     order: 0;
