@@ -103,8 +103,7 @@ export function useLanding(props: LandingTabProps) {
 
             return (
                 item?.scopeKey?.['OrgLevel1'] === claims.OrgLevel1 &&
-                item?.scopeKey?.['OrgLevel2'] === claims.OrgLevel2 &&
-                item?.scopeKey?.['OrgLevel4'] === claims.OrgLevel4
+                item?.scopeKey?.['OrgLevel2'] === claims.OrgLevel2
             );
         });
         return template;
