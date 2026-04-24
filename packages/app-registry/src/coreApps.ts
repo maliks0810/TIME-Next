@@ -38,7 +38,7 @@ export const coreApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
         subHeader: NavbarSubHeader.Risk,
         id: 'arc-dashboard',
         name: 'arc-dashboard',
-        title: 'ARC Dashboard',
+        title: 'ARC Dashboard (Beta)',
         env: HighestEnv.prod,
         entryPointUrl: '/trap',
         path: '/trap/*',
