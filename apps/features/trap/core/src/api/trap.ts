@@ -6,7 +6,23 @@ type GqlResponse<T> = { data?: T; errors?: Array<{ message: string }> };
 
 const GRAPHQL_URL = import.meta.env.VITE_APP_GRAPHQL_URL;
 
+function getBearerToken(): string {
+    const STORAGE_KEY = 'okta-token-storage';
+    const rawData = localStorage.getItem(STORAGE_KEY);
+    
+    if (!rawData) return '';
+
+    try {
+        const parsed = JSON.parse(rawData);
+        return parsed?.idToken?.idToken || '';
+    } catch (err) {
+        console.error('Error parsing auth token:', err);
+        return '';
+    }
+}
+
 function getIdentityHeaders(): Record<string, string> {
+    const token = getBearerToken();
     const debugUser = localStorage.getItem('debug-user');
     const debugLogin = debugUser;
     const debugUserId = debugUser;
@@ -28,6 +44,7 @@ function getIdentityHeaders(): Record<string, string> {
 
     return {
         'content-type': 'application/json',
+        'authorization': token ? `Bearer ${token}` : '',
         'x-user-login': login,
         'x-user-id': userId,
         'x-user-email': email,
