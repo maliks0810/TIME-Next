@@ -13,6 +13,7 @@ import { PreviewModals } from './PreviewModals';
 import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState';
 import { useGetWidgetValue } from '../../../state/Widgets/hooks';
 import { COUNTER_TILE_STORE_KEY } from '../../constants';
+import { StatusCustomCellRenderer } from './StatusCustomeRenderer';
 
 export default function ArcDashboardWidget(props: WidgetComponentProps) {
     const [messageApi, contextHolder] = message.useMessage();
@@ -119,9 +120,17 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
                     />
                     <HeaderFilter visible />
                     {/* TODO: fix columns type */}
-                    {(props.result.columns as Array<unknown>).map((columnOptions: any) => (
-                        <Column {...columnOptions} key={columnOptions.dataField} />
-                    ))}
+                    {(props.result.columns as Array<unknown>).map((columnOptions: any) =>
+                        columnOptions.dataField === 'status' ? (
+                            <Column
+                                {...columnOptions}
+                                key={columnOptions.dataField}
+                                cellRender={StatusCustomCellRenderer}
+                            />
+                        ) : (
+                            <Column {...columnOptions} key={columnOptions.dataField} />
+                        )
+                    )}
                     <Column
                         caption="Preview"
                         allowEditing={false}
