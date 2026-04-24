@@ -72,6 +72,10 @@ $dashboard-light-gray: #f3f3f5;
 
 .dashboard-grid
 {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+
   .dx-header-row
   {
     td
