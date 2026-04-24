@@ -20,4 +20,17 @@
     [class*='dx-column-lines dx-state-hover'] > td {
         background-color: #dbeafe !important;
     }
+    [class*='dx-header-row'] {
+        td {
+            text-align: center !important;
+            background-color: #22425f;
+            color: white;
+        }
+        [class*='dx-datagrid-text-content'] {
+            white-space: normal !important;
+            word-break: break-word;
+            line-height: 1.2;
+            text-align: center;
+        }
+    }
 }
