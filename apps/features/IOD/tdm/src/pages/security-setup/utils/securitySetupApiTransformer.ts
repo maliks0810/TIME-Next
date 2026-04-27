@@ -99,7 +99,7 @@ export const transformToApiDomain = (
                 : payload.cdiFileUploadedToAnser === 'no'
                   ? false
                   : null,
-        AladdinCdiId: payload.aladdinCDIId || '',
+        AladdinCdiId: payload.aladdinCdiId || '',
         IsPrivateDeal: payload.isPrivateDeal || false,
         SsapIdPassword: payload.ssapIdPassword || '',
         IsSsapReleaseRequestSentToDm: payload.isSsapReleaseRequestSentToDm || false,
@@ -109,15 +109,9 @@ export const transformToApiDomain = (
         MarketSectorTypeValue: payload.marketSector || '',
         YellowKey: payload.yellowKey || '',
         IsEuSecuritizationRequired: payload.isEuSecuritizationRequired ?? null,
-        EuSecuritizationTipEuId: !!payload.securityDetails?.euSecuritizationTipEuId
-            ? payload.securityDetails?.euSecuritizationTipEuId
-            : payload.euSecuritizationTipEuId || undefined,
-        EuSecuritizationStatusValue: !!payload.securityDetails?.euSecuritizationStatus
-            ? payload.securityDetails?.euSecuritizationStatus
-            : payload.euSecuritizationStatus || null,
-        ErisaStatusValue: !!payload.securityDetails?.erisaStatus
-            ? payload.securityDetails?.erisaStatus
-            : payload.erisaStatus || null,
+        EuSecuritizationTipEuId: payload.euSecuritizationTipEuId || '',
+        EuSecuritizationStatusValue:  payload.euSecuritizationStatus || null,
+        ErisaStatusValue:  payload.erisaStatus || null,
         IntexDealName: payload.intexDealName || '',
         IntexPassword: payload.intexPassword || '',
         DealName: payload.dealName || '',
@@ -213,7 +207,7 @@ export const transformFromApiPresentation = (
                 : presentation.isCdiFileUploadedToAnswer === false
                   ? 'no'
                   : null,
-        aladdinCDIId: presentation.aladdinCdiId || null,
+        aladdinCdiId: presentation.aladdinCdiId || null,
         isPrivateDeal: presentation.isPrivateDeal,
         ssapIdPassword: presentation.ssapIdPassword || null,
         isSsapReleaseRequestSentToDm: presentation.isSsapReleaseRequestSentToDm || false,
@@ -232,7 +226,6 @@ export const transformFromApiPresentation = (
 
         // Security details
         securityDetails: {
-            aladdinCDIId: presentation.aladdinCdiId || undefined,
             description: presentation.description || undefined,
             tranche: presentation.tranche || undefined,
             sectorValue: presentation.sectorValue || undefined,
@@ -241,9 +234,6 @@ export const transformFromApiPresentation = (
             callableValue: presentation.callableValue || undefined,
             cusip: presentation.cusip || undefined,
             identifier: presentation.identifierValue || undefined,
-            euSecuritizationTipEuId: presentation.euSecuritizationTipEuId || undefined,
-            euSecuritizationStatus: presentation.euSecuritizationStatusValue || undefined,
-            erisaStatus: presentation.erisaStatusValue || undefined,
         },
 
         // ESG fields (dropdown values)

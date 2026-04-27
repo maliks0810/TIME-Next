@@ -52,7 +52,7 @@ export interface IEnterIdentifierFormValues {
     // New Issue row
     newIssue?: string; // Select... dropdown
     cdiFileUploadedToAnser?: string; // Select... dropdown
-    aladdinCDIId?: string; // BDL123456 text
+    aladdinCdiId?: string; // BDL123456 text
 
     // EU Security row
     isEuSecuritizationRequired?: boolean; // Select... dropdown
@@ -68,7 +68,6 @@ export interface IEnterIdentifierFormValues {
 
 // Review Details - Security Details
 export interface ISecurityDetails {
-    aladdinCDIId?: string;
     identifier?: string;
     description?: string;
     tranche?: string;
@@ -163,5 +162,5 @@ export interface ISecuritySetupWizardData {
 export interface ISecurityFoundMessages {
     bloombergRetrieved: boolean;
     aladdinExists: boolean;
-    aladdinCDIId?: string;
+    aladdinCdiId?: string;
 }

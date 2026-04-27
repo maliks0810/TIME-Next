@@ -2,37 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { FormControl, TextField, RadioGroup, FormControlLabel, Radio, CircularProgress } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { IEnterIdentifierFormValues } from '../lib/types/securitySetupTypes';
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { SelectFormField } from '../../../common/components/SelectFormField';
 import { isNullOrEmpty } from '../../../utils/StringHelper';
+import { useIdentifierFields } from '../../../stores/selectors/securitySetupSelectors';
+import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
 
 interface EnterIdentifierPageProps {
-  formValues: IEnterIdentifierFormValues;
-  onFormChange: (values: Partial<IEnterIdentifierFormValues>) => void;
-  isReadOnly?: boolean;
   referenceData: INormalizedReferenceData | null;
   selectFieldErrors?: Partial<Record<string, string>>;
   onFileUpload?: (file: File) => void;
-  selectedFileName?: string | null;
-  uploadedFileName?: string | null;
-  isUploadingFile?: boolean;
-  fileUploadError?: string | null;
 }
 
 export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
-  formValues,
-  onFormChange,
-  isReadOnly = false,
   referenceData,
   selectFieldErrors = {},
   onFileUpload,
-  selectedFileName,
-  uploadedFileName,
-  isUploadingFile = false,
-  fileUploadError
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
+
+  const formValues = useIdentifierFields();
+  const { updateIdentifierFields } = useSecuritySetupStore();
 
   useEffect(() => {
     // if a request was duplicated, calculate these fields on load
@@ -41,23 +31,21 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
     const isPrivateDeal = !isNullOrEmpty(ssapIdPassword);
     const isSsapReleaseRequestSentToDm = isPrivateDeal;
 
-    onFormChange({
+    updateIdentifierFields({
       newIssue,
       isPrivateDeal,
       isSsapReleaseRequestSentToDm,
-      ...(newIssue === 'no' ? { aladdinCDIId: undefined } : {})
     });
   }, []);
 
+  const isReadOnly = formValues.isReadOnly;
+  const isUploadingFile = formValues.isUploadingFile;
+  const fileUploadError = formValues.fileUploadError;
+  const selectedFileName = formValues.pendingUploadFile?.name ?? null;
+
   const normalizeYesNo = (value: unknown): string => {
-    if (value === 'yes' || value === true) {
-      return 'yes'
-    }
-
-    if (value === 'no' || value === false) {
-      return 'no'
-    }
-
+    if (value === 'yes' || value === true) return 'yes'
+    if (value === 'no' || value === false) return 'no'
     return ''
   }
 
@@ -97,25 +85,20 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
     }
   }
 
-  const setEuSecuritizationTipEuId = (euSecuritizationStatusValue?: string) => {
-    if (euSecuritizationStatusValue === 'Not Required') {
-      { formValues.euSecuritizationTipEuId = undefined };
-    }
-    return formValues.euSecuritizationTipEuId || '';
-  }
 
   const effectiveNewIssue = normalizeYesNo(formValues.newIssue);
 
-  const isYellowKeyVisable = false;
-  const handleTextChange = (field: keyof IEnterIdentifierFormValues) => (
+  const isYellowKeyVisible = false;
+
+  const handleTextChange = (field: keyof typeof formValues) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    if (field == "ssapIdPassword") {
+    if (field === "ssapIdPassword") {
       const ssapIdPassword = event.target.value;
       const isPrivateDeal = !isNullOrEmpty(ssapIdPassword);
       const isSsapReleaseRequestSentToDm = isPrivateDeal;
 
-      const updates: Partial<IEnterIdentifierFormValues> = {
+      const updates: Parameters<typeof updateIdentifierFields>[0] = {
         ssapIdPassword,
         isPrivateDeal,
         isSsapReleaseRequestSentToDm,
@@ -127,14 +110,11 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
         updates.newIssue = 'yes';
       }
 
-      onFormChange(updates);
-
+      updateIdentifierFields(updates);
       return;
     }
 
-    onFormChange({
-      [field]: event.target.value,
-    });
+    updateIdentifierFields({ [field]: event.target.value });
   };
 
   return (
@@ -161,7 +141,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             >
               {isUploadingFile ? (
                 <CircularProgress size={24} className='upload-progress-icon' />
-              ) : uploadedFileName ? (
+              ) : selectedFileName ? (
                 <CheckCircleIcon className='upload-success-icon' />
               ) : (
                 <InsertDriveFileIcon className='upload-doc-icon' />
@@ -169,8 +149,6 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               <div className="upload-text-wrapper">
                 {isUploadingFile ? (
                   <span className='upload-instruction'> Uploading file...</span>
-                ) : uploadedFileName ? (
-                  <span className='upload-instruction'>{uploadedFileName}</span>
                 ) : selectedFileName ? (
                   <>
                     <span className='upload-instruction'>
@@ -223,7 +201,10 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               <SelectFormField
                 fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
                 value={formValues.euSecuritizationStatus}
-                onChange={(value) => onFormChange({ euSecuritizationStatus: value })}
+                onChange={(value) => updateIdentifierFields({
+                  euSecuritizationStatus: value,
+                  ...(value === 'Not Required' ? { euSecuritizationTipEuId: undefined } : {})
+                })}
                 referenceData={referenceData}
                 disabled={isReadOnly || formValues.isEuSecuritizationRequired === false}
                 fullWidth={false}
@@ -235,7 +216,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               <label className="field-label">EU Securitization TIP EU ID</label>
               <TextField
                 fullWidth
-                value={setEuSecuritizationTipEuId(formValues.euSecuritizationStatus)}
+                value={formValues.euSecuritizationTipEuId || ""}
                 onChange={handleTextChange('euSecuritizationTipEuId')}
                 placeholder="Sample_TIP_ID"
                 variant="outlined"
@@ -249,7 +230,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               <SelectFormField
                 fieldKey={ReferenceDataFieldKey.ErisaStatus}
                 value={formValues.erisaStatus}
-                onChange={(value) => onFormChange({ erisaStatus: value })}
+                onChange={(value) => updateIdentifierFields({ erisaStatus: value })}
                 referenceData={referenceData}
                 disabled={isReadOnly}
                 fullWidth={false}
@@ -267,12 +248,12 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           <FormControl fullWidth>
             <RadioGroup
               value={effectiveNewIssue}
-              defaultValue={'yes'}
+              defaultValue="yes"
               onChange={(e) => {
                 const newIssue = e.target.value;
-                onFormChange({
+                updateIdentifierFields({
                   newIssue,
-                  ...(newIssue === 'no' ? { aladdinCDIId: undefined, ssapIdPassword: undefined } : {})
+                  ...(newIssue === 'no' ? { aladdinCdiId: undefined, ssapIdPassword: undefined } : {})
                 })
               }}
               row
@@ -296,8 +277,8 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
           <label className="field-label">Aladdin CDI ID</label>
           <TextField
             fullWidth
-            value={formValues.aladdinCDIId || ''}
-            onChange={handleTextChange('aladdinCDIId')}
+            value={formValues.aladdinCdiId || ''}
+            onChange={handleTextChange('aladdinCdiId')}
             placeholder="BDL123456"
             variant="outlined"
             disabled={isReadOnly || effectiveNewIssue.toLowerCase() === 'no'}
@@ -346,7 +327,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Identifier}
               value={formValues.identifierType}
-              onChange={(value) => onFormChange({ identifierType: value })}
+              onChange={(value) => updateIdentifierFields({ identifierType: value })}
               referenceData={referenceData}
               disabled={isReadOnly}
               fullWidth={false}
@@ -374,14 +355,14 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.MarketSector}
               value={formValues.marketSector}
-              onChange={(value) => onFormChange({ marketSector: value })}
+              onChange={(value) => updateIdentifierFields({ marketSector: value })}
               referenceData={referenceData}
               disabled={isReadOnly}
               fullWidth={false}
               className='field-input-half'
               errorText={selectFieldErrors[ReferenceDataFieldKey.MarketSector] ?? null}
             />
-            {isYellowKeyVisable && (
+            {isYellowKeyVisible && (
               <TextField
                 className="field-input-half"
                 label="Yellow Key"
@@ -394,9 +375,6 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             )}
           </div>
         </div>
-
-
-
       </div>
     </div >
   );
