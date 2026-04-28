@@ -38,7 +38,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
     updateSpeedOverrides,
     setNotesInstructions,
   } = useSecuritySetupStore();
-  const isEuSecuritizationTipDisabled = securityDetails?.euSecuritizationStatus?.toLowerCase() === 'not required' || securityDetails?.euSecuritizationStatus?.toLowerCase() === '';
+  const isEuSecuritizationTipDisabled = euSecuritizationStatus?.toLowerCase() === 'not required' || euSecuritizationStatus?.toLowerCase() === '';
 
   const setEuSecuritizationTipEuId = (euSecuritizationStatusValue?: string) => {
     if (euSecuritizationStatusValue === 'Not Required') {
@@ -500,7 +500,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <TextField
               fullWidth
               value={setEuSecuritizationTipEuId(euSecuritizationStatus)}
-              onChange={(e) => handleSecurityDetailsChange('euSecuritizationTipEuId', e.target.value)}
+              onChange={(e) => handleIdentifierFieldChange('euSecuritizationTipEuId', e.target.value)}
               disabled={isReadOnly || isEuSecuritizationTipDisabled}
               variant="outlined"
             />
@@ -514,7 +514,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               <SelectFormField
                 fieldKey={ReferenceDataFieldKey.ErisaStatus}
                 value={erisaStatus}
-                onChange={(value) => handleSecurityDetailsChange('erisaStatus', value)}
+                onChange={(value) => handleIdentifierFieldChange('erisaStatus', value)}
                 referenceData={referenceData}
                 fullWidth={false}
                 disabled={isReadOnly}
