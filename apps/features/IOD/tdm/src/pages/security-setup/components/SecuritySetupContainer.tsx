@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, IconButton, CircularProgress, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
@@ -21,12 +21,13 @@ import {
 } from '../lib/types/securitySetupTypes';
 import '../lib/styles.scss';
 import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
-
 import { ISecuritySetupRequestAttachment, ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 import { SecuritySetupService } from '../../../services/SecuritySetupService';
 import { useReferenceData } from '../hooks/useReferenceData';
 import { getStepNumber } from '../utils/securitySetupApiTransformer';
 import { ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
+import { ApiResponseError } from '../../../common/lib/ApiResponseError';
+import { ErrorModal } from '../../../common/components/ErrorModal';
 import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
 import {
   useWizardNavigation,
@@ -49,6 +50,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   initialData,
 }) => {
   const navigate = useNavigate();
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorModalBody, setErrorModalBody] = useState('');
   const { name: currentUser } = useUserInfo();
 
   // Server state hooks — stay as hooks, not in Zustand
@@ -265,6 +268,14 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       const savedData = await queueWizardSave(stepToSave, stepNumberToSave, allData, "complete");
       if (!savedData) return;
 
+      if (savedData instanceof Error) {
+        if (savedData instanceof ApiResponseError) {
+          setErrorModalBody(savedData.message);
+          setShowErrorModal(true);
+        }
+        return;
+      }
+
       // Upload any queued attachment now that we have a guaranteed request ID
       const requestId = savedData.securitySetupRequestId ?? securitySetupRequestId;
       let freshAttachments: ISecuritySetupRequestAttachment[] = [];
@@ -327,6 +338,14 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       { isSaveOnly: true },
     );
 
+    if (savedData instanceof Error) {
+      if (savedData instanceof ApiResponseError) {
+        setErrorModalBody(savedData.message);
+        setShowErrorModal(true);
+      }
+      return;
+    }
+
     if (savedData) {
       if (pendingUploadFile) {
         const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
@@ -362,6 +381,14 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     );
     closeConfirmModal();
 
+    if (finalSavedData instanceof Error) {
+      if (finalSavedData instanceof ApiResponseError) {
+        setErrorModalBody(finalSavedData.message);
+        setShowErrorModal(true);
+      }
+      return;
+    }
+
     if (onComplete) {
       if (finalSavedData) {
         mergeSavedResponse(finalSavedData);
@@ -374,6 +401,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   const handleCancelSubmit = () => closeConfirmModal();
 
+  const handleErrorModalClose = () => {
+    setShowErrorModal(false);
+  }
 
   const getStepTitle = (): string => {
     switch (currentStep) {
@@ -607,6 +637,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         open={showConfirmModal}
         onClose={handleCancelSubmit}
         onConfirm={handleConfirmSubmit}
+      />
+      <ErrorModal
+        header='Unable to save Security Setup Request'
+        body={errorModalBody}
+        open={showErrorModal}
+        onClose={handleErrorModalClose}
       />
     </div>
   );

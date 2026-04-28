@@ -1,4 +1,7 @@
 import { getApiBaseUrl } from '../constants/environments';
+import { tryParseJson } from '../utils/JsonHelper';
+import { ApiException, ApiResponseError } from '../common/lib/ApiResponseError';
+import { DUPLICATE_SECURITY_SETUP_REQUEST_EXCEPTION } from '../constants/errorConstants';
 import {
     transformFromApiPresentation,
     transformToApiDomain,
@@ -62,6 +65,13 @@ export const SecuritySetupService = {
                 }
             } catch {
                 // fall through to generic error message below
+            }
+
+            const apiException = tryParseJson<ApiException>(errorText)
+            if (apiException) {
+              if (apiException.type === DUPLICATE_SECURITY_SETUP_REQUEST_EXCEPTION) {
+                throw new ApiResponseError(apiException.title, apiException.type);
+              }
             }
 
             throw new Error(
