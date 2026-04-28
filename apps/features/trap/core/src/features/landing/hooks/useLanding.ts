@@ -19,6 +19,7 @@ import {
     setDefaultLandingTemplate,
 } from '../../../utils/userPreferences';
 import { useUserInfo } from '@platform/utils';
+import { useGetActiveUser } from '../../../state/User/hooks';
 
 export function useLanding(props: LandingTabProps) {
     const bus = React.useMemo(() => createContextBus(), []);
@@ -32,6 +33,7 @@ export function useLanding(props: LandingTabProps) {
     const [loadingLandingVersion, setLoadingLandingVersion] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
     const hasLanding = Boolean(targetTemplateId && targetTemplateVersionId);
+    const activeUser = useGetActiveUser();
 
     React.useEffect(() => {
         const unsub = bus.subscribe('landing_snapshot', (ctx) => setSnapshot(ctx));
@@ -156,8 +158,10 @@ export function useLanding(props: LandingTabProps) {
         }
     };
     React.useEffect(() => {
-        initDefaultLanding(defaultLanding, props.activeLandingSelection);
-    }, [defaultLanding, props.activeLandingSelection]);
+        if (activeUser) {
+            initDefaultLanding(defaultLanding, props.activeLandingSelection);
+        }
+    }, [defaultLanding, props.activeLandingSelection, activeUser]);
 
     React.useEffect(() => {
         if (!targetTemplateId || !targetTemplateVersionId) {
