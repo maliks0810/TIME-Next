@@ -166,7 +166,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                             ? '1px solid rgba(255,255,255,0.10)'
                             : `1px solid ${token.colorBorderSecondary}`,
                         background: sidebarBackground,
-                        padding: 20,
+                        padding: '20px 40px 20px 20px',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 18,

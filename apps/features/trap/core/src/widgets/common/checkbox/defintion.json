@@ -1,0 +1,62 @@
+{
+    "id": "cwd_checkbox",
+    "name": "Checkbox",
+    "version": 1,
+    "description": "A checkbox control widget",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_checkbox",
+    "listensToKeys": null,
+    "emitsKeys": [""],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+            "layout": {
+                "title": "Layout variant",
+                "description": "Choose checkbox layout option",
+                "type": "string",
+                "enum": ["vertical", "horizontal"]
+            },
+            "label": {
+                "title": "Checkbox label",
+                "type": "string",
+                "default": ""
+            },
+            "value": {
+                "title": "Checkbox key",
+                "type": "string",
+                "default": ""
+            },
+            "checked": {
+                "title": "Is checked by default",
+                "type": "boolean",
+                "default": false
+            }
+        },
+        "required": ["value"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "small",
+            "label": "Small",
+            "grid": {
+                "defaultW": 2,
+                "defaultH": 45,
+                "minW": 2,
+                "minH": 45,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}

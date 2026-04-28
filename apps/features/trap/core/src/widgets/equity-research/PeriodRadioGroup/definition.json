@@ -1,0 +1,71 @@
+{
+    "id": "wd_period_radio_group",
+    "name": "Time Period Radiogroup",
+    "version": 1,
+    "description": "Radiogroup control to select a time period from MTD, QTD, YTD, 1Y, 3Y, 5Y, MAX",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_period_radio_group",
+    "listensToKeys": null,
+    "emitsKeys": ["equity.period"],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+            "layout": {
+                "title": "Layout variant",
+                "description": "Choose radiogroup layout option",
+                "type": "string",
+                "enum": ["vertical", "horizontal"]
+            }
+        },
+        "required": [],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Equity Research"
+    },
+    "variants": [
+        {
+            "id": "full-horizontal",
+            "label": "Full Horizontal",
+            "grid": {
+                "defaultW": 385,
+                "defaultH": 62,
+                "minW": 310,
+                "minH": 140,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "compact-horizontal",
+            "label": "Compact Horizontal",
+            "grid": {
+                "defaultW": 242,
+                "defaultH": 62,
+                "minW": 310,
+                "minH": 140,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "full-vertical",
+            "label": "Full Vertical",
+            "grid": {
+                "defaultW": 92,
+                "defaultH": 258,
+                "minW": 310,
+                "minH": 140,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}
