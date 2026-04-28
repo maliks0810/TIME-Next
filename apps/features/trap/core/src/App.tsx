@@ -10,6 +10,7 @@ import 'devextreme/dist/css/dx.light.css';
 
 import { ThemeContext, getThemeConfig, ThemeName } from './theme/ThemeContext';
 import { AdminPanel } from './features/AdminPanel';
+import { useSetActiveUser } from './state/User/hooks';
 
 const { Content } = Layout;
 
@@ -25,6 +26,7 @@ export default function App() {
         return saved ?? 'default';
     });
     const { claims } = useUserInfo();
+    const setActiveUser = useSetActiveUser();
 
     React.useEffect(() => {
         if (claims) {
@@ -35,6 +37,7 @@ export default function App() {
             sessionStorage.setItem('OrgLevel4', claims.OrgLevel4);
             sessionStorage.setItem('okta-email', claims.email);
             sessionStorage.setItem('okta-role', claims.role || 'Analyst');
+            setActiveUser(claims.name);
         }
     }, [claims]);
 
