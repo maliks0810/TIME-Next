@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Box, Grid } from '@mui/material';
 import { DataGrid } from 'devextreme-react';
@@ -31,7 +31,14 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   setSelectedSecurityRequest,
   setIsRequestDetailsOpen,
 }) => {
-  const [gridFilters, setGridFilters] = useState<IDashboardGridFilters>(getDefaultDashboardGridFilters);
+  const [gridFilters, setGridFilters] = useState<IDashboardGridFilters>(
+    () => getDefaultDashboardGridFilters()
+  );
+    
+  useEffect(() => {
+    setGridFilters(getDefaultDashboardGridFilters());
+  });
+
   const navigate = useNavigate();
 
   const cellRenderSetupStatus = (data: DataGridTypes.ColumnCellTemplateData) => {

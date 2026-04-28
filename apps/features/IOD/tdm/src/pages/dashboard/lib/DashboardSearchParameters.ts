@@ -55,6 +55,34 @@ export interface IDuplicateSecuritySetupRequestParameters {
   userName: string;
 }
 
+export const clearDashboardGridFilters = () : IDashboardGridFilters => {
+  let defaultGridFilters = defaultDashboardGridFilters;
+  defaultGridFilters.sortColumn = 'createdDate';
+  defaultGridFilters.sortDirection = 'desc';
+  defaultGridFilters.descriptionFilter = [];
+  defaultGridFilters.identifierFilter = [];
+  defaultGridFilters.createdDateFilter = [];
+  defaultGridFilters.createdByFilter = [];
+  defaultGridFilters.setupStatusFilter = [];
+  defaultGridFilters.riskAnalyticsStatusFilter = [];
+  defaultGridFilters.euSecuritizationStatusFilter = [];
+  defaultGridFilters.erisaStatusFilter = [];
+  defaultGridFilters.readyForTradingStatusFilter = []; 
+
+  const sessionStorageRawJson = sessionStorage.getItem(SESSION_STORAGE_DASHBOARD_GRID_FILTERS);
+  if (sessionStorageRawJson) {
+    const sessionStorageGridFilters : IDashboardGridFilters = JSON.parse(sessionStorageRawJson);
+    defaultGridFilters.sortColumn = sessionStorageGridFilters.sortColumn;
+    defaultGridFilters.sortDirection = sessionStorageGridFilters.sortDirection;
+  }
+
+  // update session storage
+  const jsonString = JSON.stringify(defaultGridFilters);
+    sessionStorage.setItem(SESSION_STORAGE_DASHBOARD_GRID_FILTERS, jsonString);
+    
+  return defaultGridFilters;
+}
+
 export const getDefaultDashboardSearchParameters = () : IDashboardSearchParameters => {
   // set default values
   let defaultSearchParameters = defaultDashboardSearchParameters;

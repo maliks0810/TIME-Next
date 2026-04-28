@@ -59,6 +59,15 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
     e.target.value = '';
   }
 
+  const CUSIP_IDENTIFIER_MAX_LENGHT = 9;
+  const OTHER_IDENTIFIER_MAX_LENGHT = 12;
+  const setIdentityMaxLenght = (value: unknown): number => {
+    if(value === 'CUSIP'){
+      return CUSIP_IDENTIFIER_MAX_LENGHT
+    }
+    return OTHER_IDENTIFIER_MAX_LENGHT
+  }
+
   const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
 
@@ -85,8 +94,20 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
     }
   }
 
+  const handleIdentifierPlaceholder = (identifierType: string | null | undefined) => {
+    if(identifierType === 'FIGI')
+    {
+      return 'BBGZ000BLNNV0';
+    }
+    if(identifierType === 'ISIN')
+    {
+      return 'US1234567890';
+    }
+    return '';
+  }
 
   const effectiveNewIssue = normalizeYesNo(formValues.newIssue);
+  const identityMaxLenght = setIdentityMaxLenght(formValues.identifierType);
 
   const isYellowKeyVisible = false;
 
@@ -327,7 +348,12 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Identifier}
               value={formValues.identifierType}
-              onChange={(value) => updateIdentifierFields({ identifierType: value })}
+              onChange={(value) => 
+                  {
+                    updateIdentifierFields({ identifierType: value,
+                                             identifierValue: undefined
+                                          })
+                  }}
               referenceData={referenceData}
               disabled={isReadOnly}
               fullWidth={false}
@@ -341,9 +367,10 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               className="field-input-half"
               value={formValues.identifierValue || ''}
               onChange={handleTextChange('identifierValue')}
-              placeholder="BBGZ000BLNNV0"
+              placeholder= {handleIdentifierPlaceholder(formValues.identifierType)}
               variant="outlined"
               disabled={isReadOnly}
+              slotProps={{ htmlInput: { maxLength: identityMaxLenght } }}				  
             />
           </div>
         </div>

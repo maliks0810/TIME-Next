@@ -202,6 +202,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         const { identifierType, identifierValue, marketSector, euSecuritizationStatus, erisaStatus, newIssue } = validationFields;
         if (!isValidString(identifierType) ||
           !isValidString(identifierValue) ||
+          !isValidIdentifier(identifierType,identifierValue) ||
           !isValidString(marketSector) ||
           !isValidString(euSecuritizationStatus) ||
           !isValidString(erisaStatus) ||
@@ -360,6 +361,49 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       navigate("/iod/tdm/");
     }
   };
+
+  function areFirst2CharLetters(input: string): boolean {
+    const regex = /^[a-zA-Z]{2}/;
+    return regex.test(input);
+  }
+
+  function isValidIdentifier(identifierType: string | null | undefined,
+                             identifierValue: string | null | undefined): boolean {
+    // Returns false for null, undefined, and ""
+    if(!!identifierValue === false)
+    {
+      return false;
+    }
+    
+    if(identifierType === 'CUSIP')
+    {
+      if(identifierValue.length != 9)
+      {
+          return false;
+      }
+      return true;
+    }
+
+    if(identifierType === 'FIGI')
+    {
+      if(identifierValue.length != 12)
+      {
+          return false;
+      }
+      return identifierValue.toUpperCase().startsWith('BBG');      
+    }
+
+    if(identifierType === 'ISIN')
+    {
+      if(identifierValue.length != 12)
+      {
+          return false;
+      }
+      return areFirst2CharLetters(identifierValue);      
+    }
+
+    return true;
+  }
 
   const handleClose = async () => {
     resetWizard();

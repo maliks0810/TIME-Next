@@ -106,6 +106,15 @@ $dashboard-light-gray: #f3f3f5;
   {
     border-top: none !important;
   }
+
+  .dx-header-filter 
+  {
+    color: yellow !important; /* e.g., yellow */
+  }
+  .dx-header-filter-empty 
+  {
+    color: gray !important; /* e.g., gray */
+  }  
 }
 
 .dashboard-grid-status
