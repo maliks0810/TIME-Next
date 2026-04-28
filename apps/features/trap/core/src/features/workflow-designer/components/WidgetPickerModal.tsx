@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button, Empty, Input, Modal, Select, Space, Tag, Typography, theme } from 'antd';
 import { AppstoreOutlined } from '@ant-design/icons';
 import JsonInfoModal from '../../../components/common/JsonInfoModal';
@@ -107,6 +107,17 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
             border: surfaceMeta.isGradientTheme ? '1px solid rgba(255,255,255,0.10)' : 'none',
         };
     }
+
+    const hasAllRequiredParams = useMemo(
+        () =>
+            selectedWidgetRequiredFields
+                ? selectedWidgetRequiredFields.every((key: string) => !!props.selectedParams[key])
+                : false,
+        [props.selectedParams, selectedWidgetRequiredFields]
+    );
+
+    const addWidgetDisabled =
+        !props.selectedWidgetDef || props.isPublished || !props.templateId || !hasAllRequiredParams;
 
     return (
         <Modal
@@ -336,11 +347,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                 <Button
                                     type="primary"
                                     onClick={props.onAddWidget}
-                                    disabled={
-                                        !props.selectedWidgetDef ||
-                                        props.isPublished ||
-                                        !props.templateId
-                                    }
+                                    disabled={addWidgetDisabled}
                                 >
                                     Add Widget to Canvas
                                 </Button>

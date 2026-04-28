@@ -32,7 +32,6 @@ export function useLanding(props: LandingTabProps) {
     const [loadingLandingVersion, setLoadingLandingVersion] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
     const hasLanding = Boolean(targetTemplateId && targetTemplateVersionId);
-    const [personaLandingTemplate, setPersonaLandingTemplate] = useState<string>();
 
     React.useEffect(() => {
         const unsub = bus.subscribe('landing_snapshot', (ctx) => setSnapshot(ctx));
@@ -106,7 +105,13 @@ export function useLanding(props: LandingTabProps) {
                 item?.scopeKey?.['OrgLevel2'] === claims.OrgLevel2
             );
         });
-        return template;
+        if (template) return template;
+
+        // If there are no department landings to activate, then activate first private
+
+        const myTemplate = templates.filter((el) => el.kind !== 'LANDING')[0];
+
+        return myTemplate;
     };
     const initDefaultLanding = async (
         defaultLanding: {
@@ -122,14 +127,12 @@ export function useLanding(props: LandingTabProps) {
                 initLandingFromActive(templates, activeLandingSelection);
                 return;
             }
-
             if (defaultLanding?.templateId) {
                 initFromSaved(templates, defaultLanding);
                 return;
             }
 
             const departmentLanding = findSuitableLanding(templates);
-
             if (departmentLanding) {
                 const versions = await listTemplateVersions(departmentLanding.id);
 
@@ -139,6 +142,7 @@ export function useLanding(props: LandingTabProps) {
                 setTargetTemplateVersionId(best?.id);
 
                 setDefaultLandingTemplate(departmentLanding.id, best?.id || '');
+                setIsLoading(false);
                 return;
             }
             setTargetTemplateId(undefined);
@@ -151,10 +155,6 @@ export function useLanding(props: LandingTabProps) {
             setIsLoading(false);
         }
     };
-    React.useEffect(() => {
-        initDefaultLanding(defaultLanding, props.activeLandingSelection);
-    }, [defaultLanding, props.activeLandingSelection]);
-
     React.useEffect(() => {
         initDefaultLanding(defaultLanding, props.activeLandingSelection);
     }, [defaultLanding, props.activeLandingSelection]);
