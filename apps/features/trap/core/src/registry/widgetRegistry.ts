@@ -11,6 +11,7 @@ import { PeriodRadioGroup } from '../widgets/equity-research/PeriodRadioGroup/Pe
 import { CheckboxWidget } from '../widgets/common/checkbox/Checkbox';
 import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/AnalystsCheckboxGroup/AnalystsCheckboxGroup';
 import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
+import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -33,6 +34,14 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     wd_analysts_checkbox_group: {
         id: 'wd_analysts_checkbox_group',
         component: AnalystsCheckboxGroupWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    wd_analyst_performance_bar_chart: {
+        id: 'wd_analyst_performance_bar_chart',
+        component: AnalystPBChartWidget,
         category: 'Control',
         visibleIn: ['workflow'],
         listensToKeys: [],
