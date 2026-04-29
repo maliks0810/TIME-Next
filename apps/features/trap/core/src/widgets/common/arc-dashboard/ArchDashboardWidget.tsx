@@ -13,7 +13,7 @@ import { PreviewModals } from './PreviewModals';
 import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState';
 import { useGetWidgetValue } from '../../../state/Widgets/hooks';
 import { COUNTER_TILE_STORE_KEY } from '../../constants';
-import { StatusCustomCellRenderer } from './StatusCustomeRenderer';
+import { statusCustomCellRenderer } from './StatusCustomeRenderer';
 
 export default function ArcDashboardWidget(props: WidgetComponentProps) {
     const [messageApi, contextHolder] = message.useMessage();
@@ -125,7 +125,7 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
                             <Column
                                 {...columnOptions}
                                 key={columnOptions.dataField}
-                                cellRender={StatusCustomCellRenderer}
+                                cellRender={statusCustomCellRenderer}
                             />
                         ) : (
                             <Column {...columnOptions} key={columnOptions.dataField} />

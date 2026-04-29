@@ -1,0 +1,158 @@
+{
+    "id": "cwd_common_counter_tile_01",
+    "name": "Common Counter Tile",
+    "version": 1,
+    "description": "Reusable counter tile widget. GraphQL resolves the requested counter scenario and returns a numeric result with optional display metadata.",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_common_counter_tile_01",
+    "listensToKeys": ["portfolio.id", "security.ticker", "security.cusip"],
+    "emitsKeys": null,
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4, 5],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+            "textColor": {
+                "default": "#000000",
+                "title": "Custom Text Color",
+                "type": "string",
+                "withColorPicker": true
+            },
+            "customColor": {
+                "default": "#ffffff",
+                "title": "Custom Solid Color",
+                "type": "string",
+                "withColorPicker": true
+            },
+            "customGradientEnd": {
+                "default": "#60a5fa",
+                "title": "Gradient End Color",
+                "type": "string",
+                "withColorPicker": true
+            },
+            "customGradientStart": {
+                "default": "#2563eb",
+                "title": "Gradient Start Color",
+                "type": "string",
+                "withColorPicker": true
+            },
+            "clickable": {
+                "default": false,
+                "title": "Tile is clickable",
+                "type": "boolean"
+            },
+            "emptyStateText": {
+                "default": "No value",
+                "title": "Empty State Text",
+                "type": "string"
+            },
+            "filter": {
+                "description": "Which status value to filter by",
+                "enum": [
+                    "ANALYTICS REQUESTED",
+                    "ANALYTICS INPUT PENDING REVIEW",
+                    "ANALYTICS INPUT SENT TO ALADDIN",
+                    "ANALYTICS INPUT VERIFIED IN ALADDIN",
+                    "ANALYTICS CALCULATION IN PROGRESS",
+                    "ANALYTICS PENDING REVIEW",
+                    "ANALYTICS SENT TO ALADDIN",
+                    "ANALYTICS VERIFIED IN ALADDIN",
+                    "MANUAL",
+                    "ABANDONED",
+                    "INVALID REQUEST",
+                    "TOTAL"
+                ],
+                "title": "Filter",
+                "type": "string"
+            },
+            "numberFormat": {
+                "default": "integer",
+                "enum": ["integer", "decimal", "currency", "percent"],
+                "title": "Number Format",
+                "type": "string"
+            },
+            "prefixText": {
+                "default": "",
+                "title": "Prefix Text",
+                "type": "string"
+            },
+            "schemaKey": {
+                "description": "Logical counter scenario resolved by GraphQL.",
+                "enum": ["arc.status.query"],
+                "title": "Schema Key",
+                "type": "string"
+            },
+            "suffixText": {
+                "default": "",
+                "title": "Suffix Text",
+                "type": "string"
+            },
+            "themeMode": {
+                "default": "theme",
+                "enum": ["theme", "customSolid", "customGradient"],
+                "title": "Color Mode",
+                "type": "string"
+            },
+            "titlePosition": {
+                "default": "top",
+                "enum": ["top", "bottom"],
+                "title": "Title Position",
+                "type": "string"
+            },
+            "titleText": {
+                "default": "",
+                "title": "Custom Title Text",
+                "type": "string"
+            }
+        },
+        "required": ["schemaKey", "filter"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common",
+        "visibleIn": ["workflow", "landing"]
+    },
+    "variants": [
+        {
+            "id": "small",
+            "label": "Small",
+            "grid": {
+                "defaultW": 1,
+                "defaultH": 110,
+                "minW": 130,
+                "minH": 110,
+                "maxW": 130,
+                "maxH": 110
+            }
+        },
+        {
+            "id": "medium",
+            "label": "Medium",
+            "grid": {
+                "defaultW": 2,
+                "defaultH": 140,
+                "minW": 160,
+                "minH": 140,
+                "maxW": 160,
+                "maxH": 140
+            }
+        },
+        {
+            "id": "large",
+            "label": "Large",
+            "grid": {
+                "defaultW": 4,
+                "defaultH": 180,
+                "minW": 220,
+                "minH": 180,
+                "maxW": 220,
+                "maxH": 180
+            }
+        }
+    ]
+}
