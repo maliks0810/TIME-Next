@@ -12,6 +12,7 @@ import { CheckboxWidget } from '../widgets/common/checkbox/Checkbox';
 import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/AnalystsCheckboxGroup/AnalystsCheckboxGroup';
 import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
 import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
+import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/PerformanceAlanysis/PerformanceAnalysisLineChartWidget';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -114,6 +115,14 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         category: 'Common',
         visibleIn: ['landing', 'workflow'],
 
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    wd_analyst_performance_line_chart_01: {
+        id: 'wd_analyst_performance_line_chart_01',
+        component: PerformanceAnalysisLineChartWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
         listensToKeys: [],
         emitsKeys: [],
     },
