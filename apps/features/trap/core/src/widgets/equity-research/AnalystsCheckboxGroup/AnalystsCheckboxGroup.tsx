@@ -24,10 +24,10 @@ export const AnalystsCheckboxGroupWidget = ({ widgetInstance, result }: WidgetCo
         if (!result) return [];
         if (!result.items) return [];
 
-        return (result.items as Array<string>).map((el) => ({
-            label: el,
-            key: el,
-            defaultChecked: checked.includes(el),
+        return (result.items as { key: string; label: string }[]).map((el) => ({
+            label: el.label,
+            key: el.key,
+            defaultChecked: checked.includes(el.key),
         }));
     }, [result, checked]);
     const handleChange = (values: string[]) => {

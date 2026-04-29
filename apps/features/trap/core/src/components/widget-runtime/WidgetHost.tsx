@@ -63,9 +63,9 @@ export default function WidgetHost(props: {
 
     const widgetDefinitionId = String(
         props.widgetInstance?.composedWidgetId ??
-            props.widgetInstance?.widgetDefinitionId ??
-            props.widgetDefinition?.id ??
-            ''
+        props.widgetInstance?.widgetDefinitionId ??
+        props.widgetDefinition?.id ??
+        ''
     );
 
     const variantId = props.widgetInstance?.variantId;
