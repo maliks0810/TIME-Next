@@ -117,7 +117,18 @@ export const useValidationFields = () =>
       euSecuritizationStatus: s.euSecuritizationStatus,
       erisaStatus: s.erisaStatus,
       newIssue: s.newIssue,
-      aladdinCdiId: s.aladdinCdiId
+      aladdinCdiId: s.aladdinCdiId,
+      sectorValue: s.securityDetails.sectorValue,
+      callableValue: s.securityDetails.callableValue,
+      callDate: s.securityDetails.callDate,
+      price: s.securityDetails.price,
+      prepaymentTypeValue: s.speedOverrides.prepaymentTypeValue,
+      defaultTypeValue: s.speedOverrides.defaultTypeValue,
+      prepaymentSpeed: s.speedOverrides.prepaymentSpeed,
+      defaultSpeed: s.speedOverrides.defaultSpeed,
+      severity: s.speedOverrides.severity,
+      delinquency: s.speedOverrides.delinquency,
+      notes: s.notesInstructions
     }))
   )
 

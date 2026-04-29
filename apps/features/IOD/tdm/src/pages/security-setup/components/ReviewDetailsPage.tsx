@@ -80,6 +80,16 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
     return +(Math.round(Number(num + "e+2")) + "e-2");
   }
 
+  const setCallDateRequiredField = (callableValue: string | null | undefined): string => {
+    if(callableValue === 'Y') return ' *';
+    return '';
+  }
+
+  const setRPLRequiredField = (sectorValue: string | null | undefined): string => {
+    if(sectorValue === 'RPL') return ' *';
+    return '';
+  }
+
   const toTwoDecimalValue = (userInput: string): number | null => {
     if (userInput === '') return null;
     const num = parseFloat(userInput);
@@ -185,7 +195,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               value={securityDetails?.sectorValue}
               onChange={(value) => handleSecurityDetailsChange('sectorValue', value)}
               referenceData={referenceData}
-              label="Sector"
+              label="Sector *"
               disabled={isReadOnly}
             />
           </div>
@@ -195,12 +205,12 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               value={securityDetails?.callableValue}
               onChange={(value) => handleSecurityDetailsChange('callableValue', value)}
               referenceData={referenceData}
-              label="Callable"
+              label="Callable *"
               disabled={isReadOnly}
             />
           </div>
-          <div className="form-field">
-            <label className="field-label">Call Date</label>
+          <div className="form-field">            
+            <label className="field-label">{'Call Date' + setCallDateRequiredField(securityDetails?.callableValue)}</label>
             <TextField
               fullWidth
               type="date"
@@ -211,7 +221,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             />
           </div>
           <div className="form-field">
-            <label className="field-label">Price</label>
+            <label className="field-label">Price *</label>
             <TextField
               fullWidth
               value={securityDetails?.price || ''}
@@ -229,7 +239,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               value={speedOverrides?.prepaymentTypeValue ?? undefined}
               onChange={(value) => handleSpeedOverridesChange('prepaymentTypeValue', value)}
               referenceData={referenceData}
-              label="Prepayment Type"
+              label={'Prepayment Type' + setRPLRequiredField(securityDetails?.sectorValue)}
               disabled={isReadOnly}
             />
           </div>
@@ -239,7 +249,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               value={speedOverrides?.defaultTypeValue ?? undefined}
               onChange={(value) => handleSpeedOverridesChange('defaultTypeValue', value)}
               referenceData={referenceData}
-              label="Default Type"
+              label= {'Default Type' + setRPLRequiredField(securityDetails?.sectorValue)}
               disabled={isReadOnly}
             />
           </div>
@@ -247,7 +257,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">Prepayment Speed</label>
+            <label className="field-label">{'Prepayment Speed' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
               type="number"
@@ -259,7 +269,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             />
           </div>
           <div className="form-field">
-            <label className="field-label">Default Speed</label>
+            <label className="field-label">{'Default Speed' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
               type="number"
@@ -274,7 +284,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
 
         <div className="form-row two-column">
           <div className="form-field">
-            <label className="field-label">Severity (0-100)</label>
+            <label className="field-label">{'Severity (0-100)' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
               type="number"
@@ -288,7 +298,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             />
           </div>
           <div className="form-field">
-            <label className="field-label">Delinquency (0-100)</label>
+            <label className="field-label">{'Delinquency (0-100)' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
               type="number"
@@ -305,7 +315,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
 
         {/* Notes / Instructions Section */}
         <div className="form-field" >
-          <label className="field-label">Notes / Instructions</label>
+          <label className="field-label">Notes / Instructions *</label>
           <TextField
             fullWidth
             multiline

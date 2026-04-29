@@ -181,6 +181,41 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     return !!str;
   }
 
+  function isValidNumber(str: string | null | undefined): boolean {
+    if (str === '') return false;
+    if (isNaN(Number(str))) return false;
+    return true;
+  }
+
+  function isValidPrice(str: string | null | undefined): boolean {
+    if(!isValidNumber(str)) return false;
+    if(Number(str) === 0) return false;
+    return true;
+  }
+
+  function isValidNotes(str: string | null | undefined): boolean {
+    if(str?.trim() === '') return false;
+    return true;
+  }
+
+  function isValidCallDate(callableValue: string | null | undefined, 
+                           dateValue: string | null | undefined): boolean {    
+    if(callableValue === 'Y' && !isValidString(dateValue)) return false;
+    return true
+  }
+
+  function isRPLStringFieldValid(sectorValue: string | null | undefined, 
+                            fieldValue: string | null | undefined): boolean {    
+    if(sectorValue === 'RPL' && !isValidString(fieldValue)) return false;
+    return true
+  }
+
+  function isRPLNumberFieldValid(sectorValue: string | null | undefined, 
+                            fieldValue: number | null | undefined): boolean {    
+    if(sectorValue === 'RPL' && !isValidNumber(fieldValue?.toString())) return false;
+    return true
+  }
+
   const canProceed = (): boolean => {
     if (isCancelled) {
       return currentStep !== 'confirm-details';
@@ -212,6 +247,24 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         return true;
       case 'ssap-confirmation':
       case 'review-details':
+        const { sectorValue, callableValue, callDate, price, prepaymentTypeValue, defaultTypeValue, prepaymentSpeed, defaultSpeed, severity, delinquency, notes  } = validationFields;
+        if (!isValidString(sectorValue) ||
+            !isValidPrice(price) ||
+            !isValidString(callableValue) ||
+            !isValidString(notes) ||
+            !isValidNotes(notes) ||
+            !isValidCallDate(callableValue, callDate) ||
+            !isRPLStringFieldValid(sectorValue, prepaymentTypeValue) ||
+            !isRPLStringFieldValid(sectorValue, defaultTypeValue) ||
+            !isRPLNumberFieldValid(sectorValue, prepaymentSpeed) ||
+            !isRPLNumberFieldValid(sectorValue, defaultSpeed) ||
+            !isRPLNumberFieldValid(sectorValue, severity) ||
+            !isRPLNumberFieldValid(sectorValue, delinquency)
+          )
+        {
+          return false;
+        }
+        return true;
       case 'confirm-details':
         return true;
       default:
