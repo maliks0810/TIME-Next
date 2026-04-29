@@ -112,7 +112,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
         () =>
             selectedWidgetRequiredFields
                 ? selectedWidgetRequiredFields.every((key: string) => !!props.selectedParams[key])
-                : false,
+                : true,
         [props.selectedParams, selectedWidgetRequiredFields]
     );
 
@@ -242,13 +242,8 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                                   requiredField
                                               ]?.enum
                                           ) {
-                                              const selectValue = props.selectedParams[
-                                                  requiredField
-                                              ]
-                                                  ? props.selectedParams[requiredField]
-                                                  : props.selectedWidgetDef.configSchema.properties[
-                                                        requiredField
-                                                    ]?.enum[0];
+                                              const selectValue =
+                                                  props.selectedParams[requiredField];
                                               inputComponent = (
                                                   <Select
                                                       value={selectValue}
@@ -277,11 +272,8 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                                   />
                                               );
                                           } else {
-                                              const inputValue = props.selectedParams[requiredField]
-                                                  ? props.selectedParams[requiredField]
-                                                  : props.selectedWidgetDef.configSchema.properties[
-                                                        requiredField
-                                                    ]?.default;
+                                              const inputValue =
+                                                  props.selectedParams[requiredField];
 
                                               inputComponent = (
                                                   <Input
