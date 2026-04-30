@@ -6,8 +6,8 @@ export enum NavbarHeader {
     ClientManagement = 'Client Management',
     Products = 'Products',
     AIProducts = 'AI Products',
-    Support = 'Support'
-
+    Support = 'Support',
+    Equity = 'Equity'
 }
 
 export enum NavbarSubHeader {
@@ -26,7 +26,10 @@ export enum NavbarSubHeader {
     AssetBackFinance = 'Asset Back Finance',
     AIThemes= 'AI Themes',
     AIUploadTools = 'AI Upload Tools',
-    FORGE = 'FORGE'
+    FORGE = 'FORGE',
+    Budget = 'Budget',
+    Commission = 'Commission',
+    Reports = 'Reports'
 }
 
 
