@@ -1,4 +1,4 @@
-import { WidgetComponentProps } from '@/core/types/widget';
+import { WidgetComponentProps } from '../../../types/widget';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 
 export const TextWidget = ({ widgetInstance, widgetDefinition }: WidgetComponentProps) => {
