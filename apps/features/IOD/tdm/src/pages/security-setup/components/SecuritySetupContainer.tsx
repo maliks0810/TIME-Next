@@ -419,6 +419,10 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     const regex = /^[a-zA-Z]{2}/;
     return regex.test(input);
   }
+  
+  function isStrictlyAlphanumeric(value: string): boolean {
+    return /^[A-Za-z0-9]+$/.test(value);
+  };
 
   function isValidIdentifier(identifierType: string | null | undefined,
                              identifierValue: string | null | undefined): boolean {
@@ -434,7 +438,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       {
           return false;
       }
-      return true;
     }
 
     if(identifierType === 'FIGI')
@@ -442,8 +445,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       if(identifierValue.length != 12)
       {
           return false;
-      }
-      return identifierValue.toUpperCase().startsWith('BBG');      
+      }      
+      if(!identifierValue.toUpperCase().startsWith('BBG'))
+      {
+          return false;
+      }      
     }
 
     if(identifierType === 'ISIN')
@@ -452,10 +458,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       {
           return false;
       }
-      return areFirst2CharLetters(identifierValue);      
+      if(!areFirst2CharLetters(identifierValue))
+      {
+          return false;
+      }
     }
 
-    return true;
+    return isStrictlyAlphanumeric(identifierValue);
   }
 
   const handleClose = async () => {
