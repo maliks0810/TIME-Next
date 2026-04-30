@@ -101,7 +101,7 @@ export const PropertyConfig = ({
             case 'boolean':
                 return (
                     <Checkbox
-                        checked={(currentValue as boolean) || !!property.default}
+                        defaultChecked={(currentValue as boolean) || !!property.default}
                         onChange={(e) => setField(propertyKey, e.target.checked)}
                     >
                         {required && '*'}
