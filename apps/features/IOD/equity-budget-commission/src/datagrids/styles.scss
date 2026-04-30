@@ -1,0 +1,954 @@
+@use "sass:color";  
+
+.ht-form-control {
+    display: flex;
+}
+
+.ht-form-button-container {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.division-action-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    &:hover>.division-action-icon {
+        color: var(--tcw-blue-color);
+    }
+
+    &[aria-hidden="true"] {
+        visibility: hidden;
+    }
+}
+.division-action-icon {
+    color: var(--hover-blue-color_dark);
+}
+
+.dx-datagrid-headers .dx-header-row .dx-datagrid-text-content {
+  font-weight: bold;
+  font-family: Helvetica Neue,Segoe UI,helvetica,verdana,sans-serif;
+  font-size: 12px;
+  color: #f0f0f0;
+  text-align: center;
+}
+.dx-datagrid .dx-datagrid-headers .dx-header-row
+{
+   background-color: #003e7e;
+}
+
+.dx-datagrid .dx-datagrid-text-content .dx-widget
+{
+  font-weight: 400;
+  font-family: Helvetica Neue,Segoe UI,helvetica,verdana,sans-serif;
+  font-size: 12px; 
+}
+.redHighlight {
+    color: red !important;
+}
+
+.greenHighlight {
+    color: green !important;
+}
+
+.benchmarkHighlight {
+    background-color: #fffed6 !important;
+}
+
+.ss-form-control {
+    display: flex;
+}
+
+.ss-form-button-container {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.css-agysop {
+    display: inline-flex;
+    flex-direction: column;
+    position: relative;
+    min-width: 0px;
+    padding: 0px;
+    margin: 8px 0px 4px;
+    border: 0px;
+    vertical-align: top;
+    width: 100%;
+}
+.dx-editor-outlined.dx-texteditor-label-outside .dx-label span
+{
+    text-align: left;
+    font-size: 14px;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 500;
+}
+.dx-editor-filled.dx-texteditor-label-outside{
+    font-weight: 400!important;
+}
+
+.dx-common-selectbox-short60 {
+    border: 0;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    letter-spacing: 0.00938em;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    //padding-right: 20px;
+    height: 30px;
+    margin-top: 5px;
+    width: 60%;
+}
+.dx-common-selectbox-short80 {
+    border: 0;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    letter-spacing: 0.00938em;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    //padding-right: 20px;
+    height: 30px;
+    margin-top: 5px;
+    width: 80%;
+}
+.dx-common-selectbox {
+    border: 0;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    letter-spacing: 0.00938em;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    //padding-right: 20px;
+    height: 30px;
+    margin-top: 5px;
+    width: 100%;
+}
+
+.dx-popup-title.dx-toolbar{
+    background-color: #337ab7;
+    font-size: 12px;
+    color: white;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 500;
+}
+/* Styling the dropdown button */
+.dx-dropdowneditor-button {
+    background-color: lightgray;
+    min-height: 20px!important;
+    height: 30px;
+}
+.dx-texteditor-container
+{
+    height: 30px;
+}
+.custom-popup-class .dx-popup-title {
+    background-color: #337ab7;
+    font-size: 12px;
+    color: white;
+    padding-top: 10px;    
+}
+
+.custom-popup-selectbox {
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4375em;
+    letter-spacing: 0.00938em;
+    color: rgba(0, 0, 0, 0.87);
+    -webkit-box-align:center;
+    //display: inline-flex;
+    width: 300px;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    height: 30px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    padding-right: 10px;
+}
+
+.custom-popup-selectbox-long {
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4375em;
+    letter-spacing: 0.00938em;
+    color: rgba(0, 0, 0, 0.87);
+    -webkit-box-align:center;
+    //display: inline-flex;
+    width: 400px;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    height: 30px;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+.dx-layout-manager .dx-label-h-align .dx-field-item-label .dx-field-item-label-content .dx-field-item-label-text{
+    color: rgba(0, 0, 0, 0.87)!important; /* Example: Dark gray */
+    font-size: 12px;
+    font-weight: bold;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    }
+.dx-dropdowneditor-input-wrapper
+{
+    width: 100%;
+}
+.custom-popup-class .custom-edit-popup .dx-popup-close-button .dx-icon {
+    color: white; 
+}
+
+.dx-widget .dx-button .dx-button-mode-contained .dx-button-normal .dx-button-has-text .dx-overlay-wrapper
+{
+    background-color: #0a315c!important; /* Blue custom save button */
+    color: white;
+    border-radius: 5px;
+}
+.dx-widget .dx-button .dx-button-mode-contained .dx-button-normal .dx-button-has-text .dx-state-hover
+{
+    color: rgba(0, 0, 0, 0.87);
+}
+.dx-popup-bottom .dx-button 
+{
+    background-color: rgb(25, 118, 210); /* Blue custom save button */
+    color: white;
+    border-radius: 5px;
+    min-height: 30px;
+}
+
+.dx-button-content
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.textInput-popup-num
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 200px;
+    font-weight: 400;
+    text-align: left;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    height: 30px;
+    box-sizing: border-box;
+    flex-direction: row;
+    margin-bottom: 10px;
+    //display: flex;
+}
+.textInput-popup-num-wt-margin
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 200px;
+    font-weight: 400;
+    text-align: left;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    height: 30px;
+    box-sizing: border-box;
+    flex-direction: row;
+}
+.textInput-popup-short
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 200px;
+    font-weight: 500;
+    text-align: left;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    height: 30px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    border-width: 1;
+}
+.textInput-popup
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 250px;
+    font-weight: 500;
+    text-align: left;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    max-height: 40px!important;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+.textInput-popup-date
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 250px;
+    font-weight: 500;
+    text-align: left;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    max-height: 40px!important;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+.textInput-popup-long
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 300px;
+    text-align: left;
+}
+
+.dx-layout-manager{
+    margin-bottom: 10px!important;
+}
+
+.textInput-popup-verylong
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 400px;
+    text-align: left;
+}
+
+.form-input-short
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 150px;
+    font-weight: 500;
+    text-align: left;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    height: 30px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    border-width: 1;
+}
+.form-input-long
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 250px;
+    font-weight: 500;
+    text-align: left;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    height: 30px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    border-width: 1;
+}
+
+.grid-full-block {  
+        max-width: calc(100% - 48px);
+        margin: var(--client-margin);
+        margin-bottom: 0;
+        height: calc(100vh);
+        width: calc(100% - (var(--client-margin) * 2));
+        // height: calc(100% - (var(--client-margin) * 2));
+        // min-height: calc(100% - (var(--client-margin) * 2));
+    }
+
+.label-title
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 200px;
+    text-align: left;
+}
+
+.popup-grouplabel .dx-form-group
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    width: 200px;
+    font-weight: 500;
+    text-align: left;
+    padding-top: 10px;
+}
+
+.label-title.row
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    width: 200px;
+    text-align: left;
+    font-weight: 500;
+    letter-spacing: 0.02857em;
+    margin-top: auto;
+}
+
+
+.popup-button
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    background-color: rgb(25, 118, 210);
+    color:rgb(255, 255, 255);
+    //box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 3px 0px;    
+    border-radius: 4px;
+    border-width: 0px;    
+    margin: 0px;
+    text-decoration: none;   
+    cursor: pointer;
+    -webkit-user-select:none;
+    user-select: none;
+    vertical-align: middle;
+    appearance: none;
+    font-size: 0.875rem;
+    line-height: 1.75;
+    letter-spacing: 0.02857em;
+    min-width: 60px; 
+    width: 100px;
+    height: 35px;
+    margin-top: 18px;
+}
+
+.dxButton {  
+    background-color:  rgb(25, 118, 210)!important;
+    color: rgb(255, 255, 255)!important;
+    font-size: 0.875rem!important;
+    font-weight: 500!important;
+    height: 40px!important;
+    min-width: 35px;
+}  
+
+.page-button
+{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    background-color: rgb(25, 118, 210);
+    color:rgb(255, 255, 255);
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 3px 0px;
+    padding: 10px 10px;
+    border-radius: 4px;
+    border-width: 0px;
+    border-style: initial;
+    border-color: initial;
+    border-image: initial;
+    margin: 0px;
+    text-decoration: none;   
+    cursor: pointer;
+    -webkit-user-select:none;
+    user-select:none;
+    vertical-align: middle;
+    appearance: none;
+    font-size: 0.875rem;
+    line-height: 1.75;
+    letter-spacing: 0.02857em;
+    min-width: 60px; 
+    width: 150px;
+    height: 40px;
+    max-height: 50px;
+}
+
+.page-button:disabled {  
+    color: rgba(255, 255, 255, 0.9);  
+    background-color: rgb(150, 180, 220);  
+    cursor: not-allowed;  
+    box-shadow: none;  
+} 
+
+/* Define your custom color variables */
+$primary-color: #007bff;
+$text-color: #333;
+$inactive-bg: #f8f9fa;
+$active-bg: #ffffff;
+$border-color: #dee2e6;
+$active-border-color: #0056b3;
+$font-family: Roboto, Helvetica, Arial, sans-serif;
+$font-size: 12px;
+
+/* Target the main TabPanel container and its inner components */
+.custom-tab-panel {
+  // Styles for the overall panel
+  border: 1px solid $border-color;
+  border-radius: 4px;
+
+  // Styles for the tab header strip
+  .dx-tabs {
+    background-color: $inactive-bg;
+    border-bottom: 1px solid $border-color;
+  }
+
+  // Styles for individual tabs
+  .dx-tab {
+    //padding: 10px 12px;
+    color: $text-color;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    border-bottom: 3px solid transparent; // Use border for the active indicator
+    font-size: $font-size;
+    font-family: $font-family;
+    font-weight: 600;
+
+    // Hover state for tabs
+    &:hover {
+      background-color: #68A2B8;
+    }
+
+    // Styles for the text inside the tabs
+    .dx-tab-text {
+      font-weight: 600;
+    }
+
+    // Styles for the selected/active tab
+    &.dx-item-selected,
+    &.dx-state-active {
+      background-color: $active-bg;
+      color: $primary-color;
+      border-bottom-color: $active-border-color; // Highlight with a specific color
+      
+      .dx-tab-text {
+        font-weight: 700;
+      }
+    }
+  }
+
+  // Styles for the content area of the tabs
+  .dx-multiview-item.dx-tabpanel-item {
+    padding: 12px;
+    background-color: $active-bg;
+  }
+}
+
+.custom-tab-panel-main {
+  // Styles for the overall panel
+  border: 1px solid $border-color;
+  border-radius: 4px;
+
+  // Styles for the tab header strip
+  .dx-tabs {
+    background-color: $inactive-bg;
+    border-bottom: 1px solid $border-color;
+  }
+
+  // Styles for individual tabs
+  .dx-tab {
+    padding: 12px 16px;
+    color: $text-color;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    border-bottom: 3px solid transparent; // Use border for the active indicator
+    font-size: $font-size;
+    font-family: $font-family;
+    font-weight: 600;
+
+    // Hover state for tabs
+    &:hover {
+      //background-color: darken($inactive-bg, 10%);
+      background-color: color.scale($inactive-bg, $lightness: -10%); 
+    }
+
+    // Styles for the text inside the tabs
+    .dx-tab-text {
+      font-weight: 700;
+    }
+
+    // Styles for the selected/active tab
+    &.dx-item-selected,
+    &.dx-state-active {
+      background-color: $active-bg;
+      color: $primary-color;
+      border-bottom-color: $active-border-color; // Highlight with a specific color
+      
+      .dx-tab-text {
+        font-weight: 800;
+      }
+    }
+  }
+
+  // Styles for the content area of the tabs
+  .dx-multiview-item.dx-tabpanel-item {
+    padding: 16px;
+    background-color: $active-bg;
+  }
+}
+
+
+/* Override the default background colors */
+.dx-toast-success {
+  background-color: #4CAF50 !important; /* A nice green color */
+  color: white !important;
+  border-radius: 8px !important;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dx-toast-error {
+  background-color: #F44336 !important; /* A nice red color */
+  color: white !important;
+  border-radius: 8px !important;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dx-toast-warning {
+  background-color: #FF9800 !important; /* An orange color */
+  color: white !important;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500; 
+}
+
+.dx-toast-info {
+  background-color: #2196F3 !important; /* A blue color */
+  color: white !important;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;  
+}
+
+/* Optional: Customize the main toast container for padding, shadow, etc. */
+.dx-toast-content {
+    padding: 15px !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+}
+
+.nested-tab-container .dx-tab {
+    background-color: #f0f0f0; /* Example: change background of nested tabs */
+    font-size: 12px; /* Example: change font size */
+    padding: 5px 10px; /* Example: adjust padding */
+}
+
+/* Target the selected tab of the nested panel */
+.nested-tab-container .dx-tab.dx-tab-selected {
+    background-color: #ddd; /* Example: change selected tab color */
+    color: #333;
+}
+
+/* Target the content area of the nested panel */
+.nested-tab-container .dx-multiview-item {
+    padding: 2px;
+    border: 1px solid #ddd;
+    border-top: none;
+}
+.grid-container-flex {  
+  width: var(--container-width, 100%);  
+  margin-bottom: 10px;  
+  padding-right: 30px;  
+  display: flex;  
+}
+.grid-container-detail {  
+  width: var(--container-width, 99%);  
+  margin-left: 5px;  
+  margin-top: 2px;
+  margin-bottom: 10px;  
+  padding-right: 30px;  
+  display: inline-flex;  
+  gap: 20px;  
+}
+
+.grid-container-smallgap {  
+  width: var(--container-width, 100%);  
+  margin-bottom: 10px;  
+  padding-right: 30px;  
+  display: inline-flex;  
+  gap: 20px;  
+}
+
+.readonly-no-select input[readonly] 
+{  
+  -webkit-user-select: none;  
+  -moz-user-select: none;  
+  -ms-user-select: none;  
+  user-select: none;  
+  cursor: default;  
+} 
+
+.header-wrap{
+  word-wrap: normal;
+  font-size:12px;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  color:#f0f0f0;
+}
+
+.dx-datagrid-content .dx-datagrid-table .dx-row .dx-command-select
+{
+  padding-top: 5px!important;
+}
+
+.div-container-left {  
+  display: flex;  
+  justify-content: left;  
+  align-items: center;  
+  gap: 10px;
+  margin-bottom: 5px;
+  padding-left: 2px;
+}
+
+.div-container-center {  
+  display: flex;  
+  justify-content: center;  
+  align-items: center;  
+  gap: 10px;
+  margin-bottom: 5px;
+  padding-left: 2px;
+}
+
+.div-container-right {  
+  display: flex;  
+  justify-content: right;  
+  align-items: center;  
+  gap: 10px;
+  margin-bottom: 5px;
+  padding-left: 2px;
+}
+
+.div-form-container {   
+  justify-content: center;  
+  align-items: center;   
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.grid-container-wide {  
+  width: 90%;  
+  margin-top: 2px;
+}  
+.grid-container-small {  
+  width: 80%;  
+  margin-top: 2px;
+}
+.grid-container-smaller {  
+  width: 70%;  
+  margin-top: 2px;
+}
+.grid-container-smallest {  
+  width: 60%;  
+  margin-top: 2px;
+}
+
+.div-loader{
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+}
+
+
+/* Trade Ticket Popup */
+
+.modern-trade-popup {
+  .dx-popup-content {
+    padding: 20px 24px 12px;
+    background-color: #f9fafb;
+  }
+
+  /* Title bar */
+  .dx-popup-title {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  /* Form layout */
+  .modern-popup-form {
+    .dx-field-item-label-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: #6b7280; // slate-500
+    }
+
+    .dx-texteditor-input {
+      font-size: 14px;
+    }
+  }
+
+  /* Section cards */
+  .form-section {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Read-only fields look cleaner */
+  .dx-state-disabled .dx-texteditor-input {
+    color: #374151;
+    background-color: #f3f4f6;
+  }
+
+  /* Footer */
+  .popup-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 12px 24px;
+    border-top: 1px solid #e5e7eb;
+    background: #ffffff;
+  }
+}
+
+/* ============================= */
+/* Popup shell */
+/* ============================= */
+.modern-budget-popup {
+  .dx-popup-content {
+    padding: 20px 22px 12px;
+    background-color: #f9fafb;
+  }
+
+  .dx-popup-title {
+    font-size: 18px;
+    font-weight: 600;
+    padding: px 22px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+}
+
+/* ============================= */
+/* Form styling */
+/* ============================= */
+.modern-popup-form {
+  .dx-field-item {
+    margin-bottom: 14px;
+  }
+
+  .dx-field-item-label-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280; // slate-500
+  }
+
+  .dx-texteditor-input {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+}
+
+/* ============================= */
+/* Section cards */
+/* ============================= */
+.popup-section {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 16px 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  .dx-field-item-label {
+    margin-bottom: 4px;
+  }
+
+  .dx-form-group-caption {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 10px;
+  }
+}
+
+/* ============================= */
+/* Number inputs */
+/* ============================= */
+.textInput-popup-num .dx-texteditor-input {
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+/* ============================= */
+/* Selectboxes */
+/* ============================= */
+.custom-popup-selectbox {
+  .dx-texteditor-input {
+    font-size: 13px;
+  }
+}
+
+/* Root form spacing and typography */
+.modern-detail-form {
+  width: 100%;
+
+  .dx-field-item {
+    margin-bottom: 14px;
+  }
+
+  /* Label styling */
+  .dx-field-item-label-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280; /* slate-500 */
+    letter-spacing: 0.2px;
+  }
+
+  /* Inputs */
+  .dx-texteditor-input {
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+
+  /* Read-only input treatment */
+  .dx-state-readonly .dx-texteditor-input {
+    background-color: #f3f4f6;
+    color: #374151;
+  }
+}
+
+/* Section "card" look */
+.form-section {
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  /* Group title */
+  .dx-form-group-caption {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 10px;
+  }
+}
+
+/* Footer actions */
+.form-actions {
+  margin-top: 6px;
+
+  .form-actions-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 8px;
+  }
+}
+
+/* Optional: make select boxes feel consistent */
+.modern-detail-form .dx-selectbox .dx-texteditor-input {
+  font-size: 13px;
+}
