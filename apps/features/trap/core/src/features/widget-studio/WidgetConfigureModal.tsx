@@ -54,7 +54,7 @@ export const WidgetConfigureModal = ({
                 setField={setField}
                 propertyKey={el}
                 required={required.includes(el)}
-                currentValue={instance.config?.params?.[el]}
+                currentValue={params[el]}
             />
         ));
     }, [properties, required, instance]);

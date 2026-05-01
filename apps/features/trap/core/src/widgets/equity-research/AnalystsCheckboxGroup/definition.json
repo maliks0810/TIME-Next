@@ -1,0 +1,70 @@
+{
+    "id": "wd_analysts_checkbox_group",
+    "name": "Analysts Checkbox Group",
+    "version": 1,
+    "description": "A checkbox group of analysts",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_analysts_checkbox_group",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+            "schemaKey": {
+                "title": "Schema Key",
+                "enum": ["prism.equity.analyst.list"],
+                "type": "string"
+            }
+        },
+        "required": ["schemaKey"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Equity Research"
+    },
+    "variants": [
+        {
+            "id": "small",
+            "label": "Small",
+            "grid": {
+                "defaultW": 1,
+                "defaultH": 200,
+                "minW": 200,
+                "minH": 200,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "medium",
+            "label": "Medium",
+            "grid": {
+                "defaultW": 1,
+                "defaultH": 300,
+                "minW": 1,
+                "minH": 200,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "large",
+            "label": "Large",
+            "grid": {
+                "defaultW": 1,
+                "defaultH": 400,
+                "minW": 1,
+                "minH": 200,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}

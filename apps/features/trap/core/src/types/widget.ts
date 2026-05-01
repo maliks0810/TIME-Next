@@ -1,5 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import type React from 'react';
+import { WidgetValueType } from '../state/Widgets/types';
 
 export type WidgetRenderMode = 'designer' | 'workflow' | 'landing';
 
@@ -86,6 +87,7 @@ export type WidgetComponentProps = {
     mode: WidgetRenderMode;
     onPublishContext?: (key: string, value: any, sourceWidgetId?: string) => void;
     uiActions?: WidgetUIActions;
+    execute?: (variables: Record<string, WidgetValueType>) => void;
 };
 
 export type WidgetRegistryEntry = {

@@ -17,6 +17,7 @@ const getWidgetValues = (
     if (!properties) return {};
     if (!params) return {};
     const {
+        textColor = properties['textColor']?.['default'] || '',
         titleText = properties['titleText']?.['default'] || '',
         suffixText = properties['suffixText']?.['default'] || '',
         prefixText = properties['prefixText']?.['default'] || '',
@@ -26,6 +27,7 @@ const getWidgetValues = (
     } = params;
 
     return {
+        textColor,
         text: titleText,
         position: titlePosition,
         suffix: suffixText,
@@ -57,12 +59,17 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
     const configSchema = widgetDefinition?.configSchema;
     const properties = configSchema?.properties || {};
 
-    const { text, position, suffix, prefix, emptyText } = useMemo(
+    const { text, position, suffix, prefix, emptyText, textColor } = useMemo(
         () => getWidgetValues(config, properties),
         [config, properties]
     );
 
     const handleClick = () => {
+        const isTileClickableConfig = config?.params?.['clickable'];
+
+        // if false or undefined - no click
+        if (!isTileClickableConfig) return;
+
         setWidgetValueToChannel({
             key,
             channelId,
@@ -121,15 +128,20 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
                 <Typography.Title
                     level={5}
                     className={`${widgetStyles.titlePosition} ${value === counterTileValue ? styles.activeTile : ''}`}
+                    style={{ color: textColor }}
                 >
                     {widgetTextTitle}
                 </Typography.Title>
                 <div className={styles.content}>
-                    <Typography.Text className={styles.prefix}>{prefix}</Typography.Text>
-                    <Typography.Text strong className={styles.value}>
+                    <Typography.Text className={styles.prefix} style={{ color: textColor }}>
+                        {prefix}
+                    </Typography.Text>
+                    <Typography.Text strong className={styles.value} style={{ color: textColor }}>
                         {content}
                     </Typography.Text>
-                    <Typography.Text className={styles.suffix}>{suffix}</Typography.Text>
+                    <Typography.Text className={styles.suffix} style={{ color: textColor }}>
+                        {suffix}
+                    </Typography.Text>
                 </div>
             </div>
         </WidgetCardShell>
