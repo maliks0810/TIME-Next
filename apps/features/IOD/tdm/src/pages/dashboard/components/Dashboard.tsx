@@ -76,7 +76,7 @@ const Dashboard: React.FC = () => {
     navigate('/iod/tdm/security-setup');
   }
 
-  const handleSearchOnClick = useCallback(async () => {
+  const handleSearch = useCallback(async () => {
     const currentSearchParameters: IDashboardSearchParameters = {
       searchTerm: searchValue,
       startDate: startDate,
@@ -88,13 +88,16 @@ const Dashboard: React.FC = () => {
 
   }, [setSearchParameters, searchValue, startDate, endDate]);
 
+  const handleSearchClear = useCallback(async () => {
+    setSearchValue('');
+    updateDashboardSearchParameter({ searchTerm: '' });
+
+    await handleSearch();
+  }, [setSearchValue]);
+
   const handleSearchTextFieldOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
     updateDashboardSearchParameter({ searchTerm: e.target.value });
-  };
-
-  const handleSearchValueClear = () => {
-    setSearchValue('');
   };
 
   const handleStartDateChange = useCallback((value: string | number | Date | null) => {
@@ -130,7 +133,7 @@ const Dashboard: React.FC = () => {
   const handleSearchTextFieldKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      handleSearchOnClick();
+      handleSearch();
     }
   };
 
@@ -184,7 +187,7 @@ const Dashboard: React.FC = () => {
                       endAdornment: (
                         <InputAdornment position='end'>
                           <IconButton
-                            onClick={handleSearchValueClear}>
+                            onClick={handleSearchClear}>
                             <Clear />
                           </IconButton>
                         </InputAdornment>
@@ -207,7 +210,7 @@ const Dashboard: React.FC = () => {
                   </Grid>
                   <Grid flex={1} display='flex'>
                     <Button
-                      onClick={handleSearchOnClick}
+                      onClick={handleSearch}
                       className='tcw-button'
                       variant='contained'
                       sx={{ pl: '4em', pr: '4em' }}>
