@@ -40,6 +40,17 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   } = useSecuritySetupStore();
   const isEuSecuritizationTipDisabled = euSecuritizationStatus?.toLowerCase() === 'not required' || euSecuritizationStatus?.toLowerCase() === '';
 
+  const handleEuSecuritizationStatusChange = (value: string) => {
+    if (value === 'Not Required') {
+      updateIdentifierFields({
+        euSecuritizationStatus: value,
+        euSecuritizationTipEuId: undefined
+      });
+    } else {
+      handleIdentifierFieldChange("euSecuritizationStatus", value);
+    }
+  }
+
   const setEuSecuritizationTipEuId = (euSecuritizationStatusValue?: string) => {
     if (euSecuritizationStatusValue === 'Not Required') {
       euSecuritizationTipEuId = undefined;
@@ -81,12 +92,12 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   }
 
   const setCallDateRequiredField = (callableValue: string | null | undefined): string => {
-    if(callableValue === 'Y') return ' *';
+    if (callableValue === 'Y') return ' *';
     return '';
   }
 
   const setRPLRequiredField = (sectorValue: string | null | undefined): string => {
-    if(sectorValue === 'RPL') return ' *';
+    if (sectorValue === 'RPL') return ' *';
     return '';
   }
 
@@ -209,7 +220,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               disabled={isReadOnly}
             />
           </div>
-          <div className="form-field">            
+          <div className="form-field">
             <label className="field-label">{'Call Date' + setCallDateRequiredField(securityDetails?.callableValue)}</label>
             <TextField
               fullWidth
@@ -249,7 +260,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               value={speedOverrides?.defaultTypeValue ?? undefined}
               onChange={(value) => handleSpeedOverridesChange('defaultTypeValue', value)}
               referenceData={referenceData}
-              label= {'Default Type' + setRPLRequiredField(securityDetails?.sectorValue)}
+              label={'Default Type' + setRPLRequiredField(securityDetails?.sectorValue)}
               disabled={isReadOnly}
             />
           </div>
@@ -499,7 +510,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
               value={euSecuritizationStatus}
-              onChange={(value) => handleIdentifierFieldChange('euSecuritizationStatus', value)}
+              onChange={handleEuSecuritizationStatusChange}
               referenceData={referenceData}
               fullWidth={false}
               disabled={isReadOnly}
