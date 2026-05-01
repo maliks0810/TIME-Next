@@ -134,9 +134,19 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
       updateIdentifierFields(updates);
       return;
     }
+    if (field === "identifierValue")
+    {
+        const identifierValue = removeNonAlphanumeric(event.target.value);
+        event.target.value = identifierValue;
+    }
 
     updateIdentifierFields({ [field]: event.target.value });
   };
+
+  function removeNonAlphanumeric(value: string): string {
+    const returnValue = value.replace(/[^a-zA-Z0-9]/g, '');
+    return returnValue;
+  }
 
   return (
     <div className="enter-identifier-page">
