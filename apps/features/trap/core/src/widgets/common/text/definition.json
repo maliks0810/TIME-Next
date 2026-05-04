@@ -1,0 +1,183 @@
+{
+    "id": "cwd_text",
+    "name": "Text Widget",
+    "version": 1,
+    "description": "A text widget",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_text",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "content": {
+                "title": "Content",
+                "type": "string",
+                "default": ""
+            },
+            "fontWeight": {
+                "title": "Font Weight",
+                "type": "string",
+                "default": "500",
+                "enum": ["400", "500", "600", "700", "800"]
+            },
+            "textAlign": {
+                "title": "Text Align",
+                "type": "string",
+                "default": "left",
+                "enum": ["left", "center", "right"]
+            }
+        },
+        "required": ["content"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "1-span",
+            "label": "1 Span",
+            "grid": {
+                "defaultW": 1,
+                "defaultH": 46,
+                "minW": 1,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "2-span",
+            "label": "2-span",
+            "grid": {
+                "defaultW": 2,
+                "defaultH": 46,
+                "minW": 2,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "3-span",
+            "label": "3-span",
+            "grid": {
+                "defaultW": 3,
+                "defaultH": 46,
+                "minW": 3,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "4-span",
+            "label": "4-span",
+            "grid": {
+                "defaultW": 4,
+                "defaultH": 46,
+                "minW": 4,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "5-span",
+            "label": "5-span",
+            "grid": {
+                "defaultW": 5,
+                "defaultH": 46,
+                "minW": 5,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "6-span",
+            "label": "6-span",
+            "grid": {
+                "defaultW": 6,
+                "defaultH": 46,
+                "minW": 6,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "7-span",
+            "label": "7-span",
+            "grid": {
+                "defaultW": 7,
+                "defaultH": 46,
+                "minW": 7,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "8-span",
+            "label": "8-span",
+            "grid": {
+                "defaultW": 8,
+                "defaultH": 46,
+                "minW": 8,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "9-span",
+            "label": "9-span",
+            "grid": {
+                "defaultW": 9,
+                "defaultH": 46,
+                "minW": 9,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "10-span",
+            "label": "10-span",
+            "grid": {
+                "defaultW": 10,
+                "defaultH": 46,
+                "minW": 10,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "11-span",
+            "label": "11-span",
+            "grid": {
+                "defaultW": 11,
+                "defaultH": 46,
+                "minW": 11,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "12-span",
+            "label": "12-span",
+            "grid": {
+                "defaultW": 12,
+                "defaultH": 46,
+                "minW": 12,
+                "minH": 46,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}
