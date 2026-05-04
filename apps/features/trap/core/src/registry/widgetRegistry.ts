@@ -9,6 +9,7 @@ import { CounterTileWidget } from '../widgets/common/counter/CounterTile';
 import { LinkWidget } from '../widgets/common/link/LinkWidget';
 import { PeriodRadioGroup } from '../widgets/equity-research/PeriodRadioGroup/PeriodRadioGroup';
 import { CheckboxWidget } from '../widgets/common/checkbox/Checkbox';
+import { KPIComparisonWidget } from '../widgets/equity-research/KPIComparisonWidget/KPIComparisonWidget';
 import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/AnalystsCheckboxGroup/AnalystsCheckboxGroup';
 import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
 import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
@@ -40,6 +41,12 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         visibleIn: ['workflow'],
         listensToKeys: [],
         emitsKeys: [],
+    },
+    wd_kpi_comparison: {
+        id: 'wd_kpi_comparison',
+        component: KPIComparisonWidget,
+        category: 'Equity',
+        visibleIn: ['workflow'],
     },
     wd_analyst_performance_bar_chart: {
         id: 'wd_analyst_performance_bar_chart',
