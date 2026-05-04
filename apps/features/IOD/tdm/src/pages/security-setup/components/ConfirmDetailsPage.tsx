@@ -144,7 +144,9 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ referenc
             <label className="field-label">Call Date</label>
             <TextField
               fullWidth
-              value={new Date(securityDetails?.callDate || "").toLocaleDateString("en-US")}
+              value={securityDetails?.callDate
+                ? new Date(securityDetails?.callDate).toLocaleDateString("en-US", { timeZone: "UTC" })
+                : ""}
               disabled
               variant="outlined"
             />
