@@ -132,8 +132,6 @@ export function useWorkflowDesigner() {
     const widgetCategories = React.useMemo(() => {
         const set = new Set<string>();
 
-        console.log(designerWidgetDefs);
-
         for (const d of designerWidgetDefs as any[]) {
             const entry = widgetRegistry[String(d?.id ?? '')];
             const category = String(
@@ -379,6 +377,10 @@ export function useWorkflowDesigner() {
 
         if (saveDisabledReason) {
             message.warning(saveDisabledReason);
+            // Although this is not 100% correct logic (cannot save empty layout),
+            //  the flag needs to be toggled back to true so that useEffect can be retriggered again.
+            // This behavoiur needs to be refactored because there are too many useEffects
+            setIsDraftSaved(true);
             return;
         }
 

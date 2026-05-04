@@ -13,7 +13,7 @@ import { KPIComparisonWidget } from '../widgets/equity-research/KPIComparisonWid
 import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/AnalystsCheckboxGroup/AnalystsCheckboxGroup';
 import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
 import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
-import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/PerformanceAlanysis/PerformanceAnalysisLineChartWidget';
+import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/PerformanceAnalysis/PerformanceAnalysisLineChartWidget';
 import { TextWidget } from '../widgets/common/text/Text';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {

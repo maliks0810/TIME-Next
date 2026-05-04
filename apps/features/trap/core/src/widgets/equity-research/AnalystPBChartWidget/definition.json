@@ -34,12 +34,24 @@
             "id": "small",
             "label": "Small",
             "grid": {
-                "defaultW": 8,
+                "defaultW": 6,
+                "defaultH": 260,
+                "minW": 4,
+                "minH": 280,
+                "maxW": 6,
+                "maxH": 520
+            }
+        },
+        {
+            "id": "large",
+            "label": "Large",
+            "grid": {
+                "defaultW": 10,
                 "defaultH": 600,
                 "minW": 8,
                 "minH": 600,
-                "maxW": null,
-                "maxH": null
+                "maxW": 10,
+                "maxH": 900
             }
         }
     ]
