@@ -477,7 +477,7 @@ export function useWorkflowDesigner() {
             setLoaded(enriched);
             hydrateFromTemplateVersion(enriched);
             message.success('Published');
-            nav('..');
+            nav(`/trap?template_id=${templateId}&version_id=${versionId}`);
         } catch (e: any) {
             message.error(e?.message ?? String(e));
         } finally {
