@@ -199,6 +199,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     return true;
   }
 
+  function isValidLoanCategory(loanCategoryValue: string | null | undefined): boolean {
+    if(loanCategoryValue === 'REVIEW') return false;
+    return isValidString(loanCategoryValue);
+  }
+
   function isValidCallDate(callableValue: string | null | undefined, 
                            dateValue: string | null | undefined): boolean {    
     if(callableValue === 'Y' && !isValidString(dateValue)) return false;
@@ -252,7 +257,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         if (!isValidString(sectorValue) ||
             !isValidPrice(price) ||
             !isValidString(callableValue) ||
-            !isValidString(loanCategoryValue) ||
+            !isValidLoanCategory(loanCategoryValue) ||
             !isValidNotes(sectorValue,notes) ||
             !isValidCallDate(callableValue, callDate) ||
             !isRPLStringFieldValid(sectorValue, prepaymentTypeValue) ||
