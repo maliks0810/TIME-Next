@@ -128,7 +128,8 @@ export const useValidationFields = () =>
       defaultSpeed: s.speedOverrides.defaultSpeed,
       severity: s.speedOverrides.severity,
       delinquency: s.speedOverrides.delinquency,
-      notes: s.notesInstructions
+      notes: s.notesInstructions,
+      loanCategoryValue: s.tradeFields.loanCategoryValue
     }))
   )
 

@@ -101,6 +101,11 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
     return '';
   }
 
+  const setNotesRequiredField = (sectorValue: string | null | undefined): string => {
+    if (sectorValue != 'SFR') return ' *';
+    return '';
+  }
+
   const toTwoDecimalValue = (userInput: string): number | null => {
     if (userInput === '') return null;
     const num = parseFloat(userInput);
@@ -326,7 +331,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
 
         {/* Notes / Instructions Section */}
         <div className="form-field" >
-          <label className="field-label">Notes / Instructions *</label>
+          <label className="field-label">{'Notes / Instructions'+setNotesRequiredField(securityDetails?.sectorValue)}</label>
           <TextField
             fullWidth
             multiline
@@ -479,7 +484,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               value={tradeFields?.loanCategoryValue}
               onChange={(value) => handleTradeFieldsChange('loanCategoryValue', value)}
               referenceData={referenceData}
-              label="Loan Category"
+              label="Loan Category *"
               disabled={isReadOnly}
             />
           </div>

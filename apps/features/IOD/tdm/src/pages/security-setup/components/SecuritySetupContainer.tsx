@@ -193,8 +193,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     return true;
   }
 
-  function isValidNotes(str: string | null | undefined): boolean {
-    if(str?.trim() === '') return false;
+  function isValidNotes(sectorValue: string | null | undefined,
+                        notes: string | null | undefined): boolean {
+    if(sectorValue != 'SFR' && (!isValidString(notes) || notes?.trim() === '')) return false;
     return true;
   }
 
@@ -247,12 +248,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         return true;
       case 'ssap-confirmation':
       case 'review-details':
-        const { sectorValue, callableValue, callDate, price, prepaymentTypeValue, defaultTypeValue, prepaymentSpeed, defaultSpeed, severity, delinquency, notes  } = validationFields;
+        const { sectorValue, callableValue, callDate, price, prepaymentTypeValue, defaultTypeValue, prepaymentSpeed, defaultSpeed, severity, delinquency, notes, loanCategoryValue  } = validationFields;
         if (!isValidString(sectorValue) ||
             !isValidPrice(price) ||
             !isValidString(callableValue) ||
-            !isValidString(notes) ||
-            !isValidNotes(notes) ||
+            !isValidString(loanCategoryValue) ||
+            !isValidNotes(sectorValue,notes) ||
             !isValidCallDate(callableValue, callDate) ||
             !isRPLStringFieldValid(sectorValue, prepaymentTypeValue) ||
             !isRPLStringFieldValid(sectorValue, defaultTypeValue) ||
