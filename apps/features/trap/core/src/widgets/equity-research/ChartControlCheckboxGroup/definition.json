@@ -47,10 +47,10 @@
             "id": "small-horizontal",
             "label": "Small Horizontal",
             "grid": {
-                "defaultW": 2,
-                "defaultH": 46,
-                "minW": 1,
-                "minH": 46,
+                "defaultW": 3,
+                "defaultH": 60,
+                "minW": 3,
+                "minH": 60,
                 "maxW": null,
                 "maxH": null
             }
