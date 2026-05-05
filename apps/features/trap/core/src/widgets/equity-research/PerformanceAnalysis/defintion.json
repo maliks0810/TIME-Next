@@ -1,72 +1,72 @@
 {
-  "id": "wd_analyst_performance_line_chart_01",
-  "category": "widgetDefinition",
-  "name": "Analysts performance line chart",
-  "version": 1,
-  "description": "Equity analysts performance comparision line chart",
-  "datasetId": "ds_analysts_performance_line_chart_01",
-  "variants": [
-    {
-      "id": "medium",
-      "label": "Medium",
-      "grid":{
-        "defaultW": 6,
-        "defaultH": 260,
-        "minW": 4,
-        "minH": 280,
-        "maxW": 6,
-        "maxH": 520
-      }
-      
+    "id": "wd_analyst_performance_line_chart_01",
+    "category": "widgetDefinition",
+    "name": "Analysts performance line chart",
+    "version": 1,
+    "description": "Equity analysts performance comparision line chart",
+    "datasetId": "ds_analysts_performance_line_chart_01",
+    "variants": [
+        {
+            "id": "small",
+            "label": "Small",
+            "grid": {
+                "defaultW": 6,
+                "defaultH": 260,
+                "minW": 4,
+                "minH": 280,
+                "maxW": 6,
+                "maxH": 520
+            }
+        },
+        {
+            "id": "medium",
+            "label": "Medium",
+            "grid": {
+                "defaultW": 7,
+                "defaultH": 400,
+                "minW": 7,
+                "minH": 400,
+                "maxW": 6,
+                "maxH": 400
+            }
+        },
+        {
+            "id": "large",
+            "label": "Large",
+            "grid": {
+                "defaultW": 9,
+                "defaultH": 600,
+                "minW": 9,
+                "minH": 600,
+                "maxW": 9,
+                "maxH": 900
+            }
+        }
+    ],
+    "supportedEntityTypes": [],
+    "listenToKeys": [],
+    "emitsKeys": [],
+    "configSchema": {
+        "type": "object",
+        "properties": {
+            "schemaKey": {
+                "type": "string",
+                "title": "Schema Key",
+                "description": "Logical line chart schema resolved by GraphQL",
+                "enum": ["prism.equity.analyst.performance.list"]
+            },
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string"
+            }
+        },
+        "required": ["schemaKey"]
     },
-    {
-      "id": "large",
-      "label": "Large",
-      "grid": {
-        "defaultW": 10,
-        "defaultH": 600,
-        "minW": 8,
-        "minH": 600,
-        "maxW": 10,
-        "maxH": 900
-      }
+    "uiHints": {
+        "category": "Equity Research",
+        "visibleIn": ["workflow"]
     }
-  ],
-  "supportedEntityTypes": [],
-  "listenToKeys": [],
-  "emitsKeys": [],
-  "configSchema": {
-    "type": "object",
-    "properties": {
-      "schemaKey": {
-        "type": "string",
-        "title": "Schema Key",
-        "description": "Logical line chart schema resolved by GraphQL",
-        "enum": [
-          "prism.equity.analyst.performance.list"
-        ]
-      },
-      "channel": {
-        "default": 1,
-        "description": "Widgets connected to the same channel able to share data between each other",
-        "enum": [
-          1,
-          2,
-          3,
-          4
-        ],
-        "title": "Communication Channel",
-        "type": "string"
-      }
-    },
-    "required": [
-      "schemaKey"
-    ]
-  },
-  "uiHints": {
-    "category": "Equity Research",
-    "visibleIn": [
-      "workflow"
-    ]
-  }
 }

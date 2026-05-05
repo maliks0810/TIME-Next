@@ -150,7 +150,7 @@ export default function AnalystPBChart({
             ref={chartRef}
             style={{
                 width: '100%',
-                height: '37vh',
+                height: '80%',
             }}
         />
     );
