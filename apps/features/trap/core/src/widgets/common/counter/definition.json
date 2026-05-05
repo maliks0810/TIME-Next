@@ -42,7 +42,7 @@
                 "withColorPicker": true
             },
             "clickable": {
-                "default": false,
+                "default": true,
                 "title": "Tile is clickable",
                 "type": "boolean"
             },
