@@ -7,7 +7,7 @@
     "category": "widgetDefinition",
     "datasetId": "ds_checkbox",
     "listensToKeys": null,
-    "emitsKeys": [""],
+    "emitsKeys": [],
     "configSchema": {
         "properties": {
             "channel": {
@@ -39,7 +39,7 @@
                 "default": false
             }
         },
-        "required": ["value"],
+        "required": ["value", "label"],
         "type": "object"
     },
     "uiHints": {

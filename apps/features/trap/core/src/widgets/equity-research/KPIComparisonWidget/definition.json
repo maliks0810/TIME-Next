@@ -1,11 +1,11 @@
 {
-    "id": "wd_analyst_performance_bar_chart",
-    "name": "Analysts Performance Bar Chart",
+    "id": "wd_kpi_comparison",
+    "name": "KPI Comparison Table",
     "version": 1,
-    "description": "Analysts performance bar chart widget.",
+    "description": "KPI Comparison widget",
     "tags": null,
     "category": "widgetDefinition",
-    "datasetId": "ds_analyst_performance_bar_chart",
+    "datasetId": "ds_kpi_comparison_table",
     "listensToKeys": null,
     "emitsKeys": null,
     "configSchema": {
@@ -19,7 +19,7 @@
             },
             "schemaKey": {
                 "title": "Schema Key",
-                "enum": ["prism.equity.analyst.performance.list"],
+                "enum": ["prism.equity.analyst.performance.grid"],
                 "type": "string"
             }
         },
@@ -31,39 +31,27 @@
     },
     "variants": [
         {
-            "id": "small",
-            "label": "Small",
-            "grid": {
-                "defaultW": 6,
-                "defaultH": 260,
-                "minW": 4,
-                "minH": 280,
-                "maxW": 6,
-                "maxH": 520
-            }
-        },
-        {
             "id": "medium",
             "label": "Medium",
             "grid": {
-                "defaultW": 7,
-                "defaultH": 400,
-                "minW": 7,
-                "minH": 400,
-                "maxW": 6,
-                "maxH": 400
+                "defaultW": 3,
+                "defaultH": 450,
+                "minW": 8,
+                "minH": 600,
+                "maxW": null,
+                "maxH": null
             }
         },
         {
             "id": "large",
             "label": "Large",
             "grid": {
-                "defaultW": 9,
+                "defaultW": 4,
                 "defaultH": 600,
-                "minW": 9,
+                "minW": 8,
                 "minH": 600,
-                "maxW": 9,
-                "maxH": 900
+                "maxW": null,
+                "maxH": null
             }
         }
     ]

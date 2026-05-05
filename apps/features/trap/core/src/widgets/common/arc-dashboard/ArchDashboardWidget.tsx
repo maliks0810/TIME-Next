@@ -41,7 +41,7 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
 
     useEffect(() => {
         const originalRows = props.result?.rows as any;
-        if (counterTileValue && originalRows?.length > 0) {
+        if (counterTileValue && counterTileValue !== 'TOTAL' && originalRows?.length > 0) {
             setDataSource(() =>
                 originalRows?.filter(({ status }: any) => status === counterTileValue)
             );

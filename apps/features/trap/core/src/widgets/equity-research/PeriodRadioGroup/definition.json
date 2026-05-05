@@ -35,9 +35,9 @@
             "id": "full-horizontal",
             "label": "Full Horizontal",
             "grid": {
-                "defaultW": 385,
-                "defaultH": 62,
-                "minW": 310,
+                "defaultW": 3,
+                "defaultH": 60,
+                "minW": 3,
                 "minH": 140,
                 "maxW": null,
                 "maxH": null
@@ -47,21 +47,9 @@
             "id": "compact-horizontal",
             "label": "Compact Horizontal",
             "grid": {
-                "defaultW": 242,
-                "defaultH": 62,
-                "minW": 310,
-                "minH": 140,
-                "maxW": null,
-                "maxH": null
-            }
-        },
-        {
-            "id": "full-vertical",
-            "label": "Full Vertical",
-            "grid": {
-                "defaultW": 92,
-                "defaultH": 258,
-                "minW": 310,
+                "defaultW": 2,
+                "defaultH": 60,
+                "minW": 2,
                 "minH": 140,
                 "maxW": null,
                 "maxH": null

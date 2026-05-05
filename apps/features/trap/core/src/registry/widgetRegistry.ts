@@ -9,10 +9,12 @@ import { CounterTileWidget } from '../widgets/common/counter/CounterTile';
 import { LinkWidget } from '../widgets/common/link/LinkWidget';
 import { PeriodRadioGroup } from '../widgets/equity-research/PeriodRadioGroup/PeriodRadioGroup';
 import { CheckboxWidget } from '../widgets/common/checkbox/Checkbox';
+import { KPIComparisonWidget } from '../widgets/equity-research/KPIComparisonWidget/KPIComparisonWidget';
 import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/AnalystsCheckboxGroup/AnalystsCheckboxGroup';
 import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
 import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
-import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/PerformanceAlanysis/PerformanceAnalysisLineChartWidget';
+import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/PerformanceAnalysis/PerformanceAnalysisLineChartWidget';
+import { TextWidget } from '../widgets/common/text/Text';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -39,6 +41,12 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         visibleIn: ['workflow'],
         listensToKeys: [],
         emitsKeys: [],
+    },
+    wd_kpi_comparison: {
+        id: 'wd_kpi_comparison',
+        component: KPIComparisonWidget,
+        category: 'Equity',
+        visibleIn: ['workflow'],
     },
     wd_analyst_performance_bar_chart: {
         id: 'wd_analyst_performance_bar_chart',
@@ -123,6 +131,15 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         component: PerformanceAnalysisLineChartWidget,
         category: 'Control',
         visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_text: {
+        id: 'cwd_text',
+        component: TextWidget,
+        category: 'Common',
+        visibleIn: ['landing', 'workflow'],
+
         listensToKeys: [],
         emitsKeys: [],
     },
