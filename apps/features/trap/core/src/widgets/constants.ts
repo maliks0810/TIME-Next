@@ -3,6 +3,12 @@ export const ANALYSTS_KEY = 'analystsControl';
 export const CHART_CONTROL_KEY = 'chartControl';
 export const PERIOD_RADIO_STORE_KEY = 'period';
 export const ANALYST_PB_KEY = 'analystPerformanceBarChart';
+export const DEAL_ID_KEY = 'deal.id';
+export const DEAL_NAME_KEY = 'deal.name';
+export const ANALYSIS_SESSION_ID_KEY = 'analysis.sessionId';
+export const TRANCHE_ID_KEY = 'trance.id';
+export const TRANCHE_NAME_KEY = 'tranche.name';
+export const ASSET_IS_NEW_KEY = 'asset.isNew';
 
 export enum DateFormatEnum {
     DAY = 'day',

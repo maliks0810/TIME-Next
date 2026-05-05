@@ -9,6 +9,7 @@ import { CounterTileWidget } from '../widgets/common/counter/CounterTile';
 import { LinkWidget } from '../widgets/common/link/LinkWidget';
 import { PeriodRadioGroup } from '../widgets/equity-research/PeriodRadioGroup/PeriodRadioGroup';
 import { CheckboxWidget } from '../widgets/common/checkbox/Checkbox';
+import CDIUploadWidget from '../widgets/securitized-credit/CDIUploadWidget';
 import { KPIComparisonWidget } from '../widgets/equity-research/KPIComparisonWidget/KPIComparisonWidget';
 import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/AnalystsCheckboxGroup/AnalystsCheckboxGroup';
 import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
@@ -139,7 +140,12 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         component: TextWidget,
         category: 'Common',
         visibleIn: ['landing', 'workflow'],
-
+    },
+    wd_cdi_upload_widget: {
+        id: 'wd_cdi_upload_widget',
+        component: CDIUploadWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
         listensToKeys: [],
         emitsKeys: [],
     },
