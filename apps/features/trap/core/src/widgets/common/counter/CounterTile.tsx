@@ -65,9 +65,9 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
     );
 
     const handleClick = () => {
-        const isTileClickableConfig = config?.params?.['clickable'];
+        const isTileClickableConfig = config?.params?.['clickable'] ?? true;
 
-        // if false or undefined - no click
+        // if false - no click
         if (!isTileClickableConfig) return;
 
         setWidgetValueToChannel({
