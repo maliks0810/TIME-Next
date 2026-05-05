@@ -43,14 +43,26 @@
             }
         },
         {
+            "id": "medium",
+            "label": "Medium",
+            "grid": {
+                "defaultW": 7,
+                "defaultH": 400,
+                "minW": 7,
+                "minH": 400,
+                "maxW": 6,
+                "maxH": 400
+            }
+        },
+        {
             "id": "large",
             "label": "Large",
             "grid": {
-                "defaultW": 10,
+                "defaultW": 9,
                 "defaultH": 600,
-                "minW": 8,
+                "minW": 9,
                 "minH": 600,
-                "maxW": 10,
+                "maxW": 9,
                 "maxH": 900
             }
         }
