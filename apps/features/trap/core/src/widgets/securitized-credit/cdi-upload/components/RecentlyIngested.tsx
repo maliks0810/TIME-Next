@@ -9,8 +9,8 @@ import {
 import { MetaRow } from './MetaRow';
 import { theme, Typography, Progress, Button, Tag, Tooltip } from 'antd';
 import { SectionLabel } from './SectionLabel';
-import { RecentDeal, UploadState } from '../types';
-import { WidgetComponentProps } from '../../../types/widget';
+import { RecentDeal, UploadState } from '../../types';
+import { WidgetComponentProps } from '../../../../types/widget';
 
 const { Text } = Typography;
 

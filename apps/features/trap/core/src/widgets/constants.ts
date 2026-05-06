@@ -8,7 +8,11 @@ export const DEAL_NAME_KEY = 'deal.name';
 export const ANALYSIS_SESSION_ID_KEY = 'analysis.sessionId';
 export const TRANCHE_ID_KEY = 'trance.id';
 export const TRANCHE_NAME_KEY = 'tranche.name';
-export const ASSET_IS_NEW_KEY = 'asset.isNew';
+export const SECURITY_ID_KEY = 'security.id';
+export const SECURITY_IDENTIFIER_KEY = 'security.identifier';
+export const SECURITY_NAME_KEY = 'security.name';
+export const SECURITY_TYPE_KEY = 'security.type';
+export const IS_ASSET_NEW_KEY = 'asset.isNew';
 
 export enum DateFormatEnum {
     DAY = 'day',

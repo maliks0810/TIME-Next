@@ -9,9 +9,10 @@ import { CounterTileWidget } from '../widgets/common/counter/CounterTile';
 import { LinkWidget } from '../widgets/common/link/LinkWidget';
 import { PeriodRadioGroup } from '../widgets/equity-research/PeriodRadioGroup/PeriodRadioGroup';
 import { CheckboxWidget } from '../widgets/common/checkbox/Checkbox';
-import CDIUploadWidget from '../widgets/securitized-credit/CDIUploadWidget';
+import CDIUploadWidget from '../widgets/securitized-credit/cdi-upload/CDIUploadWidget';
 import { KPIComparisonWidget } from '../widgets/equity-research/KPIComparisonWidget/KPIComparisonWidget';
 import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/AnalystsCheckboxGroup/AnalystsCheckboxGroup';
+import SecurityLookupWidget from '../widgets/securitized-credit/security-lookup/SecurityLookupWidget';
 import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
 import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
 import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/PerformanceAnalysis/PerformanceAnalysisLineChartWidget';
@@ -144,6 +145,14 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     wd_cdi_upload_widget: {
         id: 'wd_cdi_upload_widget',
         component: CDIUploadWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    wd_sc_security_lookup_01: {
+        id: 'wd_sc_security_lookup_01',
+        component: SecurityLookupWidget,
         category: 'Control',
         visibleIn: ['workflow'],
         listensToKeys: [],

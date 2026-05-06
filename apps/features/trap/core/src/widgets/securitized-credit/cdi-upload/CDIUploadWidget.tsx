@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { theme } from 'antd';
-import WidgetCardShell from '../../components/widget-shell/WidgetCardShell';
-import { useTheme, getThemeSurfaceMeta } from '../../theme/ThemeContext';
-import type { WidgetComponentProps } from '../../types/widget';
-import { executeWidget } from '../../api/trap';
-import { RecentDeal, UploadState } from './types';
+import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
+import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
+import type { WidgetComponentProps } from '../../../types/widget';
+import { executeWidget } from '../../../api/trap';
+import { RecentDeal, UploadState } from './../types';
 import { RecetlyIngested } from './components/RecentlyIngested';
 import { ErrorMessage } from './components/ErrorMessage';
 import { SuccessMessage } from './components/SuccessMessage';
@@ -14,14 +14,14 @@ import { Dropzone } from './components/Dropzone';
 import styles from './CDIUploadWidget.module.scss';
 import {
     ANALYSIS_SESSION_ID_KEY,
-    ASSET_IS_NEW_KEY,
+    IS_ASSET_NEW_KEY,
     DEAL_ID_KEY,
     DEAL_NAME_KEY,
     TRANCHE_ID_KEY,
     TRANCHE_NAME_KEY,
-} from '../constants';
-import { useSetWidgetValue } from '../../state/Widgets/hooks';
-import { useGetActiveTab } from '../../state/Tabs/hooks';
+} from '../../constants';
+import { useSetWidgetValue } from '../../../state/Widgets/hooks';
+import { useGetActiveTab } from '../../../state/Tabs/hooks';
 
 export default function CDIUploadWidget({
     onPublishContext,
@@ -69,7 +69,7 @@ export default function CDIUploadWidget({
             value: deal.sessionId,
             activeTab,
         });
-        setWidgetValueToChannel({ channelId, key: ASSET_IS_NEW_KEY, value: true, activeTab });
+        setWidgetValueToChannel({ channelId, key: IS_ASSET_NEW_KEY, value: true, activeTab });
     };
 
     // And this is the flow:
@@ -151,7 +151,7 @@ export default function CDIUploadWidget({
             ANALYSIS_SESSION_ID_KEY,
             TRANCHE_ID_KEY,
             TRANCHE_NAME_KEY,
-            ASSET_IS_NEW_KEY,
+            IS_ASSET_NEW_KEY,
         ].forEach((key) => setWidgetValueToChannel({ channelId, key, activeTab, value: null }));
     };
 
