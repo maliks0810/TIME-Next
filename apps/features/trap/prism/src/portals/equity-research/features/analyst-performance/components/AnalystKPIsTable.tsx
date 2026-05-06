@@ -12,7 +12,7 @@ type SideBlock = {
 };
 
 type KpiPeriod = {
-  periodLabel: 'MTD' | 'MTD1' | 'QTD' | 'QTD1' | 'YTD' | '1Year' | '3Year' | '5Year' | 'Max' | string;
+  periodLabel: 'MTD' | 'MTD1' | 'QTD' | 'QTD1' | 'YTD' | '1Year' | '3Year' | '5Year' | '10Year' | 'Max' | string;
   portfolio: SideBlock;
   benchmark: SideBlock;
   excess: {
@@ -88,6 +88,7 @@ function normalizeSelectedRange(raw?: string) {
   if (key === '1Y' || key === '1YEAR') return '1Year';
   if (key === '3Y' || key === '3YEAR') return '3Year';
   if (key === '5Y' || key === '5YEAR') return '5Year';
+  if (key === '10Y' || key === '10YEAR') return '10Year';
   if (key === 'MAX') return 'Max';
   return value;
 }
