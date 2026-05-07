@@ -181,6 +181,31 @@ export default function CDIUploadWidget({
         [widgetDefId, isDesigner, widgetId, onPublishContext]
     );
 
+    const handelDownload = async () => {
+        if (fromIntex && fromIntex.dealName) {
+            const { result } = await executeWidget({
+                widgetDefinitionId: widgetDefId,
+                params: {
+                    action: 'download',
+                    dealName: fromIntex.dealName,
+                },
+                context: {},
+
+                mode: isDesigner ? 'MOCK' : 'LIVE',
+            });
+
+            const blob = new Blob([result.base64]);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = result.fileName;
+
+            document.body.appendChild(link);
+            link.click();
+
+            document.body.removeChild(link);
+        }
+    };
     const reset = () => {
         setUploadState('idle');
         setFileName('');
@@ -227,6 +252,7 @@ export default function CDIUploadWidget({
 
                 <div className={styles.right}>
                     <RecetlyIngested
+                        handelDownload={handelDownload}
                         fromIntex={fromIntex}
                         uploadState={uploadState}
                         loadedDeal={loadedDeal}

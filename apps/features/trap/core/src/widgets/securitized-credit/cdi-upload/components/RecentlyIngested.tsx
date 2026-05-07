@@ -6,6 +6,7 @@ import {
     HistoryOutlined,
     ArrowRightOutlined,
     FileDoneOutlined,
+    DownloadOutlined,
 } from '@ant-design/icons';
 import { MetaRow } from './MetaRow';
 import { theme, Typography, Progress, Button, Tag, Tooltip } from 'antd';
@@ -39,6 +40,7 @@ type RecetlyIngestedProps = {
     reset: () => void;
     publishDeal: (deal: { dealId: string; dealName: string; sessionId: string }) => void;
     config: WidgetComponentProps['widgetInstance']['config'];
+    handelDownload: () => void;
 };
 export const RecetlyIngested = ({
     fileName,
@@ -54,6 +56,7 @@ export const RecetlyIngested = ({
     reset,
     errorMsg,
     config,
+    handelDownload,
 }: RecetlyIngestedProps) => {
     const { token } = theme.useToken();
 
@@ -199,16 +202,7 @@ export const RecetlyIngested = ({
                         <Text style={{ fontSize: 13, fontWeight: 700, color: token.colorText }}>
                             {fromIntex.dealName}
                         </Text>
-                        <Tag
-                            style={{
-                                fontSize: 9,
-                                margin: 0,
-                                lineHeight: '16px',
-                                fontFamily: 'monospace',
-                            }}
-                        >
-                            .{fromIntex.sourceType}
-                        </Tag>
+                        <DownloadOutlined onClick={handelDownload} />
                     </div>
 
                     <MetaRow label="Uploaded" value={fromIntex.uploadedAt} />
