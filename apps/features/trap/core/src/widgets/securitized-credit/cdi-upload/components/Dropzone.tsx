@@ -3,7 +3,6 @@ import { Input, Space, theme, Typography, Divider } from 'antd';
 const { Text } = Typography;
 import { CloudUploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import styles from './Dropzone.module.scss';
-import { WidgetComponentProps } from '../../../../types/widget';
 export const Dropzone = ({
     handleUpload,
     execute,
