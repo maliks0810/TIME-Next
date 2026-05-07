@@ -5,15 +5,16 @@ import {
     DatabaseOutlined,
     HistoryOutlined,
     ArrowRightOutlined,
+    FileDoneOutlined,
 } from '@ant-design/icons';
 import { MetaRow } from './MetaRow';
 import { theme, Typography, Progress, Button, Tag, Tooltip } from 'antd';
 import { SectionLabel } from './SectionLabel';
-import { RecentDeal, UploadState } from '../../types';
+import { DealFromIntex, RecentDeal, UploadState } from '../../types';
 import { WidgetComponentProps } from '../../../../types/widget';
 import styles from './RecentlyIngested.module.scss';
-import { useGetActiveTab } from '@/core/state/Tabs/hooks';
-import { useSetWidgetValue } from '@/core/state/Widgets/hooks';
+import { useGetActiveTab } from '../../../../state/Tabs/hooks';
+import { useSetWidgetValue } from '../../../../state/Widgets/hooks';
 import {
     ANALYSIS_SESSION_ID_KEY,
     DEAL_ID_KEY,
@@ -21,13 +22,14 @@ import {
     IS_ASSET_NEW_KEY,
     TRANCHE_ID_KEY,
     TRANCHE_NAME_KEY,
-} from '@/core/widgets/constants';
+} from '../../../../widgets/constants';
 const { Text } = Typography;
 
 type RecetlyIngestedProps = {
     uploadState: UploadState;
     loadedDeal: RecentDeal | null;
     recentDeals: RecentDeal[];
+    fromIntex: DealFromIntex | null;
     fileName: string;
     progress: number;
     fromRecent: boolean;
@@ -48,6 +50,7 @@ export const RecetlyIngested = ({
     publishDeal,
     setLoadedDeal,
     setFromRecent,
+    fromIntex,
     reset,
     errorMsg,
     config,
@@ -142,7 +145,79 @@ export const RecetlyIngested = ({
             </div>
         );
     }
+    if (uploadState === 'success' && fromIntex) {
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                    width: '100%',
+                    minWidth: 0,
+                }}
+            >
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Text style={{ fontSize: 12, fontWeight: 700 }}>{fromIntex.dealName}</Text>
+                    </div>
+                    <CloseCircleOutlined
+                        onClick={fromRecent ? handleClearRecent : reset}
+                        style={{
+                            fontSize: 16,
+                            color: token.colorTextTertiary,
+                            cursor: 'pointer',
+                        }}
+                    />
+                </div>
+                <div
+                    style={{
+                        borderRadius: token.borderRadius,
+                        border: `1px solid ${token.colorSuccessBorder}`,
+                        background: token.colorSuccessBg,
+                        padding: '10px 14px',
+                        width: '100%',
+                        minWidth: 0,
+                        boxSizing: 'border-box',
+                        overflow: 'hidden',
+                    }}
+                >
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            marginBottom: 8,
+                        }}
+                    >
+                        <FileDoneOutlined style={{ fontSize: 13, color: token.colorSuccess }} />
+                        <Text style={{ fontSize: 13, fontWeight: 700, color: token.colorText }}>
+                            {fromIntex.dealName}
+                        </Text>
+                        <Tag
+                            style={{
+                                fontSize: 9,
+                                margin: 0,
+                                lineHeight: '16px',
+                                fontFamily: 'monospace',
+                            }}
+                        >
+                            .{fromIntex.sourceType}
+                        </Tag>
+                    </div>
 
+                    <MetaRow label="Uploaded" value={fromIntex.uploadedAt} />
+                    <MetaRow label="Uploaded by" value={fromIntex.uploadedBy} />
+                    <MetaRow label="Source" value={'.zip'} last />
+                </div>
+            </div>
+        );
+    }
     // Success / from recent — loaded deal metadata
     if ((uploadState === 'success' || fromRecent) && loadedDeal) {
         return (
@@ -216,7 +291,7 @@ export const RecetlyIngested = ({
                     <MetaRow label="Session ID" value={loadedDeal.sessionId} mono />
                     <MetaRow label="Uploaded" value={loadedDeal.uploadedAt} />
                     <MetaRow label="Uploaded by" value={loadedDeal.uploadedBy} />
-                    <MetaRow label="deal.id" value={loadedDeal.dealId} mono last />
+                    <MetaRow label="Deal Id" value={loadedDeal.dealId} mono last />
                 </div>
             </div>
         );

@@ -9,3 +9,14 @@ export type RecentDeal = {
     packagePath: string;
     sessionId: string;
 };
+export type DealFromIntex = {
+    dealName: string;
+    extractedPath: string;
+    packagePath: string;
+    hasCdi: boolean;
+    hasCdu: boolean;
+    blobPath: string;
+    sourceType: 'intex-fetch';
+    uploadedBy: string;
+    uploadedAt: string;
+};

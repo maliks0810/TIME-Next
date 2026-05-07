@@ -1,20 +1,68 @@
-import React from 'react';
-import { theme, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Input, Space, theme, Typography, Divider } from 'antd';
 const { Text } = Typography;
-import { CloudUploadOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import styles from './Dropzone.module.scss';
-export const Dropzone = ({ handleUpload }: { handleUpload: (file: File) => void }) => {
+import { WidgetComponentProps } from '../../../../types/widget';
+export const Dropzone = ({
+    handleUpload,
+    execute,
+}: {
+    handleUpload: (file: File) => void;
+    execute: ({ dealName, passcode }: { dealName: string; passcode: string }) => void;
+}) => {
     const { token } = theme.useToken();
     const fileRef = React.useRef<HTMLInputElement>(null);
     const [dragOver, setDragOver] = React.useState(false);
 
+    const [dealName, setDealName] = useState<string>('');
+    const [passcode, setPasscode] = useState<string>('');
     const handleFiles = (files: FileList | null) => {
         const file = files?.[0];
         if (file) handleUpload(file);
     };
 
+    const handleExecute = () => {
+        if (dealName && passcode) {
+            execute?.({ dealName, passcode });
+        }
+    };
     return (
-        <>
+        <div className={styles.container}>
+            <Text
+                className={styles.label}
+                style={{
+                    color: token.colorTextTertiary,
+                }}
+            >
+                Fetch from intext
+            </Text>
+            <Space.Compact size="middle">
+                <Input
+                    placeholder="Deal name"
+                    style={{ flex: 1 }}
+                    value={dealName}
+                    onChange={(e) => setDealName(e.target.value)}
+                />
+                <Input
+                    placeholder="Passcode"
+                    style={{ flex: 0, minWidth: 120 }}
+                    value={passcode}
+                    onChange={(e) => setPasscode(e.target.value)}
+                />
+                <Space.Addon onClick={handleExecute} className={styles.download}>
+                    <DownloadOutlined />
+                </Space.Addon>
+            </Space.Compact>
+            <Divider style={{ margin: 2, color: token.colorTextTertiary }}>or</Divider>
+            <Text
+                className={styles.label}
+                style={{
+                    color: token.colorTextTertiary,
+                }}
+            >
+                Upload file
+            </Text>
             <input
                 ref={fileRef}
                 type="file"
@@ -64,6 +112,6 @@ export const Dropzone = ({ handleUpload }: { handleUpload: (file: File) => void 
                     </Text>
                 </div>
             </div>
-        </>
+        </div>
     );
 };

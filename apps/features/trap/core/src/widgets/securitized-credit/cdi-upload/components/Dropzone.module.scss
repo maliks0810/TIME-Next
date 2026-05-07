@@ -15,3 +15,19 @@
 .text {
     text-align: center;
 }
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+.download {
+    &:hover {
+        cursor: 'pointer';
+    }
+}

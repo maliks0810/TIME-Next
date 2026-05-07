@@ -63,9 +63,9 @@ export default function WidgetHost(props: {
 
     const widgetDefinitionId = String(
         props.widgetInstance?.composedWidgetId ??
-        props.widgetInstance?.widgetDefinitionId ??
-        props.widgetDefinition?.id ??
-        ''
+            props.widgetInstance?.widgetDefinitionId ??
+            props.widgetDefinition?.id ??
+            ''
     );
 
     const variantId = props.widgetInstance?.variantId;
@@ -147,11 +147,14 @@ export default function WidgetHost(props: {
             cancelled = true;
         };
     }, [requestKey, widgetDefinitionId, variantId, params, context, props.mode, isIdentity]);
-    const execute = async (variables?: Record<string, WidgetValueType>) => {
+    const execute = async (
+        variables?: Record<string, WidgetValueType>,
+        passedParams?: Record<string, WidgetValueType>
+    ) => {
         const response = await executeWidget({
             widgetDefinitionId,
             variantId,
-            params,
+            params: { ...params, ...passedParams },
             context: {
                 ...context,
                 ...variables,

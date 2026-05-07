@@ -5,7 +5,7 @@
     "description": "",
     "tags": null,
     "category": "widgetDefinition",
-    "datasetId": "ds_cdi_upload_widget",
+    "datasetId": "ds_sc_cdi_upload_01",
     "listensToKeys": null,
     "emitsKeys": [],
     "configSchema": {

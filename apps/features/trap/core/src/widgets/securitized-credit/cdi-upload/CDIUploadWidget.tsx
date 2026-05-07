@@ -5,7 +5,7 @@ import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
 import type { WidgetComponentProps } from '../../../types/widget';
 import { executeWidget } from '../../../api/trap';
-import { RecentDeal, UploadState } from './../types';
+import { DealFromIntex, RecentDeal, UploadState } from './../types';
 import { RecetlyIngested } from './components/RecentlyIngested';
 import { ErrorMessage } from './components/ErrorMessage';
 import { SuccessMessage } from './components/SuccessMessage';
@@ -35,6 +35,7 @@ export default function CDIUploadWidget({
     const [uploadState, setUploadState] = React.useState<UploadState>('idle');
     const [progress, setProgress] = React.useState(0);
     const [fileName, setFileName] = React.useState('');
+    const [fromIntex, setFromIntext] = React.useState<DealFromIntex | null>(null);
     const [errorMsg, setErrorMsg] = React.useState('');
     const [loadedDeal, setLoadedDeal] = React.useState<RecentDeal | null>(null);
     const [fromRecent, setFromRecent] = React.useState(false);
@@ -70,6 +71,48 @@ export default function CDIUploadWidget({
             activeTab,
         });
         setWidgetValueToChannel({ channelId, key: IS_ASSET_NEW_KEY, value: true, activeTab });
+    };
+
+    const handleFetch = async ({ dealName, passcode }: { dealName: string; passcode: string }) => {
+        setUploadState('uploading');
+        setProgress(20);
+        setErrorMsg('');
+
+        try {
+            setProgress(60);
+
+            const { result } = await executeWidget({
+                widgetDefinitionId: widgetDefId,
+                params: {
+                    action: 'fetch',
+                    passcode,
+                    dealName,
+                },
+                context: {},
+                mode: isDesigner ? 'MOCK' : 'LIVE',
+            });
+
+            setProgress(100);
+
+            // const deal = out?.result as any;
+            // if (!deal?.dealId) throw new Error('Download succeeded but no deal metadata returned');
+
+            setFromIntext({
+                dealName: result.dealName,
+
+                uploadedAt: result.uploadedAt ?? new Date().toLocaleString(),
+                uploadedBy: result.uploadedBy ?? '',
+                packagePath: result.packagePath ?? '',
+                ...result,
+            });
+            setFromRecent(false);
+            setUploadState('success');
+            publishDeal(result);
+        } catch (err: any) {
+            setUploadState('error');
+            setErrorMsg(err?.message ?? 'Download failed — check network and try again');
+            setProgress(0);
+        }
     };
 
     // And this is the flow:
@@ -144,6 +187,7 @@ export default function CDIUploadWidget({
         setProgress(0);
         setLoadedDeal(null);
         setFromRecent(false);
+        setFromIntext(null);
         setErrorMsg('');
         [
             DEAL_ID_KEY,
@@ -159,11 +203,17 @@ export default function CDIUploadWidget({
         <WidgetCardShell>
             <div className={styles.wrapper}>
                 <div className={styles.left}>
-                    {uploadState === 'idle' && <Dropzone handleUpload={handleUpload} />}
+                    {uploadState === 'idle' && (
+                        <Dropzone handleUpload={handleUpload} execute={handleFetch} />
+                    )}
 
                     {uploadState === 'uploading' && <Uploading progress={progress} />}
-
-                    {(uploadState === 'success' || fromRecent) && <SuccessMessage reset={reset} />}
+                    {(uploadState === 'success' || fromRecent) && (
+                        <SuccessMessage
+                            reset={reset}
+                            text={fromIntex ? 'Package loaded' : 'Package ingested'}
+                        />
+                    )}
 
                     {uploadState === 'error' && <ErrorMessage errorMsg={errorMsg} reset={reset} />}
                 </div>
@@ -177,6 +227,7 @@ export default function CDIUploadWidget({
 
                 <div className={styles.right}>
                     <RecetlyIngested
+                        fromIntex={fromIntex}
                         uploadState={uploadState}
                         loadedDeal={loadedDeal}
                         recentDeals={recentDeals}
