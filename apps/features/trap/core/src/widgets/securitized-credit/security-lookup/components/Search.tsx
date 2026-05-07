@@ -5,7 +5,7 @@ import { Space, Select, Input, theme, Typography, Spin, Tag } from 'antd';
 import { SearchResult, SearchType } from '../types';
 import { PLACEHOLDERS } from '../constants';
 import styles from './Search.module.scss';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 const { Text } = Typography;
 
 const { Option } = Select;

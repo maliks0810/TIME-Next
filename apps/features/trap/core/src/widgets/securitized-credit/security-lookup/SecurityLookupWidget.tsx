@@ -1,14 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
-import { theme, Input, Select, Space, Typography, Tag, Spin } from 'antd';
-import {
-    SearchOutlined,
-    CloseCircleOutlined,
-    CheckCircleFilled,
-    ArrowRightOutlined,
-    LineChartOutlined,
-    HistoryOutlined,
-} from '@ant-design/icons';
+import { theme } from 'antd';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import type { WidgetComponentProps } from '../../../types/widget';
 import { RecentSearch, SearchResult, SearchType } from './types';

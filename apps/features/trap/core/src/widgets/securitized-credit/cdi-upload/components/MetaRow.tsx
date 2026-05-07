@@ -4,15 +4,14 @@ export function MetaRow({
     label,
     value,
     mono,
-    token,
     last,
 }: {
     label: string;
     value: string;
     mono?: boolean;
-    token: any;
     last?: boolean;
 }) {
+    const { token } = theme.useToken();
     return (
         <div
             className={styles.wrapper}

@@ -207,16 +207,11 @@ export const RecetlyIngested = ({
                             .{loadedDeal.sourceType}
                         </Tag>
                     </div>
-                    <MetaRow
-                        label="Package path"
-                        value={loadedDeal.packagePath}
-                        mono
-                        token={token}
-                    />
-                    <MetaRow label="Session ID" value={loadedDeal.sessionId} mono token={token} />
-                    <MetaRow label="Uploaded" value={loadedDeal.uploadedAt} token={token} />
-                    <MetaRow label="Uploaded by" value={loadedDeal.uploadedBy} token={token} />
-                    <MetaRow label="deal.id" value={loadedDeal.dealId} mono token={token} last />
+                    <MetaRow label="Package path" value={loadedDeal.packagePath} mono />
+                    <MetaRow label="Session ID" value={loadedDeal.sessionId} mono />
+                    <MetaRow label="Uploaded" value={loadedDeal.uploadedAt} />
+                    <MetaRow label="Uploaded by" value={loadedDeal.uploadedBy} />
+                    <MetaRow label="deal.id" value={loadedDeal.dealId} mono last />
                 </div>
             </div>
         );
