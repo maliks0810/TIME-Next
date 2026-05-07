@@ -1,5 +1,5 @@
 import { Typography, theme, Button } from 'antd';
-import styles from './ErrorMessage.module.scss';
+import styles from './SuccessMessage.module.scss';
 import { CheckCircleFilled, ReloadOutlined } from '@ant-design/icons';
 const { Text } = Typography;
 export const SuccessMessage = ({ reset }: { reset: () => void }) => {
