@@ -188,8 +188,7 @@ export default function CDIUploadWidget({
                         setFromRecent={setFromRecent}
                         reset={reset}
                         publishDeal={publishDeal}
-                        onPublishContext={undefined}
-                        widgetId={widgetId}
+                        config={widgetInstance.config}
                     />
                 </div>
             </div>

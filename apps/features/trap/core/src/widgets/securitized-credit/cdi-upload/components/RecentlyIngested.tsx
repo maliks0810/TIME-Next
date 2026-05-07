@@ -11,7 +11,17 @@ import { theme, Typography, Progress, Button, Tag, Tooltip } from 'antd';
 import { SectionLabel } from './SectionLabel';
 import { RecentDeal, UploadState } from '../../types';
 import { WidgetComponentProps } from '../../../../types/widget';
-
+import styles from './RecentlyIngested.module.scss';
+import { useGetActiveTab } from '@/core/state/Tabs/hooks';
+import { useSetWidgetValue } from '@/core/state/Widgets/hooks';
+import {
+    ANALYSIS_SESSION_ID_KEY,
+    DEAL_ID_KEY,
+    DEAL_NAME_KEY,
+    IS_ASSET_NEW_KEY,
+    TRANCHE_ID_KEY,
+    TRANCHE_NAME_KEY,
+} from '@/core/widgets/constants';
 const { Text } = Typography;
 
 type RecetlyIngestedProps = {
@@ -26,8 +36,7 @@ type RecetlyIngestedProps = {
     setFromRecent: React.Dispatch<React.SetStateAction<boolean>>;
     reset: () => void;
     publishDeal: (deal: { dealId: string; dealName: string; sessionId: string }) => void;
-    onPublishContext: WidgetComponentProps['onPublishContext'];
-    widgetId?: string;
+    config: WidgetComponentProps['widgetInstance']['config'];
 };
 export const RecetlyIngested = ({
     fileName,
@@ -41,8 +50,7 @@ export const RecetlyIngested = ({
     setFromRecent,
     reset,
     errorMsg,
-    onPublishContext,
-    widgetId,
+    config,
 }: RecetlyIngestedProps) => {
     const { token } = theme.useToken();
 
@@ -52,30 +60,27 @@ export const RecetlyIngested = ({
         publishDeal(deal);
     };
 
+    const setWidgetValueToChannel = useSetWidgetValue();
+
+    const activeTab = useGetActiveTab();
+
+    const channelId = config?.params?.channel;
     const handleClearRecent = () => {
         setLoadedDeal(null);
         setFromRecent(false);
         [
-            'deal.id',
-            'deal.name',
-            'analysis.sessionId',
-            'tranche.id',
-            'tranche.name',
-            'asset.isNew',
-        ].forEach((k) => onPublishContext?.(k, undefined, widgetId));
+            DEAL_NAME_KEY,
+            DEAL_ID_KEY,
+            ANALYSIS_SESSION_ID_KEY,
+            TRANCHE_ID_KEY,
+            TRANCHE_NAME_KEY,
+            IS_ASSET_NEW_KEY,
+        ].forEach((key) => setWidgetValueToChannel({ key, value: null, activeTab, channelId }));
     };
     // Uploading
     if (uploadState === 'uploading') {
         return (
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 12,
-                    justifyContent: 'center',
-                    height: '100%',
-                }}
-            >
+            <div className={styles.uploading}>
                 <SectionLabel>Uploading…</SectionLabel>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <FileZipOutlined style={{ color: token.colorPrimary, fontSize: 15 }} />
@@ -218,16 +223,8 @@ export const RecetlyIngested = ({
     }
 
     return (
-        <div
-            style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 8,
-                minWidth: 0,
-                overflow: 'hidden',
-            }}
-        >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div className={styles.wrapper}>
+            <div className={styles.items}>
                 <HistoryOutlined style={{ fontSize: 11, color: token.colorTextTertiary }} />
                 <Text
                     style={{
@@ -269,12 +266,8 @@ export const RecetlyIngested = ({
                         <div
                             key={deal.dealId}
                             onClick={() => handleLoadRecent(deal)}
+                            className={styles.deals}
                             style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 10,
-                                padding: '8px 12px',
-                                cursor: 'pointer',
                                 background:
                                     idx % 2 === 0 ? token.colorBgContainer : token.colorFillAlter,
                                 borderBottom:
@@ -301,14 +294,9 @@ export const RecetlyIngested = ({
                             />
                             <div style={{ flex: 1, minWidth: 0 }}>
                                 <Text
+                                    className={styles.name}
                                     style={{
-                                        display: 'block',
-                                        fontSize: 12,
-                                        fontWeight: 600,
                                         color: token.colorText,
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
                                     }}
                                 >
                                     {deal.dealName}
@@ -325,16 +313,7 @@ export const RecetlyIngested = ({
                                     flexShrink: 0,
                                 }}
                             >
-                                <Tag
-                                    style={{
-                                        fontSize: 9,
-                                        margin: 0,
-                                        fontFamily: 'monospace',
-                                        lineHeight: '16px',
-                                    }}
-                                >
-                                    .{deal.sourceType}
-                                </Tag>
+                                <Tag className={styles.tag}>.{deal.sourceType}</Tag>
                                 <ArrowRightOutlined
                                     style={{ fontSize: 11, color: token.colorTextQuaternary }}
                                 />

@@ -33,40 +33,40 @@ import { useGetActiveTab } from '../../../state/Tabs/hooks';
 // ─── Mock search ──────────────────────────────────────────────────────────────
 
 function search(query: string): SearchResult[] {
-    const q = query.trim().toUpperCase();
-    if (q.length < 3) return [];
+    const clearQuery = query.trim().toUpperCase();
+    if (clearQuery.length < 3) return [];
 
-    const toResult = (t: (typeof MOCK_TRANCHES)[0]): SearchResult => ({
-        key: t.id,
-        name: `ARMT 2005-8 — ${t.name}`,
-        cusip: t.cusip,
-        isin: `US${t.cusip}5`,
-        aladdinId: `ALD-${t.cusip}`,
-        figi: `BBG${t.cusip.slice(0, 7)}`,
+    const toResult = (tranche: (typeof MOCK_TRANCHES)[0]): SearchResult => ({
+        key: tranche.id,
+        name: `ARMT 2005-8 — ${tranche.name}`,
+        cusip: tranche.cusip,
+        isin: `US${tranche.cusip}5`,
+        aladdinId: `ALD-${tranche.cusip}`,
+        figi: `BBG${tranche.cusip.slice(0, 7)}`,
         assetType: 'NA-RMBS',
         context: {
             'deal.id': 'deal_armt_2005_8',
             'deal.name': 'ARMT 2005-8',
             'analysis.sessionId': 'sess_armt_2005_8',
-            'tranche.id': t.id,
-            'tranche.name': t.name,
-            'security.id': t.cusip,
-            'security.identifier': t.cusip,
-            'security.name': `ARMT 2005-8 ${t.name}`,
+            'tranche.id': tranche.id,
+            'tranche.name': tranche.name,
+            'security.id': tranche.cusip,
+            'security.identifier': tranche.cusip,
+            'security.name': `ARMT 2005-8 ${tranche.name}`,
             'security.type': 'RMBS',
         },
     });
 
     // Exact CUSIP
-    const exact = MOCK_TRANCHES.find((t) => t.cusip === q);
+    const exact = MOCK_TRANCHES.find((tranche) => tranche.cusip === clearQuery);
     if (exact) return [toResult(exact)];
 
     // CUSIP prefix
-    const prefix = MOCK_TRANCHES.filter((t) => t.cusip.startsWith(q));
+    const prefix = MOCK_TRANCHES.filter((tranche) => tranche.cusip.startsWith(clearQuery));
     if (prefix.length > 0) return prefix.slice(0, 8).map(toResult);
 
     // Deal name / ticker
-    if (['ARMT', 'ARMT0508', 'ADJUSTABLE', 'MORTGAGE'].some((s) => q.includes(s))) {
+    if (['ARMT', 'ARMT0508', 'ADJUSTABLE', 'MORTGAGE'].some((tag) => clearQuery.includes(tag))) {
         const dealRow: SearchResult = {
             key: 'deal_armt_2005_8',
             name: 'Adjustable Rate Mortgage Trust 2005-8',
@@ -88,7 +88,7 @@ function search(query: string): SearchResult[] {
         return [
             dealRow,
             ...['t_7a2', 't_6a1', 't_7a1_1', 't_7m1', 't_cb1'].map((id) =>
-                toResult(MOCK_TRANCHES.find((t) => t.id === id)!)
+                toResult(MOCK_TRANCHES.find((tranche) => tranche.id === id)!)
             ),
         ];
     }
