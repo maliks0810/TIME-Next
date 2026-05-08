@@ -34,7 +34,7 @@ export const Dropzone = ({
                     color: token.colorTextTertiary,
                 }}
             >
-                Fetch from intext
+                Fetch from intex
             </Text>
             <Space.Compact size="middle">
                 <Input
