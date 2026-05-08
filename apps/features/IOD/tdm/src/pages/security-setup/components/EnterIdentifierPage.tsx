@@ -12,12 +12,14 @@ interface EnterIdentifierPageProps {
   referenceData: INormalizedReferenceData | null;
   selectFieldErrors?: Partial<Record<string, string>>;
   onFileUpload?: (file: File) => void;
+  missingFields?: Record<string, boolean>;
 }
 
 export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   referenceData,
   selectFieldErrors = {},
   onFileUpload,
+  missingFields = {}
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -62,7 +64,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   const CUSIP_IDENTIFIER_MAX_LENGHT = 9;
   const OTHER_IDENTIFIER_MAX_LENGHT = 12;
   const setIdentityMaxLenght = (value: unknown): number => {
-    if(value === 'CUSIP'){
+    if (value === 'CUSIP') {
       return CUSIP_IDENTIFIER_MAX_LENGHT
     }
     return OTHER_IDENTIFIER_MAX_LENGHT
@@ -95,12 +97,10 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   }
 
   const handleIdentifierPlaceholder = (identifierType: string | null | undefined) => {
-    if(identifierType === 'FIGI')
-    {
+    if (identifierType === 'FIGI') {
       return 'BBGZ000BLNNV0';
     }
-    if(identifierType === 'ISIN')
-    {
+    if (identifierType === 'ISIN') {
       return 'US1234567890';
     }
     return '';
@@ -134,10 +134,9 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
       updateIdentifierFields(updates);
       return;
     }
-    if (field === "identifierValue")
-    {
-        const identifierValue = removeNonAlphanumeric(event.target.value);
-        event.target.value = identifierValue;
+    if (field === "identifierValue") {
+      const identifierValue = removeNonAlphanumeric(event.target.value);
+      event.target.value = identifierValue;
     }
 
     updateIdentifierFields({ [field]: event.target.value });
@@ -227,7 +226,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
 
           <div className="form-row two-column">
             {/* EU Securitization Status */}
-            <div className="form-row-group">
+            <div className={`form-row-group${missingFields.euSecuritizationStatus ? ' field-required-missing' : ''}`}>
               <label className="field-label">EU Securitization Status *</label>
               <SelectFormField
                 fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
@@ -256,7 +255,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             </div>
 
             {/* Erisa Status */}
-            <div className="form-row-group">
+            <div className={`form-row-group${missingFields.erisaStatus ? ' field-required-missing' : ''}`}>
               <label className="field-label">Erisa Status *</label>
               <SelectFormField
                 fieldKey={ReferenceDataFieldKey.ErisaStatus}
@@ -274,7 +273,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
         </div>
 
         {/* New Issue */}
-        <div className="form-row-group">
+        <div className={`form-row-group${missingFields.newIssue ? ' field-required-missing' : ''}`}>
           <label className="field-label">New Issue *</label>
           <FormControl fullWidth>
             <RadioGroup
@@ -304,7 +303,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
         </div>
 
         {/* Aladdin CDI ID */}
-        <div className="form-row-group">
+        <div className={`form-row-group${missingFields.aladdinCdiId ? ' field-required-missing' : ''}`}>
           <label className="field-label">Aladdin CDI ID</label>
           <TextField
             fullWidth
@@ -353,17 +352,17 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
 
         {/* Bloomberg Identifier */}
         <div className="form-row two-column">
-          <div>
+          <div className={`form-row-group${missingFields.identifierType ? ' field-required-missing' : ''}`}>
             <label className="field-label">Identifier Type *</label>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Identifier}
               value={formValues.identifierType}
-              onChange={(value) => 
-                  {
-                    updateIdentifierFields({ identifierType: value,
-                                             identifierValue: undefined
-                                          })
-                  }}
+              onChange={(value) => {
+                updateIdentifierFields({
+                  identifierType: value,
+                  identifierValue: undefined
+                })
+              }}
               referenceData={referenceData}
               disabled={isReadOnly}
               fullWidth={false}
@@ -371,22 +370,22 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               errorText={selectFieldErrors[ReferenceDataFieldKey.Identifier] ?? null}
             />
           </div>
-          <div>
+          <div className={`form-row-group${missingFields.identifierValue ? ' field-required-missing' : ''}`}>
             <label className="field-label">Identifier</label>
             <TextField
               className="field-input-half"
               value={formValues.identifierValue || ''}
               onChange={handleTextChange('identifierValue')}
-              placeholder= {handleIdentifierPlaceholder(formValues.identifierType)}
+              placeholder={handleIdentifierPlaceholder(formValues.identifierType)}
               variant="outlined"
               disabled={isReadOnly}
-              slotProps={{ htmlInput: { maxLength: identityMaxLenght } }}				  
+              slotProps={{ htmlInput: { maxLength: identityMaxLenght } }}
             />
           </div>
         </div>
 
         {/* Market Sector */}
-        <div className="form-row-group">
+        <div className={`form-row-group${missingFields.marketSector ? ' field-required-missing' : ''}`}>
           <label className="field-label">Market Sector/Yellow Key *</label>
           <div className="field-inputs-row">
             <SelectFormField

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, IconButton, CircularProgress, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
@@ -25,6 +25,16 @@ import { ISecuritySetupRequestAttachment, ISecuritySetupWizardPayload } from '..
 import { SecuritySetupService } from '../../../services/SecuritySetupService';
 import { useReferenceData } from '../hooks/useReferenceData';
 import { getStepNumber } from '../utils/securitySetupApiTransformer';
+import {
+  isValidString,
+  isValidPrice,
+  isValidNotes,
+  isValidLoanCategory,
+  isValidCallDate,
+  isRPLStringFieldValid,
+  isRPLNumberFieldValid,
+  isValidIdentifier
+} from '../utils/securitySetupValidation';
 import { ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { ApiResponseError } from '../../../common/lib/ApiResponseError';
 import { ErrorModal } from '../../../common/components/ErrorModal';
@@ -94,6 +104,20 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   const isCancelled =
     initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
+
+  const [isDirty, setIsDirty] = useState(false);
+  const stepBaseLineRef = useRef(validationFields);
+
+  useEffect(() => {
+    setIsDirty(false);
+    stepBaseLineRef.current = validationFields;
+  }, [currentStep])
+
+  useEffect(() => {
+    if (validationFields !== stepBaseLineRef.current) {
+      setIsDirty(true);
+    }
+  }, [validationFields]);
 
   const initialRequestId = initialData?.securitySetupRequestId ?? null;
   useEffect(() => {
@@ -177,51 +201,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   const getCurrentStepNumber = (): number => getStepNumber(currentStep);
 
-  function isValidString(str: string | null | undefined): boolean {
-    return !!str;
-  }
-
-  function isValidNumber(str: string | null | undefined): boolean {
-    if (str === '') return false;
-    if (isNaN(Number(str))) return false;
-    return true;
-  }
-
-  function isValidPrice(str: string | null | undefined): boolean {
-    if(!isValidNumber(str)) return false;
-    if(Number(str) === 0) return false;
-    return true;
-  }
-
-  function isValidNotes(sectorValue: string | null | undefined,
-                        notes: string | null | undefined): boolean {
-    if(sectorValue != 'SFR' && (!isValidString(notes) || notes?.trim() === '')) return false;
-    return true;
-  }
-
-  function isValidLoanCategory(loanCategoryValue: string | null | undefined): boolean {
-    if(loanCategoryValue === 'REVIEW') return false;
-    return isValidString(loanCategoryValue);
-  }
-
-  function isValidCallDate(callableValue: string | null | undefined, 
-                           dateValue: string | null | undefined): boolean {    
-    if(callableValue === 'Y' && !isValidString(dateValue)) return false;
-    return true
-  }
-
-  function isRPLStringFieldValid(sectorValue: string | null | undefined, 
-                            fieldValue: string | null | undefined): boolean {    
-    if(sectorValue === 'RPL' && !isValidString(fieldValue)) return false;
-    return true
-  }
-
-  function isRPLNumberFieldValid(sectorValue: string | null | undefined, 
-                            fieldValue: number | null | undefined): boolean {    
-    if(sectorValue === 'RPL' && !isValidNumber(fieldValue?.toString())) return false;
-    return true
-  }
-
   const canProceed = (): boolean => {
     if (isCancelled) {
       return currentStep !== 'confirm-details';
@@ -243,7 +222,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         const { identifierType, identifierValue, marketSector, euSecuritizationStatus, erisaStatus, newIssue } = validationFields;
         if (!isValidString(identifierType) ||
           !isValidString(identifierValue) ||
-          !isValidIdentifier(identifierType,identifierValue) ||
+          !isValidIdentifier(identifierType, identifierValue) ||
           !isValidString(marketSector) ||
           !isValidString(euSecuritizationStatus) ||
           !isValidString(erisaStatus) ||
@@ -253,21 +232,20 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         return true;
       case 'ssap-confirmation':
       case 'review-details':
-        const { sectorValue, callableValue, callDate, price, prepaymentTypeValue, defaultTypeValue, prepaymentSpeed, defaultSpeed, severity, delinquency, notes, loanCategoryValue  } = validationFields;
+        const { sectorValue, callableValue, callDate, price, prepaymentTypeValue, defaultTypeValue, prepaymentSpeed, defaultSpeed, severity, delinquency, notes, loanCategoryValue } = validationFields;
         if (!isValidString(sectorValue) ||
-            !isValidPrice(price) ||
-            !isValidString(callableValue) ||
-            !isValidLoanCategory(loanCategoryValue) ||
-            !isValidNotes(sectorValue,notes) ||
-            !isValidCallDate(callableValue, callDate) ||
-            !isRPLStringFieldValid(sectorValue, prepaymentTypeValue) ||
-            !isRPLStringFieldValid(sectorValue, defaultTypeValue) ||
-            !isRPLNumberFieldValid(sectorValue, prepaymentSpeed) ||
-            !isRPLNumberFieldValid(sectorValue, defaultSpeed) ||
-            !isRPLNumberFieldValid(sectorValue, severity) ||
-            !isRPLNumberFieldValid(sectorValue, delinquency)
-          )
-        {
+          !isValidPrice(price) ||
+          !isValidString(callableValue) ||
+          !isValidLoanCategory(loanCategoryValue) ||
+          !isValidNotes(sectorValue, notes) ||
+          !isValidCallDate(callableValue, callDate) ||
+          !isRPLStringFieldValid(sectorValue, prepaymentTypeValue) ||
+          !isRPLStringFieldValid(sectorValue, defaultTypeValue) ||
+          !isRPLNumberFieldValid(sectorValue, prepaymentSpeed) ||
+          !isRPLNumberFieldValid(sectorValue, defaultSpeed) ||
+          !isRPLNumberFieldValid(sectorValue, severity) ||
+          !isRPLNumberFieldValid(sectorValue, delinquency)
+        ) {
           return false;
         }
         return true;
@@ -276,6 +254,43 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       default:
         return false;
     }
+  };
+
+  const getMissingFields = (): Record<string, boolean> => {
+    if (!isDirty || isReadOnly || isCancelled) return {};
+
+    if (currentStep === "enter-identifier") {
+      const { identifierType, identifierValue, marketSector, euSecuritizationStatus, erisaStatus, newIssue } = validationFields;
+      return {
+        identifierType: !isValidString(identifierType),
+        identifierValue: !isValidString(identifierValue) || !isValidIdentifier(identifierType, identifierValue),
+        marketSector: !isValidString(marketSector),
+        euSecuritizationStatus: !isValidString(euSecuritizationStatus),
+        erisaStatus: !isValidString(erisaStatus),
+        newIssue: !isValidString(newIssue)
+      };
+    }
+
+    if (currentStep === "review-details") {
+      const { sectorValue, callableValue, callDate, price, prepaymentTypeValue, defaultTypeValue, prepaymentSpeed, defaultSpeed, severity, delinquency, notes, loanCategoryValue } = validationFields;
+
+      return {
+        sectorValue: !isValidString(sectorValue),
+        price: !isValidPrice(price),
+        callableValue: !isValidString(callableValue),
+        callDate: !isValidCallDate(callableValue, callDate),
+        notes: !isValidNotes(sectorValue, notes),
+        loanCategoryValue: !isValidLoanCategory(loanCategoryValue),
+        prepaymentTypeValue: !isRPLStringFieldValid(sectorValue, prepaymentTypeValue),
+        defaultTypeValue: !isRPLStringFieldValid(sectorValue, defaultTypeValue),
+        prepaymentSpeed: !isRPLNumberFieldValid(sectorValue, prepaymentSpeed),
+        defaultSpeed: !isRPLNumberFieldValid(sectorValue, defaultSpeed),
+        severity: !isRPLNumberFieldValid(sectorValue, severity),
+        delinquency: !isRPLNumberFieldValid(sectorValue, delinquency),
+      };
+    }
+
+    return {};
   };
 
   // ─── File upload ───────────────────────────────────────────────────────────
@@ -421,58 +436,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
   };
 
-  function areFirst2CharLetters(input: string): boolean {
-    const regex = /^[a-zA-Z]{2}/;
-    return regex.test(input);
-  }
-  
-  function isStrictlyAlphanumeric(value: string): boolean {
-    return /^[A-Za-z0-9]+$/.test(value);
-  };
-
-  function isValidIdentifier(identifierType: string | null | undefined,
-                             identifierValue: string | null | undefined): boolean {
-    // Returns false for null, undefined, and ""
-    if(!!identifierValue === false)
-    {
-      return false;
-    }
-    
-    if(identifierType === 'CUSIP')
-    {
-      if(identifierValue.length != 9)
-      {
-          return false;
-      }
-    }
-
-    if(identifierType === 'FIGI')
-    {
-      if(identifierValue.length != 12)
-      {
-          return false;
-      }      
-      if(!identifierValue.toUpperCase().startsWith('BBG'))
-      {
-          return false;
-      }      
-    }
-
-    if(identifierType === 'ISIN')
-    {
-      if(identifierValue.length != 12)
-      {
-          return false;
-      }
-      if(!areFirst2CharLetters(identifierValue))
-      {
-          return false;
-      }
-    }
-
-    return isStrictlyAlphanumeric(identifierValue);
-  }
-
   const handleClose = async () => {
     resetWizard();
     navigate("/iod/tdm/");
@@ -596,6 +559,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             referenceData={referenceData}
             selectFieldErrors={selectFieldErrors}
             onFileUpload={handleFileUpload}
+            missingFields={getMissingFields()}
           />
         );
       case "ssap-confirmation":
@@ -614,6 +578,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           <ReviewDetailsPage
             flowType={flowType}
             referenceData={referenceData}
+            missingFields={getMissingFields()}
           />
         );
       case "confirm-details":

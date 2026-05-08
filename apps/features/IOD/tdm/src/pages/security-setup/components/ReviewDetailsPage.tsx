@@ -10,10 +10,12 @@ import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
 interface ReviewDetailsPageProps {
   flowType?: SecuritySetupFlowType;
   referenceData: INormalizedReferenceData | null;
+  missingFields?: Record<string, boolean>;
 }
 
 export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   referenceData,
+  missingFields = {}
 }) => {
   const {
     aladdinCdiId,
@@ -205,7 +207,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
       <div className="form-section">
         <h3 className="section-title">Risk Details</h3>
         <div className="form-row two-column">
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.sectorValue ? ' field-required-missing' : ''}`}>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Sector}
               value={securityDetails?.sectorValue}
@@ -215,7 +217,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               disabled={isReadOnly}
             />
           </div>
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.callableValue ? ' field-required-missing' : ''}`}>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Callable}
               value={securityDetails?.callableValue}
@@ -225,7 +227,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               disabled={isReadOnly}
             />
           </div>
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.callDate ? ' field-required-missing' : ''}`}>
             <label className="field-label">{'Call Date' + setCallDateRequiredField(securityDetails?.callableValue)}</label>
             <TextField
               fullWidth
@@ -236,7 +238,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               variant="outlined"
             />
           </div>
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.price ? ' field-required-missing' : ''}`}>
             <label className="field-label">Price *</label>
             <TextField
               fullWidth
@@ -249,7 +251,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
         </div>
 
         <div className="form-row two-column">
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.prepaymentTypeValue ? ' field-required-missing' : ''}`}>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.PrepaymentType}
               value={speedOverrides?.prepaymentTypeValue ?? undefined}
@@ -259,7 +261,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               disabled={isReadOnly}
             />
           </div>
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.defaultTypeValue ? ' field-required-missing' : ''}`}>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.DefaultType}
               value={speedOverrides?.defaultTypeValue ?? undefined}
@@ -272,7 +274,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
         </div>
 
         <div className="form-row two-column">
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.prepaymentSpeed ? ' field-required-missing' : ''}`}>
             <label className="field-label">{'Prepayment Speed' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
@@ -284,7 +286,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               {...({ slotProps: { htmlInput: { inputMode: 'decimal' } } })}
             />
           </div>
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.defaultSpeed ? ' field-required-missing' : ''}`}>
             <label className="field-label">{'Default Speed' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
@@ -299,7 +301,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
         </div>
 
         <div className="form-row two-column">
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.severity ? ' field-required-missing' : ''}`}>
             <label className="field-label">{'Severity (0-100)' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
@@ -313,7 +315,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               {...({ slotProps: { htmlInput: { min: 0, max: 100, inputMode: 'decimal' } } })}
             />
           </div>
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.delinquency ? ' field-required-missing' : ''}`}>
             <label className="field-label">{'Delinquency (0-100)' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
@@ -330,8 +332,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
         </div>
 
         {/* Notes / Instructions Section */}
-        <div className="form-field" >
-          <label className="field-label">{'Notes / Instructions'+setNotesRequiredField(securityDetails?.sectorValue)}</label>
+        <div className={`form-row-group${missingFields.notes ? ' field-required-missing' : ''}`}>
+          <label className="field-label">{'Notes / Instructions' + setNotesRequiredField(securityDetails?.sectorValue)}</label>
           <TextField
             fullWidth
             multiline
@@ -478,7 +480,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               disabled={isReadOnly}
             />
           </div>
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.loanCategoryValue ? ' field-required-missing' : ''}`}>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.SMSLoanCategory}
               value={tradeFields?.loanCategoryValue}

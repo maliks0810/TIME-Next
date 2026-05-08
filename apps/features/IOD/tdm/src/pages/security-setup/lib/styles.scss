@@ -1248,6 +1248,29 @@
   }
 }
 
+.field-required-missing {
+  .field-label {
+    color: #d32f2f !important;
+  }
+
+  .MuiOutlinedInput-root {
+    background-color: #ffff00 !important;
+
+    .MuiInputBase-input {
+      background-color: #ffff00 !important;
+      color: #d32f2f !important;
+    }
+
+    .MuiSelect-select {
+      color: #d32f2f !important;
+
+      em {
+        color: #d32f2f !important;
+      }
+    }
+  }
+}
+
 // =============================================================================
 // FILE UPLOADED SECTION
 // =============================================================================
