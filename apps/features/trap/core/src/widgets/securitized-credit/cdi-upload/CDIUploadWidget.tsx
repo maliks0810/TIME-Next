@@ -27,6 +27,7 @@ export default function CDIUploadWidget({
     onPublishContext,
     widgetInstance,
     result,
+    widgetDefinition,
 }: WidgetComponentProps) {
     const { token } = theme.useToken();
     const { themeName } = useTheme();
@@ -51,7 +52,12 @@ export default function CDIUploadWidget({
     );
 
     const widgetId = widgetInstance?.id;
-    const widgetDefId = widgetInstance?.widgetDefinitionId ?? 'cwd_sc_cdi_file_drop_01';
+    const widgetDefId = String(
+        widgetInstance?.composedWidgetId ??
+            widgetInstance?.widgetDefinitionId ??
+            widgetDefinition?.id ??
+            ''
+    );
     const isDesigner = widgetInstance?._mode === 'designer';
 
     const channelId = widgetInstance?.config?.params?.channel;
@@ -157,11 +163,11 @@ export default function CDIUploadWidget({
                 setProgress(100);
 
                 const deal = out?.result as any;
-                if (!deal?.dealId)
+                if (!deal?.dealName)
                     throw new Error('Upload succeeded but no deal metadata returned');
 
                 setLoadedDeal({
-                    dealId: deal.dealId,
+                    dealId: `r_${deal.dealName}`,
                     dealName: deal.dealName,
                     sourceType: ext === '.zip' ? 'zip' : 'cdi',
                     uploadedAt: deal.uploadedAt ?? new Date().toLocaleString(),
