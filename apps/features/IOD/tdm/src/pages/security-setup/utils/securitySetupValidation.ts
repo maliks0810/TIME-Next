@@ -23,7 +23,7 @@ export const isValidNotes = (
   sector: string | null | undefined,
   notes: string | null | undefined,
 ): boolean => {
-  if (sector === "SFR" && (!isValidString(notes) || notes?.trim() === "")) return false;
+  if (sector !== "SFR" && (!isValidString(notes) || notes?.trim() === "")) return false;
   return true;
 };
 
