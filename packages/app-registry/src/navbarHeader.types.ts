@@ -13,6 +13,9 @@ export enum NavbarHeader {
 export enum NavbarSubHeader {
     AladdinPortfolioManagement = 'Aladdin Portfolio Management',
     InvestmentManagementSolutions = 'Investment Management Solutions',
+    IM_Agency = 'Agency',
+    IM_Credit = 'Credit',
+    IM_Rates = 'Rates',
     Fundamental = 'Fundamental',
     ESG = 'ESG',
     Market = 'Market',
