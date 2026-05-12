@@ -15,7 +15,7 @@ import { useSetActiveUser } from './state/User/hooks';
 const { Content } = Layout;
 
 const THEME_STORAGE_KEY = 'trap_theme';
-const APP_SHELL_MIN_WIDTH = 1400;
+const APP_SHELL_MIN_WIDTH = 1180;
 const CONTENT_MAX_WIDTH = 1880;
 const APP_HORIZONTAL_PADDING = 16;
 const APP_TOP_PADDING = 16;
