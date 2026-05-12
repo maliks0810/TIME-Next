@@ -46,7 +46,7 @@ const INITIAL_STATE: SecuritySetupState = {
   isReadOnly: false,
   showConfirmModal: false,
   // file upload
-  pendingUploadFile: null,
+  pendingUploadFiles: [],
   isUploadingFile: false,
   fileUploadError: null
 }
@@ -173,7 +173,12 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
 
     setReadOnly: (flag: boolean) => set({ isReadOnly: flag }),
 
-    setPendingFile: (file: File | null) => set({ pendingUploadFile: file}),
+    setPendingFiles: (files: File[] | undefined) => set({ pendingUploadFiles: files }),
+
+    removePendingFile: (index: number) =>
+      set((prev: SecuritySetupStore) => ({
+        pendingUploadFiles: prev.pendingUploadFiles?.filter((_, i) => i !== index),
+    })),
 
     setUploadingFile: (flag: boolean) => set({ isUploadingFile: flag }),
 

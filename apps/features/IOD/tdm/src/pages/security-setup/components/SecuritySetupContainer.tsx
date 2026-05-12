@@ -9,7 +9,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SaveIcon from '@mui/icons-material/Save';
 import { useUserInfo } from '@platform/utils';
 import { HorizontalStepper } from './HorizontalStepper';
-import { EnterIdentifierPage } from './EnterIdentifierPage';
+import { EnterIdentifierPage, MAX_FILE_SIZE_MB, MAX_FILES } from './EnterIdentifierPage';
 import { SSAPApprovalPage } from './SSAPApprovalPage';
 import { ReviewDetailsPage } from './ReviewDetailsPage';
 import { ConfirmDetailsPage } from './ConfirmDetailsPage';
@@ -89,7 +89,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     setReadOnly,
     openConfirmModal,
     closeConfirmModal,
-    setPendingFile,
+    setPendingFiles,
     setUploadingFile,
     setFileUploadError,
     setAttachments,
@@ -100,7 +100,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const hasPasswordFlow = useHasPasswordFlow();
   const validationFields = useValidationFields();
   const step1Summary = useSummary();
-  const { pendingUploadFile, isUploadingFile } = useFileUploadState();
+  const { pendingUploadFiles, isUploadingFile } = useFileUploadState();
 
   const isCancelled =
     initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
@@ -295,19 +295,45 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   // ─── File upload ───────────────────────────────────────────────────────────
 
-  const handleFileUpload = useCallback((file: File) => {
-    setFileUploadError(null);
-    setPendingFile(file);
-  }, [setFileUploadError, setPendingFile]);
+  const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
-  const uploadFile = useCallback(
-    async (requestId: number, file: File): Promise<ISecuritySetupRequestAttachment[] | null> => {
+  const handleFileUpload = useCallback((files: File[]) => {
+    setFileUploadError(null);
+    const current = useSecuritySetupStore.getState().pendingUploadFiles;
+
+    if (current.length + files.length > MAX_FILES) {
+      setFileUploadError(`You can upload a maximum of ${MAX_FILES} files.`);
+      return;
+    }
+
+    const oversized = files.find((f) => f.size > MAX_FILE_SIZE_BYTES);
+    if (oversized) {
+      setFileUploadError(
+        `"${oversized.name}" exceeds the ${MAX_FILE_SIZE_MB}MB size limit.`
+      );
+      return;
+    }
+
+    setPendingFiles([...current, ...files]);
+  }, [setFileUploadError, setPendingFiles]);
+
+  const uploadFiles = useCallback(
+    async (requestId: number, files: File[]): Promise<ISecuritySetupRequestAttachment[] | null> => {
       setUploadingFile(true);
       setFileUploadError(null);
       try {
-        const uploaded = await SecuritySetupService.uploadAttachment(requestId, currentUser || "", file);
-        setPendingFile(null);
-        return uploaded || [];
+        const results: ISecuritySetupRequestAttachment[] = [];
+
+        for (const file of files) {
+          const uploaded = await SecuritySetupService.uploadAttachment(requestId, currentUser || "", file);
+
+          if (uploaded) {
+            results.push(...uploaded)
+          }
+        }
+
+        setPendingFiles([]);
+        return results;
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Failed to upload file.";
         setFileUploadError(msg);
@@ -316,11 +342,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         setUploadingFile(false);
       }
     },
-    [currentUser, setUploadingFile, setFileUploadError, setPendingFile],
+    [currentUser, setUploadingFile, setFileUploadError, setPendingFiles],
   );
 
   const resetUploadState = () => {
-    setPendingFile(null);
+    setPendingFiles(undefined);
     setFileUploadError(null);
   };
 
@@ -328,9 +354,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   const handleNext = async () => {
     const nextStep = getNextStep(currentStep);
-    const fileToUpload = pendingUploadFile;
+    const filesToUpload = pendingUploadFiles;
     const shouldPersist =
-      !isCancelled && (!isReadOnly || (currentStep === "enter-identifier" && fileToUpload));
+      !isCancelled && (!isReadOnly || (currentStep === "enter-identifier" && filesToUpload.length > 0));
 
     if (shouldPersist) {
       markStepComplete(currentStep);
@@ -351,16 +377,16 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         return;
       }
 
-      // Upload any queued attachment now that we have a guaranteed request ID
+      // Upload any queued attachments now that we have a guaranteed request ID
       const requestId = savedData.securitySetupRequestId ?? securitySetupRequestId;
       let freshAttachments: ISecuritySetupRequestAttachment[] = [];
 
-      if (fileToUpload) {
+      if (filesToUpload.length > 0) {
         if (!requestId) {
           setFileUploadError("Cannot upload file: missing Security Setup Request ID");
           return;
         }
-        const uploadResult = await uploadFile(requestId, fileToUpload);
+        const uploadResult = await uploadFiles(requestId, filesToUpload);
         if (!uploadResult) return;
         freshAttachments = uploadResult;
       }
@@ -422,13 +448,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
 
     if (savedData) {
-      if (pendingUploadFile) {
+      if (pendingUploadFiles.length > 0) {
         const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
         if (!requestId) {
           setFileUploadError("Cannot upload file: missing Security Setup Request ID");
           return;
         }
-        const uploaded = await uploadFile(requestId, pendingUploadFile);
+        const uploaded = await uploadFiles(requestId, pendingUploadFiles);
         if (!uploaded) return;
       }
       resetWizard();

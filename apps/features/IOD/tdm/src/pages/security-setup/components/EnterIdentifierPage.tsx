@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { FormControl, TextField, RadioGroup, FormControlLabel, Radio, CircularProgress } from '@mui/material';
+import { FormControl, TextField, RadioGroup, FormControlLabel, Radio, CircularProgress, IconButton } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import CloseIcon from '@mui/icons-material/Close'
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { SelectFormField } from '../../../common/components/SelectFormField';
 import { isNullOrEmpty } from '../../../utils/StringHelper';
 import { useIdentifierFields } from '../../../stores/selectors/securitySetupSelectors';
 import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
 
+export const MAX_FILES = 10;
+export const MAX_FILE_SIZE_MB = 30; // matches server limit
+
 interface EnterIdentifierPageProps {
   referenceData: INormalizedReferenceData | null;
   selectFieldErrors?: Partial<Record<string, string>>;
-  onFileUpload?: (file: File) => void;
+  onFileUpload?: (files: File[]) => void;
   missingFields?: Record<string, boolean>;
 }
 
@@ -24,7 +28,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   const [isDragOver, setIsDragOver] = useState(false);
 
   const formValues = useIdentifierFields();
-  const { updateIdentifierFields } = useSecuritySetupStore();
+  const { updateIdentifierFields, removePendingFile } = useSecuritySetupStore();
 
   useEffect(() => {
     // if a request was duplicated, calculate these fields on load
@@ -43,7 +47,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   const isReadOnly = formValues.isReadOnly;
   const isUploadingFile = formValues.isUploadingFile;
   const fileUploadError = formValues.fileUploadError;
-  const selectedFileName = formValues.pendingUploadFile?.name ?? null;
+  const pendingUploadFiles = formValues.pendingUploadFiles;
 
   const normalizeYesNo = (value: unknown): string => {
     if (value === 'yes' || value === true) return 'yes'
@@ -52,9 +56,9 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   }
 
   const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && onFileUpload) {
-      await onFileUpload(file);
+    const files = Array.from(e.target.files ?? []);
+    if (files.length > 0 && onFileUpload) {
+      await onFileUpload(files);
     }
 
     // reset input so same file can be re-selected if needed
@@ -90,9 +94,9 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
       return;
     }
 
-    const file = e.dataTransfer.files?.[0];
-    if (file && onFileUpload) {
-      onFileUpload(file);
+    const files = Array.from(e.dataTransfer.files ?? []);
+    if (files.length > 0 && onFileUpload) {
+      onFileUpload(files);
     }
   }
 
@@ -157,13 +161,14 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             <input
               id='memorandum-upload-input'
               type='file'
+              multiple
               style={{ display: 'none' }}
               onChange={handleFileInputChange}
-              disabled={isUploadingFile}
+              disabled={isUploadingFile || pendingUploadFiles.length >= MAX_FILES}
             />
             <label
               htmlFor='memorandum-upload-input'
-              className={`memorandum-upload-box${isUploadingFile ? '' : ' memorandum-upload-box--clickable'}
+              className={`memorandum-upload-box${(isUploadingFile || pendingUploadFiles.length >= MAX_FILES) ? '' : ' memorandum-upload-box--clickable'}
                 ${isDragOver ? ' memorandum-upload-box--drag-over' : ''}`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -171,37 +176,54 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             >
               {isUploadingFile ? (
                 <CircularProgress size={24} className='upload-progress-icon' />
-              ) : selectedFileName ? (
+              ) : pendingUploadFiles.length > 0 ? (
                 <CheckCircleIcon className='upload-success-icon' />
               ) : (
                 <InsertDriveFileIcon className='upload-doc-icon' />
               )}
               <div className="upload-text-wrapper">
                 {isUploadingFile ? (
-                  <span className='upload-instruction'> Uploading file...</span>
-                ) : selectedFileName ? (
-                  <>
-                    <span className='upload-instruction'>
-                      {selectedFileName}
-                    </span>
-                    <br />
-                    <span>
-                      will upload when you save or proceed to the next step.
-                    </span>
-                  </>
+                  <span className='upload-instruction'> Uploading {pendingUploadFiles.length} file{pendingUploadFiles.length !== 1 ? "s" : ""}...</span>
+                ) : pendingUploadFiles.length >= MAX_FILES ? (
+                  <span className='upload-instruction'>
+                    Maximum of {MAX_FILES} files reached.
+                  </span>
                 ) : (
                   <>
                     <span className="upload-instruction">
-                      Click or drag Offering Memorandum to this area to upload (Optional)
+                      Click or drag Offering Memorandums to this area to upload (Optional)
                     </span>
                     <br />
                     <span className="upload-instruction">
-                      Upload Offering Memorandum
+                      Up to {MAX_FILES} files - {MAX_FILE_SIZE_MB}MB each
                     </span>
                   </>
                 )}
               </div>
             </label>
+            {pendingUploadFiles.length > 0 && !isUploadingFile && (
+              <ul className="upload-file-list">
+                {pendingUploadFiles.map((file, index) => (
+                  <li key={`${file.name}-${index}`} className="upload-file-list-item">
+                    <InsertDriveFileIcon className="upload-file-list-icon" fontSize='small' />
+                    <span className="upload-file-list-name">
+                      {file.name}
+                    </span>
+                    <IconButton
+                      size="small"
+                      aria-label={`Remove ${file.name}`}
+                      onClick={() => removePendingFile(index)}
+                      className="upload-file-list-remove"
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </li>
+                ))}
+                <li className="upload-file-list-hint">
+                  Files will upload when you save or proceed to the next step.
+                </li>
+              </ul>
+            )}
             {fileUploadError && (
               <span className='upload-error-text'>
                 {fileUploadError}

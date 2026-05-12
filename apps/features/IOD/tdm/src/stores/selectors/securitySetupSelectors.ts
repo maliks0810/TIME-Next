@@ -29,7 +29,7 @@ export const useIdentifierFields = () =>
       isSsapReleasedByDm: s.isSsapReleasedByDm,
       isEuSecuritizationRequired: s.isEuSecuritizationRequired,
       isReadOnly: s.isReadOnly,
-      pendingUploadFile: s.pendingUploadFile,
+      pendingUploadFiles: s.pendingUploadFiles,
       isUploadingFile: s.isUploadingFile,
       fileUploadError: s.fileUploadError
     }))
@@ -98,7 +98,7 @@ export const useWizardNavigation = () =>
 export const useFileUploadState = () =>
   useSecuritySetupStore(
     useShallow((s: SecuritySetupStore) => ({
-      pendingUploadFile: s.pendingUploadFile,
+      pendingUploadFiles: s.pendingUploadFiles,
       isUploadingFile: s.isUploadingFile,
       fileUploadError: s.fileUploadError
     }))

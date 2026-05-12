@@ -50,7 +50,7 @@ export interface SecuritySetupState {
   showConfirmModal: boolean;
 
   // file upload
-  pendingUploadFile: File | null;
+  pendingUploadFiles: File[];
   isUploadingFile: boolean;
   fileUploadError: string | null;
 }
@@ -79,7 +79,8 @@ export interface SecuritySetupActions {
   goToStep: (step: SecuritySetupStep) => void;
   markStepComplete: (step: SecuritySetupStep) => void;
   setReadOnly: (flag: boolean) => void;
-  setPendingFile: (file: File | null) => void;
+  setPendingFiles: (file: File[] | undefined) => void;
+  removePendingFile: (index: number) => void;
   setUploadingFile: (flag: boolean) => void;
   setFileUploadError: (msg: string | null) => void;
   openConfirmModal: () => void;
