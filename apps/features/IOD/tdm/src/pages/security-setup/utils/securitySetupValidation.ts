@@ -36,7 +36,7 @@ export const isValidCallDate = (
   callableValue: string | null | undefined,
   dateValue: string | null | undefined,
 ): boolean => {
-  if (callableValue !== "Y" && !isValidString(dateValue)) return false;
+  if (callableValue === "Y" && !isValidString(dateValue)) return false;
   return true;
 };
 
