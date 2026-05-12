@@ -2,7 +2,7 @@
 import React from 'react';
 import GridLayout from 'react-grid-layout';
 
-export const APP_SHELL_WIDTH = 1920;
+export const APP_SHELL_WIDTH = 1880;
 export const CANVAS_WIDTH = 12;
 
 type CanvasContainerProps = {
