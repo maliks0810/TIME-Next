@@ -1,0 +1,22 @@
+.widgetPickerModal {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 20;
+    background: var(--ant-color-bg-elevated);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    .ant-modal-body {
+        border: 2px solid red;
+    }
+
+    .widgetsContainer {
+        padding: 20px 32px;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        overflow: auto;
+        max-height: 78vh;
+        background: transparent;
+    }
+}

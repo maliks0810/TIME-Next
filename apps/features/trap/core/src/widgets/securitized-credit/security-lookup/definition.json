@@ -1,0 +1,41 @@
+{
+    "id": "wd_sc_security_lookup_01",
+    "name": "Security Lookup",
+    "version": 1,
+    "description": "",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_sc_security_lookup_01",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string"
+            }
+        },
+        "required": [],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Securitized Credit"
+    },
+    "variants": [
+        {
+            "id": "small",
+            "label": "Small",
+            "grid": {
+                "defaultW": 5,
+                "defaultH": 255,
+                "minW": 5,
+                "minH": 255,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}

@@ -1,0 +1,66 @@
+import { RecentSearch } from './types';
+
+export const RECENT_SEARCHES: RecentSearch[] = [
+    {
+        name: 'ARMT 2005-8 — 7A2',
+        cusip: '007036QT6',
+        isin: 'US007036QT65',
+        assetType: 'NA-RMBS',
+        collateralType: 'ALT-A',
+        context: {
+            'deal.id': 'deal_armt_2005_8',
+            'deal.name': 'ARMT 2005-8',
+            'analysis.sessionId': 'sess_armt_2005_8',
+            'tranche.id': 't_7a2',
+            'tranche.name': '7A2',
+            'security.identifier': '007036QT6',
+            'security.type': 'RMBS',
+        },
+    },
+    {
+        name: 'ARMT 2005-8 — 7M1',
+        cusip: '007036QX7',
+        isin: 'US007036QX75',
+        assetType: 'NA-RMBS',
+        collateralType: 'ALT-A',
+        context: {
+            'deal.id': 'deal_armt_2005_8',
+            'deal.name': 'ARMT 2005-8',
+            'analysis.sessionId': 'sess_armt_2005_8',
+            'tranche.id': 't_7m1',
+            'tranche.name': '7M1',
+            'security.identifier': '007036QX7',
+            'security.type': 'RMBS',
+        },
+    },
+    {
+        name: 'ARMT 2005-8 — 6A1',
+        cusip: '007036QQ2',
+        isin: 'US007036QQ25',
+        assetType: 'NA-RMBS',
+        collateralType: 'Prime',
+        context: {
+            'deal.id': 'deal_armt_2005_8',
+            'deal.name': 'ARMT 2005-8',
+            'analysis.sessionId': 'sess_armt_2005_8',
+            'tranche.id': 't_6a1',
+            'tranche.name': '6A1',
+            'security.identifier': '007036QQ2',
+            'security.type': 'RMBS',
+        },
+    },
+    {
+        name: 'FNMA 2024-M3',
+        cusip: '31418XAA2',
+        isin: 'US31418XAA25',
+        assetType: 'CMBS',
+        collateralType: 'Agency',
+        context: {
+            'deal.id': 'deal_fnma_2024_m3',
+            'deal.name': 'FNMA 2024-M3',
+            'analysis.sessionId': 'sess_fnma_2024',
+            'security.identifier': '31418XAA2',
+            'security.type': 'CMBS',
+        },
+    },
+];

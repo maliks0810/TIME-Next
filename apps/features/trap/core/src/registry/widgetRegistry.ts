@@ -14,6 +14,8 @@ import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/Analysts
 import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
 import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
 import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/PerformanceAnalysis/PerformanceAnalysisLineChartWidget';
+import CDIUploadWidget from '../widgets/securitized-credit/cdi-upload/CDIUploadWidget';
+import SecurityLookupWidget from '../widgets/securitized-credit/security-lookup/SecurityLookupWidget';
 import { TextWidget } from '../widgets/common/text/Text';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
@@ -139,7 +141,20 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         component: TextWidget,
         category: 'Common',
         visibleIn: ['landing', 'workflow'],
-
+    },
+    wd_cdi_upload_widget: {
+        id: 'wd_cdi_upload_widget',
+        component: CDIUploadWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    wd_sc_security_lookup_01: {
+        id: 'wd_sc_security_lookup_01',
+        component: SecurityLookupWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
         listensToKeys: [],
         emitsKeys: [],
     },
