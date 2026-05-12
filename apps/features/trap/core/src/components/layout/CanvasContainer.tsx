@@ -2,9 +2,9 @@
 import React from 'react';
 import GridLayout from 'react-grid-layout';
 
-export const APP_SHELL_WIDTH = 1840;
-export const CANVAS_WIDTH = 12;
-const APP_SHELL_MIN_WIDTH = 1140;
+export const CANVAS_SHELL_WIDTH = 1840;
+export const CANVAS_COLUMNS_COUNT = 12;
+const CANVAS_MIN_WIDTH = 1140;
 
 type CanvasContainerProps = {
     children: React.ReactNode;
@@ -34,9 +34,9 @@ export default function CanvasContainer({
     return (
         <div
             style={{
-                maxWidth: APP_SHELL_WIDTH,
+                maxWidth: CANVAS_SHELL_WIDTH,
                 width: '100%',
-                minWidth: APP_SHELL_MIN_WIDTH,
+                minWidth: CANVAS_MIN_WIDTH,
                 margin: '0 auto',
             }}
         >
@@ -48,16 +48,16 @@ export default function CanvasContainer({
                 <GridLayout
                     className={className}
                     gridConfig={{
-                        cols: CANVAS_WIDTH,
+                        cols: CANVAS_COLUMNS_COUNT,
                         rowHeight: 1,
                         margin: [0, 0],
                         containerPadding: [0, 0],
                     }}
-                    width={APP_SHELL_WIDTH}
+                    width={CANVAS_SHELL_WIDTH}
                     style={{
                         width: '100%',
-                        maxWidth: APP_SHELL_WIDTH,
-                        minWidth: APP_SHELL_MIN_WIDTH,
+                        maxWidth: CANVAS_SHELL_WIDTH,
+                        minWidth: CANVAS_MIN_WIDTH,
                         overflowX: 'auto',
                         overflowY: 'hidden',
                         minHeight: '85vh',
