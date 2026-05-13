@@ -554,7 +554,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: "Segoe UI, Arial, sans-serif",
   },
   leftPane: {
-    height: "97vh",
+    height: "calc(100vh - 200px)",
     background: "#fff",
     border: "1px solid #cfcfcf",
     display: "flex",
@@ -585,9 +585,9 @@ const styles: Record<string, React.CSSProperties> = {
     marginLeft: 8,
     marginRight: 20,
     minWidth: 0,
-    minHeight:"97vh",
+    minHeight:"calc(100vh - 200px)",
     flex: 1,
-    height: "97vh",
+    height: "calc(100vh - 200px)",
   },
   gridTitleBar: {
     padding: "6px 10px",

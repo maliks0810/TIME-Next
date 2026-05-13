@@ -46,7 +46,7 @@ export default function SummaryReportView({ asOfDate, rows, onSelect, onToolbarP
 		<ColumnFixing enabled={true} />
 		<SearchPanel visible highlightCaseSensitive={false} />
         <Selection mode="single" />
-		<Column dataField="final" caption="Final" width={40} fixed={true} fixedPosition="left" />
+		<Column dataField="final" caption="Final" width={60} fixed={true} fixedPosition="left" />
 		<Column dataField="portfolioNumber" caption="Account Number" fixed fixedPosition="left" width={80} />
 		<Column dataField="portfolioName" caption="Account Name" fixed fixedPosition="left" minWidth={260} />
 		<Column dataField="benchmark" caption="Index" width={60} fixed={true} fixedPosition="left" minWidth={160} />
