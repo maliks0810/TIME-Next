@@ -31,7 +31,7 @@ export default function DetailHistory({portfolioId, rows, onToolbarPreparing }: 
         />
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
-      <DataGrid  dataSource={rows} height='75vh'
+      <DataGrid  dataSource={rows} height='calc(78vh - 200px)'
         keyExpr="endingDate"
                   width="95%"
                   showBorders={true}
