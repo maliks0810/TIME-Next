@@ -1,0 +1,58 @@
+{
+    "id": "wd_comment_widget",
+    "name": "Comment widget",
+    "version": 1,
+    "description": "Comment widget with history",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_dram_comment_widget",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+            "schemaKey": {
+                "enum": ["dram.comment.history"],
+                "title": "Schema key",
+                "type": "string"
+            }
+        },
+        "required": ["schemaKey"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "small",
+            "label": "Small",
+            "grid": {
+                "defaultW": 2,
+                "defaultH": 78,
+                "minW": 2,
+                "minH": 78,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "medium",
+            "label": "Medium",
+            "grid": {
+                "defaultW": 6,
+                "defaultH": 78,
+                "minW": 6,
+                "minH": 78,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}
