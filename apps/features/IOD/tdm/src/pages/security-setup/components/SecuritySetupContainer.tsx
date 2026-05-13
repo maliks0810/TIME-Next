@@ -356,7 +356,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     const nextStep = getNextStep(currentStep);
     const filesToUpload = pendingUploadFiles;
     const shouldPersist =
-      !isCancelled && (!isReadOnly || (currentStep === "enter-identifier" && filesToUpload.length > 0));
+      !isCancelled && (!isReadOnly || (currentStep === "enter-identifier" && filesToUpload?.length > 0));
 
     if (shouldPersist) {
       markStepComplete(currentStep);
@@ -381,7 +381,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       const requestId = savedData.securitySetupRequestId ?? securitySetupRequestId;
       let freshAttachments: ISecuritySetupRequestAttachment[] = [];
 
-      if (filesToUpload.length > 0) {
+      if (filesToUpload?.length > 0) {
         if (!requestId) {
           setFileUploadError("Cannot upload file: missing Security Setup Request ID");
           return;
