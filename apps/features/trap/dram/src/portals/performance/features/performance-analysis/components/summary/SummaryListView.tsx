@@ -26,8 +26,8 @@ export default function SummaryListReport({ asOfDate, rows, onSelect, onToolbarP
 		  e.fileName = `Summary_List_AsOf_${asOfDate.toISOString().slice(0,10)}`;
 		}}
 
-		height="100%"
-		width="100%"
+		height="80vh"
+		width="95%"
 
         onRowClick={(e) => {
           //  make clicking anywhere in the row select it

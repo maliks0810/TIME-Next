@@ -23,15 +23,15 @@ export default function FeeDetailHistory({portfolioId, rows, onToolbarPreparing 
     };
   return (
     <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
-      <div style={{height: '80px'}}>
+      <div style={{height: '80px', width:"95%"}}>
         <HistoryHeader
           notes={notes} onNotesChange={setNotes} onSave={handleSave} portfolioId={portfolioId}
         />
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
-      <DataGrid  dataSource={rows} height='94vh'
+      <DataGrid  dataSource={rows} height='75vh'
         keyExpr="endingDate"
-                  width="100%"
+                  width="95%"
                   showBorders={true}
                   rowAlternationEnabled={true}
                   hoverStateEnabled={true}
@@ -48,19 +48,19 @@ export default function FeeDetailHistory({portfolioId, rows, onToolbarPreparing 
         <Column dataField="endingMV" caption="Ending MV" width={120} fixed={true} fixedPosition="left"
           format="#,##0" />
 
-        <Column dataField="month" caption="Month" width={80} format="#0.####%" />
-        <Column dataField="rollingQtr" caption="Rolling Qtr" width={90} format="#0.####%" />
-        <Column dataField="qtd" caption="QTD" width={80} format="#0.####%" />
-        <Column dataField="ytd" caption="YTD" width={80} format="#0.####%" />
-        <Column dataField="oneYear" caption="1 Year" width={80} format="#0.####%" />
-        <Column dataField="twoYear" caption="2 Year" width={80} format="#0.####%" />
-        <Column dataField="threeYear" caption="3 Year" width={80} format="#0.####%" />
-        <Column dataField="fourYear" caption="4 Year" width={80} format="#0.####%" />
-        <Column dataField="fiveYear" caption="5 Year" width={80} format="#0.####%" />
-        <Column dataField="sixYear" caption="6 Year" width={80} format="#0.####%" />
-        <Column dataField="sevenYear" caption="7 Year" width={80} format="#0.####%" />
-        <Column dataField="eightYear" caption="8 Year" width={80} format="#0.####%" />
-        <Column dataField="nineYear" caption="9 Year" width={80} format="#0.####%" />
+        <Column dataField="month" caption="Month" width={90} format="#0.####%" />
+        {/* <Column dataField="rollingQtr" caption="Rolling 3-Month" width={90} format="#0.####%" /> */}
+        <Column dataField="qtd" caption="QTD" width={90} format="#0.####%" />
+        <Column dataField="ytd" caption="YTD" width={90} format="#0.####%" />
+        <Column dataField="oneYear" caption="1 Year" width={90} format="#0.####%" />
+        <Column dataField="twoYear" caption="2 Year" width={90} format="#0.####%" />
+        <Column dataField="threeYear" caption="3 Year" width={90} format="#0.####%" />
+        <Column dataField="fourYear" caption="4 Year" width={90} format="#0.####%" />
+        <Column dataField="fiveYear" caption="5 Year" width={90} format="#0.####%" />
+        <Column dataField="sixYear" caption="6 Year" width={90} format="#0.####%" />
+        <Column dataField="sevenYear" caption="7 Year" width={90} format="#0.####%" />
+        <Column dataField="eightYear" caption="8 Year" width={90} format="#0.####%" />
+        <Column dataField="nineYear" caption="9 Year" width={90} format="#0.####%" />
         <Column dataField="tenYear" caption="10 Year" width={90} format="#0.####%" />
         <Column dataField="twentyYear" caption="20 Year" width={90} format="#0.####%" />
         <Column  dataField="sinceInceptionAnnualized"  caption="Incep (Annualized)"
@@ -75,6 +75,10 @@ export default function FeeDetailHistory({portfolioId, rows, onToolbarPreparing 
         <Column dataField="estimateAnnFee" caption="Estimate Ann Fee" width={140} format="#,##0" />
         <Column dataField="fundLevelMV" caption="Fund Level MV" width={140} format="#,##0" />
       </DataGrid>
+       <span>
+        <br />
+        All returns for periods of one year or longer are <b>annualized</b> unless otherwise stated.
+        </span>
       </div>
     </div>
   );

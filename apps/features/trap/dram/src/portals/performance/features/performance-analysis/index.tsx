@@ -38,6 +38,19 @@ type SummaryView = "summaryReport" | "summaryList";
 /** Right-pane mode */
 type Mode = "summary" | "detail";
 
+
+const getMonthEnd = (date: Date) => {
+  const d = new Date(date);
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0);
+};
+
+const getPreviousMonthEnd = () => {
+  const today = new Date();
+  const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+  return getMonthEnd(prevMonth);
+};
+
+
 /** best-effort format */
 function formatMMDDYYYY(iso?: string) {
   if (!iso) return "";
@@ -94,7 +107,7 @@ export default function PerformanceAnalysisContent() {
   const [summaryView, setSummaryView] = React.useState<SummaryView>("summaryList");
 
   // Summary state
-  const [asOfDate, setAsOfDate] = React.useState<Date>(new Date());
+  const [asOfDate, setAsOfDate] = React.useState<Date>(getPreviousMonthEnd());
   const asOfDateISO = React.useMemo(() => toISODateOnly(asOfDate), [asOfDate]);
   const [summaryRows, setSummaryRows] = React.useState<HistorySummaryRow[]>([]);
 
@@ -107,6 +120,12 @@ export default function PerformanceAnalysisContent() {
   const [detailNetRows, setDetailNetRows] = React.useState<HistoryRow[]>([]);
   const [tabKey, setTabKey] = React.useState<TabKey>("portfolioHistory");
   const [allDataResult, setAllDataResult] = React.useState<PerformanceReturnsResultResponse | undefined>(undefined);
+
+
+  const isMonthEnd = (date: Date) => {
+    const d = new Date(date);
+    return d.getDate() === getMonthEnd(d).getDate();
+  };
 
   // -------- Load portfolio list (once) + apply search for tree items --------
   React.useEffect(() => {
@@ -395,13 +414,33 @@ export default function PerformanceAnalysisContent() {
 
                   <div style={{ marginLeft: "auto", display: "flex", alignItems: "right", gap: 8 }}>
                     <div style={{ fontSize: 12, opacity: 0.75, marginTop:"10px" }}>As of</div>
-                    <DateBox
-                      value={asOfDate}
-                      type="date"
-                      displayFormat="yyyy-MM-dd"
-                      width={120}
-                      onValueChanged={(e) => e.value && setAsOfDate(e.value)}
-                    />
+
+                      <DateBox
+                        value={asOfDate}
+                        type="date"
+                        displayFormat="yyyy-MM-dd"
+                        width={120}
+
+                        // ✅ prevent non-month-end selection in UI
+                        disabledDates={(args) => {
+                          const date = args.date;
+                          return date ? !isMonthEnd(date) : false;
+                        }}
+
+                        // ✅ enforce again on change (defensive)
+                        onValueChanged={(e) => {
+                          if (!e.value) return;
+
+                          const selected = new Date(e.value);
+                          if (isMonthEnd(selected)) {
+                            setAsOfDate(selected);
+                          } else {
+                            // snap to that month's end (optional stricter behavior)
+                            setAsOfDate(getMonthEnd(selected));
+                          }
+                        }}
+                      />
+
                   </div>
                 </div>
               </div>

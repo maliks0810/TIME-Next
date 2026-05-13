@@ -23,7 +23,7 @@ export default function DetailHistory({portfolioId, rows, onToolbarPreparing }: 
 
   return (
     <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
-      <div style={{height: '80px'}}>
+      <div style={{height: '80px', width:"95%"}}>
         <HistoryHeader
           notes={notes}
                 onNotesChange={setNotes}
@@ -31,9 +31,9 @@ export default function DetailHistory({portfolioId, rows, onToolbarPreparing }: 
         />
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
-      <DataGrid  dataSource={rows} height='94vh'
+      <DataGrid  dataSource={rows} height='75vh'
         keyExpr="endingDate"
-                  width="99%"
+                  width="95%"
                   showBorders={true}
                   rowAlternationEnabled={true}
                   hoverStateEnabled={true}
@@ -51,7 +51,7 @@ export default function DetailHistory({portfolioId, rows, onToolbarPreparing }: 
           format="#,##0" />
 
         <Column dataField="month" caption="Month" width={80} format="#0.####%" />
-        <Column dataField="rollingQtr" caption="Rolling Qtr" width={90} format="#0.####%" />
+        {/* <Column dataField="rollingQtr" caption="Rolling 3-Month" width={90} format="#0.####%" /> */}
         <Column dataField="qtd" caption="QTD" width={80} format="#0.####%" />
         <Column dataField="ytd" caption="YTD" width={80} format="#0.####%" />
         <Column dataField="oneYear" caption="1 Year" width={80} format="#0.####%" />
@@ -71,6 +71,10 @@ export default function DetailHistory({portfolioId, rows, onToolbarPreparing }: 
           width={120}  format="#0.####%"  />
         <Column dataField="portfolioPerfStartDate" caption="BM Incept Dt" width={120} />
       </DataGrid>
+       <span>
+        <br />
+        All returns for periods of one year or longer are <b>annualized</b> unless otherwise stated.
+        </span>
       </div>
     </div>
   );

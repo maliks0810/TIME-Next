@@ -34,8 +34,8 @@ export default function SummaryReportView({ asOfDate, rows, onSelect, onToolbarP
           if (e?.key != null) e.component.selectRows([e.key], false);
         }}
 
-		height="100%"
-		width="100%"
+		height="80vh"
+		width="95%"
 		allowColumnResizing
   		columnResizingMode="nextColumn"
 		columnAutoWidth={true}
@@ -50,20 +50,20 @@ export default function SummaryReportView({ asOfDate, rows, onSelect, onToolbarP
 		<Column dataField="portfolioNumber" caption="Account Number" fixed fixedPosition="left" width={80} />
 		<Column dataField="portfolioName" caption="Account Name" fixed fixedPosition="left" minWidth={260} />
 		<Column dataField="benchmark" caption="Index" width={60} fixed={true} fixedPosition="left" minWidth={160} />
-		<Column dataField="marketValue" caption="Market Value" format="#,##0.0#" width={80} />
-		<Column dataField="monthGross" caption="Monthly (Gross)" format="#,##0.0#%" width={80} />
-		<Column dataField="monthNet" caption="Monthly (Net)" format="#,##0.0#%" width={80} />
-		<Column dataField="monthIndex" caption="Monthly Index" format="#,##0.0#%"  width={80}/>
-		<Column dataField="alpha" caption="Out/Under (bps)" format="#,##0.0#%" width={80} />
-		<Column dataField="qtdGross" caption="Qtr (Gross)" format="#,##0.0#%" width={80} />
-		<Column dataField="qtdNet" caption="Qtr (Net)" format="#,##0.0#%" width={80} />
-		<Column dataField="qtdIndex" caption="Qtr Index" format="#,##0.0#%" width={80} />
-		<Column dataField="qtdAlpha" caption="Out/Under (bps)" format="#,##0.0#%" width={80} />
-		<Column dataField="ytdGross" caption="Qtr (Gross)" format="#,##0.0#%" width={80} />
-		<Column dataField="ytdNet" caption="Qtr (Net)" format="#,##0.0#%" width={80} />
-		<Column dataField="ytdIndex" caption="Qtr Index" format="#,##0.0#%"  width={80}/>
-		<Column dataField="ytdAlpha" caption="Out/Under (bps)" format="#,##0.0#" />
-		<Column dataField="investmentStyle" width={80}/>
+		<Column dataField="marketValue" caption="Market Value" format="#,##0.0#" width={100} />
+		<Column dataField="monthGross" caption="Monthly (Gross)" format="#,##0.0#%" width={90} />
+		<Column dataField="monthNet" caption="Monthly (Net)" format="#,##0.0#%" width={90} />
+		<Column dataField="monthIndex" caption="Monthly Index" format="#,##0.0#%"  width={90}/>
+		<Column dataField="alpha" caption="Out/Under (bps)" format="#,##0.0#%" width={90} />
+		<Column dataField="qtdGross" caption="Qtd (Gross)" format="#,##0.0#%" width={90} />
+		<Column dataField="qtdNet" caption="Qtd (Net)" format="#,##0.0#%" width={90} />
+		<Column dataField="qtdIndex" caption="Qtd Index" format="#,##0.0#%" width={90} />
+		<Column dataField="qtdAlpha" caption="Qtd Out/Under (bps)" format="#,##0.0#%" width={90} />
+		<Column dataField="ytdGross" caption="Ytd (Gross)" format="#,##0.0#%" width={90} />
+		<Column dataField="ytdNet" caption="Ytd (Net)" format="#,##0.0#%" width={90} />
+		<Column dataField="ytdIndex" caption="Ytd Index" format="#,##0.0#%"  width={90}/>
+		<Column dataField="ytdAlpha" caption="Ytd Out/Under (bps)" format="#,##0.0#"  width={90}/>
+		<Column dataField="investmentStyle"/>
 		<Column dataField="asOfDate" visible={false} />
 	  </DataGrid>
 	</div>
