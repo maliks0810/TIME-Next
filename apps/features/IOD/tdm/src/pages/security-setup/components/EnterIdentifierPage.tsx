@@ -164,11 +164,11 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               multiple
               style={{ display: 'none' }}
               onChange={handleFileInputChange}
-              disabled={isUploadingFile || pendingUploadFiles.length >= MAX_FILES}
+              disabled={isUploadingFile || pendingUploadFiles?.length >= MAX_FILES}
             />
             <label
               htmlFor='memorandum-upload-input'
-              className={`memorandum-upload-box${(isUploadingFile || pendingUploadFiles.length >= MAX_FILES) ? '' : ' memorandum-upload-box--clickable'}
+              className={`memorandum-upload-box${(isUploadingFile || pendingUploadFiles?.length >= MAX_FILES) ? '' : ' memorandum-upload-box--clickable'}
                 ${isDragOver ? ' memorandum-upload-box--drag-over' : ''}`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -176,15 +176,15 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             >
               {isUploadingFile ? (
                 <CircularProgress size={24} className='upload-progress-icon' />
-              ) : pendingUploadFiles.length > 0 ? (
+              ) : pendingUploadFiles?.length > 0 ? (
                 <CheckCircleIcon className='upload-success-icon' />
               ) : (
                 <InsertDriveFileIcon className='upload-doc-icon' />
               )}
               <div className="upload-text-wrapper">
-                {isUploadingFile ? (
+                {isUploadingFile && pendingUploadFiles.length ? (
                   <span className='upload-instruction'> Uploading {pendingUploadFiles.length} file{pendingUploadFiles.length !== 1 ? "s" : ""}...</span>
-                ) : pendingUploadFiles.length >= MAX_FILES ? (
+                ) : pendingUploadFiles?.length >= MAX_FILES ? (
                   <span className='upload-instruction'>
                     Maximum of {MAX_FILES} files reached.
                   </span>
@@ -201,7 +201,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                 )}
               </div>
             </label>
-            {pendingUploadFiles.length > 0 && !isUploadingFile && (
+            {pendingUploadFiles?.length > 0 && !isUploadingFile && (
               <ul className="upload-file-list">
                 {pendingUploadFiles.map((file, index) => (
                   <li key={`${file.name}-${index}`} className="upload-file-list-item">
