@@ -72,6 +72,10 @@ $dashboard-light-gray: #f3f3f5;
 
 .dashboard-grid
 {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+
   .dx-header-row
   {
     td
@@ -102,6 +106,15 @@ $dashboard-light-gray: #f3f3f5;
   {
     border-top: none !important;
   }
+
+  .dx-header-filter 
+  {
+    color: yellow !important; /* e.g., yellow */
+  }
+  .dx-header-filter-empty 
+  {
+    color: gray !important; /* e.g., gray */
+  }  
 }
 
 .dashboard-grid-status

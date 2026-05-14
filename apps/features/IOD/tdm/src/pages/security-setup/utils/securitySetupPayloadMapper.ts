@@ -23,7 +23,7 @@ export const mapEnterIdentifierToPayload = (
 
         // CDI Upload
         cdiFileUploadedToAnser: formValues.cdiFileUploadedToAnser || null,
-        aladdinCDIId: formValues.aladdinCDIId || null,
+        aladdinCdiId: formValues.aladdinCdiId || null,
 
         // Private Deal
         isPrivateDeal: formValues.isPrivateDeal || false,
@@ -117,7 +117,7 @@ export const mapPayloadToFormValues = (
         enterIdentifierValues: {
             newIssue: payload.newIssue || undefined,
             cdiFileUploadedToAnser: payload.cdiFileUploadedToAnser || undefined,
-            aladdinCDIId: payload.aladdinCDIId || undefined,
+            aladdinCdiId: payload.aladdinCdiId || undefined,
             isPrivateDeal: payload.isPrivateDeal || undefined,
             ssapIdPassword: payload.ssapIdPassword || undefined,
             isSsapReleaseRequestSentToDm: payload.isSsapReleaseRequestSentToDm,

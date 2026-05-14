@@ -1,9 +1,9 @@
-import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Box, Grid } from '@mui/material';
 import { DataGrid } from 'devextreme-react';
 import { ChangedOptionInfo } from 'devextreme-react/cjs/common/core/events';
-import { Column, DataGridTypes, HeaderFilter, Pager, Paging, Selection } from 'devextreme-react/data-grid';
+import { Column, DataGridTypes, HeaderFilter, Pager, Paging, Scrolling, Selection, StateStoring } from 'devextreme-react/data-grid';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
 import {
   SetupStatusesRecord,
@@ -12,7 +12,7 @@ import {
   EuSecuritizationStatusesRecord,
   ErisaStatusesRecord
 } from '../lib/DashboardSecuritySetupRequestStatuses';
-import { 
+import {
   getDefaultDashboardGridFilters,
   IDashboardGridFilters,
   updateDashboardGridFilters
@@ -31,7 +31,14 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   setSelectedSecurityRequest,
   setIsRequestDetailsOpen,
 }) => {
-  const [gridFilters, setGridFilters] = useState<IDashboardGridFilters>(getDefaultDashboardGridFilters);
+  const [gridFilters, setGridFilters] = useState<IDashboardGridFilters>(
+    () => getDefaultDashboardGridFilters()
+  );
+    
+  useEffect(() => {
+    setGridFilters(getDefaultDashboardGridFilters());
+  });
+
   const navigate = useNavigate();
 
   const cellRenderSetupStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
@@ -140,21 +147,21 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
     clickTimer = setTimeout(() => {
       // Execute single-click logic here
       setSelectedSecurityRequest(e.data);
-      setIsRequestDetailsOpen(true);      
-      }, 250); // 250ms buffer
+      setIsRequestDetailsOpen(true);
+    }, 250); // 250ms buffer
 
   }, [setSelectedSecurityRequest, setIsRequestDetailsOpen]);
 
   const handleRowDbleClick = (e: DataGridTypes.RowDblClickEvent) => {
 
-      // Clear timer so the single click action doesn't fire
+    // Clear timer so the single click action doesn't fire
     if (clickTimer) clearTimeout(clickTimer);
 
     const rowId = e?.data?.id;
     navigate(`/iod/tdm/security-setup?id=${rowId}`)
   }
 
-  const getSortOrder = (columnName: string) : SortOrder | undefined => {
+  const getSortOrder = (columnName: string): SortOrder | undefined => {
     const sortColumn = gridFilters.sortColumn;
     const sortDirection = gridFilters.sortDirection;
 
@@ -202,7 +209,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
       }
       // Created Date column
       if (e.fullName.includes("columns[2]")) {
-        if (isFilterValueChange) { 
+        if (isFilterValueChange) {
           setGridFilters(updateDashboardGridFilters({
             createdDateFilter: e.value,
           }));
@@ -312,12 +319,20 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         keyExpr='id'
         dataSource={securityRequestsData}
         className='dashboard-grid'
-        columnAutoWidth={false}        
+        allowColumnResizing={true}
+        columnResizingMode='nextColumn'
         onRowDblClick={handleRowDbleClick}
         onRowClick={onRowClick}
         onOptionChanged={handleOptionChanged}
         repaintChangesOnly={true}
       >
+        <StateStoring
+          enabled
+          type="localStorage"
+          storageKey="dashboardGridState"
+          savingTimeout={0}
+        />
+        <Scrolling columnRenderingMode='virtual' />
         <Selection
           mode='single'
           allowSelectAll={false}
@@ -331,6 +346,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           width={'10%'}
           sortOrder={getSortOrder("description")}
           filterValues={gridFilters.descriptionFilter}
+          minWidth={140}
         />
         <Column
           dataField='identifier'
@@ -338,6 +354,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           width={'10%'}
           sortOrder={getSortOrder("identifier")}
           filterValues={gridFilters.identifierFilter}
+          minWidth={140}
         />
         <Column
           dataField='createdDate'
@@ -347,6 +364,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           width={'10%'}
           sortOrder={getSortOrder("createdDate")}
           filterValues={gridFilters.createdDateFilter}
+          minWidth={120}
         />
         <Column
           dataField='createdBy'
@@ -354,6 +372,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           width={'10%'}
           sortOrder={getSortOrder("createdBy")}
           filterValues={gridFilters.createdByFilter}
+          minWidth={140}
         />
         <Column
           dataField='setupStatus'
@@ -363,6 +382,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           cellRender={cellRenderSetupStatus}
           sortOrder={getSortOrder("setupStatus")}
           filterValues={gridFilters.setupStatusFilter}
+          minWidth={125}
         />
         <Column
           dataField='riskAnalyticsStatus'
@@ -372,6 +392,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           cellRender={cellRenderRiskAnalyticsStatus}
           sortOrder={getSortOrder("riskAnalyticsStatus")}
           filterValues={gridFilters.riskAnalyticsStatusFilter}
+          minWidth={125}
         />
         <Column
           dataField='euSecuritizationStatus'
@@ -381,6 +402,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           cellRender={cellRenderEuSecuritizationStatus}
           sortOrder={getSortOrder("euSecuritizationStatus")}
           filterValues={gridFilters.euSecuritizationStatusFilter}
+          minWidth={125}
         />
         <Column
           dataField='erisaStatus'
@@ -390,6 +412,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           cellRender={cellRenderErisaStatus}
           sortOrder={getSortOrder("erisaStatus")}
           filterValues={gridFilters.erisaStatusFilter}
+          minWidth={125}
         />
         <Column
           dataField='readyForTradingStatus'
@@ -399,6 +422,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           cellRender={cellRenderReadyForTrading}
           sortOrder={getSortOrder("readyForTradingStatus")}
           filterValues={gridFilters.readyForTradingStatusFilter}
+          minWidth={100}
         />
         <Paging
           enabled={true}

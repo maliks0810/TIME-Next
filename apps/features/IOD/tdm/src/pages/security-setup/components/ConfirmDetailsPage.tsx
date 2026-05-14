@@ -1,29 +1,44 @@
 import React from 'react';
 import { Divider, Link, TextField } from '@mui/material';
-import { IConfirmDetailsData, SecuritySetupFlowType } from '../lib/types/securitySetupTypes';
+import { ISecurityAttachmentData, SecuritySetupFlowType } from '../lib/types/securitySetupTypes';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { SelectFormField } from '../../../common/components/SelectFormField';
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
+import { useConfirmDetailsData } from '../../../stores/selectors/securitySetupSelectors';
 
 interface ConfirmDetailsPageProps {
-  data: IConfirmDetailsData;
   flowType?: SecuritySetupFlowType;
   referenceData: INormalizedReferenceData | null;
 }
 
-export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, referenceData }) => {
-  const attachments = data.attachments ?? [];
+export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ referenceData }) => {
+  const {
+    aladdinCdiId,
+    identifierValue,
+    euSecuritizationStatus,
+    euSecuritizationTipEuId,
+    erisaStatus,
+    ssapIdPassword,
+    securityDetails,
+    esgFields,
+    tradeFields,
+    speedOverrides,
+    notesInstructions,
+    attachments
+  } = useConfirmDetailsData();
+
+  const attachmentList = attachments ?? [];
 
   return (
     <div className="confirm-details-page">
       {/* Offering Memorandum Uploaded File */}
-      {attachments.length > 0 &&
+      {attachmentList.length > 0 &&
         (<div className="file-uploaded-indicator">
           <h3 className="section-title">Offering Memorandum Upload</h3>
           <div className="file-indicator-item">
             <AttachFileIcon className="file-paperclip-icon" />
             <div className="upload-text-wrapper">
-              {attachments.map((doc) => (
+              {attachmentList.map((doc: ISecurityAttachmentData) => (
                 <div className="file-name-text" key={doc.attachmentId}>
                   <Link
                     href={doc.sharepointWebUrl}
@@ -37,7 +52,8 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
               ))}
             </div>
           </div>
-        </div>)}
+        </div>
+        )}
 
       {/* Security Details Section */}
       <div className="form-section">
@@ -48,7 +64,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Aladdin CDI ID</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.aladdinCDIId || ''}
+              value={aladdinCdiId || ''}
               disabled
               variant="outlined"
             />
@@ -57,7 +73,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Identifier</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.identifier || ''}
+              value={identifierValue || ''}
               disabled
               variant="outlined"
             />
@@ -66,7 +82,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Description</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.description || ''}
+              value={securityDetails?.description || ''}
               disabled
               variant="outlined"
             />
@@ -75,7 +91,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Tranche</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.tranche || ''}
+              value={securityDetails?.tranche || ''}
               disabled
               variant="outlined"
             />
@@ -83,7 +99,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
         </div>
 
         {/* SSAP ID/Password Section */}
-        {data.ssapIdPassword && (
+        {ssapIdPassword && (
           <div className="form-section">
             <h3 className='section-title'>SSAP Credentials</h3>
             <div className='form-row single-column'>
@@ -91,7 +107,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
                 <label className="field-label">SSAP ID/Password</label>
                 <TextField
                   fullWidth
-                  value={data.ssapIdPassword}
+                  value={ssapIdPassword}
                   disabled
                   variant='outlined'
                 />
@@ -109,8 +125,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Sector}
-              value={data.securityDetails?.sectorValue}
-              onChange={() => { }}
+              value={securityDetails?.sectorValue}
               referenceData={referenceData}
               label="Sector"
               disabled
@@ -119,8 +134,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Callable}
-              value={data.securityDetails?.callableValue}
-              onChange={() => { }}
+              value={securityDetails?.callableValue}
               referenceData={referenceData}
               label="Callable"
               disabled
@@ -130,7 +144,9 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Call Date</label>
             <TextField
               fullWidth
-              value={new Date(data.securityDetails?.callDate || "").toLocaleDateString("en-US")}
+              value={securityDetails?.callDate
+                ? new Date(securityDetails?.callDate).toLocaleDateString("en-US", { timeZone: "UTC" })
+                : ""}
               disabled
               variant="outlined"
             />
@@ -139,7 +155,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">Price</label>
             <TextField
               fullWidth
-              value={data.securityDetails?.price || ''}
+              value={securityDetails?.price || ''}
               disabled
               variant="outlined"
             />
@@ -150,8 +166,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.PrepaymentType}
-              value={data.speedOverrides?.prepaymentTypeValue}
-              onChange={() => { }}
+              value={speedOverrides?.prepaymentTypeValue}
               referenceData={referenceData}
               label="Prepayment Type"
               disabled
@@ -160,8 +175,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.DefaultType}
-              value={data.speedOverrides?.defaultTypeValue}
-              onChange={() => { }}
+              value={speedOverrides?.defaultTypeValue}
               referenceData={referenceData}
               label="Default Type"
               disabled
@@ -175,8 +189,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <TextField
               fullWidth
               type="number"
-              value={data.speedOverrides?.prepaymentSpeed}
-              onChange={() => { }}
+              value={speedOverrides?.prepaymentSpeed}
               variant="outlined"
               disabled
             />
@@ -186,8 +199,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <TextField
               fullWidth
               type="number"
-              value={data.speedOverrides?.defaultSpeed}
-              onChange={() => { }}
+              value={speedOverrides?.defaultSpeed}
               variant="outlined"
               disabled
             />
@@ -199,8 +211,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <TextField
               fullWidth
               type="number"
-              value={data.speedOverrides?.severity}
-              onChange={() => { }}
+              value={speedOverrides?.severity}
               variant="outlined"
               disabled
             />
@@ -210,8 +221,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <TextField
               fullWidth
               type="number"
-              value={data.speedOverrides?.delinquency}
-              onChange={() => { }}
+              value={speedOverrides?.delinquency}
               variant="outlined"
               disabled
             />
@@ -225,7 +235,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             fullWidth
             multiline
             rows={2}
-            value={data.notesInstructions || ''}
+            value={notesInstructions || ''}
             disabled
             variant="outlined"
           />
@@ -242,7 +252,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.IsTotalESGTCW}
-              value={data.esgFields?.tcwEsgValue}
+              value={esgFields?.tcwEsgValue}
               referenceData={referenceData}
               label="TCW ESG"
               disabled
@@ -254,7 +264,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             </label>
             <TextField
               fullWidth
-              value={data.esgFields?.esgCollateralType || ''}
+              value={esgFields?.esgCollateralType || ''}
               disabled
               variant="outlined"
             />
@@ -265,7 +275,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.TcwEsgType}
-              value={data.esgFields?.tcwEsgTypeValue}
+              value={esgFields?.tcwEsgTypeValue}
               referenceData={referenceData}
               label="TCW ESG Type"
               disabled
@@ -284,7 +294,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Slicer}
-              value={data.tradeFields?.slicerTypeValue}
+              value={tradeFields?.slicerTypeValue}
               referenceData={referenceData}
               label="Slicer Type"
               disabled
@@ -293,7 +303,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.MBS}
-              value={data.tradeFields?.mbsTypeValue}
+              value={tradeFields?.mbsTypeValue}
               referenceData={referenceData}
               label="MBS Type"
               disabled
@@ -305,7 +315,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.LoanCreditType}
-              value={data.tradeFields?.loanCreditValue}
+              value={tradeFields?.loanCreditValue}
               referenceData={referenceData}
               label="Loan Credit"
               disabled
@@ -314,7 +324,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.MBSCollateral}
-              value={data.tradeFields?.mbsCollateralValue}
+              value={tradeFields?.mbsCollateralValue}
               referenceData={referenceData}
               label="MBS Collateral"
               disabled
@@ -326,7 +336,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.MBSCollateralSub}
-              value={data.tradeFields?.mbsCollateralSubValue}
+              value={tradeFields?.mbsCollateralSubValue}
               referenceData={referenceData}
               label="MBS Collateral Sub"
               disabled
@@ -335,7 +345,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.SrMostCashFlow}
-              value={data.tradeFields?.seniorMostCashFlowValue}
+              value={tradeFields?.seniorMostCashFlowValue}
               referenceData={referenceData}
               label="Sr. Most Cash Flow"
               disabled
@@ -347,7 +357,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Tranche}
-              value={data.tradeFields?.trancheTypeValue}
+              value={tradeFields?.trancheTypeValue}
               referenceData={referenceData}
               label="Tranche Type"
               disabled
@@ -356,7 +366,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.SMSLoanCategory}
-              value={data.tradeFields?.loanCategoryValue}
+              value={tradeFields?.loanCategoryValue}
               referenceData={referenceData}
               label="Loan Category"
               disabled
@@ -368,7 +378,7 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Collateral}
-              value={data.tradeFields?.collateralValue}
+              value={tradeFields?.collateralValue}
               referenceData={referenceData}
               label="Collateral"
               disabled
@@ -387,22 +397,34 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ data, re
             <label className="field-label">EU Securitization Status</label>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
-              value={data.securityDetails?.euSecuritizationStatus}
-              onChange={() => { }}
+              value={euSecuritizationStatus}
               referenceData={referenceData}
               disabled
             />
           </div>
-          {/* ERISA Status */}
           <div className="form-field">
-            <label className="field-label">ERISA Status</label>
-            <SelectFormField
-              fieldKey={ReferenceDataFieldKey.ErisaStatus}
-              value={data.securityDetails?.erisaStatus}
-              onChange={() => { }}
-              referenceData={referenceData}
+            <label className="field-label">EU Securitization TIP EU ID</label>
+            <TextField
+              fullWidth
+              value={euSecuritizationTipEuId || ''}
               disabled
+              variant="outlined"
             />
+          </div>
+        </div>
+        <div className="form-row two-column">
+          <div className="form-field">
+            {/* ERISA Status */}
+            <div className="form-field">
+              <label className="field-label">ERISA Status</label>
+              <SelectFormField
+                fieldKey={ReferenceDataFieldKey.ErisaStatus}
+                value={erisaStatus}
+                onChange={() => { }}
+                referenceData={referenceData}
+                disabled
+              />
+            </div>
           </div>
         </div>
       </div>

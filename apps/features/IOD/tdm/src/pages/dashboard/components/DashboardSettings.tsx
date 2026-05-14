@@ -1,6 +1,8 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
 import { Box, Menu, MenuItem, Switch, Button } from '@mui/material';
 import { Settings } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { clearDashboardGridFilters } from '../lib/DashboardSearchParameters';
 
 type DashboardSettingsProps = {
   setAreSecurityRequestStatsVisible: Dispatch<SetStateAction<boolean>>;
@@ -10,6 +12,7 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({setAreSecurityRequ
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const areDashboardSettingsOpen = Boolean(anchorEl);
   const [securityRequestStatsSwitchChecked, setSecurityRequestStatsSwitchChecked] = useState(false);
+  const navigate = useNavigate();
 
   const handleSettingsMenuClose = () => {
     setAnchorEl(null);
@@ -25,6 +28,14 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({setAreSecurityRequ
   const handleShowStatsOnChange = (checked: boolean) => {
     setSecurityRequestStatsSwitchChecked(checked);
     setAreSecurityRequestStatsVisible(checked);
+  };
+
+  const handleItemClick = (event: React.MouseEvent<HTMLLIElement>) => {
+    if(event.currentTarget.innerText === 'Clear Filters')
+    {
+      clearDashboardGridFilters();
+      navigate('/iod/tdm/*');
+    }
   };
   
   return (
@@ -59,6 +70,9 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({setAreSecurityRequ
               checked={securityRequestStatsSwitchChecked}
               onChange={(e) => handleShowStatsOnChange(e.target.checked)}/>
           </MenuItem>
+          <MenuItem onClick={handleItemClick}>
+            Clear Filters
+          </MenuItem>  
         </Menu>
       </Box>
     </Box>
