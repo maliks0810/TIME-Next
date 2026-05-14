@@ -1,0 +1,33 @@
+.input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10;
+    cursor: pointer;
+    padding: 16px;
+    transition: all 0.15s;
+    min-height: 100;
+
+    flex: 1;
+}
+
+.text {
+    text-align: center;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+.download {
+    &:hover {
+        cursor: 'pointer';
+    }
+}

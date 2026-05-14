@@ -6,15 +6,17 @@ import { useUserInfo } from '@platform/utils';
 import TrapLandingPage from './pages/TrapLandingPage';
 import TemplateDesignerPage from './features/workflow-designer/WorkflowDesignerPage';
 import WidgetStudioConfigurePage from './features/widget-studio/WidgetStudioConfigurePage';
+import 'devextreme/dist/css/dx.light.css';
 
 import { ThemeContext, getThemeConfig, ThemeName } from './theme/ThemeContext';
 import { AdminPanel } from './features/AdminPanel';
+import { useSetActiveUser } from './state/User/hooks';
 
 const { Content } = Layout;
 
 const THEME_STORAGE_KEY = 'trap_theme';
-const APP_SHELL_MIN_WIDTH = 1440;
-const CONTENT_MAX_WIDTH = 1920;
+const APP_SHELL_MIN_WIDTH = 1180;
+const CONTENT_MAX_WIDTH = 1880;
 const APP_HORIZONTAL_PADDING = 16;
 const APP_TOP_PADDING = 16;
 
@@ -24,6 +26,7 @@ export default function App() {
         return saved ?? 'default';
     });
     const { claims } = useUserInfo();
+    const setActiveUser = useSetActiveUser();
 
     React.useEffect(() => {
         if (claims) {
@@ -34,6 +37,7 @@ export default function App() {
             sessionStorage.setItem('OrgLevel4', claims.OrgLevel4);
             sessionStorage.setItem('okta-email', claims.email);
             sessionStorage.setItem('okta-role', claims.role || 'Analyst');
+            setActiveUser(claims.name);
         }
     }, [claims]);
 

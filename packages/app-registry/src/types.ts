@@ -18,6 +18,7 @@ export interface InternalAppMetadata {
     requiresAuth?: boolean;
     disabled?: boolean;
     newTab?: boolean;
+    hideFooter?: boolean;
 }
 
 export interface ExternalAppMetadata {
@@ -36,6 +37,7 @@ export interface ExternalAppMetadata {
     postBody?: string;
     requiresAuth?: boolean;
     path?: string;
+    hideFooter?: boolean;
 }
 
 export enum HighestEnv {

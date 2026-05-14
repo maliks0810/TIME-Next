@@ -29,6 +29,20 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         env: HighestEnv.prod,
     },
     {
+        type: 'internal',
+        header: NavbarHeader.RiskPerformance,
+        subHeader: NavbarSubHeader.Performance,
+        id: '@r2/dram',
+        name: 'performance-analysis',
+        title: 'Performance Returns',
+        env: HighestEnv.prod,
+
+        path: '/dram/performance/dashboard',
+        team: 'R2',
+        component: lazy(() => import('@r2/dram/src/portals/performance/index')),
+        description: '',
+    },
+    {
         type: 'external',
         header: NavbarHeader.RiskPerformance,
         subHeader: NavbarSubHeader.Performance,

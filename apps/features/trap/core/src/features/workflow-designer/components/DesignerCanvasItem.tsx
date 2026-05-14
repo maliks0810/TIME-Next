@@ -1,18 +1,14 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React from 'react';
-import { Button } from 'antd';
-// import { useNavigate } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { Button, Tooltip } from 'antd';
 
-import JsonInfoModal from '../../../components/common/JsonInfoModal';
 import WidgetHost from '../../../components/widget-runtime/WidgetHost';
 
 import type { WidgetLayout } from '../../../state/types';
 import type { DesignerWidgetInstance } from '../types/workflowDesigner.types';
-import {
-    // hasConfigurableSchema,
-    // isConfigured,
-    safeJsonParse,
-} from '../utils/workflowDesigner.utils';
+import { hasConfigurableSchema, safeJsonParse } from '../utils/workflowDesigner.utils';
+import { WidgetConfigureModal } from '../../widget-studio/WidgetConfigureModal';
+import { WidgetDefinitionLike } from '../../../types/widget';
 
 type DesignerCanvasItemProps = {
     item: WidgetLayout;
@@ -31,6 +27,8 @@ type DesignerCanvasItemProps = {
     onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
     onMouseUp?: React.MouseEventHandler<HTMLDivElement>;
     onTouchEnd?: React.TouchEventHandler<HTMLDivElement>;
+
+    onConfigUpdate?: (widget: DesignerWidgetInstance) => void;
 };
 
 const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemProps>(
@@ -39,11 +37,11 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
             item,
             widget,
             widgetDefinition,
-            // templateId,
-            // versionId,
+            templateId,
+            versionId,
             isPublished,
-            // isDraft,
-            // isDraftSaved,
+            isDraft,
+            isDraftSaved,
             defaultContextJson,
             onRemove,
             className,
@@ -51,26 +49,21 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
             onMouseDown,
             onMouseUp,
             onTouchEnd,
+            onConfigUpdate,
         },
         ref
     ) => {
-        // const nav = useNavigate();
-
-        // const configured = isConfigured(widgetDefinition, widget?.config);
         const widgetTitle = String(widgetDefinition?.name ?? widget?.widgetDefinitionId ?? item.i);
-        // const hasConfig = hasConfigurableSchema(widgetDefinition);
-
-        // const configureDisabledReason = !templateId
-        //     ? 'Create or load a draft first'
-        //     : isPublished
-        //       ? 'Published versions cannot be configured'
-        //       : !isDraft
-        //         ? 'Only draft versions can be configured'
-        //         : !isDraftSaved
-        //           ? 'Save draft before configuring widgets'
-        //           : !hasConfig
-        //             ? 'This widget has no configurable options'
-        //             : undefined;
+        const hasConfig = hasConfigurableSchema(widgetDefinition);
+        const [isConfigOpen, setIsConfigOpen] = useState(false);
+        const configureDisabledReason = useMemo(() => {
+            if (!templateId) return 'Create or load a draft first';
+            if (isPublished) return 'Published versions cannot be configured';
+            if (!isDraft) return 'Only draft versions can be configured';
+            if (!isDraftSaved) return 'Save draft before configuring widgets';
+            if (!hasConfig) return 'This widget has no configurable options';
+            return undefined;
+        }, [templateId, isPublished, isDraft, isDraftSaved, hasConfig]);
 
         return (
             <div
@@ -97,11 +90,9 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                             left: 8,
                             right: 8,
                             zIndex: 3,
-                            display: 'grid',
-                            gridTemplateColumns: '1fr auto 1fr',
+                            display: 'flex',
                             alignItems: 'center',
-                            columnGap: 8,
-                            pointerEvents: 'none',
+                            gap: 4,
                         }}
                     >
                         <div
@@ -110,36 +101,34 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                 alignItems: 'center',
                                 gap: 8,
                                 minWidth: 0,
-                                pointerEvents: 'none',
                             }}
                         >
                             <div
                                 style={{
-                                    display: 'inline-flex',
                                     alignItems: 'center',
-                                    maxWidth: '100%',
                                     background: 'rgba(255,255,255,0.96)',
                                     border: '1px solid rgba(0,0,0,0.08)',
                                     borderRadius: 6,
-                                    padding: '4px 10px',
+                                    padding: '2px 4px',
                                     boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                                     fontWeight: 600,
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
+                                    height: 24,
                                     textOverflow: 'ellipsis',
-                                    minWidth: 0,
+                                    maxWidth: 150,
                                 }}
                                 title={widgetTitle}
                             >
                                 {widgetTitle}
                             </div>
                         </div>
-
                         <div
                             style={{
                                 display: 'flex',
                                 justifyContent: 'center',
                                 pointerEvents: 'auto',
+                                marginLeft: 'auto',
                             }}
                         >
                             <Button
@@ -148,9 +137,9 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                 disabled={isPublished}
                                 style={{
                                     cursor: isPublished ? 'default' : 'grab',
-                                    width: 64,
-                                    minWidth: 64,
-                                    height: 28,
+                                    width: 24,
+                                    minWidth: 24,
+                                    height: 24,
                                     padding: 0,
                                     justifyContent: 'center',
                                 }}
@@ -159,7 +148,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                 ⋮⋮
                             </Button>
                         </div>
-
                         <div
                             style={{
                                 display: 'flex',
@@ -170,12 +158,47 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                 pointerEvents: 'auto',
                             }}
                         >
-                            <JsonInfoModal
-                                title="Widget Raw JSON"
-                                data={{ instance: widget, definition: widgetDefinition }}
-                                tooltip="Widget JSON"
+                            <WidgetConfigureModal
+                                templateId={templateId}
+                                versionId={versionId}
+                                isOpen={isConfigOpen}
+                                onSave={(widget) => {
+                                    onConfigUpdate?.(widget as DesignerWidgetInstance);
+                                }}
+                                onClose={() => setIsConfigOpen(false)}
+                                data={{
+                                    instance: widget,
+                                    definition: widgetDefinition as WidgetDefinitionLike,
+                                }}
                             />
+                            <Tooltip title={configureDisabledReason ?? 'Configure widget'}>
+                                <span>
+                                    <Button
+                                        className="rgl-no-drag"
+                                        size="small"
+                                        disabled={!!configureDisabledReason}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                        onTouchStart={(e) => e.stopPropagation()}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (configureDisabledReason) return;
+                                            setIsConfigOpen(true);
+                                        }}
+                                        style={{
+                                            width: 24,
+                                            minWidth: 24,
+                                            height: 24,
+                                            padding: 0,
+                                            justifyContent: 'center',
 
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                                        }}
+                                        title="Configure"
+                                    >
+                                        ⚙
+                                    </Button>
+                                </span>
+                            </Tooltip>
                             <Button
                                 className="rgl-no-drag"
                                 size="small"
@@ -188,11 +211,13 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                     onRemove(item.i);
                                 }}
                                 style={{
-                                    width: 32,
-                                    minWidth: 32,
-                                    height: 28,
+                                    width: 24,
+                                    minWidth: 24,
+                                    height: 24,
                                     padding: 0,
                                     justifyContent: 'center',
+
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                                 }}
                                 title="Remove"
                             >
@@ -201,7 +226,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                         </div>
                     </div>
 
-                    <div style={{ height: '100%', overflow: 'auto', padding: '2px' }}>
+                    <div style={{ height: '100%', padding: '2px' }}>
                         <WidgetHost
                             widgetInstance={{
                                 id: widget?.instanceId ?? widget?.id,

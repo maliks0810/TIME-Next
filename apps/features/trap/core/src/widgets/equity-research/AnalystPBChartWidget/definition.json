@@ -1,0 +1,70 @@
+{
+    "id": "wd_analyst_performance_bar_chart",
+    "name": "Analysts Performance Bar Chart",
+    "version": 1,
+    "description": "Analysts performance bar chart widget.",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_analyst_performance_bar_chart",
+    "listensToKeys": null,
+    "emitsKeys": null,
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+            "schemaKey": {
+                "title": "Schema Key",
+                "enum": ["prism.equity.analyst.performance.list"],
+                "type": "string"
+            }
+        },
+        "required": ["schemaKey"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Equity Research"
+    },
+    "variants": [
+        {
+            "id": "small",
+            "label": "Small",
+            "grid": {
+                "defaultW": 6,
+                "defaultH": 260,
+                "minW": 4,
+                "minH": 280,
+                "maxW": 6,
+                "maxH": 520
+            }
+        },
+        {
+            "id": "medium",
+            "label": "Medium",
+            "grid": {
+                "defaultW": 7,
+                "defaultH": 400,
+                "minW": 7,
+                "minH": 400,
+                "maxW": 6,
+                "maxH": 400
+            }
+        },
+        {
+            "id": "large",
+            "label": "Large",
+            "grid": {
+                "defaultW": 9,
+                "defaultH": 600,
+                "minW": 9,
+                "minH": 600,
+                "maxW": 9,
+                "maxH": 900
+            }
+        }
+    ]
+}

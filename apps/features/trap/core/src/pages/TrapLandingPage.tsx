@@ -1,18 +1,19 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, Space, Dropdown, Button, message, Tooltip } from 'antd';
 import { EllipsisOutlined, HomeOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import LandingTab from '../features/landing/LandingTab';
 import WorkflowTab from '../features/workflow-runtime/WorkflowTab';
 import TrapHud from '../components/common/TrapHud';
 
-import { cloneTemplate, openTemplate } from '../api/trap';
+import { cloneTemplate, getTemplates, openTemplate } from '../api/trap';
 import type { ContextBus, WorkflowContext } from '../state/contextBus';
 import { createContextBus } from '../state/contextBus';
 
-import { getDefaultLandingTemplate, setDefaultLandingTemplate } from '../utils/userPreferences';
+import { setDefaultLandingTemplate } from '../utils/userPreferences';
+import { useGetActiveTab, useSetActiveTab } from '../state/Tabs/hooks';
 
 type WorkflowTabModel = {
     key: string;
@@ -44,20 +45,14 @@ const TAB_BAR_HEIGHT = 48;
 
 export default function TrapLandingPage() {
     const nav = useNavigate();
-
-    const [activeKey, setActiveKey] = React.useState<string>('landing');
+    const [searchParams, setSearchParams] = useSearchParams();
     const [workflows, setWorkflows] = React.useState<WorkflowTabModel[]>([]);
-    const [landingSelection, setLandingSelection] = React.useState<HudLandingSelection | undefined>(
-        () => {
-            const saved = getDefaultLandingTemplate();
-            if (!saved?.templateId || !saved?.versionId) return undefined;
+    const activeKey = useGetActiveTab();
+    const setActiveKey = useSetActiveTab();
 
-            return {
-                templateId: saved.templateId,
-                templateVersionId: saved.versionId,
-            };
-        }
-    );
+    const [landingSelection, setLandingSelection] = React.useState<
+        HudLandingSelection | undefined
+    >();
 
     const addWorkflowTab = React.useCallback((ws: OpenWorkflowRequest) => {
         setWorkflows((prev) => {
@@ -75,16 +70,21 @@ export default function TrapLandingPage() {
         setWorkflows((prev) => {
             const next = prev.filter((x) => x.workflowId !== workflow);
 
-            setActiveKey((current) => {
-                if (current !== workflow) return current;
-                if (next.length === 0) return 'landing';
+            let newActiveKey;
 
+            if (activeKey !== workflow) {
+                newActiveKey = activeKey;
+            } else if (next.length === 0) {
+                newActiveKey = 'landing';
+            } else {
                 const closedIdx = prev.findIndex((x) => x.workflowId === workflow);
                 const fallback =
                     next[Math.min(closedIdx, next.length - 1)] ?? next[next.length - 1];
 
-                return fallback?.workflowId ?? 'landing';
-            });
+                newActiveKey = fallback?.workflowId ?? 'landing';
+            }
+
+            setActiveKey(newActiveKey);
 
             return next;
         });
@@ -140,6 +140,11 @@ export default function TrapLandingPage() {
                     templateVersionStatus: selection.templateVersionStatus,
                     initialContext: selection.initialContext ?? {},
                 });
+
+                const newParams = new URLSearchParams();
+                newParams.set('template_id', selection.templateId);
+                newParams.set('version_id', selection.templateVersionId);
+                setSearchParams(newParams);
             } catch (e: any) {
                 message.error(e?.message ?? 'Failed to launch workflow');
             }
@@ -226,6 +231,27 @@ export default function TrapLandingPage() {
             children: null,
         })),
     ];
+
+    const initWorkflowFromURL = async (templateId: string, versionId: string) => {
+        const templates = await getTemplates();
+        const template = templates.find((el) => el.id === templateId);
+        if (template) {
+            const selection: HudWorkflowSelection = {
+                templateId: templateId,
+                templateVersionId: versionId,
+                templateName: template.name,
+                templateVersionStatus: '', //TODO: currently not needed but need to implement
+            };
+            onLaunchHudWorkflow(selection);
+        }
+    };
+
+    useEffect(() => {
+        const templateId = searchParams.get('template_id');
+        const versionId = searchParams.get('version_id');
+
+        if (templateId && versionId) initWorkflowFromURL(templateId, versionId);
+    }, []);
 
     return (
         <Space direction="vertical" size={12} style={{ width: '100%' }}>

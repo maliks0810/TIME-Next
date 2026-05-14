@@ -21,6 +21,7 @@ import { useWorkflowLauncherData } from '../hooks/useWorkflowLauncherData';
 import type {
     LauncherMode,
     MineFilter,
+    WorkflowLauncherItem,
     WorkflowLaunchSelection,
 } from '../types/workflowLauncher.types';
 import { createDraftVersion, createTemplate } from '../../../api/trap';
@@ -86,9 +87,8 @@ export default function WorkflowLauncherModal(props: Props) {
     const [createLoading, setCreateLoading] = React.useState(false);
     const [createError, setCreateError] = React.useState('');
     const isCreatingLanding = createKind === 'landing';
-
+    const user = useUserInfo();
     const currentUser = localStorage.getItem('debug-user') || login;
-
     const {
         loading,
         refreshLauncherData,
@@ -118,9 +118,21 @@ export default function WorkflowLauncherModal(props: Props) {
         (item) => String(item.kind ?? '').toLowerCase() === 'landing' && item.scopeType === 'USER'
     );
 
+    const isMyDepartment = (item: WorkflowLauncherItem) => {
+        const { claims } = user;
+        if (!item.scopeKey) return false;
+        // If first level is not matching do not return
+        if (item.scopeKey['OrgLevel1'] !== claims['OrgLevel1']) return false;
+
+        if (item.scopeKey['OrgLevel2'] !== claims['OrgLevel2']) return false;
+
+        return true;
+    };
     const departmentLandingItems = [...mineItems, ...publicItems].filter(
         (item) =>
-            String(item.kind ?? '').toLowerCase() === 'landing' && item.scopeType === 'AUDIENCE'
+            String(item.kind ?? '').toLowerCase() === 'landing' &&
+            item.scopeType === 'AUDIENCE' &&
+            isMyDepartment(item)
     );
 
     const myWorkflowItems = mineItems.filter(

@@ -1,0 +1,137 @@
+@use "sass:color";  
+
+$primary-color: #007bff;
+$text-color: #333;
+$inactive-bg: #f8f9fa;
+$active-bg: #ffffff;
+$border-color: #dee2e6;
+$active-border-color: #0056b3;
+$font-family: Roboto, Helvetica, Arial, sans-serif;
+$font-size: 12px;
+
+.custom-alert
+{
+    font-size: $font-size;
+    font-family: $font-family;
+    font-weight: 600;
+}
+/* Target the main TabPanel container and its inner components */
+.custom-tab-panel {
+  // Styles for the overall panel
+  border: 1px solid $border-color;
+  border-radius: 4px;
+
+  // Styles for the tab header strip
+  .dx-tabs {
+    background-color: $inactive-bg;
+    border-bottom: 1px solid $border-color;
+  }
+
+  // Styles for individual tabs
+  .dx-tab {
+    padding: 10px 12px;
+    color: $text-color;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    border-bottom: 3px solid transparent; // Use border for the active indicator
+    font-size: $font-size;
+    font-family: $font-family;
+    font-weight: 600;
+
+    // Hover state for tabs
+    &:hover {
+      //background-color: darken($inactive-bg, 10%);
+      background-color: color.scale($inactive-bg, $lightness: -10%);
+    }
+
+    // Styles for the text inside the tabs
+    .dx-tab-text {
+      font-weight: 600;
+    }
+
+    // Styles for the selected/active tab
+    &.dx-item-selected,
+    &.dx-state-active {
+      background-color: $active-bg;
+      color: $primary-color;
+      border-bottom-color: $active-border-color; // Highlight with a specific color
+      
+      .dx-tab-text {
+        font-weight: 700;
+      }
+    }
+  }
+
+  // Styles for the content area of the tabs
+  .dx-multiview-item.dx-tabpanel-item {
+    padding: 12px;
+    background-color: $active-bg;
+  }
+}
+
+.custom-tab-panel-main {
+  // Styles for the overall panel
+  border: 1px solid $border-color;
+  border-radius: 4px;
+
+  // Styles for the tab header strip
+  .dx-tabs {
+    background-color: $inactive-bg;
+    border-bottom: 1px solid $border-color;
+  }
+
+  // Styles for individual tabs
+  .dx-tab {
+    padding: 12px 16px;
+    color: $text-color;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    border-bottom: 3px solid transparent; // Use border for the active indicator
+    font-size: $font-size;
+    font-family: $font-family;
+    font-weight: 600;
+
+    // Hover state for tabs
+    &:hover {
+      //background-color: darken($inactive-bg, 10%); //deprecated
+      background-color: color.scale($inactive-bg, $lightness: -10%); 
+    }
+
+    // Styles for the text inside the tabs
+    .dx-tab-text {
+      font-weight: 700;
+    }
+
+    // Styles for the selected/active tab
+    &.dx-item-selected,
+    &.dx-state-active {
+      background-color: $active-bg;
+      color: $primary-color;
+      border-bottom-color: $active-border-color; // Highlight with a specific color
+      
+      .dx-tab-text {
+        font-weight: 800;
+      }
+    }
+  }
+
+  // Styles for the content area of the tabs
+  .dx-multiview-item.dx-tabpanel-item {
+    padding: 16px;
+    background-color: $active-bg;
+  }
+}
+
+.dx-common-selectbox {
+    border: 0;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    letter-spacing: 0.00938em;
+    transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    min-height: 20px!important;
+    //padding-right: 20px;
+    height: 30px;
+}

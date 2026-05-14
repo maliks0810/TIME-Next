@@ -34,6 +34,10 @@ export function useWorkflowDesigner() {
     const [selectedWidgetVariantId, setSelectedWidgetVariantId] = React.useState<
         string | undefined
     >(undefined);
+    const [selectedWidgetParams, setSelectedWidgetParams] = React.useState<{
+        [key: string]: string | number;
+    }>({});
+
     const [widgetSearch, setWidgetSearch] = React.useState('');
     const [selectedCategory, setSelectedCategory] = React.useState<string>('All');
 
@@ -131,7 +135,7 @@ export function useWorkflowDesigner() {
         for (const d of designerWidgetDefs as any[]) {
             const entry = widgetRegistry[String(d?.id ?? '')];
             const category = String(
-                d?.category ?? d?.uiHints?.category ?? entry?.category ?? 'Other'
+                d?.uiHints?.category ?? d?.category ?? entry?.category ?? 'Other'
             );
             set.add(category);
         }
@@ -141,13 +145,13 @@ export function useWorkflowDesigner() {
 
     const filteredWidgetDefs = React.useMemo(() => {
         const q = widgetSearch.trim().toLowerCase();
-
         return (designerWidgetDefs as any[])
             .filter((d: any) => {
                 const entry = widgetRegistry[String(d?.id ?? '')];
                 const category = String(
-                    d?.category ?? d?.uiHints?.category ?? entry?.category ?? 'Other'
+                    d?.uiHints?.category ?? d?.category ?? entry?.category ?? 'Other'
                 );
+
                 if (selectedCategory !== 'All' && category !== selectedCategory) return false;
 
                 if (!q) return true;
@@ -196,6 +200,12 @@ export function useWorkflowDesigner() {
 
         setIsDraftSaved(true);
     }, []);
+
+    const updateWidgetConfig = (widget: DesignerWidgetInstance) => {
+        const { id } = widget;
+        const newWidget = { ...widgetsById[id], ...widget };
+        setWidgetsById((prev) => ({ ...prev, [id]: newWidget }));
+    };
 
     React.useEffect(() => {
         (async () => {
@@ -266,6 +276,30 @@ export function useWorkflowDesigner() {
         })();
     }, [templateId, versionId, nav, hydrateFromTemplateVersion, loadTemplateMeta]);
 
+    const getParams = React.useCallback(() => {
+        switch (true) {
+            case Object.keys(selectedWidgetParams).length ===
+                selectedWidgetDef.configSchema.required.length:
+                return selectedWidgetParams;
+            case selectedWidgetDef.configSchema.required.length > 0:
+                return selectedWidgetDef.configSchema.required.reduce(
+                    (acc: { [key: string]: string | number }, requiredField: string) => {
+                        const value =
+                            selectedWidgetParams[requiredField] ||
+                            selectedWidgetDef.configSchema.properties[requiredField].enum?.[0] ||
+                            selectedWidgetDef.configSchema.properties[requiredField].default;
+                        return {
+                            ...acc,
+                            [requiredField]: value,
+                        };
+                    },
+                    {}
+                );
+            default:
+                return selectedWidgetParams;
+        }
+    }, [selectedWidgetParams, selectedWidgetDef]);
+
     const addWidget = React.useCallback(async () => {
         if (!selectedWidgetDef) {
             message.error('Pick a widget definition first');
@@ -276,10 +310,11 @@ export function useWorkflowDesigner() {
             (selectedWidgetDef.variants ?? []).find((v: any) => v.id === selectedWidgetVariantId) ??
             selectedWidgetDef.variants?.[0];
 
+        const params = getParams();
+
         const gridMeta = variant?.grid;
         const w = gridMeta?.defaultW ?? 4;
         const h = gridMeta?.defaultH ?? 3;
-        console.log(variant, h, gridMeta);
         const instanceId = uid('wi');
         const nextY =
             (layout.reduce((m, it) => Math.max(m, (it.y ?? 0) + (it.h ?? 1)), 0) ?? 0) + 1;
@@ -305,13 +340,13 @@ export function useWorkflowDesigner() {
                 widgetDefinitionId: selectedWidgetDef.id,
                 widgetDefinitionVersion: (selectedWidgetDef as any).version ?? 1,
                 variantId: variant?.id,
-                config: { params: {} },
+                config: { params },
             },
         }));
 
         setIsDraftSaved(false);
         setWidgetPickerOpen(false);
-    }, [layout, selectedWidgetDef, selectedWidgetVariantId]);
+    }, [layout, selectedWidgetDef, selectedWidgetVariantId, selectedWidgetParams]);
 
     const removeWidget = React.useCallback((instanceId: string) => {
         removingIdsRef.current.add(instanceId);
@@ -342,6 +377,10 @@ export function useWorkflowDesigner() {
 
         if (saveDisabledReason) {
             message.warning(saveDisabledReason);
+            // Although this is not 100% correct logic (cannot save empty layout),
+            //  the flag needs to be toggled back to true so that useEffect can be retriggered again.
+            // This behavoiur needs to be refactored because there are too many useEffects
+            setIsDraftSaved(true);
             return;
         }
 
@@ -438,7 +477,7 @@ export function useWorkflowDesigner() {
             setLoaded(enriched);
             hydrateFromTemplateVersion(enriched);
             message.success('Published');
-            nav('..');
+            nav(`/trap?template_id=${templateId}&version_id=${versionId}`);
         } catch (e: any) {
             message.error(e?.message ?? String(e));
         } finally {
@@ -466,6 +505,7 @@ export function useWorkflowDesigner() {
         selectedCategory,
         selectedWidgetDefId,
         selectedWidgetVariantId,
+        selectedWidgetParams,
 
         layout,
         widgetsById,
@@ -491,6 +531,7 @@ export function useWorkflowDesigner() {
         setSelectedCategory,
         setSelectedWidgetDefId,
         setSelectedWidgetVariantId,
+        setSelectedWidgetParams,
         setLayout,
         setDefaultContextJson,
         setWidgetPickerOpen,
@@ -500,5 +541,7 @@ export function useWorkflowDesigner() {
         onLayoutChange,
         saveDraft,
         publish,
+
+        updateWidgetConfig,
     };
 }

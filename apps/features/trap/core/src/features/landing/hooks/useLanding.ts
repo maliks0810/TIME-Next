@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
-import React from 'react';
+import React, { useState } from 'react';
 import { message } from 'antd';
 
 import {
@@ -8,17 +8,24 @@ import {
     listTemplateVersions,
     openTemplate,
     getTemplateVersion,
+    TemplateSummary,
 } from '../../../api/trap';
 import { createContextBus, type WorkflowContext } from '../../../state/contextBus';
 
-import type { LandingTabProps, TemplateVersion } from '../types/landing.types';
+import type { LandingTabProps, Template, TemplateVersion } from '../types/landing.types';
 import { pickBestVersion } from '../utils/landing.utils';
-import { getDefaultLandingTemplate } from '../../../utils/userPreferences';
+import {
+    getDefaultLandingTemplate,
+    setDefaultLandingTemplate,
+} from '../../../utils/userPreferences';
+import { useUserInfo } from '@platform/utils';
+import { useGetActiveUser } from '../../../state/User/hooks';
 
 export function useLanding(props: LandingTabProps) {
     const bus = React.useMemo(() => createContextBus(), []);
     const defaultLanding = React.useMemo(() => getDefaultLandingTemplate(), []);
 
+    const { claims } = useUserInfo();
     const [snapshot, setSnapshot] = React.useState(() => bus.snapshot ?? {});
     const [compiledLandingVersion, setCompiledLandingVersion] = React.useState<any>(null);
     const [targetTemplateId, setTargetTemplateId] = React.useState<string>();
@@ -26,6 +33,7 @@ export function useLanding(props: LandingTabProps) {
     const [loadingLandingVersion, setLoadingLandingVersion] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
     const hasLanding = Boolean(targetTemplateId && targetTemplateVersionId);
+    const activeUser = useGetActiveUser();
 
     React.useEffect(() => {
         const unsub = bus.subscribe('landing_snapshot', (ctx) => setSnapshot(ctx));
@@ -33,91 +41,127 @@ export function useLanding(props: LandingTabProps) {
         return () => unsub();
     }, [bus]);
 
-    React.useEffect(() => {
-        (async () => {
-            try {
-                setIsLoading(true);
-                const t = await listTemplates();
+    const getSavedLandingTemplate = () => {
+        const saved = getDefaultLandingTemplate();
+        if (!saved?.templateId || !saved?.versionId) return undefined;
 
-                const activeTemplateId = props.activeLandingSelection?.templateId;
-                const activeVersionId = props.activeLandingSelection?.templateVersionId;
+        return {
+            templateId: saved.templateId,
+            templateVersionId: saved.versionId,
+        };
+    };
 
-                if (activeTemplateId) {
-                    const activeTemplate = t.find((x) => x.id === activeTemplateId);
+    const initLandingFromActive = (
+        templates: TemplateSummary[],
+        activeLandingSelection: LandingTabProps['activeLandingSelection']
+    ) => {
+        const activeTemplateId = activeLandingSelection?.templateId;
+        const activeVersionId = activeLandingSelection?.templateVersionId;
 
-                    if (
-                        activeTemplate?.id &&
-                        String(activeTemplate.kind ?? '').toLowerCase() === 'landing'
-                    ) {
-                        setTargetTemplateId(activeTemplate.id);
-                        setTargetTemplateVersionId(activeVersionId);
+        if (activeTemplateId) {
+            const activeTemplate = templates.find((template) => template.id === activeTemplateId);
 
-                        setIsLoading(false);
-                        return;
-                    }
-                }
-                const savedTemplateId = defaultLanding?.templateId ?? undefined;
-                const savedVersionId = defaultLanding?.versionId ?? undefined;
-
-                const savedTemplate = savedTemplateId
-                    ? t.find((x) => x.id === savedTemplateId)
-                    : undefined;
-
-                if (
-                    savedTemplate?.id &&
-                    String(savedTemplate.kind ?? '').toLowerCase() === 'landing'
-                ) {
-                    setTargetTemplateId(savedTemplate.id);
-                    setTargetTemplateVersionId(savedVersionId);
-
-                    setIsLoading(false);
-                    return;
-                }
-
-                setTargetTemplateId(undefined);
-                setTargetTemplateVersionId(undefined);
-                setCompiledLandingVersion(null);
+            if (
+                activeTemplate?.id &&
+                String(activeTemplate.kind ?? '').toLowerCase() === 'landing'
+            ) {
+                setTargetTemplateId(activeTemplate.id);
+                setTargetTemplateVersionId(activeVersionId);
 
                 setIsLoading(false);
-            } catch (e: any) {
-                message.error(e?.message ?? 'Failed to load templates');
-                setIsLoading(false);
+                return;
             }
-        })();
-    }, [defaultLanding, props.activeLandingSelection]);
+        }
+    };
 
-    React.useEffect(() => {
-        if (!targetTemplateId) {
-            setTargetTemplateVersionId(undefined);
+    const initFromSaved = (
+        templates: TemplateSummary[],
+        defaultLanding: {
+            templateId: string | null;
+            versionId: string | null;
+        } | null
+    ) => {
+        const savedTemplateId = defaultLanding?.templateId ?? undefined;
+        const savedVersionId = defaultLanding?.versionId ?? undefined;
+
+        const savedTemplate = savedTemplateId
+            ? templates.find((template) => template.id === savedTemplateId)
+            : undefined;
+
+        if (savedTemplate?.id && String(savedTemplate.kind ?? '').toLowerCase() === 'landing') {
+            setTargetTemplateId(savedTemplate.id);
+            setTargetTemplateVersionId(savedVersionId);
+
+            setIsLoading(false);
             return;
         }
+    };
 
-        (async () => {
-            try {
-                const vs = await listTemplateVersions(targetTemplateId);
+    const findSuitableLanding = (templates: TemplateSummary[]) => {
+        const template = templates.find((item) => {
+            if (item.kind !== 'LANDING') return false;
+            if (item.scopeType !== 'AUDIENCE') return false;
 
-                const savedVersionId =
-                    defaultLanding?.templateId === targetTemplateId
-                        ? defaultLanding?.versionId
-                        : undefined;
+            return (
+                item?.scopeKey?.['OrgLevel1'] === claims.OrgLevel1 &&
+                item?.scopeKey?.['OrgLevel2'] === claims.OrgLevel2
+            );
+        });
+        if (template) return template;
 
-                const savedVersion = savedVersionId
-                    ? (vs as TemplateVersion[]).find((v) => v.id === savedVersionId)
-                    : undefined;
+        // If there are no department landings to activate, then activate first private
 
-                if (savedVersion?.id) {
-                    setTargetTemplateVersionId(savedVersion.id);
-                    return;
-                }
+        const myTemplate = templates.filter((el) => el.kind !== 'LANDING')[0];
 
-                const best = pickBestVersion(vs as TemplateVersion[]);
-                setTargetTemplateVersionId(best?.id);
-            } catch (e: any) {
-                setTargetTemplateVersionId(undefined);
-                message.error(e?.message ?? 'Failed to load template versions');
+        return myTemplate;
+    };
+    const initDefaultLanding = async (
+        defaultLanding: {
+            templateId: string | null;
+            versionId: string | null;
+        } | null,
+        activeLandingSelection: LandingTabProps['activeLandingSelection']
+    ) => {
+        try {
+            setIsLoading(true);
+            const templates = await listTemplates();
+            if (activeLandingSelection?.templateId) {
+                initLandingFromActive(templates, activeLandingSelection);
+                return;
             }
-        })();
-    }, [targetTemplateId, defaultLanding, props.activeLandingSelection]);
+            if (defaultLanding?.templateId) {
+                initFromSaved(templates, defaultLanding);
+                return;
+            }
+
+            const departmentLanding = findSuitableLanding(templates);
+            if (departmentLanding) {
+                const versions = await listTemplateVersions(departmentLanding.id);
+
+                const best = pickBestVersion(versions as TemplateVersion[]);
+
+                setTargetTemplateId(departmentLanding.id);
+                setTargetTemplateVersionId(best?.id);
+
+                setDefaultLandingTemplate(departmentLanding.id, best?.id || '');
+                setIsLoading(false);
+                return;
+            }
+            setTargetTemplateId(undefined);
+            setTargetTemplateVersionId(undefined);
+            setCompiledLandingVersion(null);
+
+            setIsLoading(false);
+        } catch (e: any) {
+            message.error(e?.message ?? 'Failed to load templates');
+            setIsLoading(false);
+        }
+    };
+    React.useEffect(() => {
+        if (activeUser) {
+            initDefaultLanding(defaultLanding, props.activeLandingSelection);
+        }
+    }, [defaultLanding, props.activeLandingSelection, activeUser]);
 
     React.useEffect(() => {
         if (!targetTemplateId || !targetTemplateVersionId) {

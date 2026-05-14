@@ -1,0 +1,15 @@
+.wrapper {
+    display: flex;
+    gap: 4px;
+}
+.all {
+    margin-bottom: 4px;
+}
+.horizontal {
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+}
+.vertical {
+    flex-direction: column;
+}

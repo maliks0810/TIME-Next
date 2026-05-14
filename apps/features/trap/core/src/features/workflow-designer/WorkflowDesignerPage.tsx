@@ -47,6 +47,7 @@ export default function WorkflowDesignerPage() {
         selectedCategory,
         selectedWidgetDefId,
         selectedWidgetVariantId,
+        selectedWidgetParams,
         layout,
         widgetsById,
         defaultContextJson,
@@ -64,12 +65,14 @@ export default function WorkflowDesignerPage() {
         setSelectedCategory,
         setSelectedWidgetDefId,
         setSelectedWidgetVariantId,
+        setSelectedWidgetParams,
         setWidgetPickerOpen,
         onLayoutChange,
         addWidget,
         removeWidget,
         saveDraft,
         publish,
+        updateWidgetConfig,
     } = useWorkflowDesigner();
 
     useEffect(() => {
@@ -155,6 +158,7 @@ export default function WorkflowDesignerPage() {
                                     isDraftSaved={isDraftSaved}
                                     defaultContextJson={defaultContextJson}
                                     onRemove={removeWidget}
+                                    onConfigUpdate={updateWidgetConfig}
                                 />
                             );
                         })}
@@ -171,6 +175,8 @@ export default function WorkflowDesignerPage() {
                 filteredWidgetDefs={filteredWidgetDefs}
                 selectedWidgetDefId={selectedWidgetDefId}
                 selectedWidgetVariantId={selectedWidgetVariantId}
+                onSelectParams={setSelectedWidgetParams}
+                selectedParams={selectedWidgetParams}
                 selectedWidgetDef={selectedWidgetDef}
                 onClose={() => setWidgetPickerOpen(false)}
                 onSearchChange={setWidgetSearch}
