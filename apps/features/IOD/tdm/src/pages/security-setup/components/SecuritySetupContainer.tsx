@@ -46,6 +46,9 @@ import {
   useSummary,
   useFileUploadState
 } from '../../../stores/selectors/securitySetupSelectors';
+
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 interface SecuritySetupContainerProps {
   flowType: SecuritySetupFlowType;
   onComplete?: (data: Partial<ISecuritySetupWizardPayload>) => void;
@@ -295,13 +298,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   // ─── File upload ───────────────────────────────────────────────────────────
 
-  const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-
   const handleFileUpload = useCallback((files: File[]) => {
     setFileUploadError(null);
-    const current = useSecuritySetupStore.getState().pendingUploadFiles;
+    const stored = useSecuritySetupStore.getState().pendingUploadFiles;
+    const current = Array.isArray(stored) ? stored : [];
 
-    if (current.length + files.length > MAX_FILES) {
+    if (current?.length + files?.length > MAX_FILES) {
       setFileUploadError(`You can upload a maximum of ${MAX_FILES} files.`);
       return;
     }

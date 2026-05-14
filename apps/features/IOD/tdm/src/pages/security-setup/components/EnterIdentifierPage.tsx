@@ -57,7 +57,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
 
   const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
-    if (files.length > 0 && onFileUpload) {
+    if (files?.length > 0 && onFileUpload) {
       await onFileUpload(files);
     }
 
