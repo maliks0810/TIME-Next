@@ -1,4 +1,6 @@
 export const COUNTER_TILE_STORE_KEY = 'counterTile';
+export const ASSET_STAGED_TRANCHE_ID = 'asset.staged.trancheId';
+export const ASSET_STAGED_TRANCHE_NAME = 'asset.staged.trancheName';
 export const ANALYSTS_KEY = 'analystsControl';
 export const CHART_CONTROL_KEY = 'chartControl';
 export const PERIOD_RADIO_STORE_KEY = 'period';
