@@ -483,6 +483,9 @@ export default function PerformanceAnalysisContent() {
                   <div style={styles.headerLabel}>Perf Start Dt</div>
                   <div style={styles.headerValue}>{formatMMDDYYYY(detailHeader?.perfStartDate)}</div>
                 </div>
+                <div style={styles.headerField}>
+                  <div style={{width:"650px"}} >All returns for periods of one year or longer are <b>annualized</b> unless otherwise stated.</div>
+                </div>
               </div>
 
               <div style={styles.tabsRow}>
@@ -554,7 +557,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: "Segoe UI, Arial, sans-serif",
   },
   leftPane: {
-    height: "calc(100vh - 200px)",
+    height: "calc(100vh - 100px)",
     background: "#fff",
     border: "1px solid #cfcfcf",
     display: "flex",
@@ -585,9 +588,9 @@ const styles: Record<string, React.CSSProperties> = {
     marginLeft: 8,
     marginRight: 20,
     minWidth: 0,
-    minHeight:"calc(100vh - 200px)",
+    minHeight:"calc(100vh - 100px)",
     flex: 1,
-    height: "calc(100vh - 200px)",
+    height: "calc(100vh - 100px)",
   },
   gridTitleBar: {
     padding: "6px 10px",

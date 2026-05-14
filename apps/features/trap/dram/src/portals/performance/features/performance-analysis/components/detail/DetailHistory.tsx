@@ -31,7 +31,7 @@ export default function DetailHistory({portfolioId, rows, onToolbarPreparing }: 
         />
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
-      <DataGrid  dataSource={rows} height='calc(78vh - 200px)'
+      <DataGrid  dataSource={rows} height='calc(78vh - 300px)'
         keyExpr="endingDate"
                   width="95%"
                   showBorders={true}
@@ -71,10 +71,7 @@ export default function DetailHistory({portfolioId, rows, onToolbarPreparing }: 
           width={120}  format="#0.####%"  />
         <Column dataField="portfolioPerfStartDate" caption="BM Incept Dt" width={120} />
       </DataGrid>
-       <span>
-        <br />
-        All returns for periods of one year or longer are <b>annualized</b> unless otherwise stated.
-        </span>
+
       </div>
     </div>
   );
