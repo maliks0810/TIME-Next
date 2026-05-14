@@ -76,7 +76,7 @@ const Dashboard: React.FC = () => {
     navigate('/iod/tdm/security-setup');
   }
 
-  const handleSearchOnClick = useCallback(async () => {
+  const handleSearch = useCallback(async () => {
     const currentSearchParameters: IDashboardSearchParameters = {
       searchTerm: searchValue,
       startDate: startDate,
@@ -88,13 +88,16 @@ const Dashboard: React.FC = () => {
 
   }, [setSearchParameters, searchValue, startDate, endDate]);
 
+  const handleSearchClear = useCallback(async () => {
+    setSearchValue('');
+    updateDashboardSearchParameter({ searchTerm: '' });
+
+    await handleSearch();
+  }, [setSearchValue]);
+
   const handleSearchTextFieldOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
-    updateDashboardSearchParameter({searchTerm: e.target.value});
-  };
-
-  const handleSearchValueClear = () => {
-    setSearchValue('');
+    updateDashboardSearchParameter({ searchTerm: e.target.value });
   };
 
   const handleStartDateChange = useCallback((value: string | number | Date | null) => {
@@ -109,7 +112,7 @@ const Dashboard: React.FC = () => {
       }
     }
     setStartDate(newStartDate);
-    updateDashboardSearchParameter({startDate: newStartDate});
+    updateDashboardSearchParameter({ startDate: newStartDate });
   }, [setStartDate]);
 
   const handleEndDateChange = useCallback((value: string | number | Date | null) => {
@@ -124,13 +127,13 @@ const Dashboard: React.FC = () => {
       }
     }
     setEndDate(newEndDate);
-    updateDashboardSearchParameter({endDate: newEndDate});
+    updateDashboardSearchParameter({ endDate: newEndDate });
   }, [setEndDate]);
 
   const handleSearchTextFieldKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      handleSearchOnClick();
+      handleSearch();
     }
   };
 
@@ -139,17 +142,17 @@ const Dashboard: React.FC = () => {
   }, [setIsRequestDetailsOpen]);
 
   return (
-    <Box sx={{ p: '2em' }}>
-      <Card sx={{ width: '100%' }}>
+    <Box sx={{ p: '2em', overflow: 'hidden' }}>
+      <Card sx={{ width: '100%', overflow: 'hidden' }}>
         <CardMedia
           component="div"
           className='dashboard-card-media'>
         </CardMedia>
-        <CardContent sx={{ padding: '2em' }}>
-          <Grid container display='flex' flexDirection='column' spacing={2}>
+        <CardContent sx={{ padding: '2em', overflow: 'hidden' }}>
+          < Grid container display='flex' flexDirection='column' spacing={2} >
 
             {/* Title Section */}
-            <Grid container display='flex' flexDirection='row' height='60px'>
+            <Grid container display='flex' flexDirection='row' height='60px' >
               <Grid flex={1}>
                 <Typography variant="h5">
                   Security Setup Dashboard
@@ -184,7 +187,7 @@ const Dashboard: React.FC = () => {
                       endAdornment: (
                         <InputAdornment position='end'>
                           <IconButton
-                            onClick={handleSearchValueClear}>
+                            onClick={handleSearchClear}>
                             <Clear />
                           </IconButton>
                         </InputAdornment>
@@ -207,7 +210,7 @@ const Dashboard: React.FC = () => {
                   </Grid>
                   <Grid flex={1} display='flex'>
                     <Button
-                      onClick={handleSearchOnClick}
+                      onClick={handleSearch}
                       className='tcw-button'
                       variant='contained'
                       sx={{ pl: '4em', pr: '4em' }}>
@@ -312,7 +315,7 @@ const Dashboard: React.FC = () => {
             )}
 
             {/* DataGrid Section */}
-            <Grid>
+            <Grid sx={{ overflow: 'hidden', width: '100%' }}>
               <DashboardGrid
                 securityRequestsData={securityRequestsData}
                 setSelectedSecurityRequest={setSelectedSecurityRequest}
@@ -320,8 +323,8 @@ const Dashboard: React.FC = () => {
               />
             </Grid>
           </Grid>
-        </CardContent>
-      </Card>
+        </CardContent >
+      </Card >
 
       {/* Request Details Flyout */}
       <>
