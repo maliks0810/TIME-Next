@@ -28,6 +28,7 @@ export default function CDIUploadWidget({
     widgetInstance,
     result,
     widgetDefinition,
+    mode,
 }: WidgetComponentProps) {
     const { token } = theme.useToken();
     const { themeName } = useTheme();
@@ -43,12 +44,10 @@ export default function CDIUploadWidget({
 
     // Recently ingested deals come from the server via the result prop.
     // ds_sc_cdi_upload_01 executor returns { recentDeals: [...] } on mount.
-    const recentDeals: RecentDeal[] = React.useMemo(
-        () =>
-            result && Array.isArray((result as any).recentDeals)
-                ? ((result as any).recentDeals as RecentDeal[])
-                : [],
-        [result]
+    const [recentDeals, setRecentDeals] = React.useState<RecentDeal[]>(() =>
+        result && Array.isArray((result as any).recentDeals)
+            ? ((result as any).recentDeals as RecentDeal[])
+            : []
     );
 
     const widgetId = widgetInstance?.id;
@@ -58,7 +57,7 @@ export default function CDIUploadWidget({
             widgetDefinition?.id ??
             ''
     );
-    const isDesigner = widgetInstance?._mode === 'designer';
+    const isDesigner = mode === 'designer';
 
     const channelId = widgetInstance?.config?.params?.channel;
 
@@ -166,15 +165,17 @@ export default function CDIUploadWidget({
                 if (!deal?.dealName)
                     throw new Error('Upload succeeded but no deal metadata returned');
 
-                setLoadedDeal({
+                const newDeal = {
                     dealId: `r_${deal.dealName}`,
                     dealName: deal.dealName,
-                    sourceType: ext === '.zip' ? 'zip' : 'cdi',
+                    sourceType: ext === '.zip' ? ('zip' as const) : ('cdi' as const),
                     uploadedAt: deal.uploadedAt ?? new Date().toLocaleString(),
                     uploadedBy: deal.uploadedBy ?? '',
                     packagePath: deal.packagePath ?? '',
                     sessionId: deal.sessionId,
-                });
+                };
+                setLoadedDeal(newDeal);
+                setRecentDeals((prev) => [...prev, newDeal]);
                 setFromRecent(false);
                 setUploadState('success');
                 publishDeal(deal);
