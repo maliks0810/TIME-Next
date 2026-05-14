@@ -1,3 +1,4 @@
+import { WidgetInstance } from '../../../state/types';
 import type { WorkflowContext } from '../../../state/contextBus';
 
 export type Template = {
@@ -12,6 +13,10 @@ export type TemplateVersion = {
     status: string;
     createdAt?: string;
     updatedAt?: string;
+    widgets?: Array<WidgetInstance>;
+    theme?: Record<string, string>;
+    defaultContext?: Record<string, string>;
+    layoutVariants?: Array<string>;
 };
 
 export type WorkflowTabModel = {

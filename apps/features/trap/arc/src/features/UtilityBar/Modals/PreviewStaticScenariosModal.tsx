@@ -50,11 +50,13 @@ export default function PreviewStaticScenariosModal({
     isOpen,
     toggleModal,
     messageApi,
+    assetId,
 }: {
     aladdinId: string;
     isOpen: boolean;
     toggleModal: () => void;
     messageApi: MessageInstance;
+    assetId?: string;
 }) {
     const [isLoading, setIsLoading] = useState(false);
     const [isFileLoading, setIsFileLoading] = useState(false);
@@ -69,7 +71,7 @@ export default function PreviewStaticScenariosModal({
     };
 
     const fetchPreviewStatisScenarios = async () => {
-        const assetAnalyticsSetupId = searchParams.get('assetId');
+        const assetAnalyticsSetupId = searchParams.get('assetId') || assetId;
 
         if (!assetAnalyticsSetupId) {
             return;
@@ -102,7 +104,7 @@ export default function PreviewStaticScenariosModal({
     }, [isOpen]);
 
     const downloadStaticScenarios = async () => {
-        const assetAnalyticsSetupId = searchParams.get('assetId');
+        const assetAnalyticsSetupId = searchParams.get('assetId') || assetId;
 
         if (!assetAnalyticsSetupId) {
             return;

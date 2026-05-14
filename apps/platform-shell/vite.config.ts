@@ -68,6 +68,7 @@ export default defineConfig(({ mode }) => {
                 '@IOD/bskt-composition': path.resolve(__dirname, '../features/IOD/bskt-composition'),
                 '@r2/levered-finance-news': path.resolve(__dirname, '../features/R2/levered-finance-news'),
                 '@IOD/tdm': path.resolve(__dirname, '../features/IOD/tdm'),
+                '@iod/equity-budget-commission': path.resolve(__dirname, '../features/IOD/equity-budget-commission'),
                 // PLOP_INJECT_NEW_FEATURE_APP
             },
             preserveSymlinks: true,

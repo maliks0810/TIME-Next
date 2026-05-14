@@ -129,6 +129,8 @@ plop.setGenerator('app', {
                             return ['AI Themes', 'AI Upload Tools']
                         case 'Support':
                             return ['General'];
+                        case 'Equity':
+                            return ['Budget','Commission']
                         default:
                             return [];
                     }
@@ -167,7 +169,8 @@ plop.setGenerator('app', {
             'Compliance': 'complianceApps',
             'Client Management': 'clientManagementApps',
             'AI Products': 'aiProductsApps',
-            'Support': 'supportApps'
+            'Support': 'supportApps',
+            'Equity': 'equityApps'
         };
         const fileName = navMenuToFileMap[answers.navMenu];
         // todo: bring in types from appregistry

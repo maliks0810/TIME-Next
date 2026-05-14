@@ -103,7 +103,8 @@ export default function AnalystPerformance() {
         })
         .finally(() => setIsDataLoading(false));
 
-      if (periodKey === '5Y' || periodKey === 'Max') setDateFormat(DateFormatEnum.MONTH);
+      if (periodKey === '5Y' || periodKey === '10Y' || periodKey === 'Max')
+        setDateFormat(DateFormatEnum.MONTH);
       else setDateFormat(DateFormatEnum.DAY);
     },
     [selectedAnalysts, selectedLines]

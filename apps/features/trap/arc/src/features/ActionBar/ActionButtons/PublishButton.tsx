@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Button, Tooltip } from 'antd';
-import { useUserInfo } from '@platform/utils';
 import { useSearchParams } from 'react-router-dom';
 import { publishAnalyticsInput } from '../lib/services';
 import { extractCallable, extractCollateralType, normalizeStatus, speedOverridesExist } from '../../../lib/helpers';
@@ -17,12 +16,10 @@ type PublishButtonProps = {
 export const PublishButton = ({ selectedAssetStatus, messageApi, selectedPayload, setIsActionInprogress }: PublishButtonProps) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [searchParams] = useSearchParams();
-    const userInfo = useUserInfo();
-    const username = userInfo.email;
 
     const canPublish = normalizeStatus(selectedAssetStatus) === 'ANALYTICS INPUT PENDING REVIEW'
         && (COMMON_COLLATERAL_TYPES.includes(extractCollateralType(selectedPayload))
-        || extractCallable(selectedPayload) !== 'N' || speedOverridesExist(selectedPayload));
+            || extractCallable(selectedPayload) !== 'N' || speedOverridesExist(selectedPayload));
 
     const publishOverrides = async () => {
         const assetId = searchParams.get('assetId');
@@ -39,7 +36,6 @@ export const PublishButton = ({ selectedAssetStatus, messageApi, selectedPayload
 
         const payload = {
             assetAnalyticsSetupId: +assetId,
-            updatedBy: username,
         };
         try {
             await publishAnalyticsInput(payload);
@@ -47,10 +43,16 @@ export const PublishButton = ({ selectedAssetStatus, messageApi, selectedPayload
             /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         } catch (err: any) {
             console.error('Failed to publish analytics inputs:', err);
-            messageApi.error(
-                err?.response?.data?.message ??
-                'Failed to publish analytics inputs. Please try again.'
-            );
+            if (err?.response?.status === 401) {
+                const serverMessage = err?.response?.data ?? 'Unauthorized to perform this action';
+                messageApi.error(`Failed to publish analytics inputs: ${serverMessage}`);
+            } else {
+                // Fallback for all other errors
+                messageApi.error(
+                    err?.response?.data?.message ??
+                    'Failed to publish analytics inputs. Please try again.'
+                );
+            }
         } finally {
             setIsLoading(false);
         }

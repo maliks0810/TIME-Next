@@ -4,6 +4,7 @@ import { executeWidget } from '../../api/trap';
 import WidgetRenderer from '../../components/widget-runtime/WidgetRenderer';
 import { widgetRegistry } from '../../registry/widgetRegistry';
 import type { WidgetRenderMode } from '../../types/widget';
+import { WidgetValueType } from '../../state/Widgets/types';
 
 function stableStringify(value: unknown): string {
     try {
@@ -146,7 +147,23 @@ export default function WidgetHost(props: {
             cancelled = true;
         };
     }, [requestKey, widgetDefinitionId, variantId, params, context, props.mode, isIdentity]);
+    const execute = async (
+        variables?: Record<string, WidgetValueType>,
+        passedParams?: Record<string, WidgetValueType>
+    ) => {
+        const response = await executeWidget({
+            widgetDefinitionId,
+            variantId,
+            params: { ...params, ...passedParams },
+            context: {
+                ...context,
+                ...variables,
+            },
+            mode: props.mode === 'designer' ? 'MOCK' : 'LIVE',
+        });
 
+        setResult(response?.result ?? {});
+    };
     return (
         <WidgetRenderer
             widgetInstance={props.widgetInstance}
@@ -158,6 +175,7 @@ export default function WidgetHost(props: {
             mode={props.mode}
             onPublishContext={props.onPublishContext}
             uiActions={props.uiActions}
+            execute={execute}
         />
     );
 }

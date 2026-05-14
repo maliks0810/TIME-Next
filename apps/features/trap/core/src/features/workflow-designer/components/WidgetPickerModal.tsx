@@ -1,9 +1,10 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button, Empty, Input, Modal, Select, Space, Tag, Typography, theme } from 'antd';
 import { AppstoreOutlined } from '@ant-design/icons';
 import JsonInfoModal from '../../../components/common/JsonInfoModal';
 import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
+import styles from './WidgetPickerModal.module.scss';
 
 type WidgetPickerModalProps = {
     open: boolean;
@@ -16,11 +17,13 @@ type WidgetPickerModalProps = {
     selectedWidgetDefId: string;
     selectedWidgetVariantId?: string;
     selectedWidgetDef?: any;
+    selectedParams: { [key: string]: string | number };
     onClose: () => void;
     onSearchChange: (value: string) => void;
     onCategoryChange: (value: string) => void;
     onSelectWidget: (widgetId: string) => void;
     onSelectVariant: (variantId?: string) => void;
+    onSelectParams: (params?: any) => void;
     onAddWidget: () => void;
 };
 
@@ -28,6 +31,9 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
     const { token } = theme.useToken();
     const { themeName } = useTheme();
     const surfaceMeta = getThemeSurfaceMeta(themeName);
+
+    const selectedWidgetRequiredFields = props.selectedWidgetDef?.configSchema?.required;
+    const isSelectedWidgetHasRequiredFields = selectedWidgetRequiredFields?.length > 0;
 
     const isDarkHud =
         themeName === 'dark' ||
@@ -103,6 +109,17 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
         };
     }
 
+    const hasAllRequiredParams = useMemo(
+        () =>
+            selectedWidgetRequiredFields
+                ? selectedWidgetRequiredFields.every((key: string) => !!props.selectedParams[key])
+                : true,
+        [props.selectedParams, selectedWidgetRequiredFields]
+    );
+
+    const addWidgetDisabled =
+        !props.selectedWidgetDef || props.isPublished || !props.templateId || !hasAllRequiredParams;
+
     return (
         <Modal
             title={null}
@@ -111,15 +128,11 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
             footer={null}
             width={1080}
             centered
+            className={styles.widgetPickerModal}
             destroyOnHidden
             styles={{
                 body: {
-                    padding: 0,
-                    overflow: 'hidden',
-                    borderRadius: 20,
-                    background: modalPanelBackground,
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
+                    background: surfaceMeta.isGradientTheme ? 'rgba(0,0,0,0.32)' : undefined,
                 },
                 content: {
                     padding: 0,
@@ -141,7 +154,6 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                     display: 'grid',
                     gridTemplateColumns: '240px minmax(0, 1fr)',
                     minHeight: 640,
-                    maxHeight: '78vh',
                 }}
             >
                 <div
@@ -150,11 +162,12 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                             ? '1px solid rgba(255,255,255,0.10)'
                             : `1px solid ${token.colorBorderSecondary}`,
                         background: sidebarBackground,
-                        padding: 20,
+                        padding: '20px 40px 20px 20px',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 18,
                         overflowY: 'auto',
+                        maxHeight: '78vh',
                     }}
                 >
                     <div>
@@ -218,6 +231,87 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                     </div>
                                 </div>
 
+                                {isSelectedWidgetHasRequiredFields
+                                    ? selectedWidgetRequiredFields?.map((requiredField: string) => {
+                                          let inputComponent;
+                                          if (
+                                              props.selectedWidgetDef.configSchema.properties[
+                                                  requiredField
+                                              ]?.enum
+                                          ) {
+                                              const selectValue =
+                                                  props.selectedParams[requiredField];
+                                              inputComponent = (
+                                                  <Select
+                                                      value={selectValue}
+                                                      onChange={(fieldName) =>
+                                                          props.onSelectParams(
+                                                              (params: {
+                                                                  [key: string]: string;
+                                                              }) => ({
+                                                                  ...params,
+                                                                  [requiredField]: fieldName,
+                                                              })
+                                                          )
+                                                      }
+                                                      placeholder={
+                                                          props.selectedWidgetDef.configSchema
+                                                              .properties[requiredField]?.title
+                                                      }
+                                                      style={{ width: '100%', marginTop: 8 }}
+                                                      options={(
+                                                          props.selectedWidgetDef.configSchema
+                                                              .properties[requiredField]?.enum ?? []
+                                                      ).map((fieldName: string) => ({
+                                                          value: fieldName,
+                                                          label: fieldName,
+                                                      }))}
+                                                  />
+                                              );
+                                          } else {
+                                              const inputValue =
+                                                  props.selectedParams[requiredField];
+
+                                              inputComponent = (
+                                                  <Input
+                                                      value={inputValue}
+                                                      style={{ width: '100%', marginTop: 8 }}
+                                                      onChange={(e) =>
+                                                          props.onSelectParams(
+                                                              (params: {
+                                                                  [key: string]: string;
+                                                              }) => ({
+                                                                  ...params,
+                                                                  [requiredField]: e.target.value,
+                                                              })
+                                                          )
+                                                      }
+                                                      placeholder={
+                                                          props.selectedWidgetDef.configSchema
+                                                              .properties[requiredField]?.title
+                                                      }
+                                                  />
+                                              );
+                                          }
+
+                                          return (
+                                              <div key={requiredField}>
+                                                  <Typography.Text
+                                                      strong
+                                                      style={{ fontSize: 12, color: titleColor }}
+                                                  >
+                                                      {
+                                                          props.selectedWidgetDef.configSchema
+                                                              .properties[requiredField]?.title
+                                                      }
+                                                      *
+                                                  </Typography.Text>
+                                                  {inputComponent}
+                                              </div>
+                                          );
+                                      })
+                                    : null}
+
                                 <div>
                                     <Typography.Text
                                         strong
@@ -231,9 +325,9 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                         placeholder="Widget variant"
                                         style={{ width: '100%', marginTop: 8 }}
                                         options={(props.selectedWidgetDef?.variants ?? []).map(
-                                            (v: any) => ({
-                                                value: v.id,
-                                                label: v.label,
+                                            (variant: any) => ({
+                                                value: variant.id,
+                                                label: variant.label,
                                             })
                                         )}
                                     />
@@ -242,11 +336,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                 <Button
                                     type="primary"
                                     onClick={props.onAddWidget}
-                                    disabled={
-                                        !props.selectedWidgetDef ||
-                                        props.isPublished ||
-                                        !props.templateId
-                                    }
+                                    disabled={addWidgetDisabled}
                                 >
                                     Add Widget to Canvas
                                 </Button>
@@ -259,16 +349,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                     </div>
                 </div>
 
-                <div
-                    style={{
-                        padding: 20,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        minWidth: 0,
-                        overflow: 'hidden',
-                        background: 'transparent',
-                    }}
-                >
+                <div className={styles.widgetsContainer}>
                     <div
                         style={{
                             display: 'grid',
@@ -293,7 +374,11 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                     <button
                                         key={d.id}
                                         type="button"
-                                        onClick={() => props.onSelectWidget(d.id)}
+                                        onClick={() => {
+                                            props.onSelectWidget(d.id);
+                                            // params cleanup on selected widget change
+                                            props.onSelectParams({});
+                                        }}
                                         style={{
                                             textAlign: 'left',
                                             borderRadius: 18,
@@ -369,7 +454,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                                         name: d.name,
                                                         description: d.description,
                                                         category:
-                                                            d?.category ?? d?.uiHints?.category,
+                                                            d?.uiHints?.category ?? d?.category,
                                                         datasetId: d?.datasetId,
                                                         variants: Array.isArray(d?.variants)
                                                             ? d.variants.map((v: any) => ({
@@ -395,7 +480,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                             }}
                                         >
                                             <Tag style={{ marginInlineEnd: 0 }}>
-                                                {d?.category ?? d?.uiHints?.category ?? 'Other'}
+                                                {d?.uiHints?.category ?? d?.category ?? 'Other'}
                                             </Tag>
                                             {Array.isArray(d?.variants) && d.variants.length > 0 ? (
                                                 <Tag color="blue" style={{ marginInlineEnd: 0 }}>

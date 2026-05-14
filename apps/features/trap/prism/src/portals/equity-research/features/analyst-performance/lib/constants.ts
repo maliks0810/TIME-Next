@@ -7,5 +7,6 @@ export const datePeriodOptions: CheckboxGroupProps<string>['options'] = [
     { label: '1Y', value: '1Y' },
     { label: '3Y', value: '3Y' },
     { label: '5Y', value: '5Y' },
+    { label: '10Y', value: '10Y' },
     { label: 'Max', value: 'Max' },
 ];

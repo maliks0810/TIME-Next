@@ -1,0 +1,21 @@
+.wrapper {
+    display: grid;
+    grid-template-columns: 380px 1px 1fr;
+    gap: 0 20px;
+    height: 214px;
+    overflow: hidden;
+}
+.left {
+    display: flex;
+    flex-direction: column;
+    gap: 6;
+}
+.right {
+    min-width: 0;
+    overflow: hidden;
+    height: 100%;
+}
+.vertical {
+    width: 1;
+    align-self: stretch;
+}

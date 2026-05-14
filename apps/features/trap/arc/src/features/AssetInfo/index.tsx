@@ -68,7 +68,6 @@ export const AssetInfo = ({
                 {
                     anchorType: 'NAAID',
                     anchorId: selectedAssetId as number,
-                    claimedBy: user.email as string,
                 },
             ],
         };
@@ -200,7 +199,6 @@ export const AssetInfo = ({
                         price: form.getFieldValue('priceInput'),
                         payload: payloadObj,
                         cdiCduBlob: assetInfo?.cdiCduBlob,
-                        modifiedBy: user.email,
                         assetSubType: null,
                         noteType: 'AIOR',
                         noteText: form.getFieldValue('noteTextArea'),

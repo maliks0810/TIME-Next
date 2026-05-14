@@ -45,11 +45,13 @@ export default function PreviewBondFeaturesModal({
     isOpen,
     toggleModal,
     messageApi,
+    assetId,
 }: {
     aladdinId: string;
     isOpen: boolean;
     toggleModal: () => void;
     messageApi: MessageInstance;
+    assetId?: string;
 }) {
     const [isLoading, setIsLoading] = useState(false);
     const [isFileLoading, setIsFileLoading] = useState(false);
@@ -62,7 +64,7 @@ export default function PreviewBondFeaturesModal({
     };
 
     const fetchPreviewBondFeatures = async () => {
-        const assetAnalyticsSetupId = searchParams.get('assetId');
+        const assetAnalyticsSetupId = searchParams.get('assetId') || assetId;
 
         if (!assetAnalyticsSetupId) {
             return;
@@ -95,7 +97,7 @@ export default function PreviewBondFeaturesModal({
     }, [isOpen]);
 
     const downloadBondFeatures = async () => {
-        const assetAnalyticsSetupId = searchParams.get('assetId');
+        const assetAnalyticsSetupId = searchParams.get('assetId') || assetId;
 
         if (!assetAnalyticsSetupId) {
             return;

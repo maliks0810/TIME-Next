@@ -6,13 +6,16 @@ export enum NavbarHeader {
     ClientManagement = 'Client Management',
     Products = 'Products',
     AIProducts = 'AI Products',
-    Support = 'Support'
-
+    Support = 'Support',
+    Equity = 'Equity'
 }
 
 export enum NavbarSubHeader {
     AladdinPortfolioManagement = 'Aladdin Portfolio Management',
     InvestmentManagementSolutions = 'Investment Management Solutions',
+    IM_Agency = 'Agency',
+    IM_Credit = 'Credit',
+    IM_Rates = 'Rates',
     Fundamental = 'Fundamental',
     ESG = 'ESG',
     Market = 'Market',
@@ -26,7 +29,10 @@ export enum NavbarSubHeader {
     AssetBackFinance = 'Asset Back Finance',
     AIThemes= 'AI Themes',
     AIUploadTools = 'AI Upload Tools',
-    FORGE = 'FORGE'
+    FORGE = 'FORGE',
+    Budget = 'Budget',
+    Commission = 'Commission',
+    Reports = 'Reports'
 }
 
 

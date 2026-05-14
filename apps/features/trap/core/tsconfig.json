@@ -6,7 +6,8 @@
         "paths": {
             "@/core/*": ["./src/*"],
             "@platform/styles": ["../../../../packages/styles/src"],
-            "@platform/ui": ["../../../../packages/ui/src"]
+            "@platform/ui": ["../../../../packages/ui/src"],
+            "@/prism": ["../../../../apps/features/prism"]
         }
     },
     "include": ["src/**/**/*", "src/**/*", "vite.config.ts", "vite-env.d.ts"],

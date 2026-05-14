@@ -75,6 +75,7 @@ export function normalizeKpiPeriodLabel(raw?: string):
   | '1Year'
   | '3Year'
   | '5Year'
+  | '10Year'
   | 'Max'
   | string {
   if (!raw) return 'YTD';
@@ -90,6 +91,7 @@ export function normalizeKpiPeriodLabel(raw?: string):
   if (key === '1Y' || key === '1YEAR') return '1Year';
   if (key === '3Y' || key === '3YEAR') return '3Year';
   if (key === '5Y' || key === '5YEAR') return '5Year';
+  if (key === '10Y' || key === '10YEAR') return '10Year';
   if (key === 'MAX') return 'Max';
 
   return raw.trim();
@@ -127,6 +129,7 @@ export function analystPerformanceDataConverter({
     if (key === '1Y' || key === '1YEAR') return '1Year';
     if (key === '3Y' || key === '3YEAR') return '3Year';
     if (key === '5Y' || key === '5YEAR') return '5Year';
+    if (key === '10Y' || key === '10YEAR') return '10Year';
     if (key === 'MAX') return 'Max';
     return raw.trim();
   };
@@ -386,6 +389,9 @@ export const getStartDate = (period: string) => {
             return now.toISOString().split('T')[0];
         case '5Y':
             now.setFullYear(now.getFullYear() - 5);
+            return now.toISOString().split('T')[0];
+        case '10Y':
+            now.setFullYear(now.getFullYear() - 10);
             return now.toISOString().split('T')[0];
         case 'Max':
             return '0001-01-01';
