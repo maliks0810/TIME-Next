@@ -20,6 +20,7 @@ import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/Perfo
 import CDIUploadWidget from '../widgets/securitized-credit/cdi-upload/CDIUploadWidget';
 import SecurityLookupWidget from '../widgets/securitized-credit/security-lookup/SecurityLookupWidget';
 import { TextWidget } from '../widgets/common/text/Text';
+import { DateSelect } from '../widgets/common/date-select/DateSelect';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -187,6 +188,14 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     wd_sc_security_lookup_01: {
         id: 'wd_sc_security_lookup_01',
         component: SecurityLookupWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_date_select: {
+        id: 'cwd_date_select',
+        component: DateSelect,
         category: 'Control',
         visibleIn: ['workflow'],
         listensToKeys: [],
