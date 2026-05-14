@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useUserInfo } from '@platform/utils';
 import { SecuritySetupContainer } from './components/SecuritySetupContainer';
-import { ISecuritySetupWizardData } from './lib/types/securitySetupTypes';
 import './lib/styles.scss';
 import { SecuritySetupService } from '../../services/SecuritySetupService';
 import { ISecuritySetupWizardPayload } from '../../services/domain-objects/SecuritySetupRequestPayload';
+import { useSecuritySetupStore } from '../../stores/useSecuritySetupStore';
 
 const SecuritySetupComponent: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { resetWizard } = useSecuritySetupStore();
   const [initialData, setInitialData] = useState<Partial<ISecuritySetupWizardPayload> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-
-  const { name: currentUser } = useUserInfo();
 
   const securitySetupId = searchParams.get('id');
   useEffect(() => {
@@ -39,53 +37,10 @@ const SecuritySetupComponent: React.FC = () => {
     fetchWizardData();
   }, [securitySetupId]);
 
-  const handleComplete = async (data: ISecuritySetupWizardData) => {
-    try {
-      const payload: ISecuritySetupWizardPayload = {
-        currentStep: 'confirm-details',
-        currentStepNumber: 4,
-        savedAt: new Date().toISOString(),
-        saveType: 'complete' as const,
-        newIssue: data.step1.newIssue,
-        cdiFileUploadedToAnser: data.step1.cdiFileUploadedToAnser,
-        aladdinCDIId: data.step1.aladdinCDIId,
-        isPrivateDeal: data.step1.isPrivateDeal,
-        ssapIdPassword: data.step1.ssapIdPassword,
-        isSsapReleaseRequestSentToDm: data.step1.isSsapReleaseRequestSentToDm,
-        isSsapReleasedByDm: data.step1.isSsapReleasedByDm,
-        identifierType: data.step1.identifierType,
-        identifierValue: data.step1.identifierValue,
-        marketSector: data.step1.marketSector,
-        yellowKey: data.step1.yellowKey,
-        isEuSecuritizationRequired: data.step1.isEuSecuritizationRequired,
-        euSecuritizationTipEuId: data.step1.euSecuritizationTipEuId,
-        euSecuritizationStatus: data.step1.euSecuritizationStatus,
-        erisaStatus: data.step1.erisaStatus,
-        intexDealName: data.step1.intexDealName,
-        intexPassword: data.step1.intexPassword,
-        dealName: data.step1.dealName,
-        securityDetails: data.step2.securityDetails,
-        esgFields: data.step2.esgFields,
-        tradeFields: data.step2.tradeFields,
-        speedOverrides: data.step2.speedOverrides,
-        notesInstructions: data.step2.notesInstructions,
-        ...(data.step3 && {
-          uploadedFiles: data.step3.uploadedFile,
-          isConfirmed: true
-        }),
-        isReviewed: data.isReviewed,
-        reviewedBy: data.reviewedBy,
-        reviewedDate: data.reviewedDate,
-        updatedBy: currentUser,
-        updatedDate: new Date().toISOString()
-      };
-
-      await SecuritySetupService.upsertWizardData(payload, data.securitySetupRequestId);
-      navigate('/iod/tdm/');
-    } catch (error) {
-      console.error('Failed to submit security setup:', error);
-      alert('Failed to submit security setup. Please try again.');
-    }
+  // by the time onComplete fires, SecuritySetupContainer has already persisted the fial save
+  const handleComplete = async () => {
+    resetWizard();
+    navigate('/iod/tdm/')
   };
 
   const handleCancel = () => {

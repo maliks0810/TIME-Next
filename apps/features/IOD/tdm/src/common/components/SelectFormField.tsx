@@ -36,10 +36,8 @@ export const SelectFormField: React.FC<SelectFormFieldProps> = ({
   const isLoading = !referenceData || options.length === 0;
 
   const handleChange = (event: SelectChangeEvent<string>) => {
-    if (onChange) {
-      onChange(event.target.value);
-    }
-  };
+    onChange?.(event.target.value);
+  }
 
   if (isLoading) {
     return <Skeleton variant="rectangular" height={56} />;

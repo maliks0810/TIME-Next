@@ -1,32 +1,28 @@
 import React from 'react';
 import { Button } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
-import { IEnterIdentifierFormValues } from '../lib/types/securitySetupTypes';
-
-export type UserInput = { isSsapReleasedByDm: boolean }
+import { useSsapFields } from '../../../stores/selectors/securitySetupSelectors';
+import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
 
 interface SSAPApprovalPageProps {
-  formValues: IEnterIdentifierFormValues;
-  onFormChange: (values: Partial<IEnterIdentifierFormValues>) => void;
-  onProceedToReview: (userInput?: UserInput) => void;
+  onProceedToReview: () => void;
   onBack: () => void;
-  isReadOnly: boolean;
   isSaving?: boolean;
 }
 
 export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
-  formValues,
-  onFormChange,
   onProceedToReview,
   onBack,
-  isReadOnly,
   isSaving
 }) => {
-  const isSsapApproved = !!formValues.isSsapReleasedByDm;
+  const { isSsapReleasedByDm, isReadOnly } = useSsapFields();
+  const { updateIdentifierFields } = useSecuritySetupStore();
+
+  const isSsapApproved = !!isSsapReleasedByDm;
 
   const handleRequestRelease = () => {
-    onFormChange({ isSsapReleasedByDm: true });
-    onProceedToReview({ isSsapReleasedByDm: true });
+    updateIdentifierFields({ isSsapReleasedByDm: true });
+    onProceedToReview();
   };
 
   return (
@@ -58,7 +54,7 @@ export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
               <Button
                 variant="contained"
                 className="button"
-                onClick={() => onProceedToReview()}
+                onClick={onProceedToReview}
                 disabled={isSaving}
                 endIcon={<ArrowForward />}
               >

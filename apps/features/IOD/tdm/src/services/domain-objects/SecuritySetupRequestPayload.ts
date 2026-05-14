@@ -180,7 +180,7 @@ export interface ISecuritySetupWizardPayload {
     // ============================================
     newIssue?: string | null;
     cdiFileUploadedToAnser?: string | null;
-    aladdinCDIId?: string | null;
+    aladdinCdiId?: string | null;
     uploadedFileReference?: string;
     isPrivateDeal?: boolean | null;
     ssapIdPassword?: string | null;

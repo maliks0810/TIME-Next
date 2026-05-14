@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, IconButton, CircularProgress, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
@@ -9,17 +9,15 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SaveIcon from '@mui/icons-material/Save';
 import { useUserInfo } from '@platform/utils';
 import { HorizontalStepper } from './HorizontalStepper';
-import { EnterIdentifierPage } from './EnterIdentifierPage';
-import { SSAPApprovalPage, UserInput } from './SSAPApprovalPage';
+import { EnterIdentifierPage, MAX_FILE_SIZE_MB, MAX_FILES } from './EnterIdentifierPage';
+import { SSAPApprovalPage } from './SSAPApprovalPage';
 import { ReviewDetailsPage } from './ReviewDetailsPage';
 import { ConfirmDetailsPage } from './ConfirmDetailsPage';
 import { SubmitConfirmationModal } from './SubmitConfirmationModal';
 import {
   SecuritySetupFlowType,
   SecuritySetupStatus,
-  ISecuritySetupWizardData,
-  IEnterIdentifierFormValues,
-  IReviewDetailsFormValues,
+  SecuritySetupStep,
 } from '../lib/types/securitySetupTypes';
 import '../lib/styles.scss';
 import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
@@ -27,88 +25,35 @@ import { ISecuritySetupRequestAttachment, ISecuritySetupWizardPayload } from '..
 import { SecuritySetupService } from '../../../services/SecuritySetupService';
 import { useReferenceData } from '../hooks/useReferenceData';
 import { getStepNumber } from '../utils/securitySetupApiTransformer';
+import {
+  isValidString,
+  isValidPrice,
+  isValidNotes,
+  isValidLoanCategory,
+  isValidCallDate,
+  isRPLStringFieldValid,
+  isRPLNumberFieldValid,
+  isValidIdentifier
+} from '../utils/securitySetupValidation';
 import { ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
+import { ApiResponseError } from '../../../common/lib/ApiResponseError';
+import { ErrorModal } from '../../../common/components/ErrorModal';
+import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
+import {
+  useWizardNavigation,
+  useHasPasswordFlow,
+  useValidationFields,
+  useSummary,
+  useFileUploadState
+} from '../../../stores/selectors/securitySetupSelectors';
+
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 interface SecuritySetupContainerProps {
   flowType: SecuritySetupFlowType;
-  onComplete?: (data: ISecuritySetupWizardData) => void;
+  onComplete?: (data: Partial<ISecuritySetupWizardPayload>) => void;
   onCancel?: () => void;
   initialData?: Partial<ISecuritySetupWizardPayload> | null;
-}
-
-type WizardStep = 'enter-identifier' | 'ssap-confirmation' | 'review-details' | 'confirm-details';
-
-const mergeWizardDataWithSaveResponse = (
-  prev: ISecuritySetupWizardData,
-  savedData: Partial<ISecuritySetupWizardPayload>
-): Pick<ISecuritySetupWizardData, 'step1' | 'step2'> => {
-  const mergedStep1: IEnterIdentifierFormValues = {
-    ...prev.step1,
-    newIssue: savedData.newIssue ?? prev.step1.newIssue,
-    cdiFileUploadedToAnser: savedData.cdiFileUploadedToAnser ?? prev.step1.cdiFileUploadedToAnser,
-    aladdinCDIId: savedData.aladdinCDIId ?? prev.step1.aladdinCDIId,
-    isPrivateDeal: savedData.isPrivateDeal ?? prev.step1.isPrivateDeal,
-    ssapIdPassword: savedData.ssapIdPassword ?? prev.step1.ssapIdPassword,
-    isSsapReleaseRequestSentToDm: savedData.isSsapReleaseRequestSentToDm ?? prev.step1.isSsapReleaseRequestSentToDm,
-    isSsapReleasedByDm: savedData.isSsapReleasedByDm ?? prev.step1.isSsapReleasedByDm,
-    identifierType: savedData.identifierType ?? prev.step1.identifierType,
-    identifierValue: savedData.identifierValue ?? prev.step1.identifierValue,
-    marketSector: savedData.marketSector ?? prev.step1.marketSector,
-    yellowKey: savedData.yellowKey ?? prev.step1.yellowKey,
-    isEuSecuritizationRequired: savedData.isEuSecuritizationRequired ?? undefined,
-    euSecuritizationTipEuId: savedData.euSecuritizationTipEuId ?? prev.step1.euSecuritizationTipEuId,
-    euSecuritizationStatus: savedData.euSecuritizationStatus ?? prev.step1.euSecuritizationStatus,
-    erisaStatus: savedData.erisaStatus ?? prev.step1.erisaStatus,
-    intexDealName: savedData.intexDealName ?? undefined,
-    intexPassword: savedData.intexPassword ?? undefined,
-    dealName: savedData.dealName ?? undefined,
-  };
-
-  const mergedStep2: IReviewDetailsFormValues = {
-    securityDetails: {
-      ...prev.step2.securityDetails,
-      aladdinCDIId: savedData.securityDetails?.aladdinCDIId ?? prev.step2.securityDetails?.aladdinCDIId,
-      identifier: savedData.securityDetails?.identifier ?? prev.step2.securityDetails?.identifier,
-      description: savedData.securityDetails?.description ?? prev.step2.securityDetails?.description,
-      tranche: savedData.securityDetails?.tranche ?? prev.step2.securityDetails?.tranche,
-      sectorValue: savedData.securityDetails?.sectorValue ?? prev.step2.securityDetails?.sectorValue,
-      callDate: savedData.securityDetails?.callDate ?? prev.step2.securityDetails?.callDate,
-      price: savedData.securityDetails?.price ?? prev.step2.securityDetails?.price,
-      cusip: savedData.securityDetails?.cusip ?? prev.step2.securityDetails?.cusip,
-      callableValue: savedData.securityDetails?.callableValue ?? prev.step2.securityDetails?.callableValue,
-      euSecuritizationStatus: savedData.securityDetails?.euSecuritizationStatus ?? prev.step2.securityDetails.euSecuritizationStatus,
-      erisaStatus: savedData.securityDetails?.erisaStatus ?? prev.step2.securityDetails.erisaStatus,
-    },
-    esgFields: {
-      tcwEsgValue: savedData.esgFields?.tcwEsgValue ?? prev.step2.esgFields?.tcwEsgValue,
-      tcwEsgTypeValue: savedData.esgFields?.tcwEsgTypeValue ?? prev.step2.esgFields?.tcwEsgTypeValue,
-      esgCollateralType: savedData.esgFields?.esgCollateralType ?? prev.step2.esgFields?.esgCollateralType,
-    },
-    tradeFields: {
-      slicerTypeValue: savedData.tradeFields?.slicerTypeValue ?? prev.step2.tradeFields?.slicerTypeValue,
-      mbsTypeValue: savedData.tradeFields?.mbsTypeValue ?? prev.step2.tradeFields?.mbsTypeValue,
-      loanCreditValue: savedData.tradeFields?.loanCreditValue ?? prev.step2.tradeFields?.loanCreditValue,
-      mbsCollateralValue: savedData.tradeFields?.mbsCollateralValue ?? prev.step2.tradeFields?.mbsCollateralValue,
-      mbsCollateralSubValue: savedData.tradeFields?.mbsCollateralSubValue ?? prev.step2.tradeFields?.mbsCollateralSubValue,
-      seniorMostCashFlowValue: savedData.tradeFields?.seniorMostCashFlowValue ?? prev.step2.tradeFields?.seniorMostCashFlowValue,
-      trancheTypeValue: savedData.tradeFields?.trancheTypeValue ?? prev.step2.tradeFields?.trancheTypeValue,
-      loanCategoryValue: savedData.tradeFields?.loanCategoryValue ?? prev.step2.tradeFields?.loanCategoryValue,
-      collateralValue: savedData.tradeFields?.collateralValue ?? prev.step2.tradeFields?.collateralValue,
-      ffiecQual: savedData.tradeFields?.ffiecQual ?? prev.step2.tradeFields?.ffiecQual,
-    },
-    speedOverrides: {
-      prepaymentTypeValue: savedData.speedOverrides?.prepaymentTypeValue ?? prev.step2.speedOverrides?.prepaymentTypeValue,
-      defaultTypeValue: savedData.speedOverrides?.defaultTypeValue ?? prev.step2.speedOverrides?.defaultTypeValue,
-      prepaymentSpeed: savedData.speedOverrides?.prepaymentSpeed ?? prev.step2.speedOverrides?.prepaymentSpeed,
-      defaultSpeed: savedData.speedOverrides?.defaultSpeed ?? prev.step2.speedOverrides?.defaultSpeed,
-      severity: savedData.speedOverrides?.severity ?? prev.step2.speedOverrides?.severity,
-      delinquency: savedData.speedOverrides?.delinquency ?? prev.step2.speedOverrides?.delinquency,
-    },
-    notesInstructions: savedData.notesInstructions ?? prev.step2.notesInstructions,
-    attachments: savedData.attachments?.length ? savedData.attachments : prev.step2.attachments
-  };
-
-  return { step1: mergedStep1, step2: mergedStep2 }
 }
 
 export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
@@ -118,87 +63,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   initialData,
 }) => {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState<WizardStep>('enter-identifier');
-  const [completedSteps, setCompletedSteps] = useState<WizardStep[]>([]);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [isReadOnly, setIsReadOnly] = useState(false);
-  const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null);
-  const [isUploadingFile, setIsUploadingFile] = useState(false);
-  const [fileUploadError, setFileUploadError] = useState<string | null>(null);
-
-  const isCancelled = initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
-
-  const { data: referenceData, loading: loadingReferenceData, error: referenceDataError } = useReferenceData();
-
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorModalBody, setErrorModalBody] = useState('');
   const { name: currentUser } = useUserInfo();
 
-  const [wizardData, setWizardData] = useState<ISecuritySetupWizardData>({
-    step1: {},
-    step2: {
-      securityDetails: {},
-      esgFields: {},
-      tradeFields: {},
-      speedOverrides: {}
-    },
-    updatedBy: currentUser
-  });
-
-
-  useEffect(() => {
-    if (initialData) {
-      setWizardData({
-        step1: {
-          newIssue: initialData.newIssue ?? undefined,
-          cdiFileUploadedToAnser: initialData.cdiFileUploadedToAnser ?? undefined,
-          aladdinCDIId: initialData.aladdinCDIId ?? undefined,
-          isPrivateDeal: initialData.isPrivateDeal ?? undefined,
-          ssapIdPassword: initialData.ssapIdPassword ?? undefined,
-          isSsapReleaseRequestSentToDm: initialData.isSsapReleaseRequestSentToDm ?? false,
-          isSsapReleasedByDm: initialData.isSsapReleasedByDm ?? false,
-          identifierType: initialData.identifierType ?? undefined,
-          identifierValue: initialData.identifierValue ?? undefined,
-          marketSector: initialData.marketSector ?? undefined,
-          yellowKey: initialData.yellowKey ?? undefined,
-          isEuSecuritizationRequired: initialData.isEuSecuritizationRequired ?? undefined,
-          euSecuritizationTipEuId: initialData.euSecuritizationTipEuId ?? undefined,
-          euSecuritizationStatus: initialData.euSecuritizationStatus ?? undefined,
-          erisaStatus: initialData.erisaStatus ?? undefined,
-          intexDealName: initialData.intexDealName ?? undefined,
-          intexPassword: initialData.intexPassword ?? undefined,
-          dealName: initialData.dealName ?? undefined,
-        },
-        step2: {
-          securityDetails: initialData.securityDetails ?? {},
-          esgFields: initialData.esgFields ?? {},
-          tradeFields: initialData.tradeFields ?? {},
-          speedOverrides: initialData.speedOverrides ?? {},
-          notesInstructions: initialData.notesInstructions ?? undefined,
-          attachments: initialData.attachments ?? []
-        },
-        updatedBy: currentUser
-      });
-
-      if (initialData.currentStep) {
-        setCurrentStep(initialData.currentStep as WizardStep);
-
-        const completedStepsList: WizardStep[] = [];
-        if (['ssap-confirmation', 'review-details', 'confirm-details'].includes(initialData.currentStep)) {
-          completedStepsList.push('enter-identifier');
-        }
-        if (['review-details', 'confirm-details'].includes(initialData.currentStep)) {
-          const hadPassword = !!(initialData.ssapIdPassword?.trim?.() ?? '');
-          if (hadPassword) {
-            completedStepsList.push('ssap-confirmation');
-          }
-        }
-        if (initialData.currentStep === 'confirm-details') {
-          completedStepsList.push('review-details');
-        }
-        setCompletedSteps(completedStepsList);
-      }
-    }
-  }, [initialData]);
-
+  // Server state hooks — stay as hooks, not in Zustand
+  const { data: referenceData, loading: loadingReferenceData, error: referenceDataError } =
+    useReferenceData();
   const {
     saveStatus,
     queueWizardSave,
@@ -207,78 +78,99 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     error: saveError,
     securitySetupRequestId,
   } = useSecuritySetupSave({
-    onError: (error) => {
-      console.error('Save failed:', error);
-    },
+    onError: (error) => console.error("Save failed:", error),
     initialSecuritySetupRequestId: initialData?.securitySetupRequestId,
   });
 
-  const handleStep1Change = useCallback((values: Partial<IEnterIdentifierFormValues>) => {
-    if (saveStatus === 'error') {
-      clearError();
+  // Store actions
+  const {
+    resetWizard,
+    hydrateFromPayload,
+    mergeSavedResponse,
+    markStepComplete,
+    goToStep,
+    setReadOnly,
+    openConfirmModal,
+    closeConfirmModal,
+    setPendingFiles,
+    setUploadingFile,
+    setFileUploadError,
+    setAttachments,
+  } = useSecuritySetupStore();
+
+  // Store state via selectors
+  const { currentStep, completedSteps, isReadOnly, showConfirmModal } = useWizardNavigation();
+  const hasPasswordFlow = useHasPasswordFlow();
+  const validationFields = useValidationFields();
+  const step1Summary = useSummary();
+  const { pendingUploadFiles, isUploadingFile } = useFileUploadState();
+
+  const isCancelled =
+    initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
+
+  const [isDirty, setIsDirty] = useState(false);
+  const stepBaseLineRef = useRef(validationFields);
+
+  useEffect(() => {
+    setIsDirty(false);
+    stepBaseLineRef.current = validationFields;
+  }, [currentStep])
+
+  useEffect(() => {
+    if (validationFields !== stepBaseLineRef.current) {
+      setIsDirty(true);
     }
+  }, [validationFields]);
 
-    setWizardData((prev) => ({
-      ...prev,
-      step1: {
-        ...prev.step1,
-        ...values,
-      },
-      step2: {
-        ...prev.step2,
-        securityDetails: {
-          ...prev.step2.securityDetails,
-          euSecuritizationStatus: values.euSecuritizationStatus,
-          erisaStatus: values.erisaStatus
-        }
-      }
-    }));
-  }, [clearError, saveStatus]);
+  const initialRequestId = initialData?.securitySetupRequestId ?? null;
+  useEffect(() => {
+    resetWizard();
+    if (initialData) {
+      hydrateFromPayload(initialData);
+    }
+  }, [initialRequestId]);
 
-  const handleStep2Change = useCallback((values: Partial<IReviewDetailsFormValues>) => {
-    setWizardData((prev) => {
-      const updated = { ...prev.step2, ...values };
-
-      return { ...prev, step2: updated };
-    });
-  }, [clearError, saveStatus]);
-
-  const saveErrorMessage = saveStatus === 'error' ? (saveError?.message || '') : '';
-
-  const isInvalidMarketSector = !!saveErrorMessage.includes('Invalid Market Sector');
-  const isInvalidIdentifier = !!saveErrorMessage.includes('Invalide Identifier');
-
+  const saveErrorMessage = saveStatus === "error" ? (saveError?.message ?? "") : "";
+  const isInvalidMarketSector = !!saveErrorMessage.includes("Invalid Market Sector");
+  const isInvalidIdentifier = !!saveErrorMessage.includes("Invalid Identifier");
   const selectFieldErrors: Partial<Record<string, string>> = isInvalidMarketSector
     ? { [ReferenceDataFieldKey.MarketSector]: saveErrorMessage }
     : isInvalidIdentifier
       ? { [ReferenceDataFieldKey.Identifier]: saveErrorMessage }
       : {};
 
-  // Note: No debouncing needed since we're not using FormContainer
-  // Each component manages its own state updates directly
+  // ─── Wizard data builder (reads store imperatively — always reads latest state ─
 
-  /**
-   * Helper to get ALL accumulated wizard data in flat structure for API
-   */
-  const getAllWizardData = useCallback((): Record<string, unknown> => {
+  const getAllWizardData = (): Record<string, unknown> => {
+    const s = useSecuritySetupStore.getState();
     return {
-      // Step 1 data - all fields from enter identifier form
-      ...wizardData.step1,
-      aladdinCDIId: wizardData.step2.securityDetails?.aladdinCDIId?.trim() || wizardData.step1.aladdinCDIId?.trim() || 'N/A',
-      // Step 2 data - spread nested objects to flat structure
-      securityDetails: wizardData.step2.securityDetails,
-      esgFields: wizardData.step2.esgFields,
-      tradeFields: wizardData.step2.tradeFields,
-      speedOverrides: wizardData.step2.speedOverrides,
-      notesInstructions: wizardData.step2.notesInstructions,
-      // Step 3 data (confirm details) - if exists
-      ...(wizardData.step3 && {
-        uploadedFile: wizardData.step3.uploadedFile,
-        attachments: wizardData.step3.attachments,
-        isConfirmed: true,
-      }),
+      identifierType: s.identifierType,
+      identifierValue: s.identifierValue,
+      marketSector: s.marketSector,
+      yellowKey: s.yellowKey,
+      newIssue: s.newIssue,
+      cdiFileUploadedToAnser: s.cdiFileUploadedToAnser,
+      aladdinCdiId: s.aladdinCdiId,
+      isPrivateDeal: s.isPrivateDeal,
+      ssapIdPassword: s.ssapIdPassword,
+      isSsapReleaseRequestSentToDm: s.isSsapReleaseRequestSentToDm,
+      isSsapReleasedByDm: s.isSsapReleasedByDm,
+      isEuSecuritizationRequired: s.isEuSecuritizationRequired,
+      euSecuritizationTipEuId: s.euSecuritizationTipEuId,
+      euSecuritizationStatus: s.euSecuritizationStatus,
+      erisaStatus: s.erisaStatus,
+      intexDealName: s.intexDealName,
+      intexPassword: s.intexPassword,
+      dealName: s.dealName,
+      securityDetails: s.securityDetails,
+      esgFields: s.esgFields,
+      tradeFields: s.tradeFields,
+      speedOverrides: s.speedOverrides,
+      notesInstructions: s.notesInstructions,
+      attachments: s.attachments,
+      ...(s.uploadedFile && { uploadedFile: s.uploadedFile, isConfirmed: true }),
     };
-  }, [wizardData]);
+  };
 
   const getAuditFields = useCallback(() => {
     if (securitySetupRequestId == null) {
@@ -287,83 +179,38 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     return { updatedBy: currentUser, updatedDate: new Date().toISOString() };
   }, [securitySetupRequestId, currentUser]);
 
-  const handleFileUpload = useCallback(
-    (file: File) => {
-      setFileUploadError(null);
-      setPendingUploadFile(file);
-    }, []);
-
-  const uploadFile = useCallback(async (requestId: number, file: File): Promise<ISecuritySetupRequestAttachment[] | null> => {
-    setIsUploadingFile(true);
-    setFileUploadError(null);
-    try {
-      const uploadedAttachments = await SecuritySetupService.uploadAttachment(
-        requestId,
-        currentUser || '',
-        file
-      );
-      setPendingUploadFile(null);
-      return uploadedAttachments || [];
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to upload file.';
-      setFileUploadError(msg);
-      return null;
-    } finally {
-      setIsUploadingFile(false);
-    }
-  }, [currentUser])
-
-  // No form handlers needed since components manage their own state directly
-
-  const markStepComplete = (step: WizardStep) => {
-    if (!completedSteps.includes(step)) {
-      setCompletedSteps((prev) => [...prev, step]);
-    }
-  };
-
-  const hasPasswordFlow = !!(wizardData.step1.ssapIdPassword?.trim?.() ?? '');
-
-  const getNextStep = (current: WizardStep): WizardStep | null => {
+  const getNextStep = (current: SecuritySetupStep): SecuritySetupStep | null => {
     switch (current) {
-      case 'enter-identifier':
-        return hasPasswordFlow ? 'ssap-confirmation' : 'review-details';
-      case 'ssap-confirmation':
-        return 'review-details';
-      case 'review-details':
-        return 'confirm-details';
-      case 'confirm-details':
-        return null; // Final step
+      case "enter-identifier":
+        return hasPasswordFlow ? "ssap-confirmation" : "review-details";
+      case "ssap-confirmation":
+        return "review-details";
+      case "review-details":
+        return "confirm-details";
+      case "confirm-details":
+        return null;
       default:
         return null;
     }
   };
 
-  const getPreviousStep = (current: WizardStep): WizardStep | null => {
+  const getPreviousStep = (current: SecuritySetupStep): SecuritySetupStep | null => {
     const currentIndex = completedSteps.indexOf(current);
-
-    if (currentIndex > 0) {
-      return completedSteps[currentIndex - 1];
-    }
-    if (currentIndex === 0) {
-      return null;
-    }
-
-    // Current step not in completed steps, return last completed step
-    if (completedSteps.length > 0) {
-      return completedSteps[completedSteps.length - 1];
-    }
-
+    if (currentIndex > 0) return completedSteps[currentIndex - 1];
+    if (currentIndex === 0) return null;
+    if (completedSteps.length > 0) return completedSteps[completedSteps.length - 1];
     return null;
   };
 
-  function isValidString(str: string | null | undefined): boolean {
-    // Returns false for null, undefined, and ""
-    return !!str;
-  }
+  const getCurrentStepNumber = (): number => getStepNumber(currentStep);
 
   const canProceed = (): boolean => {
     if (isCancelled) {
       return currentStep !== 'confirm-details';
+    }
+
+    if (isUploadingFile) {
+      return false;
     }
 
     if (saveStatus === 'saving' || saveStatus === 'saved') {
@@ -375,17 +222,36 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
     switch (currentStep) {
       case 'enter-identifier':
-        if (!isValidString(wizardData.step1.identifierType) ||
-          !isValidString(wizardData.step1.identifierValue) ||
-          !isValidString(wizardData.step1.marketSector) ||
-          !isValidString(wizardData.step1.euSecuritizationStatus) ||
-          !isValidString(wizardData.step1.erisaStatus) ||
-          !isValidString(wizardData.step1.newIssue)) {
+        const { identifierType, identifierValue, marketSector, euSecuritizationStatus, erisaStatus, newIssue } = validationFields;
+        if (!isValidString(identifierType) ||
+          !isValidString(identifierValue) ||
+          !isValidIdentifier(identifierType, identifierValue) ||
+          !isValidString(marketSector) ||
+          !isValidString(euSecuritizationStatus) ||
+          !isValidString(erisaStatus) ||
+          !isValidString(newIssue)) {
           return false;
         }
         return true;
       case 'ssap-confirmation':
       case 'review-details':
+        const { sectorValue, callableValue, callDate, price, prepaymentTypeValue, defaultTypeValue, prepaymentSpeed, defaultSpeed, severity, delinquency, notes, loanCategoryValue } = validationFields;
+        if (!isValidString(sectorValue) ||
+          !isValidPrice(price) ||
+          !isValidString(callableValue) ||
+          !isValidLoanCategory(loanCategoryValue) ||
+          !isValidNotes(sectorValue, notes) ||
+          !isValidCallDate(callableValue, callDate) ||
+          !isRPLStringFieldValid(sectorValue, prepaymentTypeValue) ||
+          !isRPLStringFieldValid(sectorValue, defaultTypeValue) ||
+          !isRPLNumberFieldValid(sectorValue, prepaymentSpeed) ||
+          !isRPLNumberFieldValid(sectorValue, defaultSpeed) ||
+          !isRPLNumberFieldValid(sectorValue, severity) ||
+          !isRPLNumberFieldValid(sectorValue, delinquency)
+        ) {
+          return false;
+        }
+        return true;
       case 'confirm-details':
         return true;
       default:
@@ -393,336 +259,290 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
   };
 
-  // TODO: formValues being passed is a temp fix, need to remove when introducing app level state
-  const handleNext = async (userInput?: UserInput | null) => {
-    const nextStep = getNextStep(currentStep);
+  const getMissingFields = (): Record<string, boolean> => {
+    if (!isDirty || isReadOnly || isCancelled) return {};
 
-    const fileToUpload = pendingUploadFile;
-    const shouldPersistAndUpload = !isCancelled && (!isReadOnly ||
-      (currentStep === 'enter-identifier' && fileToUpload))
-
-    if (shouldPersistAndUpload) {
-      markStepComplete(currentStep);
-      clearError();
-
-      // Save with the next step so resuming from ?id= lands on the correct step.
-      const stepToSave = nextStep ?? currentStep;
-      const stepNumberToSave = nextStep ? getCurrentStepNumber() + 1 : getCurrentStepNumber();
-
-      let allData = getAllWizardData();
-
-      if (userInput) {
-        allData = {
-          ...allData,
-          ...getAuditFields(),
-          isSsapReleasedByDm: userInput.isSsapReleasedByDm || false
-        }
-      }
-
-      const savedData = await queueWizardSave(stepToSave, stepNumberToSave, allData, 'complete');
-
-      if (!savedData) {
-        // save failed - stay on current step to display error
-        return
-      }
-
-      const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
-      let freshAttachments: ISecuritySetupRequestAttachment[] = [];
-
-      // capture the current file the user added
-      if (fileToUpload) {
-        if (!requestId) {
-          setFileUploadError('Cannot upload file: missing Security Setup Request ID');
-          return;
-        }
-
-        const uploadResult = await uploadFile(requestId, fileToUpload);
-        if (!uploadResult) {
-          return;
-        }
-
-        freshAttachments = uploadResult;
-      }
-
-      // Merge server response into wizard state.
-      setWizardData((prev) => {
-        const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
-        const resolvedAttachments = (freshAttachments && freshAttachments.length > 0)
-          ? freshAttachments
-          : mergedStep2.attachments ?? prev.step2.attachments ?? [];
-
-        return {
-          ...prev,
-          step1: mergedStep1,
-          step2: {
-            ...mergedStep2,
-            attachments: resolvedAttachments
-          },
-          ...(currentStep === 'review-details' && {
-            ...mergedStep1,
-            ssapIdPassword: mergedStep1.ssapIdPassword,
-            ...mergedStep2,
-            attachments: resolvedAttachments,
-          })
-        }
-      });
+    if (currentStep === "enter-identifier") {
+      const { identifierType, identifierValue, marketSector, euSecuritizationStatus, erisaStatus, newIssue } = validationFields;
+      return {
+        identifierType: !isValidString(identifierType),
+        identifierValue: !isValidString(identifierValue) || !isValidIdentifier(identifierType, identifierValue),
+        marketSector: !isValidString(marketSector),
+        euSecuritizationStatus: !isValidString(euSecuritizationStatus),
+        erisaStatus: !isValidString(erisaStatus),
+        newIssue: !isValidString(newIssue)
+      };
     }
 
-    if (isCancelled) {
-      markStepComplete(currentStep);
-      clearError();
+    if (currentStep === "review-details") {
+      const { sectorValue, callableValue, callDate, price, prepaymentTypeValue, defaultTypeValue, prepaymentSpeed, defaultSpeed, severity, delinquency, notes, loanCategoryValue } = validationFields;
+
+      return {
+        sectorValue: !isValidString(sectorValue),
+        price: !isValidPrice(price),
+        callableValue: !isValidString(callableValue),
+        callDate: !isValidCallDate(callableValue, callDate),
+        notes: !isValidNotes(sectorValue, notes),
+        loanCategoryValue: !isValidLoanCategory(loanCategoryValue),
+        prepaymentTypeValue: !isRPLStringFieldValid(sectorValue, prepaymentTypeValue),
+        defaultTypeValue: !isRPLStringFieldValid(sectorValue, defaultTypeValue),
+        prepaymentSpeed: !isRPLNumberFieldValid(sectorValue, prepaymentSpeed),
+        defaultSpeed: !isRPLNumberFieldValid(sectorValue, defaultSpeed),
+        severity: !isRPLNumberFieldValid(sectorValue, severity),
+        delinquency: !isRPLNumberFieldValid(sectorValue, delinquency),
+      };
     }
 
-    if (nextStep) {
-      setCurrentStep(nextStep);
-      setIsReadOnly(false);
-    } else if (currentStep === 'confirm-details' && !isCancelled) {
-      // Final step - show confirmation modal
-      setShowConfirmModal(true);
-    }
+    return {};
   };
 
-  // TODO : bypass stupid type-check problem, snowflake function for button - remove later
-  const handleButtonNext = async () => {
-    const nextStep = getNextStep(currentStep);
+  // ─── File upload ───────────────────────────────────────────────────────────
 
-    const fileToUpload = pendingUploadFile;
-    const shouldPersistAndUpload = !isCancelled && (!isReadOnly ||
-      (currentStep === 'enter-identifier' && fileToUpload))
+  const handleFileUpload = useCallback((files: File[]) => {
+    setFileUploadError(null);
+    const stored = useSecuritySetupStore.getState().pendingUploadFiles;
+    const current = Array.isArray(stored) ? stored : [];
 
-    if (shouldPersistAndUpload) {
-      markStepComplete(currentStep);
-      clearError();
+    if (current?.length + files?.length > MAX_FILES) {
+      setFileUploadError(`You can upload a maximum of ${MAX_FILES} files.`);
+      return;
+    }
 
-      // Save with the next step so resuming from ?id= lands on the correct step.
-      const stepToSave = nextStep ?? currentStep;
-      const stepNumberToSave = nextStep ? getCurrentStepNumber() + 1 : getCurrentStepNumber();
+    const oversized = files.find((f) => f.size > MAX_FILE_SIZE_BYTES);
+    if (oversized) {
+      setFileUploadError(
+        `"${oversized.name}" exceeds the ${MAX_FILE_SIZE_MB}MB size limit.`
+      );
+      return;
+    }
 
-      const savedData = await queueWizardSave(stepToSave, stepNumberToSave, { ...getAllWizardData(), ...getAuditFields() }, 'complete');
+    setPendingFiles([...current, ...files]);
+  }, [setFileUploadError, setPendingFiles]);
 
-      if (!savedData) {
-        // save failed - stay on current step to display error
-        return
+  const uploadFiles = useCallback(
+    async (requestId: number, files: File[]): Promise<ISecuritySetupRequestAttachment[] | null> => {
+      setUploadingFile(true);
+      setFileUploadError(null);
+      try {
+        const results: ISecuritySetupRequestAttachment[] = [];
+
+        for (const file of files) {
+          const uploaded = await SecuritySetupService.uploadAttachment(requestId, currentUser || "", file);
+
+          if (uploaded) {
+            results.push(...uploaded)
+          }
+        }
+
+        setPendingFiles([]);
+        return results;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Failed to upload file.";
+        setFileUploadError(msg);
+        return null;
+      } finally {
+        setUploadingFile(false);
       }
-
-      const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
-      let freshAttachments: ISecuritySetupRequestAttachment[] = [];
-
-      // capture the current file the user added
-      if (fileToUpload) {
-        if (!requestId) {
-          setFileUploadError('Cannot upload file: missing Security Setup Request ID');
-          return;
-        }
-
-        const uploadResult = await uploadFile(requestId, fileToUpload);
-        if (!uploadResult) {
-          return;
-        }
-
-        freshAttachments = uploadResult;
-      }
-      // Merge server response into wizard state.
-      setWizardData((prev) => {
-        const { step1: mergedStep1, step2: mergedStep2 } = mergeWizardDataWithSaveResponse(prev, savedData);
-        const resolvedAttachments = (freshAttachments && freshAttachments.length > 0)
-          ? freshAttachments
-          : mergedStep2.attachments ?? prev.step2.attachments ?? [];
-
-        return {
-          ...prev,
-          step1: mergedStep1,
-          step2: {
-            ...mergedStep2,
-            attachments: resolvedAttachments
-          },
-          ...(currentStep === 'review-details' && {
-            ...mergedStep1,
-            attachments: resolvedAttachments,
-            ssapIdPassword: mergedStep1.ssapIdPassword,
-            ...mergedStep2
-          })
-        }
-      });
-    }
-
-    if (isCancelled) {
-      markStepComplete(currentStep);
-      clearError();
-    }
-
-    if (nextStep) {
-      setCurrentStep(nextStep);
-      setIsReadOnly(false);
-    } else if (currentStep === 'confirm-details' && !isCancelled) {
-      // Final step - show confirmation modal
-      setShowConfirmModal(true);
-    }
-  };
+    },
+    [currentUser, setUploadingFile, setFileUploadError, setPendingFiles],
+  );
 
   const resetUploadState = () => {
-    setPendingUploadFile(null);
+    setPendingFiles(undefined);
     setFileUploadError(null);
-  }
+  };
+
+  // ─── Next / Save / Back ────────────────────────────────────────────────────
+
+  const handleNext = async () => {
+    const nextStep = getNextStep(currentStep);
+    const filesToUpload = pendingUploadFiles;
+    const shouldPersist =
+      !isCancelled && (!isReadOnly || (currentStep === "enter-identifier" && filesToUpload?.length > 0));
+
+    if (shouldPersist) {
+      markStepComplete(currentStep);
+      clearError();
+
+      const stepToSave = nextStep ?? currentStep;
+      const stepNumberToSave = nextStep ? getCurrentStepNumber() + 1 : getCurrentStepNumber();
+      let allData = { ...getAllWizardData(), ...getAuditFields() }
+
+      const savedData = await queueWizardSave(stepToSave, stepNumberToSave, allData, "complete");
+      if (!savedData) return;
+
+      if (savedData instanceof Error) {
+        if (savedData instanceof ApiResponseError) {
+          setErrorModalBody(savedData.message);
+          setShowErrorModal(true);
+        }
+        return;
+      }
+
+      // Upload any queued attachments now that we have a guaranteed request ID
+      const requestId = savedData.securitySetupRequestId ?? securitySetupRequestId;
+      let freshAttachments: ISecuritySetupRequestAttachment[] = [];
+
+      if (filesToUpload?.length > 0) {
+        if (!requestId) {
+          setFileUploadError("Cannot upload file: missing Security Setup Request ID");
+          return;
+        }
+        const uploadResult = await uploadFiles(requestId, filesToUpload);
+        if (!uploadResult) return;
+        freshAttachments = uploadResult;
+      }
+
+      // Merge server response into flat store state
+      mergeSavedResponse(savedData);
+      if (freshAttachments.length > 0) {
+        setAttachments(freshAttachments);
+      }
+    }
+
+    if (isCancelled) {
+      markStepComplete(currentStep);
+      clearError();
+    }
+
+    if (nextStep) {
+      goToStep(nextStep);
+      setReadOnly(false);
+    } else if (currentStep === "confirm-details" && !isCancelled) {
+      openConfirmModal();
+    }
+  };
 
   const handleBack = () => {
     const prevStep = getPreviousStep(currentStep);
     if (prevStep) {
-      if (prevStep === 'enter-identifier') {
+      clearError();
+      if (prevStep === "enter-identifier") {
         resetUploadState();
+        setReadOnly(true);
+      } else {
+        setReadOnly(false);
       }
 
-      setCurrentStep(prevStep);
-      setIsReadOnly(true); // Enable read-only mode when going back
+      goToStep(prevStep);
     } else if (onCancel) {
+      resetWizard();
       onCancel();
     }
   };
 
   const handleSave = async () => {
-    // Clear any previous errors before attempting save
     clearError();
-
-    // Save-only POST then redirect to dashboard.
     const savedData = await queueWizardSave(
       currentStep,
       getCurrentStepNumber(),
-      {
-        ...getAllWizardData(),
-        ...getAuditFields()
-      },
-      'partial',
-      {
-        isSaveOnly: true
-      }
+      { ...getAllWizardData(), ...getAuditFields() },
+      "partial",
+      { isSaveOnly: true },
     );
 
+    if (savedData instanceof Error) {
+      if (savedData instanceof ApiResponseError) {
+        setErrorModalBody(savedData.message);
+        setShowErrorModal(true);
+      }
+      return;
+    }
+
     if (savedData) {
-      if (pendingUploadFile) {
+      if (pendingUploadFiles.length > 0) {
         const requestId = savedData.securitySetupRequestId || securitySetupRequestId;
         if (!requestId) {
-          setFileUploadError('Cannot upload file: missing Security Setup Request ID');
+          setFileUploadError("Cannot upload file: missing Security Setup Request ID");
           return;
         }
-
-        const uploadedAttachments = await uploadFile(requestId, pendingUploadFile);
-
-        if (!uploadedAttachments) {
-          // let user see upload error
-          return;
-        }
+        const uploaded = await uploadFiles(requestId, pendingUploadFiles);
+        if (!uploaded) return;
       }
-      navigate('/iod/tdm/');
+      resetWizard();
+      navigate("/iod/tdm/");
     }
   };
 
   const handleClose = async () => {
-    // Close button always routes to dashboard
-    navigate('/iod/tdm/');
-  };
+    resetWizard();
+    navigate("/iod/tdm/");
+  }
 
   const handleConfirmSubmit = async () => {
-    // Ensure final submit gets the correct data for PUT call
     const finalSavedData = await queueWizardSave(
-      'confirm-details',
+      "confirm-details",
       4,
       {
-        ...wizardData,
+        ...getAllWizardData(),
         ...getAuditFields(),
         isReviewed: true,
         reviewedBy: currentUser,
-        reviewedDate: new Date().toISOString()
+        reviewedDate: new Date().toISOString(),
       },
-      'complete'
-    )
-    setShowConfirmModal(false);
+      "complete",
+    );
+    closeConfirmModal();
+
+    if (finalSavedData instanceof Error) {
+      if (finalSavedData instanceof ApiResponseError) {
+        setErrorModalBody(finalSavedData.message);
+        setShowErrorModal(true);
+      }
+      return;
+    }
 
     if (onComplete) {
       if (finalSavedData) {
-        const { step1, step2 } = mergeWizardDataWithSaveResponse(wizardData, finalSavedData);
-        onComplete({
-          ...finalSavedData,
-          step1,
-          step2,
-          securitySetupRequestId,
-        })
+        mergeSavedResponse(finalSavedData);
+        onComplete({ ...finalSavedData, securitySetupRequestId });
       } else {
-        onComplete({ ...wizardData, securitySetupRequestId });
+        onComplete({ ...useSecuritySetupStore.getState(), securitySetupRequestId });
       }
     }
   };
 
-  const handleCancelSubmit = () => {
-    setShowConfirmModal(false);
-  };
+  const handleCancelSubmit = () => closeConfirmModal();
 
-
-  const getCurrentStepNumber = (): number => {
-    return getStepNumber(currentStep);
-  };
+  const handleErrorModalClose = () => {
+    setShowErrorModal(false);
+  }
 
   const getStepTitle = (): string => {
     switch (currentStep) {
-      case 'enter-identifier':
-        return 'Step 1 of 4: Enter Identifier';
-      case 'ssap-confirmation':
-        return 'Step 2 of 4: SSAP Login';
-      case 'review-details':
-        return 'Step 3 of 4: Security Request Template';
-      case 'confirm-details':
-        return 'Step 4 of 4: Review Security Data';
-      default:
-        return '';
+      case "enter-identifier": return "Step 1 of 4: Enter Identifier";
+      case "ssap-confirmation": return "Step 2 of 4: SAPI Login";
+      case "review-details": return "Step 3 of 4: Security Request Template";
+      case "confirm-details": return "Step 4 of 4: Review Security Data";
+      default: return "";
     }
   };
 
   const renderSuccessMessages = () => {
-    if (currentStep === 'review-details' || currentStep === 'ssap-confirmation') {
+    if (currentStep === "ssap-confirmation" || currentStep === "review-details") {
       const messages: { message: string }[] = [];
-
-      if (wizardData.step1.newIssue) {
-        messages.push({
-          message: `New Issue: ${wizardData.step1.newIssue === 'yes' ? 'Yes' : 'No'}`,
-        });
+      if (step1Summary.newIssue) {
+        messages.push({ message: `New Issue: ${step1Summary.newIssue === "yes" ? "Yes" : "No"}` });
       }
-      if (wizardData.step1.aladdinCDIId) {
-        messages.push({
-          message: `Aladdin CDI ID: ${wizardData.step1.aladdinCDIId}`,
-        });
+      if (step1Summary.aladdinCdiId) {
+        messages.push({ message: `Aladdin CDI ID: ${step1Summary.aladdinCdiId}` });
       }
-      if (wizardData.step1.ssapIdPassword) {
-        messages.push({
-          message: `Private Deal SSAP ID/Password: ${wizardData.step1.ssapIdPassword}`,
-        });
+      if (step1Summary.ssapIdPassword) {
+        messages.push({ message: `Private Deal SSAP ID/Password: ${step1Summary.ssapIdPassword}` });
       }
-      if (wizardData.step1.identifierType && wizardData.step1.identifierValue) {
-        messages.push({
-          message: `Identifier: ${wizardData.step1.identifierType} - ${wizardData.step1.identifierValue}`,
-        });
+      if (step1Summary.identifierType && step1Summary.identifierValue) {
+        messages.push({ message: `Identifier: ${step1Summary.identifierType} - ${step1Summary.identifierValue}` });
       }
-      if (wizardData.step1.marketSector) {
-        messages.push({
-          message: `Market Sector: ${wizardData.step1.marketSector}`,
-        });
+      if (step1Summary.marketSector) {
+        messages.push({ message: `Market Sector: ${step1Summary.marketSector}` });
       }
-      //      if (wizardData.step1.yellowKey) {
-      //        messages.push({
-      //          message: `Yellow Key: ${wizardData.step1.yellowKey}`,
-      //        });
-      //      }
-      if (wizardData.step1.isEuSecuritizationRequired) {
-        messages.push({
-          message: `EU Security Verification Required: ${wizardData.step1.isEuSecuritizationRequired === true ? 'Yes' : 'No'}`,
-        });
+      if (step1Summary.isEuSecuritizationRequired) {
+        messages.push({ message: `EU Security Verification Required: ${step1Summary.isEuSecuritizationRequired === true ? "Yes" : "No"}` });
       }
-      if (wizardData.step1.euSecuritizationTipEuId) {
-        messages.push({
-          message: `EU Securitization TIP EU ID: ${wizardData.step1.euSecuritizationTipEuId}`,
-        });
+      if (step1Summary.euSecuritizationTipEuId) {
+        messages.push({ message: `EU Securitization TIP EU ID: ${step1Summary.euSecuritizationTipEuId}` });
       }
-
       if (messages.length === 0) return null;
-
       return (
         <div className="success-messages-box">
           <h3 className="summary-title">Step 1 Summary</h3>
@@ -736,17 +556,14 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       );
     }
 
-    if (currentStep === 'confirm-details') {
+    if (currentStep === "confirm-details") {
       const messages: { message: string }[] = [];
-
-      if (wizardData.step1.identifierValue) {
+      if (step1Summary.identifierValue) {
         messages.push({
-          message: `Identifier: ${wizardData.step1.identifierType || 'FIGI'} ${wizardData.step1.identifierValue}`,
+          message: `Identifier: ${step1Summary.identifierType || "FIGI"} ${step1Summary.identifierValue}`,
         });
       }
-
       if (messages.length === 0) return null;
-
       return (
         <div className="substep-success-messages">
           {messages.map((msg, index) => (
@@ -764,55 +581,38 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   const renderStepContent = () => {
     switch (currentStep) {
-      case 'enter-identifier':
+      case "enter-identifier":
         return (
           <EnterIdentifierPage
-            formValues={wizardData.step1}
-            onFormChange={handleStep1Change}
-            isReadOnly={isReadOnly || isCancelled}
             referenceData={referenceData}
             selectFieldErrors={selectFieldErrors}
             onFileUpload={handleFileUpload}
-            selectedFileName={pendingUploadFile?.name || null}
-            isUploadingFile={isUploadingFile}
-            fileUploadError={fileUploadError}
+            missingFields={getMissingFields()}
           />
         );
-      case 'ssap-confirmation':
+      case "ssap-confirmation":
         return (
           <SSAPApprovalPage
-            formValues={wizardData.step1}
-            onFormChange={handleStep1Change}
             onProceedToReview={handleNext}
-            isReadOnly={isCancelled}
-            isSaving={saveStatus === 'saving' || saveStatus === 'saved'}
+            isSaving={saveStatus === "saving" || saveStatus === "saved"}
             onBack={() => {
               resetUploadState();
-              setCurrentStep('enter-identifier');
+              goToStep("enter-identifier");
             }}
           />
         );
-      case 'review-details':
+      case "review-details":
         return (
           <ReviewDetailsPage
             flowType={flowType}
-            formValues={wizardData.step2}
-            onFormChange={handleStep2Change}
             referenceData={referenceData}
-            attachments={wizardData.step2.attachments ?? []}
-            isReadOnly={isCancelled}
+            missingFields={getMissingFields()}
           />
         );
-      case 'confirm-details':
+      case "confirm-details":
         return (
           <ConfirmDetailsPage
             flowType={flowType}
-            data={{
-              ...wizardData.step1,
-              ...wizardData.step2,
-              uploadedFile: wizardData.step3?.uploadedFile,
-              attachments: wizardData.step3?.attachments ?? wizardData.step2.attachments ?? []
-            }}
             referenceData={referenceData}
           />
         );
@@ -822,46 +622,32 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   };
 
   const getButtonText = (): string => {
-    if (currentStep === 'enter-identifier') return 'Next';
-    if (currentStep === 'ssap-confirmation') return 'Approve SSAP';
-    if (currentStep === 'review-details') return 'Review Request';
-    if (currentStep === 'confirm-details') return 'Confirm Request';
-    return 'Next';
+    if (currentStep === "enter-identifier") return "Next";
+    if (currentStep === "ssap-confirmation") return "Approve SSAP";
+    if (currentStep === "review-details") return "Review Request";
+    if (currentStep === "confirm-details") return "Confirm Request";
+    return "Next";
   };
 
-  const showBackButton = completedSteps.length > 0;
-  const showNextButton = true; // Always show next button
+  const renderSaveStatus = () => (
+    <div className="save-status" style={{ fontSize: "12px", color: "#666", display: "flex", alignItems: "center", gap: "8px" }}>
+      {saveStatus === "saving" && <span>💾 Saving...</span>}
+      {saveStatus === "saved" && lastSavedAt && (
+        <span style={{ color: "#4caf50" }}>✓ Saved at {lastSavedAt.toLocaleTimeString()}</span>
+      )}
+      {saveStatus === "error" && saveError && (
+        <span style={{ color: "#f44336", display: "flex", alignItems: "center", gap: "4px" }}>
+          Failed to save wizard data
+        </span>
+      )}
+    </div>
+  );
 
-  /**
-   * Render save status indicator (optional UI feedback)
-   */
-  const renderSaveStatus = () => {
-    return (
-      <div className="save-status" style={{
-        fontSize: '12px',
-        color: '#666',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px'
-      }}>
-        {saveStatus === 'saving' && <span>💾 Saving...</span>}
-        {saveStatus === 'saved' && lastSavedAt && (
-          <span style={{ color: '#4caf50' }}>
-            ✓ Saved at {lastSavedAt.toLocaleTimeString()}
-          </span>
-        )}
-        {saveStatus === 'error' && saveError && (
-          <span style={{ color: '#f44336', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            ⚠ Failed to save wizard data
-          </span>
-        )}
-      </div>
-    );
-  };
+  // ─── Loading / error gates ─────────────────────────────────────────────────
 
   if (loadingReferenceData) {
     return (
-      <div className="security-setup-wizard" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+      <div className="security-setup-wizard" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
         <CircularProgress />
       </div>
     );
@@ -869,10 +655,10 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   if (referenceDataError) {
     return (
-      <div className="security-setup-wizard" style={{ padding: '40px' }}>
+      <div className="security-setup-wizard" style={{ padding: "40px" }}>
         <Alert severity="error">
           Failed to load dropdown options: {referenceDataError.message}
-          <Button onClick={() => window.location.reload()} style={{ marginLeft: '16px' }}>
+          <Button onClick={() => window.location.reload()} style={{ marginLeft: "16px" }}>
             Retry
           </Button>
         </Alert>
@@ -880,11 +666,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     );
   }
 
+  const showBackButton = completedSteps.length > 0;
+
   return (
     <div className="security-setup-wizard">
       <div className="wizard-header">
         <h1 className="wizard-title">Security Setup Wizard</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           {renderSaveStatus()}
           <div className="wizard-close-container">
             <IconButton className="wizard-close-button" onClick={handleClose} aria-label="close">
@@ -908,40 +696,34 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             {renderStepContent()}
           </>
         ) : (
-          // Step 1 renders without success messages
           renderStepContent()
         )}
       </div>
 
       <div className="wizard-actions">
-        {showBackButton && currentStep !== 'enter-identifier' && currentStep !== 'ssap-confirmation' && (
-          <Button
-            variant="outlined"
-            className="back-button"
-            onClick={handleBack}
-            startIcon={<ArrowBackIcon />}
-          >
-            Back
-          </Button>
-        )}
-        {(currentStep === 'enter-identifier' || currentStep === 'review-details') && (
+        {showBackButton &&
+          currentStep !== "enter-identifier" &&
+          currentStep !== "ssap-confirmation" && (
+            <Button variant="outlined" className="back-button" onClick={handleBack} startIcon={<ArrowBackIcon />}>
+              Back
+            </Button>
+          )}
+        {(currentStep === "enter-identifier" || currentStep === "review-details") && (
           <Button
             variant="outlined"
             className="save-button"
             onClick={handleSave}
+            disabled={isCancelled || (currentStep === "enter-identifier" && isReadOnly)}
             startIcon={<SaveIcon />}
-            disabled={isCancelled
-              || (currentStep === 'enter-identifier' && isReadOnly)
-            }
           >
             Save
           </Button>
         )}
-        {showNextButton && currentStep !== 'ssap-confirmation' && (
+        {currentStep !== "ssap-confirmation" && (
           <Button
             variant="contained"
             className="next-button"
-            onClick={handleButtonNext}
+            onClick={handleNext}
             disabled={!canProceed()}
             endIcon={
               currentStep === 'confirm-details' ? (
@@ -960,6 +742,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         open={showConfirmModal}
         onClose={handleCancelSubmit}
         onConfirm={handleConfirmSubmit}
+      />
+      <ErrorModal
+        header='Unable to save Security Setup Request'
+        body={errorModalBody}
+        open={showErrorModal}
+        onClose={handleErrorModalClose}
       />
     </div>
   );

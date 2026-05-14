@@ -1,26 +1,65 @@
 import React from 'react';
 import { Divider, Link, TextField } from '@mui/material';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { SecuritySetupFlowType, IReviewDetailsFormValues, ISecurityAttachmentData } from '../lib/types/securitySetupTypes';
+import { ISecurityAttachmentData, SecuritySetupFlowType } from '../lib/types/securitySetupTypes';
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { SelectFormField } from '../../../common/components/SelectFormField';
+import { useReviewDetailsFields } from '../../../stores/selectors/securitySetupSelectors';
+import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
 
 interface ReviewDetailsPageProps {
-  formValues: IReviewDetailsFormValues;
-  onFormChange: (values: Partial<IReviewDetailsFormValues>) => void;
   flowType?: SecuritySetupFlowType;
   referenceData: INormalizedReferenceData | null;
-  attachments?: ISecurityAttachmentData[];
-  isReadOnly?: boolean;
+  missingFields?: Record<string, boolean>;
 }
 
 export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
-  formValues,
-  onFormChange,
   referenceData,
-  attachments = [],
-  isReadOnly = false,
+  missingFields = {}
 }) => {
+  const {
+    aladdinCdiId,
+    euSecuritizationStatus,
+    erisaStatus,
+    securityDetails,
+    esgFields,
+    tradeFields,
+    speedOverrides,
+    notesInstructions,
+    attachments,
+    isReadOnly,
+  } = useReviewDetailsFields();
+
+  let { euSecuritizationTipEuId } = useReviewDetailsFields();
+
+  const {
+    updateIdentifierFields,
+    updateSecurityDetails,
+    updateEsgFields,
+    updateTradeFields,
+    updateSpeedOverrides,
+    setNotesInstructions,
+  } = useSecuritySetupStore();
+  const isEuSecuritizationTipDisabled = euSecuritizationStatus?.toLowerCase() === 'not required' || euSecuritizationStatus?.toLowerCase() === '';
+
+  const handleEuSecuritizationStatusChange = (value: string) => {
+    if (value === 'Not Required') {
+      updateIdentifierFields({
+        euSecuritizationStatus: value,
+        euSecuritizationTipEuId: undefined
+      });
+    } else {
+      handleIdentifierFieldChange("euSecuritizationStatus", value);
+    }
+  }
+
+  const setEuSecuritizationTipEuId = (euSecuritizationStatusValue?: string) => {
+    if (euSecuritizationStatusValue === 'Not Required') {
+      euSecuritizationTipEuId = undefined;
+    }
+    return euSecuritizationTipEuId || '';
+  }
+
   const formatDateForInput = (isoDate?: string): string => {
     if (!isoDate) {
       return '';
@@ -29,48 +68,44 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
     return isoDate.split('T')[0];
   }
 
-  const handleSecurityDetailsChange = (field: string, value: string | boolean | null) => {
-    onFormChange({
-      securityDetails: {
-        ...formValues.securityDetails,
-        [field]: value,
-      },
-    });
+  const handleSecurityDetailsChange = (field: string, value: string | null) => {
+    updateSecurityDetails({ [field]: value })
+  }
+
+  const handleIdentifierFieldChange = (field: string, value: string) => {
+    updateIdentifierFields({ [field]: value })
   }
 
   const handleESGChange = (field: string, value: string) => {
-    onFormChange({
-      esgFields: {
-        ...formValues.esgFields,
-        [field]: value,
-      },
-    });
+    updateEsgFields({ [field]: value })
   };
 
   const handleTradeFieldsChange = (field: string, value: string) => {
-    onFormChange({
-      tradeFields: {
-        ...formValues.tradeFields,
-        [field]: value,
-      },
-    });
+    updateTradeFields({ [field]: value, })
   };
 
 
   const handleSpeedOverridesChange = (field: string, value: string | number | null) => {
-    const updated = {
-      ...formValues.speedOverrides,
-      [field]: value,
-    };
-
-    onFormChange({
-      speedOverrides: updated
-    });
+    updateSpeedOverrides({ [field]: value, })
   };
-
 
   function roundToTwo(num: number): number {
     return +(Math.round(Number(num + "e+2")) + "e-2");
+  }
+
+  const setCallDateRequiredField = (callableValue: string | null | undefined): string => {
+    if (callableValue === 'Y') return ' *';
+    return '';
+  }
+
+  const setRPLRequiredField = (sectorValue: string | null | undefined): string => {
+    if (sectorValue === 'RPL') return ' *';
+    return '';
+  }
+
+  const setNotesRequiredField = (sectorValue: string | null | undefined): string => {
+    if (sectorValue != 'SFR') return ' *';
+    return '';
   }
 
   const toTwoDecimalValue = (userInput: string): number | null => {
@@ -81,7 +116,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
 
   // programmatically clamp field within [min, max]
   const clampField = (field: string, min: number, max: number) => {
-    const current = (formValues.speedOverrides as Record<string, unknown>)?.[field];
+    const current = (speedOverrides as Record<string, unknown>)?.[field];
 
     if (typeof current !== 'number' || isNaN(current)) {
       return;
@@ -94,9 +129,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   }
 
   const handleNotesChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onFormChange({
-      notesInstructions: event.target.value,
-    });
+    setNotesInstructions(event.target.value)
   };
 
   return (
@@ -108,14 +141,9 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           <div className="file-indicator-item">
             <AttachFileIcon className="file-paperclip-icon" />
             <div className="upload-text-wrapper">
-              {attachments.map((doc) => (
+              {attachments.map((doc: ISecurityAttachmentData) => (
                 <div className="file-name-text" key={doc.attachmentId}>
-                  <Link
-                    href={doc.sharepointWebUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="upload-link"
-                  >
+                  <Link href={doc.sharepointWebUrl} target="_blank" rel="noopener noreferrer" className="upload-link">
                     {doc.fileName}
                   </Link>
                 </div>
@@ -134,8 +162,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Aladdin CDI ID</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.aladdinCDIId || ''}
-              onChange={(e) => handleSecurityDetailsChange('aladdinCDIId', e.target.value)}
+              value={aladdinCdiId || ''}
+              onChange={(e) => handleIdentifierFieldChange('aladdinCdiId', e.target.value)}
               disabled={isReadOnly}
               variant="outlined"
             />
@@ -144,7 +172,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Identifier</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.identifier || ''}
+              value={securityDetails?.identifier || ''}
               onChange={(e) => handleSecurityDetailsChange('identifier', e.target.value)}
               disabled={isReadOnly}
               variant="outlined"
@@ -154,7 +182,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Description</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.description || ''}
+              value={securityDetails?.description || ''}
               onChange={(e) => handleSecurityDetailsChange('description', e.target.value)}
               disabled={isReadOnly}
               variant="outlined"
@@ -164,7 +192,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">Tranche</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.tranche || ''}
+              value={securityDetails?.tranche || ''}
               onChange={(e) => handleSecurityDetailsChange('tranche', e.target.value)}
               disabled={isReadOnly}
               variant="outlined"
@@ -179,42 +207,42 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
       <div className="form-section">
         <h3 className="section-title">Risk Details</h3>
         <div className="form-row two-column">
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.sectorValue ? ' field-required-missing' : ''}`}>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Sector}
-              value={formValues.securityDetails?.sectorValue}
+              value={securityDetails?.sectorValue}
               onChange={(value) => handleSecurityDetailsChange('sectorValue', value)}
               referenceData={referenceData}
-              label="Sector"
+              label="Sector *"
               disabled={isReadOnly}
             />
           </div>
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.callableValue ? ' field-required-missing' : ''}`}>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Callable}
-              value={formValues.securityDetails?.callableValue}
+              value={securityDetails?.callableValue}
               onChange={(value) => handleSecurityDetailsChange('callableValue', value)}
               referenceData={referenceData}
-              label="Callable"
+              label="Callable *"
               disabled={isReadOnly}
             />
           </div>
-          <div className="form-field">
-            <label className="field-label">Call Date</label>
+          <div className={`form-row-group${missingFields.callDate ? ' field-required-missing' : ''}`}>
+            <label className="field-label">{'Call Date' + setCallDateRequiredField(securityDetails?.callableValue)}</label>
             <TextField
               fullWidth
               type="date"
-              value={formatDateForInput(formValues.securityDetails?.callDate)}
+              value={formatDateForInput(securityDetails?.callDate)}
               onChange={(e) => handleSecurityDetailsChange('callDate', e.target.value)}
               disabled={isReadOnly}
               variant="outlined"
             />
           </div>
-          <div className="form-field">
-            <label className="field-label">Price</label>
+          <div className={`form-row-group${missingFields.price ? ' field-required-missing' : ''}`}>
+            <label className="field-label">Price *</label>
             <TextField
               fullWidth
-              value={formValues.securityDetails?.price || ''}
+              value={securityDetails?.price || ''}
               onChange={(e) => handleSecurityDetailsChange('price', e.target.value)}
               disabled={isReadOnly}
               variant="outlined"
@@ -223,47 +251,47 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
         </div>
 
         <div className="form-row two-column">
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.prepaymentTypeValue ? ' field-required-missing' : ''}`}>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.PrepaymentType}
-              value={formValues.speedOverrides?.prepaymentTypeValue ?? undefined}
+              value={speedOverrides?.prepaymentTypeValue ?? undefined}
               onChange={(value) => handleSpeedOverridesChange('prepaymentTypeValue', value)}
               referenceData={referenceData}
-              label="Prepayment Type"
+              label={'Prepayment Type' + setRPLRequiredField(securityDetails?.sectorValue)}
               disabled={isReadOnly}
             />
           </div>
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.defaultTypeValue ? ' field-required-missing' : ''}`}>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.DefaultType}
-              value={formValues.speedOverrides?.defaultTypeValue ?? undefined}
+              value={speedOverrides?.defaultTypeValue ?? undefined}
               onChange={(value) => handleSpeedOverridesChange('defaultTypeValue', value)}
               referenceData={referenceData}
-              label="Default Type"
+              label={'Default Type' + setRPLRequiredField(securityDetails?.sectorValue)}
               disabled={isReadOnly}
             />
           </div>
         </div>
 
         <div className="form-row two-column">
-          <div className="form-field">
-            <label className="field-label">Prepayment Speed</label>
+          <div className={`form-row-group${missingFields.prepaymentSpeed ? ' field-required-missing' : ''}`}>
+            <label className="field-label">{'Prepayment Speed' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
               type="number"
-              value={formValues.speedOverrides?.prepaymentSpeed ?? ''}
+              value={speedOverrides?.prepaymentSpeed ?? ''}
               onChange={(e) => handleSpeedOverridesChange('prepaymentSpeed', toTwoDecimalValue(e.target.value))}
               disabled={isReadOnly}
               variant="outlined"
               {...({ slotProps: { htmlInput: { inputMode: 'decimal' } } })}
             />
           </div>
-          <div className="form-field">
-            <label className="field-label">Default Speed</label>
+          <div className={`form-row-group${missingFields.defaultSpeed ? ' field-required-missing' : ''}`}>
+            <label className="field-label">{'Default Speed' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
               type="number"
-              value={formValues.speedOverrides?.defaultSpeed ?? ''}
+              value={speedOverrides?.defaultSpeed ?? ''}
               onChange={(e) => handleSpeedOverridesChange('defaultSpeed', toTwoDecimalValue(e.target.value))}
               disabled={isReadOnly}
               variant="outlined"
@@ -273,12 +301,12 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
         </div>
 
         <div className="form-row two-column">
-          <div className="form-field">
-            <label className="field-label">Severity (0-100)</label>
+          <div className={`form-row-group${missingFields.severity ? ' field-required-missing' : ''}`}>
+            <label className="field-label">{'Severity (0-100)' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
               type="number"
-              value={formValues.speedOverrides?.severity ?? ''}
+              value={speedOverrides?.severity ?? ''}
               onChange={(e) => handleSpeedOverridesChange('severity', toTwoDecimalValue(e.target.value))}
               onBlur={() => clampField('severity', 0, 100)}
               disabled={isReadOnly}
@@ -287,12 +315,12 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               {...({ slotProps: { htmlInput: { min: 0, max: 100, inputMode: 'decimal' } } })}
             />
           </div>
-          <div className="form-field">
-            <label className="field-label">Delinquency (0-100)</label>
+          <div className={`form-row-group${missingFields.delinquency ? ' field-required-missing' : ''}`}>
+            <label className="field-label">{'Delinquency (0-100)' + setRPLRequiredField(securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
               type="number"
-              value={formValues.speedOverrides?.delinquency ?? ''}
+              value={speedOverrides?.delinquency ?? ''}
               onChange={(e) => handleSpeedOverridesChange('delinquency', toTwoDecimalValue(e.target.value))}
               onBlur={() => clampField('delinquency', 0, 100)}
               disabled={isReadOnly}
@@ -304,13 +332,13 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
         </div>
 
         {/* Notes / Instructions Section */}
-        <div className="form-field" >
-          <label className="field-label">Notes / Instructions</label>
+        <div className={`form-row-group${missingFields.notes ? ' field-required-missing' : ''}`}>
+          <label className="field-label">{'Notes / Instructions' + setNotesRequiredField(securityDetails?.sectorValue)}</label>
           <TextField
             fullWidth
             multiline
             rows={2}
-            value={formValues.notesInstructions || ''}
+            value={notesInstructions || ''}
             onChange={handleNotesChange}
             disabled={isReadOnly}
             variant="outlined"
@@ -329,7 +357,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.IsTotalESGTCW}
-              value={formValues.esgFields?.tcwEsgValue}
+              value={esgFields?.tcwEsgValue}
               onChange={(value) => handleESGChange('tcwEsgValue', value)}
               referenceData={referenceData}
               label="TCW ESG"
@@ -342,7 +370,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             </label>
             <TextField
               fullWidth
-              value={formValues.esgFields?.esgCollateralType || ''}
+              value={esgFields?.esgCollateralType || ''}
               onChange={(e) => handleESGChange('esgCollateralType', e.target.value)}
               // temp disabled for IOD-8453
               disabled
@@ -356,7 +384,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.TcwEsgType}
-              value={formValues.esgFields?.tcwEsgTypeValue}
+              value={esgFields?.tcwEsgTypeValue}
               onChange={(value) => handleESGChange('tcwEsgTypeValue', value)}
               referenceData={referenceData}
               label="TCW ESG Type"
@@ -376,7 +404,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Slicer}
-              value={formValues.tradeFields?.slicerTypeValue}
+              value={tradeFields?.slicerTypeValue}
               onChange={(value) => handleTradeFieldsChange('slicerTypeValue', value)}
               referenceData={referenceData}
               label="Slicer Type"
@@ -386,7 +414,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.MBS}
-              value={formValues.tradeFields?.mbsTypeValue}
+              value={tradeFields?.mbsTypeValue}
               onChange={(value) => handleTradeFieldsChange('mbsTypeValue', value)}
               referenceData={referenceData}
               label="MBS Type"
@@ -399,7 +427,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.LoanCreditType}
-              value={formValues.tradeFields?.loanCreditValue}
+              value={tradeFields?.loanCreditValue}
               onChange={(value) => handleTradeFieldsChange('loanCreditValue', value)}
               referenceData={referenceData}
               label="Loan Credit"
@@ -409,7 +437,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.MBSCollateral}
-              value={formValues.tradeFields?.mbsCollateralValue}
+              value={tradeFields?.mbsCollateralValue}
               onChange={(value) => handleTradeFieldsChange('mbsCollateralValue', value)}
               referenceData={referenceData}
               label="MBS Collateral"
@@ -422,7 +450,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.MBSCollateralSub}
-              value={formValues.tradeFields?.mbsCollateralSubValue}
+              value={tradeFields?.mbsCollateralSubValue}
               onChange={(value) => handleTradeFieldsChange('mbsCollateralSubValue', value)}
               referenceData={referenceData}
               label="MBS Collateral Sub"
@@ -432,7 +460,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.SrMostCashFlow}
-              value={formValues.tradeFields?.seniorMostCashFlowValue}
+              value={tradeFields?.seniorMostCashFlowValue}
               onChange={(value) => handleTradeFieldsChange('seniorMostCashFlowValue', value)}
               referenceData={referenceData}
               label="Sr. Most Cash Flow"
@@ -445,20 +473,20 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Tranche}
-              value={formValues.tradeFields?.trancheTypeValue}
+              value={tradeFields?.trancheTypeValue}
               onChange={(value) => handleTradeFieldsChange('trancheTypeValue', value)}
               referenceData={referenceData}
               label="Tranche Type"
               disabled={isReadOnly}
             />
           </div>
-          <div className="form-field">
+          <div className={`form-row-group${missingFields.loanCategoryValue ? ' field-required-missing' : ''}`}>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.SMSLoanCategory}
-              value={formValues.tradeFields?.loanCategoryValue}
+              value={tradeFields?.loanCategoryValue}
               onChange={(value) => handleTradeFieldsChange('loanCategoryValue', value)}
               referenceData={referenceData}
-              label="Loan Category"
+              label="Loan Category *"
               disabled={isReadOnly}
             />
           </div>
@@ -468,7 +496,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
           <div className="form-field">
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.Collateral}
-              value={formValues.tradeFields?.collateralValue}
+              value={tradeFields?.collateralValue}
               onChange={(value) => handleTradeFieldsChange('collateralValue', value)}
               referenceData={referenceData}
               label="Collateral"
@@ -488,24 +516,38 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             <label className="field-label">EU Securitization Status</label>
             <SelectFormField
               fieldKey={ReferenceDataFieldKey.EuSecuritizationStatus}
-              value={formValues.securityDetails?.euSecuritizationStatus}
-              onChange={(value) => handleSecurityDetailsChange('euSecuritizationStatus', value)}
+              value={euSecuritizationStatus}
+              onChange={handleEuSecuritizationStatusChange}
               referenceData={referenceData}
               fullWidth={false}
               disabled={isReadOnly}
             />
           </div>
-          {/* ERISA Status */}
           <div className="form-field">
-            <label className="field-label">ERISA Status</label>
-            <SelectFormField
-              fieldKey={ReferenceDataFieldKey.ErisaStatus}
-              value={formValues.securityDetails?.erisaStatus}
-              onChange={(value) => handleSecurityDetailsChange('erisaStatus', value)}
-              referenceData={referenceData}
-              fullWidth={false}
-              disabled={isReadOnly}
+            <label className="field-label">EU Securitization TIP EU ID</label>
+            <TextField
+              fullWidth
+              value={setEuSecuritizationTipEuId(euSecuritizationStatus)}
+              onChange={(e) => handleIdentifierFieldChange('euSecuritizationTipEuId', e.target.value)}
+              disabled={isReadOnly || isEuSecuritizationTipDisabled}
+              variant="outlined"
             />
+          </div>
+        </div>
+        <div className="form-row two-column">
+          <div className="form-field">
+            {/* ERISA Status */}
+            <div className="form-field">
+              <label className="field-label">ERISA Status</label>
+              <SelectFormField
+                fieldKey={ReferenceDataFieldKey.ErisaStatus}
+                value={erisaStatus}
+                onChange={(value) => handleIdentifierFieldChange('erisaStatus', value)}
+                referenceData={referenceData}
+                fullWidth={false}
+                disabled={isReadOnly}
+              />
+            </div>
           </div>
         </div>
       </div>
