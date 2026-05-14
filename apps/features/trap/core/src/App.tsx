@@ -49,7 +49,7 @@ export default function App() {
 
     return (
         <ThemeContext.Provider value={{ themeName, setTheme: setThemeName }}>
-            <ConfigProvider theme={themeConfig}>
+            <ConfigProvider theme={{ ...themeConfig, cssVar: true }}>
                 <Layout
                     style={{
                         minHeight: '100vh',
