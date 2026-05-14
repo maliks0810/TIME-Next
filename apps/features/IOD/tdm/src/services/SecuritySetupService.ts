@@ -1,4 +1,6 @@
 import { getApiBaseUrl } from '../constants/environments';
+import { tryParseJson } from '../utils/JsonHelper';
+import { ApiException, ApiResponseError } from '../common/lib/ApiResponseError';
 import {
     transformFromApiPresentation,
     transformToApiDomain,
@@ -62,6 +64,11 @@ export const SecuritySetupService = {
                 }
             } catch {
                 // fall through to generic error message below
+            }
+
+            const apiException = tryParseJson<ApiException>(errorText)
+            if (apiException) {
+                throw new ApiResponseError(apiException.title, apiException.type);
             }
 
             throw new Error(

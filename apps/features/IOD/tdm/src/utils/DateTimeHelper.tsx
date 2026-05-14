@@ -18,6 +18,7 @@ export const formatDate = (date: Date | null): string | null => {
     month: '2-digit',
     day: '2-digit',
     year: 'numeric',
+    timeZone: 'UTC',
   };
 
   return new Intl.DateTimeFormat('en-US', options).format(date);

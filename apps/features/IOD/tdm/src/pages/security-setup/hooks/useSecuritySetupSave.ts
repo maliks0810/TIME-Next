@@ -13,6 +13,7 @@ import {
     ISecuritySetupWizardPayload,
     WizardStep,
 } from '../../../services/domain-objects/SecuritySetupRequestPayload';
+import { ApiResponseError } from '../../../common/lib/ApiResponseError';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -32,8 +33,8 @@ interface UseSecuritySetupSaveReturn {
         accumulatedData: Record<string, unknown>,
         saveType?: 'partial' | 'complete',
         options?: { isSaveOnly?: boolean }
-    ) => Promise<Partial<ISecuritySetupWizardPayload> | null>;
-    forceSave: () => Promise<Partial<ISecuritySetupWizardPayload> | null>;
+    ) => Promise<Partial<ISecuritySetupWizardPayload> | null | Error>;
+    forceSave: () => Promise<Partial<ISecuritySetupWizardPayload> | null | Error>;
     clearError: () => void;
     lastSavedAt: Date | null;
     error: Error | null;
@@ -94,7 +95,7 @@ export const useSecuritySetupSave = (
         async (
             payload: ISecuritySetupWizardPayload,
             options?: { isSaveOnly?: boolean }
-        ): Promise<Partial<ISecuritySetupWizardPayload> | null> => {
+        ): Promise<Partial<ISecuritySetupWizardPayload> | null | Error> => {
             try {
                 if (!isMountedRef.current) {
                     return null;
@@ -133,6 +134,13 @@ export const useSecuritySetupSave = (
                 if (err instanceof Error && err.name === 'AbortError') return null;
                 if (!isMountedRef.current) return null;
 
+                if (err instanceof ApiResponseError) {
+                  setSaveStatus('error');
+                  setError(err);
+                  onErrorRef.current?.(err);
+                  return err;
+                }
+
                 const error = err instanceof Error ? err : new Error('Save failed');
                 console.error('Save failed:', error.message);
                 setSaveStatus('error');
@@ -159,7 +167,7 @@ export const useSecuritySetupSave = (
             accumulatedData: Record<string, unknown>,
             saveType: 'partial' | 'complete' = 'partial',
             options?: { isSaveOnly?: boolean }
-        ): Promise<Partial<ISecuritySetupWizardPayload> | null> => {
+        ): Promise<Partial<ISecuritySetupWizardPayload> | null | Error> => {
             const currentDate = new Date().toISOString();
             const payload = {
                 currentStep: step,
@@ -180,7 +188,7 @@ export const useSecuritySetupSave = (
     /**
      * Force immediate save (bypasses debounce)
      */
-    const forceSave = useCallback((): Promise<Partial<ISecuritySetupWizardPayload> | null> => {
+    const forceSave = useCallback((): Promise<Partial<ISecuritySetupWizardPayload> | null | Error> => {
         if (pendingPayloadRef.current) {
             return processBackgroundSave(pendingPayloadRef.current);
         }

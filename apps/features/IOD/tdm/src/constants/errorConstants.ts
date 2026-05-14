@@ -1,0 +1,1 @@
+export const DUPLICATE_SECURITY_SETUP_REQUEST_EXCEPTION = "DuplicateSecuritySetupRequestException"
