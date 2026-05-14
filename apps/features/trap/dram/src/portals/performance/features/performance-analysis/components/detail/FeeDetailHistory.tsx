@@ -29,7 +29,7 @@ export default function FeeDetailHistory({portfolioId, rows, onToolbarPreparing 
         />
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
-      <DataGrid  dataSource={rows} height='calc(78vh - 200px)'
+      <DataGrid  dataSource={rows} height='calc(78vh - 300px)'
         keyExpr="endingDate"
                   width="95%"
                   showBorders={true}
@@ -75,10 +75,7 @@ export default function FeeDetailHistory({portfolioId, rows, onToolbarPreparing 
         <Column dataField="estimateAnnFee" caption="Estimate Ann Fee" width={140} format="#,##0" />
         <Column dataField="fundLevelMV" caption="Fund Level MV" width={140} format="#,##0" />
       </DataGrid>
-       <span>
-        <br />
-        All returns for periods of one year or longer are <b>annualized</b> unless otherwise stated.
-        </span>
+
       </div>
     </div>
   );

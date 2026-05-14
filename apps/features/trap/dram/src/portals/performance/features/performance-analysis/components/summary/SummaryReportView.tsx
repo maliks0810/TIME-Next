@@ -34,7 +34,7 @@ export default function SummaryReportView({ asOfDate, rows, onSelect, onToolbarP
           if (e?.key != null) e.component.selectRows([e.key], false);
         }}
 
-		height="80vh"
+		height="calc(78vh - 100px)"
 		width="95%"
 		allowColumnResizing
   		columnResizingMode="nextColumn"

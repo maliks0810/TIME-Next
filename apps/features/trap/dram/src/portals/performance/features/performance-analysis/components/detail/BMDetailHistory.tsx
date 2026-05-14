@@ -28,7 +28,7 @@ export default function BMDetailHistory({portfolioId, rows, onToolbarPreparing }
         />
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
-      <DataGrid  dataSource={rows} height='calc(78vh - 200px)'
+      <DataGrid  dataSource={rows} height='calc(78vh - 300px)'
         keyExpr="endingDate"
                   width="95%"
                   showBorders={true}
@@ -71,10 +71,6 @@ export default function BMDetailHistory({portfolioId, rows, onToolbarPreparing }
         <Column dataField="investStyle" caption="Invest" width={50} />
         <Column dataField="benchmarkName" caption="Index" width={50}  />
       </DataGrid>
-       <span>
-        <br />
-        All returns for periods of one year or longer are <b>annualized</b> unless otherwise stated.
-        </span>
       </div>
     </div>
   );
