@@ -236,7 +236,7 @@ export default function CDIUploadWidget({
         <WidgetCardShell>
             <div className={styles.wrapper}>
                 <div className={styles.left}>
-                    {uploadState === 'idle' && (
+                    {uploadState === 'idle' && !fromRecent && (
                         <Dropzone handleUpload={handleUpload} execute={handleFetch} />
                     )}
 
