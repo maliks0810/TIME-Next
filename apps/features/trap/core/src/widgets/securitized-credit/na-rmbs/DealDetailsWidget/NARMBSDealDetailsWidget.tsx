@@ -43,7 +43,9 @@ export function NARMBSDealDetailsWidget({
                     <div className={styles.headerTitleContainer}>
                         <BankOutlined className={styles.headerTitleIcon} />
                         <Text className={styles.headerTitleText}>Deal details</Text>
-                        {dealName && <Text className={styles.headerTitleDealName}>{dealName}</Text>}
+                        {dealName && (
+                            <Text className={styles.headerTitleDealName}>{dealName as string}</Text>
+                        )}
                         {data && (
                             <span className={styles.headerTitleCollateralType}>
                                 {data.collateralType}

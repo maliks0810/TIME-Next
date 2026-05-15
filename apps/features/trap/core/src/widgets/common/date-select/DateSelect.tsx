@@ -13,8 +13,8 @@ export const DateSelect = ({ widgetInstance }: WidgetComponentProps) => {
     const { config = {} } = widgetInstance;
     const label = config.params?.label;
     const key = config.params?.stateKey || DATE_SELECT_KEY;
+    const dateFormat = config.params?.dateFormat || 'YYYY-MM-DD';
     const channelId = config.params?.channel;
-
     // State communication
     const setWidgetValueToChannel = useSetWidgetValue();
     const dateSelectValue = useGetWidgetValue({
@@ -33,13 +33,14 @@ export const DateSelect = ({ widgetInstance }: WidgetComponentProps) => {
                 channelId,
                 key,
                 activeTab,
-                value: date?.toISOString() || null,
+                value: date?.format(dateFormat) || null,
             });
         },
-        [key]
+        [key, dateFormat]
     );
 
     useEffect(() => {
+        if (dateSelectValue === undefined) return;
         if (dateSelectValue !== date) {
             if (dateSelectValue === null) setDate(null);
             else setDate(dayjs(dateSelectValue as string));

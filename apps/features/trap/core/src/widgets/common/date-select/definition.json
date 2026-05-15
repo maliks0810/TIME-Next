@@ -28,6 +28,12 @@
                 "description": "Default is common.date",
                 "type": "string",
                 "default": ""
+            },
+            "dateFormat": {
+                "title": "Date Format",
+                "type": "string",
+                "enum": ["YYYY-MM-DD"],
+                "default": "YYYY-MM-DD"
             }
         },
         "required": [],
