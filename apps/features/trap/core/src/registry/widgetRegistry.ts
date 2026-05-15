@@ -10,6 +10,9 @@ import { LinkWidget } from '../widgets/common/link/LinkWidget';
 import { PeriodRadioGroup } from '../widgets/equity-research/PeriodRadioGroup/PeriodRadioGroup';
 import { CheckboxWidget } from '../widgets/common/checkbox/Checkbox';
 import { KPIComparisonWidget } from '../widgets/equity-research/KPIComparisonWidget/KPIComparisonWidget';
+import { NARMBSDealDetailsWidget } from '../widgets/securitized-credit/na-rmbs/DealDetailsWidget/NARMBSDealDetailsWidget';
+import { NARMBSTranchesWidget } from '../widgets/securitized-credit/na-rmbs/TranchesWidget/NARMBSTranchesWidget';
+import { NARMBSTrancheDetailWidget } from '../widgets/securitized-credit/na-rmbs/TrancheDateilsWidget/NARMBSTrancheDetailWidget';
 import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/AnalystsCheckboxGroup/AnalystsCheckboxGroup';
 import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
 import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
@@ -17,6 +20,8 @@ import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/Perfo
 import CDIUploadWidget from '../widgets/securitized-credit/cdi-upload/CDIUploadWidget';
 import SecurityLookupWidget from '../widgets/securitized-credit/security-lookup/SecurityLookupWidget';
 import { TextWidget } from '../widgets/common/text/Text';
+import { CommentWidget } from '../widgets/dram/comment/CommentWidget';
+import { DateSelect } from '../widgets/common/date-select/DateSelect';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -27,6 +32,37 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
 
         listensToKeys: ['security.cusip'],
         emitsKeys: [],
+    },
+    cwd_na_rmbs_deal_details_01: {
+        id: 'cwd_na_rmbs_deal_details_01',
+        component: NARMBSDealDetailsWidget,
+        category: 'NA-RMBS',
+        visibleIn: ['workflow'],
+        listensToKeys: ['deal.id', 'deal.name', 'analysis.sessionId', 'workflow.refresh'],
+        emitsKeys: [],
+    },
+    cwd_na_rmbs_tranches_01: {
+        id: 'cwd_na_rmbs_tranches_01',
+        component: NARMBSTranchesWidget,
+        category: 'NA-RMBS',
+        visibleIn: ['workflow'],
+        listensToKeys: ['deal.id', 'analysis.sessionId', 'workflow.refresh'],
+        emitsKeys: ['tranche.id', 'tranche.name'],
+    },
+    cwd_na_rmbs_tranche_detail_01: {
+        id: 'cwd_na_rmbs_tranche_detail_01',
+        component: NARMBSTrancheDetailWidget,
+        category: 'NA-RMBS',
+        visibleIn: ['workflow'],
+        listensToKeys: [
+            'deal.id',
+            'deal.name',
+            'tranche.id',
+            'tranche.name',
+            'analysis.sessionId',
+            'workflow.refresh',
+        ],
+        emitsKeys: ['asset.staged.trancheId', 'asset.staged.trancheName', 'asset.isNew'],
     },
     cwd_common_data_grid_01: {
         id: 'cwd_common_data_grid_01',
@@ -153,6 +189,22 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     wd_sc_security_lookup_01: {
         id: 'wd_sc_security_lookup_01',
         component: SecurityLookupWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    wd_comment_widget: {
+        id: 'wd_comment_widget',
+        component: CommentWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_date_select: {
+        id: 'cwd_date_select',
+        component: DateSelect,
         category: 'Control',
         visibleIn: ['workflow'],
         listensToKeys: [],

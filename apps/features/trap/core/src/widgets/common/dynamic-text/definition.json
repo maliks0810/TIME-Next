@@ -1,0 +1,83 @@
+{
+    "id": "cwd_dynamic_text",
+    "name": "Dynamic Text",
+    "version": 1,
+    "description": "A text widget that allows to use context values",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_dynamic_text",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+            "content": {
+                "default": "",
+                "title": "Content",
+                "type": "string",
+                "editor": true
+            }
+        },
+        "required": [],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "small-vertical",
+            "label": "Small Vertical",
+            "grid": {
+                "defaultW": 1,
+                "defaultH": 120,
+                "minW": 1,
+                "minH": 120,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "small-horizontal",
+            "label": "Small Horizontal",
+            "grid": {
+                "defaultW": 2,
+                "defaultH": 60,
+                "minW": 2,
+                "minH": 60,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "medium-vertical",
+            "label": "Medium Vertical",
+            "grid": {
+                "defaultW": 2,
+                "defaultH": 240,
+                "minW": 2,
+                "minH": 240,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "medium-horizontal",
+            "label": "Medium Horizontal",
+            "grid": {
+                "defaultW": 4,
+                "defaultH": 120,
+                "minW": 4,
+                "minH": 120,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}

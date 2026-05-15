@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import DataGrid, {
     Column,
     Grouping,
@@ -8,6 +8,7 @@ import DataGrid, {
     Scrolling,
     Export,
     SearchPanel,
+    Selection,
 } from 'devextreme-react/data-grid';
 
 import { handleExport } from './exportExcel';
@@ -18,10 +19,50 @@ import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingSt
 import styles from './DataGridWidget.module.scss';
 
 import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState';
+import { useSetWidgetValue, useGetWidgetValue } from '../../../state/Widgets/hooks';
+import { useGetActiveTab } from '../../../state/Tabs/hooks';
+import { COMMON_DATE_GRID_ROW_KEY } from '../../constants';
 
-export default function DataGridWidget(props: WidgetComponentProps) {
+export default function DataGridWidget({
+    widgetInstance: { config = {} },
+    loading,
+    error,
+    result,
+    execute,
+}: WidgetComponentProps) {
+    const activeTab = useGetActiveTab();
     const gridRef = useRef<any>(null);
-    if (props.loading) {
+    const listensToKeys = config?.params?.listensToKeys;
+    const selectionMode = config?.params?.selectionMode;
+
+    const subscribedValue = useGetWidgetValue({
+        channelId: config.params?.channel,
+        key: listensToKeys,
+    });
+
+    const setWidgetValue = useSetWidgetValue();
+
+    useEffect(() => {
+        if (subscribedValue && listensToKeys) {
+            execute?.({ [listensToKeys]: subscribedValue });
+        }
+    }, [subscribedValue, listensToKeys]);
+
+    const handleSelectRow = (props: any) => {
+        const { selectedRowsData } = props;
+
+        //Devextreme always emits an array on select of rows, even if selection mode is single. We want to story either array or single item in state
+        const emitValue = selectionMode === 'single' ? selectedRowsData[0] : selectedRowsData;
+
+        setWidgetValue({
+            channelId: config.params?.channel,
+            value: emitValue,
+            key: COMMON_DATE_GRID_ROW_KEY,
+            activeTab,
+        });
+    };
+
+    if (loading) {
         return (
             <WidgetCardShell>
                 <WidgetLoadingState />
@@ -29,15 +70,15 @@ export default function DataGridWidget(props: WidgetComponentProps) {
         );
     }
 
-    if (props.error) {
+    if (error) {
         return (
             <WidgetCardShell>
-                <WidgetErrorState message={props.error} />
+                <WidgetErrorState message={error} />
             </WidgetCardShell>
         );
     }
 
-    if (!props.result) {
+    if (!result) {
         return (
             <WidgetCardShell>
                 <div style={{ padding: 12, fontSize: 12 }}>No grid data available.</div>
@@ -45,7 +86,7 @@ export default function DataGridWidget(props: WidgetComponentProps) {
         );
     }
 
-    const { columns = [], rows = [], rowKeyField = 'id' } = props.result;
+    const { columns = [], rows = [], rowKeyField = 'id' } = result;
     return (
         <>
             <WidgetCardShell>
@@ -61,6 +102,7 @@ export default function DataGridWidget(props: WidgetComponentProps) {
                     width="100%"
                     keyExpr={rowKeyField as string}
                     onExporting={() => handleExport(gridRef)}
+                    onSelectionChanged={handleSelectRow}
                 >
                     <SearchPanel visible={true} />
 
@@ -72,7 +114,14 @@ export default function DataGridWidget(props: WidgetComponentProps) {
                     {(columns as Array<unknown>).map((columnOptions: any) => (
                         <Column {...columnOptions} key={columnOptions.dataField} />
                     ))}
+                    <Column width={0} />
                     <Pager visible={false} />
+                    <Selection
+                        mode={selectionMode}
+                        allowSelectAll={false}
+                        selectByClick={true}
+                        showCheckBoxesMode="onClick"
+                    />
                 </DataGrid>
             </WidgetCardShell>
         </>
