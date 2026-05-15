@@ -1,5 +1,5 @@
 import React from 'react';
-import { ConfigProvider, Layout } from 'antd';
+import { BackTop, ConfigProvider, Layout } from 'antd';
 import { Route, Routes } from 'react-router-dom';
 import { useUserInfo } from '@platform/utils';
 
@@ -50,6 +50,7 @@ export default function App() {
     return (
         <ThemeContext.Provider value={{ themeName, setTheme: setThemeName }}>
             <ConfigProvider theme={{ ...themeConfig, cssVar: true }}>
+                <BackTop />
                 <Layout
                     style={{
                         minHeight: '100vh',

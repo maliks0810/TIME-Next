@@ -8,18 +8,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig(({ mode }) => ({
-    plugins: [
-        react(),
-        svgr()
-    ],
+    plugins: [react(), svgr()],
     server: {
         port: 3003,
         strictPort: false,
         fs: {
-            allow: [
-                path.resolve(__dirname, '../..'),
-            ],
-        }
+            allow: [path.resolve(__dirname, '../..')],
+        },
     },
     resolve: {
         alias: {
@@ -35,6 +30,8 @@ export default defineConfig(({ mode }) => ({
         sourcemap: mode !== 'production',
     },
     define: {
-        'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production': 'development'),
-    }
+        'process.env.NODE_ENV': JSON.stringify(
+            mode === 'production' ? 'production' : 'development'
+        ),
+    },
 }));

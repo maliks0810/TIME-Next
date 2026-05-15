@@ -3,11 +3,13 @@ import { WidgetDefinitionLike, WidgetInstanceLike } from '../../types/widget';
 import { Modal, message } from 'antd';
 import { DesignerWidgetInstance } from '../workflow-designer/types/workflowDesigner.types';
 import { useMemo, useState } from 'react';
-import { PropertyConfig } from './components/PropertyConfig';
+
 import styles from './WidgetConfigureModal.module.scss';
 
 import { getTemplateVersion, updateDraftVersion } from '../../api/trap';
 import { ensureConfigShape } from './helpers/helpers';
+import { useGetAllContext } from '../../state/Widgets/hooks';
+import { PropertyConfig } from './components/PropertyConfig';
 type PropertyValue = string | number | boolean;
 
 type WidgetConfigureModalProps = {
@@ -31,7 +33,7 @@ export const WidgetConfigureModal = ({
     onSave,
 }: WidgetConfigureModalProps) => {
     const { definition = {}, instance } = data;
-    const { instanceId } = instance;
+    const { instanceId, config = {} } = instance;
     const { configSchema = {}, listensToKeys } = definition;
 
     const supportsCusip = (listensToKeys ?? []).includes('security.cusip');
@@ -39,6 +41,9 @@ export const WidgetConfigureModal = ({
     const [params, setParams] = useState<Record<string, PropertyValue>>(
         () => instance.config?.params || {}
     );
+    const context = useGetAllContext({
+        channelId: config.params?.channel,
+    });
     const [isLoading, setIsLoading] = useState(false);
     const setField = (k: string, v: PropertyValue) => setParams((prev) => ({ ...prev, [k]: v }));
     const properties = configSchema['properties'];
@@ -55,9 +60,10 @@ export const WidgetConfigureModal = ({
                 propertyKey={el}
                 required={required.includes(el)}
                 currentValue={params[el]}
+                context={context}
             />
         ));
-    }, [properties, required, instance]);
+    }, [properties, required, instance, context]);
 
     if (!isOpen) return null; //Don't render on closed
 

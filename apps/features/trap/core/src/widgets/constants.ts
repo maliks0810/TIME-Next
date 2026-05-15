@@ -4,6 +4,7 @@ export const ASSET_STAGED_TRANCHE_NAME = 'asset.staged.trancheName';
 export const ANALYSTS_KEY = 'analystsControl';
 export const CHART_CONTROL_KEY = 'chartControl';
 export const PERIOD_RADIO_STORE_KEY = 'period';
+export const DYNAMIC_TEXT_KEY = 'dynamicText';
 export const ANALYST_PB_KEY = 'analystPerformanceBarChart';
 export const DEAL_ID_KEY = 'deal.id';
 export const DEAL_NAME_KEY = 'deal.name';
