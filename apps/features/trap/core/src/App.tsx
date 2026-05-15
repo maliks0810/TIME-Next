@@ -1,5 +1,5 @@
 import React from 'react';
-import { ConfigProvider, Layout } from 'antd';
+import { BackTop, ConfigProvider, Layout } from 'antd';
 import { Route, Routes } from 'react-router-dom';
 import { useUserInfo } from '@platform/utils';
 
@@ -15,7 +15,7 @@ import { useSetActiveUser } from './state/User/hooks';
 const { Content } = Layout;
 
 const THEME_STORAGE_KEY = 'trap_theme';
-const APP_SHELL_MIN_WIDTH = 1400;
+const APP_SHELL_MIN_WIDTH = 1180;
 const CONTENT_MAX_WIDTH = 1880;
 const APP_HORIZONTAL_PADDING = 16;
 const APP_TOP_PADDING = 16;
@@ -49,7 +49,8 @@ export default function App() {
 
     return (
         <ThemeContext.Provider value={{ themeName, setTheme: setThemeName }}>
-            <ConfigProvider theme={themeConfig}>
+            <ConfigProvider theme={{ ...themeConfig, cssVar: true }}>
+                <BackTop />
                 <Layout
                     style={{
                         minHeight: '100vh',

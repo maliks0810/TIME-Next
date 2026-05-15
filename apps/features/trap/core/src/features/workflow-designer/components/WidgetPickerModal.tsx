@@ -4,6 +4,7 @@ import { Button, Empty, Input, Modal, Select, Space, Tag, Typography, theme } fr
 import { AppstoreOutlined } from '@ant-design/icons';
 import JsonInfoModal from '../../../components/common/JsonInfoModal';
 import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
+import styles from './WidgetPickerModal.module.scss';
 
 type WidgetPickerModalProps = {
     open: boolean;
@@ -127,15 +128,11 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
             footer={null}
             width={1080}
             centered
+            className={styles.widgetPickerModal}
             destroyOnHidden
             styles={{
                 body: {
-                    padding: 0,
-                    overflow: 'hidden',
-                    borderRadius: 20,
-                    background: modalPanelBackground,
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
+                    background: surfaceMeta.isGradientTheme ? 'rgba(0,0,0,0.32)' : undefined,
                 },
                 content: {
                     padding: 0,
@@ -157,7 +154,6 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                     display: 'grid',
                     gridTemplateColumns: '240px minmax(0, 1fr)',
                     minHeight: 640,
-                    maxHeight: '78vh',
                 }}
             >
                 <div
@@ -171,6 +167,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                         flexDirection: 'column',
                         gap: 18,
                         overflowY: 'auto',
+                        maxHeight: '78vh',
                     }}
                 >
                     <div>
@@ -352,16 +349,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                     </div>
                 </div>
 
-                <div
-                    style={{
-                        padding: 20,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        minWidth: 0,
-                        overflow: 'hidden',
-                        background: 'transparent',
-                    }}
-                >
+                <div className={styles.widgetsContainer}>
                     <div
                         style={{
                             display: 'grid',

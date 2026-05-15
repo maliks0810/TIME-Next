@@ -48,7 +48,17 @@ export function KPIComparisonWidget({ result, widgetInstance, execute }: WidgetC
                     }}
                 >
                     <Typography.Title level={5} style={{ margin: 0 }}>
-                        {analystsControl?.[page - 1] ? <>{analystsControl?.[page - 1]}</> : '—'}
+                        {analystsControl?.[page - 1] ? (
+                            <>
+                                {analystsControl?.[page - 1]
+                                    .toLowerCase()
+                                    .split('_')
+                                    .map((value) => value.charAt(0).toUpperCase() + value.slice(1))
+                                    .join(' ')}
+                            </>
+                        ) : (
+                            '—'
+                        )}
                     </Typography.Title>
                     {analystsControl?.length > 1 ? (
                         <Pagination

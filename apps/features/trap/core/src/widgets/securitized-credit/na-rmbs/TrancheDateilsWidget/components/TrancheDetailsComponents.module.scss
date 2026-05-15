@@ -1,0 +1,109 @@
+.metricCardContainer {
+    flex: 1;
+    min-width: 0;
+    background: var(--ant-color-bg-elevated);
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: var(--ant-border-radius);
+    padding: 9px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2;
+    position: relative;
+    overflow: hidden;
+}
+
+.metricCardContainer {
+    border: 1px solid var(--ant-color-primary-border);
+}
+
+.metricCardAccentHighlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        var(--ant-color-primary) 0%,
+        var(--ant-color-primary-hover) 100%
+    );
+}
+
+.metricCardLabel {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ant-color-text-tertiary);
+}
+
+.metricCardValue {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--ant-color-text);
+}
+
+.metricCardValueAccent {
+    color: var(--ant-color-primary);
+}
+
+.metricCardSubText {
+    font-size: 9px;
+    color: var(--ant-color-text-tertiary);
+}
+
+.detailPanelContainer {
+    background: var(--ant-color-fill-alter);
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: var(--ant-border-radius);
+    padding: 10px 14px;
+}
+
+.detailRowContainer {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.detailRowLabel {
+    font-size: 11px;
+    color: var(--ant-color-text-secondary);
+    flex-shrink: 0;
+}
+
+.detailRowValue {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ant-color-text);
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 260px;
+}
+
+.detailRowValueAccent {
+    color: var(--ant-color-warning);
+}
+
+.fontFamilyMono {
+    font-family: monospace;
+}
+
+.sectionLabelContainer {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ant-color-text-tertiary);
+    margin-bottom: 6;
+}

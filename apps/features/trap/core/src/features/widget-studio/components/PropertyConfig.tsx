@@ -2,12 +2,16 @@ import { useCallback, useMemo } from 'react';
 import { Typography, Select, Checkbox, Input, ColorPicker } from 'antd';
 import styles from './PropertyConfig.module.scss';
 import { DefaultOptionType } from 'antd/es/select';
+import TextEditor from '../../../components/tiptap/TextEditor';
+import { WidgetValueType } from '../../../state/Widgets/types';
 type PropertyValue = string | number | boolean;
 export type WidgetConfigProperty = {
     default: PropertyValue;
     withColorPicker?: boolean;
     title: string;
     enum?: string[] | number[];
+    editor?: boolean;
+    context?: Record<string, WidgetValueType>;
     type: 'string' | 'boolean' | 'number';
 };
 export const PropertyConfig = ({
@@ -16,11 +20,13 @@ export const PropertyConfig = ({
     propertyKey,
     required,
     currentValue,
+    context,
 }: {
     currentValue: PropertyValue;
     required: boolean;
     propertyKey: string;
     property: WidgetConfigProperty;
+    context?: Record<string, WidgetValueType>;
     setField: (key: string, value: PropertyValue) => void;
 }) => {
     const renderColorPicker = useCallback(
@@ -56,7 +62,22 @@ export const PropertyConfig = ({
         ),
         []
     );
-
+    const renderEditor = useCallback(
+        () => (
+            <>
+                <Typography.Text strong>
+                    {property.title}
+                    {required && '*'}
+                </Typography.Text>
+                <TextEditor
+                    mentionOptions={Object.keys(context || {})}
+                    initial={(currentValue as string) || property.default.toString()}
+                    onChange={(e) => setField(propertyKey, e)}
+                />
+            </>
+        ),
+        [context]
+    );
     const renderInput = useCallback(
         () => (
             <>
@@ -76,9 +97,9 @@ export const PropertyConfig = ({
     const options = useMemo(() => {
         switch (property.type) {
             case 'string': {
+                if (property.editor) return renderEditor();
                 if (property.withColorPicker) return renderColorPicker();
                 if (!property.enum) return renderInput();
-
                 const selectOptions = property.enum.map((el) => ({ label: el, value: el }));
                 return renderSelect(selectOptions);
             }
