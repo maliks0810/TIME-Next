@@ -1,6 +1,6 @@
 import { WidgetComponentProps } from '../../../types/widget';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
-import TextEditor, { EditorCommands, EditorRef } from '../../../components/tiptap/TextEditor';
+import TextEditor, { EditorCommands } from '../../../components/tiptap/TextEditor';
 import { Button, Tooltip } from 'antd';
 import styles from './CommentWidget.module.scss';
 import { QuestionCircleOutlined } from '@ant-design/icons';
@@ -78,8 +78,8 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
     const history = useMemo(() => {
         if (!notes || notes.length === 0) return 'No history available';
 
-        return notes.map((el) => (
-            <div className={styles.note}>
+        return notes.map((el, ind) => (
+            <div className={styles.note} key={`note-${ind}`}>
                 <div dangerouslySetInnerHTML={{ __html: el.noteText }}></div>
             </div>
         ));

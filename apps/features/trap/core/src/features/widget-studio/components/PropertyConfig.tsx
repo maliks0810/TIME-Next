@@ -70,6 +70,7 @@ export const PropertyConfig = ({
                     {required && '*'}
                 </Typography.Text>
                 <TextEditor
+                    mentionEnabled
                     mentionOptions={Object.keys(context || {})}
                     initial={(currentValue as string) || property.default.toString()}
                     onChange={(e) => setField(propertyKey, e)}
