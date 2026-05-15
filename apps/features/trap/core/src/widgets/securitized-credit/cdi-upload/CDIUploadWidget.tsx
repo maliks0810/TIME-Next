@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { theme } from 'antd';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
@@ -49,7 +49,20 @@ export default function CDIUploadWidget({
             ? ((result as any).recentDeals as RecentDeal[])
             : []
     );
-
+    const initRecent = async () => {
+        const { result } = await executeWidget({
+            widgetDefinitionId: widgetDefId,
+            params: {
+                action: 'list',
+            },
+            context: {},
+            mode: isDesigner ? 'MOCK' : 'LIVE',
+        });
+        setRecentDeals(result.recentDeals);
+    };
+    useEffect(() => {
+        initRecent();
+    }, []);
     const widgetId = widgetInstance?.id;
     const widgetDefId = String(
         widgetInstance?.composedWidgetId ??
@@ -99,17 +112,17 @@ export default function CDIUploadWidget({
 
             setProgress(100);
 
-            // const deal = out?.result as any;
-            // if (!deal?.dealId) throw new Error('Download succeeded but no deal metadata returned');
-
-            setFromIntext({
+            const newDeal = {
                 dealName: result.dealName,
 
                 uploadedAt: result.uploadedAt ?? new Date().toLocaleString(),
                 uploadedBy: result.uploadedBy ?? '',
                 packagePath: result.packagePath ?? '',
                 ...result,
-            });
+            };
+            setFromIntext(newDeal);
+
+            setRecentDeals((prev) => [newDeal, ...prev]);
             setFromRecent(false);
             setUploadState('success');
             publishDeal(result);

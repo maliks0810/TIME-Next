@@ -24,10 +24,8 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
         channelId: widgetInstance?.config?.params?.channel,
         key: DRAM_ENTITY_ID_KEY,
     });
-    const selectedNoteType = useGetWidgetValue({
-        channelId: widgetInstance?.config?.params?.channel,
-        key: DRAM_NOTE_TYPE_KEY,
-    });
+    const selectedNoteType = widgetInstance?.config?.params?.noteType;
+    
     useEffect(() => {
         if (selectedEntityId && selectedNoteType) {
             execute?.(
