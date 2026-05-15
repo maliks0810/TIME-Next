@@ -1,0 +1,31 @@
+.wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.editor {
+    min-height: 50px;
+}
+.note {
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    &:not(:last-child) {
+        border-bottom: 1px solid #0000001a;
+    }
+    &:not(:first-child) {
+        padding-top: 4px;
+    }
+    span {
+        font-size: 10px;
+        color: #0000009f;
+    }
+}
