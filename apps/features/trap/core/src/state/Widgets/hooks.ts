@@ -10,11 +10,11 @@ export const useGetWidgetValue = ({
     channelId = '1',
     key,
 }: {
-    channelId?: ChannelId;
-    key?: string;
+    channelId: ChannelId;
+    key: string;
 }) => {
     const activeTab = useGetActiveTab();
-    return key ? useWidgetsStore((store) => store.channels[channelId]?.[activeTab]?.[key]) : null;
+    return useWidgetsStore((store) => store.channels[channelId]?.[activeTab]?.[key]);
 };
 
 export const useSetWidgetValue = () => {

@@ -151,18 +151,26 @@ export default function WidgetHost(props: {
         variables?: Record<string, WidgetValueType>,
         passedParams?: Record<string, WidgetValueType>
     ) => {
-        const response = await executeWidget({
-            widgetDefinitionId,
-            variantId,
-            params: { ...params, ...passedParams },
-            context: {
-                ...context,
-                ...variables,
-            },
-            mode: props.mode === 'designer' ? 'MOCK' : 'LIVE',
-        });
+        setError('');
+        setLoading(true);
+        try {
+            const response = await executeWidget({
+                widgetDefinitionId,
+                variantId,
+                params: { ...params, ...passedParams },
+                context: {
+                    ...context,
+                    ...variables,
+                },
+                mode: props.mode === 'designer' ? 'MOCK' : 'LIVE',
+            });
 
-        setResult(response?.result ?? {});
+            setResult(response?.result ?? {});
+        } catch (e: any) {
+            setError(e?.message ?? 'Widget execution failed');
+        } finally {
+            setLoading(false);
+        }
     };
     return (
         <WidgetRenderer

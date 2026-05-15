@@ -20,6 +20,7 @@ export const DRAM_COMMENT_WIDGET_KEY = 'dram.comment';
 export const DRAM_ENTITY_ID_KEY = 'dram.entity.id';
 export const DRAM_NOTE_TYPE_KEY = 'dram.note.type';
 export const DATE_SELECT_KEY = 'common.date';
+export const COMMON_DATE_GRID_ROW_KEY = 'common.data.grid.row';
 export enum DateFormatEnum {
     DAY = 'day',
     MONTH = 'month',
