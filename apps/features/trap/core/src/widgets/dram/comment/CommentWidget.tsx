@@ -7,7 +7,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useUserInfo } from '../../../../../../../../packages/utils/src/hooks/Authentication/user-info-context';
 import { useGetWidgetValue } from '../../../state/Widgets/hooks';
-import { DRAM_ENTITY_ID_KEY, DRAM_NOTE_TYPE_KEY } from '../../constants';
+import { DRAM_ENTITY_ID_KEY } from '../../constants';
 import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState';
 const EMPTY_EDITOR = `<p></p>`;
 
@@ -25,7 +25,7 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
         key: DRAM_ENTITY_ID_KEY,
     });
     const selectedNoteType = widgetInstance?.config?.params?.noteType;
-    
+
     useEffect(() => {
         if (selectedEntityId && selectedNoteType) {
             execute?.(
