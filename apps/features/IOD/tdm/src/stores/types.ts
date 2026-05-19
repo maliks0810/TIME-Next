@@ -1,5 +1,6 @@
 import { IESGFields, ISecurityAttachmentData, ISecurityDetails, ISpeedOverrides, ITradeFields, SecuritySetupStep } from '../pages/security-setup/lib/types/securitySetupTypes';
 import { ISecuritySetupRequestAttachment, ISecuritySetupWizardPayload } from '../services/domain-objects/SecuritySetupRequestPayload';
+import { IUserIdentity } from '../services/domain-objects/UserIdentityResponse';
 
 export interface SecuritySetupState {
   // identity / audit fields
@@ -53,6 +54,9 @@ export interface SecuritySetupState {
   pendingUploadFiles: File[];
   isUploadingFile: boolean;
   fileUploadError: string | null;
+
+  // current user identity
+  userIdentity: IUserIdentity | null;
 }
 
 export type IdentifierFieldsPatch = Partial<Pick<SecuritySetupState,
@@ -86,4 +90,5 @@ export interface SecuritySetupActions {
   openConfirmModal: () => void;
   closeConfirmModal: () => void;
   resetWizard: () => void;
+  setUserIdentity: (identity: IUserIdentity) => void;
 }

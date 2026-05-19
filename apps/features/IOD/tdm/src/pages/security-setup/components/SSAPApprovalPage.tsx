@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
-import { useSsapFields } from '../../../stores/selectors/securitySetupSelectors';
+import { useSsapFields, useHasDmRole } from '../../../stores/selectors/securitySetupSelectors';
 import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
 
 interface SSAPApprovalPageProps {
@@ -13,10 +13,11 @@ interface SSAPApprovalPageProps {
 export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
   onProceedToReview,
   onBack,
-  isSaving
+  isSaving,
 }) => {
   const { isSsapReleasedByDm, isReadOnly } = useSsapFields();
   const { updateIdentifierFields } = useSecuritySetupStore();
+  const hasDmRole = useHasDmRole();
 
   const isSsapApproved = !!isSsapReleasedByDm;
 
@@ -46,7 +47,7 @@ export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
               variant="contained"
               className="approve-ssap-button button"
               onClick={handleRequestRelease}
-              disabled={isSaving || isReadOnly || isSsapApproved}
+              disabled={isSaving || isReadOnly || isSsapApproved || !hasDmRole}
             >
               SSAP Security Released
             </Button>

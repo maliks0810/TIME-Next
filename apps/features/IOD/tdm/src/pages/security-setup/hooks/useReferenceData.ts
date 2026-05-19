@@ -9,7 +9,7 @@ interface UseReferenceDataResult {
     refresh: () => Promise<void>;
 }
 
-export const useReferenceData = (): UseReferenceDataResult => {
+export const useReferenceData = (): UseReferenceDataResult  => {
     const [data, setData] = useState<INormalizedReferenceData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
