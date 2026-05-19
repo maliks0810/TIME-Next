@@ -82,7 +82,7 @@ plop.setGenerator('app', {
             type: 'list',
             name: 'team',
             message: 'Select your Team',
-            choices: ['PE', 'R2', 'IOD']
+            choices: ['PE', 'R2', 'IOD','DE']
         },
         {
             type: 'input',

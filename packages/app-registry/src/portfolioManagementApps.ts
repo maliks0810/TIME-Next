@@ -146,5 +146,18 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         component: lazy(() => import('@IOD/bskt-composition/src/App')),
         description: '',
     },
+    {
+        type: 'internal',
+        header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.AladdinPortfolioManagement,
+        id: 'dqm',
+        name: 'dqm',
+        title: 'Data Quality Management',
+        env: HighestEnv.prod,
+        path: '/DE/dqm/',
+        team: 'DE',
+        component: lazy(() => import('@DE/dqm/src/App')),
+        description: '',
+    },
     // PLOP_INJECT_APP
 ]
