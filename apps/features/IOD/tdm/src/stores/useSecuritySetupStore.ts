@@ -48,7 +48,9 @@ const INITIAL_STATE: SecuritySetupState = {
   // file upload
   pendingUploadFiles: [],
   isUploadingFile: false,
-  fileUploadError: null
+  fileUploadError: null,
+  // current user
+  userIdentity: null
 }
 
 const computeCompletedSteps = (
@@ -188,7 +190,9 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
 
     closeConfirmModal: () => set({ showConfirmModal: false }),
 
-    resetWizard: () => set(INITIAL_STATE)
+    resetWizard: () => set(INITIAL_STATE),
+
+    setUserIdentity: (identity) => set({ userIdentity: identity })
   })
 )
 
