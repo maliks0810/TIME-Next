@@ -7,7 +7,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useUserInfo } from '../../../../../../../../packages/utils/src/hooks/Authentication/user-info-context';
 import { useGetWidgetValue } from '../../../state/Widgets/hooks';
-import { DRAM_ENTITY_ID_KEY, DRAM_NOTE_TYPE_KEY } from '../../constants';
+import { COMMON_DATE_GRID_ROW_KEY } from '../../constants';
 import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState';
 const EMPTY_EDITOR = `<p></p>`;
 
@@ -20,22 +20,22 @@ export type Note = {
 export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetComponentProps) => {
     // Widget context
 
-    const selectedEntityId = useGetWidgetValue({
+    const selectedEntity = useGetWidgetValue({
         channelId: widgetInstance?.config?.params?.channel,
-        key: DRAM_ENTITY_ID_KEY,
+        key: COMMON_DATE_GRID_ROW_KEY,
     });
-    const selectedNoteType = useGetWidgetValue({
-        channelId: widgetInstance?.config?.params?.channel,
-        key: DRAM_NOTE_TYPE_KEY,
-    });
+    const selectedNoteType = widgetInstance?.config?.params?.noteType;
     useEffect(() => {
-        if (selectedEntityId && selectedNoteType) {
+        if (selectedEntity && selectedNoteType) {
             execute?.(
                 {},
-                { entityId: selectedEntityId as string, noteType: selectedNoteType as string }
+                {
+                    entityId: (selectedEntity as Record<string, string>).portfolioNumber,
+                    noteType: selectedNoteType as string,
+                }
             );
         }
-    }, [selectedEntityId, selectedNoteType]);
+    }, [selectedEntity, selectedNoteType]);
 
     // Widget state
     const [notes, setNotes] = useState<Note[]>(() => {
@@ -63,7 +63,7 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
         const newComment = {
             noteText: content,
             createdBy: name || 'unknown',
-            entityId: selectedEntityId as string,
+            entityId: (selectedEntity as Record<string, string>).portfolioNumber,
             entityType: selectedNoteType as string,
         };
         setNotes((prev) => [...prev, newComment]);
@@ -85,7 +85,7 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
         ));
     }, [notes]);
 
-    if (!selectedEntityId) {
+    if (!selectedEntity) {
         <WidgetCardShell>
             <WidgetErrorState message={'Entity not selected'} />
         </WidgetCardShell>;

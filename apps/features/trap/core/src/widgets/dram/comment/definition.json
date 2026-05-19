@@ -21,9 +21,14 @@
                 "enum": ["dram.comment.history"],
                 "title": "Schema key",
                 "type": "string"
+            },
+            "noteType": {
+                "enum": ["PAGR", "PABM", "PANET"],
+                "title": "Note type",
+                "type": "string"
             }
         },
-        "required": ["schemaKey"],
+        "required": ["schemaKey", "noteType"],
         "type": "object"
     },
     "uiHints": {
@@ -49,6 +54,18 @@
                 "defaultW": 6,
                 "defaultH": 78,
                 "minW": 6,
+                "minH": 78,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "full-width",
+            "label": "Full Width",
+            "grid": {
+                "defaultW": 12,
+                "defaultH": 78,
+                "minW": 12,
                 "minH": 78,
                 "maxW": null,
                 "maxH": null
