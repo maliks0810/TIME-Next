@@ -87,7 +87,10 @@ export type WidgetComponentProps = {
     mode: WidgetRenderMode;
     onPublishContext?: (key: string, value: any, sourceWidgetId?: string) => void;
     uiActions?: WidgetUIActions;
-    execute?: (variables: Record<string, WidgetValueType>, params?: Record<string, string>) => void;
+    execute?: (
+        variables?: Record<string, WidgetValueType>,
+        params?: Record<string, string>
+    ) => void;
 };
 
 export type WidgetRegistryEntry = {
