@@ -209,9 +209,9 @@ export default function WorkflowLauncherModal(props: Props) {
     }, [isCreatingLanding]);
 
     const leftNavItems: Array<{ key: LauncherMode; label: string; icon: React.ReactNode }> = [
-        { key: 'new', label: 'New Workflow', icon: <PlusOutlined /> },
-        { key: 'public', label: 'Public Workflows', icon: <AppstoreOutlined /> },
-        { key: 'mine', label: 'My Workflows', icon: <FolderOpenOutlined /> },
+        { key: 'new', label: 'New Workspace', icon: <PlusOutlined /> },
+        { key: 'public', label: 'Public Workspace', icon: <AppstoreOutlined /> },
+        { key: 'mine', label: 'My Workspace', icon: <FolderOpenOutlined /> },
         { key: 'landing', label: 'Landing', icon: <FolderOpenOutlined /> },
     ];
 
@@ -268,11 +268,11 @@ export default function WorkflowLauncherModal(props: Props) {
                 `designer?templateId=${encodeURIComponent(String(tpl.id))}&versionId=${encodeURIComponent(String(tv.id))}`
             );
         } catch (err: any) {
-            const raw = err?.message || err?.response?.body?.error || 'Failed to create workflow';
+            const raw = err?.message || err?.response?.body?.error || 'Failed to create workspace';
 
             if (String(raw).toLowerCase().includes('already exists')) {
                 setCreateError(
-                    'That workflow name is already taken for this Class-1 / Class-2 / Class-3 combination.'
+                    'That workspace name is already taken for this Class-1 / Class-2 / Class-3 combination.'
                 );
             } else {
                 setCreateError(String(raw));
@@ -288,10 +288,10 @@ export default function WorkflowLauncherModal(props: Props) {
                 return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         <Typography.Title level={5} style={{ margin: 0 }}>
-                            New Workflow
+                            New Workspace
                         </Typography.Title>
                         <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                            Define the workflow first, then create the draft and open Designer.
+                            Define the workspace first, then create the draft and open Designer.
                         </Typography.Text>
                     </div>
                 );
@@ -316,7 +316,7 @@ export default function WorkflowLauncherModal(props: Props) {
                                 Classification
                             </Typography.Title>
                             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                                Shared workflows grouped by Class-1, Class-2, and Class-3.
+                                Shared workspaces grouped by Class-1, Class-2, and Class-3.
                             </Typography.Text>
                         </div>
 
@@ -406,7 +406,7 @@ export default function WorkflowLauncherModal(props: Props) {
                             Filters
                         </Typography.Title>
                         <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                            Narrow your workflows by lifecycle and visibility.
+                            Narrow your workspaces by lifecycle and visibility.
                         </Typography.Text>
                         <Segmented
                             block
@@ -427,7 +427,7 @@ export default function WorkflowLauncherModal(props: Props) {
 
     const renderList = (mode: LauncherMode) => {
         if (loading)
-            return <Typography.Text type="secondary">Loading workflows...</Typography.Text>;
+            return <Typography.Text type="secondary">Loading workspaces...</Typography.Text>;
         switch (mode) {
             case 'landing': {
                 return (
@@ -508,7 +508,7 @@ export default function WorkflowLauncherModal(props: Props) {
             case 'public':
                 {
                     if (publicWorkflowItems.length === 0)
-                        return <Empty description="No workflows found" />;
+                        return <Empty description="No workspaces found" />;
                 }
                 return publicWorkflowItems.map((item) => (
                     <WorkflowLauncherCard
@@ -532,7 +532,7 @@ export default function WorkflowLauncherModal(props: Props) {
                 ));
 
             case 'mine': {
-                if (myWorkflowItems.length === 0) return <Empty description="No workflows found" />;
+                if (myWorkflowItems.length === 0) return <Empty description="No workspaces found" />;
                 return myWorkflowItems.map((item) => (
                     <WorkflowLauncherCard
                         key={item.templateId}
@@ -606,10 +606,10 @@ export default function WorkflowLauncherModal(props: Props) {
                     </div>
                     <div>
                         <Typography.Title level={4} style={{ margin: 0, color: titleColor }}>
-                            Launch Workflow
+                            Launch Workspace
                         </Typography.Title>
                         <Typography.Text style={{ color: secondaryTextColor }}>
-                            Start fresh, use a shared workflow, or manage one of your own.
+                            Start fresh, use a shared workspace, or manage one of your own.
                         </Typography.Text>
                     </div>
                 </Space>
@@ -634,7 +634,7 @@ export default function WorkflowLauncherModal(props: Props) {
                 >
                     <Input.Search
                         allowClear
-                        placeholder="Search workflows"
+                        placeholder="Search workspaces"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -692,7 +692,7 @@ export default function WorkflowLauncherModal(props: Props) {
                             }}
                         >
                             <Typography.Title level={5} style={{ margin: 0 }}>
-                                + New Workflow
+                                + New Workspace
                             </Typography.Title>
 
                             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
@@ -711,7 +711,7 @@ export default function WorkflowLauncherModal(props: Props) {
                                 <Input
                                     value={createName}
                                     onChange={(e) => setCreateName(e.target.value)}
-                                    placeholder="Workflow name"
+                                    placeholder="Workspace name"
                                     style={{ marginTop: 6 }}
                                 />
                             </div>
@@ -728,7 +728,7 @@ export default function WorkflowLauncherModal(props: Props) {
                                         onChange={(v: 'landing' | 'workflow') => setCreateKind(v)}
                                         style={{ width: '100%', marginTop: 6 }}
                                         options={[
-                                            { value: 'workflow', label: 'Workflow' },
+                                            { value: 'workflow', label: 'Workspace' },
                                             { value: 'landing', label: 'Landing' },
                                         ]}
                                     />
@@ -847,7 +847,7 @@ export default function WorkflowLauncherModal(props: Props) {
                                     disabled={createDisabled}
                                     onClick={handleCreateWorkflow}
                                 >
-                                    Create Workflow
+                                    Create Workspace
                                 </Button>
                             </Space>
                         </div>
@@ -856,24 +856,24 @@ export default function WorkflowLauncherModal(props: Props) {
                             <div style={{ marginBottom: 12 }}>
                                 <Typography.Title level={5} style={{ margin: 0 }}>
                                     {mode === 'public'
-                                        ? 'Public Workflows'
+                                        ? 'Public Workspaces'
                                         : mode === 'landing'
                                           ? 'Landing'
-                                          : 'My Workflows'}
+                                          : 'My Workspaces'}
                                 </Typography.Title>
                                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
                                     {mode === 'public'
-                                        ? 'Launch or clone shared workflows.'
+                                        ? 'Launch or clone shared workspaces.'
                                         : mode === 'landing'
                                           ? 'Activate the Landing template that should drive the Home tab.'
-                                          : 'Launch, edit, clone, rename, publish, change visibility, or delete workflows you own.'}
+                                          : 'Launch, edit, clone, rename, publish, change visibility, or delete workspaces you own.'}
                                 </Typography.Text>
                                 {mode === 'public' ? (
                                     <Typography.Text
                                         type="secondary"
                                         style={{ fontSize: 12, display: 'block', marginTop: 4 }}
                                     >
-                                        Showing {publicWorkflowItems.length} workflow
+                                        Showing {publicWorkflowItems.length} workspace
                                         {publicWorkflowItems.length === 1 ? '' : 's'}
                                     </Typography.Text>
                                 ) : null}

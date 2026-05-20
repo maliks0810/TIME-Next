@@ -146,7 +146,7 @@ export default function TrapLandingPage() {
                 newParams.set('version_id', selection.templateVersionId);
                 setSearchParams(newParams);
             } catch (e: any) {
-                message.error(e?.message ?? 'Failed to launch workflow');
+                message.error(e?.message ?? 'Failed to launch workspace');
             }
         },
         [addWorkflowTab]
