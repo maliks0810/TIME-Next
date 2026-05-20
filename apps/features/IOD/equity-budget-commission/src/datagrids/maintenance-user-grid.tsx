@@ -12,6 +12,7 @@ import DataGrid, {
   Lookup,
   FilterRow,
   Scrolling,
+  RequiredRule,
 } from 'devextreme-react/data-grid';
 import CheckBox from 'devextreme-react/check-box';
 import { MaintenanceUser } from '../datatypes/budget-maintenance-types';
@@ -21,6 +22,8 @@ import { useUsers } from '../hooks/useUserData';
 import TabPanel, { Item as TabItem } from 'devextreme-react/tab-panel';
 import { ToastConfig, ToastType } from '../components/toast-config';
 import { Item as FormItem } from 'devextreme-react/form';
+import { ValidationMessage } from '../components/validations-message';
+
 import './styles.scss';
 import 'devextreme/dist/css/dx.light.css';
 import 'devextreme/dist/css/dx.light.compact.css';
@@ -205,8 +208,12 @@ const MaintenanceUserGrid: React.FC = () => {
 
               <Column dataField="userId" caption="Id" formItem={{ visible: false }} allowEditing={false} visible={false} dataType="number" />
               <Column dataField="userName" caption="User Name" formItem={{ visible: false }} width="15%" dataType="string" />
-              <Column dataField="firstName" caption="First Name" width="10%" dataType="string" />
-              <Column dataField="lastName" caption="Last Name" width="10%" dataType="string" />
+              <Column dataField="firstName" caption="First Name" width="10%" dataType="string" >
+                  <RequiredRule message={ValidationMessage.RequiredField} />          
+              </Column>
+              <Column dataField="lastName" caption="Last Name" width="10%" dataType="string" >
+                  <RequiredRule message={ValidationMessage.RequiredField} />          
+              </Column>
               <Column
                 dataField="status"
                 caption="Status"
@@ -218,14 +225,17 @@ const MaintenanceUserGrid: React.FC = () => {
 
               <Column dataField="departmentId" caption="Department" width="15%" dataType="string">
                 <Lookup dataSource={departments} valueExpr="departmentId" displayExpr="departmentName" />
+                <RequiredRule message={ValidationMessage.RequiredField} />          
               </Column>
 
               <Column dataField="divisionId" caption="Division" width="15%" dataType="string">
                 <Lookup dataSource={divisions} valueExpr="divisionId" displayExpr="divisionName" />
+                <RequiredRule message={ValidationMessage.RequiredField} />          
               </Column>
 
               <Column dataField="locationCode" caption="Location" width="10%" dataType="string">
                 <Lookup dataSource={locations} valueExpr="locationCode" displayExpr="locationDescription" />
+                <RequiredRule message={ValidationMessage.RequiredField} />          
               </Column>
 
               <Column
@@ -238,8 +248,12 @@ const MaintenanceUserGrid: React.FC = () => {
                 dataType="date"
                 format="MM/dd/yyyy hh:mm a"
               />
-              <Column dataField="startDate" caption="Start Date" visible={false} allowFiltering={false} dataType="date" format="MM/dd/yyyy" />
-              <Column dataField="endDate" caption="End Date" visible={false} allowFiltering={false} dataType="date" format="MM/dd/yyyy" />
+              <Column dataField="startDate" caption="Start Date" visible={false} allowFiltering={false} dataType="date" format="MM/dd/yyyy" >
+                  <RequiredRule message={ValidationMessage.RequiredField} />          
+              </Column>
+              <Column dataField="endDate" caption="End Date" visible={false} allowFiltering={false} dataType="date" format="MM/dd/yyyy" >
+                  <RequiredRule message={ValidationMessage.RequiredField} />          
+              </Column>
               <Column dataField="lastUpdateBy" formItem={{ visible: false }} caption="Last Update By" allowEditing={false} width="8%" dataType="string" />
               <Column dataField="active" visible={false} />
 

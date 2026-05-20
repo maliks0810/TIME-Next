@@ -311,10 +311,12 @@ const MaintenanceBrokerGroupGrid = () => {
 
                 <Column dataField="brokerGroupId" caption="Broker Group" width="30%">
                   <Lookup dataSource={brokerGroups} valueExpr="brokerGroupId" displayExpr="brokerGroupName"/>
+                  <RequiredRule message={ValidationMessage.RequiredField} />                  
                 </Column>
 
                 <Column dataField="brokerCode" caption="Broker Code" width="20%">
                   <Lookup dataSource={brokers} valueExpr="brokerCode" displayExpr="brokerCode"/>
+                  <RequiredRule message={ValidationMessage.RequiredField} />                  
                 </Column>
 
                 <Column dataField="brokerCode" caption="Broker Name" width="40%">

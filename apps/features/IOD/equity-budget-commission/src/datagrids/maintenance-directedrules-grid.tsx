@@ -341,7 +341,9 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                   <RequiredRule message={ValidationMessage.RequiredField} />
                 </Column>
 
-                <Column dataField="directedRulesName" caption="Name" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="40%" allowSorting={true} dataType="string" />                
+                <Column dataField="directedRulesName" caption="Name" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="40%" allowSorting={true} dataType="string" >
+                  <RequiredRule message={ValidationMessage.RequiredField} />                  
+                </Column>                
                 <Column dataField="comment" caption="Comments" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="20%" allowSorting={true} dataType="string" />
                 <Column dataField="budgetPercent" caption="Budget (%)" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="15%" allowSorting={true} dataType="number" alignment='left'>
                   <NumericRule ignoreEmptyValue={true} type="numeric" />
@@ -445,17 +447,22 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                   <Column dataField="directedRulesXRefId" caption="Directed Rules Xref" visible={false} formItem={{visible:false}}/>
                   <Column dataField="directedRulesId" caption="Directed Rules" width="30%" dataType="number" >
                     <Lookup dataSource={directedRules} valueExpr="directedRulesId" displayExpr="directedRulesName"/>
+                    <RequiredRule message={ValidationMessage.RequiredField} />                  
                   </Column>                    
-                  <Column dataField="year" caption="Year" width="8%" alignment="left"/>
+                  <Column dataField="year" caption="Year" width="8%" alignment="left" >
+                    <RequiredRule message={ValidationMessage.RequiredField} />                  
+                  </Column>
                   <Column dataField="accountCode" caption="Portfolio" width="15%">
                     <Lookup dataSource={portfolios} valueExpr="portfolioCode" displayExpr="portfolioCode"/>
+                    <RequiredRule message={ValidationMessage.RequiredField} />                  
                   </Column>
                   <Column dataField="brokerCode" caption="Broker" width="15%" dataType="string" >
                     <Lookup dataSource={brokers} valueExpr="brokerCode" displayExpr="brokerCode"/>
+                    <RequiredRule message={ValidationMessage.RequiredField} />                  
                   </Column>
                   <Column dataField="lastUpdateDt" caption="Last Update Dt" width="15%" allowFiltering={false} allowEditing={false} 
                     dataType="date" format="MM/dd/yyyy hh:mm a" formItem={{visible:false}} />
-                  <Column dataField="lastUpdateBy" caption="Last Update By" width="12%" allowFiltering={false}
+                  <Column dataField="lastUpdateBy" caption="Last Update By" width="12%" allowFiltering={true}
                     formItem={{visible:false}} />
                   
                   <Column type="buttons" width="5%">

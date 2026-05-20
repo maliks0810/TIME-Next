@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import DataGrid, { Column, Editing, Popup, Selection, Button, Form, Item, Toolbar,LoadPanel, FilterRow, Scrolling, DataGridTypes} from 'devextreme-react/data-grid';
+import DataGrid, { Column, Editing, Popup, Selection, Button, Form, Item, Toolbar,LoadPanel, FilterRow, Scrolling, DataGridTypes, RequiredRule} from 'devextreme-react/data-grid';
 import CheckBox from 'devextreme-react/check-box';
 import { MaintenanceDivision } from '../datatypes/budget-maintenance-types';
 import { useDivisions} from '../hooks/useDivisionData';
@@ -7,6 +7,7 @@ import { useUserInfo } from '@platform/utils';
 import { Toast } from 'devextreme-react/toast';
 import { ToastConfig, ToastType} from '../components/toast-config'
 import { Item as FormItem } from 'devextreme-react/form';
+import { ValidationMessage } from '../components/validations-message';
 import './styles.scss';
 
 // Exported handlers for isolated testing  
@@ -147,7 +148,7 @@ const MaintenanceDivisionGrid: React.FC = () => {
           allowDeleting={true}
           useIcons={true}
         >
-          <Popup showTitle={true} title={popupTitle} width="30%" height="20%" wrapperAttr= {{ className:'custom-popup-class' }} />
+          <Popup showTitle={true} title={popupTitle} width="30%" height="25%" wrapperAttr= {{ className:'custom-popup-class' }} />
           <Form colCount={1} width="90%">
               <FormItem dataField="active" label={{text:"Active"}} editorType="dxCheckBox" />
               <FormItem name="divisionName" />
@@ -157,7 +158,9 @@ const MaintenanceDivisionGrid: React.FC = () => {
         <Selection mode="single" selectByClick={true} />
 
         <Column dataField="divisionId" caption= "Division Id" allowFiltering={false} allowEditing={false} width= "10%" allowSorting={true} alignment="left" dataType="number"/>   /
-        <Column dataField="divisionName" caption= "Division Name" allowFiltering={true}  width= "35%" allowSorting={true} dataType="string"/>   
+        <Column dataField="divisionName" caption= "Division Name" allowFiltering={true}  width= "35%" allowSorting={true} dataType="string">
+            <RequiredRule message={ValidationMessage.RequiredField} />          
+        </Column>
         <Column dataField="status" caption= "Status" width= "10%" allowFiltering={true} allowSorting={true} dataType="string" filterOperations={["startswith","="]} cellRender={renderStatusCellCallback}/>   
         <Column dataField="lastUpdateDate" caption= "Last Update Dt" allowFiltering={false} allowEditing={false} width= "20%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a"/>   
         <Column dataField="lastUpdateBy" caption= "Last Update By" allowFiltering={true} allowEditing={false} width= "20%" allowSorting={true} dataType="string"/>    
