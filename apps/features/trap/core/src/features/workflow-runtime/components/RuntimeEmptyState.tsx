@@ -8,8 +8,8 @@ type RuntimeEmptyStateProps = {
 
 export default function RuntimeEmptyState(props: RuntimeEmptyStateProps) {
     if (props.loadingWorkflow && !props.hasLayout) {
-        return <Alert type="info" showIcon message="Loading workspace..." />;
+        return <Alert type="info" showIcon message="Loading workflow..." />;
     }
 
-    return <Alert type="warning" showIcon message="No saved layout found for this workspace" />;
+    return <Alert type="warning" showIcon message="No saved layout found for this workflow" />;
 }

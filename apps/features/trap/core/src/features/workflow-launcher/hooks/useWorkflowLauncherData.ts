@@ -45,7 +45,7 @@ function toFriendlyTemplateError(err: any, fallback: string) {
     const raw = String(extractErrorMessage(err, fallback));
 
     if (raw.toLowerCase().includes('already exists')) {
-        return 'That workspace name is already taken for this Class-1 / Class-2 / Class-3 combination.';
+        return 'That workflow name is already taken for this Class-1 / Class-2 / Class-3 combination.';
     }
 
     return raw;
@@ -119,7 +119,7 @@ export function useWorkflowLauncherData(args: Args) {
 
             setItems(nextItems);
         } catch (err: any) {
-            message.error(extractErrorMessage(err, 'Failed to load workspaces'));
+            message.error(extractErrorMessage(err, 'Failed to load workflows'));
         } finally {
             setLoading(false);
         }
@@ -305,7 +305,7 @@ export function useWorkflowLauncherData(args: Args) {
 
                 closeModal();
             } catch (err: any) {
-                message.error(extractErrorMessage(err, 'Failed to open workspace for editing'));
+                message.error(extractErrorMessage(err, 'Failed to open workflow for editing'));
             }
         },
         [onEditWorkflow, refreshLauncherData, closeModal]
@@ -333,9 +333,9 @@ export function useWorkflowLauncherData(args: Args) {
                     return;
                 }
 
-                message.success('Workspace cloned');
+                message.success('Workflow cloned');
             } catch (err: any) {
-                message.error(toFriendlyTemplateError(err, 'Failed to clone workspace'));
+                message.error(toFriendlyTemplateError(err, 'Failed to clone workflow'));
             }
         },
         [onEditWorkflow, refreshLauncherData, closeModal]
@@ -343,15 +343,15 @@ export function useWorkflowLauncherData(args: Args) {
 
     const renameItem = React.useCallback(
         async (item: WorkflowLauncherItem) => {
-            const nextName = window.prompt('Rename workspace', item.templateName)?.trim();
+            const nextName = window.prompt('Rename workflow', item.templateName)?.trim();
             if (!nextName || nextName === item.templateName) return;
 
             try {
                 await updateTemplate({ templateId: item.templateId, name: nextName });
                 await refreshLauncherData();
-                message.success('Workspace renamed');
+                message.success('Workflow renamed');
             } catch (err: any) {
-                message.error(toFriendlyTemplateError(err, 'Failed to rename workspace'));
+                message.error(toFriendlyTemplateError(err, 'Failed to rename workflow'));
             }
         },
         [refreshLauncherData]
@@ -364,9 +364,9 @@ export function useWorkflowLauncherData(args: Args) {
             try {
                 await publishTemplateVersion(item.templateId, item.latestDraft.id);
                 await refreshLauncherData();
-                message.success('Workspace published');
+                message.success('Workflow published');
             } catch (err: any) {
-                message.error(extractErrorMessage(err, 'Failed to publish workspace'));
+                message.error(extractErrorMessage(err, 'Failed to publish workflow'));
             }
         },
         [refreshLauncherData]
@@ -382,8 +382,8 @@ export function useWorkflowLauncherData(args: Args) {
                 await refreshLauncherData();
                 message.success(
                     item.visibility === 'PUBLIC'
-                        ? 'Workspace is now private'
-                        : 'Workspace is now public'
+                        ? 'Workflow is now private'
+                        : 'Workflow is now public'
                 );
             } catch (err: any) {
                 message.error(toFriendlyTemplateError(err, 'Failed to update visibility'));
@@ -397,9 +397,9 @@ export function useWorkflowLauncherData(args: Args) {
             try {
                 await deleteTemplate(item.templateId);
                 await refreshLauncherData();
-                message.success('Workspace deleted');
+                message.success('Workflow deleted');
             } catch (err: any) {
-                message.error(extractErrorMessage(err, 'Failed to delete workspace'));
+                message.error(extractErrorMessage(err, 'Failed to delete workflow'));
             }
         },
         [refreshLauncherData]
