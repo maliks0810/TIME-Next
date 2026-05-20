@@ -305,14 +305,14 @@ return (
                   data-testid="popup"  
                   showTitle={true}  
                   title={popupTitle}  
-                  width="35%"  
+                  width="30%"  
                   height="35%" 
                   wrapperAttr={{ className: 'custom-popup-class' }}  
                 />  
                 <div className='div-container-center'>
                   <Form colCount={1} width="90%">
                     <FormItem dataField="active" label={{text:"Active"}} editorType="dxCheckBox" />                    
-                    <FormItem dataField="portfolioCode" editorType="dxTextBox" />
+                    <FormItem dataField="portfolioCode" editorType="dxTextBox" cssClass='textInput-popup'/>
                     <FormItem dataField="portfolioName" editorType="dxTextBox" />
                     <FormItem dataField="departmentId" editorType="dxSelectBox" cssClass="dx-common-selectbox" />
                   </Form>  
@@ -331,7 +331,8 @@ return (
                 <RequiredRule message={ValidationMessage.RequiredField} />
               </Column>
               <Column dataField="departmentId" caption="Department" allowFiltering={true} width="20%" allowSorting={true} dataType="string" >  
-                <Lookup dataSource={departments} valueExpr="departmentId" displayExpr="departmentName" />  
+                <Lookup dataSource={departments} valueExpr="departmentId" displayExpr="departmentName" /> 
+                <RequiredRule message={ValidationMessage.RequiredField} /> 
               </Column>
               <Column dataField="divisionId" caption="Division" formItem={{visible:false}} allowFiltering={true} width="15%" allowSorting={true} dataType="string" >  
                 <Lookup dataSource={divisions} valueExpr="divisionId" displayExpr="divisionName" />  
@@ -403,13 +404,15 @@ return (
               </Editing>  
 
               <Column dataField="portfolioGroupId" caption="Portfolio Group Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >  
-                <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupName" />  
+                <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupName" />
+                <RequiredRule message={ValidationMessage.RequiredField} />
               </Column>
               <Column dataField="portfolioGroupId" caption="Portfolio Group Code" width="20%" allowFiltering={false} allowSorting={true} dataType="string" >  
                 <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupCode" />  
               </Column>              
               <Column dataField="portfolioId" caption="Portfolio Code" width="15%" allowFiltering={false} allowSorting={true} alignment="left" dataType="string" >
                 <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioCode" />
+                <RequiredRule message={ValidationMessage.RequiredField} />
               </Column>  
               <Column dataField="portfolioId" caption="Portfolio Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >
                 <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioName" />

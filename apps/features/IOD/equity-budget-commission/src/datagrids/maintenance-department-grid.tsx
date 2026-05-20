@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import DataGrid, {Column,Editing,Popup,Selection,Button,Form,Item,Toolbar,LoadPanel,Lookup,FilterRow,Scrolling,DataGridTypes
+import DataGrid, {Column,Editing,Popup,Selection,Button,Form,Item,Toolbar,LoadPanel,Lookup,FilterRow,Scrolling,DataGridTypes, RequiredRule
       } from 'devextreme-react/data-grid';
 import CheckBox from 'devextreme-react/check-box';
 import { MaintenanceDepartment } from '../datatypes/budget-maintenance-types';
@@ -8,6 +8,7 @@ import { Toast } from 'devextreme-react/toast';
 import { ToastConfig, ToastType } from '../components/toast-config';
 import { useDepartments } from '../hooks/useDepartmentData';
 import { Item as FormItem } from 'devextreme-react/form';
+import { ValidationMessage } from '../components/validations-message';
 import './styles.scss';
 
 const onRowDblClickHandler = (e: DataGridTypes.RowDblClickEvent) => {
@@ -170,7 +171,9 @@ return (
           allowFiltering={true}  
           allowSorting={true}  
           dataType="string"  
-        />  
+        >
+          <RequiredRule message={ValidationMessage.RequiredField} />
+        </Column>
         <Column  
           dataField="divisionId"  
           caption="Division"  
@@ -179,7 +182,8 @@ return (
           allowSorting={true}  
           dataType="string"  
         >  
-          <Lookup dataSource={divisions} valueExpr="divisionId" displayExpr="divisionName" />  
+          <Lookup dataSource={divisions} valueExpr="divisionId" displayExpr="divisionName" />
+          <RequiredRule message={ValidationMessage.RequiredField} />
         </Column>  
         <Column  
           dataField="status"  

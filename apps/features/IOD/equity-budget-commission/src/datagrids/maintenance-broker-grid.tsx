@@ -1,5 +1,5 @@
 import { useState, useCallback} from 'react';
-import DataGrid, { Column, DataGridTypes, Editing, Popup, Selection, Button, Form, Item, Toolbar,LoadPanel, Lookup, FilterRow, Scrolling } from 'devextreme-react/data-grid';
+import DataGrid, { Column, DataGridTypes, Editing, Popup, Selection, Button, Form, Item, Toolbar,LoadPanel, Lookup, FilterRow, Scrolling, RequiredRule } from 'devextreme-react/data-grid';
 import CheckBox from 'devextreme-react/check-box';
 import { MaintenanceBroker } from '../datatypes/budget-maintenance-types';
 import { useUserInfo } from '@platform/utils';
@@ -7,6 +7,7 @@ import { Toast } from 'devextreme-react/toast';
 import { useBrokers} from '../hooks/useBrokerData';
 import { ToastConfig, ToastType} from '../components/toast-config'
 import { Item as FormItem } from 'devextreme-react/form';
+import { ValidationMessage } from '../components/validations-message';
 
 import './styles.scss';
 import 'devextreme/dist/css/dx.light.css';
@@ -171,10 +172,13 @@ const MaintenanceBrokerGrid: React.FC = () => {
         <Selection mode="single" selectByClick={true} />
 
         <Column  dataField="brokerId" caption= "Id" allowEditing={false} visible={false} allowSorting={true} alignment="left" dataType="number"/> 
-        <Column  dataField="brokerName" caption= "Broker Name"  width= "25%" allowFiltering={true} allowSorting={true} dataType="string"/>   
+        <Column  dataField="brokerName" caption= "Broker Name"  width= "25%" allowFiltering={true} allowSorting={true} dataType="string">
+            <RequiredRule message={ValidationMessage.RequiredField} />
+        </Column>   
         <Column  dataField="brokerCode" caption= "Broker Code" allowFiltering={true}  width= "10%" allowSorting={true} dataType="string"/>   
         <Column  dataField="masterBrokerId" caption= "Master Broker Name" allowFiltering={true} width= "25%" allowSorting={true} dataType="string">
             <Lookup dataSource={masterBrokers} valueExpr="masterBrokerId" displayExpr="masterBrokerName" />
+            <RequiredRule message={ValidationMessage.RequiredField} />
         </Column>   
         <Column  dataField="status" caption= "Status" width= "10%" allowFiltering={true} allowSorting={true} dataType="string" filterOperations={["startswith","="]} cellRender={renderStatusCellCallback}/>   
         <Column  dataField="lastUpdateDate" caption= "Last Update Dt" allowEditing={false} allowFiltering={false} width= "15%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a"/>   
