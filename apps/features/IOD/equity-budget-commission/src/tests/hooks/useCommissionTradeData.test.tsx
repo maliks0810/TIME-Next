@@ -8,8 +8,10 @@ import {
     fetchBrokerData,
     saveBatchUpdateChanges
 } from '../../services/commission-trade-service';
+import { fetchAdminUsers } from '../../services/admin-user-service';
 import { CommissionTrade } from '../../datatypes/tcw-commission-types';
 import { UserInfo } from '../../../../../../../packages/utils/src/hooks/Authentication/user-info';
+import { MaintenanceUser } from '@/datatypes/budget-maintenance-types';
 
 vi.mock('@platform/utils', () => ({
     useUserInfo: vi.fn(() => ({})),
@@ -21,6 +23,16 @@ vi.mock('../../services/commission-trade-service', () => ({
     fetchBrokerData: vi.fn(),
     saveBatchUpdateChanges: vi.fn(),
 }));
+
+vi.mock('../../services/admin-user-service', () => ({
+    fetchAdminUsers: vi.fn(),
+}));
+
+const mockUsers: MaintenanceUser[] = [
+    { userId: 1, userName: 'User,Test', firstName: 'Test', lastName:'User', locationCode: 'US', status: 'Active', active:true, lastUpdateBy:'User1', 
+        divisionId:1, departmentId:1, startDate:'01-01-2025', endDate:'12-31-2025', coopDptCode:0, coopStaffCode:0, costCenterCode:'', jobCode:'', admin:true  }  
+];
+
 const userInfo: UserInfo = { id:'test1', name: 'Test User', email:'Test@test.com', isAdmin:false };  
 
 const mockStartDate = new Date('2025-10-01');
@@ -136,6 +148,36 @@ describe('useCommissionTrade hook', () => {
 
         expect(fetchCommissionTrades).toHaveBeenCalledTimes(2);  
     });     
+
+    it('loads admin users data', async () => {  
+        vi.fn(fetchAdminUsers).mockResolvedValueOnce(mockUsers);  
+
+        const { result } = renderHook(() =>  
+            useCommissionTrade({userInfo, startDate:mockStartDate, endDate:mockEndDate})  
+        );  
+
+        await waitFor(() => {  
+            expect(result.current.isAdmin).toEqual(true);  
+        });  
+
+        expect(fetchAdminUsers).toHaveBeenCalledTimes(1);  
+    }); 
+    
+    it('handle error when fetch admin users data failed', async () => {  
+        vi.fn(fetchAdminUsers).mockRejectedValueOnce(  
+            new Error('Failed to fetch admin users data')  
+        );  
+
+        // Act  
+        await act(async () => { 
+            try { 
+                vi.fn(fetchAdminUsers).mockResolvedValueOnce([]);
+            } catch (err) {
+                expect(err).toBeInstanceOf(Error);  
+                expect(String(err)).toBe('Failed to fetch admin users data');
+            }
+        });
+    });
 
     it('updates begindate when handleFromDateChanged is called', async () => {  
         const { result } = renderHook(() =>  

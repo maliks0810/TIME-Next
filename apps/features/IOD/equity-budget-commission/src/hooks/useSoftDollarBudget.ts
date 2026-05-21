@@ -1,25 +1,26 @@
 import { useState, useEffect, useCallback } from 'react';
 import { NoTrailingForwardSlash } from '../utils/url-utils';
 import type { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info';
-import { fetchBrokers } from '../services/broker-service'
-import { fetchMasterBrokers } from '../services/master-broker-service'
-import { fetchDepartments } from '../services/department-service'
-import { fetchServices } from '../services/services-service'
+import { fetchBrokers } from '../services/broker-service';
+import { fetchMasterBrokers } from '../services/master-broker-service';
+import { fetchDepartments } from '../services/department-service';
+import { fetchServices } from '../services/services-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
 import type { SoftDollarBudget, RequestSoftDollarBudget, BudgetService, BudgetYear } from '../datatypes/research-budget-types';
 import { createSoftBudget, 
     updateSoftBudget, 
     deleteSoftBudget, 
     fetchSoftDollarBudgets, 
     generateYears,    
- } from '../services/softdollar-service'
+ } from '../services/softdollar-service';
 import { MaintenanceBroker, MaintenanceDepartment, MaintenanceMasterBroker } from '../datatypes/budget-maintenance-types';
 
 interface UseSoftDollarBudgetsProps {
-    userData: UserInfo;
+    userInfo: UserInfo;
     budgetYear: number;
 }
 
-export function useSoftDollarBudgets({ userData, budgetYear }: UseSoftDollarBudgetsProps) {
+export function useSoftDollarBudgets({ userInfo, budgetYear }: UseSoftDollarBudgetsProps) {
     const [softBudgetData, setSoftBudgetData] = useState<SoftDollarBudget[]>([]);
     const [loading, setLoading] = useState(false);
     const [departments, setDepartments] = useState<MaintenanceDepartment[]>([]);
@@ -28,8 +29,7 @@ export function useSoftDollarBudgets({ userData, budgetYear }: UseSoftDollarBudg
     const [services, setServices] = useState<BudgetService[]>([]);
     const [budgetYears, setBudgetYears] = useState<BudgetYear[]>();
     const currentYear = new Date().getFullYear();
-    //const [softBudgetDetail, setSoftBudgetDetail] = useState<SoftDollarBudgetDetail>();
-
+    const [isAdmin, setIsAdmin] = useState(false);
 
     // Construct the endpoint URL  
     const apiBaseUrl = NoTrailingForwardSlash(import.meta.env.VITE_IOD_CMS_SERVICE_URL);  
@@ -55,14 +55,14 @@ export function useSoftDollarBudgets({ userData, budgetYear }: UseSoftDollarBudg
             
             setSoftBudgetData(budgetData); 
             setSoftBudgetData(prev =>  {
-                    if(!prev){
-                        return [];
-                    }
-                    else{
-                        return prev.map(p => 
-                        ({ ...p, year: budgetYear }))  
-                    }
-                }); 
+                if(!prev){
+                    return [];
+                }
+                else{
+                    return prev.map(p => 
+                    ({ ...p, year: budgetYear }))  
+                }
+            }); 
             setDepartments(deptData);
             setBrokers(brokerData);
             setMstBrokers(mstBrokerData);
@@ -82,6 +82,16 @@ export function useSoftDollarBudgets({ userData, budgetYear }: UseSoftDollarBudg
 
     // Automatically load data whenever budgetYear changes.  
     useEffect(() => {  
+        const loadAdminData = async() => {
+            const [adminData] = await Promise.all([
+                fetchAdminUsers()
+            ]);
+            const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+            if(u){
+                setIsAdmin(true);
+            }
+        };        
+        loadAdminData();
         loadSoftDollarBudgetData().catch((err) => {  
             console.error('useSoftDollarBudgets load error:', err);  
         });  
@@ -96,7 +106,7 @@ export function useSoftDollarBudgets({ userData, budgetYear }: UseSoftDollarBudg
                 departmentId: values.departmentId ?? 0,
                 ratio: values.ratio ?? 0,
                 serviceId: values.serviceId ?? 0,
-                lastUpdateBy: userData.name ?? ""
+                lastUpdateBy: userInfo.name ?? ""
             }
             const newRecord = await createSoftBudget(newReq);  
             setSoftBudgetData((prev) => [...prev, newRecord]);  
@@ -121,7 +131,7 @@ export function useSoftDollarBudgets({ userData, budgetYear }: UseSoftDollarBudg
             departmentId: values.departmentId ?? 0,
             ratio: values.ratio ?? 0,
             serviceId: values.serviceId ?? 0,
-            lastUpdateBy: userData.name ?? ""
+            lastUpdateBy: userInfo.name ?? ""
         }
        
         const updatedRecord = await updateSoftBudget(updReq) ;
@@ -158,7 +168,6 @@ export function useSoftDollarBudgets({ userData, budgetYear }: UseSoftDollarBudg
         insertSoftDollarBudget,  
         updateSoftDollarBudget,  
         removeSoftDollarBudget,  
-        //loadSoftDollarBudgetDetails,
-        //softBudgetDetail
+        isAdmin,
     };  
 }

@@ -6,6 +6,7 @@ import {
   deleteDepartment,
   fetchDivisions
 } from '../services/department-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
 import {
   MaintenanceDepartment,
   MaintenanceDivision,
@@ -20,6 +21,7 @@ interface UseDepartmentsProps {
 export function useDepartments({ userInfo }: UseDepartmentsProps) {
   const [departments, setDepartments] = useState<MaintenanceDepartment[]>([]);
   const [divisions, setDivisions] = useState<MaintenanceDivision[]>([]);
+  const [isAdmin,setIsAdmin] = useState<boolean>(false);
 
   /** Normalize once */
   
@@ -46,6 +48,16 @@ export function useDepartments({ userInfo }: UseDepartmentsProps) {
 
   /** Initial load */
   useEffect(() => {
+    const loadAdminData = async() => {
+      const [adminData] = await Promise.all([
+        fetchAdminUsers()
+      ]);
+      const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+      if(u){
+        setIsAdmin(true);
+      }
+    };
+    loadAdminData();
     void reload();
   }, [reload]);
 
@@ -97,5 +109,6 @@ export function useDepartments({ userInfo }: UseDepartmentsProps) {
     addDepartment,
     modifyDepartment,
     removeDepartment,
+    isAdmin
   };
 }

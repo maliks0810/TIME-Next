@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { fetchCommissionTrades, fetchReasonCodes, fetchBrokerData, saveBatchUpdateChanges } from '../services/commission-trade-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
 import { CommissionTrade, CommissionTradeDetails, Reason, CRBrokerMapping, CRBrokers, CommissionTradeBatchRequestDto } from '../datatypes/tcw-commission-types';
 import { DateBoxTypes } from 'devextreme-react/date-box';
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info'; 
@@ -26,6 +27,7 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
   const [popupVisible, setPopupVisible] = useState(false);  
   const [batchPopupVisible, setBatchPopupVisible] = useState(false);  
   const [formData, setFormData] = useState<CommissionTradeDetails | undefined>(undefined);  
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [batchFormData, setBatchFormData] = useState({  
     reason: '',        
@@ -35,11 +37,20 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
   useEffect(() => {  
     const fetchMasterData = async () => {
       try {  
-        const [reasonCodes, brokerList] = await Promise.all([fetchReasonCodes(), fetchBrokerData()]);  
+        const [reasonCodes, brokerList, adminData] = await Promise.all([
+            fetchReasonCodes(), 
+            fetchBrokerData(),
+            fetchAdminUsers(),
+          ]);  
         setReasonData(reasonCodes);  
         setBrokersData(brokerList);
         const brkData = getUniqueCreditBrokers(brokerList);
         setUniqueCRBrokers(brkData);
+
+        const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+        if(u){
+            setIsAdmin(true);
+        } 
 
       } catch (error) {  
         console.error('Failed to load reason/broker data:', error);  
@@ -211,6 +222,7 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
     closeBatchUpdatePopup,  
     saveBatchUpdateChange,
     saveCommissionTradeChange,
-    reloadCommissionTrades: loadTrades
+    reloadCommissionTrades: loadTrades,
+    isAdmin
   };  
 }

@@ -97,6 +97,7 @@ export interface MaintenanceUser {
 	status: string,
 	lastUpdateBy: string,
     active?:boolean
+    admin?:boolean
 }
 
 export interface RequestMaintenanceUser {

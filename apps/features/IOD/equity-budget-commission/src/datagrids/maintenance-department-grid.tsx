@@ -41,6 +41,7 @@ const MaintenanceDepartmentGrid: React.FC = () => {
     addDepartment,  
     modifyDepartment,  
     removeDepartment,  
+    isAdmin
   } = useDepartments({ userInfo: userData });  
 
   const [popupTitle, setPopupTitle] = useState('');  
@@ -58,7 +59,12 @@ const MaintenanceDepartmentGrid: React.FC = () => {
     setToastConfig((prev) => ({ ...prev, visible: false }));  
   };  
 
-  const onRowDblClick = useCallback(onRowDblClickHandler, []);  
+  const onRowDblClick = useCallback((e: DataGridTypes.RowDblClickEvent) => {
+    if (!isAdmin) return;
+
+    onRowDblClickHandler(e);  
+  }, [isAdmin]);
+
   const onDataErrorOccurred = useCallback(handleDataError(showToast), [showToast]);  
   const renderStatusCellCallback = useCallback(renderStatusCell, []);  
 
@@ -132,9 +138,9 @@ return (
         <FilterRow visible={true} applyFilter="auto" />  
         <Editing  
           mode="popup"  
-          allowUpdating={true}  
-          allowAdding={true}  
-          allowDeleting={true}  
+          allowUpdating={isAdmin? true: false}  
+          allowAdding={isAdmin? true: false}  
+          allowDeleting={isAdmin? true: false}  
           useIcons={true}  
         >  
           <Popup  
@@ -216,11 +222,11 @@ return (
           dataType="string"  
         />  
 
-        <Column type="buttons" width="5%">  
+        <Column type="buttons" width="5%" visible={isAdmin? true: false}>  
           <Button name="edit" visible={false} />  
           <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Department" visible={true} />  
         </Column>  
-        <Toolbar>  
+        <Toolbar visible={isAdmin? true: false}>  
           <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>  
           {/* ... other toolbar items */}  
         </Toolbar>  

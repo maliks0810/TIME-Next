@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortfolio, updatePortfolio, deletePortfolio, fetchPortfolios } from '../services/portfolio-service';
 import { fetchDivisions } from '../services/division-service';
 import { fetchDepartments } from '../services/department-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
 import { fetchPortfolioGroups } from '../services/portfolio-group-service';
 import {
   fetchPortfolioGroupXrefs,
@@ -48,6 +49,7 @@ export function usePortfolios({ userInfo }: UsePortfoliosProps) {
   const [departments, setDepartments] = useState<MaintenanceDepartment[]>([]);
   const [portfolioGroups, setPortfolioGroups] = useState<MaintenancePortfolioGroup[]>([]);
   const [portfolioGroupXrefs, setPortfolioGroupXrefs] = useState<MaintenancePortfolioGroupXref[]>([]);
+  const [isAdmin,setIsAdmin] = useState<boolean>(false);
 
   // Keep latest state refs to avoid stale closure reads in async calls
   const portfoliosRef = useRef<MaintenancePortfolio[]>([]);
@@ -83,21 +85,26 @@ export function usePortfolios({ userInfo }: UsePortfoliosProps) {
 
     const loadData = async () => {
       try {
-        const [portfolioData, divData, deptData, portGrpData, portGrpDataXref] = await Promise.all([
+        const [portfolioData, divData, deptData, portGrpData, portGrpDataXref, adminData] = await Promise.all([
             fetchPortfolios(),
             fetchDivisions(),
             fetchDepartments(),
             fetchPortfolioGroups(),
             fetchPortfolioGroupXrefs(),
-            ]);
+            fetchAdminUsers(),
+          ]);
 
-            if (!alive) return;
+          if (!alive) return;
 
-            setPortfolios((portfolioData ?? []).map(p => ({ ...p, active: p.status === "Active" || p.status === "A" })));
-            setDivisions(divData ?? []);
-            setDepartments(deptData ?? []);
-            setPortfolioGroups(portGrpData ?? []);
-            setPortfolioGroupXrefs(portGrpDataXref ?? []);
+          setPortfolios((portfolioData ?? []).map(p => ({ ...p, active: p.status === "Active" || p.status === "A" })));
+          setDivisions(divData ?? []);
+          setDepartments(deptData ?? []);
+          setPortfolioGroups(portGrpData ?? []);
+          setPortfolioGroupXrefs(portGrpDataXref ?? []);
+          const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+          if(u){
+              setIsAdmin(true);
+          }
       } catch (error) {
         console.error('Error loading data:', error);
       }
@@ -242,5 +249,6 @@ export function usePortfolios({ userInfo }: UsePortfoliosProps) {
     addPortfolioGroupXref,
     modifyPortfolioGroupXref,
     removePortfolioGroupXref,
+    isAdmin
   };
 }

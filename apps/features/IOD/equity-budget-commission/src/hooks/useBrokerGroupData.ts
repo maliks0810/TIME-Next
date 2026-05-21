@@ -10,7 +10,7 @@ import {
   updateBrokerGroupMember,
   deleteBrokerGroupMember,
 } from '../services/broker-group-service';
-
+import { fetchAdminUsers } from '../services/admin-user-service';
 import {
   MaintenanceBrokerGroupMember,
   MaintenanceBrokerGroup,
@@ -28,6 +28,7 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
   const [brokerGroups, setBrokerGroups] = useState<MaintenanceBrokerGroup[]>([]);
   const [brokerGroupMembers, setBrokerGroupMembers] = useState<MaintenanceBrokerGroupMember[]>([]);
   const [brokers, setBrokers] = useState<MaintenanceBroker[]>([]);
+  const [isAdmin,setIsAdmin] = useState<boolean>(false);
 
   /** normalize once, and be defensive */
   const normalizeBrokerGroups = useCallback((items?: MaintenanceBrokerGroup[]) => {
@@ -52,15 +53,20 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
   useEffect(() => {
     void (async () => {
       try {
-        const [grpData, memberData, brokerData] = await Promise.all([
+        const [grpData, memberData, brokerData, adminData] = await Promise.all([
           fetchBrokerGroups(),
           fetchBrokerGroupsMember(),
           fetchBrokers(),
+          fetchAdminUsers(),
         ]);
 
         setBrokerGroups(normalizeBrokerGroups(grpData));
         setBrokerGroupMembers(memberData ?? []);
         setBrokers(brokerData ?? []);
+        const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+        if(u){
+          setIsAdmin(true);
+        }
       } catch (error) {
         console.error('Error loading data:', error);
       }
@@ -160,6 +166,8 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
     addBrokerGroupMember,
     modifyBrokerGroupMember,
     removeBrokerGroupMember,
-    reloadGroupMemberGroup,      // ✅ now sets state
+    reloadGroupMemberGroup,  
+    
+    isAdmin    // ✅ now sets state
   };
 }

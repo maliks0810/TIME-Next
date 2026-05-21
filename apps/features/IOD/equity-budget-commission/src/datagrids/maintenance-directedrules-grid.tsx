@@ -89,7 +89,8 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
     reloadDirectRulesXref,
     addDirectedRuleXref,
     modifyDirectedRuleXref,
-    removeDirectedRuleXref
+    removeDirectedRuleXref,
+    isAdmin
   } = useDirectedRules({
     userInfo: userData,
   });
@@ -109,7 +110,12 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
     setToastConfig((prev) => ({ ...prev, visible: false }));
   }, []);
 
-  const onRowDblClick = useCallback(onRowDblClickHandler, []);
+  const onRowDblClick = useCallback((e: DataGridTypes.RowDblClickEvent) => {
+      if (!isAdmin) return;
+  
+      onRowDblClickHandler(e);  
+    }, [isAdmin]); 
+
   const onDataErrorOccurred = useCallback(handleDataError(showToast), [showToast]);
 
   const handleEditingStart = useCallback(() => {
@@ -179,6 +185,7 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
       handleRowDeleted,
       selectedDirectedRuleId,
       directedRulesXref,
+      isAdmin
     ]
   );
   const onSelectionChanged = async (selectedKeys: number[]) => {
@@ -265,7 +272,8 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
       reloadDirectRulesXref,
       selectedDirectedRuleId,
       showToast,
-      handleXrefRowDeleted,
+      handleXrefRowDeleted,,
+      isAdmin
     ]
   );
 
@@ -306,9 +314,9 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
 
                 <Editing
                   mode="popup"
-                  allowUpdating={true}
-                  allowAdding={true}
-                  allowDeleting={true}
+                  allowUpdating={isAdmin ?true:false} 
+                  allowAdding={isAdmin ?true:false} 
+                  allowDeleting={isAdmin ?true:false} 
                   useIcons={true}
                 >
                   <Popup
@@ -351,12 +359,12 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                 <Column dataField="lastUpdateDt" caption="Last Update Dt" formItem={{ visible: false }} allowEditing={false} allowFiltering={false} width="25%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a" />     
                 <Column dataField="lastUpdateBy"caption="Last Update By" formItem={{ visible: false }} allowEditing={false} allowFiltering={true} width="20%" allowSorting={true} dataType="string"/>
 
-                <Column type="buttons" width="5%">
+                <Column type="buttons" width="5%" visible={isAdmin ?true:false} >
                   <Button name="edit" visible={false} />
                   <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Directed Rule" visible={true}/>
                 </Column>
 
-                <Toolbar>
+                <Toolbar visible={isAdmin ?true:false} >
                   <ToolbarItem name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
                 </Toolbar>
               </DataGrid>
@@ -395,9 +403,9 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                   <FilterRow visible={true} applyFilter="auto" />
                   <Editing
                     mode="popup"
-                    allowUpdating={true}
-                    allowAdding={true}
-                    allowDeleting={true}
+                    allowUpdating={isAdmin ?true:false} 
+                    allowAdding={isAdmin ?true:false} 
+                    allowDeleting={isAdmin ?true:false} 
                     useIcons={true}
                   >
                     <Popup
@@ -465,12 +473,12 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                   <Column dataField="lastUpdateBy" caption="Last Update By" width="12%" allowFiltering={true}
                     formItem={{visible:false}} />
                   
-                  <Column type="buttons" width="5%">
+                  <Column type="buttons" width="5%" visible={isAdmin ?true:false} >
                     <Button name="edit" visible={false} />
                     <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Directed Rules Xref" visible={true}/>
                   </Column>
 
-                <Toolbar>
+                <Toolbar visible={isAdmin ?true:false} >
                   <ToolbarItem name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
                 </Toolbar>
               </DataGrid>

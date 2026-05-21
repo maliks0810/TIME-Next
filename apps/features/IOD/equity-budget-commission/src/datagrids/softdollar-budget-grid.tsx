@@ -99,8 +99,9 @@ const { departments, brokers, mstBrokers, services, softBudgetData, budgetYears,
   insertSoftDollarBudget, 
   updateSoftDollarBudget, 
   removeSoftDollarBudget,
+  isAdmin
   } = useSoftDollarBudgets({  
-    userData: userInfo,  
+    userInfo: userInfo,  
     budgetYear: selectedYear,  
   });  
 
@@ -136,9 +137,11 @@ const budgetTypeMap = [
  
 // Double-click row → open parent popup  
 const openParentPopup = (e: DataGridTypes.RowDblClickEvent) => {  
+  if(!isAdmin) return;
+
   setSelectedSoftBudgetId(e.key);
   openEditBudgetPopup(e.key, e.data);  
-};  
+};
 
 const renderStatusCell = (cellData: DataGridTypes.ColumnCellTemplateData) => {  
   const isActive = cellData.value === 'A';  
@@ -534,7 +537,7 @@ return (
         showClearButton={true}  
         width={150}  
       />  
-      <Button text="Add" id="btnNewService" stylingMode="contained" className='popup-button' type="default" icon="plus" onClick={openAddBudgetPopup} />  
+      <Button text="Add" id="btnNewService" visible={isAdmin?true:false} stylingMode="contained" className='popup-button' type="default" icon="plus" onClick={openAddBudgetPopup} />  
     </div>  
     { loading ? 
     <div className='div-loader'>  
@@ -560,7 +563,7 @@ return (
         editing={{  
           allowAdding: false,  
           allowUpdating: false,  
-          allowDeleting: true,  
+          allowDeleting: isAdmin,  
           useIcons: true,  
         }}  
         width="100%"
@@ -583,7 +586,7 @@ return (
         <Column dataField="calculatedHardDollar" caption="Hard Dollar" dataType="number" alignment="left" format={{ type: 'currency', precision: 2 }}  />  
         <Column dataField="ratio" caption="Ratio" dataType="number" alignment="left" format={{ maximumFractionDigits: 5, minimumFractionDigits: 5, precision: 5 }}  />  
         <Column dataField="calculatedSoftDollar" caption="Soft Dollar"  dataType="number" alignment="left" format={{ type: 'currency', precision: 2 }}  />  
-        <Column type="buttons" width="5%">  
+        <Column type="buttons" width="5%" visible={isAdmin}>  
           <GridButton name="edit" visible={false} />  
           <GridButton name="delete" cssClass="dx-datagrid-delete-button" text="Delete Budget" visible={true} />  
         </Column>  
@@ -690,7 +693,7 @@ return (
                 <p>Loading accounts data...</p>  
               </div> ) : (
             <div>  
-              <Button text="Add" id="btnNewAccount" icon="plus" onClick={openAddAccountChildPopup} />  
+              <Button text="Add" id="btnNewAccount" visible={isAdmin} icon="plus" onClick={openAddAccountChildPopup} />  
               <DataGrid  
                 dataSource={softBudgetAccounts}  
                 keyExpr="softDollarBudgetAccountId"  
@@ -705,7 +708,7 @@ return (
                 editing={{  
                   allowAdding: false,  
                   allowUpdating: false,  
-                  allowDeleting: true,  
+                  allowDeleting: isAdmin,  
                   useIcons: true,  
                 }}
               >  
@@ -716,8 +719,8 @@ return (
                 <Column dataField="startDate" caption="Start Date" dataType='date' format="yyyy-MM-dd"  width="15%"/>  
                 <Column dataField="endDate" caption="End Date" dataType='date' format="yyyy-MM-dd"  width="15%"/>                  
           
-                <Column type="buttons" width="5%">  
-                  <GridButton  name="edit" visible={false}
+                <Column type="buttons" width="5%" visible={isAdmin}>  
+                  <GridButton name="edit" visible={false}
                     onClick={(e) => {  
                       e.event?.stopPropagation();  
                       if (e.row?.data) {  
@@ -725,8 +728,7 @@ return (
                       }  
                     }}  
                   />  
-                  <GridButton  
-                    name="delete" visible={true}
+                  <GridButton name="delete" visible={true}
                     onClick={async (e) => {  
                       e.event?.stopPropagation();  
                       if (e.row?.data?.softDollarBudgetAccountId != null) {  
@@ -751,7 +753,7 @@ return (
                     </div>  
                   ) : (  
                     <div>
-                      <Button text="Add" id="btnNewUserAllocation" visible={ selectedSoftBudgetAcct > 0} icon="plus" onClick={openAddPopupChildAccountUser} />
+                      <Button text="Add" id="btnNewUserAllocation" visible={ isAdmin && selectedSoftBudgetAcct > 0} icon="plus" onClick={openAddPopupChildAccountUser} />
                       <DataGrid  
                         dataSource={softAccountUserAllocations}  
                         keyExpr="userAllocationId"  
@@ -777,8 +779,8 @@ return (
                         <Column calculateCellValue={(row) => row.totalCost * row.ratio} caption="Soft Dollar" dataType="number"  width="10%" format= {{ type: 'currency', precision: 2 }}/>  
                         <Column dataField="startDate" caption="Start Date" dataType='date' format="yyyy-MM-dd"  width="10%"/>  
                         <Column dataField="endDate" caption="End Date" dataType='date' format="yyyy-MM-dd"  width="10%"/>  
-                        <Column type="buttons" width="5%">  
-                          <GridButton  name="edit" visible={false}
+                        <Column type="buttons" width="5%" visible={isAdmin}>  
+                          <GridButton name="edit" visible={false}
                             onClick={(e) => {  
                               e.event?.stopPropagation();  
                               if (e.row?.data) {  
@@ -786,8 +788,7 @@ return (
                               }  
                             }}  
                           />  
-                          <GridButton  
-                            name="delete" visible={true}
+                          <GridButton name="delete" visible={true}
                             onClick={async (e) => {  
                               e.event?.stopPropagation();  
                               if (e.row?.data?.userAllocationId != null) {  

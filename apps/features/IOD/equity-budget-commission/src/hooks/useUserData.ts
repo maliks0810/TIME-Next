@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
-import { createUser, updateUser, deleteUser, fetchUsers, fetchDepartments, fetchDivisions, fetchLocations } from '../services/user-service';
+import { createUser, updateUser, deleteUser, fetchUsers, fetchLocations } from '../services/user-service';
+import { fetchDepartments } from '../services/department-service';
+import { fetchDivisions } from '../services/division-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
 import { MaintenanceDepartment, MaintenanceDivision, MaintenanceLocation, MaintenanceUser, RequestMaintenanceUser } from '../datatypes/budget-maintenance-types';
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info'; 
 
@@ -12,16 +15,18 @@ export function useUsers({ userInfo }: UseUsersProps) {
     const [departments, setDepartments] = useState<MaintenanceDepartment[]>([]);
     const [locations, setLocations] = useState<MaintenanceLocation[]>([]);
     const [users, setUsers] = useState<MaintenanceUser[]>([]);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     // Load data  
     useEffect(() => {  
         const loadData = async () => {  
             try {  
-            const [divData, deptData, locData, userData] = await Promise.all([  
+            const [divData, deptData, locData, userData, adminData] = await Promise.all([  
                 fetchDivisions(),  
                 fetchDepartments(),  
                 fetchLocations(),
-                fetchUsers()
+                fetchUsers(),
+                fetchAdminUsers(),
             ]);  
             setDivisions(divData);
             setDepartments(deptData);
@@ -36,6 +41,10 @@ export function useUsers({ userInfo }: UseUsersProps) {
                     ({ ...p, active: (p.status === "Active"?true:false), }))  
                 }
             });
+            const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+            if(u){
+                setIsAdmin(true);
+            }            
 
             } catch (error) {  
                 console.error('Error loading data:', error);  
@@ -132,5 +141,6 @@ export function useUsers({ userInfo }: UseUsersProps) {
         addUser,  
         modifyUser,  
         removeUser,  
+        isAdmin
     };  
 }
