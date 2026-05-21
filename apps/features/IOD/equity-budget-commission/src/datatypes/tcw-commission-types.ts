@@ -103,10 +103,21 @@ export type CRBrokers = {
     creditBrokerName: string;
 };
 
-export type CommissionTradeBatchRequestDto = 
-    {
-        orderId: string[];
-        creditBroker: string;
-        reason: string;
-        lastUpdateBy?: string;
-    }
+export type CommissionTradeBatchRequestDto = {
+    orderId: string[];
+    creditBroker: string;
+    reason: string;
+    lastUpdateBy?: string;
+}
+
+export type CSAMonthlyCommission = {
+    rowNum: number,
+    division: string,
+    execMBroker: string,
+    execMbrokerName: string,
+    creditBroker: string,
+    creditMBrokerName?: string,
+    reason: string,
+    commission: number,
+    month: number
+}    

@@ -57,7 +57,8 @@ const MaintenanceBrokerGrid: React.FC = () => {
     reload,
     addBroker,
     modifyBroker,
-    removeBroker
+    removeBroker,
+    isAdmin
   } = useBrokers({userInfo})
 
   const [toastConfig, setToastConfig] = useState<ToastConfig>({
@@ -74,7 +75,11 @@ const MaintenanceBrokerGrid: React.FC = () => {
     setToastConfig(prev => ({ ...prev, visible: false }));
   }, []);
   
-  const onRowDblClick = useCallback(onRowDblClickHandler, []);  
+  const onRowDblClick = useCallback((e: DataGridTypes.RowDblClickEvent) => {
+    if (!isAdmin) return;
+
+    onRowDblClickHandler(e);  
+  }, [isAdmin]); 
   
   const renderStatusCellCallback = useCallback(renderStatusCell, []); 
 
@@ -154,9 +159,9 @@ const MaintenanceBrokerGrid: React.FC = () => {
         <FilterRow visible={true} applyFilter="auto"/>
         <Editing
           mode="popup"
-          allowUpdating={true}
-          allowAdding={true}
-          allowDeleting={true}
+          allowUpdating={isAdmin? true: false} 
+          allowAdding={isAdmin? true: false} 
+          allowDeleting={isAdmin? true: false} 
           useIcons={true}          
         >
           <Popup showTitle={true} title={popupTitle} width="30%" height="30%" wrapperAttr= {{ className:'custom-popup-class' }} />
@@ -184,11 +189,11 @@ const MaintenanceBrokerGrid: React.FC = () => {
         <Column  dataField="lastUpdateDate" caption= "Last Update Dt" allowEditing={false} allowFiltering={false} width= "15%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a"/>   
         <Column  dataField="lastUpdateBy" caption= "Last Update By" allowEditing={false} allowFiltering={true} width= "10%" allowSorting={true} dataType="string"/>    
         <Column dataField="active" visible={false} />
-        <Column type="buttons" width="5%">
+        <Column type="buttons" width="5%" visible={isAdmin? true: false} >
               <Button name="edit" visible={false} />
               <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Broker" visible={true} />
         </Column>
-        <Toolbar>
+        <Toolbar visible={isAdmin? true: false} >
           <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
           {/* ... other toolbar items */}
         </Toolbar>

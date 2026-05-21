@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { createDivision, updateDivision, deleteDivision, fetchDivisions } from '../services/division-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
 import { MaintenanceDivision, RequestMaintenanceDivision } from '../datatypes/budget-maintenance-types';
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info';
 
@@ -9,6 +10,7 @@ interface UseDivisionsProps {
 
 export function useDivisions({ userInfo }: UseDivisionsProps) {
   const [divisions, setDivisions] = useState<MaintenanceDivision[]>([]);
+  const [isAdmin,setIsAdmin] = useState<boolean>(false);
 
   const normalize = useCallback((items: MaintenanceDivision[]) => {
     return (items ?? []).map(d => ({
@@ -24,6 +26,16 @@ export function useDivisions({ userInfo }: UseDivisionsProps) {
 
   useEffect(() => {
     // initial load
+    const loadAdminData = async() => {
+      const [adminData] = await Promise.all([
+        fetchAdminUsers()
+      ]);
+      const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+      if(u){
+        setIsAdmin(true);
+      }
+    };
+    loadAdminData();
     void reload();
   }, [reload]);
 
@@ -75,5 +87,6 @@ export function useDivisions({ userInfo }: UseDivisionsProps) {
     addDivision,
     modifyDivision,
     removeDivision,
+    isAdmin
   };
 }

@@ -6,6 +6,7 @@ import {
   fetchPortfolioGroups,
 } from '../services/portfolio-group-service';
 import { fetchPortfolios } from '../services/portfolio-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
 import { fetchPortfolioGroupXrefs } from '../services/portfolio-group-xref-service';
 import {
   MaintenancePortfolio,
@@ -45,6 +46,7 @@ export function usePortfolioGroups({ userInfo }: UsePortfolioGroupsProps) {
   const [portfolios, setPortfolios] = useState<MaintenancePortfolio[]>([]);
   const [portfolioGroups, setPortfolioGroups] = useState<MaintenancePortfolioGroup[]>([]);
   const [portfolioGroupXrefs, setPortfolioGroupXrefs] = useState<MaintenancePortfolioGroupXref[]>([]);
+  const [isAdmin,setIsAdmin] = useState<boolean>(false);
 
   // Avoid stale closure reads in async update operations
   const portfolioGroupsRef = useRef<MaintenancePortfolioGroup[]>([]);
@@ -68,10 +70,11 @@ export function usePortfolioGroups({ userInfo }: UsePortfolioGroupsProps) {
 
     const loadData = async () => {
       try {
-        const [portfolioData, portGrpData, portGrpDataXref] = await Promise.all([
+        const [portfolioData, portGrpData, portGrpDataXref,adminData] = await Promise.all([
           fetchPortfolios(),
           fetchPortfolioGroups(),
           fetchPortfolioGroupXrefs(),
+          fetchAdminUsers(),
         ]);
 
         if (!alive) return;
@@ -79,6 +82,10 @@ export function usePortfolioGroups({ userInfo }: UsePortfolioGroupsProps) {
         setPortfolios((portfolioData ?? []).map(normalizePortfolio));
         setPortfolioGroups((portGrpData ?? []).map(normalizePortfolioGroup));
         setPortfolioGroupXrefs(portGrpDataXref ?? []);
+        const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+        if(u){
+            setIsAdmin(true);
+        }
       } catch (error) {
         console.error('Error loading data:', error);
       }
@@ -149,10 +156,11 @@ export function usePortfolioGroups({ userInfo }: UsePortfolioGroupsProps) {
     portfolios,
     portfolioGroups,
     portfolioGroupXrefs,
-    reload,
 
+    reload,
     addPortfolioGroup,
     modifyPortfolioGroup,
     removePortfolioGroup,
+    isAdmin
   };
 }

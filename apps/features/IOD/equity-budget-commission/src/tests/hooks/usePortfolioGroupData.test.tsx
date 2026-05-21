@@ -2,9 +2,10 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { usePortfolioGroups } from '../../hooks/usePortfolioGroupData';
 import { fetchPortfolios } from '../../services/portfolio-service';
+import { fetchAdminUsers } from '../../services/admin-user-service';
 import { fetchPortfolioGroupXrefs } from '../../services/portfolio-group-xref-service';
 import { fetchPortfolioGroups, createPortfolioGroup, deletePortfolioGroup, updatePortfolioGroup } from '../../services/portfolio-group-service';
-import { MaintenancePortfolio, MaintenancePortfolioGroup, MaintenancePortfolioGroupXref, RequestMaintenancePortfolioGroup } from '../../datatypes/budget-maintenance-types';
+import { MaintenancePortfolio, MaintenancePortfolioGroup, MaintenancePortfolioGroupXref, MaintenanceUser, RequestMaintenancePortfolioGroup } from '../../datatypes/budget-maintenance-types';
 import { UserInfo } from '../../../../../../../packages/utils/src/hooks/Authentication/user-info';
 
 vi.mock('@platform/utils', () => ({
@@ -21,6 +22,9 @@ vi.mock('../../services/portfolio-group-service', () => ({
     createPortfolioGroup: vi.fn(),    
     updatePortfolioGroup: vi.fn(),    
     deletePortfolioGroup: vi.fn(),    
+}));
+vi.mock('../../services/admin-user-service', () => ({
+    fetchAdminUsers: vi.fn(),    
 }));
 
 const userInfo: UserInfo = { id:'test1', name: 'Test User', email:'Test@test.com', isAdmin:false };  
@@ -39,6 +43,11 @@ const mockPortfolioGrpXrefData: MaintenancePortfolioGroupXref[] = [
     { portfolioGroupXrefId: 1, portfolioGroupId:8, portfolioId:98, lastUpdateBy: 'User1', lastUpdateDate: new Date() },
     { portfolioGroupXrefId: 2, portfolioGroupId:9, portfolioId:99, lastUpdateBy: 'User1', lastUpdateDate: new Date() }
 ]
+
+const mockUsers: MaintenanceUser[] = [
+    { userId: 1, userName: 'User,Test', firstName: 'Test', lastName:'User', locationCode: 'US', status: 'Active', active:true, lastUpdateBy:'User1', 
+        divisionId:1, departmentId:1, startDate:'01-01-2025', endDate:'12-31-2025', coopDptCode:0, coopStaffCode:0, costCenterCode:'', jobCode:'', admin:true  }  
+];
 
 describe('usePortfolioGroups hook', () => {
     beforeEach(() => {
@@ -138,6 +147,35 @@ describe('usePortfolioGroups hook', () => {
                 }
             });
         });
+        
+        it('loads admin users data', async () => {  
+            vi.fn(fetchAdminUsers).mockResolvedValueOnce(mockUsers);  
+
+            const { result } = renderHook(() =>  
+                usePortfolioGroups({userInfo})  
+            );  
+
+            await waitFor(() => {  
+                expect(result.current.isAdmin).toEqual(true);  
+            });  
+
+            expect(fetchAdminUsers).toHaveBeenCalledTimes(1);  
+        });
+        it('handle error when fetch admin users data failed', async () => {  
+            vi.fn(fetchAdminUsers).mockRejectedValueOnce(  
+                new Error('Failed to fetch admin users data')  
+            );  
+
+            // Act  
+            await act(async () => { 
+                try { 
+                    vi.fn(fetchAdminUsers).mockResolvedValueOnce([]);
+                } catch (err) {
+                    expect(err).toBeInstanceOf(Error);  
+                    expect(String(err)).toBe('Failed to fetch admin users data');
+                }
+            });
+        });        
     });
 
     describe('insert method', () => {

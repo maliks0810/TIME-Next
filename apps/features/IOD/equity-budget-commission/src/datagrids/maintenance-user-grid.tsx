@@ -75,7 +75,7 @@ const MaintenanceUserGrid: React.FC = () => {
   const [popupTitle, setPopupTitle] = useState('');
   const userInfo = useUserInfo();
 
-  const { users, divisions, departments, locations, addUser, modifyUser, removeUser, reload } =
+  const { users, divisions, departments, locations, addUser, modifyUser, removeUser, reload, isAdmin } =
     useUsers({ userInfo });
 
   const [toastConfig, setToastConfig] = useState<ToastConfig>({
@@ -96,7 +96,12 @@ const MaintenanceUserGrid: React.FC = () => {
     setToastConfig(prev => ({ ...prev, visible: false }));
   };
 
-  const onRowDblClick = useCallback(onRowDblClickHandler, []);
+  const onRowDblClick = useCallback((e: DataGridTypes.RowDblClickEvent) => {
+      if (!isAdmin) return;
+  
+      onRowDblClickHandler(e);  
+    }, [isAdmin]);
+
   const renderStatusCellCallback = useCallback(renderStatusCell, []);
 
   const handleEditingStart = () => {
@@ -185,7 +190,12 @@ const MaintenanceUserGrid: React.FC = () => {
               <LoadPanel enabled={true} />
               <FilterRow visible={true} applyFilter="auto" />
 
-              <Editing mode="popup" allowUpdating={true} allowAdding={true} allowDeleting={true} useIcons={true}>
+              <Editing 
+                mode="popup" 
+                allowUpdating={isAdmin ?true:false}  
+                allowAdding={isAdmin ?true:false}  
+                allowDeleting={isAdmin ?true:false} 
+                useIcons={true}>
                 <Popup
                   showTitle={true}
                   title={popupTitle}
@@ -257,12 +267,12 @@ const MaintenanceUserGrid: React.FC = () => {
               <Column dataField="lastUpdateBy" formItem={{ visible: false }} caption="Last Update By" allowEditing={false} width="8%" dataType="string" />
               <Column dataField="active" visible={false} />
 
-              <Column type="buttons" width="4%">
+              <Column type="buttons" width="4%" visible={isAdmin ?true:false} >
                 <Button name="edit" visible={false} />
                 <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Broker" visible={true} />
               </Column>
 
-              <Toolbar>
+              <Toolbar visible={isAdmin ?true:false} >
                 <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
               </Toolbar>
             </DataGrid>
