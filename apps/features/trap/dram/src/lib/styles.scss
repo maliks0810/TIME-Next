@@ -99,3 +99,46 @@ html, body {
 .performance-dashboard-tabs .dx-tab:focus {
   outline: none;
 }
+
+.dram-risk-dashboard {
+    height: 95vh;
+}
+
+.risk-dashboard-tabs .dx-tab:focus {
+  outline: none;
+}
+/* Container */
+.risk-dashboard-tabs .dx-tabs {
+  border-bottom: 1px solid #d9d9d9;
+}
+
+/* Individual tab */
+.risk-dashboard-tabs .dx-tab {
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+/* Hover */
+.risk-dashboard-tabs .dx-tab:hover {
+  color: #1677ff;
+}
+
+/* Active tab */
+.risk-dashboard-tabs .dx-tab-selected {
+  color: #1677ff;
+  font-weight: 600;
+}
+
+/* Underline (VERY IMPORTANT) */
+.risk-dashboard-tabs .dx-tab-selected::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background: #1677ff;
+  border-radius: 2px;
+}
