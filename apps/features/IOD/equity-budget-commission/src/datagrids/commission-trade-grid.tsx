@@ -49,7 +49,8 @@ export const CommissionTradeGrid = () => {
             batchFormData,
             setBatchFormData,
             saveBatchUpdateChange,
-            reloadCommissionTrades
+            reloadCommissionTrades,
+            isAdmin
         } = useCommissionTrade({userInfo, startDate, endDate});
 
     // Toast handling  
@@ -123,7 +124,7 @@ export const CommissionTradeGrid = () => {
                 displayFormat="MM/dd/yyyy" elementAttr={{ class: "dx-common-selectbox" }}/>
             <DateBox labelMode="outside" label="To Date:" width={150} placeholder="To Date" onValueChanged={handleToDateChanged} value={selectedEndDate}
                 displayFormat="MM/dd/yyyy"  elementAttr={{ class: "dx-common-selectbox" }}/> 
-            <Button type="default" text="Refresh" width={100} className='popup-button' stylingMode='contained' onClick={handleRefresh}></Button>  
+            <Button type="default" text="Refresh" width={100} className='popup-button' icon="refresh" stylingMode='contained' onClick={handleRefresh}></Button>  
             <Button type="default" text="Batch Update" width={120} visible={selectedRowKeys.length > 1 ? true : false} 
                 className='popup-button' stylingMode='contained' onClick={handleBatchUpdate}></Button>  
         </div>
@@ -132,7 +133,7 @@ export const CommissionTradeGrid = () => {
             <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={40} />  
             <p>Loading...</p>  
         </div> 
-        :
+        :        
         <div className='div-form-container'>
             <DataGrid 
                 dataSource={commissionTradesData}
@@ -142,18 +143,22 @@ export const CommissionTradeGrid = () => {
                 showBorders={true}
                 paging={{enabled:false}}
                 onCellPrepared={onCellPrepared}
-                onRowDblClick={(e:DataGridTypes.RowDblClickEvent) => {  
-                // DevExtreme "RowDblClickEvent" → pass e.data to onRowDblClick  
+                onRowDblClick={(e:DataGridTypes.RowDblClickEvent) => {
+                    if(!isAdmin) return;
+
                     if (e.rowType === 'data' && e.data) {  
                         e.component.clearSelection();
                         e.component.selectRows([e.key], false);
                         onRowDblClick(e.data);  
-                    }  
+                    }
                 }}
                 hoverStateEnabled={true}
-                selection={{mode:"multiple"}}
+                selection={{mode: isAdmin?"multiple":"none"}}
                 focusedRowEnabled={true}
-                onSelectionChanged={(e) => onSelectionChanged(e.selectedRowKeys as string[])}  
+                onSelectionChanged={(e) => {
+                    if(!isAdmin) return; 
+                    onSelectionChanged(e.selectedRowKeys as string[])
+                }}  
                 scrolling={{mode:"virtual"}}
                 width="98%%"
                 >        

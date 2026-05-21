@@ -10,6 +10,7 @@ import saveAs from "file-saver";
 
 import SplitPane from "./components/SplitPane";
 import {
+  ExclusionAccountRow,
   HistoryRow,
   HistorySummaryRow,
   PerformanceReturnsResultResponse,
@@ -17,6 +18,7 @@ import {
 } from "./lib/types";
 
 import {
+  fetchExclusionAccountsService,
   fetchOfficalPerformanceReturnsService,
   fetchPortfolioListService,
   fetchPortfolioSummaryService,
@@ -28,16 +30,16 @@ import BMDetailHistory from "./components/detail/BMDetailHistory";
 import { DateBox } from "devextreme-react";
 import FeeDetailHistory from "./components/detail/FeeDetailHistory";
 import { SelectionChangedEvent, ToolbarPreparingEvent } from "devextreme/ui/data_grid";
+import ExclusionAccountsView from "./components/summary/ExclusionAccountsView";
 
 /** Tabs */
 type TabKey = "portfolioHistory" | "benchmarkHistory" | "portfolioNetHistory" ;
 
 /** Summary view type */
-type SummaryView = "summaryReport" | "summaryList";
+type SummaryView = "summaryReport" | "summaryList" | "exclusionAccounts";
 
 /** Right-pane mode */
 type Mode = "summary" | "detail";
-
 
 const getMonthEnd = (date: Date) => {
   const d = new Date(date);
@@ -122,6 +124,8 @@ export default function PerformanceAnalysisContent() {
   const [allDataResult, setAllDataResult] = React.useState<PerformanceReturnsResultResponse | undefined>(undefined);
 
 
+  const [exclusionRows, setExclusionRows] = React.useState<ExclusionAccountRow[]>([]);
+
   const isMonthEnd = (date: Date) => {
     const d = new Date(date);
     return d.getDate() === getMonthEnd(d).getDate();
@@ -164,7 +168,8 @@ export default function PerformanceAnalysisContent() {
 
   // -------- Load summary whenever view is summary + asOf changes --------
   React.useEffect(() => {
-    if (mode !== "summary") return;
+  if (mode !== "summary") return;
+  if (summaryView === "exclusionAccounts") return
 
     let cancelled = false;
     (async () => {
@@ -183,6 +188,39 @@ export default function PerformanceAnalysisContent() {
       cancelled = true;
     };
   }, [mode, asOfDateISO]);
+
+React.useEffect(() => {
+  if (mode !== "summary") return;
+  if (summaryView !== "exclusionAccounts") return; // ✅ only when tab active
+
+  let cancelled = false;
+
+  (async () => {
+    try {
+      const exclusion_resp = await fetchExclusionAccountsService();
+
+      const payload = exclusion_resp?.data;
+
+      // ✅ correct path (your API shape)
+      const grids = payload?.data?.grids ?? payload?.grids ?? [];
+      const apiRows = grids?.[0]?.rows ?? [];
+
+      // ✅ minimal mapping (no mapper file needed)
+      const mapped: ExclusionAccountRow[] = Array.isArray(apiRows)
+        ? apiRows.map((r) => ({
+            portfolioNumber: r.PORTFOLIO_NUMBER,
+            portfolioName: r.PORTFOLIO_NAME,
+          }))
+        : [];
+
+      if (!cancelled) {
+        setExclusionRows(mapped);
+      }
+    } finally {}
+  })();
+
+  return () => { cancelled = true; };
+}, [mode, summaryView, asOfDateISO]);
 
   // -------- Build tree items from list --------
   const treeItems = React.useMemo(() => {
@@ -273,7 +311,7 @@ export default function PerformanceAnalysisContent() {
   );
 
   const onGridSelectionChanged = React.useCallback((e: SelectionChangedEvent) => {
-    const selected = e.selectedRowsData?.[0] as PortfolioRow | undefined;
+    const selected = e.selectedRowsData?.[0];
     if (selected?.portId) openPortfolio(selected.portId);
   }, [openPortfolio]);
 
@@ -350,12 +388,6 @@ export default function PerformanceAnalysisContent() {
     setAllDataResult(undefined);
   }, []);
 
-  // Toggle Summary Report ↔ Summary List
-  const toggleSummaryView = React.useCallback(() => {
-    setSummaryView((v) => (v === "summaryReport" ? "summaryList" : "summaryReport"));
-
-  }, []);
-
   return (
     <div style={styles.page}>
       <div>
@@ -400,16 +432,18 @@ export default function PerformanceAnalysisContent() {
             <div style={{height: '100%', display: 'flex', flexDirection: 'column', minHeight:0}}>
               <div style={styles.gridTitleBar}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ fontWeight: 700 }}>
+                  {/* <div style={{ fontWeight: 700 }}>
                     {summaryView === "summaryReport" ? "Summary Report" : "Summary List"}
-                  </div>
+                  </div> */}
 
-                  {/* Toggle button: “Show Summary List” <-> “Show Summary Report” */}
-                  <Button
-                    icon="switch"
-                    text={summaryView === "summaryReport" ? "Show Summary List" : "Show Summary Report"}
-                    stylingMode="outlined"
-                    onClick={toggleSummaryView}
+                  <Tabs
+                    activeKey={summaryView}
+                    onChange={(key) => setSummaryView(key as SummaryView)}
+                    items={[
+                      { key: "summaryReport", label: "Summary Report" },
+                      { key: "summaryList", label: "Summary List" },
+                      { key: "exclusionAccounts", label: "Exclusion Accounts" },
+                    ]}
                   />
 
                   <div style={{ marginLeft: "auto", display: "flex", alignItems: "right", gap: 8 }}>
@@ -446,11 +480,27 @@ export default function PerformanceAnalysisContent() {
               </div>
 
               <div style={styles.gridWrap}>
-                  { summaryView === "summaryReport" ? <SummaryListReport asOfDate={asOfDate} rows={rows}
-                  onSelect={onGridSelectionChanged}
-                  onToolbarPreparing={onSummaryToolbarPreparing} />
-                  : <SummaryReportView asOfDate={asOfDate} rows={summaryRows}  onSelect={onSummarySelectionChanged}
-                   onToolbarPreparing={onSummaryToolbarPreparing}  />}
+                {summaryView === "summaryReport" ? (
+                  <SummaryReportView
+                    asOfDate={asOfDate}
+                    rows={summaryRows}
+                    onSelect={onSummarySelectionChanged}
+                    onToolbarPreparing={onSummaryToolbarPreparing}
+                  />
+                ) : summaryView === "summaryList" ? (
+                  <SummaryListReport
+                    asOfDate={asOfDate}
+                    rows={rows}
+                    onSelect={onGridSelectionChanged}
+                    onToolbarPreparing={onSummaryToolbarPreparing}
+                  />
+                ) : (
+                  <ExclusionAccountsView
+                    asOfDate={asOfDate}
+                    rows={exclusionRows}
+                    onToolbarPreparing={onSummaryToolbarPreparing}
+                  />
+                )}
               </div>
               </div>
             </>

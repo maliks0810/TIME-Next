@@ -61,7 +61,8 @@ const MaintenancePortfolioGroupGrid: React.FC = () => {
     reload,
     addPortfolioGroup,  
     modifyPortfolioGroup,  
-    removePortfolioGroup
+    removePortfolioGroup,
+    isAdmin
   } = usePortfolioGroups({ userInfo: userData });
 
   const [popupTitle, setPopupTitle] = useState('');  
@@ -79,7 +80,11 @@ const MaintenancePortfolioGroupGrid: React.FC = () => {
     setToastConfig((prev) => ({ ...prev, visible: false }));  
   };  
 
-  const onRowDblClick = useCallback(onRowDblClickHandler, []);  
+  const onRowDblClick = useCallback((e: DataGridTypes.RowDblClickEvent) => {
+      if (!isAdmin) return;
+  
+      onRowDblClickHandler(e);  
+    }, [isAdmin]); 
   const onDataErrorOccurred = useCallback(handleDataError(showToast), [showToast]);  
   const renderStatusCellCallback = useCallback(renderStatusCell, []);  
   
@@ -174,6 +179,7 @@ const MaintenancePortfolioGroupGrid: React.FC = () => {
       showToast,
       portfolioGroups,
       portfolioGroupXrefs,
+      isAdmin
     ]
   );
   
@@ -213,9 +219,9 @@ return (
               <FilterRow visible={true} applyFilter="auto" />  
               <Editing  
                 mode="popup"  
-                allowUpdating={true}  
-                allowAdding={true}  
-                allowDeleting={true}  
+                allowUpdating={isAdmin ?true:false}  
+                allowAdding={isAdmin ?true:false}  
+                allowDeleting={isAdmin ?true:false}  
                 useIcons={true}  
               >  
                 <Popup  
@@ -250,11 +256,11 @@ return (
               <Column dataField="lastUpdateDate" caption="Last Update Dt" formItem={{visible:false}} allowEditing={false} allowFiltering={false} width="15%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a" />  
               <Column dataField="lastUpdateBy" caption="Last Update By" formItem={{visible:false}} allowEditing={false} allowFiltering={true} width="15%" allowSorting={true} dataType="string" />  
               <Column dataField="active" visible={false} />
-              <Column type="buttons" width="5%">  
+              <Column type="buttons" width="5%" visible={isAdmin ?true:false}>  
                 <Button name="edit" visible={false} />  
                 <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Portfolio Group" visible={true} />  
               </Column>  
-              <Toolbar>  
+              <Toolbar visible={isAdmin ?true:false}>  
                 <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>  
                 {/* ... other toolbar items */}  
               </Toolbar>  

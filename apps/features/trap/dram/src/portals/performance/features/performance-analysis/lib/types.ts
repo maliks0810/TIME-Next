@@ -76,3 +76,8 @@ export interface HistorySummaryRow {
   perfStartDate?: string,
   inceptionDate?: string,
 }
+
+export interface ExclusionAccountRow {
+  portfolioNumber?: string,
+  portfolioName?: string,
+}

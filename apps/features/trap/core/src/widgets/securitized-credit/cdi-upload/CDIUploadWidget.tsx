@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
+import { useState, useCallback } from 'react';
 import { theme } from 'antd';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
@@ -24,32 +24,30 @@ import { useSetWidgetValue } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
 
 export default function CDIUploadWidget({
-    onPublishContext,
     widgetInstance,
     result,
     widgetDefinition,
+    mode,
+    execute: baseWidgetExecute,
 }: WidgetComponentProps) {
     const { token } = theme.useToken();
     const { themeName } = useTheme();
     getThemeSurfaceMeta(themeName); // theme surface available if needed
 
-    const [uploadState, setUploadState] = React.useState<UploadState>('idle');
-    const [progress, setProgress] = React.useState(0);
-    const [fileName, setFileName] = React.useState('');
-    const [fromIntex, setFromIntext] = React.useState<DealFromIntex | null>(null);
-    const [errorMsg, setErrorMsg] = React.useState('');
-    const [loadedDeal, setLoadedDeal] = React.useState<RecentDeal | null>(null);
-    const [fromRecent, setFromRecent] = React.useState(false);
+    const [uploadState, setUploadState] = useState<UploadState>('idle');
+    const [progress, setProgress] = useState(0);
+    const [fileName, setFileName] = useState('');
+    const [fromIntex, setFromIntext] = useState<DealFromIntex | null>(null);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [loadedDeal, setLoadedDeal] = useState<RecentDeal | null>(null);
+    const [fromRecent, setFromRecent] = useState(false);
 
     // Recently ingested deals come from the server via the result prop.
     // ds_sc_cdi_upload_01 executor returns { recentDeals: [...] } on mount.
-    const recentDeals: RecentDeal[] = React.useMemo(
-        () =>
-            result && Array.isArray((result as any).recentDeals)
-                ? ((result as any).recentDeals as RecentDeal[])
-                : [],
-        [result]
-    );
+    const recentDeals =
+        result && Array.isArray((result as any).recentDeals)
+            ? ((result as any).recentDeals as RecentDeal[])
+            : [];
 
     const widgetId = widgetInstance?.id;
     const widgetDefId = String(
@@ -58,7 +56,7 @@ export default function CDIUploadWidget({
             widgetDefinition?.id ??
             ''
     );
-    const isDesigner = widgetInstance?._mode === 'designer';
+    const isDesigner = mode === 'designer';
 
     const channelId = widgetInstance?.config?.params?.channel;
 
@@ -100,17 +98,16 @@ export default function CDIUploadWidget({
 
             setProgress(100);
 
-            // const deal = out?.result as any;
-            // if (!deal?.dealId) throw new Error('Download succeeded but no deal metadata returned');
-
-            setFromIntext({
+            const newDeal = {
                 dealName: result.dealName,
 
                 uploadedAt: result.uploadedAt ?? new Date().toLocaleString(),
                 uploadedBy: result.uploadedBy ?? '',
                 packagePath: result.packagePath ?? '',
                 ...result,
-            });
+            };
+            setFromIntext(newDeal);
+
             setFromRecent(false);
             setUploadState('success');
             publishDeal(result);
@@ -127,7 +124,7 @@ export default function CDIUploadWidget({
     //   3. ds_sc_cdi_upload_01 live executor decodes, calls PRISM, returns deal metadata
     //   4. Widget publishes deal context keys to ContextBus
 
-    const handleUpload = React.useCallback(
+    const handleUpload = useCallback(
         async (file: File) => {
             const ext = '.' + (file.name.split('.').pop() ?? '').toLowerCase();
             if (!['.cdi', '.zip'].includes(ext)) return;
@@ -166,15 +163,16 @@ export default function CDIUploadWidget({
                 if (!deal?.dealName)
                     throw new Error('Upload succeeded but no deal metadata returned');
 
-                setLoadedDeal({
+                const newDeal = {
                     dealId: `r_${deal.dealName}`,
                     dealName: deal.dealName,
-                    sourceType: ext === '.zip' ? 'zip' : 'cdi',
+                    sourceType: ext === '.zip' ? ('zip' as const) : ('cdi' as const),
                     uploadedAt: deal.uploadedAt ?? new Date().toLocaleString(),
                     uploadedBy: deal.uploadedBy ?? '',
                     packagePath: deal.packagePath ?? '',
                     sessionId: deal.sessionId,
-                });
+                };
+                setLoadedDeal(newDeal);
                 setFromRecent(false);
                 setUploadState('success');
                 publishDeal(deal);
@@ -184,7 +182,7 @@ export default function CDIUploadWidget({
                 setProgress(0);
             }
         },
-        [widgetDefId, isDesigner, widgetId, onPublishContext]
+        [widgetDefId, isDesigner, widgetId]
     );
 
     const handelDownload = async () => {
@@ -230,13 +228,14 @@ export default function CDIUploadWidget({
             TRANCHE_NAME_KEY,
             IS_ASSET_NEW_KEY,
         ].forEach((key) => setWidgetValueToChannel({ channelId, key, activeTab, value: null }));
+        baseWidgetExecute?.();
     };
 
     return (
         <WidgetCardShell>
             <div className={styles.wrapper}>
                 <div className={styles.left}>
-                    {uploadState === 'idle' && (
+                    {uploadState === 'idle' && !fromRecent && (
                         <Dropzone handleUpload={handleUpload} execute={handleFetch} />
                     )}
 

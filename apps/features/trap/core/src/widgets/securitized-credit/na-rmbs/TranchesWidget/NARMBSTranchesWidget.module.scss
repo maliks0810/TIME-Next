@@ -1,0 +1,221 @@
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 456px;
+    overflow: hidden;
+
+    & .headerContainer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    & .headerTitleContainer {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    & .headerTitleIcon {
+        font-size: 13px;
+        color: var(--ant-color-primary);
+    }
+
+    & .headerTitleText {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--ant-color-text-tertiary);
+    }
+
+    & .counterBadge {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: var(--ant-color-primary-bg);
+        color: var(--ant-color-primary);
+        border: 1px solid var(--ant-color-primary-border);
+        line-height: 18px;
+    }
+
+    & .dealName {
+        font-size: 12px;
+        color: var(--ant-color-text-secondary);
+    }
+
+    & .loadingContainer {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10;
+    }
+
+    & .loadingInnerContainer {
+        width: 40;
+        height: 40;
+        border-radius: 50%;
+        background: var(--ant-color-fill-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    & .loadingIcon {
+        font-size: 18px;
+        color: var(--ant-color-text-quaternary);
+    }
+
+    & .loadingText {
+        font-size: 12px;
+        color: var(--ant-color-text-tertiary);
+    }
+
+    & .tranchesTable {
+        border: 1px solid var(--ant-color-border-secondary);
+        border-radius: var(--ant-border-radius-sm);
+        overflow: hidden;
+    }
+
+    & .tranchesTableHeader {
+        display: flex;
+        background: var(--ant-color-fill-alter);
+        border-bottom: 1px solid var(--ant-color-border-secondary);
+        padding: 0 8px;
+    }
+
+    & .headerColumnText {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--ant-color-text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    & .tranchesTableRow {
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        cursor: pointer;
+        background: var(--ant-color-bg-container);
+        border-bottom: 1px solid var(--ant-color-border-secondary);
+        transition: background 0.1s;
+
+        &:nth-child(2) {
+            background: var(--ant-color-fill-alter);
+        }
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        &:hover {
+            background: var(--ant-color-fill-secondary);
+        }
+    }
+
+    & .tranchesTableRowSelected {
+        background: var(--ant-color-primary-bg) !important;
+    }
+
+    & .defaultColValue {
+        font-size: 11px;
+        font-family: monospace;
+        color: var(--ant-color-text-secondary);
+    }
+
+    & .trancheColumnValue {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ant-color-text);
+    }
+
+    & .trancheColumnValueSelected {
+        font-weight: 700;
+        color: var(--ant-color-primary);
+    }
+
+    & .couponColValue {
+        font-size: 11px;
+        font-family: monospace;
+        color: var(--ant-color-text);
+    }
+
+    & .typeColValue {
+        font-size: 10px;
+        font-family: monospace;
+        color: var(--ant-color-primary);
+    }
+
+    & .typeColValueMEZ {
+        color: var(--ant-color-warning);
+    }
+
+    & .typeColValueJUN {
+        color: var(--ant-color-error);
+    }
+
+    & .currencyColValue {
+        font-size: 10px;
+        color: var(--ant-color-text-tertiary);
+    }
+
+    & .zeroableColValue {
+        font-size: 11px;
+        font-family: monospace;
+        color: var(--ant-color-text);
+    }
+
+    & .zeroableColValueZero {
+        color: var(--ant-color-text-tertiary);
+    }
+
+    & .ratingsColValue {
+        font-size: 10px;
+        padding: 1px 5px;
+        border-radius: var(--ant-border-radius-sm);
+        background: var(--ant-color-fill-tertiary);
+        color: var(--ant-color-text-secondary);
+        border: 1px solid var(--ant-color-border-secondary);
+        font-family: monospace;
+    }
+
+    & .ratingsColValueSuccess {
+        color: var(--ant-color-success);
+        background: var(--ant-color-success-bg);
+        border: 1px solid var(--ant-color-success-border);
+    }
+
+    & .ratingsColValueInfo {
+        color: var(--ant-color-info);
+        background: var(--ant-color-info-bg);
+        border: 1px solid var(--ant-color-info-border);
+    }
+
+    & .ratingsColValueWarning {
+        color: var(--ant-color-warning);
+        background: var(--ant-color-warning-bg);
+        border: 1px solid var(--ant-color-warning-border);
+    }
+
+    & .ratingsColValueError {
+        color: var(--ant-color-error);
+        background: var(--ant-color-error-bg);
+        border: 1px solid var(--ant-color-error-border);
+    }
+
+    & .ratingsColValueTertiary {
+        color: var(--ant-color-text-tertiary);
+        background: var(--ant-color-fill-tertiary);
+        border: 1px solid var(--ant-color-border-secondary);
+    }
+
+    & .tranchesTableSubInfo {
+        font-size: 10px;
+        color: var(--ant-color-text-tertiary);
+    }
+}

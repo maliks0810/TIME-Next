@@ -5,7 +5,8 @@ import { fetchBrokerGroups, createBrokerGroup, deleteBrokerGroup, updateBrokerGr
     fetchBrokerGroupsMember, createBrokerGroupMember, updateBrokerGroupMember, deleteBrokerGroupMember  
 } from '../../services/broker-group-service';
 import { fetchBrokers } from '../../services/broker-service';
-import { MaintenanceBroker, MaintenanceBrokerGroup, MaintenanceBrokerGroupMember, RequestMaintenanceBrokerGroup, RequestMaintenanceBrokerGroupMember 
+import { fetchAdminUsers } from '../../services/admin-user-service';
+import { MaintenanceBroker, MaintenanceBrokerGroup, MaintenanceBrokerGroupMember, MaintenanceUser, RequestMaintenanceBrokerGroup, RequestMaintenanceBrokerGroupMember 
 } from '../../datatypes/budget-maintenance-types';
 import { UserInfo } from '../../../../../../../packages/utils/src/hooks/Authentication/user-info';
 
@@ -16,6 +17,7 @@ vi.mock('@platform/utils', () => ({
 vi.mock('../../services/broker-service', () => ({
     fetchBrokers: vi.fn(),
 }));
+
 vi.mock('../../services/broker-group-service', () => ({
     fetchBrokerGroups: vi.fn(),
     createBrokerGroup: vi.fn(),    
@@ -26,6 +28,10 @@ vi.mock('../../services/broker-group-service', () => ({
     createBrokerGroupMember: vi.fn(),
     updateBrokerGroupMember: vi.fn(),
     deleteBrokerGroupMember: vi.fn(),
+}));
+
+vi.mock('../../services/admin-user-service', () => ({
+    fetchAdminUsers: vi.fn(),
 }));
 
 const userInfo: UserInfo = { id:'test1', name: 'Test User', email:'Test@test.com', isAdmin:false };  
@@ -43,6 +49,11 @@ const mockBrokerGroupsData: MaintenanceBrokerGroup[] = [
 const mockBrokerGroupMembers:MaintenanceBrokerGroupMember[] = [
     { brokerGroupMemberId:1, brokerGroupId:1, brokerCode:"MB1", lastUpdateBy:"User1", JoinedGroupAt: new Date()},
     { brokerGroupMemberId:2, brokerGroupId:2, brokerCode:"MB2", lastUpdateBy:"User1", JoinedGroupAt: new Date()}
+];
+
+const mockUsers: MaintenanceUser[] = [
+    { userId: 1, userName: 'User,Test', firstName: 'Test', lastName:'User', locationCode: 'US', status: 'Active', active:true, lastUpdateBy:'User1', 
+        divisionId:1, departmentId:1, startDate:'01-01-2025', endDate:'12-31-2025', coopDptCode:0, coopStaffCode:0, costCenterCode:'', jobCode:'', admin:true  }  
 ];
 
 describe('useBrokerGroups hook', () => {
@@ -114,6 +125,36 @@ describe('useBrokerGroups hook', () => {
             }
         });
     });    
+
+    it('loads admin users data', async () => {  
+        vi.fn(fetchAdminUsers).mockResolvedValueOnce(mockUsers);  
+
+        const { result } = renderHook(() =>  
+            useBrokerGroups({userInfo})  
+        );  
+
+        await waitFor(() => {  
+            expect(result.current.isAdmin).toEqual(true);  
+        });  
+
+        expect(fetchAdminUsers).toHaveBeenCalledTimes(1);  
+    });
+    
+    it('handle error when fetch admin users data failed', async () => {  
+        vi.fn(fetchAdminUsers).mockRejectedValueOnce(  
+            new Error('Failed to fetch admin users data')  
+        );  
+
+        // Act  
+        await act(async () => { 
+            try { 
+                vi.fn(fetchAdminUsers).mockResolvedValueOnce([]);
+            } catch (err) {
+                expect(err).toBeInstanceOf(Error);  
+                expect(String(err)).toBe('Failed to fetch admin users data');
+            }
+        });
+    });
 
     it('insert broker group data successfully', async () => {  
         vi.fn(fetchBrokerGroups).mockResolvedValueOnce([]);  

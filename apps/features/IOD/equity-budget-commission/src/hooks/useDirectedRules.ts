@@ -22,6 +22,7 @@ import {
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info';
 import { fetchBrokers } from '../services/broker-service';
 import { fetchPortfolios } from '../services/portfolio-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
 
 interface UseDirectedRulesProps {
   userInfo: UserInfo;
@@ -32,6 +33,7 @@ export function useDirectedRules({ userInfo }: UseDirectedRulesProps) {
   const [directedRulesXref, setDirectedRulesXref] = useState<MaintenanceDirectedRulesXref[]>([]);
   const [portfolios, setPortfolios] = useState<MaintenancePortfolio[]>([]);
   const [brokers, setBrokers] = useState<MaintenanceBroker[]>([]);
+  const [isAdmin,setIsAdmin] = useState<boolean>(false);
 
   // Refs to avoid stale closure reads in async operations
   const directedRulesRef = useRef<MaintenanceDirectedRules[]>([]);
@@ -78,11 +80,12 @@ export function useDirectedRules({ userInfo }: UseDirectedRulesProps) {
 
     const loadData = async () => {
       try {
-        const [rules, xrefs, portfolioData, brokerData] = await Promise.all([
+        const [rules, xrefs, portfolioData, brokerData, adminData] = await Promise.all([
           fetchDirectedRules(),
           fetchDirectedRulesXref(),
           fetchPortfolios(),
           fetchBrokers(),
+          fetchAdminUsers(),
         ]);
 
         if (!alive) return;
@@ -91,6 +94,10 @@ export function useDirectedRules({ userInfo }: UseDirectedRulesProps) {
         setDirectedRulesXref(xrefs ?? []);
         setPortfolios(portfolioData ?? []);
         setBrokers(brokerData ?? []);
+        const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+        if(u){
+            setIsAdmin(true);
+        }
       } catch (error) {
         console.error('Error loading data:', error);
       }
@@ -222,5 +229,6 @@ export function useDirectedRules({ userInfo }: UseDirectedRulesProps) {
     addDirectedRuleXref,
     modifyDirectedRuleXref,
     removeDirectedRuleXref,
+    isAdmin
   };
 }

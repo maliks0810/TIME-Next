@@ -6,6 +6,7 @@ import {
   fetchBrokers,
   fetchMasterBrokers,
 } from '../services/broker-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
 import {
   MaintenanceBroker,
   MaintenanceMasterBroker,
@@ -20,6 +21,7 @@ interface UseBrokersProps {
 export function useBrokers({ userInfo }: UseBrokersProps) {
   const [brokers, setBrokers] = useState<MaintenanceBroker[]>([]);
   const [masterBrokers, setMasterBrokers] = useState<MaintenanceMasterBroker[]>([]);
+  const [isAdmin,setIsAdmin] = useState<boolean>(false);
 
   /** ✅ normalize API data once */
   const normalizeBrokers = useCallback(
@@ -44,6 +46,16 @@ export function useBrokers({ userInfo }: UseBrokersProps) {
 
   /** initial load */
   useEffect(() => {
+    const loadAdminData = async() => {
+      const [adminData] = await Promise.all([
+        fetchAdminUsers()
+      ]);
+      const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+      if(u){
+        setIsAdmin(true);
+      }
+    };
+    loadAdminData();
     void reload();
   }, [reload]);
 
@@ -101,5 +113,6 @@ export function useBrokers({ userInfo }: UseBrokersProps) {
     addBroker,
     modifyBroker,
     removeBroker,
+    isAdmin
   };
 }

@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useDivisions } from '../../hooks/useDivisionData';
 import { fetchDivisions, createDivision, deleteDivision, updateDivision} from '../../services/division-service';
-import { MaintenanceDivision, RequestMaintenanceDivision } from '../../datatypes/budget-maintenance-types';
+import { fetchAdminUsers } from '../../services/admin-user-service';
+import { MaintenanceDivision, MaintenanceUser, RequestMaintenanceDivision } from '../../datatypes/budget-maintenance-types';
 import { UserInfo } from '../../../../../../../packages/utils/src/hooks/Authentication/user-info';
 
 vi.mock('@platform/utils', () => ({
@@ -16,12 +17,21 @@ vi.mock('../../services/division-service', () => ({
     deleteDivision: vi.fn(),    
 }));
 
+vi.mock('../../services/admin-user-service', () => ({
+    fetchAdminUsers: vi.fn(),
+}));
+
 const userInfo: UserInfo = { id:'test1', name: 'Test User', email:'Test@test.com', isAdmin:false };  
 
 const mockDivisions:MaintenanceDivision[] = [
     { divisionId:1, divisionName:"Div1 Name", status:"Active", active:true, lastUpdateDate: new Date()},
     { divisionId:2, divisionName:"Div2 Name", status:"Active", active:true, lastUpdateDate: new Date()}
-]
+];
+
+const mockUsers: MaintenanceUser[] = [
+    { userId: 1, userName: 'User,Test', firstName: 'Test', lastName:'User', locationCode: 'US', status: 'Active', active:true, lastUpdateBy:'User1', 
+        divisionId:1, departmentId:1, startDate:'01-01-2025', endDate:'12-31-2025', coopDptCode:0, coopStaffCode:0, costCenterCode:'', jobCode:'', admin:true  }  
+];
 
 describe('useDivisions hook', () => {
     beforeEach(() => {
@@ -62,6 +72,35 @@ describe('useDivisions hook', () => {
         });
     });
 
+    it('loads admin users data', async () => {  
+        vi.fn(fetchAdminUsers).mockResolvedValueOnce(mockUsers);  
+
+        const { result } = renderHook(() =>  
+            useDivisions({userInfo})  
+        );  
+
+        await waitFor(() => {  
+            expect(result.current.isAdmin).toEqual(true);  
+        });  
+
+        expect(fetchAdminUsers).toHaveBeenCalledTimes(1);  
+    }); 
+    it('handle error when fetch admin users data failed', async () => {  
+        vi.fn(fetchAdminUsers).mockRejectedValueOnce(  
+            new Error('Failed to fetch admin users data')  
+        );  
+
+        // Act  
+        await act(async () => { 
+            try { 
+                vi.fn(fetchAdminUsers).mockResolvedValueOnce([]);
+            } catch (err) {
+                expect(err).toBeInstanceOf(Error);  
+                expect(String(err)).toBe('Failed to fetch admin users data');
+            }
+        });
+    });
+    
     it('insert division data successfully', async () => {  
         vi.fn(fetchDivisions).mockResolvedValueOnce([]); 
 
