@@ -1,3 +1,11 @@
+export interface IUserRole {
+    userRoleId: number;
+    userEmail: string;
+    userName: string;
+    roleDescription: string;
+    roleIds: string[];
+}
+
 export interface IReferenceDataKeyValue {
     fieldDropdownValueId: number;
     fieldDropdownValue: string;
