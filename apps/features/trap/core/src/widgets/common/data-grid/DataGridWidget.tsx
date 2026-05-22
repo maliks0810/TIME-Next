@@ -90,39 +90,46 @@ export default function DataGridWidget({
     return (
         <>
             <WidgetCardShell>
-                <DataGrid
-                    ref={gridRef}
-                    className={styles.grid}
-                    /* TODO: fix rows type */
-                    dataSource={rows as []}
-                    allowColumnReordering={false}
-                    rowAlternationEnabled
-                    showColumnLines={false}
-                    showBorders={false}
-                    width="100%"
-                    keyExpr={rowKeyField as string}
-                    onExporting={() => handleExport(gridRef)}
-                    onSelectionChanged={handleSelectRow}
-                >
-                    <SearchPanel visible={true} />
+                <div className="antd-dx-container">
+                    <DataGrid
+                        ref={gridRef}
+                        className={styles.grid}
+                        /* TODO: fix rows type */
+                        dataSource={rows as []}
+                        allowColumnReordering={false}
+                        rowAlternationEnabled
+                        showColumnLines={false}
+                        showBorders={false}
+                        width="100%"
+                        keyExpr={rowKeyField as string}
+                        onExporting={() => handleExport(gridRef)}
+                        onSelectionChanged={handleSelectRow}
+                    >
+                        <SearchPanel visible={true} />
 
-                    <Scrolling mode="virtual" />
-                    <GroupPanel visible={true} />
-                    <Grouping autoExpandAll={false} />
-                    <Export enabled />
-                    {/* TODO: fix columns type */}
-                    {(columns as Array<unknown>).map((columnOptions: any) => (
-                        <Column {...columnOptions} key={columnOptions.dataField} />
-                    ))}
-                    <Column width={0} />
-                    <Pager visible={false} />
-                    <Selection
-                        mode={selectionMode}
-                        allowSelectAll={false}
-                        selectByClick={true}
-                        showCheckBoxesMode="onClick"
-                    />
-                </DataGrid>
+                        <Scrolling mode="virtual" />
+                        <GroupPanel visible={true} />
+                        <Grouping autoExpandAll={false} />
+                        <Export enabled />
+                        {/* TODO: fix columns type */}
+                        {(columns as Array<unknown>).map((columnOptions: any) => (
+                            <Column
+                                {...columnOptions}
+                                key={columnOptions.dataField}
+                                width={undefined}
+                                minWidth={columnOptions.width}
+                            />
+                        ))}
+                        <Column width={0} />
+                        <Pager visible={false} />
+                        <Selection
+                            mode={selectionMode}
+                            allowSelectAll={false}
+                            selectByClick={true}
+                            showCheckBoxesMode="onClick"
+                        />
+                    </DataGrid>
+                </div>
             </WidgetCardShell>
         </>
     );

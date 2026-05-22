@@ -17,6 +17,7 @@ export const coreApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
         team: 'R2',
         component: lazy(() => import('@r2/core/src/App')),
         description: '',
+        hideFooter: true,
     },
     {
         type: 'internal',
@@ -31,6 +32,7 @@ export const coreApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
         team: 'R2',
         component: lazy(() => import('@r2/core/src/App')),
         description: '',
+        hideFooter: true,
     },
     {
         type: 'internal',
@@ -45,5 +47,6 @@ export const coreApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
         team: 'R2',
         component: lazy(() => import('@r2/core/src/App')),
         description: '',
+        hideFooter: true,
     },
 ];

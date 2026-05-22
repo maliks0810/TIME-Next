@@ -6,7 +6,7 @@ import WidgetHost from '../../../components/widget-runtime/WidgetHost';
 
 import type { WidgetLayout } from '../../../state/types';
 import type { DesignerWidgetInstance } from '../types/workflowDesigner.types';
-import { hasConfigurableSchema, safeJsonParse } from '../utils/workflowDesigner.utils';
+import { hasConfigurableSchema } from '../utils/workflowDesigner.utils';
 import { WidgetConfigureModal } from '../../widget-studio/WidgetConfigureModal';
 import { WidgetDefinitionLike } from '../../../types/widget';
 
@@ -42,7 +42,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
             isPublished,
             isDraft,
             isDraftSaved,
-            defaultContextJson,
             onRemove,
             className,
             style,
@@ -238,7 +237,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                 emitsKeys: widget?.emitsKeys,
                             }}
                             widgetDefinition={widgetDefinition}
-                            contextSnapshot={safeJsonParse(defaultContextJson, {})}
                             mode="designer"
                         />
                     </div>

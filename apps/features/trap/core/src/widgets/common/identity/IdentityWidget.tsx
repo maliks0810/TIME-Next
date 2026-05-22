@@ -5,14 +5,8 @@ import type { WidgetComponentProps } from '../../../types/widget';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 
 export default function IdentityWidget(props: WidgetComponentProps) {
-    const [cusip, setCusip] = React.useState(
-        String(props.contextSnapshot?.['security.cusip'] ?? '')
-    );
-
-    React.useEffect(() => {
-        setCusip(String(props.contextSnapshot?.['security.cusip'] ?? ''));
-    }, [props.contextSnapshot]);
-
+    const [cusip, setCusip] = React.useState('');
+    console.log(props.result);
     const publishCusip = () => {
         const value = cusip.trim();
         if (!value) {
@@ -20,7 +14,8 @@ export default function IdentityWidget(props: WidgetComponentProps) {
             return;
         }
 
-        props.onPublishContext?.('security.cusip', value, props.widgetInstance?.id);
+        // TODO switch to Zustand
+        // props.onPublishContext?.('security.cusip', value, props.widgetInstance?.id);
         message.success('CUSIP published to context');
     };
 

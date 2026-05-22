@@ -1,12 +1,10 @@
-import React from 'react';
-
 import LandingCanvas from './components/LandingCanvas';
 import { useLanding } from './hooks/useLanding';
 import type { LandingTabProps } from './types/landing.types';
 import { Alert } from 'antd';
 
 export default function LandingTab(props: LandingTabProps) {
-    const { bus, snapshot, openWorkflowFromRecent, compiledLandingVersion, hasLanding, isLoading } =
+    const { openWorkflowFromRecent, compiledLandingVersion, hasLanding, isLoading } =
         useLanding(props);
 
     if (isLoading) {
@@ -26,8 +24,6 @@ export default function LandingTab(props: LandingTabProps) {
 
     return (
         <LandingCanvas
-            snapshot={snapshot}
-            bus={bus}
             onOpenWorkflowFromRecent={openWorkflowFromRecent}
             compiledLandingVersion={compiledLandingVersion}
         />
