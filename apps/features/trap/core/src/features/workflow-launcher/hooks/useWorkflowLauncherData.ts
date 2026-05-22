@@ -45,7 +45,7 @@ function toFriendlyTemplateError(err: any, fallback: string) {
     const raw = String(extractErrorMessage(err, fallback));
 
     if (raw.toLowerCase().includes('already exists')) {
-        return 'That workflow name is already taken for this Class-1 / Class-2 / Class-3 combination.';
+        return 'That workspace name is already taken for this Class-1 / Class-2 / Class-3 combination.';
     }
 
     return raw;
