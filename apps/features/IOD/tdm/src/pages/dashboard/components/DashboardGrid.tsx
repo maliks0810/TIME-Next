@@ -325,7 +325,6 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         onRowClick={onRowClick}
         onOptionChanged={handleOptionChanged}
         repaintChangesOnly={true}
-        loadPanel={{enabled: false}}
       >
         <StateStoring
           enabled
