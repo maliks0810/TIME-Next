@@ -9,8 +9,6 @@ import WorkflowTab from '../features/workflow-runtime/WorkflowTab';
 import TrapHud from '../components/common/TrapHud';
 
 import { cloneTemplate, getTemplates, openTemplate } from '../api/trap';
-import type { ContextBus, WorkflowContext } from '../state/contextBus';
-import { createContextBus } from '../state/contextBus';
 
 import { setDefaultLandingTemplate } from '../utils/userPreferences';
 import { useGetActiveTab, useSetActiveTab } from '../state/Tabs/hooks';
@@ -22,8 +20,6 @@ type WorkflowTabModel = {
     templateId: string;
     templateVersionId: string;
     templateVersionStatus: string;
-    initialContext?: WorkflowContext;
-    bus: ContextBus;
 };
 
 type OpenWorkflowRequest = Omit<WorkflowTabModel, 'bus'>;
@@ -33,7 +29,6 @@ type HudWorkflowSelection = {
     templateVersionId: string;
     templateName: string;
     templateVersionStatus: string;
-    initialContext?: WorkflowContext;
 };
 
 type HudLandingSelection = {
@@ -42,11 +37,23 @@ type HudLandingSelection = {
 };
 
 const TAB_BAR_HEIGHT = 48;
+const WORKFLOWS_STORAGE_KEY = 'activeWorkflows';
+
+const saveTabsToStorage = (workflows: WorkflowTabModel[]) => {
+    localStorage.setItem(WORKFLOWS_STORAGE_KEY, JSON.stringify(workflows));
+};
+const loadTabsFromStorage = () => {
+    try {
+        return JSON.parse(localStorage.getItem(WORKFLOWS_STORAGE_KEY) as string) ?? [];
+    } catch {
+        return [];
+    }
+};
 
 export default function TrapLandingPage() {
     const nav = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
-    const [workflows, setWorkflows] = React.useState<WorkflowTabModel[]>([]);
+    const [workflows, setWorkflows] = React.useState<WorkflowTabModel[]>(loadTabsFromStorage());
     const activeKey = useGetActiveTab();
     const setActiveKey = useSetActiveTab();
 
@@ -54,17 +61,36 @@ export default function TrapLandingPage() {
         HudLandingSelection | undefined
     >();
 
-    const addWorkflowTab = React.useCallback((ws: OpenWorkflowRequest) => {
-        setWorkflows((prev) => {
-            const existing = prev.find((x) => x.workflowId === ws.workflowId);
-            if (existing) return prev;
+    useEffect(() => {
+        saveTabsToStorage(workflows);
+    }, [workflows]);
 
-            const bus = createContextBus(ws.initialContext ?? {});
-            return [...prev, { ...ws, bus }];
-        });
+    useEffect(() => {
+        if (activeKey === 'landing') {
+            setSearchParams({}, { replace: true });
+        }
 
-        setActiveKey(ws.workflowId);
-    }, []);
+        const activeWf = workflows.find(({ workflowId }) => workflowId === activeKey);
+        if (activeWf) {
+            const newParams = new URLSearchParams();
+            newParams.set('template_id', activeWf.templateId);
+            newParams.set('version_id', activeWf.templateVersionId);
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [activeKey]);
+
+    const addWorkflowTab = React.useCallback(
+        (ws: OpenWorkflowRequest) => {
+            const existing = workflows.find((x) => x.templateId === ws.templateId);
+            if (existing) {
+                setActiveKey(existing.workflowId);
+            } else {
+                setWorkflows((prev) => [...prev, ws]);
+                setActiveKey(ws.workflowId);
+            }
+        },
+        [workflows]
+    );
 
     const closeWorkflowTab = React.useCallback((workflow: string) => {
         setWorkflows((prev) => {
@@ -126,10 +152,7 @@ export default function TrapLandingPage() {
     const onLaunchHudWorkflow = React.useCallback(
         async (selection: HudWorkflowSelection) => {
             try {
-                const opened = await openTemplate(
-                    selection.templateVersionId,
-                    selection.initialContext ?? {}
-                );
+                const opened = await openTemplate(selection.templateVersionId, {});
 
                 addWorkflowTab({
                     key: opened.workflowId,
@@ -138,7 +161,6 @@ export default function TrapLandingPage() {
                     templateId: selection.templateId,
                     templateVersionId: selection.templateVersionId,
                     templateVersionStatus: selection.templateVersionStatus,
-                    initialContext: selection.initialContext ?? {},
                 });
 
                 const newParams = new URLSearchParams();
@@ -305,8 +327,6 @@ export default function TrapLandingPage() {
                             workflowId={ws.workflowId}
                             templateId={ws.templateId}
                             templateVersionId={ws.templateVersionId}
-                            bus={ws.bus}
-                            initialContext={ws.initialContext ?? {}}
                             onClose={() => closeWorkflowTab(ws.workflowId)}
                         />
                     </div>

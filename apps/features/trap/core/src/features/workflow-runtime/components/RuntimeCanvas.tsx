@@ -2,8 +2,6 @@
 import React from 'react';
 import CanvasContainer from '../../../components/layout/CanvasContainer';
 import WidgetHost from '../../../components/widget-runtime/WidgetHost';
-import type { ContextBus } from '../../../state/contextBus';
-
 type RuntimeCanvasProps = {
     layout: any[];
     runtimeItems: Array<{
@@ -11,8 +9,6 @@ type RuntimeCanvasProps = {
         widgetInstance: any;
         widgetDefinition: any;
     }>;
-    snapshot: Record<string, any>;
-    bus: ContextBus;
 };
 
 export default function RuntimeCanvas(props: RuntimeCanvasProps) {
@@ -36,11 +32,7 @@ export default function RuntimeCanvas(props: RuntimeCanvasProps) {
                     <WidgetHost
                         widgetInstance={widgetInstance}
                         widgetDefinition={widgetDefinition}
-                        contextSnapshot={props.snapshot}
                         mode="workflow"
-                        onPublishContext={(key, value, sourceWidgetId) =>
-                            props.bus.publish({ key, value, sourceWidgetId })
-                        }
                     />
                 </div>
             ))}

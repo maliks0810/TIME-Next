@@ -209,9 +209,9 @@ export default function WorkflowLauncherModal(props: Props) {
     }, [isCreatingLanding]);
 
     const leftNavItems: Array<{ key: LauncherMode; label: string; icon: React.ReactNode }> = [
-        { key: 'new', label: 'New Workflow', icon: <PlusOutlined /> },
-        { key: 'public', label: 'Public Workflows', icon: <AppstoreOutlined /> },
-        { key: 'mine', label: 'My Workflows', icon: <FolderOpenOutlined /> },
+        { key: 'new', label: 'New Workspace', icon: <PlusOutlined /> },
+        { key: 'public', label: 'Public Workflow', icon: <AppstoreOutlined /> },
+        { key: 'mine', label: 'My Workflow', icon: <FolderOpenOutlined /> },
         { key: 'landing', label: 'Landing', icon: <FolderOpenOutlined /> },
     ];
 
@@ -268,11 +268,11 @@ export default function WorkflowLauncherModal(props: Props) {
                 `designer?templateId=${encodeURIComponent(String(tpl.id))}&versionId=${encodeURIComponent(String(tv.id))}`
             );
         } catch (err: any) {
-            const raw = err?.message || err?.response?.body?.error || 'Failed to create workflow';
+            const raw = err?.message || err?.response?.body?.error || 'Failed to create workspace';
 
             if (String(raw).toLowerCase().includes('already exists')) {
                 setCreateError(
-                    'That workflow name is already taken for this Class-1 / Class-2 / Class-3 combination.'
+                    'That workspace name is already taken for this Class-1 / Class-2 / Class-3 combination.'
                 );
             } else {
                 setCreateError(String(raw));
@@ -288,10 +288,10 @@ export default function WorkflowLauncherModal(props: Props) {
                 return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         <Typography.Title level={5} style={{ margin: 0 }}>
-                            New Workflow
+                            New Workspace
                         </Typography.Title>
                         <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                            Define the workflow first, then create the draft and open Designer.
+                            Define the workspace first, then create the draft and open Designer.
                         </Typography.Text>
                     </div>
                 );
@@ -521,7 +521,7 @@ export default function WorkflowLauncherModal(props: Props) {
                                     .toLowerCase() === String(currentUser).trim().toLowerCase() &&
                                 item.templateId === templateId
                         )}
-                        onLaunch={(x) => launchItem(x, 'mine')}
+                        onLaunch={(x) => launchItem(x, 'public')}
                         onClone={cloneItem}
                         onEdit={editItem}
                         onRename={renameItem}
@@ -606,10 +606,10 @@ export default function WorkflowLauncherModal(props: Props) {
                     </div>
                     <div>
                         <Typography.Title level={4} style={{ margin: 0, color: titleColor }}>
-                            Launch Workflow
+                            Launch Workspace
                         </Typography.Title>
                         <Typography.Text style={{ color: secondaryTextColor }}>
-                            Start fresh, use a shared workflow, or manage one of your own.
+                            Start fresh, use a shared workspace, or manage one of your own.
                         </Typography.Text>
                     </div>
                 </Space>
@@ -692,7 +692,7 @@ export default function WorkflowLauncherModal(props: Props) {
                             }}
                         >
                             <Typography.Title level={5} style={{ margin: 0 }}>
-                                + New Workflow
+                                + New Workspace
                             </Typography.Title>
 
                             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
@@ -711,7 +711,7 @@ export default function WorkflowLauncherModal(props: Props) {
                                 <Input
                                     value={createName}
                                     onChange={(e) => setCreateName(e.target.value)}
-                                    placeholder="Workflow name"
+                                    placeholder="Workspace name"
                                     style={{ marginTop: 6 }}
                                 />
                             </div>
@@ -847,7 +847,7 @@ export default function WorkflowLauncherModal(props: Props) {
                                     disabled={createDisabled}
                                     onClick={handleCreateWorkflow}
                                 >
-                                    Create Workflow
+                                    Create Workspace
                                 </Button>
                             </Space>
                         </div>

@@ -7,6 +7,7 @@ import TrapLandingPage from './pages/TrapLandingPage';
 import TemplateDesignerPage from './features/workflow-designer/WorkflowDesignerPage';
 import WidgetStudioConfigurePage from './features/widget-studio/WidgetStudioConfigurePage';
 import 'devextreme/dist/css/dx.light.css';
+import './styles/datagrid-theme-bridge.scss';
 
 import { ThemeContext, getThemeConfig, ThemeName } from './theme/ThemeContext';
 import { AdminPanel } from './features/AdminPanel';

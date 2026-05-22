@@ -1,0 +1,139 @@
+.antd-dx-container {
+    height: 100%;
+
+    .dx-widget,
+    .dx-datagrid {
+        /* ── Typography ── */
+        --dx-font-size: var(--ant-font-size, 11px);
+        --dx-font-family: var(--ant-font-family, 'Lato', monospace);
+        color: var(--ant-color-text);
+        font-family: var(--ant-font-family);
+        font-size: var(--ant-font-size);
+
+        /* ── Backgrounds ── */
+        --dx-color-main-bg: var(--ant-color-bg-container);
+        --dx-datagrid-base-background-color: var(--ant-color-bg-container);
+
+        /* ── Borders ── */
+        --dx-border-color: var(--ant-color-border);
+        border-color: var(--ant-color-border);
+    }
+
+    /* Header */
+    .dx-datagrid-headers {
+        background-color: var(--ant-color-fill-quaternary);
+        color: var(--ant-color-text-secondary);
+        border-bottom: 1px solid var(--ant-color-border);
+        font-weight: 600;
+    }
+
+    .dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+        background-color: var(--ant-color-fill-quaternary, #fafafa);
+        color: var(--ant-color-text-secondary);
+    }
+
+    /* Body rows */
+    .dx-datagrid-rowsview .dx-row > td {
+        color: var(--ant-color-text) !important;
+        background-color: var(--ant-color-bg-container);
+    }
+
+    /* Alternating rows */
+    .dx-datagrid-rowsview .dx-row-alt > td {
+        background-color: color-mix(
+            in srgb,
+            var(--ant-color-bg-container) 96%,
+            var(--ant-color-text) 4%
+        );
+    }
+
+    /* Hover state */
+    .dx-datagrid-rowsview .dx-row:not(.dx-header-row):hover > td {
+        background-color: var(--ant-color-primary-bg-hover, #e6f4ff) !important;
+    }
+
+    /* Selected row */
+    .dx-datagrid-rowsview .dx-selection.dx-row > td,
+    .dx-datagrid-rowsview .dx-selection.dx-row:hover > td {
+        background-color: var(--ant-color-primary-bg);
+        color: var(--ant-color-text);
+    }
+
+    /* Focus / active row */
+    .dx-datagrid-rowsview .dx-row-focused > td {
+        background-color: var(--ant-color-primary-bg-hover, #bae0ff);
+        color: var(--ant-color-text);
+    }
+
+    /* ── Pager ── */
+    .dx-datagrid-pager {
+        background-color: var(--ant-color-bg-container);
+        border-top: 1px solid var(--ant-color-border);
+        color: var(--ant-color-text-secondary);
+    }
+
+    .dx-pager .dx-page-sizes .dx-selection,
+    .dx-pager .dx-pages .dx-selection {
+        background-color: var(--ant-color-primary);
+        color: #fff;
+        border-radius: var(--ant-border-radius);
+    }
+
+    /* ── Buttons (column chooser, etc.) ── */
+    .dx-button .dx-button-content {
+        color: var(--ant-color-primary);
+    }
+
+    .dx-button.dx-button-default {
+        background-color: var(--ant-color-primary);
+        border-color: var(--ant-color-primary);
+        border-radius: var(--ant-border-radius);
+        color: #fff;
+    }
+
+    .dx-button.dx-button-normal {
+        background-color: var(--ant-color-bg-container);
+        border-color: var(--ant-color-border);
+        border-radius: var(--ant-border-radius);
+        color: var(--ant-color-text);
+    }
+
+    /* ── Inputs (filter row, search panel) ── */
+    .dx-texteditor.dx-editor-outlined {
+        background-color: var(--ant-color-bg-container);
+        border-color: var(--ant-color-border);
+        border-radius: var(--ant-border-radius);
+        color: var(--ant-color-text);
+    }
+
+    .dx-texteditor.dx-editor-outlined.dx-state-focused {
+        border-color: var(--ant-color-primary);
+        box-shadow: 0 0 0 2px var(--ant-color-primary-border-hover, rgba(22, 119, 255, 0.2));
+    }
+
+    /* ── Scrollbar ── */
+    .dx-scrollbar-hoverable .dx-scrollable-scroll-content {
+        background-color: var(--ant-color-fill-secondary);
+        border-radius: 4px;
+    }
+
+    .dx-datagrid-text-content {
+        white-space: normal !important;
+        word-break: break-word;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    .dx-datagrid-content {
+        background-color: var(--ant-color-bg-container);
+        color: var(--ant-color-text) !important;
+    }
+
+    .dx-datagrid-nodata {
+        color: var(--ant-color-text) !important;
+    }
+
+    colgroup col:not(:last-child) {
+        min-width: 40px;
+    }
+}
