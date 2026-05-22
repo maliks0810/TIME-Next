@@ -83,9 +83,7 @@ export type WidgetComponentProps = {
     result?: Record<string, unknown>;
     loading?: boolean;
     error?: string;
-    contextSnapshot?: Record<string, any>;
     mode: WidgetRenderMode;
-    onPublishContext?: (key: string, value: any, sourceWidgetId?: string) => void;
     uiActions?: WidgetUIActions;
     execute?: (
         variables?: Record<string, WidgetValueType>,
