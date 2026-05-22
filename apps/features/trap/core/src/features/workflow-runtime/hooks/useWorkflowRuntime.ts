@@ -1,9 +1,8 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { message } from 'antd';
 
 import { getCompiledWorkflowView, listWidgetDefinitions } from '../../../api/trap';
-import { createContextBus } from '../../../state/contextBus';
 
 import type { WorkflowTabProps } from '../types/workflowRuntime.types';
 import {
@@ -13,66 +12,58 @@ import {
     safeParseJson,
     widgetsMapById,
 } from '../utils/workflowRuntime.utils';
+import { useGetActiveTab } from '../../../state/Tabs/hooks';
 
 export function useWorkflowRuntime(props: WorkflowTabProps) {
-    const bus = React.useMemo(
-        () => props.bus ?? createContextBus(props.initialContext),
-        [props.bus, props.initialContext]
-    );
+    const [loadingWorkflow, setLoadingWorkflow] = useState(false);
+    const [compiled, setCompiled] = useState<any>(null);
+    const [widgetDefs, setWidgetDefs] = useState<any[]>([]);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    const [loadingWorkflow, setLoadingWorkflow] = React.useState(false);
-    const [compiled, setCompiled] = React.useState<any>(null);
-    const [widgetDefs, setWidgetDefs] = React.useState<any[]>([]);
+    const activeTab = useGetActiveTab();
 
-    const [snapshot, setSnapshot] = React.useState(() => bus.snapshot ?? {});
+    const getWidgetDefinitions = async () => {
+        try {
+            const defs = await listWidgetDefinitions();
+            setWidgetDefs(defs);
+        } catch (e: any) {
+            message.error(e?.message ?? 'Failed to load widget catalog');
+        }
+    };
+    const getCompiledWorkflow = async () => {
+        setLoadingWorkflow(true);
+        try {
+            const resp = await getCompiledWorkflowView(props.workflowId);
+            const view = resp?.view ?? resp;
+            const parsed = safeParseJson(view) ?? view;
+            setCompiled(parsed);
+        } catch (e: any) {
+            setCompiled(null);
+            message.error(e?.message ?? 'Failed to load compiled workflow view');
+        } finally {
+            setLoadingWorkflow(false);
+        }
+    };
 
-    React.useEffect(() => {
-        const unsub = bus.subscribe(`workflow_snapshot_${props.workflowId}`, (ctx) =>
-            setSnapshot(ctx)
-        );
-        setSnapshot(bus.snapshot ?? {});
-        return () => unsub();
-    }, [props.workflowId, bus]);
+    useEffect(() => {
+        if (activeTab === props.workflowId && isInitialLoading) {
+            getWidgetDefinitions();
+            getCompiledWorkflow();
+            setIsInitialLoading(false);
+        }
+    }, [activeTab, isInitialLoading]);
 
-    React.useEffect(() => {
-        (async () => {
-            try {
-                const defs = await listWidgetDefinitions();
-                setWidgetDefs(defs);
-            } catch (e: any) {
-                message.error(e?.message ?? 'Failed to load widget catalog');
-            }
-        })();
-    }, []);
-
-    React.useEffect(() => {
-        (async () => {
-            setLoadingWorkflow(true);
-            try {
-                const resp = await getCompiledWorkflowView(props.workflowId);
-                const view = resp?.view ?? resp;
-                const parsed = safeParseJson(view) ?? view;
-                setCompiled(parsed);
-            } catch (e: any) {
-                setCompiled(null);
-                message.error(e?.message ?? 'Failed to load compiled workflow view');
-            } finally {
-                setLoadingWorkflow(false);
-            }
-        })();
-    }, [props.workflowId]);
-
-    const widgetDefById = React.useMemo(() => {
+    const widgetDefById = useMemo(() => {
         const m: Record<string, any> = {};
         for (const d of widgetDefs) m[String(d.id)] = d;
         return m;
     }, [widgetDefs]);
 
-    const layoutFromCompiled = React.useMemo(() => extractLayout(compiled), [compiled]);
-    const widgetsArr = React.useMemo(() => extractWidgetsArray(compiled), [compiled]);
-    const widgetsById = React.useMemo(() => widgetsMapById(widgetsArr), [widgetsArr]);
+    const layoutFromCompiled = useMemo(() => extractLayout(compiled), [compiled]);
+    const widgetsArr = useMemo(() => extractWidgetsArray(compiled), [compiled]);
+    const widgetsById = useMemo(() => widgetsMapById(widgetsArr), [widgetsArr]);
 
-    const runtimeItems = React.useMemo(() => {
+    const runtimeItems = useMemo(() => {
         return layoutFromCompiled
             .filter((it: any) => !!widgetsById[it.i])
             .map((it: any) => {
@@ -93,8 +84,6 @@ export function useWorkflowRuntime(props: WorkflowTabProps) {
     };
 
     return {
-        bus,
-        snapshot,
         compiled,
         loadingWorkflow,
         layoutFromCompiled,

@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
-import React, { useState } from 'react';
+import React from 'react';
 import { message } from 'antd';
 
 import {
@@ -10,9 +10,9 @@ import {
     getTemplateVersion,
     TemplateSummary,
 } from '../../../api/trap';
-import { createContextBus, type WorkflowContext } from '../../../state/contextBus';
+import { type WorkflowContext } from '../../../state/contextBus';
 
-import type { LandingTabProps, Template, TemplateVersion } from '../types/landing.types';
+import type { LandingTabProps, TemplateVersion } from '../types/landing.types';
 import { pickBestVersion } from '../utils/landing.utils';
 import {
     getDefaultLandingTemplate,
@@ -22,11 +22,9 @@ import { useUserInfo } from '@platform/utils';
 import { useGetActiveUser } from '../../../state/User/hooks';
 
 export function useLanding(props: LandingTabProps) {
-    const bus = React.useMemo(() => createContextBus(), []);
     const defaultLanding = React.useMemo(() => getDefaultLandingTemplate(), []);
 
     const { claims } = useUserInfo();
-    const [snapshot, setSnapshot] = React.useState(() => bus.snapshot ?? {});
     const [compiledLandingVersion, setCompiledLandingVersion] = React.useState<any>(null);
     const [targetTemplateId, setTargetTemplateId] = React.useState<string>();
     const [targetTemplateVersionId, setTargetTemplateVersionId] = React.useState<string>();
@@ -34,12 +32,6 @@ export function useLanding(props: LandingTabProps) {
     const [isLoading, setIsLoading] = React.useState(false);
     const hasLanding = Boolean(targetTemplateId && targetTemplateVersionId);
     const activeUser = useGetActiveUser();
-
-    React.useEffect(() => {
-        const unsub = bus.subscribe('landing_snapshot', (ctx) => setSnapshot(ctx));
-        setSnapshot(bus.snapshot ?? {});
-        return () => unsub();
-    }, [bus]);
 
     const getSavedLandingTemplate = () => {
         const saved = getDefaultLandingTemplate();
@@ -227,7 +219,6 @@ export function useLanding(props: LandingTabProps) {
             }
 
             const ctx: WorkflowContext = {
-                ...bus.snapshot,
                 ...(input.context ?? {}),
             };
 
@@ -243,12 +234,10 @@ export function useLanding(props: LandingTabProps) {
                 initialContext: ctx,
             });
         },
-        [bus, props]
+        [props]
     );
 
     return {
-        bus,
-        snapshot,
         openWorkflowFromRecent,
         compiledLandingVersion,
         hasLanding,

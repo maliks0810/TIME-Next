@@ -92,60 +92,80 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
                 messageApi={messageApi}
             />
             <WidgetCardShell>
-                <DataGrid
-                    key={props.widgetInstance.id}
-                    className={styles.grid}
-                    /* TODO: fix rows type */
-                    dataSource={dataSource as Array<{ assetAnalyticsSetupId: string }>}
-                    allowColumnReordering={false}
-                    rowAlternationEnabled
-                    hoverStateEnabled
-                    showBorders
-                    width="100%"
-                    keyExpr="aladdinId"
-                    onRowDblClick={({ data }) => {
-                        window.open(`/risk/arc?assetId=${data.assetAnalyticsSetupId}`, '_blank');
-                    }}
-                >
-                    <Paging
-                        defaultPageSize={props.widgetInstance?.config?.params?.pageSize || 25}
-                    />
-                    <Pager
-                        visible={true}
-                        allowedPageSizes={[10, 25, 50, 'all']}
-                        displayMode="full"
-                        showPageSizeSelector
-                        showInfo
-                        showNavigationButtons
-                    />
-                    <HeaderFilter visible />
-                    {/* TODO: fix columns type */}
-                    {(props.result.columns as Array<unknown>).map((columnOptions: any) =>
-                        columnOptions.dataField === 'status' ? (
-                            <Column
-                                {...columnOptions}
-                                key={columnOptions.dataField}
-                                cellRender={statusCustomCellRenderer}
-                            />
-                        ) : (
-                            <Column {...columnOptions} key={columnOptions.dataField} />
-                        )
-                    )}
-                    <Column
-                        caption="Preview"
-                        allowEditing={false}
-                        allowFiltering={false}
-                        allowSorting={false}
-                        alignment="center"
-                        width={60}
-                        cellRender={({ data }) => (
-                            <PreviewCustomCellRenderer
-                                data={data}
-                                handlePreview={setPreviewState}
-                            />
+                <div className="antd-dx-container">
+                    <DataGrid
+                        key={props.widgetInstance.id}
+                        columnAutoWidth={false}
+                        columnResizingMode="widget"
+                        className={styles.grid}
+                        /* TODO: fix rows type */
+                        dataSource={dataSource as Array<{ assetAnalyticsSetupId: string }>}
+                        allowColumnReordering={false}
+                        rowAlternationEnabled
+                        hoverStateEnabled
+                        showBorders
+                        width="100%"
+                        keyExpr="aladdinId"
+                        onRowDblClick={({ data }) => {
+                            window.open(
+                                `/risk/arc?assetId=${data.assetAnalyticsSetupId}`,
+                                '_blank'
+                            );
+                        }}
+                    >
+                        <Paging
+                            defaultPageSize={props.widgetInstance?.config?.params?.pageSize || 25}
+                        />
+                        <Pager
+                            visible={true}
+                            allowedPageSizes={[10, 25, 50, 'all']}
+                            displayMode="full"
+                            showPageSizeSelector
+                            showInfo
+                            showNavigationButtons
+                        />
+                        <HeaderFilter visible />
+                        {/* TODO: fix columns type */}
+                        {(props.result.columns as Array<unknown>).map((columnOptions: any) =>
+                            columnOptions.dataField === 'status' ? (
+                                <Column
+                                    {...columnOptions}
+                                    key={columnOptions.dataField}
+                                    cellRender={statusCustomCellRenderer}
+                                />
+                            ) : (
+                                <Column
+                                    {...columnOptions}
+                                    key={columnOptions.dataField}
+                                    width={undefined}
+                                    minWidth={columnOptions.width}
+                                />
+                            )
                         )}
-                    />
-                </DataGrid>
+                        <Column
+                            caption="Preview"
+                            allowEditing={false}
+                            allowFiltering={false}
+                            allowSorting={false}
+                            alignment="center"
+                            // width={60}
+                            minWidth={60}
+                            cellRender={({ data }) => (
+                                <PreviewCustomCellRenderer
+                                    data={data}
+                                    handlePreview={setPreviewState}
+                                />
+                            )}
+                        />
+                        <Column
+                            width={1}
+                            allowResizing={false}
+                            allowReordering={false}
+                            allowFiltering={false}
+                            allowSorting={false}
+                        />
+                    </DataGrid>
+                </div>
             </WidgetCardShell>
         </>
     );

@@ -7,8 +7,6 @@ import WidgetHost from '../../../components/widget-runtime/WidgetHost';
 import { extractLayout, extractWidgetsArray, widgetsMapById } from '../utils/landing.utils';
 
 type LandingCanvasProps = {
-    snapshot: Record<string, any>;
-    bus: any;
     onOpenWorkflowFromRecent: (input: {
         target?: {
             templateId?: string;
@@ -76,11 +74,7 @@ export default function LandingCanvas(props: LandingCanvasProps) {
                                         widgetInstance?.composedWidgetId ??
                                         widgetInstance?.widgetDefinitionId,
                                 }}
-                                contextSnapshot={props.snapshot}
                                 mode="landing"
-                                onPublishContext={(key, value, sourceWidgetId) =>
-                                    props.bus.publish({ key, value, sourceWidgetId })
-                                }
                                 uiActions={mergedWidgetInstance.uiActions}
                             />
                         </div>
