@@ -6,8 +6,7 @@ import { useWorkflowRuntime } from './hooks/useWorkflowRuntime';
 import type { WorkflowTabProps } from './types/workflowRuntime.types';
 
 export default function WorksflowTab(props: WorkflowTabProps) {
-    const { bus, snapshot, loadingWorkflow, layoutFromCompiled, runtimeItems } =
-        useWorkflowRuntime(props);
+    const { loadingWorkflow, layoutFromCompiled, runtimeItems } = useWorkflowRuntime(props);
 
     return (
         <Space direction="vertical" size={12} style={{ width: '100%' }}>
@@ -17,12 +16,7 @@ export default function WorksflowTab(props: WorkflowTabProps) {
                     hasLayout={layoutFromCompiled.length > 0}
                 />
             ) : (
-                <RuntimeCanvas
-                    layout={layoutFromCompiled}
-                    runtimeItems={runtimeItems}
-                    snapshot={snapshot}
-                    bus={bus}
-                />
+                <RuntimeCanvas layout={layoutFromCompiled} runtimeItems={runtimeItems} />
             )}
         </Space>
     );

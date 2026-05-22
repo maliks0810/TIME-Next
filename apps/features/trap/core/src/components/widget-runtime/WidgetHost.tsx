@@ -2,7 +2,6 @@
 import React from 'react';
 import { executeWidget } from '../../api/trap';
 import WidgetRenderer from '../../components/widget-runtime/WidgetRenderer';
-import { widgetRegistry } from '../../registry/widgetRegistry';
 import type { WidgetRenderMode } from '../../types/widget';
 import { WidgetValueType } from '../../state/Widgets/types';
 
@@ -30,31 +29,10 @@ function stableStringify(value: unknown): string {
     }
 }
 
-function pickContextSubset(
-    snapshot: Record<string, any> | undefined,
-    listensToKeys: string[] | undefined
-): Record<string, any> | undefined {
-    if (!snapshot) return undefined;
-    if (!Array.isArray(listensToKeys) || listensToKeys.length === 0) return undefined;
-
-    if (listensToKeys.includes('*')) {
-        return snapshot;
-    }
-
-    const entries = listensToKeys
-        .filter((key) => snapshot[key] !== undefined)
-        .map((key) => [key, snapshot[key]] as const);
-
-    if (entries.length === 0) return undefined;
-    return Object.fromEntries(entries);
-}
-
 export default function WidgetHost(props: {
     widgetInstance: any;
     widgetDefinition: any;
-    contextSnapshot?: Record<string, any>;
     mode: WidgetRenderMode;
-    onPublishContext?: (key: string, value: any, sourceWidgetId?: string) => void;
     uiActions?: Record<string, (...args: any[]) => any>;
 }) {
     const [loading, setLoading] = React.useState(false);
@@ -70,10 +48,6 @@ export default function WidgetHost(props: {
 
     const variantId = props.widgetInstance?.variantId;
 
-    const registryEntry = React.useMemo(() => {
-        return widgetRegistry[widgetDefinitionId];
-    }, [widgetDefinitionId]);
-
     const params = React.useMemo(() => {
         return props.widgetInstance?.config?.params &&
             typeof props.widgetInstance.config.params === 'object'
@@ -81,25 +55,26 @@ export default function WidgetHost(props: {
             : {};
     }, [props.widgetInstance?.config?.params]);
 
-    const listensToKeys = React.useMemo(() => {
-        const definitionKeys = props.widgetDefinition?.listensToKeys;
-        if (Array.isArray(definitionKeys) && definitionKeys.length > 0) {
-            return definitionKeys.map(String);
-        }
+    // TODO implement configuration based listensToKeys handlers
+    // const registryEntry = React.useMemo(() => {
+    //     return widgetRegistry[widgetDefinitionId];
+    // }, [widgetDefinitionId]);
 
-        const registryKeys = registryEntry?.listensToKeys;
-        if (Array.isArray(registryKeys) && registryKeys.length > 0) {
-            return registryKeys.map(String);
-        }
+    // const listensToKeys = React.useMemo(() => {
+    //     const definitionKeys = props.widgetDefinition?.listensToKeys;
+    //     if (Array.isArray(definitionKeys) && definitionKeys.length > 0) {
+    //         return definitionKeys.map(String);
+    //     }
 
-        return [];
-    }, [props.widgetDefinition?.listensToKeys, registryEntry?.listensToKeys]);
+    //     const registryKeys = registryEntry?.listensToKeys;
+    //     if (Array.isArray(registryKeys) && registryKeys.length > 0) {
+    //         return registryKeys.map(String);
+    //     }
+
+    //     return [];
+    // }, [props.widgetDefinition?.listensToKeys, registryEntry?.listensToKeys]);
 
     const isIdentity = widgetDefinitionId === 'cwd_identity';
-
-    const context = React.useMemo(() => {
-        return pickContextSubset(props.contextSnapshot, listensToKeys);
-    }, [props.contextSnapshot, listensToKeys]);
 
     const requestKey = React.useMemo(() => {
         return [
@@ -107,9 +82,8 @@ export default function WidgetHost(props: {
             String(variantId ?? ''),
             props.mode === 'designer' ? 'MOCK' : 'LIVE',
             stableStringify(params),
-            stableStringify(context),
         ].join('::');
-    }, [widgetDefinitionId, variantId, props.mode, params, context]);
+    }, [widgetDefinitionId, variantId, props.mode, params]);
 
     React.useEffect(() => {
         if (!widgetDefinitionId || isIdentity) return;
@@ -125,7 +99,6 @@ export default function WidgetHost(props: {
                     widgetDefinitionId,
                     variantId,
                     params,
-                    context,
                     mode: props.mode === 'designer' ? 'MOCK' : 'LIVE',
                 });
 
@@ -146,7 +119,7 @@ export default function WidgetHost(props: {
         return () => {
             cancelled = true;
         };
-    }, [requestKey, widgetDefinitionId, variantId, params, context, props.mode, isIdentity]);
+    }, [requestKey, widgetDefinitionId, variantId, params, props.mode, isIdentity]);
     const execute = async (
         variables?: Record<string, WidgetValueType>,
         passedParams?: Record<string, WidgetValueType>
@@ -159,7 +132,6 @@ export default function WidgetHost(props: {
                 variantId,
                 params: { ...params, ...passedParams },
                 context: {
-                    ...context,
                     ...variables,
                 },
                 mode: props.mode === 'designer' ? 'MOCK' : 'LIVE',
@@ -179,9 +151,7 @@ export default function WidgetHost(props: {
             result={result}
             loading={loading}
             error={error}
-            contextSnapshot={props.contextSnapshot}
             mode={props.mode}
-            onPublishContext={props.onPublishContext}
             uiActions={props.uiActions}
             execute={execute}
         />

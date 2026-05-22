@@ -521,7 +521,7 @@ export default function WorkflowLauncherModal(props: Props) {
                                     .toLowerCase() === String(currentUser).trim().toLowerCase() &&
                                 item.templateId === templateId
                         )}
-                        onLaunch={(x) => launchItem(x, 'mine')}
+                        onLaunch={(x) => launchItem(x, 'public')}
                         onClone={cloneItem}
                         onEdit={editItem}
                         onRename={renameItem}
