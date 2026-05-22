@@ -43,6 +43,20 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         description: '',
     },
     {
+        type: 'internal',
+        header: NavbarHeader.RiskPerformance,
+        subHeader: NavbarSubHeader.Performance,
+        id: '@r2/dram',
+        name: 'eq-attribution-analysis',
+        title: 'Equity Attribution Analysis',
+        env: HighestEnv.prod,
+
+        path: '/dram/attribution/workspace',
+        team: 'R2',
+        component: lazy(() => import('@r2/dram/src/portals/attribution/index')),
+        description: '',
+    },
+    {
         type: 'external',
         header: NavbarHeader.RiskPerformance,
         subHeader: NavbarSubHeader.Performance,
@@ -66,6 +80,20 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         team: 'R2',
         // component: lazy(() => import('../../../apps/features/trap/arc/src/App')),
         component: lazy(() => import('@r2/arc/src/App')),
+        description: '',
+    },
+    {
+        type: 'internal',
+        header: NavbarHeader.RiskPerformance,
+        subHeader: NavbarSubHeader.Risk,
+        id: '@r2/dram',
+        name: 'nippon-risk-monitor',
+        title: 'Nippon Risk Monitor',
+        env: HighestEnv.prod,
+
+        path: '/dram/risk/dashboard',
+        team: 'R2',
+        component: lazy(() => import('@r2/dram/src/portals/risk/index')),
         description: '',
     },
     // PLOP_INJECT_APP

@@ -14,6 +14,31 @@ export default function SummaryReportView({ asOfDate, rows, onSelect, onToolbarP
   const onDetailToolbarPreparing = React.useCallback((e: ToolbarPreparingEvent) => {
 	onToolbarPreparing(e);
   }, [onToolbarPreparing]);
+
+
+	type DxFilterExpression =
+	| string
+	| (string | number | boolean)[]
+	| (() => unknown);
+
+
+	const startsWithFilter = <K extends keyof HistorySummaryRow>(field: K) => (
+		filterValue: unknown,
+		_selectedFilterOperation: string | null,
+		_target: string
+	): DxFilterExpression => {
+		if (
+			filterValue === undefined ||
+			filterValue === null ||
+			filterValue === ""
+		) {
+			return [String(field), "contains", ""];
+		}
+		void _selectedFilterOperation;
+		void _target;
+		return [String(field), "startswith", String(filterValue)];
+	};
+
   return (
 
     <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
@@ -39,6 +64,7 @@ export default function SummaryReportView({ asOfDate, rows, onSelect, onToolbarP
 		allowColumnResizing
   		columnResizingMode="nextColumn"
 		columnAutoWidth={true}
+
 	  >
 
 		<Scrolling mode="virtual" showScrollbar="always"/>
@@ -47,18 +73,20 @@ export default function SummaryReportView({ asOfDate, rows, onSelect, onToolbarP
 		<SearchPanel visible highlightCaseSensitive={false} />
         <Selection mode="single" />
 		<Column dataField="final" caption="Final" width={60} fixed={true} fixedPosition="left" />
-		<Column dataField="portfolioNumber" caption="Account Number" fixed fixedPosition="left" width={80} />
+		<Column dataField="portfolioNumber" caption="Account Number" fixed fixedPosition="left" width={80}
+			calculateFilterExpression={startsWithFilter("portfolioNumber")}
+		/>
 		<Column dataField="portfolioName" caption="Account Name" fixed fixedPosition="left" minWidth={260} />
 		<Column dataField="benchmark" caption="Index" width={60} fixed={true} fixedPosition="left" minWidth={160} />
 		<Column dataField="marketValue" caption="Market Value" format="#,##0.0#" width={100} />
 		<Column dataField="monthGross" caption="Monthly (Gross)" format="#,##0.0#%" width={90} />
 		<Column dataField="monthNet" caption="Monthly (Net)" format="#,##0.0#%" width={90} />
 		<Column dataField="monthIndex" caption="Monthly Index" format="#,##0.0#%"  width={90}/>
-		<Column dataField="alpha" caption="Out/Under (bps)" format="#,##0.0#%" width={90} />
+		<Column dataField="alpha" caption="Out/Under (bps)" format="#,##0.0#" width={90} />
 		<Column dataField="qtdGross" caption="Qtd (Gross)" format="#,##0.0#%" width={90} />
 		<Column dataField="qtdNet" caption="Qtd (Net)" format="#,##0.0#%" width={90} />
 		<Column dataField="qtdIndex" caption="Qtd Index" format="#,##0.0#%" width={90} />
-		<Column dataField="qtdAlpha" caption="Qtd Out/Under (bps)" format="#,##0.0#%" width={90} />
+		<Column dataField="qtdAlpha" caption="Qtd Out/Under (bps)" format="#,##0.0#" width={90} />
 		<Column dataField="ytdGross" caption="Ytd (Gross)" format="#,##0.0#%" width={90} />
 		<Column dataField="ytdNet" caption="Ytd (Net)" format="#,##0.0#%" width={90} />
 		<Column dataField="ytdIndex" caption="Ytd Index" format="#,##0.0#%"  width={90}/>

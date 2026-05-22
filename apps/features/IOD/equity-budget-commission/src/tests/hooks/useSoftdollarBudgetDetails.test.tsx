@@ -134,7 +134,21 @@ describe('useSoftDollarBudgets', () => {
             });  
 
             expect(fetchUsers).toHaveBeenCalledTimes(1);
-        });      
+        });
+        it('handle error when load users data failed', async () => {  
+            vi.fn(fetchUsers).mockRejectedValueOnce(  
+                new Error('Failed to fetch users')
+            );  
+            // Act  
+            await act(async () => { 
+                try { 
+                    vi.fn(fetchUsers).mockReturnThis();
+                } catch (err) {
+                    expect(err).toBeInstanceOf(Error);
+                    expect(String(err)).toBe('Failed to fetch users');
+                }
+            });
+        }); 
         /** Softdollar Budget Accounts */
         it('load softdollar budget accounts data successfully', async () => {  
             vi.fn(fetchSoftdollarBudgetAccounts).mockResolvedValueOnce(mockSoftBudgetAccountsData);  

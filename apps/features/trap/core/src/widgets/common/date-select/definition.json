@@ -1,0 +1,59 @@
+{
+    "id": "cwd_date_select",
+    "name": "Date Select",
+    "version": 1,
+    "description": "Date select widget",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_date_select",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+
+            "label": {
+                "title": "Date select label",
+                "type": "string",
+                "default": ""
+            },
+            "stateKey": {
+                "title": "Custom state key",
+                "description": "Default is common.date",
+                "type": "string",
+                "default": ""
+            },
+            "dateFormat": {
+                "title": "Date Format",
+                "type": "string",
+                "enum": ["YYYY-MM-DD"],
+                "default": "YYYY-MM-DD"
+            }
+        },
+        "required": [],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "small",
+            "label": "Small",
+            "grid": {
+                "defaultW": 2,
+                "defaultH": 60,
+                "minW": 2,
+                "minH": 60,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}

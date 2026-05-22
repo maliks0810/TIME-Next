@@ -30,24 +30,6 @@ import { Item as FormItem } from 'devextreme-react/form';
 
 import './styles.scss';
 
-/* ---------------------- Utilities ---------------------- */
-
-const onRowDblClick = (e: DataGridTypes.RowDblClickEvent) =>
-  e.component.editRow(e.rowIndex);
-
-const renderStatusCell = (
-  cell: DataGridTypes.ColumnCellTemplateData
-) => {
-  const isActive = cell.value === 'Active';
-
-  return (
-    <div className="grid-container-flex">
-      <CheckBox value={isActive} disabled />
-      <span>{isActive ? 'Active' : 'Inactive'}</span>
-    </div>
-  );
-};
-
 /* -------------------- Component ------------------------- */
 
 const MaintenanceBrokerGroupGrid = () => {
@@ -66,7 +48,8 @@ const MaintenanceBrokerGroupGrid = () => {
     reloadGroupMemberGroup,
     addBrokerGroupMember,
     modifyBrokerGroupMember,
-    removeBrokerGroupMember
+    removeBrokerGroupMember,
+    isAdmin
   } = useBrokerGroups({ userInfo });
 
   const [popupTitle, setPopupTitle] = useState('');
@@ -88,6 +71,25 @@ const MaintenanceBrokerGroupGrid = () => {
   );
 
   /* ----------------Broker Group Grid CRUD ---------------- */
+
+  const onRowDblClick = (e: DataGridTypes.RowDblClickEvent) =>{
+    if(!isAdmin) return;
+
+    e.component.editRow(e.rowIndex);
+  }
+
+  const renderStatusCell = (
+    cell: DataGridTypes.ColumnCellTemplateData
+  ) => {
+    const isActive = cell.value === 'Active';
+
+    return (
+      <div className="grid-container-flex">
+        <CheckBox value={isActive} disabled />
+        <span>{isActive ? 'Active' : 'Inactive'}</span>
+      </div>
+    );
+  };
 
   const onSaving = useCallback(
   (e: DataGridTypes.SavingEvent<MaintenanceBrokerGroup, number>) => {
@@ -124,6 +126,7 @@ const MaintenanceBrokerGroupGrid = () => {
   [addBrokerGroup, modifyBrokerGroup, removeBrokerGroup, reloadGroup, showToast]
   );
 
+/* ---------------------- Utilities ---------------------- */
 
   const onSelectionChanged = async (selectedKeys: number[]) => {
       const key: number = selectedKeys[0];
@@ -135,9 +138,11 @@ const MaintenanceBrokerGroupGrid = () => {
 
   /* -------------------- Render ------------------ */
   /** Broker Group Member - Section*/
-  const onMemberRowDblClick = (e: DataGridTypes.RowDblClickEvent) =>
-    e.component.editRow(e.rowIndex);
+  const onMemberRowDblClick = (e: DataGridTypes.RowDblClickEvent) => {
+    if(!isAdmin) return;
 
+    e.component.editRow(e.rowIndex);
+  }
   const onMemberRowInserting = async (
     e: DataGridTypes.RowInsertingEvent<MaintenanceBrokerGroupMember>
   ) => {
@@ -222,9 +227,9 @@ const MaintenanceBrokerGroupGrid = () => {
 
                 <Editing
                   mode="popup"
-                  allowAdding
-                  allowUpdating
-                  allowDeleting
+                  allowAdding={isAdmin?true:false}
+                  allowUpdating={isAdmin?true:false}
+                  allowDeleting={isAdmin?true:false}
                   useIcons
                 >
                   <Popup
@@ -256,11 +261,11 @@ const MaintenanceBrokerGroupGrid = () => {
                 <Column dataField="lastUpdateBy" visible={true} allowFiltering/>
                 <Column dataField="active" visible={false} />
 
-                <Column type="buttons" width="5%">
+                <Column type="buttons" width="5%" visible={isAdmin?true:false}>
                   <Button name="delete" />
                 </Column>
 
-                <Toolbar>
+                <Toolbar visible={isAdmin?true:false}>
                   <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
                 </Toolbar>
               </DataGrid>
@@ -284,9 +289,9 @@ const MaintenanceBrokerGroupGrid = () => {
                 <FilterRow visible />
                 <Editing 
                   mode="popup"
-                  allowAdding
-                  allowUpdating
-                  allowDeleting
+                  allowAdding={isAdmin?true:false}
+                  allowUpdating={isAdmin?true:false}
+                  allowDeleting={isAdmin?true:false}
                   useIcons
                 >
                   <Popup
@@ -311,19 +316,21 @@ const MaintenanceBrokerGroupGrid = () => {
 
                 <Column dataField="brokerGroupId" caption="Broker Group" width="30%">
                   <Lookup dataSource={brokerGroups} valueExpr="brokerGroupId" displayExpr="brokerGroupName"/>
+                  <RequiredRule message={ValidationMessage.RequiredField} />                  
                 </Column>
 
                 <Column dataField="brokerCode" caption="Broker Code" width="20%">
                   <Lookup dataSource={brokers} valueExpr="brokerCode" displayExpr="brokerCode"/>
+                  <RequiredRule message={ValidationMessage.RequiredField} />                  
                 </Column>
 
                 <Column dataField="brokerCode" caption="Broker Name" width="40%">
                   <Lookup dataSource={brokers} valueExpr="brokerCode" displayExpr="brokerName"/>
                 </Column>
-                <Column type="buttons" width="10%">
+                <Column type="buttons" width="10%" visible={isAdmin?true:false}>
                   <Button name="delete" />
                 </Column>
-                <Toolbar>
+                <Toolbar visible={isAdmin?true:false}>
                   <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
                 </Toolbar>
               </DataGrid>

@@ -1,5 +1,5 @@
-import { fetchDepartments, fetchDivisions, fetchLocations, fetchUsers, createUser, updateUser, deleteUser } from '../../services/user-service';  
-import type { MaintenanceDepartment, MaintenanceDivision, MaintenanceLocation, MaintenanceUser, RequestMaintenanceUser } from '../../datatypes/budget-maintenance-types';  
+import { fetchLocations, fetchUsers, createUser, updateUser, deleteUser } from '../../services/user-service';  
+import type { MaintenanceLocation, MaintenanceUser, RequestMaintenanceUser } from '../../datatypes/budget-maintenance-types';  
 import { vi, expect, describe, it, beforeEach, afterEach } from 'vitest'; 
 import { UserInfo } from '../../../../../../../packages/utils/src/hooks/Authentication/user-info';
 
@@ -21,41 +21,12 @@ describe('userDataService', () => {
       { userId: 1, userName: 'lname,fname', firstName: 'fname', lastName:'lname', locationCode: 'US', status: 'Active', lastUpdateBy:'User1', 
           divisionId:1, departmentId:1, startDate:'01-01-2025', endDate:'12-31-2025', coopDptCode:0, coopStaffCode:0, costCenterCode:'', jobCode:''  }  
     ];
-  const mockDeptData: MaintenanceDepartment[] = [  
-      { departmentId: 1, departmentName: 'Department 1', status: 'Active', lastUpdateDate: new Date(), lastUpdateBy: 'User1' }  
-    ]; 
-  const mockDivData: MaintenanceDivision[] = [  
-      { divisionId: 1, divisionName: 'Division 1', status: 'Active', lastUpdateDate: new Date(), lastUpdateBy: 'User1' }  
-    ];
+
   const mockLocData: MaintenanceLocation[] = [
       { locationId: 1, locationCode:'LA', locationDescription: 'Los Angeles', lastUpdateBy: 'User1', comments:'', orgCode:'US' }
     ]  
 
-  describe('load method', () => {  
-    it('fetches divisions data', async () => {  
-      vi.spyOn(window, 'fetch').mockResolvedValueOnce({  
-        ok: true,  
-        json: async () => mockDivData,  
-      } as Response);  
-  
-      const data = await fetchDivisions();  
-  
-      expect(window.fetch).toHaveBeenCalledWith(expect.stringContaining('/divisions'), expect.any(Object));  
-      expect(data).toEqual(mockDivData);
-    });
-
-    it('fetches departments data', async () => {  
-      vi.spyOn(window, 'fetch').mockResolvedValueOnce({  
-        ok: true,  
-        json: async () => mockDeptData,  
-      } as Response);  
-  
-      const data = await fetchDepartments();  
-  
-      expect(window.fetch).toHaveBeenCalledWith(expect.stringContaining('/department'), expect.any(Object));  
-      expect(data).toEqual(mockDeptData);
-    });
-
+  describe('load method', () => {
     it('fetches locations data', async () => {  
       vi.spyOn(window, 'fetch').mockResolvedValueOnce({  
         ok: true,  

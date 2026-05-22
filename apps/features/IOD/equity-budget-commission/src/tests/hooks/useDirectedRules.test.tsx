@@ -7,8 +7,10 @@ import { fetchDirectedRules, createDirectedRule, updateDirectedRule, deleteDirec
 import { fetchBrokers } from '../../services/broker-service';
 import { fetchPortfolios } from '../../services/portfolio-service';
 import { MaintenanceDirectedRules, RequestMaintenanceDirectedRules, MaintenanceDirectedRulesXref, RequestMaintenanceDirectedRulesXref, 
-    MaintenanceBroker, MaintenancePortfolio,  
+    MaintenanceBroker, MaintenancePortfolio,
+    MaintenanceUser,  
 } from '../../datatypes/budget-maintenance-types';
+import { fetchAdminUsers } from '../../services/admin-user-service';
 import { UserInfo } from '../../../../../../../packages/utils/src/hooks/Authentication/user-info';
 
 vi.mock('@platform/utils', () => ({
@@ -34,6 +36,10 @@ vi.mock('../../services/directed-rules-service', () => ({
     deleteDirectedRuleXref: vi.fn(),
 }));
 
+vi.mock('../../services/admin-user-service', () => ({
+    fetchAdminUsers: vi.fn(),
+}));
+
 const userInfo: UserInfo = { id:'test1', name: 'Test User', email:'Test@test.com', isAdmin:false };  
 
 const mockDirectedRulesData: MaintenanceDirectedRules[] = [  
@@ -54,6 +60,11 @@ const mockBrokersData: MaintenanceBroker[] = [
 const mockPortfolioData: MaintenancePortfolio[] = [  
     { portfolioId:1, portfolioGroupId:98, portfolioCode:'Code1', portfolioName:'Portfolio 1', portfolioNumber:'number 1', departmentId:1, departmentName:'Dept 1', divisionId:1, divisionName:'Div 1', status:'Active', active:true, lastUpdateDate: new Date(), lastUpdateBy: 'User1' },  
     { portfolioId:2, portfolioGroupId:99, portfolioCode:'Code2', portfolioName:'Portfolio 2', portfolioNumber:'number 2', departmentId:1, departmentName:'Dept 2', divisionId:1, divisionName:'Div 2', status:'Active', active:true, lastUpdateDate: new Date(), lastUpdateBy: 'User1' },  
+];
+
+const mockUsers: MaintenanceUser[] = [
+    { userId: 1, userName: 'User,Test', firstName: 'Test', lastName:'User', locationCode: 'US', status: 'Active', active:true, lastUpdateBy:'User1', 
+        divisionId:1, departmentId:1, startDate:'01-01-2025', endDate:'12-31-2025', coopDptCode:0, coopStaffCode:0, costCenterCode:'', jobCode:'', admin:true  }  
 ];
 
 describe('useDirectedRules hook', () => {
@@ -157,6 +168,36 @@ describe('useDirectedRules hook', () => {
             }
         });
     });
+
+    it('loads admin users data', async () => {  
+        vi.fn(fetchAdminUsers).mockResolvedValueOnce(mockUsers);  
+
+        const { result } = renderHook(() =>  
+            useDirectedRules({userInfo})  
+        );  
+
+        await waitFor(() => {  
+            expect(result.current.isAdmin).toEqual(true);  
+        });  
+
+        expect(fetchAdminUsers).toHaveBeenCalledTimes(1);  
+    });    
+
+    it('handle error when fetch admin users data failed', async () => {  
+        vi.fn(fetchAdminUsers).mockRejectedValueOnce(  
+            new Error('Failed to fetch admin users data')  
+        );  
+
+        // Act  
+        await act(async () => { 
+            try { 
+                vi.fn(fetchAdminUsers).mockResolvedValueOnce([]);
+            } catch (err) {
+                expect(err).toBeInstanceOf(Error);  
+                expect(String(err)).toBe('Failed to fetch admin users data');
+            }
+        });
+    });    
     
     it('insert directed rules data successfully', async () => {  
         vi.fn(fetchDirectedRules).mockResolvedValueOnce([]);  
@@ -173,6 +214,9 @@ describe('useDirectedRules hook', () => {
             const created = await result.current.addDirectedRule(newItem);
             expect(created).toEqual(resultItem);  
         });    
+
+        expect(createDirectedRule).toHaveBeenCalledTimes(1); 
+
     }); 
 
     it('create directed rules throws error on insert fail', async () => {  
@@ -213,7 +257,7 @@ describe('useDirectedRules hook', () => {
             expect(err).toBeInstanceOf(Error);  
             expect(String(err)).toBeOneOf(["Error: Update failed","Error: DirectedRule not found"]);
           } 
-        });    
+        }); 
     }); 
 
     it('update directed rules throws error on update fail', async () => {  
@@ -325,11 +369,14 @@ describe('useDirectedRules hook', () => {
             const created = await result.current.addDirectedRuleXref(newItem);
             expect(created).toEqual(resultItem);  
         });    
+
+        expect(createDirectedRuleXref).toHaveBeenCalledTimes(1); 
     }); 
 
     it('create directed rules xref throws error on insert fails', async () => {  
-        vi.fn(createDirectedRule).mockRejectedValueOnce(new Error('Insert failed'));  
-        const newItem: RequestMaintenanceDirectedRules = { directedRulesName: "New Rule", directedRulesCode:"NR003", comment:"test", budgetPercent:10, lastUpdateBy: "User1", };  
+        vi.fn(fetchDirectedRulesXref).mockResolvedValueOnce(mockDirectedRulesXrefData);  
+        vi.fn(createDirectedRuleXref).mockRejectedValueOnce(new Error('Insert failed'));  
+        const newItem: RequestMaintenanceDirectedRulesXref = { directedRulesId: 1, brokerCode: 'B001', accountCode:'A003', year:2026, lastUpdateBy: "User1", lastUpdateDt: new Date() }; 
 
         const { result } = renderHook(() =>  
             useDirectedRules({ userInfo })  
@@ -337,7 +384,7 @@ describe('useDirectedRules hook', () => {
 
         await act(async () => { 
             try { 
-                await result.current.addDirectedRule(newItem);
+                await result.current.addDirectedRuleXref(newItem);
             } catch (err) {
                 expect(err).toBeInstanceOf(Error);  
                 expect(String(err)).toBeOneOf(["Error: Insert failed"]);
@@ -346,8 +393,7 @@ describe('useDirectedRules hook', () => {
     });
 
     it('update directed rules xref data successfully', async () => { 
-        const directedRulesXrefId:number =  1 
-        vi.fn(fetchDirectedRulesXref).mockResolvedValueOnce([]);  
+        const directedRulesXrefId:number =  1   
         const updateItem: RequestMaintenanceDirectedRulesXref = {  
           directedRulesId: 1,  
           brokerCode: 'B001',  
@@ -363,16 +409,16 @@ describe('useDirectedRules hook', () => {
         const { result } = renderHook(() =>  
             useDirectedRules({userInfo})  
         );
-
+        
         await act(async () => { 
-          try{         
-            const updated = await result.current.modifyDirectedRuleXref(directedRulesXrefId,updateItem);
-            expect(updated).toEqual(resultItem);  
-          }catch (err){
-            expect(err).toBeInstanceOf(Error);  
-            expect(String(err)).toBeOneOf(["Error: Update failed","Error: DirectedRuleXref not found"]);
-          }
-        });    
+            try { 
+                 const updated = await result.current.modifyDirectedRuleXref(directedRulesXrefId, updateItem);
+            expect(updated).toEqual(resultItem);
+            } catch (err) {
+                expect(err).toBeInstanceOf(Error);  
+                expect(String(err)).toBeOneOf(["Error: Update failed","Error: DirectedRuleXref not found"]);
+            }
+        });
     }); 
 
     it('update directed rules xref throws error on update fail', async () => {  
@@ -389,7 +435,7 @@ describe('useDirectedRules hook', () => {
 
         const { result } = renderHook(() =>  
             useDirectedRules({ userInfo })  
-        );  
+        );          
 
         await act(async () => { 
             try { 

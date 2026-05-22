@@ -2,31 +2,41 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useDepartments } from '../../hooks/useDepartmentData';
 import { fetchDepartments, fetchDivisions, createDepartment, deleteDepartment, updateDepartment} from '../../services/department-service';
-import { MaintenanceDepartment, MaintenanceDivision, RequestMaintenanceDepartment } from '../../datatypes/budget-maintenance-types';
+import { fetchAdminUsers } from '../../services/admin-user-service';
+import { MaintenanceDepartment, MaintenanceDivision, MaintenanceUser, RequestMaintenanceDepartment } from '../../datatypes/budget-maintenance-types';
 import { UserInfo } from '../../../../../../../packages/utils/src/hooks/Authentication/user-info';
 
-    vi.mock('@platform/utils', () => ({
-        useUserInfo: vi.fn(() => ({})),
-    }));
+vi.mock('@platform/utils', () => ({
+    useUserInfo: vi.fn(() => ({})),
+}));
 
-    vi.mock('../../services/department-service', () => ({
-        fetchDepartments: vi.fn(),
-        fetchDivisions: vi.fn(),    
-        createDepartment: vi.fn(),    
-        updateDepartment: vi.fn(),    
-        deleteDepartment: vi.fn(),    
-    }));
+vi.mock('../../services/department-service', () => ({
+    fetchDepartments: vi.fn(),
+    fetchDivisions: vi.fn(),    
+    createDepartment: vi.fn(),    
+    updateDepartment: vi.fn(),    
+    deleteDepartment: vi.fn(),    
+}));
+
+vi.mock('../../services/admin-user-service', () => ({
+    fetchAdminUsers: vi.fn(),
+}));
 
 const userInfo: UserInfo = { id:'test1', name: 'Test User', email:'Test@test.com', isAdmin:false };  
 
 const mockDepartments:MaintenanceDepartment[] = [
     { departmentId:1, departmentName:"Dept1 Name", status:"Active", active:true, divisionId:1, lastUpdateDate: new Date()},
     { departmentId:2, departmentName:"Dept2 Name", status:"Active", active:true, divisionId:2, lastUpdateDate: new Date()}
-]
+];
 
 const mockDivisions:MaintenanceDivision[] = [
     { divisionId:1, divisionName:"Div Name", status:"Active", active:true, lastUpdateDate: new Date()}
-]
+];
+
+const mockUsers: MaintenanceUser[] = [
+    { userId: 1, userName: 'User,Test', firstName: 'Test', lastName:'User', locationCode: 'US', status: 'Active', active:true, lastUpdateBy:'User1', 
+        divisionId:1, departmentId:1, startDate:'01-01-2025', endDate:'12-31-2025', coopDptCode:0, coopStaffCode:0, costCenterCode:'', jobCode:'', admin:true  }  
+];
 
 describe('useDepartments hook', () => {
     beforeEach(() => {
@@ -81,6 +91,35 @@ describe('useDepartments hook', () => {
         expect(fetchDivisions).toHaveBeenCalledTimes(1);  
     }); 
 
+    it('loads admin users data', async () => {  
+        vi.fn(fetchAdminUsers).mockResolvedValueOnce(mockUsers);  
+
+        const { result } = renderHook(() =>  
+            useDepartments({userInfo})  
+        );  
+
+        await waitFor(() => {  
+            expect(result.current.isAdmin).toEqual(true);  
+        });  
+
+        expect(fetchAdminUsers).toHaveBeenCalledTimes(1);  
+    }); 
+    it('handle error when fetch admin users data failed', async () => {  
+        vi.fn(fetchAdminUsers).mockRejectedValueOnce(  
+            new Error('Failed to fetch admin users data')  
+        );  
+
+        // Act  
+        await act(async () => { 
+            try { 
+                vi.fn(fetchAdminUsers).mockResolvedValueOnce([]);
+            } catch (err) {
+                expect(err).toBeInstanceOf(Error);  
+                expect(String(err)).toBe('Failed to fetch admin users data');
+            }
+        });
+    });
+    
     it('insert department data successfully', async () => {  
         vi.fn(fetchDepartments).mockResolvedValueOnce([]);  
 

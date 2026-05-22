@@ -49,7 +49,7 @@ export default function BMDetailHistory({portfolioId, rows, onToolbarPreparing }
           format="#,##0" />
 
         <Column dataField="month" caption="Month" width={80} format="#0.####%" />
-        {/* <Column dataField="rollingQtr" caption="Rolling 3-Month" width={90} format="#0.####%" /> */}
+        <Column dataField="rollingQtr" caption="Rolling 3-Month" width={90} format="#0.####%" />
         <Column dataField="qtd" caption="QTD" width={80} format="#0.####%" />
         <Column dataField="ytd" caption="YTD" width={80} format="#0.####%" />
         <Column dataField="oneYear" caption="1 Year" width={80} format="#0.####%" />

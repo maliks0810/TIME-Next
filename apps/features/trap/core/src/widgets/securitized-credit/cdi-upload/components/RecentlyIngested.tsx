@@ -327,8 +327,9 @@ export const RecetlyIngested = ({
                     style={{
                         borderRadius: token.borderRadiusSM,
                         border: `1px solid ${token.colorBorderSecondary}`,
-                        overflow: 'hidden',
+                        overflow: 'auto',
                         width: '100%',
+                        maxHeight: 200,
                     }}
                 >
                     {recentDeals.map((deal, idx) => (
