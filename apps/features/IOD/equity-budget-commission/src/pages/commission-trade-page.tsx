@@ -1,12 +1,20 @@
 import { BlockContainer } from '../components/block-container';
+import TabPanel, { Item } from 'devextreme-react/tab-panel';
 import { CommissionTradeGrid } from '../datagrids/commission-trade-grid'
+import { CommissionReconGrid } from '../datagrids/commission-recon-grid';
 
 export default function CommissionTradePage () {
-    //console.debug('CommissionTrade rendering');
     return (
         <BlockContainer title="Trades">
-            <div>
-                <CommissionTradeGrid />
+            <div className='custom-tab-panel'>
+                <TabPanel deferRendering={false} >
+                    <Item title="Trades">
+                        <CommissionTradeGrid />
+                    </Item>
+                    <Item title="Recon">
+                        <CommissionReconGrid />
+                    </Item>
+                </TabPanel>
             </div>
         </BlockContainer>
     );

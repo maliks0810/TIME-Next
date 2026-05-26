@@ -5,13 +5,13 @@ import { CommissionTrade, CommissionTradeDetails, Reason, CRBrokerMapping, CRBro
 import { DateBoxTypes } from 'devextreme-react/date-box';
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info'; 
 
-interface UseDepartmentsProps {
+interface UseCommissionTradeProps {
     userInfo: UserInfo;
     startDate: Date;
     endDate: Date
 }
 
-export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmentsProps ) {
+export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissionTradeProps ) {
   const [selectedBeginDate, setSelectedBeginDate] = useState<Date | null>(startDate);
   const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(endDate);
   const [isLoading, setIsLoading] = useState(false);
