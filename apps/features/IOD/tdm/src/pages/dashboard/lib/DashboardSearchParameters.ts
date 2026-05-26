@@ -10,6 +10,7 @@ export interface IDashboardGridFilters {
   sortColumn: string | undefined;
   sortDirection: string | undefined;
   descriptionFilter: string[] | undefined;
+  trancheFilter: string[] | undefined;
   identifierFilter: string[] | undefined;
   createdDateFilter: string[] | undefined;
   createdByFilter: string[] | undefined;
@@ -30,6 +31,7 @@ export const defaultDashboardGridFilters : IDashboardGridFilters = {
   sortColumn: "createdDate",
   sortDirection: "desc",
   descriptionFilter: undefined,
+  trancheFilter: undefined,
   identifierFilter: undefined,
   createdDateFilter: undefined,
   createdByFilter: undefined,
@@ -42,7 +44,7 @@ export const defaultDashboardGridFilters : IDashboardGridFilters = {
 
 export interface IDashboardDetailsDeleteParameters {
   securitySetupRequestId: string;
-  updatedBy: string;  
+  updatedBy: string;
 }
 
 export const defaultDashboardDetailsDeleteParameters : IDashboardDetailsDeleteParameters = {
@@ -60,6 +62,7 @@ export const clearDashboardGridFilters = () : IDashboardGridFilters => {
   defaultGridFilters.sortColumn = 'createdDate';
   defaultGridFilters.sortDirection = 'desc';
   defaultGridFilters.descriptionFilter = [];
+  defaultGridFilters.trancheFilter = [];
   defaultGridFilters.identifierFilter = [];
   defaultGridFilters.createdDateFilter = [];
   defaultGridFilters.createdByFilter = [];
@@ -67,7 +70,7 @@ export const clearDashboardGridFilters = () : IDashboardGridFilters => {
   defaultGridFilters.riskAnalyticsStatusFilter = [];
   defaultGridFilters.euSecuritizationStatusFilter = [];
   defaultGridFilters.erisaStatusFilter = [];
-  defaultGridFilters.readyForTradingStatusFilter = []; 
+  defaultGridFilters.readyForTradingStatusFilter = [];
 
   const sessionStorageRawJson = sessionStorage.getItem(SESSION_STORAGE_DASHBOARD_GRID_FILTERS);
   if (sessionStorageRawJson) {
@@ -79,7 +82,7 @@ export const clearDashboardGridFilters = () : IDashboardGridFilters => {
   // update session storage
   const jsonString = JSON.stringify(defaultGridFilters);
     sessionStorage.setItem(SESSION_STORAGE_DASHBOARD_GRID_FILTERS, jsonString);
-    
+
   return defaultGridFilters;
 }
 
@@ -116,7 +119,7 @@ export const updateDashboardSearchParameter = (parameter: Partial<IDashboardSear
     ...defaultDashboardSearchParameters,
     ...parameter,
   }
-  
+
   // try to get data from session storage
   const sessionStorageRawJson = sessionStorage.getItem(SESSION_STORAGE_DASHBOARD_SEARCH_PARAMETERS);
   if (sessionStorageRawJson) {
@@ -151,6 +154,9 @@ export const getDefaultDashboardGridFilters = () : IDashboardGridFilters => {
       }
       if ("descriptionFilter" in sessionStorageGridFilters) {
         defaultGridFilters.descriptionFilter = sessionStorageGridFilters.descriptionFilter;
+      }
+      if ("trancheFilter" in sessionStorageGridFilters) {
+        defaultGridFilters.trancheFilter = sessionStorageGridFilters.trancheFilter;
       }
       if ("identifierFilter" in sessionStorageGridFilters) {
         defaultGridFilters.identifierFilter = sessionStorageGridFilters.identifierFilter;
@@ -187,7 +193,7 @@ export const updateDashboardGridFilters = (parameter: Partial<IDashboardGridFilt
     ...defaultDashboardGridFilters,
     ...parameter,
   }
-  
+
   // try to get data from session storage
   const sessionStorageRawJson = sessionStorage.getItem(SESSION_STORAGE_DASHBOARD_GRID_FILTERS);
   if (sessionStorageRawJson) {

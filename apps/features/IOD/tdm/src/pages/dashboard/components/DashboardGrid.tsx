@@ -34,7 +34,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   const [gridFilters, setGridFilters] = useState<IDashboardGridFilters>(
     () => getDefaultDashboardGridFilters()
   );
-    
+
   useEffect(() => {
     setGridFilters(getDefaultDashboardGridFilters());
   });
@@ -193,8 +193,23 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           }));
         }
       }
-      // Identifier column
+
+      // Tranche column
       if (e.fullName.includes("columns[1]")) {
+        if (isFilterValueChange) {
+          setGridFilters(updateDashboardGridFilters({
+            trancheFilter: e.value,
+          }));
+        }
+        if (isSortOrderChange) {
+          setGridFilters(updateDashboardGridFilters({
+            sortColumn: "tranche",
+            sortDirection: e.value,
+          }));
+        }
+      }
+      // Identifier column
+      if (e.fullName.includes("columns[2]")) {
         if (isFilterValueChange) {
           setGridFilters(updateDashboardGridFilters({
             identifierFilter: e.value,
@@ -208,7 +223,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         }
       }
       // Created Date column
-      if (e.fullName.includes("columns[2]")) {
+      if (e.fullName.includes("columns[3]]")) {
         if (isFilterValueChange) {
           setGridFilters(updateDashboardGridFilters({
             createdDateFilter: e.value,
@@ -222,7 +237,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         }
       }
       // Created By column
-      if (e.fullName.includes("columns[3]")) {
+      if (e.fullName.includes("columns[4]")) {
         if (isFilterValueChange) {
           setGridFilters(updateDashboardGridFilters({
             createdByFilter: e.value,
@@ -236,7 +251,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         }
       }
       // Setup Status column
-      if (e.fullName.includes("columns[4]")) {
+      if (e.fullName.includes("columns[5]")) {
         if (isFilterValueChange) {
           setGridFilters(updateDashboardGridFilters({
             setupStatusFilter: e.value,
@@ -250,7 +265,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         }
       }
       // Risk Analytics Status column
-      if (e.fullName.includes("columns[5]")) {
+      if (e.fullName.includes("columns[6]")) {
         if (isFilterValueChange) {
           setGridFilters(updateDashboardGridFilters({
             riskAnalyticsStatusFilter: e.value,
@@ -264,7 +279,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         }
       }
       // EU Securitization Status column
-      if (e.fullName.includes("columns[6]")) {
+      if (e.fullName.includes("columns[7]")) {
         if (isFilterValueChange) {
           setGridFilters(updateDashboardGridFilters({
             euSecuritizationStatusFilter: e.value,
@@ -278,7 +293,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         }
       }
       // Erisa Status column
-      if (e.fullName.includes("columns[7]")) {
+      if (e.fullName.includes("columns[8]")) {
         if (isFilterValueChange) {
           setGridFilters(updateDashboardGridFilters({
             erisaStatusFilter: e.value,
@@ -292,7 +307,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         }
       }
       // Ready For Trading column
-      if (e.fullName.includes("columns[8]")) {
+      if (e.fullName.includes("columns[9]")) {
         if (isFilterValueChange) {
           setGridFilters(updateDashboardGridFilters({
             readyForTradingStatusFilter: e.value,
@@ -346,6 +361,14 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           width={'10%'}
           sortOrder={getSortOrder("description")}
           filterValues={gridFilters.descriptionFilter}
+          minWidth={140}
+        />
+        <Column
+          dataField='tranche'
+          caption='Tranche'
+          width={'10%'}
+          sortOrder={getSortOrder("tranche")}
+          filterValues={gridFilters.trancheFilter}
           minWidth={140}
         />
         <Column
