@@ -77,6 +77,18 @@ export const equityApps: (InternalAppMetadata)[] = [
         },
         {
                 header: NavbarHeader.Equity,  
+                subHeader: NavbarSubHeader.Commission,  
+                type: 'internal',  
+                id: '@iod/ebc/csamonthlycommission',  
+                name: 'IOD-EBC-CSAMonthly',  
+                title: 'CSA Monthly Commission',  
+                path: '/commission/csa-monthly',  
+                team: 'IOD',
+                env: HighestEnv.prod,            
+                component: lazy(() => import('@iod/equity-budget-commission/src/pages/commission-csa-monthly-page'))
+        },
+        {
+                header: NavbarHeader.Equity,  
                 subHeader: NavbarSubHeader.Reports,  
                 type: 'internal',  
                 id: '@iod/ebc/reports',  

@@ -680,7 +680,7 @@ return (
                   </div>
                 </FormItem>
                 <FormItem colSpan={3}>  
-                  <TextArea value={editingDetailData.serviceDescription} labelMode="outside" label="Service Description" height={70} readOnly={true} />  
+                  <TextArea value={editingDetailData.serviceDescription} labelMode="outside" label="Service Description" maxHeight={120} height={80} readOnly={true} />  
                 </FormItem>  
               </Form>  
             </div>  

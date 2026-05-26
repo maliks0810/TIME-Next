@@ -52,12 +52,12 @@ export const CommissionTradeGrid = () => {
             reloadCommissionTrades,
             isAdmin
         } = useCommissionTrade({userInfo, startDate, endDate});
-
+    
     // Toast handling  
     const [toastConfig, setToastConfig] = useState<ToastConfig>({  
-    visible: false,  
-    message: '',  
-    type: 'info',  
+        visible: false,  
+        message: '',  
+        type: 'info',  
     });  
     const showToast = (message: string, type: ToastType) => {  
         setToastConfig({ visible: true, message, type });  
@@ -124,13 +124,13 @@ export const CommissionTradeGrid = () => {
                 displayFormat="MM/dd/yyyy" elementAttr={{ class: "dx-common-selectbox" }}/>
             <DateBox labelMode="outside" label="To Date:" width={150} placeholder="To Date" onValueChanged={handleToDateChanged} value={selectedEndDate}
                 displayFormat="MM/dd/yyyy"  elementAttr={{ class: "dx-common-selectbox" }}/> 
-            <Button type="default" text="Refresh" width={100} className='popup-button' icon="refresh" stylingMode='contained' onClick={handleRefresh}></Button>  
+            <Button type="default" text="Refresh" width={120} className='popup-button' icon="refresh" stylingMode='contained' onClick={handleRefresh}></Button>  
             <Button type="default" text="Batch Update" width={120} visible={selectedRowKeys.length > 1 ? true : false} 
                 className='popup-button' stylingMode='contained' onClick={handleBatchUpdate}></Button>  
         </div>
         { isLoading ?
         <div className='div-loader'>  
-            <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={40} />  
+            <LoadIndicator id="largeIndicator" height={40} width={40} />  
             <p>Loading...</p>  
         </div> 
         :        
@@ -153,8 +153,9 @@ export const CommissionTradeGrid = () => {
                     }
                 }}
                 hoverStateEnabled={true}
-                selection={{mode: isAdmin?"multiple":"none"}}
+                selection={{mode: isAdmin? "multiple":"none", showCheckBoxesMode:"always"}}
                 focusedRowEnabled={true}
+                rowAlternationEnabled={true}
                 onSelectionChanged={(e) => {
                     if(!isAdmin) return; 
                     onSelectionChanged(e.selectedRowKeys as string[])
@@ -170,24 +171,24 @@ export const CommissionTradeGrid = () => {
                 <Column dataField="creditBroker" caption="Credit Broker" width="15%" allowSorting={true}/>
                 <Column dataField="reason" caption="Reason" width="5%" allowSorting={true}/>
                 <Column dataField="ticker" caption="Ticker" width="5%" allowSorting={true}/>
-                <Column dataField="trader" caption="Trader" width="10%" allowSorting={true}/>
-                <Column dataField="cusip" caption="CUSIP" width="10%" allowSorting={true}/>
-                <Column dataField="shares" caption="Shares" width="5%" allowSorting={true} dataType="number" alignment="right"/>%
-                <Column dataField="price" caption="Price" width="5%" allowSorting={true} dataType="number" alignment="right" format={{ precision: 2, type:"fixedPoint" }}/>
-                <Column dataField="totalComm" caption="Comm" width="5%" allowSorting={true} dataType="number" alignment="right" format={{ precision: 2, type:"fixedPoint" }} />
-                <Column dataField="tradeDate" caption="TradeDate" width="10%" allowSorting={true} dataType="date" />
+                <Column dataField="trader" caption="Trader" width="8%" allowSorting={true}/>
+                <Column dataField="cusip" caption="CUSIP" width="8%" allowSorting={true}/>
+                <Column dataField="shares" caption="Shares" width="7%" allowSorting={true} dataType="number" alignment="right"/>%
+                <Column dataField="price" caption="Price" width="7%" allowSorting={true} dataType="number" alignment="right" format={{ precision: 2, type:"fixedPoint" }}/>
+                <Column dataField="totalComm" caption="Comm" width="7%" allowSorting={true} dataType="number" alignment="right" format={{ precision: 2, type:"fixedPoint" }} />
+                <Column dataField="tradeDate" caption="TradeDate" width="8%" allowSorting={true} dataType="date" />
             </DataGrid>
         </div>
         }
         {/* Toast for messages */}  
         <Toast  
-        visible={toastConfig.visible}  
-        message={toastConfig.message}  
-        width={400}  
-        type={toastConfig.type}  
-        position="bottom center"  
-        onHidden={hideToast}  
-        displayTime={3000}  
+            visible={toastConfig.visible}  
+            message={toastConfig.message}  
+            width={400}  
+            type={toastConfig.type}  
+            position="bottom center"  
+            onHidden={hideToast}  
+            displayTime={3000}  
         /> 
         {/* Popup form details */}
         <div>
@@ -199,7 +200,7 @@ export const CommissionTradeGrid = () => {
                 showTitle={true}
                 showCloseButton={true}
                 title="Trade Ticket"
-                width="min(600px, 96vw)"
+                width="min(650px, 96vw)"
                 height="auto"
                 className="modern-trade-popup"
                 >
@@ -277,7 +278,7 @@ export const CommissionTradeGrid = () => {
                     <Item
                         dataField="crBroker"
                         label={{ text: "Credit Broker" }}
-                        editorType="dxLookup"
+                        editorType="dxSelectBox"
                         editorOptions={{
                             searchEnabled: true,
                             dataSource: brokersData.filter(
@@ -343,20 +344,20 @@ export const CommissionTradeGrid = () => {
                     <Item
                         dataField="reason"
                         label={{ text: "Reason" }}
-                        editorType="dxLookup"
-                        colSpan={3} // full width inside the 3-col group on md+
+                        editorType="dxSelectBox"
+                        colSpan={1} 
                         editorOptions={{
                         items: reasonData,
                         displayExpr: "name",
                         valueExpr: "code",
                         searchEnabled: false
                         }}
-                        cssClass='dx-common-selectbox-short60'
+                        cssClass='dx-common-selectbox'
                     />
                     </Item>
                 </Form>
 
-                <div className="popup-footer">
+                <div className="popup-footer" style={{textAlign:'center'}}>
                     <Button text="Cancel" stylingMode="text" onClick={handleClosePopup} />
                     <Button text="Save" type="default" onClick={onPopupSave} />
                 </div>
@@ -371,8 +372,8 @@ export const CommissionTradeGrid = () => {
                 showTitle={true}  
                 title="Batch Update Trades"  
                 className="custom-popup-class dx-popup-title"  
-                width={350}  
-                height={250}  
+                width={400}  
+                height={300}  
             >  
                 {/* Example batch update form or content */}  
                 <div style={{ padding: 20 }}>  
@@ -384,14 +385,20 @@ export const CommissionTradeGrid = () => {
 
                             setBatchFormData(batchFormData);
                         }}>
-                        <Item dataField ="creditBroker" colSpan={1} label={{text:"Cr Broker"}} editorType="dxLookup" cssClass="dx-common-selectbox" editorOptions={{ 
+                        <Item dataField ="creditBroker" colSpan={1} label={{text:"Cr Broker"}} 
+                          editorType="dxSelectBox" 
+                          cssClass="dx-common-selectbox" 
+                          editorOptions={{ 
                             searchEnabled: true,  
                             dataSource: uniqueCRBrokers,
                             displayExpr: "creditBrokerName",   // field to display
                             valueExpr: "creditBroker",     // field to use as the value                              
                           }} />
                         <Item colSpan={1}></Item>
-                        <Item dataField ="reason" colSpan={1} label={{text:"Reason"}} editorType="dxLookup" cssClass="dx-common-selectbox" editorOptions = {{
+                        <Item dataField ="reason" colSpan={1} label={{text:"Reason"}} 
+                          editorType="dxSelectBox" 
+                          cssClass="dx-common-selectbox" 
+                          editorOptions = {{
                             items: reasonData,    // data source for the dropdown
                             displayExpr: "name",  // field to display
                             valueExpr: "code",    // field to use as the value                              
