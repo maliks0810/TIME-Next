@@ -535,7 +535,8 @@ return (
         onValueChanged={(e) => setSelectedYear(e.value)}  
         placeholder="Budget Year"  
         showClearButton={true}  
-        width={150}  
+        width="10%"  
+        className='dx-common-selectbox'
       />  
       <Button text="Add" id="btnNewService" visible={isAdmin?true:false} stylingMode="contained" className='popup-button' type="default" icon="plus" onClick={openAddBudgetPopup} />  
     </div>  

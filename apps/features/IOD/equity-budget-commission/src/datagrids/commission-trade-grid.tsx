@@ -21,9 +21,9 @@ export type BrokerDetailData = {
 }
 
 export const CommissionTradeGrid = () => {
-    const startDate = new Date();// start date - 30 Day back from of current day
+    const startDate = new Date();// start date - 14 Days back from of current day
     const endDate = new Date();  // end date - Current Day
-    startDate.setDate(endDate.getDate() - 30);
+    startDate.setDate(endDate.getDate() - 14);
     const userInfo = useUserInfo();
 
     const { isLoading, isSaveError, isBatchSaveError,
@@ -345,12 +345,12 @@ export const CommissionTradeGrid = () => {
                         dataField="reason"
                         label={{ text: "Reason" }}
                         editorType="dxSelectBox"
-                        colSpan={1} 
+                        colSpan={2} 
                         editorOptions={{
-                        items: reasonData,
-                        displayExpr: "name",
-                        valueExpr: "code",
-                        searchEnabled: false
+                            items: reasonData,
+                            displayExpr: "name",
+                            valueExpr: "code",
+                            searchEnabled: false
                         }}
                         cssClass='dx-common-selectbox'
                     />

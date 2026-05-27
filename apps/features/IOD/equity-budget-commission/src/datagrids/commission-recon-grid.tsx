@@ -21,9 +21,9 @@ export type BrokerDetailData = {
 
 export const CommissionReconGrid = () => {
 // Derive an initial “year” range
-const defaultYear = new Date().getFullYear();
-const firstDayOfYear = new Date(defaultYear, 0, 1);
-const lastDayOfYear = new Date(defaultYear, 11, 31);
+const startDate = new Date();// start date - 14 Days back from of current day
+const endDate = new Date();  // end date - Current Day
+startDate.setDate(endDate.getDate() - 14);
 const userInfo = useUserInfo();
 
     // Use hook calls
@@ -45,7 +45,7 @@ const {
   isSaveError,
   reloadReconData,
   saveCommissionReconChange
-} = useCommissionTradeRecon({userInfo, startDate: firstDayOfYear, endDate:lastDayOfYear});  
+} = useCommissionTradeRecon({userInfo, startDate: startDate, endDate:endDate});  
 
   // Toast handling  
   const [toastConfig, setToastConfig] = useState<ToastConfig>({  
@@ -141,6 +141,8 @@ return (
         }}
         showBorders={true}  
         paging={{ enabled: false }}  
+        hoverStateEnabled={true}
+        focusedRowEnabled={true}
         rowAlternationEnabled={true}
         scrolling={{mode:'virtual'}}             
       >  
@@ -329,14 +331,14 @@ return (
                   dataField="reason"
                   label={{ text: "Reason" }}
                   editorType="dxSelectBox"
-                  colSpan={1} 
+                  colSpan={2} 
                   editorOptions={{
                     items: reasonsData,
                     displayExpr: "name",
                     valueExpr: "code",
                     searchEnabled: false
                   }}
-                  cssClass='dx-common-selectbox'
+                  cssClass='dx-common-selectbox-short60'
               />
               </Item>
           </Form>
