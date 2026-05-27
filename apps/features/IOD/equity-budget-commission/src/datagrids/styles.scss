@@ -92,7 +92,7 @@
 .dx-common-selectbox-short60 {
     border: 0;
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;;
     box-sizing: border-box;
     border-radius: 4px;
     letter-spacing: 0.00938em;
@@ -107,7 +107,7 @@
 .dx-common-selectbox-short80 {
     border: 0;
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;;
     box-sizing: border-box;
     border-radius: 4px;
     letter-spacing: 0.00938em;
@@ -122,7 +122,7 @@
 .dx-common-selectbox {
     border: 0;
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;;
     box-sizing: border-box;
     border-radius: 4px;
     letter-spacing: 0.00938em;
@@ -231,7 +231,7 @@
 .dx-button-content
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 14px;
+    font-size: 14px!important;;
     font-weight: 500;
 }
 
@@ -455,7 +455,7 @@
     user-select:none;
     vertical-align: middle;
     appearance: none;
-    font-size: 0.875rem;
+    font-size: 0.875rem!important;
     line-height: 1.75;
     letter-spacing: 0.02857em;
     min-width: 60px; 
@@ -783,7 +783,7 @@ $font-size: 12px;
     }
 
     .dx-texteditor-input {
-      font-size: 14px;
+      font-size: 12px;
     }
   }
 
