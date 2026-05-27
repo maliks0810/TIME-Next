@@ -156,7 +156,7 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         env: HighestEnv.prod,
         path: '/de/dqm/',
         team: 'DE',
-        component: lazy(() => import('@DE/dqm/src/App')),
+        component: lazy(() => import('@de/dqm/src/App')),
         description: '',
     },
     // PLOP_INJECT_APP
