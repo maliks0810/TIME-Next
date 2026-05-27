@@ -7,7 +7,7 @@ type HeaderProps = {
 export default function Header({
   onExportClick,
 }: HeaderProps = {}) {
-  const [user] = useState<string>("Local User");
+  //const [user] = useState<string>("Local User");
 
   useEffect(() => {}, []);
 
