@@ -13,6 +13,10 @@ import {
 } from '../lib/DashboardSecuritySetupRequestStatuses';
 import '../lib/dashboard.scss';
 
+type DataGridColumnState = { visibleIndex?: number } & Record<string, unknown>;
+
+type DataGridState = { columns?: DataGridColumnState[] } & Record<string, unknown>;
+
 type DashboardGridProps = {
   securityRequestsData: IDashboardSecuritySetupRequest[] | undefined;
   setSelectedSecurityRequest: Dispatch<SetStateAction<IDashboardSecuritySetupRequest | undefined>>;
@@ -163,13 +167,29 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         onRowDblClick={handleRowDbleClick}
         onRowClick={onRowClick}
         repaintChangesOnly={false}
-        loadPanel={{enabled: false}}
+        loadPanel={{ enabled: false }}
       >
         <StateStoring
           enabled
-          type="localStorage"
+          type="custom"
           storageKey="dashboardGridState"
           savingTimeout={0}
+          customSave={(state: DataGridState) => {
+            const customState: DataGridState = {
+              ...state,
+              columns: state.columns?.map(col => ({
+                ...col,
+                // exclude col index from state
+                visibleIndex: undefined
+              })),
+            };
+
+            localStorage.setItem('dashboardGridState', JSON.stringify(customState))
+          }}
+          customLoad={() => {
+            const saved = localStorage.getItem('dashboardGridState');
+            return saved ? JSON.parse(saved) : {};
+          }}
         />
         <Scrolling columnRenderingMode='virtual' />
         <Selection
