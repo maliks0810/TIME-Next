@@ -154,7 +154,7 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         name: 'dqm',
         title: 'Data Quality Management',
         env: HighestEnv.prod,
-        path: '/DE/dqm/',
+        path: '/de/dqm/',
         team: 'DE',
         component: lazy(() => import('@DE/dqm/src/App')),
         description: '',
