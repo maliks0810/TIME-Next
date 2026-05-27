@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import DataGrid, {
     Column,
     Grouping,
@@ -19,7 +19,7 @@ import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingSt
 import styles from './DataGridWidget.module.scss';
 
 import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState';
-import { useSetWidgetValue, useGetWidgetValue } from '../../../state/Widgets/hooks';
+import { useSetWidgetValue, useGetWidgetValueArray } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
 import { COMMON_DATE_GRID_ROW_KEY } from '../../constants';
 
@@ -35,18 +35,29 @@ export default function DataGridWidget({
     const listensToKeys = config?.params?.listensToKeys;
     const selectionMode = config?.params?.selectionMode;
 
-    const subscribedValue = useGetWidgetValue({
+    const context = useGetWidgetValueArray({
         channelId: config.params?.channel,
-        key: listensToKeys,
+        keys: listensToKeys,
     });
 
     const setWidgetValue = useSetWidgetValue();
 
+    const subscribedValues = useMemo(
+        () =>
+            listensToKeys
+                ? listensToKeys.reduce(
+                      (acc: any, cur: string) => ({ ...acc, [cur]: context?.[cur] || null }),
+                      {}
+                  )
+                : {},
+        [context, listensToKeys]
+    );
+
     useEffect(() => {
-        if (subscribedValue && listensToKeys) {
-            execute?.({ [listensToKeys]: subscribedValue });
+        if (subscribedValues && listensToKeys) {
+            execute?.({ ...subscribedValues }, { ...subscribedValues });
         }
-    }, [subscribedValue, listensToKeys]);
+    }, [subscribedValues, listensToKeys]);
 
     const handleSelectRow = (props: any) => {
         const { selectedRowsData } = props;
