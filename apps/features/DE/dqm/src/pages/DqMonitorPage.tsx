@@ -230,7 +230,8 @@ export default function DqMonitorPage() {
         setLoading(false);
       })
       .catch((e: unknown) => {
-        if ((e as any)?.name === "AbortError")
+       
+        if (e instanceof Error && e.name === "AbortError")
           return;
 
         setError(
@@ -310,7 +311,7 @@ export default function DqMonitorPage() {
         setExceptionsLoading(false);
       })
       .catch((e: unknown) => {
-        if ((e as any)?.name === "AbortError")
+         if (e instanceof Error && e.name === "AbortError")
           return;
 
         setExceptionsError(
