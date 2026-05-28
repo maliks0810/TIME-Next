@@ -12,6 +12,7 @@ export type WidgetConfigProperty = {
     enum?: string[] | number[];
     editor?: boolean;
     context?: Record<string, WidgetValueType>;
+    multiselect?: boolean;
     type: 'string' | 'boolean' | 'number';
 };
 export const PropertyConfig = ({
@@ -45,6 +46,24 @@ export const PropertyConfig = ({
         ),
         []
     );
+    const renderMultiselect = useCallback((selectOptions: DefaultOptionType[]) => {
+        return (
+            <>
+                <Typography.Text strong>
+                    {property.title}
+                    {required && '*'}
+                </Typography.Text>
+                <Select
+                    mode="multiple"
+                    allowClear
+                    className={styles.select}
+                    options={selectOptions}
+                    defaultValue={currentValue || property.default}
+                    onChange={(e) => setField(propertyKey, e)}
+                />
+            </>
+        );
+    }, []);
     const renderSelect = useCallback(
         (selectOptions: DefaultOptionType[]) => (
             <>
@@ -99,9 +118,12 @@ export const PropertyConfig = ({
         switch (property.type) {
             case 'string': {
                 if (property.editor) return renderEditor();
+
                 if (property.withColorPicker) return renderColorPicker();
                 if (!property.enum) return renderInput();
                 const selectOptions = property.enum.map((el) => ({ label: el, value: el }));
+
+                if (property.multiselect) return renderMultiselect(selectOptions);
                 return renderSelect(selectOptions);
             }
 

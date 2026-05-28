@@ -158,7 +158,8 @@ const ResearchBudgetGrid: React.FC = () => {
             onValueChanged={(e) => setSelectedDivision(e.value)}
             placeholder="Division"
             showClearButton={true}
-            elementAttr={{ className: 'dx-common-selectbox' }}
+            width={200}
+            className='dx-common-selectbox'
         />
         <SelectBox
             label="Year" labelMode="outside" 
@@ -167,7 +168,8 @@ const ResearchBudgetGrid: React.FC = () => {
             onValueChanged={(e) => setSelectedYear(e.value)}
             placeholder="Budget Year"
             showClearButton={true}
-            elementAttr={{ className: 'dx-common-selectbox' }}
+            width={150}
+            className='dx-common-selectbox'
         />
         <FormButton text="Add" type="default" icon="plus" onClick={handleAddNewBudget} stylingMode="contained" className='popup-button'/>
       </div>

@@ -29,6 +29,8 @@ import { MaintenanceBrokerGroup, MaintenanceBrokerGroupMember } from '../datatyp
 import { Item as FormItem } from 'devextreme-react/form';
 
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 /* -------------------- Component ------------------------- */
 

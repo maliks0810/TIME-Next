@@ -18,6 +18,7 @@ export const DynamicText = ({ widgetInstance }: WidgetComponentProps) => {
         key: DYNAMIC_TEXT_KEY,
     });
 
+    // Needs to be replaces with useGetWidgetValueArray. First parse content to get what keys need to removed, then pass those keys.
     const context = useGetAllContext({ channelId }) || {};
 
     // Widget state
@@ -31,7 +32,9 @@ export const DynamicText = ({ widgetInstance }: WidgetComponentProps) => {
 
     const variableParseRegex = /<span[^>]*data-id="([^"]+)"[^<]*>[^<]*<\/span>/g;
 
-    const output = content.replace(variableParseRegex, (_: any, key: string) => context[key]);
+    const output = content.replace(variableParseRegex, (_: any, key: string) =>
+        JSON.stringify(context[key])
+    );
 
     return (
         <WidgetCardShell>

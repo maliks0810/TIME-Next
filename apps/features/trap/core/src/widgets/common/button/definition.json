@@ -1,11 +1,11 @@
 {
-    "id": "cwd_date_select",
-    "name": "Date Select",
+    "id": "cwd_button",
+    "name": "Button",
     "version": 1,
-    "description": "Date select widget",
+    "description": "A button widget",
     "tags": null,
     "category": "widgetDefinition",
-    "datasetId": "ds_date_select",
+    "datasetId": "ds_button",
     "listensToKeys": null,
     "emitsKeys": [],
     "configSchema": {
@@ -19,30 +19,34 @@
             },
 
             "label": {
-                "title": "Date select label",
+                "title": "Checkbox label",
                 "type": "string",
                 "default": ""
             },
-            "stateKey": {
-                "title": "Custom state key",
-                "description": "Default is common.date",
+            "emitsKeys": {
+                "title": "Emits Keys",
+                "type": "string",
+                "enum": ["", "schemaKey"]
+            },
+            "emitValue": {
+                "title": "Emits Value",
                 "type": "string",
                 "default": ""
             },
-            "dateFormat": {
-                "title": "Date Format",
-                "type": "string",
-                "enum": ["YYYY-MM-DD"],
-                "default": "YYYY-MM-DD"
+            "type": {
+                "title": "Type",
+                "enum": ["primary", "default", "dashed", "link", "text"],
+                "default": "default",
+                "type": "string"
             },
-            "availableDates": {
-                "title": "Available dates",
-                "type": "string",
-                "enum": ["All", "End of Month only"],
-                "default": "All"
+            "buttonAction": {
+                "title": "Button Action",
+                "enum": ["emitKey", "export", "redirect"],
+
+                "type": "string"
             }
         },
-        "required": [],
+        "required": ["label"],
         "type": "object"
     },
     "uiHints": {
@@ -53,9 +57,9 @@
             "id": "small",
             "label": "Small",
             "grid": {
-                "defaultW": 2,
+                "defaultW": 1,
                 "defaultH": 60,
-                "minW": 2,
+                "minW": 1,
                 "minH": 60,
                 "maxW": null,
                 "maxH": null

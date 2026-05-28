@@ -60,6 +60,18 @@
             }
         },
         {
+            "id": "large",
+            "label": "Large",
+            "grid": {
+                "defaultW": 10,
+                "defaultH": 78,
+                "minW": 10,
+                "minH": 78,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
             "id": "full-width",
             "label": "Full Width",
             "grid": {

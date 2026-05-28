@@ -29,6 +29,8 @@ import { ToastConfig, ToastType } from '../components/toast-config';
 import { useDirectedRules  } from '../hooks/useDirectedRules';
 import { ValidationMessage } from '../components/validations-message';
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 import { MaintenanceBroker, MaintenanceDirectedRules, MaintenanceDirectedRulesXref } from '../datatypes/budget-maintenance-types';
 import { LoadIndicator } from 'devextreme-react';
