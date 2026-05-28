@@ -141,7 +141,6 @@ export default function WidgetHost(props: {
                     variantId,
                     params: { ...params, ...passedParams },
                     context: {
-                        ...context,
                         ...variables,
                     },
                     mode: props.mode === 'designer' ? 'MOCK' : 'LIVE',
@@ -154,6 +153,7 @@ export default function WidgetHost(props: {
             if (!e?.message.includes('signal')) setError(e?.message ?? 'Widget execution failed');
         } finally {
             setLoading(false);
+            setAbortController(undefined);
         }
     };
     return (
