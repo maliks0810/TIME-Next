@@ -1,6 +1,5 @@
 const DATA_QUALITY_SERVICE_URL =
-  import.meta.env.VITE_DATA_QUALITY_SERVICE_URL ?? "http://127.0.0.1:8100";
-
+  process.env.VITE_DATA_QUALITY_SERVICE_URL ?? "http://127.0.0.1:8100";
 const EVENTS_ENDPOINT = `${DATA_QUALITY_SERVICE_URL}/de/securities/rules/v1/api/events`;
 
 export type DomainEventType = "security_exception.inserted";
@@ -21,7 +20,6 @@ export function subscribeToEvents(handler: EventHandler): () => void {
         type?: DomainEventType;
         payload?: unknown;
       };
-
       handler({
         type: "security_exception.inserted",
         payload: parsed.payload ?? parsed,

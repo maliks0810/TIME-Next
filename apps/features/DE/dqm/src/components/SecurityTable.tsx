@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import type { SecurityRow } from "./types";
+import ColumnFilterHeader, { useColumnFilter } from "./ColumnFilter";
 
 type SecurityTableProps = {
   data: SecurityRow[];
@@ -8,20 +9,8 @@ type SecurityTableProps = {
   assigneeOptions: string[];
   onAssignToChange: (index: number, value: string) => void;
   blinkingAladdinId?: string | null;
+  onVisibleRowsChange?: (rows: SecurityRow[]) => void;
 };
-
-function getPriorityClass(priority: string): string {
-  switch (priority.toLowerCase()) {
-    case "high":
-      return "dq-badge dq-badge-red";
-    case "medium":
-      return "dq-badge dq-badge-yellow";
-    case "low":
-      return "dq-badge dq-badge-green";
-    default:
-      return "dq-badge dq-badge-gray";
-  }
-}
 
 const UNASSIGNED_LABEL = "— Unassigned —";
 
@@ -32,7 +21,42 @@ export default function SecurityTable({
   assigneeOptions,
   onAssignToChange,
   blinkingAladdinId,
+  onVisibleRowsChange,
 }: SecurityTableProps) {
+  const allAssetIds = useMemo(
+    () =>
+      Array.from(new Set(data.map((r) => r.aladdinId).filter(Boolean))).sort(
+        (a, b) => a.localeCompare(b)
+      ),
+    [data]
+  );
+
+  const allFigis = useMemo(
+    () =>
+      Array.from(new Set(data.map((r) => r.figi).filter(Boolean))).sort(
+        (a, b) => a.localeCompare(b)
+      ),
+    [data]
+  );
+
+  const [assetIdFilter, setAssetIdFilter] = useColumnFilter(allAssetIds);
+  const [figiFilter, setFigiFilter] = useColumnFilter(allFigis);
+  const [openFilterId, setOpenFilterId] = useState<string | null>(null);
+
+  const visibleRows = useMemo(
+    () =>
+      data.filter((row) => {
+        if (assetIdFilter && !assetIdFilter.has(row.aladdinId)) return false;
+        if (figiFilter && !figiFilter.has(row.figi ?? "")) return false;
+        return true;
+      }),
+    [data, assetIdFilter, figiFilter]
+  );
+
+  useEffect(() => {
+    onVisibleRowsChange?.(visibleRows);
+  }, [visibleRows, onVisibleRowsChange]);
+
   return (
     <div className="dq-table-container">
       <table className="dq-table">
@@ -43,8 +67,28 @@ export default function SecurityTable({
             <th>Severity</th>
             <th>Type</th>
             <th>Assign To</th>
-            <th>Asset Id</th>
-            <th>FIGI</th>
+            <th>
+              <ColumnFilterHeader
+                label="Asset Id"
+                allValues={allAssetIds}
+                filter={assetIdFilter}
+                onChange={setAssetIdFilter}
+                isOpen={openFilterId === "assetId"}
+                onToggle={(open) =>
+                  setOpenFilterId(open ? "assetId" : null)
+                }
+              />
+            </th>
+            <th>
+              <ColumnFilterHeader
+                label="FIGI"
+                allValues={allFigis}
+                filter={figiFilter}
+                onChange={setFigiFilter}
+                isOpen={openFilterId === "figi"}
+                onToggle={(open) => setOpenFilterId(open ? "figi" : null)}
+              />
+            </th>
             <th>Security Description</th>
             <th>Trader</th>
             <th>Trading Team</th>
@@ -56,6 +100,9 @@ export default function SecurityTable({
 
         <tbody>
           {data.map((row, index) => {
+            if (assetIdFilter && !assetIdFilter.has(row.aladdinId)) return null;
+            if (figiFilter && !figiFilter.has(row.figi ?? "")) return null;
+
             const currentAssignee = row.assignTo ?? "";
             const optionSet = new Set(assigneeOptions);
             if (currentAssignee) optionSet.add(currentAssignee);
@@ -73,6 +120,8 @@ export default function SecurityTable({
                   "dq-table-row",
                   selectedRow === index
                     ? "dq-table-row-selected"
+                    : row.allComplete
+                    ? "dq-table-row-complete"
                     : index % 2 === 0
                     ? "dq-table-row-even"
                     : "dq-table-row-odd",
@@ -82,11 +131,7 @@ export default function SecurityTable({
                   .join(" ")}
               >
                 <td>{row.dateTime}</td>
-                <td>
-                  <span className={getPriorityClass(row.priority)}>
-                    {row.priority}
-                  </span>
-                </td>
+                <td>{row.priority}</td>
                 <td>{row.severity}</td>
                 <td>{row.type}</td>
                 <td>

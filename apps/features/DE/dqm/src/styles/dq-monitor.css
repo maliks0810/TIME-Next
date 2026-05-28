@@ -1,5 +1,9 @@
 .dq-page {
-  height: 100vh;
+  /* Fill the host container (own viewport when standalone, the iframe's
+     box when embedded) rather than the global viewport, so it adapts to
+     whatever space the parent app gives it. */
+  height: 100%;
+  min-height: 600px;
   overflow: hidden;
   background: #f8f9fa;
   color: #1a1a2e;
@@ -243,8 +247,9 @@
   transition: background-color 0.15s ease;
 }
 
-.dq-table-row:hover {
-  background: #dcfce7;
+.dq-table-row:hover,
+.dq-table-row:hover td {
+  background: #fef3c7;
 }
 
 .dq-table-row-even {
@@ -259,17 +264,174 @@
   background: #dbeafe;
 }
 
-@keyframes dq-row-blink {
-  0%, 100% {
-    background: #fee2e2;
-  }
-  50% {
-    background: #fecaca;
-  }
+.dq-table-row-blinking td {
+  background: #fee2e2;
 }
 
-.dq-table-row-blinking td {
-  animation: dq-row-blink 0.9s ease-in-out infinite;
+.dq-table-row-complete td {
+  background: #dcfce7;
+}
+
+.dq-col-filter-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dq-col-filter-btn {
+  border: 1px solid #9ca3af;
+  background: #f3f4f6;
+  color: #374151;
+  border-radius: 4px;
+  padding: 0 6px;
+  height: 18px;
+  line-height: 14px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.dq-col-filter-btn:hover {
+  background: #e5e7eb;
+}
+
+.dq-col-filter-btn-active {
+  background: #fde68a;
+  color: #92400e;
+  border-color: #f59e0b;
+}
+
+.dq-col-filter-popover {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  z-index: 50;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  min-width: 220px;
+  font-weight: normal;
+  font-size: 12px;
+  color: #111827;
+}
+
+.dq-col-filter-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.dq-col-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 2px;
+  cursor: pointer;
+}
+
+.dq-col-filter-row:hover {
+  background: #f3f4f6;
+}
+
+.dq-col-filter-row-all {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 4px;
+  padding-bottom: 5px;
+  font-weight: 600;
+}
+
+.dq-col-filter-list {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.dq-col-filter-empty {
+  color: #6b7280;
+  padding: 4px 2px;
+  font-style: italic;
+}
+
+.dq-col-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.dq-col-filter-actions button {
+  border: 1px solid #9ca3af;
+  background: #f3f4f6;
+  color: #111827;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dq-col-filter-actions button:hover {
+  background: #e5e7eb;
+}
+
+.dq-combo {
+  position: relative;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.dq-combo-popover {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  max-height: 220px;
+  overflow-y: auto;
+  font-size: 12px;
+  color: #111827;
+}
+
+.dq-combo-item {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  cursor: pointer;
+  text-align: left;
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+}
+
+.dq-combo-item:hover {
+  background: #fef3c7;
+}
+
+.dq-combo-empty {
+  padding: 5px 8px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.dq-col-filter-apply {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+  border-color: #1f2937 !important;
+}
+
+.dq-col-filter-apply:hover {
+  background: #111827 !important;
 }
 
 .dq-status-bar {
@@ -277,10 +439,10 @@
   left: 0;
   bottom: 0;
   padding: 6px 12px;
-  background: #111827;
-  color: #f9fafb;
+  background: #f3f4f6;
+  color: #111827;
   font-size: 12px;
-  font-family: Consolas, "Courier New", monospace;
+  font-family: Arial, Helvetica, sans-serif;
   border-top-right-radius: 6px;
   z-index: 10;
   max-width: 60vw;

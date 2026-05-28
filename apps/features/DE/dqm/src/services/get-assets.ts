@@ -1,8 +1,7 @@
 import type { SecurityRow } from "../components/types";
 
 const DATA_QUALITY_SERVICE_URL =
-  import.meta.env.VITE_DATA_QUALITY_SERVICE_URL ?? "http://127.0.0.1:8100";
-
+  process.env.VITE_APP_DATA_QUALITY_SERVICE_URL ?? "http://127.0.0.1:8100";
 const ASSETS_ENDPOINT = `${DATA_QUALITY_SERVICE_URL}/de/securities/rules/v1/api/getAssets`;
 
 type ApiAsset = {
@@ -18,15 +17,13 @@ type ApiAsset = {
   trading_team?: string;
   exception_count?: number;
   bbg_last_refresh?: string;
+  all_complete?: boolean;
 };
 
 function formatDateTime(iso?: string): string {
   if (!iso) return "";
-
   const d = new Date(iso);
-
   if (Number.isNaN(d.getTime())) return iso;
-
   return d.toLocaleString("en-US", {
     month: "numeric",
     day: "numeric",
@@ -52,28 +49,44 @@ function toSecurityRow(a: ApiAsset): SecurityRow {
     exceptionCount: a.exception_count ?? 0,
     bbgLastRefresh: a.bbg_last_refresh ?? "",
     triggerBbg: false,
+    allComplete: !!a.all_complete,
     exceptions: [],
   };
 }
 
-export async function fetchAssets(signal?: AbortSignal): Promise<SecurityRow[]> {
-  const res = await fetch(ASSETS_ENDPOINT, { signal });
-
+export async function fetchAssets(
+  signal?: AbortSignal,
+  exceptionType?: string,
+  severity?: string,
+  priority?: string,
+  ruleType?: string,
+  ruleName?: string,
+  exceptionStatus?: string,
+  assignTo?: string
+): Promise<SecurityRow[]> {
+  const params = new URLSearchParams();
+  if (exceptionType) params.set("exception_type", exceptionType);
+  if (severity && severity !== "All") params.set("severity", severity);
+  if (priority && priority !== "All") params.set("priority", priority);
+  if (ruleType && ruleType !== "All") params.set("rule_type", ruleType);
+  if (ruleName && ruleName !== "All") params.set("rule_name", ruleName);
+  if (exceptionStatus && exceptionStatus !== "All")
+    params.set("exception_status", exceptionStatus);
+  if (assignTo && assignTo !== "All") params.set("assign_to", assignTo);
+  const qs = params.toString();
+  const url = qs ? `${ASSETS_ENDPOINT}?${qs}` : ASSETS_ENDPOINT;
+  const res = await fetch(url, { signal });
   if (!res.ok) {
     throw new Error(`getAssets failed: ${res.status} ${res.statusText}`);
   }
-
   const raw = (await res.json()) as ApiAsset[];
-
   if (!Array.isArray(raw)) {
     throw new Error("getAssets: expected array response");
   }
-
   const sorted = raw.slice().sort((a, b) => {
     const ta = a.exception_date ? new Date(a.exception_date).getTime() : 0;
     const tb = b.exception_date ? new Date(b.exception_date).getTime() : 0;
     return tb - ta;
   });
-
   return sorted.map(toSecurityRow);
 }

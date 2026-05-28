@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 type HeaderProps = {
   onExportClick?: () => void;
@@ -7,14 +7,14 @@ type HeaderProps = {
 export default function Header({
   onExportClick,
 }: HeaderProps = {}) {
-  //const [user] = useState<string>("Local User");
+  const [user] = useState<string>("Local User");
 
   useEffect(() => {}, []);
 
   return (
     <div className="dq-header">
       <div className="dq-header-left">
-        <div className="dq-header-brand"></div>
+        <div className="dq-header-brand">TCW</div>
       </div>
 
       <div className="dq-header-title-wrap">
@@ -44,7 +44,7 @@ export default function Header({
         )}
 
         <div className="dq-user">
-          {/* 👤 {user} */}
+          👤 {user}
         </div>
       </div>
     </div>
