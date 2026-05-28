@@ -1,0 +1,47 @@
+{
+    "id": "wd_tabs_control",
+    "name": "Tabs Control",
+    "version": 1,
+    "description": "Tabs Control for portfolio view",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_tabs_control",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+
+            "variant": {
+                "title": "Variant",
+                "type": "string",
+                "enum": ["button", "radio"]
+            }
+        },
+        "required": [],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "small",
+            "label": "Small",
+            "grid": {
+                "defaultW": 10,
+                "defaultH": 60,
+                "minW": 10,
+                "minH": 60,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}

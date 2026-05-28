@@ -21,6 +21,8 @@ export const DRAM_ENTITY_ID_KEY = 'dram.entity.id';
 export const DRAM_NOTE_TYPE_KEY = 'dram.note.type';
 export const DATE_SELECT_KEY = 'common.date';
 export const COMMON_DATE_GRID_ROW_KEY = 'common.data.grid.row';
+export const COMMON_BUTTON_KEY = 'common.button';
+export const COMMON_TREE_KEY = 'common.tree.item';
 export enum DateFormatEnum {
     DAY = 'day',
     MONTH = 'month',

@@ -48,8 +48,9 @@
                 "type": "string"
             },
             "listensToKeys": {
-                "enum": ["asOfDate", "common.data.grid.row"],
+                "enum": ["asOfDate", "common.data.grid.row", "schemaKey", "common.tree.item"],
                 "title": "Listens to keys",
+                "multiselect": true,
                 "type": "string"
             }
         },

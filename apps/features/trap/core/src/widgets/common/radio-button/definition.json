@@ -1,11 +1,11 @@
 {
-    "id": "cwd_date_select",
-    "name": "Date Select",
+    "id": "cwd_radio",
+    "name": "Radio",
     "version": 1,
-    "description": "Date select widget",
+    "description": "A radio control widget",
     "tags": null,
     "category": "widgetDefinition",
-    "datasetId": "ds_date_select",
+    "datasetId": "ds_radio",
     "listensToKeys": null,
     "emitsKeys": [],
     "configSchema": {
@@ -17,32 +17,28 @@
                 "title": "Communication Channel",
                 "type": "string"
             },
-
             "label": {
-                "title": "Date select label",
+                "title": "Radio label",
                 "type": "string",
                 "default": ""
             },
-            "stateKey": {
-                "title": "Custom state key",
-                "description": "Default is common.date",
+            "emitKey": {
+                "title": "Radio emit key",
                 "type": "string",
                 "default": ""
             },
-            "dateFormat": {
-                "title": "Date Format",
-                "type": "string",
-                "enum": ["YYYY-MM-DD"],
-                "default": "YYYY-MM-DD"
+            "checked": {
+                "title": "Is checked by default",
+                "type": "boolean",
+                "default": false
             },
-            "availableDates": {
-                "title": "Available dates",
+            "variant": {
+                "title": "Variant",
                 "type": "string",
-                "enum": ["All", "End of Month only"],
-                "default": "All"
+                "enum": ["button", "radio"]
             }
         },
-        "required": [],
+        "required": ["emitKey", "label"],
         "type": "object"
     },
     "uiHints": {
@@ -53,9 +49,21 @@
             "id": "small",
             "label": "Small",
             "grid": {
-                "defaultW": 2,
+                "defaultW": 1,
                 "defaultH": 60,
-                "minW": 2,
+                "minW": 1,
+                "minH": 60,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "medium",
+            "label": "Medium",
+            "grid": {
+                "defaultW": 1,
+                "defaultH": 60,
+                "minW": 1,
                 "minH": 60,
                 "maxW": null,
                 "maxH": null

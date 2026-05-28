@@ -1,0 +1,51 @@
+{
+    "id": "wd_portfolio_info",
+    "name": "Portfolio Info",
+    "version": 1,
+    "description": "Widget to display Inception and Perf start dates",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_portfolio_info",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+            "schemaKey": {
+                "title": "Schema Key",
+                "type": "string",
+                "enum": ["dram.portfolio.info"]
+            },
+            "listensToKeys": {
+                "title": "Listens to keys",
+                "type": "string",
+                "enum": ["asOfDate"]
+            }
+        },
+        "required": ["schemaKey"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "small-horizontal",
+            "label": "Small Horizontal",
+            "grid": {
+                "defaultW": 7,
+                "defaultH": 60,
+                "minW": 7,
+                "minH": 60,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}

@@ -35,6 +35,7 @@ export default function WidgetHost(props: {
     mode: WidgetRenderMode;
     uiActions?: Record<string, (...args: any[]) => any>;
 }) {
+    const [abortController, setAbortController] = React.useState<AbortController | undefined>();
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState<string | undefined>(undefined);
     const [result, setResult] = React.useState<Record<string, unknown> | undefined>(undefined);
@@ -124,24 +125,35 @@ export default function WidgetHost(props: {
         variables?: Record<string, WidgetValueType>,
         passedParams?: Record<string, WidgetValueType>
     ) => {
-        setError('');
         setLoading(true);
         try {
-            const response = await executeWidget({
-                widgetDefinitionId,
-                variantId,
-                params: { ...params, ...passedParams },
-                context: {
-                    ...variables,
-                },
-                mode: props.mode === 'designer' ? 'MOCK' : 'LIVE',
-            });
+            if (abortController) {
+                abortController.abort();
+            }
 
+            // Create a new AbortController for this request
+            const controller = new AbortController();
+            const signal = controller.signal;
+            setAbortController(controller);
+            const response = await executeWidget(
+                {
+                    widgetDefinitionId,
+                    variantId,
+                    params: { ...params, ...passedParams },
+                    context: {
+                        ...variables,
+                    },
+                    mode: props.mode === 'designer' ? 'MOCK' : 'LIVE',
+                },
+                signal
+            );
+            setError(undefined);
             setResult(response?.result ?? {});
         } catch (e: any) {
-            setError(e?.message ?? 'Widget execution failed');
+            if (!e?.message.includes('signal')) setError(e?.message ?? 'Widget execution failed');
         } finally {
             setLoading(false);
+            setAbortController(undefined);
         }
     };
     return (

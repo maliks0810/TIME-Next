@@ -9,6 +9,8 @@ import { ToastConfig, ToastType} from '../components/toast-config'
 import { Item as FormItem } from 'devextreme-react/form';
 import { ValidationMessage } from '../components/validations-message';
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 // Exported handlers for isolated testing  
 const onRowDblClickHandler = (e: DataGridTypes.RowDblClickEvent) => {  

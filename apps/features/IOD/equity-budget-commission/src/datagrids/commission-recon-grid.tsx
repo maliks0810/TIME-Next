@@ -91,31 +91,29 @@ const {
   }; 
 
 return (  
-  <div>
-    <div className='div-form-container'>
-          <div className="div-container-left">  
-            <DateBox  
-              labelMode='outside'  
-              label='From Date:'  
-              placeholder='From Date'  
-              onValueChanged={handleFromDateChanged}  
-              value={selectedBeginDate}  
-              displayFormat='MM/dd/yyyy'  
-              elementAttr={{ class: 'dx-common-selectbox' }}  
-              width={150}
-            />  
-            <DateBox  
-              labelMode='outside'  
-              label='To Date:'  
-              placeholder='To Date'  
-              onValueChanged={handleToDateChanged}  
-              value={selectedEndDate}  
-              displayFormat='MM/dd/yyyy'   
-              elementAttr={{ class: 'dx-common-selectbox' }}  
-              width={150}
-            />        
-            <Button text='Refresh' onClick={handleRefresh} hint="Refresh" type="default" icon="refresh" stylingMode="contained" width={120} className='popup-button'/>
-          </div>
+<div>
+    <div className="div-container-left">  
+        <DateBox  
+            labelMode='outside'  
+            label='From Date:'  
+            placeholder='From Date'  
+            onValueChanged={handleFromDateChanged}  
+            value={selectedBeginDate}  
+            displayFormat='MM/dd/yyyy'  
+            elementAttr={{ class: 'dx-common-selectbox' }}  
+            width={150}
+        />  
+        <DateBox  
+            labelMode='outside'  
+            label='To Date:'  
+            placeholder='To Date'  
+            onValueChanged={handleToDateChanged}  
+            value={selectedEndDate}  
+            displayFormat='MM/dd/yyyy'   
+            elementAttr={{ class: 'dx-common-selectbox' }}  
+            width={150}
+        />        
+        <Button text='Refresh' onClick={handleRefresh} hint="Refresh" type="default" icon="refresh" stylingMode="contained" width={120} className='popup-button'/>
     </div>
     <div className='div-form-container'>       
       { isLoading ?

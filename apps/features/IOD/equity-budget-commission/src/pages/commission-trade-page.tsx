@@ -7,7 +7,7 @@ export default function CommissionTradePage () {
     return (
         <BlockContainer title="Trades">
             <div className='custom-tab-panel'>
-                <TabPanel deferRendering={false} >
+                <TabPanel deferRendering={true} >
                     <Item title="Trades">
                         <CommissionTradeGrid />
                     </Item>
