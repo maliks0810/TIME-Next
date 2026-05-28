@@ -32,7 +32,8 @@ export const useIdentifierFields = () =>
       isReadOnly: s.isReadOnly,
       pendingUploadFiles: s.pendingUploadFiles,
       isUploadingFile: s.isUploadingFile,
-      fileUploadError: s.fileUploadError
+      fileUploadError: s.fileUploadError,
+      attachments: s.attachments
     }))
   );
 
