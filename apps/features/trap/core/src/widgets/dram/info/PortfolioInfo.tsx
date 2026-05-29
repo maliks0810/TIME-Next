@@ -21,10 +21,16 @@ export const PortfolioInfo = ({ result, widgetInstance, execute }: WidgetCompone
         key: COMMON_DATE_GRID_ROW_KEY,
     });
     const portfolio = portfolioTree || portfolioGrid;
+
     const warning = (result?.warning as string) || '';
+
     useEffect(() => {
         execute?.({ portfolioNumber: portfolio });
     }, [portfolio]);
+
+    if (!portfolio)
+        return <WidgetCardShell>Please select a portfolio to see more info</WidgetCardShell>;
+
     return (
         <WidgetCardShell>
             <div className={styles.wrapper}>
