@@ -11,7 +11,7 @@ export function AttrRow({
     accent,
 }: {
     label: string;
-    value: string;
+    value: string | null;
     mono?: boolean;
     accent?: boolean;
 }) {
