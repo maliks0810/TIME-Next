@@ -22,6 +22,7 @@ import {
 } from '../../constants';
 import { useSetWidgetValue } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
+import clsx from 'clsx';
 
 export default function CDIUploadWidget({
     widgetInstance,
@@ -253,7 +254,11 @@ export default function CDIUploadWidget({
 
     return (
         <WidgetCardShell>
-            <div className={styles.wrapper}>
+            <div
+                className={clsx(styles.wrapper, {
+                    [styles.previewContainer]: mode === 'preview',
+                })}
+            >
                 <div className={styles.left}>
                     {uploadState === 'idle' && !fromRecent && (
                         <Dropzone handleUpload={handleUpload} execute={handleFetch} />

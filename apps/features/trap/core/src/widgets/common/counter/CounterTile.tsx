@@ -8,6 +8,7 @@ import { WidgetConfigProperty } from '../../../features/widget-studio/components
 import { useGetWidgetValue, useSetWidgetValue } from '../../../state/Widgets/hooks';
 import { COUNTER_TILE_STORE_KEY } from '../../constants';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
+import clsx from 'clsx';
 
 const getWidgetValues = (
     config: Record<string, any>,
@@ -17,6 +18,7 @@ const getWidgetValues = (
     if (!properties) return {};
     if (!params) return {};
     const {
+        themeMode = properties['themeMode']?.['default'] || '',
         textColor = properties['textColor']?.['default'] || '',
         titleText = properties['titleText']?.['default'] || '',
         suffixText = properties['suffixText']?.['default'] || '',
@@ -27,6 +29,7 @@ const getWidgetValues = (
     } = params;
 
     return {
+        themeMode,
         textColor,
         text: titleText,
         position: titlePosition,
@@ -59,7 +62,7 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
     const configSchema = widgetDefinition?.configSchema;
     const properties = configSchema?.properties || {};
 
-    const { text, position, suffix, prefix, emptyText, textColor } = useMemo(
+    const { text, position, suffix, prefix, emptyText, textColor, themeMode } = useMemo(
         () => getWidgetValues(config, properties),
         [config, properties]
     );
@@ -97,15 +100,15 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
 
         switch (params['themeMode']) {
             case 'customSolid':
-                return { backgroundColor: params['customColor'], background: '' };
+                return { backgroundColor: params['customColor'] ?? '#FFFFFF', background: '' };
             case 'customGradient':
                 return {
-                    background: `linear-gradient(45deg, ${params['customGradientStart']}, ${params['customGradientEnd']})`,
+                    background: `linear-gradient(45deg, ${params['customGradientStart'] ?? '#2563eb'}, ${params['customGradientEnd'] ?? '#60a5fa'})`,
                     backgroundColor: '',
                 };
             default:
                 return {
-                    backgroundColor: properties['customColor']?.['default'] || '#FFFFFF',
+                    backgroundColor: '',
                     background: '',
                 };
         }
@@ -122,24 +125,33 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
         if (result) return result['title'];
     }, [text, result]);
 
+    const customTextColor = useMemo(() => {
+        return themeMode === 'theme' ? {} : { color: textColor };
+    }, [themeMode, textColor]);
+
     return (
         <WidgetCardShell style={widgetColor}>
             <div className={styles.container} onClick={handleClick}>
                 <Typography.Title
                     level={5}
-                    className={`${widgetStyles.titlePosition} ${value === counterTileValue ? styles.activeTile : ''}`}
-                    style={{ color: textColor }}
+                    className={
+                        clsx(widgetStyles.titlePosition,
+                            styles.cardTitle, {
+                            [styles.activeTile]: value === counterTileValue,
+                        })
+                    }
+                    style={customTextColor}
                 >
                     {widgetTextTitle}
                 </Typography.Title>
                 <div className={styles.content}>
-                    <Typography.Text className={styles.prefix} style={{ color: textColor }}>
+                    <Typography.Text className={styles.prefix} style={customTextColor}>
                         {prefix}
                     </Typography.Text>
-                    <Typography.Text strong className={styles.value} style={{ color: textColor }}>
+                    <Typography.Text strong className={styles.value} style={customTextColor}>
                         {content}
                     </Typography.Text>
-                    <Typography.Text className={styles.suffix} style={{ color: textColor }}>
+                    <Typography.Text className={styles.suffix} style={customTextColor}>
                         {suffix}
                     </Typography.Text>
                 </div>

@@ -1,0 +1,66 @@
+export const widgetPreviewResult = {
+    columns: [
+        {
+            caption: 'Time In Queue',
+            dataField: 'timeInQueue',
+            key: 'createdDate',
+            align: 'center',
+            filterSearch: true,
+            width: 70,
+        },
+        {
+            caption: 'Time In Status',
+            dataField: 'timeInStatus',
+            key: 'lastModifiedDate',
+            align: 'center',
+            width: 70,
+        },
+        {
+            caption: 'Aladdin ID',
+            dataField: 'aladdinId',
+            key: 'aladdinId',
+            align: 'center',
+            width: 70,
+        },
+        {
+            caption: 'Asset Type',
+            dataField: 'assetType',
+            key: 'assetType',
+            align: 'center',
+            width: 70,
+        },
+        {
+            caption: 'Collateral Type',
+            dataField: 'collateralType',
+            key: 'collateralType',
+            align: 'center',
+            width: 70,
+        },
+        {
+            caption: 'Risk Analytics Status',
+            dataField: 'status',
+            key: 'status',
+            align: 'center',
+            width: 120,
+        },
+        {
+            caption: 'Claimed By',
+            dataField: 'claimedBy',
+            key: 'claimedBy',
+            align: 'center',
+            width: 120,
+        },
+    ],
+    rows: [
+        {
+            assetAnalyticsSetupId: 184,
+            aladdinId: '92490FAA8',
+            assetType: 'NARMBS',
+            timeInQueue: '304 min',
+            timeInStatus: '304 min',
+            claimedBy: 'John Doe',
+            collateralType: 'NQM',
+            status: 'Pending',
+        },
+    ],
+};

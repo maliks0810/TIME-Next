@@ -411,19 +411,27 @@ return (
                   </Form>  
                 </div>
               </Editing>  
-
-              <Column dataField="portfolioGroupId" caption="Portfolio Group Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >  
+              <Column dataField="portfolioGroupXrefId" visible={false} />
+              <Column dataField="portfolioGroupId" caption="Portfolio Group Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >                  
                 <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupName" />
                 <RequiredRule message={ValidationMessage.RequiredField} />
               </Column>
-              <Column dataField="portfolioGroupId" caption="Portfolio Group Code" width="20%" allowFiltering={false} allowSorting={true} dataType="string" >  
+              <Column caption="Portfolio Group Code" width="20%" allowFiltering={false} allowSorting={true} dataType="string"
+                  calculateCellValue={(rowData) => {
+                    const pg = portfolioGroups.find(pg => pg.portfolioGroupId === rowData.portfolioGroupId);
+                    return pg?.portfolioGroupCode ?? null;
+                  }}>
                 <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupCode" />  
               </Column>              
               <Column dataField="portfolioId" caption="Portfolio Code" width="15%" allowFiltering={false} allowSorting={true} alignment="left" dataType="string" >
                 <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioCode" />
                 <RequiredRule message={ValidationMessage.RequiredField} />
               </Column>  
-              <Column dataField="portfolioId" caption="Portfolio Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >
+              <Column caption="Portfolio Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" 
+                  calculateCellValue={(rowData) => {
+                    const p = portfolios.find(p => p.portfolioId === rowData.portfolioId);
+                    return p?.portfolioCode ?? null;
+                  }}>
                 <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioName" />
               </Column>
               <Column type="buttons" width="5%" visible={isAdmin? true: false}>  

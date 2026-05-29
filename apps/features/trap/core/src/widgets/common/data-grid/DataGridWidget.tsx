@@ -22,6 +22,8 @@ import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState'
 import { useSetWidgetValue, useGetWidgetValueArray } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
 import { COMMON_DATE_GRID_ROW_KEY } from '../../constants';
+import { widgetPreviewResult } from './widgetPreviewResult';
+import clsx from 'clsx';
 
 export default function DataGridWidget({
     widgetInstance: { config = {} },
@@ -29,6 +31,7 @@ export default function DataGridWidget({
     error,
     result,
     execute,
+    mode,
 }: WidgetComponentProps) {
     const activeTab = useGetActiveTab();
     const gridRef = useRef<any>(null);
@@ -89,7 +92,7 @@ export default function DataGridWidget({
         );
     }
 
-    if (!result) {
+    if (!result && mode !== 'preview') {
         return (
             <WidgetCardShell>
                 <div style={{ padding: 12, fontSize: 12 }}>No grid data available.</div>
@@ -97,16 +100,24 @@ export default function DataGridWidget({
         );
     }
 
-    const { columns = [], rows = [], rowKeyField = 'id' } = result;
+    const {
+        columns = [],
+        rows = [],
+        rowKeyField = 'id',
+    } = mode === 'preview' ? widgetPreviewResult : (result as any);
+
     return (
         <>
             <WidgetCardShell>
-                <div className="antd-dx-container">
+                <div
+                    className={clsx('antd-dx-container', {
+                        previewContainer: mode === 'preview',
+                    })}
+                >
                     <DataGrid
                         ref={gridRef}
                         className={styles.grid}
-                        /* TODO: fix rows type */
-                        dataSource={rows as []}
+                        dataSource={mode === 'preview' ? widgetPreviewResult.rows : (rows as [])}
                         allowColumnReordering={false}
                         rowAlternationEnabled
                         showColumnLines={false}

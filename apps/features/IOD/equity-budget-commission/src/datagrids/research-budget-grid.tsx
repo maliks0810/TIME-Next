@@ -89,6 +89,7 @@ const ResearchBudgetGrid: React.FC = () => {
   const hideToast = () => {
     setToastConfig(prev => ({ ...prev, visible: false }));
   };
+  
   const generateYears = (start:number, end:number, step = 1) => {
     const result = [];
         for (let i = start; i <= end; i += step) {
@@ -96,9 +97,19 @@ const ResearchBudgetGrid: React.FC = () => {
         }
         return result.sort(x=> x).reverse();
     };
-    const dataSource = useMemo(() => {        
-        return researchBudgetDataService(setBudgetData, userInfo, selectedYear, selectedDivision);
-    }, [selectedYear, selectedDivision]);
+
+  const dataSource = useMemo(() => {
+
+      if(!selectedYear) {
+        showToast('You must select Budget Year.','error');
+        return null;
+      }
+      if(selectedDivision == null) { //default value is 0 for ALL
+        showToast('You must select Division.','error');
+        return null;
+      }
+      return researchBudgetDataService(setBudgetData, userInfo, selectedYear, selectedDivision);
+  }, [selectedYear, selectedDivision]);
 
   useEffect(() => {    
       fetch(apiMainEndpoint+'/master-brokers',{cache: "no-store"})
@@ -238,17 +249,21 @@ const ResearchBudgetGrid: React.FC = () => {
                 itemType="group"
                 caption="Organization"
                 cssClass="popup-section"
-                colCount={1}
+                colCount={3}
               >
                 <FormItem
                   dataField="masterBrokerId"
-                  cssClass="custom-popup-selectbox"
+                  cssClass="dx-common-selectbox"
                   label={{ text: "Master Broker" }}
+                  editorType='dxSelectBox'
+                  colSpan={3}
                 />
                 <FormItem
                   dataField="divisionId"
-                  cssClass="custom-popup-selectbox"
-                  label={{ text: "Division" }}
+                  cssClass="dx-common-selectbox"
+                  label={{ text: "Division" }}                
+                  editorType='dxSelectBox'
+                  colSpan={2}
                 />
               </FormItem>
 

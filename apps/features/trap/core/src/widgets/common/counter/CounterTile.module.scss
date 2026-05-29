@@ -14,9 +14,11 @@
     height: 100%;
     cursor: pointer;
 }
-
+.cardTitle {
+    color: var(--ant-color-text-secondary);
+}
 .activeTile {
-    border-bottom: 2px solid rgb(0, 195, 255);
+    border-bottom: 2px solid var(--ant-color-primary);
 }
 .top {
     order: 0;
@@ -28,6 +30,7 @@
 .content {
     display: flex;
     align-items: flex-end;
+    color: var(--ant-color-text);
 }
 .prefix {
     flex: 0;

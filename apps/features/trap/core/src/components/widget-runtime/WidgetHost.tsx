@@ -87,9 +87,11 @@ export default function WidgetHost(props: {
     }, [widgetDefinitionId, variantId, props.mode, params]);
 
     React.useEffect(() => {
-        if (!widgetDefinitionId || isIdentity) return;
+        if (!widgetDefinitionId || isIdentity || props.mode === 'preview') return;
 
         let cancelled = false;
+        // Cleanup result in case of shared WidgetHost between different schemaKeys
+        setResult(undefined);
 
         const run = async () => {
             setLoading(true);
@@ -121,6 +123,7 @@ export default function WidgetHost(props: {
             cancelled = true;
         };
     }, [requestKey, widgetDefinitionId, variantId, params, props.mode, isIdentity]);
+
     const execute = async (
         variables?: Record<string, WidgetValueType>,
         passedParams?: Record<string, WidgetValueType>
