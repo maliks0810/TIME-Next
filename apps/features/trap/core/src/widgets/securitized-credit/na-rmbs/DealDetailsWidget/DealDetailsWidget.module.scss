@@ -99,4 +99,14 @@
         background: var(--ant-color-success);
         flex-shrink: 0;
     }
+
+    &.previewContainer {
+        width: 740px;
+        height: 150px;
+        position: relative;
+        pointer-events: none;
+        overflow: hidden;
+        transform: scale(0.45);
+        transform-origin: top left;
+    }
 }

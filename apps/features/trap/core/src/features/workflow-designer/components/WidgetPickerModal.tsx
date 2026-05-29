@@ -1,10 +1,10 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React, { useMemo } from 'react';
-import { Button, Empty, Input, Modal, Select, Space, Tag, Typography, theme } from 'antd';
-import { AppstoreOutlined } from '@ant-design/icons';
-import JsonInfoModal from '../../../components/common/JsonInfoModal';
+import { useMemo, useState } from 'react';
+import { Button, Input, Modal, Select, Space, Tag, Typography, theme } from 'antd';
 import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
 import styles from './WidgetPickerModal.module.scss';
+import { SimplifiedWidgetView } from './SimplifiedWidgetView';
+import { PreviewWidgetsContainer } from './PreviewWidgetsContainer';
 
 type WidgetPickerModalProps = {
     open: boolean;
@@ -31,6 +31,8 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
     const { token } = theme.useToken();
     const { themeName } = useTheme();
     const surfaceMeta = getThemeSurfaceMeta(themeName);
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+    const [isPreviewModeEnabled, setIsPreviewModeEnabled] = useState(false);
 
     const selectedWidgetRequiredFields = props.selectedWidgetDef?.configSchema?.required;
     const isSelectedWidgetHasRequiredFields = selectedWidgetRequiredFields?.length > 0;
@@ -60,54 +62,8 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
           ? 'rgba(255,255,255,0.03)'
           : token.colorBgContainer;
 
-    const tileBackground = surfaceMeta.isGradientTheme
-        ? 'rgba(255,255,255,0.04)'
-        : isDarkHud
-          ? 'rgba(255,255,255,0.03)'
-          : token.colorBgContainer;
-
-    const tileSelectedBackground = surfaceMeta.isGradientTheme
-        ? 'rgba(255,255,255,0.08)'
-        : isDarkHud
-          ? 'rgba(255,255,255,0.06)'
-          : token.colorPrimaryBg;
-
-    const tileBorder = surfaceMeta.isGradientTheme
-        ? '1px solid rgba(255,255,255,0.10)'
-        : `1px solid ${token.colorBorderSecondary}`;
-
-    const tileSelectedBorder = surfaceMeta.isGradientTheme
-        ? '1px solid rgba(255,255,255,0.20)'
-        : `1px solid ${token.colorPrimaryBorder}`;
-
-    const iconBg = surfaceMeta.isGradientTheme
-        ? 'rgba(255,255,255,0.10)'
-        : isDarkHud
-          ? 'rgba(255,255,255,0.08)'
-          : token.colorFillSecondary;
-
-    const iconSelectedBg = surfaceMeta.isGradientTheme
-        ? 'rgba(255,255,255,0.18)'
-        : isDarkHud
-          ? 'rgba(255,255,255,0.14)'
-          : token.colorPrimaryBg;
-
     const titleColor = isDarkHud ? '#fff' : token.colorText;
     const secondaryColor = isDarkHud ? 'rgba(255,255,255,0.72)' : token.colorTextSecondary;
-
-    function getWidgetIconStyle(selected: boolean): React.CSSProperties {
-        return {
-            width: 44,
-            height: 44,
-            borderRadius: 14,
-            display: 'grid',
-            placeItems: 'center',
-            background: selected ? iconSelectedBg : iconBg,
-            color: selected ? titleColor : secondaryColor,
-            flexShrink: 0,
-            border: surfaceMeta.isGradientTheme ? '1px solid rgba(255,255,255,0.10)' : 'none',
-        };
-    }
 
     const hasAllRequiredParams = useMemo(
         () =>
@@ -350,150 +306,39 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                 </div>
 
                 <div className={styles.widgetsContainer}>
-                    <div
+                    {/* <div
                         style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
-                            gap: 14,
-                            overflowY: 'auto',
-                            paddingRight: 4,
+                            display: 'flex',
+                            justifyContent: 'end',
+                            marginBottom: 8,
+                            paddingRight: 16,
                         }}
                     >
-                        {props.filteredWidgetDefs.length === 0 ? (
-                            <div style={{ gridColumn: '1 / -1', paddingTop: 40 }}>
-                                <Empty
-                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                    description="No widgets found"
-                                />
-                            </div>
-                        ) : (
-                            props.filteredWidgetDefs.map((d: any) => {
-                                const isSelected = d.id === props.selectedWidgetDefId;
-
-                                return (
-                                    <button
-                                        key={d.id}
-                                        type="button"
-                                        onClick={() => {
-                                            props.onSelectWidget(d.id);
-                                            // params cleanup on selected widget change
-                                            props.onSelectParams({});
-                                        }}
-                                        style={{
-                                            textAlign: 'left',
-                                            borderRadius: 18,
-                                            border: isSelected ? tileSelectedBorder : tileBorder,
-                                            background: isSelected
-                                                ? tileSelectedBackground
-                                                : tileBackground,
-                                            padding: 14,
-                                            cursor: 'pointer',
-                                            minHeight: 136,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            gap: 12,
-                                            boxShadow: isSelected
-                                                ? surfaceMeta.isGradientTheme
-                                                    ? `0 10px 28px ${surfaceMeta.hudGlow}`
-                                                    : `0 8px 24px ${token.colorPrimaryBorder}`
-                                                : 'none',
-                                            backdropFilter: surfaceMeta.isGradientTheme
-                                                ? 'blur(6px)'
-                                                : undefined,
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'flex-start',
-                                                gap: 12,
-                                                minWidth: 0,
-                                            }}
-                                        >
-                                            <div style={getWidgetIconStyle(isSelected)}>
-                                                <AppstoreOutlined style={{ fontSize: 18 }} />
-                                            </div>
-
-                                            <div style={{ minWidth: 0, flex: 1 }}>
-                                                <div
-                                                    style={{
-                                                        fontWeight: 600,
-                                                        fontSize: 14,
-                                                        lineHeight: '18px',
-                                                        color: titleColor,
-                                                    }}
-                                                    title={d.name}
-                                                >
-                                                    {d.name}
-                                                </div>
-
-                                                <div
-                                                    style={{
-                                                        marginTop: 4,
-                                                        fontSize: 12,
-                                                        lineHeight: '16px',
-                                                        color: secondaryColor,
-                                                        minHeight: 32,
-                                                        display: '-webkit-box',
-                                                        WebkitLineClamp: 2,
-                                                        WebkitBoxOrient: 'vertical',
-                                                        overflow: 'hidden',
-                                                    }}
-                                                >
-                                                    {d.description ||
-                                                        'Reusable widget for workflow composition.'}
-                                                </div>
-                                            </div>
-
-                                            <div onClick={(e) => e.stopPropagation()}>
-                                                <JsonInfoModal
-                                                    title={`${d.name} Definition`}
-                                                    tooltip="Widget Definition JSON"
-                                                    data={{
-                                                        id: d.id,
-                                                        name: d.name,
-                                                        description: d.description,
-                                                        category:
-                                                            d?.uiHints?.category ?? d?.category,
-                                                        datasetId: d?.datasetId,
-                                                        variants: Array.isArray(d?.variants)
-                                                            ? d.variants.map((v: any) => ({
-                                                                  id: v.id,
-                                                                  label: v.label,
-                                                              }))
-                                                            : [],
-                                                        listensToKeys: d?.listensToKeys,
-                                                        emitsKeys: d?.emitsKeys,
-                                                        configSchema: d?.configSchema,
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            style={{
-                                                marginTop: 'auto',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 8,
-                                                flexWrap: 'wrap',
-                                            }}
-                                        >
-                                            <Tag style={{ marginInlineEnd: 0 }}>
-                                                {d?.uiHints?.category ?? d?.category ?? 'Other'}
-                                            </Tag>
-                                            {Array.isArray(d?.variants) && d.variants.length > 0 ? (
-                                                <Tag color="blue" style={{ marginInlineEnd: 0 }}>
-                                                    {d.variants.length} variant
-                                                    {d.variants.length > 1 ? 's' : ''}
-                                                </Tag>
-                                            ) : null}
-                                        </div>
-                                    </button>
-                                );
-                            })
-                        )}
-                    </div>
+                        <Switch
+                            checkedChildren="Preview"
+                            unCheckedChildren="Compact"
+                            defaultChecked
+                            onChange={setIsPreviewModeEnabled}
+                        />
+                    </div> */}
+                    {isPreviewModeEnabled ? (
+                        <PreviewWidgetsContainer
+                            filteredWidgetDefs={props.filteredWidgetDefs}
+                            selectedWidgetDefId={props.selectedWidgetDefId}
+                            onSelectParams={props.onSelectParams}
+                            onSelectWidget={props.onSelectWidget}
+                        />
+                    ) : (
+                        <SimplifiedWidgetView
+                            filteredWidgetDefs={props.filteredWidgetDefs}
+                            selectedWidgetDefId={props.selectedWidgetDefId}
+                            selectedWidgetDef={props.selectedWidgetDef}
+                            selectedParams={props.selectedParams}
+                            onSelectParams={props.onSelectParams}
+                            onSelectWidget={props.onSelectWidget}
+                            selectedWidgetVariantId={props.selectedWidgetVariantId}
+                        />
+                    )}
                 </div>
             </div>
         </Modal>

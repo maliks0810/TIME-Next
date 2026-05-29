@@ -1,5 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { message } from 'antd';
+import clsx from 'clsx';
 import DataGrid, { Column, Pager, Paging, HeaderFilter } from 'devextreme-react/data-grid';
 import type { WidgetComponentProps } from '../../../types/widget';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
@@ -8,14 +9,22 @@ import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingSt
 import styles from './ArcDashboardWidget.module.scss';
 import { PreviewCustomCellRenderer } from './PreviewCustomCellRenderer';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PreviewModals } from './PreviewModals';
 import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState';
 import { useGetWidgetValue } from '../../../state/Widgets/hooks';
 import { COUNTER_TILE_STORE_KEY } from '../../constants';
 import { statusCustomCellRenderer } from './StatusCustomeRenderer';
 
-export default function ArcDashboardWidget(props: WidgetComponentProps) {
+import { widgetPreviewResult } from './widgetPreviewResult';
+
+export default function ArcDashboardWidget({
+    result,
+    widgetInstance,
+    error,
+    loading,
+    mode,
+}: WidgetComponentProps) {
     const [messageApi, contextHolder] = message.useMessage();
     const [previewState, setPreviewState] = useState<{
         previewModal: 'bond' | 'static' | 'analytics' | null;
@@ -28,19 +37,19 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
     });
 
     const counterTileValue = useGetWidgetValue({
-        channelId: props?.widgetInstance?.config?.params?.channel,
+        channelId: widgetInstance?.config?.params?.channel,
         key: COUNTER_TILE_STORE_KEY,
     });
-    const [dataSource, setDataSource] = useState<any[]>(props.result?.rows as any[]);
+    const [dataSource, setDataSource] = useState<any[]>(result?.rows as any[]);
 
     useEffect(() => {
-        if (props.result?.rows) {
-            setDataSource(props.result?.rows as any[]);
+        if (result?.rows) {
+            setDataSource(result?.rows as any[]);
         }
-    }, [props.result?.rows]);
+    }, [result?.rows]);
 
     useEffect(() => {
-        const originalRows = props.result?.rows as any;
+        const originalRows = result?.rows as any;
         if (counterTileValue && counterTileValue !== 'TOTAL' && originalRows?.length > 0) {
             setDataSource(() =>
                 originalRows?.filter(({ status }: any) => status === counterTileValue)
@@ -50,7 +59,15 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
         }
     }, [counterTileValue]);
 
-    if (props.loading) {
+    const columns = useMemo(() => {
+        if (mode === 'preview') {
+            return widgetPreviewResult.columns;
+        } else {
+            return result?.columns;
+        }
+    }, [result?.columns, mode]);
+
+    if (loading) {
         return (
             <WidgetCardShell>
                 <WidgetLoadingState />
@@ -66,16 +83,15 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
         });
     };
 
-    //TODO:  uncomment this part when Execute Widget is done
-    if (props.error) {
+    if (error) {
         return (
             <WidgetCardShell>
-                <WidgetErrorState message={props.error} />
+                <WidgetErrorState message={error} />
             </WidgetCardShell>
         );
     }
 
-    if (!props.result) {
+    if (!result && mode !== 'preview') {
         return (
             <WidgetCardShell>
                 <div style={{ padding: 12, fontSize: 12 }}>No grid data available.</div>
@@ -92,14 +108,17 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
                 messageApi={messageApi}
             />
             <WidgetCardShell>
-                <div className="antd-dx-container">
+                <div
+                    className={clsx('antd-dx-container', {
+                        previewContainer: mode === 'preview',
+                    })}
+                >
                     <DataGrid
-                        key={props.widgetInstance.id}
+                        key={widgetInstance.id}
                         columnAutoWidth={false}
                         columnResizingMode="widget"
                         className={styles.grid}
-                        /* TODO: fix rows type */
-                        dataSource={dataSource as Array<{ assetAnalyticsSetupId: string }>}
+                        dataSource={mode === 'preview' ? widgetPreviewResult.rows : dataSource}
                         allowColumnReordering={false}
                         rowAlternationEnabled
                         hoverStateEnabled
@@ -113,9 +132,7 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
                             );
                         }}
                     >
-                        <Paging
-                            defaultPageSize={props.widgetInstance?.config?.params?.pageSize || 25}
-                        />
+                        <Paging defaultPageSize={widgetInstance?.config?.params?.pageSize || 25} />
                         <Pager
                             visible={true}
                             allowedPageSizes={[10, 25, 50, 'all']}
@@ -126,7 +143,7 @@ export default function ArcDashboardWidget(props: WidgetComponentProps) {
                         />
                         <HeaderFilter visible />
                         {/* TODO: fix columns type */}
-                        {(props.result.columns as Array<unknown>).map((columnOptions: any) =>
+                        {(columns as Array<unknown>)?.map((columnOptions: any) =>
                             columnOptions.dataField === 'status' ? (
                                 <Column
                                     {...columnOptions}

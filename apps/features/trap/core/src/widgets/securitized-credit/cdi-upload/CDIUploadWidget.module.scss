@@ -19,3 +19,13 @@
     width: 1;
     align-self: stretch;
 }
+
+.previewContainer {
+    width: 640px;
+    height: 280px;
+    position: relative;
+    pointer-events: none;
+    overflow: hidden;
+    transform: scale(0.35);
+    transform-origin: top left;
+}

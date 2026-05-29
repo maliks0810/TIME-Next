@@ -12,7 +12,7 @@ export function MetricCard({
     highlight,
 }: {
     label: string;
-    value: string;
+    value: string | null;
     sub?: string;
     accent?: boolean;
     highlight?: boolean;
