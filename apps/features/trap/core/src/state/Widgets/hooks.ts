@@ -35,10 +35,15 @@ export const useGetWidgetValueArray = ({
     const activeTab = useGetActiveTab();
     return useWidgetsStore(
         useShallow((store) =>
-            keys?.reduce(
-                (acc, cur) => ({ ...acc, [cur]: store.channels[channelId]?.[activeTab]?.[cur] }),
-                {}
-            )
+            keys
+                ? keys.reduce(
+                      (acc, cur) => ({
+                          ...acc,
+                          [cur]: store.channels[channelId]?.[activeTab]?.[cur],
+                      }),
+                      {}
+                  )
+                : {}
         )
     );
 };
