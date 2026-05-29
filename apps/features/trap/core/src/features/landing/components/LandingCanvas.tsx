@@ -48,8 +48,6 @@ export default function LandingCanvas(props: LandingCanvasProps) {
             layout={compiledLayout as any}
             isDraggable={false}
             isResizable={false}
-            compactType="vertical"
-            preventCollision={false}
             isInitialLoading={isInitialLoading}
         >
             {compiledLayout

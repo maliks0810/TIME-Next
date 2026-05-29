@@ -54,8 +54,6 @@ export default function DesignerCanvas({
             }}
             draggableHandle=".widget-drag-handle"
             draggableCancel=".rgl-no-drag"
-            compactType="vertical"
-            preventCollision={false}
             isDraggable={!isPublished}
             isResizable={false}
             isInitialLoading={isInitialLoading}

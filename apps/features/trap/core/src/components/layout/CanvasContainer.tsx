@@ -13,8 +13,6 @@ type CanvasContainerProps = {
     onLayoutChange?: (layout: any[]) => void;
     draggableHandle?: string;
     draggableCancel?: string;
-    compactType?: 'vertical' | 'horizontal' | null;
-    preventCollision?: boolean;
     isInitialLoading: boolean;
     isDraggable?: boolean;
     isResizable?: boolean;
@@ -60,7 +58,8 @@ export default function CanvasContainer({
                         minWidth: CANVAS_MIN_WIDTH,
                         overflowX: 'auto',
                         overflowY: 'hidden',
-                        minHeight: '85vh',
+                        //TODO Keep commented until 6/30/2026, remove in case it wouldn't lead us to UI bugs
+                        // minHeight: '85vh',
                     }}
                     layout={layout as any}
                     onLayoutChange={(layout: any) => {
