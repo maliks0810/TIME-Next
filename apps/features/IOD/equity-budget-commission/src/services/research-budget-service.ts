@@ -124,9 +124,14 @@ export const researchBudgetDataService = (setDataCallback:CallBackDataSetter, us
         },
         remove: async (key): Promise<void> => {
             try {
-                await fetch(apiEndPoint+`/${key}`, {
-                method: 'DELETE',
-                cache: "no-store",            
+                const originalData: ResearchBudget|undefined = currentBudgetData.find(d=> d.composite_Id == key);
+                await fetch(apiEndPoint, {
+                    method: 'DELETE',
+                    cache: "no-store", 
+                     headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(originalData),           
                 })
                 .then(handleErrors)            
                 .then(() => {});
