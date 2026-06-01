@@ -12,6 +12,7 @@ import { DEAL_NAME_KEY, ANALYSIS_SESSION_ID_KEY } from '../../../constants';
 import { useGetWidgetValue } from '../../../../state/Widgets/hooks';
 import styles from './DealDetailsWidget.module.scss';
 import { widgetPreviewResult } from './widgetPreviewResult';
+import WidgetLoadingState from '../../../../components/widget-shell/WidgetLoadingState';
 
 const { Text } = Typography;
 
@@ -38,6 +39,13 @@ export function NARMBSDealDetailsWidget({
         }
     }, [dealName]);
 
+    if (loading) {
+        return (
+            <WidgetCardShell>
+                <WidgetLoadingState />
+            </WidgetCardShell>
+        );
+    }
     return (
         <WidgetCardShell>
             <div

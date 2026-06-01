@@ -10,4 +10,5 @@ export interface TrancheRow {
     factor: number;
     origRatings: string; // "Aaa/AAA/AAA"
     currRatings: string; // "WR/-/AA(high)"
+    ratingAgency: string;
 }
