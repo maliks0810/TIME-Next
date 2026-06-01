@@ -1,7 +1,7 @@
 import type { SecurityRow } from "../components/types";
 
 const DATA_QUALITY_SERVICE_URL =
-  process.env.VITE_APP_DATA_QUALITY_SERVICE_URL ?? "http://127.0.0.1:8100";
+  import.meta.env.VITE_DATA_QUALITY_SERVICE_URL ?? "http://127.0.0.1:8100";
 const ASSETS_ENDPOINT = `${DATA_QUALITY_SERVICE_URL}/de/securities/rules/v1/api/getAssets`;
 
 type ApiAsset = {

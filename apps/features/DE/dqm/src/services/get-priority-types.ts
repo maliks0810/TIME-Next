@@ -1,5 +1,5 @@
 const DATA_QUALITY_SERVICE_URL =
-  process.env.VITE_DATA_QUALITY_SERVICE_URL ?? "http://127.0.0.1:8100";
+  import.meta.env.VITE_DATA_QUALITY_SERVICE_URL ?? "http://127.0.0.1:8100";
 const PRIORITY_TYPE_ENDPOINT = `${DATA_QUALITY_SERVICE_URL}/de/securities/rules/v1/api/getPriorityTypes`;
 
 export async function fetchPriorityTypes(

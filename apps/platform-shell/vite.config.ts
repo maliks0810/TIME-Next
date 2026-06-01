@@ -65,7 +65,7 @@ export default defineConfig(({ mode }) => {
                 '@r2/arc': path.resolve(__dirname, '../features/trap/arc'),
                 '@r2/core': path.resolve(__dirname, '../features/trap/core'),
                 '@PE/ai-uploaders': path.resolve(__dirname, '../features/PE/ai-uploaders'),
-                '@DE/dqm': path.resolve(__dirname, '../features/DE/dqm'),
+                '@de/dqm': path.resolve(__dirname, '../features/DE/dqm'),
                 '@IOD/bskt-composition': path.resolve(__dirname, '../features/IOD/bskt-composition'),
                 '@r2/levered-finance-news': path.resolve(__dirname, '../features/R2/levered-finance-news'),
                 '@IOD/tdm': path.resolve(__dirname, '../features/IOD/tdm'),
