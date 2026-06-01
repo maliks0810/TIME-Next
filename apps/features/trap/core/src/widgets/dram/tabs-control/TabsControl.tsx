@@ -40,12 +40,27 @@ export const TabsControl = ({ widgetInstance }: WidgetComponentProps) => {
         key: COMMON_DATE_GRID_ROW_KEY,
     }) as Record<string, string>;
 
-    const selectedPortfolio = selectedPortfolioTree || selectedPortfolioGrid?.portfolioNumber;
+    const selectedPortfolio = selectedPortfolioTree;
 
     const selectedSchemaKey = useGetWidgetValue({
         channelId: config.params?.channel,
         key: 'schemaKey',
     });
+
+    useEffect(() => {
+        if (
+            selectedPortfolioGrid &&
+            selectedPortfolioGrid.portfolioNumber &&
+            selectedPortfolioGrid.portfolioNumber !== selectedPortfolioTree
+        ) {
+            setWidgetValueToChannel({
+                activeTab,
+                channelId,
+                key: COMMON_TREE_KEY,
+                value: selectedPortfolioGrid.portfolioNumber,
+            });
+        }
+    }, [selectedPortfolioGrid]);
 
     useEffect(() => {
         // On Mount set schemay key to portfolio summary to show summary table
@@ -59,13 +74,15 @@ export const TabsControl = ({ widgetInstance }: WidgetComponentProps) => {
 
     useEffect(() => {
         // If there is no selected protfolio - ignore
-
+        console.log(selectedPortfolio);
         if (!selectedPortfolio) return;
 
         //If portfolio is selected and current selectedSchemaKey is portfolio summary
         if (selectedPortfolio && selectedSchemaKey === 'portfolio.summary') {
+            console.log(1);
             // Check currently selected tab. If its not portfolio summary, then we need to show portfolio summary and clear list and grid keys
             if (currentlySelectedTab && currentlySelectedTab !== 'portfolio.summary') {
+                console.log(2);
                 setCurrentlySelectedTab(null);
                 setWidgetValueToChannel({
                     activeTab,
@@ -82,6 +99,7 @@ export const TabsControl = ({ widgetInstance }: WidgetComponentProps) => {
                 });
                 return;
             } else {
+                console.log(3);
                 // If currently selected tab is null, that means we need to show tabs and a history table with default selected
                 setCurrentlySelectedTab(DEFAULT_SELECTED);
                 setWidgetValueToChannel({
