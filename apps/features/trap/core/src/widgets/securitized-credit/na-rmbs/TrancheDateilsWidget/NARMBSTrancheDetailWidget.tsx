@@ -13,10 +13,12 @@ import {
     ASSET_STAGED_TRANCHE_NAME,
     TRANCHE_ID_KEY,
     TRANCHE_NAME_KEY,
+    DEAL_NAME_KEY,
 } from '../../../constants';
 import { useGetWidgetValue, useSetWidgetValue } from '../../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../../state/Tabs/hooks';
 import styles from './TrancheDetailsWidget.module.scss';
+import WidgetLoadingState from '../../../../components/widget-shell/WidgetLoadingState';
 
 const { Text } = Typography;
 
@@ -38,12 +40,19 @@ export function NARMBSTrancheDetailWidget({
         channelId: widgetInstance?.config?.params?.channel,
         key: TRANCHE_NAME_KEY,
     });
+
+    const dealName = useGetWidgetValue({
+        channelId: widgetInstance?.config?.params?.channel,
+        key: DEAL_NAME_KEY,
+    });
+    console.log(result, trancheName, trancheId);
     const data: TrancheDetail | null =
         result && Object.keys(result).length > 0 ? (result as unknown as TrancheDetail) : null;
 
     useEffect(() => {
-        execute?.({ trancheName, trancheId });
-    }, [trancheName, trancheId]);
+        if (dealName && trancheName)
+            execute?.({ tranche: trancheName as string, dealName: dealName as string });
+    }, [dealName, trancheName]);
 
     const handleAddToStaging = () => {
         if (!trancheId) return;
@@ -74,6 +83,13 @@ export function NARMBSTrancheDetailWidget({
     const fmt = (n: number) =>
         n?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+    if (loading) {
+        return (
+            <WidgetCardShell>
+                <WidgetLoadingState />
+            </WidgetCardShell>
+        );
+    }
     return (
         <WidgetCardShell>
             <div className={styles.trancheDetailsContainer}>

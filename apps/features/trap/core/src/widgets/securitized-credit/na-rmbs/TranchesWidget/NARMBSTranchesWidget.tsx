@@ -11,10 +11,16 @@ import { DEAL_ID_KEY, DEAL_NAME_KEY, TRANCHE_ID_KEY, TRANCHE_NAME_KEY } from '..
 import { useGetWidgetValue, useSetWidgetValue } from '../../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../../state/Tabs/hooks';
 import styles from './NARMBSTranchesWidget.module.scss';
+import WidgetLoadingState from '../../../../components/widget-shell/WidgetLoadingState';
 
 const { Text } = Typography;
 
-export function NARMBSTranchesWidget({ result, loading, widgetInstance }: WidgetComponentProps) {
+export function NARMBSTranchesWidget({
+    result,
+    loading,
+    widgetInstance,
+    execute,
+}: WidgetComponentProps) {
     const activeTab = useGetActiveTab();
     const setWidgetValueToChannel = useSetWidgetValue();
     const trancheId = useGetWidgetValue({
@@ -45,6 +51,10 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
         }
     }, [trancheId]);
 
+    React.useEffect(() => {
+        execute?.({ dealName });
+    }, [dealName]);
+
     // Clear on deal change
     React.useEffect(() => {
         setSelectedId(null);
@@ -68,6 +78,8 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
     const tranches: TrancheRow[] | null =
         result && Array.isArray(result.tranches) ? result.tranches : null;
 
+    const ratingAgency = tranches && tranches.length > 0 ? tranches[0].ratingAgency : 'unknown';
+
     const handleSelect = (trancheRow: TrancheRow) => {
         setSelectedId(trancheRow.id);
         setWidgetValueToChannel({
@@ -88,7 +100,13 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
         n === 0
             ? '0.00'
             : n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
+    if (loading) {
+        return (
+            <WidgetCardShell>
+                <WidgetLoadingState />
+            </WidgetCardShell>
+        );
+    }
     return (
         <WidgetCardShell>
             <div className={styles.mainContainer}>
@@ -129,7 +147,11 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                         textAlign: column.align,
                                     }}
                                 >
-                                    <Text className={styles.headerColumnText}>{column.label}</Text>
+                                    <Text className={styles.headerColumnText}>
+                                        {column.render
+                                            ? column.render?.({ ratingAgency: ratingAgency })
+                                            : column.label}
+                                    </Text>
                                 </div>
                             ))}
                         </div>
