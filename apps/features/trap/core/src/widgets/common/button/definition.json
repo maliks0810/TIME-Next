@@ -26,12 +26,12 @@
             "emitsKeys": {
                 "title": "Emits Keys",
                 "type": "string",
-                "enum": ["", "schemaKey"]
+                "enum": ["schemaKey"]
             },
             "emitValue": {
                 "title": "Emits Value",
                 "type": "string",
-                "default": ""
+                "enum": ["portfolio.summary"]
             },
             "type": {
                 "title": "Type",

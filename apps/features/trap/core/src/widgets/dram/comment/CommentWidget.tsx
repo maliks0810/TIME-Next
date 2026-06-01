@@ -1,13 +1,13 @@
 import { WidgetComponentProps } from '../../../types/widget';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import TextEditor, { EditorCommands } from '../../../components/tiptap/TextEditor';
-import { Button, Tooltip } from 'antd';
+import { Button, Modal } from 'antd';
 import styles from './CommentWidget.module.scss';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useUserInfo } from '../../../../../../../../packages/utils/src/hooks/Authentication/user-info-context';
 import { useGetWidgetValue } from '../../../state/Widgets/hooks';
-import { COMMON_DATE_GRID_ROW_KEY, COMMON_TREE_KEY } from '../../constants';
+import { COMMON_TREE_KEY } from '../../constants';
 const EMPTY_EDITOR = `<p></p>`;
 
 export type Note = {
@@ -19,15 +19,11 @@ export type Note = {
 export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetComponentProps) => {
     // Widget context
 
-    const selectedTreeItem = useGetWidgetValue({
+    const [historyModalOpen, setHistoryModalOpen] = useState(false);
+    const selectedEntityId = useGetWidgetValue({
         channelId: widgetInstance?.config?.params?.channel,
         key: COMMON_TREE_KEY,
     });
-    const selectedGridItem = useGetWidgetValue({
-        channelId: widgetInstance?.config?.params?.channel,
-        key: COMMON_DATE_GRID_ROW_KEY,
-    });
-    const selectedEntityId = selectedGridItem || selectedTreeItem;
     const selectedSchemaKey = useGetWidgetValue({
         channelId: widgetInstance?.config?.params?.channel,
         key: 'schemaKey',
@@ -129,9 +125,18 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
                         </Button>
                     </div>
                 )}
-                <Tooltip title={history} placement="bottom" color="#ffffff">
-                    <QuestionCircleOutlined />
-                </Tooltip>
+                <Modal
+                    open={historyModalOpen}
+                    onCancel={() => setHistoryModalOpen(false)}
+                    footer={null}
+                    title={'Notes history'}
+                >
+                    {history}
+                </Modal>
+                <Button
+                    icon={<QuestionCircleOutlined />}
+                    onClick={() => setHistoryModalOpen(true)}
+                />
             </div>
         </WidgetCardShell>
     );
