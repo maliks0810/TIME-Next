@@ -82,7 +82,7 @@ export default function WorkflowDesignerPage() {
     }, [layout]);
 
     return (
-        <Space direction="vertical" size={16} style={{ width: '100%' }}>
+        <Space direction="vertical" size={16} style={{ width: '100%', gap: 4 }}>
             <DesignerHeader
                 templateId={templateId}
                 versionId={versionId}
