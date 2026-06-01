@@ -1,10 +1,11 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Input, Modal, Select, Space, Tag, Typography, theme } from 'antd';
 import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
 import styles from './WidgetPickerModal.module.scss';
 import { SimplifiedWidgetView } from './SimplifiedWidgetView';
 import { PreviewWidgetsContainer } from './PreviewWidgetsContainer';
+import { useDebounced } from '../../../utils/useDebounced';
 
 type WidgetPickerModalProps = {
     open: boolean;
@@ -33,6 +34,16 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
     const surfaceMeta = getThemeSurfaceMeta(themeName);
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     const [isPreviewModeEnabled, setIsPreviewModeEnabled] = useState(false);
+    const [paramToUpdate, setParamToUpdate] = useState({ requiredField: '', value: '' });
+
+    const debouncedParams = useDebounced(paramToUpdate);
+
+    useEffect(() => {
+        props.onSelectParams((params: { [key: string]: string }) => ({
+            ...params,
+            [paramToUpdate.requiredField]: paramToUpdate.value,
+        }));
+    }, [debouncedParams]);
 
     const selectedWidgetRequiredFields = props.selectedWidgetDef?.configSchema?.required;
     const isSelectedWidgetHasRequiredFields = selectedWidgetRequiredFields?.length > 0;
@@ -233,14 +244,10 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                                       value={inputValue}
                                                       style={{ width: '100%', marginTop: 8 }}
                                                       onChange={(e) =>
-                                                          props.onSelectParams(
-                                                              (params: {
-                                                                  [key: string]: string;
-                                                              }) => ({
-                                                                  ...params,
-                                                                  [requiredField]: e.target.value,
-                                                              })
-                                                          )
+                                                          setParamToUpdate({
+                                                              requiredField,
+                                                              value: e.target.value,
+                                                          })
                                                       }
                                                       placeholder={
                                                           props.selectedWidgetDef.configSchema
