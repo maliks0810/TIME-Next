@@ -53,6 +53,14 @@ export function NARMBSTranchesWidget({
 
     React.useEffect(() => {
         execute?.({ dealName });
+
+        // When deal name changes reset tranche details
+        setWidgetValueToChannel({
+            key: TRANCHE_NAME_KEY,
+            channelId: widgetInstance?.config?.params?.channel,
+            value: null,
+            activeTab,
+        });
     }, [dealName]);
 
     // Clear on deal change

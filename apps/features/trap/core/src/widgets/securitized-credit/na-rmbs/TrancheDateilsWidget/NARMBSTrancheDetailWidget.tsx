@@ -27,6 +27,7 @@ export function NARMBSTrancheDetailWidget({
     loading,
     widgetInstance,
     execute,
+    error,
 }: WidgetComponentProps) {
     const activeTab = useGetActiveTab();
     const setWidgetValueToChannel = useSetWidgetValue();
@@ -45,13 +46,11 @@ export function NARMBSTrancheDetailWidget({
         channelId: widgetInstance?.config?.params?.channel,
         key: DEAL_NAME_KEY,
     });
-    console.log(result, trancheName, trancheId);
     const data: TrancheDetail | null =
         result && Object.keys(result).length > 0 ? (result as unknown as TrancheDetail) : null;
 
     useEffect(() => {
-        if (dealName && trancheName)
-            execute?.({ tranche: trancheName as string, dealName: dealName as string });
+        execute?.({ tranche: trancheName as string, dealName: dealName as string });
     }, [dealName, trancheName]);
 
     const handleAddToStaging = () => {
@@ -98,7 +97,7 @@ export function NARMBSTrancheDetailWidget({
                     <div className={styles.headerTitleContainer}>
                         <ApartmentOutlined className={styles.headerTitleIcon} />
                         <Text className={styles.headerTitleText}>Tranche detail</Text>
-                        {data && (
+                        {data && !error && (
                             <>
                                 <Text className={styles.headerTitleDataName}>{data.name}</Text>
                                 <span className={styles.headerTitleDataCusip}>{data.cusip}</span>
@@ -111,14 +110,14 @@ export function NARMBSTrancheDetailWidget({
                             type="primary"
                             size="small"
                             icon={<RightOutlined />}
-                            disabled={!data}
+                            disabled={!data || !!error}
                         >
                             Run scenario analysis
                         </Button>
                         <Button
                             size="small"
                             icon={<PlusOutlined />}
-                            disabled={!data}
+                            disabled={!data || !!error}
                             onClick={handleAddToStaging}
                         >
                             Add to staging
@@ -130,7 +129,7 @@ export function NARMBSTrancheDetailWidget({
 
                 {/* {loading && Skeletor} */}
 
-                {!loading && !data && (
+                {((!loading && !data) || error) && (
                     <div className={styles.loadingContainer}>
                         <div className={styles.loadingInnerContainer}>
                             <ApartmentOutlined className={styles.loadingIcon} />
@@ -139,7 +138,7 @@ export function NARMBSTrancheDetailWidget({
                     </div>
                 )}
 
-                {!loading && data && (
+                {!error && !loading && data && (
                     <>
                         {/* ── Headline metrics ── */}
                         <div style={{ display: 'flex', gap: 8 }}>
