@@ -39,7 +39,7 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
 
         path: '/dram/performance/dashboard',
         team: 'R2',
-        // component: lazy(() => import('@r2/dram/src/portals/performance/index')),
+        component: lazy(() => import('@r2/dram/src/portals/performance/index')),
         description: '',
     },
     {
