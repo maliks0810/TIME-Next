@@ -90,7 +90,7 @@ export const SimplifiedWidgetView = ({
                     </div>
                 )}
             </div>
-            <Divider />
+            <Divider size="middle" />
             <div className={styles.widgetsGridContainer}>
                 {filteredWidgetDefs.length === 0 ? (
                     <div style={{ gridColumn: '1 / -1', paddingTop: 40 }}>

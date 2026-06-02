@@ -3,8 +3,9 @@
     border-radius: 18px;
     padding: 6px;
     cursor: pointer;
-    min-height: 66px;
-    max-height: 115px;
+    // min-height: 66px;
+    height: 66px;
+    // max-height: 115px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -61,10 +62,12 @@
     display: grid;
     gap: 8px;
     overflow-y: auto;
-    padding-right: 4px;
+
+    padding: 0 16px;
     height: 100%;
     max-height: 525px;
     grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    grid-template-rows: repeat(auto-fill, 66px);
 }
 
 .widgetName {
@@ -86,11 +89,14 @@
 }
 
 .widgetPreviewContainer {
-    height: 350px;
     display: flex;
+    padding: 20px 20px 20px 20px;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    h3 {
+        margin: 0 0 12px 0;
+    }
 }
 
 .emptyWidgetPreviewContainer {
