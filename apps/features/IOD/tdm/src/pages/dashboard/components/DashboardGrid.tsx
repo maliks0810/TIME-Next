@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Box, Grid } from '@mui/material';
 import { DataGrid } from 'devextreme-react';
-import { Column, DataGridTypes, HeaderFilter, Pager, Paging, Scrolling, Selection, StateStoring } from 'devextreme-react/data-grid';
+import { Column, DataGridRef, DataGridTypes, HeaderFilter, Pager, Paging, Scrolling, Selection, StateStoring } from 'devextreme-react/data-grid';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
 import {
   SetupStatusesRecord,
@@ -18,12 +18,14 @@ type DataGridColumnState = { visibleIndex?: number } & Record<string, unknown>;
 type DataGridState = { columns?: DataGridColumnState[] } & Record<string, unknown>;
 
 type DashboardGridProps = {
+  dashboardGridRef: React.Ref<DataGridRef<IDashboardSecuritySetupRequest, number>>;
   securityRequestsData: IDashboardSecuritySetupRequest[] | undefined;
   setSelectedSecurityRequest: Dispatch<SetStateAction<IDashboardSecuritySetupRequest | undefined>>;
   setIsRequestDetailsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const DashboardGrid: React.FC<DashboardGridProps> = ({
+  dashboardGridRef,
   securityRequestsData,
   setSelectedSecurityRequest,
   setIsRequestDetailsOpen,
@@ -158,6 +160,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   return (
     <>
       <DataGrid
+        ref={dashboardGridRef}
         key='dashboardSecurityRequestsGrid'
         keyExpr='id'
         dataSource={securityRequestsData}
