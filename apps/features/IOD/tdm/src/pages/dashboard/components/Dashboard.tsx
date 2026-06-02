@@ -81,6 +81,7 @@ const Dashboard: React.FC = () => {
         dashboardGridInstance.clearFilter();
         dashboardGridInstance.clearSorting();
         dashboardGridInstance.clearSelection();
+        dashboardGridInstance.columnOption('createdDate', 'sortOrder', 'desc')
       }
     }
   }
