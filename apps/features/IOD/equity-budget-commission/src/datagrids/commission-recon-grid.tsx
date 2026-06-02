@@ -164,7 +164,7 @@ return (
         <Column dataField='shares' caption='Share' allowSorting={true} width='10%' alignment='left' />  
         <Column dataField='price' caption='Price' allowSorting={true} width='10%' dataType='number' alignment='left' format={{ precision: 2 }} />  
         <Column dataField='total_Comm' caption='Comm' allowSorting={true} width='10%' dataType='number' alignment='left' format={{ precision: 2 }} />  
-        <Column dataField='trade_Date' caption='Trade Date' allowSorting={true} width='10%' dataType='number' alignment='left' format={{ precision: 2 }} />  
+        <Column dataField='trade_Date' caption='Trade Date' allowSorting={true} width='10%' dataType='date' alignment='left' />  
       </DataGrid>  
       }
     </div>  
