@@ -89,11 +89,12 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
     const areButtonsVisible = content.length > EMPTY_EDITOR.length;
 
     const history = useMemo(() => {
-        if (!notes || notes.length === 0) return 'No history available';
+        if (!notes || notes.length === 0)
+            return <div className={styles.note}>No history available</div>;
 
         return notes.map((el, ind) => (
             <div className={styles.note} key={`note-${ind}`}>
-                <div dangerouslySetInnerHTML={{ __html: el.noteText }}></div>
+                <b>{el.createdBy}:</b> <div dangerouslySetInnerHTML={{ __html: el.noteText }}></div>
             </div>
         ));
     }, [notes]);
@@ -126,12 +127,14 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
                     </div>
                 )}
                 <Modal
+                    centered
+                    width={'80vh'}
                     open={historyModalOpen}
                     onCancel={() => setHistoryModalOpen(false)}
                     footer={null}
                     title={'Notes history'}
                 >
-                    {history}
+                    <div className={styles.history}>{history}</div>
                 </Modal>
                 <Button
                     icon={<QuestionCircleOutlined />}
