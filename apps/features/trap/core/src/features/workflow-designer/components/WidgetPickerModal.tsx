@@ -5,7 +5,6 @@ import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
 import styles from './WidgetPickerModal.module.scss';
 import { SimplifiedWidgetView } from './SimplifiedWidgetView';
 import { PreviewWidgetsContainer } from './PreviewWidgetsContainer';
-import { useDebounced } from '../../../utils/useDebounced';
 
 type WidgetPickerModalProps = {
     open: boolean;
@@ -36,14 +35,16 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
     const [isPreviewModeEnabled, setIsPreviewModeEnabled] = useState(false);
     const [paramToUpdate, setParamToUpdate] = useState({ requiredField: '', value: '' });
 
-    const debouncedParams = useDebounced(paramToUpdate);
+    // This does not work, comment out for now.
+    // const debouncedParams = useDebounced(paramToUpdate);
 
+    // TODO: add debounce
     useEffect(() => {
         props.onSelectParams((params: { [key: string]: string }) => ({
             ...params,
             [paramToUpdate.requiredField]: paramToUpdate.value,
         }));
-    }, [debouncedParams]);
+    }, [paramToUpdate]);
 
     const selectedWidgetRequiredFields = props.selectedWidgetDef?.configSchema?.required;
     const isSelectedWidgetHasRequiredFields = selectedWidgetRequiredFields?.length > 0;
