@@ -6,10 +6,10 @@ import {
     HistoryOutlined,
     FileDoneOutlined,
     DownloadOutlined,
-    CloseOutlined,
+    MoreOutlined,
 } from '@ant-design/icons';
 import { MetaRow } from './MetaRow';
-import { theme, Typography, Progress, Button, Tag, Tooltip } from 'antd';
+import { theme, Typography, Progress, Button, Tag, Tooltip, Dropdown } from 'antd';
 import { SectionLabel } from './SectionLabel';
 import { DealFromIntex, RecentDeal, UploadState } from '../../types';
 import { WidgetComponentProps } from '../../../../types/widget';
@@ -72,11 +72,9 @@ export const RecetlyIngested = ({
 
     const activeTab = useGetActiveTab();
 
-    const handleDelete =
-        (dealName: string) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-            e.stopPropagation();
-            onFileDelete(dealName);
-        };
+    const handleDelete = (dealName: string) => {
+        onFileDelete(dealName);
+    };
     const channelId = config?.params?.channel;
     const handleClearRecent = () => {
         setLoadedDeal(null);
@@ -379,7 +377,9 @@ export const RecetlyIngested = ({
                                     {deal.dealName}
                                 </Text>
                                 <Text style={{ fontSize: 10, color: token.colorTextTertiary }}>
-                                    {deal.uploadedAt} · {deal.uploadedBy}
+                                    {new Date(deal.uploadedAt).toLocaleDateString()} ·{' '}
+                                    {new Date(deal.uploadedAt).toLocaleTimeString()} ·{' '}
+                                    {deal.uploadedBy}
                                 </Text>
                             </div>
                             <div
@@ -391,13 +391,29 @@ export const RecetlyIngested = ({
                                 }}
                             >
                                 <Tag className={styles.tag}>.{deal.sourceType}</Tag>
-                                <Button
-                                    onClick={handleDelete(deal.dealName)}
-                                    className={styles.delete}
-                                    size="small"
-                                    danger
-                                    icon={<CloseOutlined />}
-                                />
+                                <Dropdown
+                                    menu={{
+                                        items: [
+                                            {
+                                                key: 'delete',
+                                                label: 'Delete',
+                                                danger: true,
+                                                onClick: (e) => {
+                                                    e.domEvent.stopPropagation();
+                                                    handleDelete(deal.dealName);
+                                                },
+                                            },
+                                        ],
+                                    }}
+                                    trigger={['click']}
+                                >
+                                    <Button
+                                        onClick={(e) => e.stopPropagation()}
+                                        className={styles.delete}
+                                        size="small"
+                                        icon={<MoreOutlined />}
+                                    />
+                                </Dropdown>
                             </div>
                         </div>
                     ))}
