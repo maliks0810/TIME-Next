@@ -1,0 +1,28 @@
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ant-color-primary-border) var(--ant-color-fill-tertiary);
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--ant-color-fill-tertiary);
+    border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--ant-color-primary-border);
+    border-radius: 999px;
+    border: 2px solid var(--ant-color-bg-container);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--ant-color-primary);
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}

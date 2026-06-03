@@ -1,13 +1,12 @@
-/* eslint-disable  @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Dropdown, Space, Typography } from 'antd';
+import { Button, Dropdown, Space } from 'antd';
 import {
     AppstoreOutlined,
     ArrowRightOutlined,
     BgColorsOutlined,
     CheckOutlined,
-    PlusOutlined,
+    CompassOutlined,
     SettingOutlined,
 } from '@ant-design/icons';
 
@@ -86,7 +85,7 @@ export default function TrapHud({
     );
 
     const RSQUARE_THEME_OPTIONS = THEME_OPTIONS.filter((opt) =>
-        ['cyberpunk', 'dreamy'].includes(opt.value)
+        ['cyberpunk', 'dreamy', 'ink'].includes(opt.value)
     );
 
     const MOVIE_THEME_OPTIONS = THEME_OPTIONS.filter((opt) =>
@@ -168,84 +167,85 @@ export default function TrapHud({
     const getProtectedSettings = () =>
         !IS_PROD || ALLOWED_USERS_LIST.includes(email)
             ? [
-                  { type: 'divider' as const },
-                  {
-                      key: 'admin-panel',
-                      label: (
-                          <Space
-                              size={8}
-                              style={{ width: '100%', justifyContent: 'space-between' }}
-                          >
-                              <span>Admin Panel</span>
-                              <ArrowRightOutlined />
-                          </Space>
-                      ),
-                  },
-                  { type: 'divider' as const },
-                  { key: 'debug-user-header', label: 'Debug User', disabled: true },
-                  ...renderCurrentUserOption(),
-                  {
-                      key: 'debug-user-jane',
-                      label: (
-                          <Space
-                              size={8}
-                              style={{ width: '100%', justifyContent: 'space-between' }}
-                          >
-                              <span>Jane</span>
-                              {currentDebugUser === 'jane' ? (
-                                  <CheckOutlined />
-                              ) : (
-                                  <span style={{ width: 14 }} />
-                              )}
-                          </Space>
-                      ),
-                  },
-                  {
-                      key: 'debug-user-john',
-                      label: (
-                          <Space
-                              size={8}
-                              style={{ width: '100%', justifyContent: 'space-between' }}
-                          >
-                              <span>John</span>
-                              {currentDebugUser === 'john' ? (
-                                  <CheckOutlined />
-                              ) : (
-                                  <span style={{ width: 14 }} />
-                              )}
-                          </Space>
-                      ),
-                  },
-                  {
-                      key: 'debug-user-clear',
-                      label: (
-                          <Space
-                              size={8}
-                              style={{ width: '100%', justifyContent: 'space-between' }}
-                          >
-                              <span>Clear</span>
-                          </Space>
-                      ),
-                  },
-                  { type: 'divider' as const },
-                  {
-                      key: 'debug-user-configure',
-                      label: (
-                          <Space
-                              size={8}
-                              style={{ width: '100%', justifyContent: 'space-between' }}
-                          >
-                              <span>Configure User</span>
-                          </Space>
-                      ),
-                  },
-              ]
+                { type: 'divider' as const },
+                {
+                    key: 'admin-panel',
+                    label: (
+                        <Space
+                            size={8}
+                            style={{ width: '100%', justifyContent: 'space-between' }}
+                        >
+                            <span>Admin Panel</span>
+                            <ArrowRightOutlined />
+                        </Space>
+                    ),
+                },
+                { type: 'divider' as const },
+                { key: 'debug-user-header', label: 'Debug User', disabled: true },
+                ...renderCurrentUserOption(),
+                {
+                    key: 'debug-user-jane',
+                    label: (
+                        <Space
+                            size={8}
+                            style={{ width: '100%', justifyContent: 'space-between' }}
+                        >
+                            <span>Jane</span>
+                            {currentDebugUser === 'jane' ? (
+                                <CheckOutlined />
+                            ) : (
+                                <span style={{ width: 14 }} />
+                            )}
+                        </Space>
+                    ),
+                },
+                {
+                    key: 'debug-user-john',
+                    label: (
+                        <Space
+                            size={8}
+                            style={{ width: '100%', justifyContent: 'space-between' }}
+                        >
+                            <span>John</span>
+                            {currentDebugUser === 'john' ? (
+                                <CheckOutlined />
+                            ) : (
+                                <span style={{ width: 14 }} />
+                            )}
+                        </Space>
+                    ),
+                },
+                {
+                    key: 'debug-user-clear',
+                    label: (
+                        <Space
+                            size={8}
+                            style={{ width: '100%', justifyContent: 'space-between' }}
+                        >
+                            <span>Clear</span>
+                        </Space>
+                    ),
+                },
+                { type: 'divider' as const },
+                {
+                    key: 'debug-user-configure',
+                    label: (
+                        <Space
+                            size={8}
+                            style={{ width: '100%', justifyContent: 'space-between' }}
+                        >
+                            <span>Configure User</span>
+                        </Space>
+                    ),
+                },
+            ]
             : [];
     const settingsMenu = {
         items: [
             {
                 key: 'settings-theme',
                 label: 'Theme',
+                popupClassName: 'trap-theme-submenu-popup',
                 icon: <BgColorsOutlined />,
                 children: [
                     { key: 'theme-light-header', label: 'Light Themes', disabled: true },
@@ -276,48 +276,50 @@ export default function TrapHud({
     const subtleText = isDreamyHud
         ? 'rgba(106,90,122,0.72)'
         : isDarkHud
-          ? 'rgba(255,255,255,0.70)'
-          : 'rgba(15,23,42,0.58)';
+            ? 'rgba(255,255,255,0.70)'
+            : 'rgba(15,23,42,0.58)';
 
     const strongText = isDreamyHud ? '#6b5879' : isDarkHud ? '#ffffff' : 'rgba(15,23,42,0.96)';
 
-    const mastheadGlowA = isDreamyHud
-        ? 'rgba(255, 214, 153, 0.38)' // pastel yellow
+    const hudSurface = isDreamyHud
+        ? 'rgba(255,255,255,0.22)'
         : meta.isGradientTheme
-          ? 'rgba(255,255,255,0.10)'
-          : isDarkHud
-            ? 'rgba(255,255,255,0.08)'
-            : 'rgba(109,94,252,0.14)';
+            ? 'rgba(255,255,255,0.035)'
+            : isDarkHud
+                ? 'rgba(255,255,255,0.025)'
+                : 'rgba(255,255,255,0.28)';
 
-    const mastheadGlowB = isDreamyHud
-        ? 'rgba(255, 182, 193, 0.34)' // pastel pink
+    const hudBorder = isDreamyHud
+        ? 'rgba(255,255,255,0.22)'
+        : isDarkHud
+            ? 'rgba(255,255,255,0.055)'
+            : 'rgba(15,23,42,0.045)';
+
+    const hudAccentGradient = meta.isGradientTheme
+        ? meta.accentGradient
+        : isDreamyHud
+            ? 'linear-gradient(90deg, rgba(255,223,186,0.22), rgba(255,192,203,0.18), rgba(186,235,198,0.18))'
+            : isDarkHud
+                ? 'linear-gradient(90deg, rgba(59,130,246,0.14), rgba(168,85,247,0.10), rgba(255,255,255,0.02))'
+                : 'linear-gradient(90deg, rgba(59,130,246,0.09), rgba(109,94,252,0.08), rgba(255,255,255,0.14))';
+
+    const hudSoftOverlay = isDreamyHud
+        ? 'radial-gradient(circle at 20% 0%, rgba(255,223,186,0.16) 0%, rgba(255,223,186,0.00) 42%), radial-gradient(circle at 82% 0%, rgba(255,192,203,0.14) 0%, rgba(255,192,203,0.00) 44%)'
         : meta.isGradientTheme
-          ? meta.hudGlow || 'rgba(255,255,255,0.08)'
-          : isDarkHud
-            ? 'rgba(59,130,246,0.10)'
-            : 'rgba(59,130,246,0.12)';
-
-    const mastheadGlowC = isDreamyHud
-        ? 'rgba(186, 235, 198, 0.34)' // pastel green
-        : isDarkHud
-          ? 'rgba(255,255,255,0.04)'
-          : 'rgba(255,255,255,0.18)';
-
-    const mastheadBeam = isDreamyHud
-        ? 'linear-gradient(100deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.00) 28%, rgba(255,240,245,0.42) 58%, rgba(255,255,255,0.00) 100%)'
-        : isDarkHud
-          ? 'linear-gradient(100deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.00) 32%, rgba(255,255,255,0.04) 62%, rgba(255,255,255,0.00) 100%)'
-          : 'linear-gradient(100deg, rgba(255,255,255,0.46) 0%, rgba(255,255,255,0.00) 32%, rgba(255,255,255,0.22) 62%, rgba(255,255,255,0.00) 100%)';
+            ? `linear-gradient(135deg, ${meta.hudGlow || 'rgba(255,255,255,0.05)'} 0%, rgba(255,255,255,0.00) 58%)`
+            : isDarkHud
+                ? 'radial-gradient(circle at 20% 0%, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.00) 46%), radial-gradient(circle at 82% 0%, rgba(168,85,247,0.05) 0%, rgba(168,85,247,0.00) 48%)'
+                : 'radial-gradient(circle at 20% 0%, rgba(59,130,246,0.07) 0%, rgba(59,130,246,0.00) 46%), radial-gradient(circle at 82% 0%, rgba(109,94,252,0.06) 0%, rgba(109,94,252,0.00) 48%)';
 
     const ghostButtonStyle: React.CSSProperties = {
-        height: 32,
-        borderRadius: 8,
+        height: 28,
+        borderRadius: 7,
         border: 'none',
         boxShadow: 'none',
         fontWeight: 600,
         background: isDreamyHud ? 'rgba(255,255,255,0.22)' : 'transparent',
         color: strongText,
-        paddingInline: 10,
+        paddingInline: 9,
         backdropFilter: isDreamyHud ? 'blur(8px)' : undefined,
         WebkitBackdropFilter: isDreamyHud ? 'blur(8px)' : undefined,
     };
@@ -327,14 +329,14 @@ export default function TrapHud({
         background: isDreamyHud
             ? 'linear-gradient(135deg, rgba(255,223,186,0.45) 0%, rgba(255,192,203,0.34) 52%, rgba(186,235,198,0.38) 100%)'
             : isDarkHud
-              ? 'rgba(255,255,255,0.10)'
-              : 'rgba(15,23,42,0.07)',
+                ? 'rgba(255,255,255,0.10)'
+                : 'rgba(15,23,42,0.07)',
     };
 
     const iconButtonStyle: React.CSSProperties = {
         ...ghostButtonStyle,
-        width: 32,
-        minWidth: 32,
+        width: 28,
+        minWidth: 28,
         paddingInline: 0,
     };
 
@@ -350,27 +352,54 @@ export default function TrapHud({
         background: isDreamyHud
             ? 'linear-gradient(135deg, rgba(255,255,255,0.40) 0%, rgba(255,240,245,0.52) 100%)'
             : isDarkHud
-              ? 'rgba(255,255,255,0.08)'
-              : 'rgba(255,255,255,0.55)',
+                ? 'rgba(255,255,255,0.08)'
+                : 'rgba(255,255,255,0.55)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
     };
 
     return (
         <>
+            <style>
+                {`
+                    .trap-settings-dropdown .ant-dropdown-menu {
+                        min-width: 190px;
+                    }
+
+                    .trap-theme-submenu-popup .ant-dropdown-menu,
+                    .trap-theme-submenu-popup .ant-menu {
+                        min-width: 200px;
+                    }
+
+                    .trap-theme-submenu-popup .ant-dropdown-menu-item,
+                    .trap-theme-submenu-popup .ant-menu-item {
+                        white-space: nowrap;
+                    }
+
+                    .trap-theme-submenu-popup .ant-dropdown-menu-submenu-title,
+                    .trap-theme-submenu-popup .ant-menu-submenu-title {
+                        white-space: nowrap;
+                    }
+                `}
+            </style>
             <div
                 style={{
                     position: 'relative',
                     width: '100%',
-                    minHeight: 64,
+                    minHeight: 52,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    gap: 16,
-                    padding: '8px 4px 10px 4px',
+                    gap: 12,
+                    padding: '6px 8px',
                     boxSizing: 'border-box',
                     overflow: 'hidden',
-                    background: 'transparent',
+                    background: hudSurface,
+                    border: `1px solid ${hudBorder}`,
+                    boxShadow: 'none',
+                    borderRadius: 4,
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
                 }}
             >
                 <div
@@ -381,35 +410,36 @@ export default function TrapHud({
                         overflow: 'hidden',
                     }}
                 >
-                    <div
-                        style={{
-                            position: 'absolute',
-                            width: 260,
-                            height: 120,
-                            left: -24,
-                            top: -34,
-                            borderRadius: '50%',
-                            background: `radial-gradient(circle, ${mastheadGlowA} 0%, rgba(255,255,255,0.00) 72%)`,
-                            filter: 'blur(24px)',
-                        }}
-                    />
-                    <div
-                        style={{
-                            position: 'absolute',
-                            width: 320,
-                            height: 140,
-                            right: -30,
-                            top: -40,
-                            borderRadius: '50%',
-                            background: `radial-gradient(circle, ${mastheadGlowB} 0%, rgba(255,255,255,0.00) 72%)`,
-                            filter: 'blur(28px)',
-                        }}
-                    />
+                    {/* Soft theme-aware background wash */}
                     <div
                         style={{
                             position: 'absolute',
                             inset: 0,
-                            background: mastheadBeam,
+                            background: hudSoftOverlay,
+                        }}
+                    />
+
+                    {/* Thin theme accent line */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            height: 1,
+                            background: hudAccentGradient,
+                            opacity: isDarkHud || meta.isGradientTheme ? 0.38 : 0.28,
+                        }}
+                    />
+
+                    {/* Subtle glass highlight */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background:
+                                'linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.00) 62%)',
+                            opacity: isDarkHud ? 0.08 : 0.34,
                         }}
                     />
                 </div>
@@ -420,15 +450,15 @@ export default function TrapHud({
                         zIndex: 1,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 12,
+                        gap: 8,
                         minWidth: 0,
                         flex: 1,
                     }}
                 >
                     <div
                         style={{
-                            width: 30,
-                            height: 30,
+                            width: 26,
+                            height: 26,
                             display: 'grid',
                             placeItems: 'center',
                             color: strongText,
@@ -441,28 +471,28 @@ export default function TrapHud({
                     <div style={{ minWidth: 0 }}>
                         <div
                             style={{
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: 700,
                                 lineHeight: '18px',
-                                // letterSpacing: 0.1,
                                 color: strongText,
                                 textTransform: 'uppercase',
                             }}
                         >
                             TRAP
                         </div>
-                        <Typography.Text
+                        <span
                             style={{
                                 display: 'block',
-                                marginTop: 2,
-                                fontSize: 11,
-                                lineHeight: '14px',
+                                marginTop: 1,
+                                fontSize: 10,
+                                lineHeight: '12px',
                                 color: subtleText,
                                 letterSpacing: 0.2,
                             }}
                         >
                             TCW Risk Analytics Portal
-                        </Typography.Text>
+                        </span>
+
                     </div>
                 </div>
 
@@ -472,7 +502,7 @@ export default function TrapHud({
                         zIndex: 1,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 8,
+                        gap: 6,
                         flexShrink: 0,
                     }}
                 >
@@ -482,11 +512,11 @@ export default function TrapHud({
 
                     <Button
                         type="primary"
-                        icon={<PlusOutlined />}
+                        icon={<CompassOutlined />}
                         onClick={() => setLaunchModalOpen(true)}
                         style={primaryButtonStyle}
                     >
-                        Launch
+                        Launch Workspace
                     </Button>
 
                     {/* <Button icon={<ExportOutlined />} onClick={onExport} style={ghostButtonStyle}>
@@ -495,7 +525,13 @@ export default function TrapHud({
 
                     <Dropdown
                         trigger={['click']}
-                        menu={{ ...settingsMenu, onClick: handleSettingsMenuClick }}
+                        placement="bottomRight"
+                        overlayClassName="trap-settings-dropdown"
+                        menu={{
+                            ...settingsMenu,
+                            onClick: handleSettingsMenuClick,
+                            subMenuCloseDelay: 0.80,
+                        }}
                     >
                         <Button icon={<SettingOutlined />} style={iconButtonStyle} />
                     </Dropdown>
