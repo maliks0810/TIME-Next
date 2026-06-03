@@ -129,6 +129,30 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
     return <></>;
   }
 
+  const handleGridStateSave = useCallback(
+    (state: DataGridState) => {
+      const customState: DataGridState = {
+        ...state,
+        columns: state.columns?.map(col => ({
+          ...col,
+          // exclude col index from state
+          visibleIndex: undefined
+        })),
+      };
+
+      localStorage.setItem('dashboardGridState', JSON.stringify(customState))
+    },
+    [],
+  )
+
+  const handleGridStateLoad = useCallback(
+    () => {
+      const saved = localStorage.getItem('dashboardGridState');
+      return saved ? JSON.parse(saved) : {};
+    },
+    [],
+  )
+
   let clickTimer: NodeJS.Timeout | null = null;
 
   const onRowClick = useCallback((e: DataGridTypes.RowClickEvent) => {
@@ -177,22 +201,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           type="custom"
           storageKey="dashboardGridState"
           savingTimeout={0}
-          customSave={(state: DataGridState) => {
-            const customState: DataGridState = {
-              ...state,
-              columns: state.columns?.map(col => ({
-                ...col,
-                // exclude col index from state
-                visibleIndex: undefined
-              })),
-            };
-
-            localStorage.setItem('dashboardGridState', JSON.stringify(customState))
-          }}
-          customLoad={() => {
-            const saved = localStorage.getItem('dashboardGridState');
-            return saved ? JSON.parse(saved) : {};
-          }}
+          customSave={handleGridStateSave}
+          customLoad={handleGridStateLoad}
         />
         <Scrolling columnRenderingMode='virtual' />
         <Selection
