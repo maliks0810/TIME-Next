@@ -56,6 +56,14 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
         if (!result.notes) return [];
         return result.notes as Note[];
     });
+
+    useEffect(() => {
+        console.log(result);
+        if (result?.notes) {
+            setNotes((result?.notes as Note[]) || []);
+        }
+    }, [result]);
+
     const { name } = useUserInfo();
     const editorRef = useRef<EditorCommands | null>(null);
     const [content, setContent] = useState<string>('');
