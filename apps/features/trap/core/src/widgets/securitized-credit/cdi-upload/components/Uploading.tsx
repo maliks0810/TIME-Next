@@ -1,15 +1,20 @@
-import { Typography, theme } from 'antd';
-import styles from './Uploading.module.scss';
+import { theme } from 'antd';
 import { CloudUploadOutlined } from '@ant-design/icons';
-const { Text } = Typography;
+import styles from './Uploading.module.scss';
+
 export const Uploading = ({ progress }: { progress: number }) => {
     const { token } = theme.useToken();
+
     return (
         <div className={styles.container}>
             <CloudUploadOutlined style={{ fontSize: 32, color: token.colorPrimary }} />
-            <Text style={{ fontSize: 12, color: token.colorTextSecondary }}>
+
+            <span
+                className={styles.text}
+                style={{ color: token.colorTextSecondary }}
+            >
                 {progress < 60 ? 'Reading file…' : 'Processing…'}
-            </Text>
+            </span>
         </div>
     );
 };

@@ -1,8 +1,5 @@
 import clsx from 'clsx';
-import { Typography } from 'antd';
 import styles from './DealDetailsComponents.module.scss';
-
-const { Text } = Typography;
 
 export function AttrRow({
     label,
@@ -17,15 +14,18 @@ export function AttrRow({
 }) {
     return (
         <div className={styles.attrRowContainer}>
-            <Text className={styles.attrRowLabel}>{label}</Text>
-            <Text
+            <span className={styles.attrRowLabel}>
+                {label}
+            </span>
+
+            <span
                 className={clsx(styles.attrRowValue, {
                     [styles.fontFamilyMono]: mono,
                     [styles.attrRowValueAccent]: accent,
                 })}
             >
-                {value}
-            </Text>
+                {value ?? '—'}
+            </span>
         </div>
     );
 }
