@@ -17,6 +17,7 @@ export enum STATUSES_ENUM {
     ANALYTICS_PENDING_REVIEW = 'Analytics Pending Review',
     ANALYTICS_SENT_TO_ALADDIN = 'Analytics Sent To Aladdin',
     ANALYTICS_VERIFIED_IN_ALADDIN = 'Analytics Verified In Aladdin',
+    ANALYTICS_INPUT_VERIFIED_IN_ALADDIN = 'ANALYTICS INPUT VERIFIED IN ALADDIN',
     ABANDONED = 'Abandoned',
     INVALID_REQUEST = 'Invalid Request',
 }
@@ -61,3 +62,12 @@ export const PREVIEW_BOND_BUTTON_TEXT = 'Enabled only when collateral type is CE
 export const PREVIEW_ANALYTICS_BUTTON_TEXT = 'Enabled only when analytics are available.';
 export const PREVIEW_STATIC_BUTTON_TEXT = 'Enabled only when an asset has call/speed overrides.';
 export const MANUAL_BUTTON_HELP_TEXT = 'Click this button to switch to manual mode.';
+
+export const DOWNLOAD_BRS_ANALYTICS_BUTTON_TEXT = 'Enabled only when analytics overrides are published to BRS.';
+export const DOWNLOAD_BRS_BOND_BUTTON_TEXT = 'Enabled only when a Bond Feature has been published to BRS.';
+export const DOWNLOAD_BRS_STATIC_BUTTON_TEXT = 'Enabled only when a Static Scenario Override has been published to BRS.';
+
+export const ANALYTICS_INTERFACE = '315';
+export const BOND_INTERFACE = '324';
+export const STATIC_INTERFACE = '425';
+

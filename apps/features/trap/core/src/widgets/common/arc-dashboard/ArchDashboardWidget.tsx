@@ -35,7 +35,7 @@ export default function ArcDashboardWidget({
         aladdinId: null,
         assetId: null,
     });
-
+ 
     const counterTileValue = useGetWidgetValue({
         channelId: widgetInstance?.config?.params?.channel,
         key: COUNTER_TILE_STORE_KEY,
