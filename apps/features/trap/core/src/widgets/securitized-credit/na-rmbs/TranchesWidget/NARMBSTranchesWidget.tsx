@@ -115,6 +115,7 @@ export function NARMBSTranchesWidget({
             </WidgetCardShell>
         );
     }
+    console.log(tranches);
     return (
         <WidgetCardShell>
             <div className={styles.mainContainer}>
@@ -320,7 +321,7 @@ export function NARMBSTranchesWidget({
                                                 styles[getRatingsClassname(tranche.origRatings)]
                                             )}
                                         >
-                                            {tranche.origRatings}
+                                            {tranche.origRatings || '—'}
                                         </span>
                                     </div>
                                     {/* Curr ratings */}
@@ -331,7 +332,7 @@ export function NARMBSTranchesWidget({
                                                 styles[getRatingsClassname(tranche.currRatings)]
                                             )}
                                         >
-                                            {tranche.currRatings}
+                                            {tranche.currRatings || '—'}
                                         </span>
                                     </div>
                                 </div>
