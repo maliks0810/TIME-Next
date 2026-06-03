@@ -1,4 +1,5 @@
 export function getRatingsClassname(ratings: string): string {
+    if (!ratings) return 'ratingsColValue';
     const r = ratings.split('/')[0].trim(); // first agency (Moody's)
     if (r.startsWith('Aaa') || r.startsWith('AAA') || r.startsWith('Aa1'))
         return 'ratingsColValueSuccess';

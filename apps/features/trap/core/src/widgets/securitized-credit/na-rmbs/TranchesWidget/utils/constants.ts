@@ -13,12 +13,14 @@ export const TRANCHES_COLS = [
         label: 'Orig ratings',
         width: 110,
         align: 'left' as const,
-        render: ({ ratingAgency }: { ratingAgency: string }) => `Orig ratings  (${ratingAgency})`,
+        render: ({ ratingAgency }: { ratingAgency: string }) =>
+            `Orig ratings  (${ratingAgency || '—'})`,
     },
     {
         label: 'Curr ratings',
         width: 110,
         align: 'left' as const,
-        render: ({ ratingAgency }: { ratingAgency: string }) => `Curr ratings  (${ratingAgency})`,
+        render: ({ ratingAgency }: { ratingAgency: string }) =>
+            `Curr ratings  (${ratingAgency || '—'})`,
     },
 ];
