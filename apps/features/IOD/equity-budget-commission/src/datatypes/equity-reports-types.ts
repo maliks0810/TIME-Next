@@ -13,5 +13,30 @@ export const ReportsList = [
   { value: 'R12', name: 'COB - Soft Dollar Commission Analysis by Division' },
   { value: 'R13', name: 'COB - Proprietery Research Budget by Division' },
   { value: 'R14', name: 'COB - Directed By Strategy' },
+  { value: 'R15', name: 'COB - Derivatives and Options Commission' },
 
 ];
+
+export type Report = {
+  rptCode: string,
+  rptName: string,
+  rptHeight: string
+}
+
+export const Reports: Report[] = [
+  { rptCode: 'R1',  rptName: 'COB - Commission Trades Report', rptHeight: '950'},
+  { rptCode: 'R2',  rptName: 'COB - Commission Usage Brokers X Divisions', rptHeight: '950' },
+  { rptCode: 'R3',  rptName: 'COB - Commission Usage by Division', rptHeight: '950' },
+  { rptCode: 'R4',  rptName: 'COB - Commission Usage by Account', rptHeight: '950' },
+  { rptCode: 'R5',  rptName: 'COB - Commission Usage by Broker', rptHeight: '950' },
+  { rptCode: 'R6',  rptName: 'COB - Commission Usage by Department', rptHeight: '950' },
+  { rptCode: 'R7',  rptName: 'COB - Commission Summary by Account Group', rptHeight: '950' },
+  { rptCode: 'R8',  rptName: 'COB - Commission Summary by Broker Group', rptHeight: '950' },
+  { rptCode: 'R9',  rptName: 'COB - Commission Trades Report By Account', rptHeight: '950' },
+  { rptCode: 'R10', rptName: 'COB - Commission Trades Report by Broker', rptHeight: '950' },
+  { rptCode: 'R11', rptName: 'COB - Soft Dollar Commission Analysis by Account', rptHeight: '950' },
+  { rptCode: 'R12', rptName: 'COB - Soft Dollar Commission Analysis by Division', rptHeight: '950' },
+  { rptCode: 'R13', rptName: 'COB - Proprietery Research Budget by Division', rptHeight: '950' },
+  { rptCode: 'R14', rptName: 'COB - Directed By Strategy', rptHeight: '950' },
+  { rptCode: 'R15', rptName: 'COB - Derivatives and Options Commission', rptHeight: '950' },
+]
