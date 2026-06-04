@@ -681,7 +681,8 @@ return (
                   </div>
                 </FormItem>
                 <FormItem colSpan={3}>  
-                  <TextArea value={editingDetailData.serviceDescription} labelMode="outside" label="Service Description" maxHeight={120} height={80} readOnly={true} />  
+                  <TextArea value={editingDetailData.serviceDescription} labelMode="outside" label="Service Description" readOnly={true} 
+                    style={{ width: '100%', height: 'auto', resize: 'vertical' }}/>  
                 </FormItem>  
               </Form>  
             </div>  

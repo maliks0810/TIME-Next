@@ -167,8 +167,9 @@ export const CommissionTradeGrid = () => {
                 
                 <Column dataField="side" caption="Side" width="5%" allowSorting={true} />
                 <Column dataField="account" caption="Account" width="10%" allowSorting={true}/>
-                <Column dataField="execBroker" caption="Exec Broker" width="15%" allowSorting={true}/>
-                <Column dataField="creditBroker" caption="Credit Broker" width="15%" allowSorting={true}/>
+                <Column dataField="orderId" caption="Order Id" width="10%" allowSorting={true}/>
+                <Column dataField="execBroker" caption="Exec Broker" width="10%" allowSorting={true}/>
+                <Column dataField="creditBroker" caption="Credit Broker" width="10%" allowSorting={true}/>
                 <Column dataField="reason" caption="Reason" width="5%" allowSorting={true}/>
                 <Column dataField="ticker" caption="Ticker" width="5%" allowSorting={true}/>
                 <Column dataField="trader" caption="Trader" width="8%" allowSorting={true}/>
