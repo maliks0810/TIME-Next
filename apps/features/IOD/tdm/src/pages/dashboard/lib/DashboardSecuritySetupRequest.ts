@@ -1,6 +1,7 @@
 export interface IDashboardSecuritySetupRequest {
     id: number;
     description: string;
+    tranche: string;
     identifier: string;
     createdDate: Date;
     createdBy: string;

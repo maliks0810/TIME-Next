@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { FormControl, TextField, RadioGroup, FormControlLabel, Radio, CircularProgress, IconButton } from '@mui/material';
+import { FormControl, TextField, RadioGroup, FormControlLabel, Radio, CircularProgress, IconButton, Link } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
+import AttachFileIcon from '@mui/icons-material/AttachFile'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CloseIcon from '@mui/icons-material/Close'
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
@@ -8,6 +9,7 @@ import { SelectFormField } from '../../../common/components/SelectFormField';
 import { isNullOrEmpty } from '../../../utils/StringHelper';
 import { useIdentifierFields } from '../../../stores/selectors/securitySetupSelectors';
 import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
+import { ISecurityAttachmentData } from '../lib/types/securitySetupTypes';
 
 export const MAX_FILES = 10;
 export const MAX_FILE_SIZE_MB = 30; // matches server limit
@@ -48,6 +50,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   const isUploadingFile = formValues.isUploadingFile;
   const fileUploadError = formValues.fileUploadError;
   const pendingUploadFiles = formValues.pendingUploadFiles;
+  const attachments = formValues.attachments ?? [];
 
   const normalizeYesNo = (value: unknown): string => {
     if (value === 'yes' || value === true) return 'yes'
@@ -230,6 +233,22 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               </span>
             )}
           </div>
+          {attachments.length > 0 &&
+            (<div className="file-uploaded-indicator">
+              <div className="file-indicator-item">
+                <AttachFileIcon className="file-paperclip-icon" />
+                <div className="upload-text-wrapper">
+                  {attachments.map((doc: ISecurityAttachmentData) => (
+                    <div className="file-name-text" key={doc.attachmentId}>
+                      <Link href={doc.sharepointWebUrl} target="_blank" rel="noopener noreferrer" className="upload-link">
+                        {doc.fileName}
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            )}
         </div>
 
         <div className="form-row">
