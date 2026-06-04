@@ -5,6 +5,7 @@ import { fetchAdminUsers } from '../services/admin-user-service';
 import { DateBoxTypes } from 'devextreme-react/date-box';
 import { CommissionRecon, CRBrokerMapping, CRBrokers, Reason, CommissionReconDetail, CommissionTradeBatchRequestDto } from '../datatypes/tcw-commission-types';
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info'; 
+import { MaintenanceUser } from '../datatypes/budget-maintenance-types';
 
 interface UseCommissionTradeReconProps {
     userInfo: UserInfo;
@@ -26,6 +27,7 @@ const [isAdmin, setIsAdmin] = useState(false);
 const [popupVisible, setPopupVisible] = useState(false);  
 const [reconDetailData, setReconDetailData] = useState<CommissionReconDetail | undefined>(undefined);  
 const [isSaveError, setIsSaveError] = useState(false);
+const [adminData, setAdminData] = useState<MaintenanceUser[]>([]);
 
 useEffect(() => {  
   const fetchMasterData = async () => {
@@ -40,10 +42,8 @@ useEffect(() => {
       const brkData = getUniqueCreditBrokers(brokerList);
       setUniqueCRBrokers(brkData);
 
-      const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
-      if(u){
-          setIsAdmin(true);
-      } 
+      setAdminData(adminData);
+      checkAdmin(adminData);
 
     } catch (error) {  
       console.error('Failed to load reason/broker data:', error);  
@@ -51,6 +51,13 @@ useEffect(() => {
   };  
   fetchMasterData();
 }, []);  
+
+  function checkAdmin(admData: MaintenanceUser[]){
+    const u = admData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+    if(u){
+      setIsAdmin(true);
+    }
+  }
 
   function getUniqueCreditBrokers(data: CRBrokerMapping[]): CRBrokers[] {
     if (!data) return [];
@@ -72,6 +79,7 @@ useEffect(() => {
       setIsLoading(true);  
       const data = await fetchReconData(selectedBeginDate, selectedEndDate);  
       setReconData(data);  
+      checkAdmin(adminData);
     } catch (error) {  
       console.error(error);  
       // handle error if needed  

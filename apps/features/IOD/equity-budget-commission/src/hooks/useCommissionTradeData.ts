@@ -4,6 +4,7 @@ import { fetchAdminUsers } from '../services/admin-user-service';
 import { CommissionTrade, CommissionTradeDetails, Reason, CRBrokerMapping, CRBrokers, CommissionTradeBatchRequestDto } from '../datatypes/tcw-commission-types';
 import { DateBoxTypes } from 'devextreme-react/date-box';
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info'; 
+import { MaintenanceUser } from '../datatypes/budget-maintenance-types';
 
 interface UseCommissionTradeProps {
     userInfo: UserInfo;
@@ -27,6 +28,7 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
   const [popupVisible, setPopupVisible] = useState(false);  
   const [batchPopupVisible, setBatchPopupVisible] = useState(false);  
   const [formData, setFormData] = useState<CommissionTradeDetails | undefined>(undefined);  
+  const [adminData, setAdminData] = useState<MaintenanceUser[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [batchFormData, setBatchFormData] = useState({  
@@ -46,18 +48,22 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
         setBrokersData(brokerList);
         const brkData = getUniqueCreditBrokers(brokerList);
         setUniqueCRBrokers(brkData);
-
-        const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
-        if(u){
-            setIsAdmin(true);
-        } 
-
+        
+        setAdminData(adminData)
+        checkAdmin(adminData);
       } catch (error) {  
         console.error('Failed to load reason/broker data:', error);  
       }  
     };  
     fetchMasterData();
   }, []);  
+
+  function checkAdmin(admData: MaintenanceUser[]){
+    const u = admData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+    if(u){
+      setIsAdmin(true);
+    }
+  }
 
   function getUniqueCreditBrokers(data: CRBrokerMapping[]): CRBrokers[] {
     if (!data) return [];
@@ -79,6 +85,7 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
       setIsLoading(true);
       const data = await fetchCommissionTrades(selectedBeginDate, selectedEndDate);  
       setCommissionTradesData(data);  
+      checkAdmin(adminData);
     } catch (error) {  
       console.error('Error fetching trades:', error);  
     }

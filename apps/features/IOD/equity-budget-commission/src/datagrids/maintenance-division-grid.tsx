@@ -171,7 +171,7 @@ const MaintenanceDivisionGrid: React.FC = () => {
         </Column>
         <Column dataField="status" caption= "Status" width= "10%" allowFiltering={true} allowSorting={true} dataType="string" filterOperations={["startswith","="]} cellRender={renderStatusCellCallback}/>   
         <Column dataField="lastUpdateDate" caption= "Last Update Dt" allowFiltering={false} allowEditing={false} width= "20%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a"/>   
-        <Column dataField="lastUpdateBy" caption= "Last Update By" allowFiltering={true} allowEditing={false} width= "20%" allowSorting={true} dataType="string"/>    
+        <Column dataField="lastUpdateBy" caption= "Last Update By" allowFiltering={true} allowEditing={false} width= "15%" allowSorting={true} dataType="string"/>    
         <Column dataField="active" visible={false} />
         <Column type="buttons" width="5%" visible={isAdmin?true:false}>
               <Button name="edit" visible={false} />

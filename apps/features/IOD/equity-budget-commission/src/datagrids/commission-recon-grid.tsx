@@ -154,11 +154,11 @@ return (
         </Summary>
         <FilterRow visible={false} applyFilter='auto' />  
         <LoadPanel enabled={true} shading={true} />
-        <Column dataField='order_ID' visible={false} />
         <Column dataField='issue' caption='Issue' showWhenGrouped={true} groupCellRender={groupCellRender} allowGrouping={true} groupIndex={0} allowSorting={true} width='15%' />  
         <Column dataField='account' caption='Account' allowSorting={true} width='10%' />  
-        <Column dataField='exec_Broker' caption='Exec Broker' allowSorting={true} width='15%' />  
-        <Column dataField='credit_Broker' caption='Broker' allowSorting={true} width='15%' />  
+        <Column dataField='order_ID' caption='Order Id' allowSorting={true} width='10%' />
+        <Column dataField='exec_Broker' caption='Exec Broker' allowSorting={true} width='10%' />  
+        <Column dataField='credit_Broker' caption='Broker' allowSorting={true} width='10%' />  
         <Column dataField='reason' caption='Reason' allowSorting={true} width='5%' />  
         <Column dataField='ticker' caption='Ticker' allowSorting={true} width='5%' />  
         <Column dataField='shares' caption='Share' allowSorting={true} width='10%' alignment='left' />  

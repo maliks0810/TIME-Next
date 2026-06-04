@@ -698,6 +698,7 @@ $font-size: 12px;
   justify-content: left;  
   align-items: center;  
   gap: 10px;
+  margin-top: 2px;
   margin-bottom: 5px;
   padding-left: 2px;
 }
@@ -786,6 +787,13 @@ $font-size: 12px;
       font-size: 12px;
     }
   }
+  
+  /* CHECK BOX */
+  .dxCheckboxLabel {
+    font-size: 12px;
+    font-weight: 500 !important;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+  }
 
   /* Section cards */
   .form-section {
@@ -818,7 +826,7 @@ $font-size: 12px;
 /* ============================= */
 .modern-budget-popup {
   .dx-popup-content {
-    padding: 20px 22px 12px;
+    padding: 10px 12px 12px;
     background-color: #f9fafb;
   }
 

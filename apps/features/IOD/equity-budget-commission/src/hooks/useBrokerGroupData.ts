@@ -29,6 +29,7 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
   const [brokerGroupMembers, setBrokerGroupMembers] = useState<MaintenanceBrokerGroupMember[]>([]);
   const [brokers, setBrokers] = useState<MaintenanceBroker[]>([]);
   const [isAdmin,setIsAdmin] = useState<boolean>(false);
+  const [selectedBrokerGroupId, setSelectedBrokerGroupId] = useState<number>();
 
   /** normalize once, and be defensive */
   const normalizeBrokerGroups = useCallback((items?: MaintenanceBrokerGroup[]) => {
@@ -45,9 +46,11 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
   }, [normalizeBrokerGroups]);
 
   const reloadGroupMemberGroup = useCallback(async () => {
-    const members = await fetchBrokerGroupsMember();
+    const allmembers = await fetchBrokerGroupsMember();
+
+    const members:MaintenanceBrokerGroupMember[] = allmembers?.filter(x=> x.brokerGroupId == selectedBrokerGroupId);
     setBrokerGroupMembers(members ?? []);
-  }, []);
+  }, [selectedBrokerGroupId]);
 
   /** initial load */
   useEffect(() => {
@@ -118,6 +121,10 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
     await deleteBrokerGroup(brokerGroupId);
   }, []);
 
+  const onSelectionChanged = async (selectedKeys: number[]) => {
+    const key: number = selectedKeys[0];
+    setSelectedBrokerGroupId(key);
+  }
   /* ---------------- Broker Group Member CRUD (NO local state mutation) ---------------- */
 
   const addBrokerGroupMember = useCallback(
@@ -128,9 +135,11 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
         lastUpdateBy: userInfo.name ?? ''
       };
 
-      return await createBrokerGroupMember(req);
+      const newMember = await createBrokerGroupMember(req);
+      await reloadGroupMemberGroup();
+      return newMember;
     },
-    [userInfo.name]
+    [userInfo.name, reloadGroupMemberGroup]
   );
 
   const modifyBrokerGroupMember = useCallback(
@@ -146,7 +155,7 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
 
       return await updateBrokerGroupMember(brokerGroupMemberId, req);
     },
-    [brokerGroupMembers, userInfo.name]
+    [userInfo.name]
   );
 
   const removeBrokerGroupMember = useCallback(async (brokerGroupMemberId: number) => {
@@ -162,6 +171,8 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
     modifyBrokerGroup,
     removeBrokerGroup,
     reloadGroup,                 // ✅ now sets state
+    onSelectionChanged,
+    selectedBrokerGroupId,
 
     addBrokerGroupMember,
     modifyBrokerGroupMember,
