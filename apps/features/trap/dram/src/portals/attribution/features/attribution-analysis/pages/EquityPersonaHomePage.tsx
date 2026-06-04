@@ -1,18 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Button, Card, Col, Row, Table, Tag, Typography } from "antd";
+import { useEffect, useMemo, useState } from "react";
+import { Button, Card, Col, message, Row, Table, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useNavigate } from "react-router-dom";
 
-import PathBanner from "../components/PathBanner";
-import { api } from "../lib/services";
-
-/* ---------------------------------- */
-/*  Types */
-/* ---------------------------------- */
-
-interface WorkspaceData {
-  kpis?: [string, string][];
-}
+import { api, OptionsResponse } from "../lib/services";
+import { buildPortfolioOptions } from "../lib/helpers";
+import { PortBenchRow, Props } from "../lib/types";
 
 interface SavedView {
   key: string;
@@ -24,20 +16,65 @@ interface SavedView {
 /*  Component */
 /* ---------------------------------- */
 
-export default function EquityPersonaHomePage() {
-  const navigate = useNavigate();
-
-  const [workspace, setWorkspace] = useState<WorkspaceData | null>(null);
-
+export default function EquityPersonaHomePage({ onConfigure, onComplete }: Props) {
+  const [portBenchRows, setPortBenchRows] = useState<PortBenchRow[]>([]);
   useEffect(() => {
-    api.getWorkspace('6614T').then(setWorkspace);
+    Promise.all([
+      api.getEQOptions().catch((err) => {
+        console.error("getOptions failed:", err);
+        message.warning("Options failed to load; showing saved selections only.");
+        return []; // fallback
+      }),
+    ]).then(([opts]) => {
+    const apiResp = opts as OptionsResponse;
+    const allRows = Array.isArray(apiResp.data?.grids)
+      ? apiResp.data.grids.flatMap(g =>
+          Array.isArray(g.rows) ? g.rows : []
+        )
+      : [];
+
+    const pb: PortBenchRow[] = allRows
+      .filter((r) => typeof r === "object" && r !== null)
+      .map((r) => ({
+        PORTFOLIO_KEY: String(r["PORTFOLIO_KEY"] ?? ""),
+        PORTFOLIO_NAME: String(r["PORTFOLIO_NAME"] ?? ""),
+
+        PORTFOLIO_BENCHMARK_CODE: r["PORTFOLIO_BENCHMARK_CODE"] ?? null,
+        PORTFOLIO_BENCHMARK_NAME: r["PORTFOLIO_BENCHMARK_NAME"] ?? null,
+        PORTFOLIO_SECONDARY_BENCHMARK_CODE:
+          r["PORTFOLIO_SECONDARY_BENCHMARK_CODE"] ?? null,
+        PORTFOLIO_SECONDARY_BENCHMARK_NAME:
+          r["PORTFOLIO_SECONDARY_BENCHMARK_NAME"] ?? null,
+      }))
+      .filter((r) => r.PORTFOLIO_KEY && r.PORTFOLIO_NAME);
+
+      setPortBenchRows(pb);
+
+    });
   }, []);
 
+  const portfolioSelectOptions = useMemo(
+    () => buildPortfolioOptions(portBenchRows ?? []),
+    [portBenchRows]
+  );
+
+
+  const benchmarkSelectOptions = Array.from(
+    new Set(
+      portBenchRows.flatMap((r) =>
+        [
+          r.PORTFOLIO_BENCHMARK_CODE,
+          r.PORTFOLIO_SECONDARY_BENCHMARK_CODE,
+        ].filter(Boolean)
+      )
+    )
+  );
+
+
   const kpis: [string, string][] =
-    workspace?.kpis ?? [
-      ["Portfolio Count", "2"],
-      ["Benchmark Count", "1"],
-      ["Total Effect View", "0.38%"],
+    [
+      ["Portfolio Count", `${portfolioSelectOptions.length}`],
+      ["Benchmark Count", `${benchmarkSelectOptions.length}`],
     ];
 
   const savedViews: SavedView[] = [
@@ -61,12 +98,10 @@ export default function EquityPersonaHomePage() {
   ];
 
   return (
-    <div>
+    <div style={{margin:'16px'}}>
       <Typography.Title level={2}>
-        Equity Persona Home
+        Equity Performance Analyst Persona Home
       </Typography.Title>
-
-      <PathBanner text="Path A starts here: Persona Home -> Configure Workflow -> Wizard -> FastAPI-backed workspace." />
 
       <Card style={{ marginBottom: 16 }}>
         <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
@@ -79,19 +114,6 @@ export default function EquityPersonaHomePage() {
           <div>
             <strong>Active Persona:</strong> Equity Performance Analyst
           </div>
-        </div>
-
-        <div style={{ marginTop: 12 }}>
-          {[
-            "view_landing",
-            "save_draft",
-            "view_workspace",
-            "manage_presets",
-          ].map((c) => (
-            <Tag key={c} color="blue">
-              {c}
-            </Tag>
-          ))}
         </div>
       </Card>
 
@@ -119,9 +141,7 @@ export default function EquityPersonaHomePage() {
             <Button
               type="primary"
               block
-              onClick={() =>
-                navigate("/equity/configure?source=landing")
-              }
+              onClick={onConfigure}
             >
               Configure Workflow
             </Button>
@@ -130,7 +150,7 @@ export default function EquityPersonaHomePage() {
 
             <Button
               block
-              onClick={() => navigate("/equity/workspace")}
+              onClick={onComplete}
             >
               Open Latest Workspace
             </Button>

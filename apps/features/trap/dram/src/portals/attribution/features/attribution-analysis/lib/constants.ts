@@ -10,3 +10,6 @@ export const metricShortLabels: Record<MetricLabel, string> = {
   "Selection Effect": "Sel",
   "Interaction Effect": "Int",
 };
+export const default_eq_port = "6614T";
+export const default_fi_port = "702T";
+export const default_em_port = "3734T";

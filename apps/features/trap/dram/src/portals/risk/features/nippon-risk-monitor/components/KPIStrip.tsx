@@ -13,7 +13,7 @@ export const KpiStrip: React.FC<Props> = ({ items }) => {
         <Col key={idx} span={24 / items.length}>
           <Card>
             <Statistic
-              title={kpi.title}
+              title={<strong>{kpi.title}</strong>}
               value={kpi.value}
               suffix={
                 kpi.highlight === "green" ? (
