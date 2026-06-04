@@ -20,7 +20,7 @@ export default function ExclusionAccountsView({ asOfDate, rows, onToolbarPrepari
 		showBorders
 		keyExpr="portfolioNumber"
 		onExporting={e => {
-		  e.fileName = `Exclusion_Accounts_AsOf_${asOfDate.toISOString().slice(0,10)}`;
+		  e.fileName = `Exclusion_Accounts_AsOf_${asOfDate.toISOString().slice(0,10)}.xlsx`;
 		}}
 
 		height="calc(78vh - 100px)"

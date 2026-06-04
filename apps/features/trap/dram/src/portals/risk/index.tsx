@@ -5,8 +5,8 @@ export default function RiskAnalysisDashboard() {
 
 	const components = [
 		{
-			key: 'nippon-risk-monitor',
-			label: 'Nippon Risk Monitor',
+			key: 'nippon-report-monitor',
+			label: 'Nippon Report Monitor',
 			children: (
 				<NipponReportMonitorPage />
 			),
@@ -19,7 +19,7 @@ export default function RiskAnalysisDashboard() {
 			<div className="componentHighlight">
 				<Tabs
 					className="risk-dashboard-tabs"
-					defaultActiveKey="nippon-risk-monitor"
+					defaultActiveKey="nippon-report-monitor"
 					items={components}
 					style={{ flex: 1, overflow: 'hidden' }}
 				/>

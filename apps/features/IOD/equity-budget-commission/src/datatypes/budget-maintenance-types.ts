@@ -46,6 +46,7 @@ export type MaintenanceMasterBroker = {
     masterBrokerName?: string,
     masterBrokerCode?: string,
     status?: string,
+    brokerType?: string,
     lastUpdateDate: Date,
     lastUpdateBy?:string,
     active?:boolean

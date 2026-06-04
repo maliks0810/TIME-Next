@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { theme } from 'antd';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
@@ -22,6 +22,7 @@ import {
 } from '../../constants';
 import { useSetWidgetValue } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
+import clsx from 'clsx';
 
 export default function CDIUploadWidget({
     widgetInstance,
@@ -41,14 +42,19 @@ export default function CDIUploadWidget({
     const [errorMsg, setErrorMsg] = useState('');
     const [loadedDeal, setLoadedDeal] = useState<RecentDeal | null>(null);
     const [fromRecent, setFromRecent] = useState(false);
+    const [deletedDeals, setDeletedDeals] = useState<string[]>([]);
 
     // Recently ingested deals come from the server via the result prop.
     // ds_sc_cdi_upload_01 executor returns { recentDeals: [...] } on mount.
-    const recentDeals =
-        result && Array.isArray((result as any).recentDeals)
-            ? ((result as any).recentDeals as RecentDeal[])
-            : [];
+    const recentDeals = useMemo(() => {
+        const executeResult =
+            result && Array.isArray((result as any).recentDeals)
+                ? ((result as any).recentDeals as RecentDeal[])
+                : [];
 
+        if (deletedDeals.length === 0) return executeResult;
+        return executeResult.filter((deal) => !deletedDeals.includes(deal.dealName));
+    }, [deletedDeals, result]);
     const widgetId = widgetInstance?.id;
     const widgetDefId = String(
         widgetInstance?.composedWidgetId ??
@@ -185,7 +191,7 @@ export default function CDIUploadWidget({
         [widgetDefId, isDesigner, widgetId]
     );
 
-    const handelDownload = async () => {
+    const handleDownload = async () => {
         if (fromIntex && fromIntex.dealName) {
             const { result } = await executeWidget({
                 widgetDefinitionId: widgetDefId,
@@ -212,6 +218,20 @@ export default function CDIUploadWidget({
             window.URL.revokeObjectURL(url);
         }
     };
+    const handleFileDelete = async (dealName: string) => {
+        await executeWidget({
+            widgetDefinitionId: widgetDefId,
+            params: {
+                action: 'remove',
+                dealName,
+            },
+            context: {},
+            mode: isDesigner ? 'MOCK' : 'LIVE',
+        });
+
+        setDeletedDeals((prev) => [...prev, dealName]);
+    };
+
     const reset = () => {
         setUploadState('idle');
         setFileName('');
@@ -228,12 +248,17 @@ export default function CDIUploadWidget({
             TRANCHE_NAME_KEY,
             IS_ASSET_NEW_KEY,
         ].forEach((key) => setWidgetValueToChannel({ channelId, key, activeTab, value: null }));
+        console.log('going to baseWidgetExecute');
         baseWidgetExecute?.();
     };
 
     return (
         <WidgetCardShell>
-            <div className={styles.wrapper}>
+            <div
+                className={clsx(styles.wrapper, {
+                    [styles.previewContainer]: mode === 'preview',
+                })}
+            >
                 <div className={styles.left}>
                     {uploadState === 'idle' && !fromRecent && (
                         <Dropzone handleUpload={handleUpload} execute={handleFetch} />
@@ -259,11 +284,12 @@ export default function CDIUploadWidget({
 
                 <div className={styles.right}>
                     <RecetlyIngested
-                        handelDownload={handelDownload}
+                        handelDownload={handleDownload}
                         fromIntex={fromIntex}
                         uploadState={uploadState}
                         loadedDeal={loadedDeal}
                         recentDeals={recentDeals}
+                        onFileDelete={handleFileDelete}
                         fileName={fileName}
                         progress={progress}
                         fromRecent={fromRecent}

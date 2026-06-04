@@ -1,0 +1,44 @@
+.info {
+    display: flex;
+    gap: 2px;
+    justify-content: center;
+    flex-direction: column;
+    span {
+        font-weight: 400;
+        font-size: 11px;
+    }
+    div {
+        font-size: 12px;
+        font-weight: 600;
+    }
+}
+.wrapper {
+    display: flex;
+    gap: 12px;
+    height: 100%;
+    flex-direction: row;
+}
+.warning {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 11px;
+}
+.dates {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+.name {
+    display: flex;
+    align-items: center;
+    margin-right: auto;
+    font-weight: 600;
+    font-size: 13px;
+}
+.divider {
+    width: 1px;
+    height: 100%;
+    background-color: #0000001a;
+    margin: 0 4px 0 4px;
+}

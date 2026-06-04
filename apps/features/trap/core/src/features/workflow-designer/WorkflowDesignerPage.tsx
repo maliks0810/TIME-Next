@@ -134,8 +134,6 @@ export default function WorkflowDesignerPage() {
                     isInitialLoading={isInitialLoading}
                     draggableHandle=".widget-drag-handle"
                     draggableCancel=".rgl-no-drag"
-                    compactType="vertical"
-                    preventCollision={false}
                     isDraggable={!isPublished}
                     isResizable={false}
                 >

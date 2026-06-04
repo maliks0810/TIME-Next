@@ -535,7 +535,8 @@ return (
         onValueChanged={(e) => setSelectedYear(e.value)}  
         placeholder="Budget Year"  
         showClearButton={true}  
-        width={150}  
+        width="10%"  
+        className='dx-common-selectbox'
       />  
       <Button text="Add" id="btnNewService" visible={isAdmin?true:false} stylingMode="contained" className='popup-button' type="default" icon="plus" onClick={openAddBudgetPopup} />  
     </div>  
@@ -680,7 +681,8 @@ return (
                   </div>
                 </FormItem>
                 <FormItem colSpan={3}>  
-                  <TextArea value={editingDetailData.serviceDescription} labelMode="outside" label="Service Description" height={70} readOnly={true} />  
+                  <TextArea value={editingDetailData.serviceDescription} labelMode="outside" label="Service Description" readOnly={true} 
+                    style={{ width: '100%', height: 'auto', resize: 'vertical' }}/>  
                 </FormItem>  
               </Form>  
             </div>  

@@ -8,7 +8,7 @@ export default function EquityConfigureEntryPage() {
   const source = search.get("source") || "landing";
 
   return (
-    <div>
+    <div style={{margin:'16px'}}>
       <Typography.Title level={2}>Configure Entry</Typography.Title>
       <PathBanner text={source === "workspace" ? "Path B: Workspace -> Reconfigure -> Wizard opens with mock backend state." : "Path A: Persona Home -> Configure -> Start New / Continue Draft / Load Preset."} />
       <Row gutter={[16,16]}>

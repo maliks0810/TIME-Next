@@ -136,4 +136,14 @@
     colgroup col:not(:last-child) {
         min-width: 40px;
     }
+
+    &.previewContainer {
+        width: 740px;
+        height: 150px;
+        position: relative;
+        pointer-events: none;
+        overflow: hidden;
+        transform: scale(0.5);
+        transform-origin: top left;
+    }
 }

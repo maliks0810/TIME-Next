@@ -22,6 +22,12 @@ import SecurityLookupWidget from '../widgets/securitized-credit/security-lookup/
 import { TextWidget } from '../widgets/common/text/Text';
 import { CommentWidget } from '../widgets/dram/comment/CommentWidget';
 import { DateSelect } from '../widgets/common/date-select/DateSelect';
+import { ButtonWidget } from '../widgets/common/button/Button';
+import { TreeWidget } from '../widgets/common/tree/Tree';
+import { RadioButton } from '../widgets/common/radio-button/RadioButton';
+import { DynamicText } from '../widgets/common/dynamic-text/DynamicText';
+import { TabsControl } from '../widgets/dram/tabs-control/TabsControl';
+import { PortfolioInfo } from '../widgets/dram/info/PortfolioInfo';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -205,6 +211,54 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_date_select: {
         id: 'cwd_date_select',
         component: DateSelect,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_button: {
+        id: 'cwd_button',
+        component: ButtonWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_tree: {
+        id: 'cwd_tree',
+        component: TreeWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_radio: {
+        id: 'cwd_radio',
+        component: RadioButton,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_dynamic_text: {
+        id: 'cwd_dynamic_text',
+        component: DynamicText,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    wd_tabs_control: {
+        id: 'wd_tabs_control',
+        component: TabsControl,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    wd_portfolio_info: {
+        id: 'wd_portfolio_info',
+        component: PortfolioInfo,
         category: 'Control',
         visibleIn: ['workflow'],
         listensToKeys: [],

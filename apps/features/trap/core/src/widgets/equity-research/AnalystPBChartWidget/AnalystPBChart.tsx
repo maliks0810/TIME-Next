@@ -108,7 +108,7 @@ export default function AnalystPBChart({
             },
             xAxis: {
                 type: 'category',
-                data: chartData.dates,
+                data: chartData?.dates,
                 boundaryGap: isAnnualChart ? true : false,
 
                 axisLabel: {
@@ -140,7 +140,7 @@ export default function AnalystPBChart({
                     show: true,
                 },
             },
-            series: chartData.series,
+            series: chartData?.series,
         };
 
         chartInstance.current.setOption(option, true);
