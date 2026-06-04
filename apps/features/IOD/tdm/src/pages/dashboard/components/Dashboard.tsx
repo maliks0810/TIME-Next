@@ -1,4 +1,4 @@
-import React, { useCallback, useState, ChangeEvent, KeyboardEvent, useEffect } from 'react';
+import React, { useCallback, useState, ChangeEvent, KeyboardEvent, useEffect, useRef } from 'react';
 import DashboardSettings from './DashboardSettings';
 import DashboardChart from './DashboardChart';
 import DashboardGrid from './DashboardGrid';
@@ -16,6 +16,7 @@ import { useInterval } from '../../../hooks/useInterval';
 import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
 import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
 import '../lib/dashboard.scss';
+import { DataGridRef } from 'devextreme-react/cjs/data-grid';
 
 const Dashboard: React.FC = () => {
   const [isRequestDetailsOpen, setIsRequestDetailsOpen] = useState(false);
@@ -31,6 +32,7 @@ const Dashboard: React.FC = () => {
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const isPageVisible = useVisibilityChange();
   const navigate = useNavigate();
+  const dashboardGridRef = useRef<DataGridRef<IDashboardSecuritySetupRequest, number>>(null);
 
   // poll data when page is visible
   useEffect(() => {
@@ -71,6 +73,18 @@ const Dashboard: React.FC = () => {
       setIsPolling(false);
     }
   }, [searchParameters, setSecurityRequestsData, setLastRefreshed, setIsPolling]);
+
+  const handleClearGridFilters = () => {
+    if (dashboardGridRef.current) {
+      const dashboardGridInstance = dashboardGridRef.current.instance();
+      if (dashboardGridInstance) {
+        dashboardGridInstance.clearFilter();
+        dashboardGridInstance.clearSorting();
+        dashboardGridInstance.clearSelection();
+        dashboardGridInstance.columnOption('createdDate', 'sortOrder', 'desc')
+      }
+    }
+  }
 
   const handleNewSecurityRequestOnClick = () => {
     navigate('/iod/tdm/security-setup');
@@ -164,6 +178,7 @@ const Dashboard: React.FC = () => {
               <Grid flex={1} display='flex' justifyContent='flex-end'>
                 <DashboardSettings
                   setAreSecurityRequestStatsVisible={setAreSecurityRequestStatsVisible}
+                  clearGridFilters={handleClearGridFilters}
                 />
               </Grid>
             </Grid>
@@ -317,6 +332,7 @@ const Dashboard: React.FC = () => {
             {/* DataGrid Section */}
             <Grid sx={{ overflow: 'hidden', width: '100%' }}>
               <DashboardGrid
+                dashboardGridRef={dashboardGridRef}
                 securityRequestsData={securityRequestsData}
                 setSelectedSecurityRequest={setSelectedSecurityRequest}
                 setIsRequestDetailsOpen={setIsRequestDetailsOpen}
