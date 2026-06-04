@@ -13,7 +13,7 @@ export const transformDashboardSecuritySetupRequestDocument = (apiData: Security
   }
 }
 
-export const transformDashboardDeleteSecuritySetupRequest = (apiData: DeleteSecuritySetupRequest): IDashboardDeleteSecuritySetupRequest => {  
+export const transformDashboardDeleteSecuritySetupRequest = (apiData: DeleteSecuritySetupRequest): IDashboardDeleteSecuritySetupRequest => {
   return {
     id: Number(apiData.securitySetupRequest.securitySetupRequestId),
     description: apiData.securitySetupRequest.description,
@@ -82,6 +82,7 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
   return {
     id: Number(apiData.securitySetupRequestId),
     description: apiData.setupStatus.toLowerCase() === 'request initiated' ? apiData.dealName : apiData.description,
+    tranche: apiData.tranche,
     identifier: apiData.identifierValue,
     createdDate: new Date(apiData.createdDate),
     createdBy: apiData.createdBy,
@@ -187,7 +188,7 @@ export const deleteSecurityRequests = async (
   parameters: IDashboardDetailsDeleteParameters
 ): Promise<IDashboardDeleteSecuritySetupRequest> => {
   let delSecurityRequests = {} as IDashboardDeleteSecuritySetupRequest;
-  try{
+  try {
     const baseUrl = API_BASE_URL;
     const endpoint = "securitysetuprequests/deletesecuritysetup";
 
@@ -200,16 +201,16 @@ export const deleteSecurityRequests = async (
       params: {
         securitySetupRequestId: parameters.securitySetupRequestId ?? "",
         updatedBy: parameters.updatedBy ?? "",
-      }    
+      }
     }
 
     const response = await axios.delete(baseUrl + endpoint, params);
     const data = response.data;
     const deleteSecuritySetupRequests: DeleteSecuritySetupRequest = {
-            securitySetupRequest: data.securitySetupRequest,
-            isCancelled: data.isCancelled,            
-        };
-    const mappedSecuritySetupRequests = transformDashboardDeleteSecuritySetupRequest(deleteSecuritySetupRequests); 
+      securitySetupRequest: data.securitySetupRequest,
+      isCancelled: data.isCancelled,
+    };
+    const mappedSecuritySetupRequests = transformDashboardDeleteSecuritySetupRequest(deleteSecuritySetupRequests);
 
     delSecurityRequests = mappedSecuritySetupRequests;
   }
