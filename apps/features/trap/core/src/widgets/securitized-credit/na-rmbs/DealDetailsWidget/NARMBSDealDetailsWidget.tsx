@@ -1,6 +1,7 @@
 import React from 'react';
 import { Typography } from 'antd';
 import { BankOutlined } from '@ant-design/icons';
+import clsx from 'clsx';
 import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell';
 import type { WidgetComponentProps } from '../../../../types/widget';
 import { MetricCard } from './components/MetricCard';
@@ -10,6 +11,7 @@ import { normaliseDeal } from './utils/helpers';
 import { DEAL_NAME_KEY, ANALYSIS_SESSION_ID_KEY } from '../../../constants';
 import { useGetWidgetValue } from '../../../../state/Widgets/hooks';
 import styles from './DealDetailsWidget.module.scss';
+import { widgetPreviewResult } from './widgetPreviewResult';
 
 const { Text } = Typography;
 
@@ -18,6 +20,7 @@ export function NARMBSDealDetailsWidget({
     loading,
     execute,
     widgetInstance,
+    mode,
 }: WidgetComponentProps) {
     const sessionId = useGetWidgetValue({
         channelId: widgetInstance?.config?.params?.channel,
@@ -27,7 +30,7 @@ export function NARMBSDealDetailsWidget({
         channelId: widgetInstance?.config?.params?.channel,
         key: DEAL_NAME_KEY,
     });
-    const data = normaliseDeal(result);
+    const data = mode === 'preview' ? widgetPreviewResult : normaliseDeal(result);
 
     React.useEffect(() => {
         if (dealName) {
@@ -37,7 +40,11 @@ export function NARMBSDealDetailsWidget({
 
     return (
         <WidgetCardShell>
-            <div className={styles.dealDetailsContainer}>
+            <div
+                className={clsx(styles.dealDetailsContainer, {
+                    [styles.previewContainer]: mode === 'preview',
+                })}
+            >
                 {/* Header */}
                 <div className={styles.headerContainer}>
                     <div className={styles.headerTitleContainer}>

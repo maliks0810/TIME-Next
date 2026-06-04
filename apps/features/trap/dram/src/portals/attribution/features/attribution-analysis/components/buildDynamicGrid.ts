@@ -1,5 +1,5 @@
-import { AnalyticsRow } from "../lib/attributionRowModel";
 import type { ColumnsType } from "antd/es/table";
+import { AnalyticResultRow, WorkflowState } from "../lib/services";
 
 /* ---------------------------------- */
 /*  State Input Type */
@@ -48,10 +48,72 @@ export function sortPeriods(periods: string[]): string[] {
 /*  Build Columns */
 /* ---------------------------------- */
 
+export function getDynamicColumns(data: AnalyticResultRow[], breakdown: string): string[] {
+  if (!data.length) return [];
+
+  return Object.keys(data[0]).filter((key) =>
+    key.startsWith(breakdown)
+  );
+}
+
+
+
+export function buildColumns(data: AnalyticResultRow[], breakdown: string): ColumnsType<AnalyticResultRow> {
+  const gicsCols = getDynamicColumns(data, breakdown);
+
+  return [
+    {
+      title: "Security",
+      dataIndex: "SecurityName",
+      key: "SecurityName",
+      fixed: "left",
+    },
+
+    //  dynamic breakdown columns
+    ...gicsCols.map((gicsKey) => ({
+      title: gicsKey,
+      dataIndex: gicsKey,
+      key: gicsKey,
+      render: (val: string | null) => val ?? "-",
+    })),
+
+    //  PF group
+    {
+      title: "Portfolio",
+      children: [
+        { title: "Avg Weight", dataIndex: "PFAvgWeight", key: "PFAvgWeight" },
+        { title: "Total Return", dataIndex: "PFTotalRet", key: "PFTotalRet" },
+        { title: "Contribution", dataIndex: "PFContToRet", key: "PFContToRet" },
+      ],
+    },
+
+    //  BM group
+    {
+      title: "Benchmark",
+      children: [
+        { title: "Avg Weight", dataIndex: "BMAvgWeight", key: "BMAvgWeight" },
+        { title: "Total Return", dataIndex: "BMTotalRet", key: "BMTotalRet" },
+        { title: "Contribution", dataIndex: "BMContToRet", key: "BMContToRet" },
+      ],
+    },
+
+    //  Effects
+    {
+      title: "Effects",
+      children: [
+        { title: "Allocation", dataIndex: "AllocEffect", key: "AllocEffect" },
+        { title: "Selection", dataIndex: "SelectEffect", key: "SelectEffect" },
+        { title: "Interaction", dataIndex: "InterEffect", key: "InterEffect" },
+      ],
+    },
+  ];
+}
+
+
 export function buildDynamicColumns(
-  state: DynamicGridState
-): ColumnsType<AnalyticsRow> {
-  const groupingCols: ColumnsType<AnalyticsRow> = [
+  state: WorkflowState
+): ColumnsType<AnalyticResultRow> {
+  const groupingCols: ColumnsType<AnalyticResultRow> = [
     state.primaryGrouping,
     state.secondaryGrouping,
     state.tertiaryGrouping,
@@ -65,10 +127,10 @@ export function buildDynamicColumns(
       width: index === 0 ? 170 : 150,
     }));
 
-  const benchmarkCol: ColumnsType<AnalyticsRow>[number] = {
-    title: "Bench.Wt",
+  const benchmarkCol: ColumnsType<AnalyticResultRow>[number] = {
+    title: "Bench. Avg Wt",
     dataIndex: "benchmarkWeight",
-    key: "benchmarkWeight",
+    key: "BMAvgWeight",
     width: 100,
   };
 
@@ -81,31 +143,31 @@ export function buildDynamicColumns(
   if (portfolios.length <= 1) {
     const portfolio = portfolios[0] ?? "Portfolio";
 
-    const portWeightCol: ColumnsType<AnalyticsRow>[number] = {
+    const portWeightCol: ColumnsType<AnalyticResultRow>[number] = {
       title: "Port.Wt",
       dataIndex: `${portfolio}|portfolioWeight`,
-      key: `${portfolio}|portfolioWeight`,
+      key: `${portfolio}|PFAvgWeight`,
       width: 100,
     };
 
-    const periodCols: ColumnsType<AnalyticsRow> = state.periods.map(
-      (period) => ({
-        title: period,
-        key: period,
-        children: state.metrics.map((metric) => ({
-          title: metric,
-          dataIndex: `${portfolio}|${period}_${metric}`,
-          key: `${portfolio}|${period}_${metric}`,
-          width: 110,
-        })),
-      })
-    );
+    // const periodCols: ColumnsType<AnalyticResultRow> = state.periods.map(
+    //   (period) => ({
+    //     title: period,
+    //     key: period,
+    //     children: state.metrics.map((metric) => ({
+    //       title: metric,
+    //       dataIndex: `${portfolio}|${period}_${metric}`,
+    //       key: `${portfolio}|${period}_${metric}`,
+    //       width: 110,
+    //     })),
+    //   })
+    // );
 
     return [
       ...groupingCols,
       benchmarkCol,
       portWeightCol,
-      ...periodCols,
+      //...periodCols,
     ];
   }
 
@@ -113,7 +175,7 @@ export function buildDynamicColumns(
   /*  MULTI PORTFOLIO */
   /* ---------------------------------- */
 
-  const portfolioBands: ColumnsType<AnalyticsRow> =
+  const portfolioBands: ColumnsType<AnalyticResultRow> =
     portfolios.map((portfolio) => ({
       title: portfolio,
       key: portfolio,
@@ -125,7 +187,7 @@ export function buildDynamicColumns(
             {
               title: "Port.Wt",
               dataIndex: `${portfolio}|portfolioWeight`,
-              key: `${portfolio}|portfolioWeight`,
+              key: `${portfolio}|PFAvgWeight`,
               width: 100,
             },
           ],

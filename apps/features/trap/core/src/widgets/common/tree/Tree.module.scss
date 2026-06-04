@@ -1,0 +1,16 @@
+.button {
+    width: 100%;
+}
+.treeWrapper {
+    height: calc(100% - 60px);
+    overflow: auto;
+}
+.tree {
+    [class*='ant-tree-switcher-noop'] {
+        display: none;
+    }
+}
+.container {
+    overflow: hidden;
+    height: 100%;
+}

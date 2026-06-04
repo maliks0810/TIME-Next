@@ -1,6 +1,4 @@
 import React from "react";
-import { TreeView, TreeViewTypes } from "devextreme-react/tree-view";
-import TextBox from "devextreme-react/text-box";
 import Button from "devextreme-react/button";
 import { Tabs } from "antd";
 
@@ -31,9 +29,10 @@ import { DateBox } from "devextreme-react";
 import FeeDetailHistory from "./components/detail/FeeDetailHistory";
 import { SelectionChangedEvent, ToolbarPreparingEvent } from "devextreme/ui/data_grid";
 import ExclusionAccountsView from "./components/summary/ExclusionAccountsView";
+import PortfolioTree from "./components/tree/PortfolioTree";
 
 /** Tabs */
-type TabKey = "portfolioHistory" | "benchmarkHistory" | "portfolioNetHistory" ;
+type TabKey = "portfolioHistory" | "benchmarkHistory" | "portfolioNetHistory" | "secondBenchmarkHistory"  ;
 
 /** Summary view type */
 type SummaryView = "summaryReport" | "summaryList" | "exclusionAccounts";
@@ -64,15 +63,6 @@ function formatMMDDYYYY(iso?: string) {
   return `${mm}/${dd}/${yyyy}`;
 }
 
-function useDebounced<T>(value: T, delayMs: number) {
-  const [debounced, setDebounced] = React.useState(value);
-  React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(t);
-  }, [value, delayMs]);
-  return debounced;
-}
-
 function toISODateOnly(d: Date) {
   return d.toISOString().slice(0, 10);
 }
@@ -82,24 +72,12 @@ async function fetchPortfolioHistory(data: PerformanceReturnsResultResponse | un
   if (tabKey === "portfolioHistory") return data?.portfolioGrossRows ?? [];
   if (tabKey === "portfolioNetHistory") return data?.portfolioNetRows ?? [];
   if (tabKey === "benchmarkHistory") return data?.benchmarkRows ?? [];
-  return data?.netFeeRows ?? [];
-}
-
-function filterPortfolios(search: string, rows: PortfolioRow[]): PortfolioRow[] {
-  if (!search) return rows;
-  const q = search.toLowerCase();
-  return rows.filter((x) => {
-    const id = String(x.portId ?? "").toLowerCase();
-    const name = String(x.portfolioName ?? "").toLowerCase();
-    const bm = String(x.benchmark ?? "").toLowerCase();
-    return id.includes(q) || name.includes(q) || bm.includes(q);
-  });
+  if (tabKey === "secondBenchmarkHistory" ) return data?.secondaryBenchmarkRows ?? [];
+  return [];
 }
 
 export default function PerformanceAnalysisContent() {
   // LEFT state
-  const [search, setSearch] = React.useState("");
-  const debouncedSearch = useDebounced(search, 250);
   const [portfolioList, setPortfolioList] = React.useState<PortfolioRow[]>([]);
   const [portfolioSummaryList, setPortfolioSummaryList] = React.useState<HistorySummaryRow[]>([]);
   const [rows, setRows] = React.useState<PortfolioRow[]>([]);
@@ -119,6 +97,7 @@ export default function PerformanceAnalysisContent() {
   const [detailHeader, setDetailHeader] = React.useState<PortfolioRow | null>(null);
   const [detailRows, setDetailRows] = React.useState<HistoryRow[]>([]);
   const [detailBMRows, setDetailBMRows] = React.useState<HistoryRow[]>([]);
+  const [detailSeccondBMRows, setDetailSeccondBMRows] = React.useState<HistoryRow[]>([]);
   const [detailNetRows, setDetailNetRows] = React.useState<HistoryRow[]>([]);
   const [tabKey, setTabKey] = React.useState<TabKey>("portfolioHistory");
   const [allDataResult, setAllDataResult] = React.useState<PerformanceReturnsResultResponse | undefined>(undefined);
@@ -151,12 +130,6 @@ export default function PerformanceAnalysisContent() {
             setSummaryRows(summaryList);
           }
         }
-        if(debouncedSearch !== ''){
-          // Apply search filter locally
-          const filtered = filterPortfolios(debouncedSearch, portfolioList);
-          if (!cancelled) setRows(filtered);
-        }
-
       } finally {
       }
     })();
@@ -164,7 +137,7 @@ export default function PerformanceAnalysisContent() {
     return () => {
       cancelled = true;
     };
-  }, [debouncedSearch]);
+  }, []);
 
   // -------- Load summary whenever view is summary + asOf changes --------
   React.useEffect(() => {
@@ -191,7 +164,7 @@ export default function PerformanceAnalysisContent() {
 
 React.useEffect(() => {
   if (mode !== "summary") return;
-  if (summaryView !== "exclusionAccounts") return; // ✅ only when tab active
+  if (summaryView !== "exclusionAccounts") return; //  only when tab active
 
   let cancelled = false;
 
@@ -201,11 +174,11 @@ React.useEffect(() => {
 
       const payload = exclusion_resp?.data;
 
-      // ✅ correct path (your API shape)
+      //  correct path (your API shape)
       const grids = payload?.data?.grids ?? payload?.grids ?? [];
       const apiRows = grids?.[0]?.rows ?? [];
 
-      // ✅ minimal mapping (no mapper file needed)
+      //  minimal mapping (no mapper file needed)
       const mapped: ExclusionAccountRow[] = Array.isArray(apiRows)
         ? apiRows.map((r) => ({
             portfolioNumber: r.PORTFOLIO_NUMBER,
@@ -221,22 +194,6 @@ React.useEffect(() => {
 
   return () => { cancelled = true; };
 }, [mode, summaryView, asOfDateISO]);
-
-  // -------- Build tree items from list --------
-  const treeItems = React.useMemo(() => {
-    return [
-      {
-        id: "root",
-        text: "Portfolios",
-        expanded: true,
-        items: rows.map((r) => ({
-          id: r.portId,
-          text: `${r.portId} - ${r.portfolioName}`,
-          portId: r.portId,
-        })),
-      },
-    ];
-  }, [rows]);
 
   // -------- Open details from ANY source (tree or summary grids) --------
   const openPortfolio = React.useCallback(
@@ -255,10 +212,12 @@ React.useEffect(() => {
         const hist = await fetchPortfolioHistory(resp?.data, "portfolioHistory");
         const netRows = await fetchPortfolioHistory(resp?.data, "portfolioNetHistory");
         const bmRows = await fetchPortfolioHistory(resp?.data, "benchmarkHistory");
+        const secondbmRows = await fetchPortfolioHistory(resp?.data, "secondBenchmarkHistory");
         setDetailHeader(p);
         setDetailRows(hist);
         setDetailNetRows(netRows);
         setDetailBMRows(bmRows);
+        setDetailSeccondBMRows(secondbmRows);
         setAllDataResult(resp?.data ?? null);
       } finally {
 
@@ -287,17 +246,6 @@ React.useEffect(() => {
       cancelled = true;
     };
   }, [mode, selectedPortId, tabKey]);
-
-  // Tree click → Details
-  const onTreeItemClick = React.useCallback(
-    (e: TreeViewTypes.ItemClickEvent) => {
-      const item = e?.itemData;
-      if (!item || item.id === "root") return;
-      const portId = item.portId ?? item.id;
-      openPortfolio(String(portId));
-    },
-    [openPortfolio]
-  );
 
   // Summary grid selection → Details
   const onSummarySelectionChanged = React.useCallback(
@@ -399,26 +347,14 @@ React.useEffect(() => {
       <SplitPane leftWidth={300}>
         {/* LEFT PANE */}
         <div style={styles.leftPane}>
-          <div style={styles.leftHeader}>Portfolios</div>
-          <div style={styles.leftSearchStrip}>
-            <TextBox
-              value={search}
-              onValueChanged={(e) => setSearch(e.value ?? "")}
-              placeholder="Search..."
-              showClearButton
-              width="100%"
-            />
-          </div>
           <div style={styles.leftBody}>
-            <TreeView
-              items={treeItems}
-              dataStructure="tree"
-              displayExpr="text"
-              keyExpr="id"
-              expandEvent="click"
-              selectionMode="single"
-              onItemClick={onTreeItemClick}
-            />
+          <PortfolioTree
+            onSelect={(portfolioId) => {
+              // call API / load detail / drilldown
+              console.log("Selected portfolio:", portfolioId);
+              openPortfolio(String(portfolioId));
+            }}
+          />
           </div>
         </div>
 
@@ -455,13 +391,13 @@ React.useEffect(() => {
                         displayFormat="yyyy-MM-dd"
                         width={120}
 
-                        // ✅ prevent non-month-end selection in UI
+                        //  prevent non-month-end selection in UI
                         disabledDates={(args) => {
                           const date = args.date;
                           return date ? !isMonthEnd(date) : false;
                         }}
 
-                        // ✅ enforce again on change (defensive)
+                        //  enforce again on change (defensive)
                         onValueChanged={(e) => {
                           if (!e.value) return;
 
@@ -566,6 +502,7 @@ React.useEffect(() => {
                         <div style={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
                           <BMDetailHistory
                             portfolioId={selectedPortId ?? ''}
+                            isSecondary={false}
                             rows={detailBMRows}
                             onToolbarPreparing={onDetailToolbarPreparing}
                           />
@@ -580,6 +517,19 @@ React.useEffect(() => {
                           <FeeDetailHistory
                             portfolioId={selectedPortId ?? ''}
                             rows={detailNetRows}
+                            onToolbarPreparing={onDetailToolbarPreparing}
+                          />
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "secondBenchmarkHistory",
+                      label: "Secondary Benchmark History",
+                      children: (
+                        <div style={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
+                          <BMDetailHistory
+                            portfolioId={selectedPortId ?? ''}
+                            rows={detailSeccondBMRows}  isSecondary={true}
                             onToolbarPreparing={onDetailToolbarPreparing}
                           />
                         </div>

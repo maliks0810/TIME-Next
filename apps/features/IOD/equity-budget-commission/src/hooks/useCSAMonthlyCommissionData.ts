@@ -28,7 +28,7 @@ export function useCSAMonthlyCommission({ month }: UseCSAMonthlyCommProps) {
         finally{
             setIsLoading(false);
         }
-    }, [month]);    
+    }, [month]);
 
     useEffect(() => {  
         reload();  

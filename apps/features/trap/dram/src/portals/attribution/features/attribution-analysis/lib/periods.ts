@@ -19,8 +19,3 @@ export const periodKeyMap = {
 } as const;
 
 export type PeriodCode = keyof typeof periodKeyMap;
-
-/** Runtime-safe narrowing for values coming from UI (AntD returns union types). */
-export function isPeriodCode(v: unknown): v is PeriodCode {
-  return typeof v === "string" && v in periodKeyMap;
-}

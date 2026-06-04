@@ -1,8 +1,7 @@
 import * as URI from "uri-js";
 import type { PeriodCode } from "../lib/periods";
 import type { MetricLabel } from "../lib/metrics";
-import { PortBenchRow, WorkspaceData } from "./types";
-import { DynamicGridState } from "../components/buildDynamicGrid";
+import { PortBenchRow } from "./types";
 
 /* ---------------------------------- */
 /*  Utility */
@@ -78,21 +77,55 @@ export interface WorkflowState {
   layoutMode: string;
   detailPanels: string[];
 }
-export type OptionsResponse = { rows: PortBenchRow[] };
-export interface AnalyticsResponse {
-  metadata: Record<string, unknown>;
-  columns: unknown[];
-  rows: Record<string, unknown>[];
+export interface OptionApiGrid {
+  title: string;
+  rows: PortBenchRow[];
 }
+
+
+export type OptionsResponse = {
+  message: string;
+  data: {
+    metadata: unknown;
+    grids: OptionApiGrid[];
+  }; };
+
+  export interface AnalyticResultRow {
+    SecurityName: string;
+    PFAvgWeight: number;
+    PFTotalRet: number;
+    PFContToRet: number;
+    BMAvgWeight: number;
+    BMTotalRet: number;
+    BMContToRet: number;
+    AllocEffect: number;
+    SelectEffect: number;
+    InterEffect: number;
+    [key: string]: string | number | null; // dynamic GICSx
+  }
+ export interface AnalyticsApiGrid {
+  title: string;
+  rows: AnalyticResultRow[];
+}
+
+export interface AnalyticsResponse {
+  message: string;
+  data: {
+    metadata: unknown;
+    grids: AnalyticsApiGrid[];
+  };
+}
+
 
 /* ---------------------------------- */
 /*  API Layer */
 /* ---------------------------------- */
 
 export const api = {
-  getOptions: (): Promise<OptionsResponse> =>
+  getEQOptions: (): Promise<OptionsResponse> =>
     req<OptionsResponse>("/api/attribution/equity-accounts/"),
-
+  getEMOptions: (): Promise<OptionsResponse> =>
+    req<OptionsResponse>("/api/attribution/em-accounts/"),
   getWorkflowState: (): Promise<WorkflowState> =>
     req<WorkflowState>("/workflow-state/"),
 
@@ -102,14 +135,11 @@ export const api = {
       body: JSON.stringify(state),
     }),
 
-  getWorkspace: (port: string): Promise<WorkspaceData> =>
-    req<WorkspaceData>(`/api/att-eq-mtd/?port=${port}`),
+  runMonthlyAssetAnalyis: (asset_class: string, port: string, inputDate: string) : Promise<AnalyticsResponse> =>
+      req<AnalyticsResponse>
+  (`/api/attr-monthly/${asset_class}/?port=${port}&inputDate=${inputDate}`),
 
-  runAnalysis: (
-    state: DynamicGridState
-  ): Promise<AnalyticsResponse> =>
-    req<AnalyticsResponse>("/run-analysis/", {
-      method: "POST",
-      body: JSON.stringify(state),
-    }),
+  runAnalysis: (port: string, breakdown: string, startDate: string, endDate: string): Promise<AnalyticsResponse> =>
+    req<AnalyticsResponse>
+  (`/api/att-eq-mtd/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}`),
 };

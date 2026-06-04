@@ -4,9 +4,9 @@ import {
     CloseCircleOutlined,
     DatabaseOutlined,
     HistoryOutlined,
-    ArrowRightOutlined,
     FileDoneOutlined,
     DownloadOutlined,
+    CloseOutlined,
 } from '@ant-design/icons';
 import { MetaRow } from './MetaRow';
 import { theme, Typography, Progress, Button, Tag, Tooltip } from 'antd';
@@ -41,6 +41,7 @@ type RecetlyIngestedProps = {
     publishDeal: (deal: { dealId: string; dealName: string; sessionId: string }) => void;
     config: WidgetComponentProps['widgetInstance']['config'];
     handelDownload: () => void;
+    onFileDelete: (id: string) => void;
 };
 export const RecetlyIngested = ({
     fileName,
@@ -57,6 +58,7 @@ export const RecetlyIngested = ({
     errorMsg,
     config,
     handelDownload,
+    onFileDelete,
 }: RecetlyIngestedProps) => {
     const { token } = theme.useToken();
 
@@ -70,6 +72,11 @@ export const RecetlyIngested = ({
 
     const activeTab = useGetActiveTab();
 
+    const handleDelete =
+        (dealName: string) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+            e.stopPropagation();
+            onFileDelete(dealName);
+        };
     const channelId = config?.params?.channel;
     const handleClearRecent = () => {
         setLoadedDeal(null);
@@ -384,8 +391,12 @@ export const RecetlyIngested = ({
                                 }}
                             >
                                 <Tag className={styles.tag}>.{deal.sourceType}</Tag>
-                                <ArrowRightOutlined
-                                    style={{ fontSize: 11, color: token.colorTextQuaternary }}
+                                <Button
+                                    onClick={handleDelete(deal.dealName)}
+                                    className={styles.delete}
+                                    size="small"
+                                    danger
+                                    icon={<CloseOutlined />}
                                 />
                             </div>
                         </div>

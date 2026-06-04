@@ -2,7 +2,7 @@
 import type React from 'react';
 import { WidgetValueType } from '../state/Widgets/types';
 
-export type WidgetRenderMode = 'designer' | 'workflow' | 'landing';
+export type WidgetRenderMode = 'designer' | 'workflow' | 'landing' | 'preview';
 
 export type WidgetUIActions = {
     openWorkflow?: (input: {

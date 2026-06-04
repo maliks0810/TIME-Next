@@ -9,7 +9,7 @@ const GRAPHQL_URL = import.meta.env.VITE_APP_GRAPHQL_URL;
 function getBearerToken(): string {
     const STORAGE_KEY = 'okta-token-storage';
     const rawData = localStorage.getItem(STORAGE_KEY);
-    
+
     if (!rawData) return '';
 
     try {
@@ -44,7 +44,7 @@ function getIdentityHeaders(): Record<string, string> {
 
     return {
         'content-type': 'application/json',
-        'authorization': token ? `Bearer ${token}` : '',
+        authorization: token ? `Bearer ${token}` : '',
         'x-user-login': login,
         'x-user-id': userId,
         'x-user-email': email,
@@ -56,11 +56,16 @@ function getIdentityHeaders(): Record<string, string> {
     };
 }
 
-async function gql<T>(query: string, variables?: Record<string, any>): Promise<T> {
+async function gql<T>(
+    query: string,
+    variables?: Record<string, any>,
+    signal?: AbortSignal
+): Promise<T> {
     const res = await fetch(GRAPHQL_URL, {
         method: 'POST',
         headers: getIdentityHeaders(),
         body: JSON.stringify({ query, variables: variables ?? {} }),
+        signal,
     });
 
     const json = (await res.json()) as GqlResponse<T>;
@@ -376,13 +381,16 @@ export async function listWidgetDefinitions(): Promise<any[]> {
     return data.widgetDefinitions || [];
 }
 
-export async function executeWidget(input: {
-    widgetDefinitionId: string;
-    variantId?: string;
-    params?: Record<string, any>;
-    context?: Record<string, any>;
-    mode?: 'MOCK' | 'LIVE';
-}): Promise<any> {
+export async function executeWidget(
+    input: {
+        widgetDefinitionId: string;
+        variantId?: string;
+        params?: Record<string, any>;
+        context?: Record<string, any>;
+        mode?: 'MOCK' | 'LIVE';
+    },
+    signal?: AbortSignal
+): Promise<any> {
     const data = await gql<{ executeWidget: any }>(
         `mutation ExecuteWidget($input: ExecuteWidgetInput!) {
       executeWidget(input: $input) {
@@ -392,7 +400,8 @@ export async function executeWidget(input: {
         result
       }
     }`,
-        { input }
+        { input },
+        signal
     );
 
     return data.executeWidget;

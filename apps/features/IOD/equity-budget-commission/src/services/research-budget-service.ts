@@ -21,7 +21,7 @@ export const researchBudgetDataService = (setDataCallback:CallBackDataSetter, us
         cacheRawData: false, // Disable caching
 
         load: async () => {
-            if(budgetYear == 0) return null;
+            if(!budgetYear || budgetYear == 0) return null;
             try {
                 const response = await fetch(url,{cache: "no-store"});
                 if(!response.ok)
@@ -53,7 +53,7 @@ export const researchBudgetDataService = (setDataCallback:CallBackDataSetter, us
                 divisionId: values["divisionId"]!= undefined && values["divisionId"] > 0 ? values["divisionId"]:0,
                 masterBroker: values["masterBroker"]!= undefined? values["masterBroker"]:"",
                 mBkrCode: values["mBkrCode"]!= undefined? values["mBkrCode"]:"",
-                masterBrokerId: values["masterBrokerId"]!= undefined && values["masterBrokerId"] > 0 ? values["masterBrokerId"]:0,
+                masterBrokerId: values["masterBrokerId"]!= undefined ? values["masterBrokerId"]:"",
                 quarter_One_Id: values["quarter_One_Id"]!= undefined && values["quarter_One_Id"] > 0 ? values["quarter_One_Id"]:0,
                 quarter_Two_Id: values["quarter_Two_Id"]!= undefined && values["quarter_Two_Id"] > 0 ? values["quarter_Two_Id"]:0,
                 quarter_Three_Id: values["quarter_Three_Id"]!= undefined && values["quarter_Three_Id"] > 0 ? values["quarter_Three_Id"]:0,
@@ -91,7 +91,7 @@ export const researchBudgetDataService = (setDataCallback:CallBackDataSetter, us
                 divisionId: values["divisionId"]!= undefined && values["divisionId"] > 0 ? values["divisionId"]:originalData?.divisionId,
                 masterBroker: values["masterBroker"]!= undefined? values["masterBroker"]:originalData?.masterBroker,
                 mBkrCode: values["mBkrCode"]!= undefined? values["mBkrCode"]:originalData?.mBkrCode,
-                masterBrokerId: values["masterBrokerId"]!= undefined && values["masterBrokerId"] > 0 ? values["masterBrokerId"]:originalData?.masterBrokerId,
+                masterBrokerId: values["masterBrokerId"]!= undefined ? values["masterBrokerId"]:originalData?.masterBrokerId,
                 quarter_One_Id: values["quarter_One_Id"]!= undefined && values["quarter_One_Id"] > 0 ? values["quarter_One_Id"]:originalData?.quarter_One_Id,
                 quarter_Two_Id: values["quarter_Two_Id"]!= undefined && values["quarter_Two_Id"] > 0 ? values["quarter_Two_Id"]:originalData?.quarter_Two_Id,
                 quarter_Three_Id: values["quarter_Three_Id"]!= undefined && values["quarter_Three_Id"] > 0 ? values["quarter_Three_Id"]:originalData?.quarter_Three_Id,
@@ -124,9 +124,14 @@ export const researchBudgetDataService = (setDataCallback:CallBackDataSetter, us
         },
         remove: async (key): Promise<void> => {
             try {
-                await fetch(apiEndPoint+`/${key}`, {
-                method: 'DELETE',
-                cache: "no-store",            
+                const originalData: ResearchBudget|undefined = currentBudgetData.find(d=> d.composite_Id == key);
+                await fetch(apiEndPoint, {
+                    method: 'DELETE',
+                    cache: "no-store", 
+                     headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(originalData),           
                 })
                 .then(handleErrors)            
                 .then(() => {});

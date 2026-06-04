@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { createDivision, updateDivision, deleteDivision, fetchDivisions } from '../services/division-service';
 import { fetchAdminUsers } from '../services/admin-user-service';
-import { MaintenanceDivision, RequestMaintenanceDivision } from '../datatypes/budget-maintenance-types';
+import { MaintenanceDivision, MaintenanceUser, RequestMaintenanceDivision } from '../datatypes/budget-maintenance-types';
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info';
 
 interface UseDivisionsProps {
@@ -10,6 +10,7 @@ interface UseDivisionsProps {
 
 export function useDivisions({ userInfo }: UseDivisionsProps) {
   const [divisions, setDivisions] = useState<MaintenanceDivision[]>([]);
+  const [adminData, setAdminData] = useState<MaintenanceUser[]>([]);
   const [isAdmin,setIsAdmin] = useState<boolean>(false);
 
   const normalize = useCallback((items: MaintenanceDivision[]) => {
@@ -22,22 +23,28 @@ export function useDivisions({ userInfo }: UseDivisionsProps) {
   const reload = useCallback(async () => {
     const data = await fetchDivisions();
     setDivisions(normalize(data));
+    checkAdmin(adminData);    
   }, [normalize]);
 
   useEffect(() => {
     // initial load
     const loadAdminData = async() => {
-      const [adminData] = await Promise.all([
+      const [adData] = await Promise.all([
         fetchAdminUsers()
       ]);
-      const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
-      if(u){
-        setIsAdmin(true);
-      }
+      setAdminData(adData);
+      checkAdmin(adData);
     };
     loadAdminData();
     void reload();
   }, [reload]);
+  
+  function checkAdmin(admData: MaintenanceUser[]){
+    const u = admData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+    if(u){
+      setIsAdmin(true);
+    }
+  }
 
   // Create (no local append when using onSaving + reload)
   const addDivision = useCallback(

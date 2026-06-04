@@ -34,6 +34,12 @@
                 "type": "string",
                 "enum": ["YYYY-MM-DD"],
                 "default": "YYYY-MM-DD"
+            },
+            "availableDates": {
+                "title": "Available dates",
+                "type": "string",
+                "enum": ["All", "End of Month only"],
+                "default": "All"
             }
         },
         "required": [],
