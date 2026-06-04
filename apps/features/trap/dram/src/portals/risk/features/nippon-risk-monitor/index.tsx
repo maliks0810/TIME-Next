@@ -242,8 +242,8 @@ export default function NipponReportMonitorPage() {
           onSelectMonth={handleMonthChange}
         />
       </Card>
-      <Card  title="Selected Report Inventory" extra={<Space><Button icon={<PlayCircleOutlined />} onClick={handleRunReport}> Run Report</Button>
-      <Button icon={<DownloadOutlined/>} onClick={onDownloadPackage}>Download package</Button></Space>}>
+      <Card  title="Selected Report Inventory" extra={<Space><Button icon={<PlayCircleOutlined />} onClick={handleRunReport} type="primary">Run Report</Button>
+      <Button icon={<DownloadOutlined/>} onClick={onDownloadPackage} type="primary">Download package</Button></Space>}>
       <Row gutter={16} style={{ marginTop: 16 }}>
         <Col span={12}>
           <ReportInventory

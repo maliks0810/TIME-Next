@@ -8,99 +8,28 @@ import {
   Form,
   Row,
   Select,
-  SelectProps,
   Space,
   Steps,
   message,
 } from "antd";
-import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 
 import { api, type OptionsResponse } from "../lib/services";
-import { referencePeriods } from "../lib/constants";
+import { default_eq_port, referencePeriods } from "../lib/constants";
 
 import type { PeriodCode } from "../lib/periods";
 import type { MetricLabel } from "../lib/metrics";
-import { getWizardState, setWizardState } from "./WizardStateStore";
-import type { PortBenchRow } from "../lib/types";
-
-/* ---------------------------------- */
-/*  Types */
-/* ---------------------------------- */
-
-type FrequencyMode = "Monthly" | "Daily";
-
-interface WorkflowState {
-  frequencyMode: FrequencyMode;
-  portfolios: string[];
-  benchmarks: string[];
-
-  asOfDate: string;
-  startDate: string;
-  endDate: string;
-
-  baseCurrency: string;
-  carveOut: string;
-
-  periods: PeriodCode[];
-  filters: string[];
-
-  primaryGrouping: string;
-  secondaryGrouping: string;
-  tertiaryGrouping: string;
-
-  metrics: MetricLabel[];
-
-  layoutMode: string;
-  detailPanels: string[];
-}
+import { EQ_KEY, getWizardState, setWizardState } from "./WizardStateStore";
+import type { FrequencyMode, PortBenchRow, Props, WorkspaceState } from "../lib/types";
+import { groupingOptions, groupingWithNoneOptions } from "../lib/groups";
+import { buildBenchmarkOptions, buildPortfolioOptions } from "../lib/helpers";
+import { CheckableTagGroup } from "./CheckableTagGroup";
 
 interface WizardStep {
   title: string;
   content: React.ReactNode;
 }
-
-const groupingOptions: NonNullable<SelectProps["options"]> = [
-  // Equity standard groupings
-  { label: "GICS Sector", value: "GICS1" },
-  { label: "GICS Industry Group", value: "GICS2" },
-  { label: "GICS Industry", value: "GICS3" },
-  { label: "GICS Sub-Industry", value: "GICS4" },
-
-  // { label: "Style (Russell / S&P)", value: "STYLE" },                 // Style – Russell and S&P
-  { label: "Market Capitalization", value: "MKTCAP" },                  // Market Capitalization
-  { label: "PE Forward", value: "PEfwd" },                              // PE Forward
-  // { label: "Country", value: "COUNTRY" },                              // Country/Region groupings
-  // { label: "Region", value: "REGION" },                                // Country/Region groupings
-  // { label: "Currency", value: "CURRENCY" },                            // Currency
-
-  // { label: "Long / Short", value: "LONG_SHORT" },                      // Long/Short grouping
-  // { label: "Portfolio / Benchmark", value: "PORT_BENCH" },             // Portfolio/Benchmark grouping
-
-  // { label: "Security", value: "SECURITY" },                            // Security-level grouping
-];
-
-
-const noneOption: NonNullable<SelectProps["options"]>[number] = {
-  label: "(None)",
-  value: "",
-};
-
-const groupingWithNoneOptions: NonNullable<SelectProps["options"]> = [
-  noneOption,
-  ...groupingOptions,
-];
-
-
-/* ---------------------------------- */
-/*  Options */
-/* ---------------------------------- */
-
-const periodOptions: { label: string; value: PeriodCode }[] = referencePeriods.map((p) => ({
-  label: p,
-  value: p as PeriodCode,
-}));
 
 const metricOptions = [
   "Port. Total Contribution",
@@ -123,154 +52,91 @@ function isMonthEnd(date: Dayjs | null | undefined): boolean {
   if (!date) return false;
   return date.date() === date.daysInMonth();
 }
-
-function normalizeWorkflowState(raw: Partial<WorkflowState>): WorkflowState {
-  return {
-    frequencyMode: raw.frequencyMode ?? "Daily",
-
-    portfolios: raw.portfolios ?? [],
-    benchmarks: raw.benchmarks ?? [],
-
-    asOfDate: raw.asOfDate ?? "",
-    startDate: raw.startDate ?? "",
-    endDate: raw.endDate ?? "",
-
-    baseCurrency: raw.baseCurrency ?? "",
-    carveOut: raw.carveOut ?? "",
-
-    periods: raw.periods ?? [],
-    filters: raw.filters ?? [],
-
-    primaryGrouping: raw.primaryGrouping ?? "GICS1",
-    secondaryGrouping: raw.secondaryGrouping ?? "",
-    tertiaryGrouping: raw.tertiaryGrouping ?? "",
-
-    metrics: raw.metrics ?? [],
-
-    layoutMode: raw.layoutMode ?? "Grouped Grid",
-    detailPanels: raw.detailPanels ?? [],
-  };
-}
-
-type SelectOption = Readonly<{ value: string; label: string }>;
-
-/* ---------------------------------- */
-/* Builders (same logic style as Workspace) */
-/* ---------------------------------- */
-
-function buildPortfolioOptions(rows: ReadonlyArray<PortBenchRow>): SelectOption[] {
-  const map = new Map<string, SelectOption>();
-
-  for (const r of rows) {
-    if (!map.has(r.PORTFOLIO_KEY)) {
-      map.set(r.PORTFOLIO_KEY, {
-        value: r.PORTFOLIO_KEY,
-        label: `${r.PORTFOLIO_NAME} (${r.PORTFOLIO_KEY})`,
-      });
-    }
-  }
-
-  return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
-}
-
-function buildBenchmarkOptionsForPortfolios(
-  rows: ReadonlyArray<PortBenchRow>,
-  selectedPortfolioKeys: ReadonlyArray<string>
-): SelectOption[] {
-  if (selectedPortfolioKeys.length === 0) return [];
-
-  const selected = new Set(selectedPortfolioKeys);
-  const map = new Map<string, SelectOption>();
-
-  for (const r of rows) {
-    if (!selected.has(r.PORTFOLIO_KEY)) continue;
-
-    const add = (code: string | null, name: string | null) => {
-      const value = code ?? name;
-      if (!value) return;
-
-      const label = name ? `${name}${code ? ` (${code})` : ""}` : value;
-      map.set(value, { value, label });
-    };
-
-    add(r.PORTFOLIO_BENCHMARK_CODE, r.PORTFOLIO_BENCHMARK_NAME);
-    add(r.PORTFOLIO_SECONDARY_BENCHMARK_CODE, r.PORTFOLIO_SECONDARY_BENCHMARK_NAME);
-  }
-
-  return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
-}
-
 /* ---------------------------------- */
 /* Component */
 /* ---------------------------------- */
 
-export default function WizardStepper({
-  sourcePath,
-}: {
-  sourcePath: "landing" | "workspace";
-}) {
-  const navigate = useNavigate();
+export default function WizardStepper({ onComplete }: Props)  {
 
   const [current, setCurrent] = useState<number>(0);
-  const [state, setState] = useState<WorkflowState | null>(null);
-
-  //  OptionsResponse is typed: { rows: PortBenchRow[] }
-  const [options, setOptions] = useState<OptionsResponse>({ rows: [] });
-
-  // convenient alias
-  const rows = options.rows;
-
-  const portfolioSelectOptions = useMemo<SelectOption[]>(
-    () => buildPortfolioOptions(rows),
-    [rows]
-  );
-
-  const benchmarkSelectOptions = useMemo<SelectOption[]>(
-    () => buildBenchmarkOptionsForPortfolios(rows, state?.portfolios ?? []),
-    [rows, state?.portfolios]
-  );
-
+  const [state, setSavedState] = useState<WorkspaceState | null>(null);
+  const [portBenchRows, setPortBenchRows] = useState<PortBenchRow[]>([]);
+  const periodOptions: { label: string; value: PeriodCode }[] = referencePeriods.map((p) => ({
+    label: p,
+    value: p as PeriodCode,
+  }));
+  const [viewPortfolios, setViewPortfolios] = useState<string[]>([default_eq_port]);
   const asOf = useMemo(() => (state?.asOfDate ? dayjs(state.asOfDate) : null), [state?.asOfDate]);
   const start = useMemo(() => (state?.startDate ? dayjs(state.startDate) : null), [state?.startDate]);
   const end = useMemo(() => (state?.endDate ? dayjs(state.endDate) : null), [state?.endDate]);
 
   const isValidAsOf = isMonthEnd(asOf);
 
+  const handleFinish = async (state: WorkspaceState) => {
+    try {
+      await setWizardState(state, EQ_KEY);
+      onComplete?.();
+    } catch (e) {
+      console.error("Save failed", e);
+    }
+  };
+
   /* ---------------------------------- */
   /* Load: localStorage first, then APIs with fallback */
   /* ---------------------------------- */
 
   useEffect(() => {
-    // 1) Always hydrate from localStorage first so UI never blanks
-    const local = getWizardState() as Partial<WorkflowState>;
-    setState(normalizeWorkflowState(local));
+    const s = getWizardState(EQ_KEY) as WorkspaceState;
 
-    // 2) Fetch options + (optionally) workflow state
+    setSavedState({
+      ...s,
+      periods: (s.periods ?? []) as PeriodCode[],
+      metrics: (s.metrics ?? []) as MetricLabel[],
+    });
+    setViewPortfolios(s.portfolios ?? [default_eq_port]);
     Promise.all([
-      api.getOptions().catch((err) => {
+      api.getEQOptions().catch((err) => {
         console.error("getOptions failed:", err);
         message.warning("Options failed to load; showing saved selections only.");
-        return { rows: [] } as OptionsResponse;
+        return []; // fallback
       }),
-      api.getWorkflowState().catch((err) => {
-        console.error("getWorkflowState failed:", err);
-        message.warning("Workflow state failed to load; using saved state.");
-        return null as Partial<WorkflowState> | null;
-      }),
-    ]).then(([opts, remote]) => {
-      // options normalization
-      setOptions({
-        rows: Array.isArray(opts?.rows) ? opts.rows : [],
-      });
+    ]).then(([opts]) => {
+    const apiResp = opts as OptionsResponse;
+    const allRows = Array.isArray(apiResp.data?.grids)
+      ? apiResp.data.grids.flatMap(g =>
+          Array.isArray(g.rows) ? g.rows : []
+        )
+      : [];
 
-      // state source selection:
-      // - if opened from workspace: keep local storage edits
-      // - if opened from landing: prefer backend state when available
-      if (sourcePath === "landing" && remote) {
-        setState(normalizeWorkflowState(remote));
-      }
+    const pb: PortBenchRow[] = allRows
+      .filter((r) => typeof r === "object" && r !== null)
+      .map((r) => ({
+        PORTFOLIO_KEY: String(r["PORTFOLIO_KEY"] ?? ""),
+        PORTFOLIO_NAME: String(r["PORTFOLIO_NAME"] ?? ""),
+
+        PORTFOLIO_BENCHMARK_CODE: r["PORTFOLIO_BENCHMARK_CODE"] ?? null,
+        PORTFOLIO_BENCHMARK_NAME: r["PORTFOLIO_BENCHMARK_NAME"] ?? null,
+        PORTFOLIO_SECONDARY_BENCHMARK_CODE:
+          r["PORTFOLIO_SECONDARY_BENCHMARK_CODE"] ?? null,
+        PORTFOLIO_SECONDARY_BENCHMARK_NAME:
+          r["PORTFOLIO_SECONDARY_BENCHMARK_NAME"] ?? null,
+      }))
+      .filter((r) => r.PORTFOLIO_KEY && r.PORTFOLIO_NAME);
+
+      setPortBenchRows(pb);
+
     });
-  }, [sourcePath]);
+  }, []);
+
+  const portfolioSelectOptions = useMemo(
+    () => buildPortfolioOptions(portBenchRows ?? []),
+    [portBenchRows]
+  );
+
+  const benchmarkSelectOptions = useMemo(
+    () => buildBenchmarkOptions(portBenchRows ?? [], viewPortfolios),
+    [portBenchRows, viewPortfolios]
+  );
 
   const steps: WizardStep[] = useMemo(() => {
     if (!state) return [];
@@ -285,7 +151,7 @@ export default function WizardStepper({
                 <Select
                   value={state.frequencyMode}
                   options={[{ value: "Monthly" }, { value: "Daily" }]}
-                  onChange={(v: FrequencyMode) => setState({ ...state, frequencyMode: v })}
+                  onChange={(v: FrequencyMode) => setSavedState({ ...state, frequencyMode: v })}
                 />
               </Form.Item>
             </Col>
@@ -298,27 +164,29 @@ export default function WizardStepper({
                   options={portfolioSelectOptions}
                   showSearch
                   optionFilterProp="label"
+
                   onChange={(nextPortfolios: string[]) => {
-                    // derive valid benchmarks for selected portfolios
-                    const nextBenchmarkOptions = buildBenchmarkOptionsForPortfolios(rows, nextPortfolios);
-                    const valid = new Set(nextBenchmarkOptions.map((x) => x.value));
+                    const nextBenchmarkOptions = buildBenchmarkOptions(portBenchRows, nextPortfolios);
+                    const validSet = new Set(nextBenchmarkOptions.map((x) => x.value));
 
-                    // prune current benchmarks to valid set
-                    const prunedBenchmarks = state.benchmarks.filter((b) => valid.has(b));
+                    setSavedState((prev) => {
+                      if (!prev) return prev; // keeps return type WorkspaceState | null
 
-                    setState({
-                      ...state,
-                      portfolios: nextPortfolios,
-                      benchmarks: prunedBenchmarks,
+                      const pruned = prev.benchmarks.filter((b) => validSet.has(b));
+                      const nextBenchmarks =
+                        nextPortfolios.length > 0 && pruned.length === 0 && nextBenchmarkOptions.length > 0
+                          ? [nextBenchmarkOptions[0].value]
+                          : pruned;
+
+                      return {
+                        ...prev,                 //  prev is WorkspaceState here
+                        portfolios: nextPortfolios,
+                        benchmarks: nextBenchmarks,
+                      };
                     });
-
-                    // optional: if portfolio selected but no benchmark selected, auto pick first
-                    if (nextPortfolios.length > 0 && prunedBenchmarks.length === 0 && nextBenchmarkOptions.length > 0) {
-                      setState((prev) =>
-                        prev ? { ...prev, benchmarks: [nextBenchmarkOptions[0].value] } : prev
-                      );
-                    }
                   }}
+
+
                 />
               </Form.Item>
             </Col>
@@ -332,7 +200,7 @@ export default function WizardStepper({
                   showSearch
                   optionFilterProp="label"
                   disabled={state.portfolios.length === 0}
-                  onChange={(nextBenchmarks: string[]) => setState({ ...state, benchmarks: nextBenchmarks })}
+                  onChange={(nextBenchmarks: string[]) => setSavedState({ ...state, benchmarks: nextBenchmarks })}
                 />
               </Form.Item>
             </Col>
@@ -349,7 +217,7 @@ export default function WizardStepper({
                     value={asOf}
                     disabledDate={(d) => !isMonthEnd(d)}
                     onChange={(d) =>
-                      setState({
+                      setSavedState({
                         ...state,
                         asOfDate: d ? d.format("YYYY-MM-DD") : "",
                       })
@@ -365,7 +233,7 @@ export default function WizardStepper({
                       value={start}
                       style={{ width: "100%" }}
                       onChange={(d) =>
-                        setState({
+                        setSavedState({
                           ...state,
                           startDate: d ? d.format("YYYY-MM-DD") : "",
                         })
@@ -380,7 +248,7 @@ export default function WizardStepper({
                       value={end}
                       style={{ width: "100%" }}
                       onChange={(d) =>
-                        setState({
+                        setSavedState({
                           ...state,
                           endDate: d ? d.format("YYYY-MM-DD") : "",
                         })
@@ -413,7 +281,7 @@ export default function WizardStepper({
               showSearch
               optionFilterProp="label"
               onChange={(v: string) =>
-                setState({ ...state, primaryGrouping: v })
+                setSavedState({ ...state, primaryGrouping: v })
               }
             />
           </Form.Item>
@@ -428,7 +296,7 @@ export default function WizardStepper({
                 showSearch
                 optionFilterProp="label"
                 onChange={(v: string) =>
-                  setState({ ...state, secondaryGrouping: v })
+                  setSavedState({ ...state, secondaryGrouping: v })
                 }
               />
 
@@ -443,7 +311,7 @@ export default function WizardStepper({
               showSearch
               optionFilterProp="label"
               onChange={(v: string) =>
-                setState({ ...state, tertiaryGrouping: v })
+                setSavedState({ ...state, tertiaryGrouping: v })
               }
             />
           </Form.Item>
@@ -463,12 +331,15 @@ export default function WizardStepper({
               style={{ marginBottom: 16 }}
             />
             <Form.Item label="Periods">
-              <Select
-                mode="multiple"
-                value={state.periods}
-                options={periodOptions}
-                onChange={(vals: PeriodCode[]) => setState({ ...state, periods: vals })}
-              />
+            <CheckableTagGroup<PeriodCode>
+              options={periodOptions}
+              value={state.periods}
+              onChange={(vals) =>
+                setSavedState({ ...state, periods: vals })
+              }
+              showSelectAll
+              showClear
+            />
             </Form.Item>
           </>
         ),
@@ -482,13 +353,13 @@ export default function WizardStepper({
               mode="multiple"
               value={state.metrics}
               options={metricSelectOptions}
-              onChange={(vals: MetricLabel[]) => setState({ ...state, metrics: vals })}
+              onChange={(vals: MetricLabel[]) => setSavedState({ ...state, metrics: vals })}
             />
           </Form.Item>
         ),
       },
     ];
-  }, [state, rows, portfolioSelectOptions, benchmarkSelectOptions, asOf, start, end, isValidAsOf]);
+  }, [state, portfolioSelectOptions, benchmarkSelectOptions, asOf, start, end, isValidAsOf]);
 
   if (!state) return <Card loading title="Configure Workflow Wizard" />;
 
@@ -513,7 +384,7 @@ export default function WizardStepper({
 
         <Button
           onClick={async () => {
-            await setWizardState(state);
+            await setWizardState(state,EQ_KEY);
             message.success("Workflow saved");
           }}
         >
@@ -525,10 +396,8 @@ export default function WizardStepper({
             type="primary"
             disabled={!canRun}
             onClick={async () => {
-              await api.runAnalysis(state);
-              navigate("/equity/workspace");
-            }}
-          >
+               await handleFinish(state);
+                }}          >
             Run Analysis
           </Button>
         )}
