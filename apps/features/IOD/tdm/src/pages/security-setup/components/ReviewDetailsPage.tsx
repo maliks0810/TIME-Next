@@ -93,8 +93,10 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
     return +(Math.round(Number(num + "e+2")) + "e-2");
   }
 
-  const setCallDateRequiredField = (callableValue: string | null | undefined): string => {
+  const setCallDateRequiredField = (callableValue: string | null | undefined,
+    sectorValue: string | null | undefined): string => {
     if (callableValue === 'Y') return ' *';
+    if (sectorValue === 'RPL' && callableValue !== 'N' && callableValue !== 'Cleanup') return '*';
     return '';
   }
 
@@ -228,7 +230,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             />
           </div>
           <div className={`form-row-group${missingFields.callDate ? ' field-required-missing' : ''}`}>
-            <label className="field-label">{'Call Date' + setCallDateRequiredField(securityDetails?.callableValue)}</label>
+            <label className="field-label">{'Call Date' + setCallDateRequiredField(securityDetails?.callableValue, securityDetails?.sectorValue)}</label>
             <TextField
               fullWidth
               type="date"

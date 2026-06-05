@@ -245,7 +245,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           !isValidString(callableValue) ||
           !isValidLoanCategory(loanCategoryValue) ||
           !isValidNotes(sectorValue, notes) ||
-          !isValidCallDate(callableValue, callDate) ||
+          !isValidCallDate(sectorValue, callableValue, callDate) ||
           !isRPLStringFieldValid(sectorValue, prepaymentTypeValue) ||
           !isRPLStringFieldValid(sectorValue, defaultTypeValue) ||
           !isRPLNumberFieldValid(sectorValue, prepaymentSpeed) ||
@@ -285,7 +285,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         sectorValue: !isValidString(sectorValue),
         price: !isValidPrice(price),
         callableValue: !isValidString(callableValue),
-        callDate: !isValidCallDate(callableValue, callDate),
+        callDate: !isValidCallDate(sectorValue, callableValue, callDate),
         notes: !isValidNotes(sectorValue, notes),
         loanCategoryValue: !isValidLoanCategory(loanCategoryValue),
         prepaymentTypeValue: !isRPLStringFieldValid(sectorValue, prepaymentTypeValue),
