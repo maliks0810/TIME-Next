@@ -15,11 +15,7 @@ import { Dropzone } from './components/Dropzone';
 import styles from './CDIUploadWidget.module.scss';
 import {
     ANALYSIS_SESSION_ID_KEY,
-    IS_ASSET_NEW_KEY,
-    DEAL_ID_KEY,
     DEAL_NAME_KEY,
-    TRANCHE_ID_KEY,
-    TRANCHE_NAME_KEY,
 } from '../../constants';
 import { useSetWidgetValue } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
@@ -70,28 +66,7 @@ export default function CDIUploadWidget({
         return executeResult.filter((deal) => !deletedDeals.includes(deal.dealName));
     }, [deletedDeals, result]);
 
-    const publishDeal = (deal: { dealId: string; dealName: string; sessionId: string }) => {
-        setWidgetValueToChannel({
-            channelId,
-            key: TRANCHE_ID_KEY,
-            value: null,
-            activeTab,
-        });
-
-        setWidgetValueToChannel({
-            channelId,
-            key: TRANCHE_NAME_KEY,
-            value: null,
-            activeTab,
-        });
-
-        setWidgetValueToChannel({
-            channelId,
-            key: DEAL_ID_KEY,
-            value: deal.dealId,
-            activeTab,
-        });
-
+    const publishDeal = (deal: { dealName: string; sessionId: string }) => {
         setWidgetValueToChannel({
             channelId,
             key: DEAL_NAME_KEY,
@@ -103,13 +78,6 @@ export default function CDIUploadWidget({
             channelId,
             key: ANALYSIS_SESSION_ID_KEY,
             value: deal.sessionId,
-            activeTab,
-        });
-
-        setWidgetValueToChannel({
-            channelId,
-            key: IS_ASSET_NEW_KEY,
-            value: 'true',
             activeTab,
         });
     };
@@ -248,6 +216,7 @@ export default function CDIUploadWidget({
 
         window.URL.revokeObjectURL(url);
     };
+
     const handleFileDelete = async (dealName: string) => {
         await executeWidget({
             widgetDefinitionId: widgetDefId,
@@ -271,14 +240,7 @@ export default function CDIUploadWidget({
         setFromIntex(null);
         setErrorMsg('');
 
-        [
-            DEAL_ID_KEY,
-            DEAL_NAME_KEY,
-            ANALYSIS_SESSION_ID_KEY,
-            TRANCHE_ID_KEY,
-            TRANCHE_NAME_KEY,
-            IS_ASSET_NEW_KEY,
-        ].forEach((key) =>
+        [DEAL_NAME_KEY, ANALYSIS_SESSION_ID_KEY].forEach((key) =>
             setWidgetValueToChannel({
                 channelId,
                 key,

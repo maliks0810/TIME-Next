@@ -98,7 +98,7 @@ export function getThemeConfig(themeName: ThemeName) {
             return {
                 algorithm: antdTheme.defaultAlgorithm,
                 token: {
-                    colorPrimary: "#6d5efc",
+                    colorPrimary: "#0084ff",
                     borderRadius: 6,
                     ...COMMON_TOKENS,
                 },

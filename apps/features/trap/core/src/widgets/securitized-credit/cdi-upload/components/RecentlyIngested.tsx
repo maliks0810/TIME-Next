@@ -18,14 +18,7 @@ import { WidgetComponentProps } from '../../../../types/widget';
 import styles from './RecentlyIngested.module.scss';
 import { useGetActiveTab } from '../../../../state/Tabs/hooks';
 import { useSetWidgetValue } from '../../../../state/Widgets/hooks';
-import {
-    ANALYSIS_SESSION_ID_KEY,
-    DEAL_ID_KEY,
-    DEAL_NAME_KEY,
-    IS_ASSET_NEW_KEY,
-    TRANCHE_ID_KEY,
-    TRANCHE_NAME_KEY,
-} from '../../../../widgets/constants';
+import { ANALYSIS_SESSION_ID_KEY } from '../../../../widgets/constants';
 
 type RecetlyIngestedProps = {
     uploadState: UploadState;
@@ -39,7 +32,7 @@ type RecetlyIngestedProps = {
     setLoadedDeal: Dispatch<SetStateAction<RecentDeal | null>>;
     setFromRecent: Dispatch<SetStateAction<boolean>>;
     reset: () => void;
-    publishDeal: (deal: { dealId: string; dealName: string; sessionId: string }) => void;
+    publishDeal: (deal: { dealName: string; sessionId: string }) => void;
     config: WidgetComponentProps['widgetInstance']['config'];
     handelDownload: () => void;
     onFileDelete: (id: string) => void;
@@ -82,14 +75,12 @@ export const RecetlyIngested = ({
         setLoadedDeal(null);
         setFromRecent(false);
 
-        [
-            DEAL_NAME_KEY,
-            DEAL_ID_KEY,
-            ANALYSIS_SESSION_ID_KEY,
-            TRANCHE_ID_KEY,
-            TRANCHE_NAME_KEY,
-            IS_ASSET_NEW_KEY,
-        ].forEach((key) => setWidgetValueToChannel({ key, value: null, activeTab, channelId }));
+        setWidgetValueToChannel({
+            key: ANALYSIS_SESSION_ID_KEY,
+            value: null,
+            activeTab,
+            channelId,
+        });
     };
 
     // Uploading
@@ -391,7 +382,8 @@ export const RecetlyIngested = ({
                         border: `1px solid ${token.colorBorderSecondary}`,
                         overflow: 'auto',
                         width: '100%',
-                        maxHeight: 200,
+                        flex: 1,
+                        minHeight: 0,
                     }}
                 >
                     {recentDeals.map((deal, idx) => (
