@@ -29,9 +29,8 @@ export default function WorkflowDesignerPage() {
         themeName === 'greenGradient' ||
         themeName === 'blueGradient' ||
         themeName === 'cyberpunk' ||
-        themeName === 'tron' ||
         themeName === 'matrix' ||
-        themeName === 'bladeRunner';
+        themeName === 'dumpsterFire';
 
     const designerHeaderBackground = surfaceMeta.isGradientTheme
         ? surfaceMeta.hudGradient

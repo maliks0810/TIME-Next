@@ -57,11 +57,8 @@ export default function TrapHud({
         themeName === 'greenGradient' ||
         themeName === 'blueGradient' ||
         themeName === 'cyberpunk' ||
-        themeName === 'tron' ||
-        themeName === 'matrix' ||
-        themeName === 'bladeRunner';
-
-    const isDreamyHud = themeName === 'dreamy';
+        themeName === 'dumpsterFire' ||
+        themeName === 'matrix';
 
     const LIGHT_THEME_OPTIONS = THEME_OPTIONS.filter((opt) =>
         [
@@ -70,8 +67,6 @@ export default function TrapHud({
             'ocean',
             'sunset',
             'forest',
-            'grape',
-            'candy',
             'solarizedLight',
         ].includes(opt.value)
     );
@@ -85,11 +80,11 @@ export default function TrapHud({
     );
 
     const RSQUARE_THEME_OPTIONS = THEME_OPTIONS.filter((opt) =>
-        ['cyberpunk', 'dreamy', 'ink'].includes(opt.value)
+        ['cyberpunk', 'dreamy', 'ink', 'dumpsterFire'].includes(opt.value)
     );
 
     const MOVIE_THEME_OPTIONS = THEME_OPTIONS.filter((opt) =>
-        ['tron', 'matrix', 'bladeRunner'].includes(opt.value)
+        ['matrix'].includes(opt.value)
     );
 
     const makeThemeChildren = (options: Array<{ value: ThemeName; label: string }>) =>
@@ -103,7 +98,7 @@ export default function TrapHud({
                         justifyContent: 'space-between',
                     }}
                 >
-                    <span>{opt.value === 'tron' ? 'TRON' : opt.label}</span>
+                    <span>{opt.label}</span>
                     {themeName === opt.value ? <CheckOutlined /> : <span style={{ width: 14 }} />}
                 </Space>
             ),
@@ -273,43 +268,39 @@ export default function TrapHud({
             },
         ],
     };
-    const subtleText = isDreamyHud
-        ? 'rgba(106,90,122,0.72)'
-        : isDarkHud
-            ? 'rgba(255,255,255,0.70)'
-            : 'rgba(15,23,42,0.58)';
+    const subtleText = isDarkHud
+        ? 'rgba(255,255,255,0.70)'
+        : 'rgba(15,23,42,0.58)';
 
-    const strongText = isDreamyHud ? '#6b5879' : isDarkHud ? '#ffffff' : 'rgba(15,23,42,0.96)';
+    const strongText = isDarkHud ? '#ffffff' : 'rgba(15,23,42,0.96)';
 
-    const hudSurface = isDreamyHud
-        ? 'rgba(255,255,255,0.22)'
-        : meta.isGradientTheme
+    const hudSurface = meta.isGradientTheme
+        ? isDarkHud
             ? 'rgba(255,255,255,0.035)'
-            : isDarkHud
-                ? 'rgba(255,255,255,0.025)'
-                : 'rgba(255,255,255,0.28)';
+            : 'rgba(255,255,255,0.34)'
+        : isDarkHud
+            ? 'rgba(255,255,255,0.025)'
+            : 'rgba(255,255,255,0.28)';
 
-    const hudBorder = isDreamyHud
-        ? 'rgba(255,255,255,0.22)'
+    const hudBorder = meta.isGradientTheme
+        ? isDarkHud
+            ? 'rgba(255,255,255,0.055)'
+            : 'rgba(15,23,42,0.075)'
         : isDarkHud
             ? 'rgba(255,255,255,0.055)'
             : 'rgba(15,23,42,0.045)';
 
     const hudAccentGradient = meta.isGradientTheme
         ? meta.accentGradient
-        : isDreamyHud
-            ? 'linear-gradient(90deg, rgba(255,223,186,0.22), rgba(255,192,203,0.18), rgba(186,235,198,0.18))'
-            : isDarkHud
-                ? 'linear-gradient(90deg, rgba(59,130,246,0.14), rgba(168,85,247,0.10), rgba(255,255,255,0.02))'
-                : 'linear-gradient(90deg, rgba(59,130,246,0.09), rgba(109,94,252,0.08), rgba(255,255,255,0.14))';
+        : isDarkHud
+            ? 'linear-gradient(90deg, rgba(59,130,246,0.14), rgba(168,85,247,0.10), rgba(255,255,255,0.02))'
+            : 'linear-gradient(90deg, rgba(59,130,246,0.09), rgba(109,94,252,0.08), rgba(255,255,255,0.14))';
 
-    const hudSoftOverlay = isDreamyHud
-        ? 'radial-gradient(circle at 20% 0%, rgba(255,223,186,0.16) 0%, rgba(255,223,186,0.00) 42%), radial-gradient(circle at 82% 0%, rgba(255,192,203,0.14) 0%, rgba(255,192,203,0.00) 44%)'
-        : meta.isGradientTheme
-            ? `linear-gradient(135deg, ${meta.hudGlow || 'rgba(255,255,255,0.05)'} 0%, rgba(255,255,255,0.00) 58%)`
-            : isDarkHud
-                ? 'radial-gradient(circle at 20% 0%, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.00) 46%), radial-gradient(circle at 82% 0%, rgba(168,85,247,0.05) 0%, rgba(168,85,247,0.00) 48%)'
-                : 'radial-gradient(circle at 20% 0%, rgba(59,130,246,0.07) 0%, rgba(59,130,246,0.00) 46%), radial-gradient(circle at 82% 0%, rgba(109,94,252,0.06) 0%, rgba(109,94,252,0.00) 48%)';
+    const hudSoftOverlay = meta.isGradientTheme
+        ? `linear-gradient(135deg, ${meta.hudGlow || 'rgba(255,255,255,0.05)'} 0%, rgba(255,255,255,0.00) 58%)`
+        : isDarkHud
+            ? 'radial-gradient(circle at 20% 0%, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.00) 46%), radial-gradient(circle at 82% 0%, rgba(168,85,247,0.05) 0%, rgba(168,85,247,0.00) 48%)'
+            : 'radial-gradient(circle at 20% 0%, rgba(59,130,246,0.07) 0%, rgba(59,130,246,0.00) 46%), radial-gradient(circle at 82% 0%, rgba(109,94,252,0.06) 0%, rgba(109,94,252,0.00) 48%)';
 
     const ghostButtonStyle: React.CSSProperties = {
         height: 28,
@@ -317,21 +308,19 @@ export default function TrapHud({
         border: 'none',
         boxShadow: 'none',
         fontWeight: 600,
-        background: isDreamyHud ? 'rgba(255,255,255,0.22)' : 'transparent',
+        background: 'transparent',
         color: strongText,
         paddingInline: 9,
-        backdropFilter: isDreamyHud ? 'blur(8px)' : undefined,
-        WebkitBackdropFilter: isDreamyHud ? 'blur(8px)' : undefined,
     };
 
     const primaryButtonStyle: React.CSSProperties = {
         ...ghostButtonStyle,
-        background: isDreamyHud
-            ? 'linear-gradient(135deg, rgba(255,223,186,0.45) 0%, rgba(255,192,203,0.34) 52%, rgba(186,235,198,0.38) 100%)'
-            : isDarkHud
-                ? 'rgba(255,255,255,0.10)'
-                : 'rgba(15,23,42,0.07)',
+        background: isDarkHud
+            ? 'rgba(255,255,255,0.10)'
+            : 'rgba(15,23,42,0.07)',
+        color: strongText,
     };
+
 
     const iconButtonStyle: React.CSSProperties = {
         ...ghostButtonStyle,
@@ -349,11 +338,9 @@ export default function TrapHud({
         fontSize: 11,
         fontWeight: 600,
         color: strongText,
-        background: isDreamyHud
-            ? 'linear-gradient(135deg, rgba(255,255,255,0.40) 0%, rgba(255,240,245,0.52) 100%)'
-            : isDarkHud
-                ? 'rgba(255,255,255,0.08)'
-                : 'rgba(255,255,255,0.55)',
+        background: isDarkHud
+            ? 'rgba(255,255,255,0.08)'
+            : 'rgba(255,255,255,0.55)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
     };

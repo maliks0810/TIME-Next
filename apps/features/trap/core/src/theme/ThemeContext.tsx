@@ -8,8 +8,6 @@ export type ThemeName =
     | "ocean"
     | "sunset"
     | "forest"
-    | "grape"
-    | "candy"
     | "neonMint"
     | "solarizedLight"
     | "solarizedDark"
@@ -20,11 +18,10 @@ export type ThemeName =
     | "greenGradient"
     | "blueGradient"
     | "cyberpunk"
-    | "tron"
     | "matrix"
-    | "bladeRunner"
     | "dreamy"
-    | "ink";
+    | "ink"
+    | "dumpsterFire";
 
 export type ThemeSurfaceMeta = {
     hudGradient: string;
@@ -43,8 +40,6 @@ export const THEME_OPTIONS: Array<{ value: ThemeName; label: string }> = [
     { value: "ocean", label: "Ocean" },
     { value: "sunset", label: "Sunset" },
     { value: "forest", label: "Forest" },
-    { value: "grape", label: "Grape" },
-    { value: "candy", label: "Candy" },
 
     { value: "neonMint", label: "Neon Mint" },
     { value: "vaporwave", label: "Vaporwave" },
@@ -58,11 +53,10 @@ export const THEME_OPTIONS: Array<{ value: ThemeName; label: string }> = [
     { value: "greenGradient", label: "Green Gradient" },
     { value: "blueGradient", label: "Blue Gradient" },
     { value: "cyberpunk", label: "Cyberpunk" },
-    { value: "tron", label: "Tron" },
     { value: "matrix", label: "Matrix" },
-    { value: "bladeRunner", label: "Blade Runner" },
     { value: "dreamy", label: "Dream, Yo" },
-    { value: "ink", label: "Ink Sketch" }
+    { value: "ink", label: "Ink Sketch" },
+    { value: "dumpsterFire", label: "Dumpster Fire" }
 ];
 
 export const ThemeContext = React.createContext<{
@@ -124,9 +118,18 @@ export function getThemeConfig(themeName: ThemeName) {
             return {
                 algorithm: antdTheme.defaultAlgorithm,
                 token: {
-                    colorPrimary: "#d32f2f",
-                    colorSuccess: "#2e7d32",
-                    colorInfo: "#1565c0",
+                    colorPrimary: "#dc2626",
+                    colorInfo: "#2563eb",
+                    colorSuccess: "#16a34a",
+                    colorWarning: "#f59e0b",
+                    colorError: "#b91c1c",
+
+                    colorBgBase: "#fffaf5",
+                    colorBgLayout: "#fff7ed",
+                    colorBgContainer: "#ffffff",
+                    colorBgElevated: "#fffefe",
+                    colorTextBase: "#2f1f1f",
+
                     borderRadius: 6,
                     ...COMMON_TOKENS,
                 },
@@ -136,10 +139,18 @@ export function getThemeConfig(themeName: ThemeName) {
             return {
                 algorithm: antdTheme.defaultAlgorithm,
                 token: {
-                    colorPrimary: "#0084ff",
-                    colorInfo: "#00bcd4",
+                    colorPrimary: "#0284c7",
+                    colorInfo: "#06b6d4",
                     colorSuccess: "#10b981",
-                    colorWarning: "#f59e0b",
+                    colorWarning: "#f97316",
+                    colorError: "#ef4444",
+
+                    colorBgBase: "#f0fbff",
+                    colorBgLayout: "#ecfeff",
+                    colorBgContainer: "#ffffff",
+                    colorBgElevated: "#fafdff",
+                    colorTextBase: "#12313f",
+
                     borderRadius: 6,
                     ...COMMON_TOKENS,
                 },
@@ -149,10 +160,18 @@ export function getThemeConfig(themeName: ThemeName) {
             return {
                 algorithm: antdTheme.defaultAlgorithm,
                 token: {
-                    colorPrimary: "#ff6b6b",
-                    colorInfo: "#ff922b",
-                    colorSuccess: "#51cf66",
-                    colorWarning: "#ffd43b",
+                    colorPrimary: "#f97316",
+                    colorInfo: "#fb7185",
+                    colorSuccess: "#22c55e",
+                    colorWarning: "#facc15",
+                    colorError: "#ef4444",
+
+                    colorBgBase: "#fff7ed",
+                    colorBgLayout: "#ffedd5",
+                    colorBgContainer: "#fffaf5",
+                    colorBgElevated: "#ffffff",
+                    colorTextBase: "#3f2418",
+
                     borderRadius: 6,
                     ...COMMON_TOKENS,
                 },
@@ -162,36 +181,18 @@ export function getThemeConfig(themeName: ThemeName) {
             return {
                 algorithm: antdTheme.defaultAlgorithm,
                 token: {
-                    colorPrimary: "#2f855a",
-                    colorInfo: "#2b6cb0",
-                    colorSuccess: "#38a169",
-                    colorWarning: "#d69e2e",
-                    borderRadius: 6,
-                    ...COMMON_TOKENS,
-                },
-            };
-
-        case "grape":
-            return {
-                algorithm: antdTheme.defaultAlgorithm,
-                token: {
-                    colorPrimary: "#7c3aed",
-                    colorInfo: "#9333ea",
+                    colorPrimary: "#16a34a",
+                    colorInfo: "#0f766e",
                     colorSuccess: "#22c55e",
-                    colorWarning: "#f59e0b",
-                    borderRadius: 6,
-                    ...COMMON_TOKENS,
-                },
-            };
+                    colorWarning: "#d97706",
+                    colorError: "#dc2626",
 
-        case "candy":
-            return {
-                algorithm: antdTheme.defaultAlgorithm,
-                token: {
-                    colorPrimary: "#ff4d6d",
-                    colorInfo: "#3bc9db",
-                    colorSuccess: "#69db7c",
-                    colorWarning: "#ffd43b",
+                    colorBgBase: "#f7fee7",
+                    colorBgLayout: "#ecfccb",
+                    colorBgContainer: "#ffffff",
+                    colorBgElevated: "#fbfff5",
+                    colorTextBase: "#1f2f1f",
+
                     borderRadius: 6,
                     ...COMMON_TOKENS,
                 },
@@ -367,24 +368,6 @@ export function getThemeConfig(themeName: ThemeName) {
                 },
             };
 
-        case "tron":
-            return {
-                algorithm: antdTheme.darkAlgorithm,
-                token: {
-                    colorPrimary: "#ff4d4f",
-                    colorInfo: "#ff7875",
-                    colorSuccess: "#ff9f1c",
-                    colorWarning: "#ffd166",
-                    colorError: "#ff4d4f",
-                    colorBgBase: "#140707",
-                    colorTextBase: "#fff1f0",
-                    colorBgContainer: "#231010",
-                    colorBgElevated: "#331414",
-                    borderRadius: 6,
-                    ...COMMON_TOKENS,
-                },
-            };
-
         case "matrix":
             return {
                 algorithm: antdTheme.darkAlgorithm,
@@ -403,40 +386,35 @@ export function getThemeConfig(themeName: ThemeName) {
                 },
             };
 
-        case "bladeRunner":
-            return {
-                algorithm: antdTheme.darkAlgorithm,
-                token: {
-                    colorPrimary: "#ff7a18",
-                    colorInfo: "#ffb347",
-                    colorSuccess: "#22c55e",
-                    colorWarning: "#facc15",
-                    colorError: "#ef4444",
-                    colorBgBase: "#120a06",
-                    colorTextBase: "#ffe8d6",
-                    colorBgContainer: "#1b100a",
-                    colorBgElevated: "#24140c",
-                    borderRadius: 6,
-                    ...COMMON_TOKENS,
-                },
-            };
         case "dreamy":
             return {
                 algorithm: antdTheme.defaultAlgorithm,
                 token: {
-                    colorPrimary: "#f9a8d4",
-                    colorInfo: "#fde68a",
-                    colorSuccess: "#86efac",
-                    colorWarning: "#fcd34d",
+                    colorPrimary: "#d946ef",
+                    colorInfo: "#8b5cf6",
+                    colorSuccess: "#22c55e",
+                    colorWarning: "#f59e0b",
                     colorError: "#fb7185",
-                    colorBgBase: "#fffdf7",
-                    colorTextBase: "#5b5566",
-                    colorBgContainer: "#fffaf0",
-                    colorBgElevated: "#fff7fb",
-                    borderRadius: 6,
+
+                    colorBgBase: "#fff7ff",
+                    colorBgLayout: "#fdf4ff",
+                    colorBgContainer: "#fffaff",
+                    colorBgElevated: "#ffffff",
+
+                    colorTextBase: "#4a335c",
+
+                    colorBorder: "rgba(217, 70, 239, 0.20)",
+                    colorBorderSecondary: "rgba(139, 92, 246, 0.14)",
+
+                    colorFillAlter: "rgba(217, 70, 239, 0.045)",
+                    colorFillSecondary: "rgba(251, 207, 232, 0.16)",
+                    colorFillTertiary: "rgba(196, 181, 253, 0.18)",
+
+                    borderRadius: 8,
                     ...COMMON_TOKENS,
                 },
             };
+
         case "ink":
             return {
                 algorithm: antdTheme.defaultAlgorithm,
@@ -466,6 +444,29 @@ export function getThemeConfig(themeName: ThemeName) {
                 },
             };
 
+        case "dumpsterFire":
+            return {
+                algorithm: antdTheme.darkAlgorithm,
+                token: {
+                    colorPrimary: "#ff6a00",
+                    colorInfo: "#f97316",
+                    colorSuccess: "#84cc16",
+                    colorWarning: "#facc15",
+                    colorError: "#ef4444",
+
+                    colorBgBase: "#130806",
+                    colorTextBase: "#fff1e6",
+                    colorBgContainer: "#1f0d08",
+                    colorBgElevated: "#2a120a",
+
+                    colorBorder: "rgba(255, 106, 0, 0.28)",
+                    colorBorderSecondary: "rgba(255, 184, 77, 0.14)",
+
+                    borderRadius: 6,
+                    ...COMMON_TOKENS,
+                },
+            };
+
         default:
             return {
                 algorithm: antdTheme.defaultAlgorithm,
@@ -478,6 +479,63 @@ export function getThemeConfig(themeName: ThemeName) {
 
 export function getThemeSurfaceMeta(themeName: ThemeName): ThemeSurfaceMeta {
     switch (themeName) {
+
+        case "holiday":
+            return {
+                hudGradient: "linear-gradient(135deg, #fff7ed 0%, #fee2e2 48%, #dcfce7 100%)",
+                hudGlow: "rgba(220, 38, 38, 0.14)",
+                accentGradient: "linear-gradient(135deg, #dc2626 0%, #f59e0b 50%, #16a34a 100%)",
+                widgetBorderGradient:
+                    "linear-gradient(135deg, rgba(220,38,38,0.34), rgba(245,158,11,0.18) 45%, rgba(22,163,74,0.00) 78%)",
+                isGradientTheme: true,
+                appBackground:
+                    "radial-gradient(circle at top left, rgba(220,38,38,0.10) 0%, rgba(220,38,38,0.00) 30%), " +
+                    "radial-gradient(circle at top right, rgba(22,163,74,0.08) 0%, rgba(22,163,74,0.00) 28%), " +
+                    "var(--ant-color-bg-layout)",
+            };
+
+        case "ocean":
+            return {
+                hudGradient: "linear-gradient(135deg, #ecfeff 0%, #dbeafe 52%, #fff7ed 100%)",
+                hudGlow: "rgba(6, 182, 212, 0.16)",
+                accentGradient: "linear-gradient(135deg, #0284c7 0%, #06b6d4 55%, #f97316 100%)",
+                widgetBorderGradient:
+                    "linear-gradient(135deg, rgba(2,132,199,0.36), rgba(6,182,212,0.22) 45%, rgba(249,115,22,0.00) 78%)",
+                isGradientTheme: true,
+                appBackground:
+                    "radial-gradient(circle at top left, rgba(6,182,212,0.12) 0%, rgba(6,182,212,0.00) 32%), " +
+                    "radial-gradient(circle at top right, rgba(249,115,22,0.07) 0%, rgba(249,115,22,0.00) 28%), " +
+                    "var(--ant-color-bg-layout)",
+            };
+
+        case "sunset":
+            return {
+                hudGradient: "linear-gradient(135deg, #fff7ed 0%, #fed7aa 48%, #fecdd3 100%)",
+                hudGlow: "rgba(249, 115, 22, 0.18)",
+                accentGradient: "linear-gradient(135deg, #f97316 0%, #fb7185 55%, #facc15 100%)",
+                widgetBorderGradient:
+                    "linear-gradient(135deg, rgba(249,115,22,0.42), rgba(251,113,133,0.24) 45%, rgba(250,204,21,0.00) 78%)",
+                isGradientTheme: true,
+                appBackground:
+                    "radial-gradient(circle at top left, rgba(249,115,22,0.13) 0%, rgba(249,115,22,0.00) 32%), " +
+                    "radial-gradient(circle at top right, rgba(251,113,133,0.10) 0%, rgba(251,113,133,0.00) 28%), " +
+                    "var(--ant-color-bg-layout)",
+            };
+
+        case "forest":
+            return {
+                hudGradient: "linear-gradient(135deg, #f7fee7 0%, #dcfce7 50%, #ffedd5 100%)",
+                hudGlow: "rgba(34, 197, 94, 0.15)",
+                accentGradient: "linear-gradient(135deg, #16a34a 0%, #84cc16 55%, #d97706 100%)",
+                widgetBorderGradient:
+                    "linear-gradient(135deg, rgba(22,163,74,0.36), rgba(132,204,22,0.20) 45%, rgba(217,119,6,0.00) 78%)",
+                isGradientTheme: true,
+                appBackground:
+                    "radial-gradient(circle at top left, rgba(34,197,94,0.11) 0%, rgba(34,197,94,0.00) 32%), " +
+                    "radial-gradient(circle at top right, rgba(217,119,6,0.07) 0%, rgba(217,119,6,0.00) 28%), " +
+                    "var(--ant-color-bg-layout)",
+            };
+
         case "dark":
             return {
                 hudGradient: "",
@@ -612,20 +670,6 @@ export function getThemeSurfaceMeta(themeName: ThemeName): ThemeSurfaceMeta {
                     "var(--ant-color-bg-layout)"
             };
 
-        case "tron":
-            return {
-                hudGradient: "linear-gradient(135deg, #1a0606 0%, #5c1212 45%, #ff4d4f 100%)",
-                hudGlow: "rgba(255,77,79,0.34)",
-                accentGradient: "linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)",
-                widgetBorderGradient:
-                    "linear-gradient(135deg, rgba(255,77,79,0.65), rgba(255,120,117,0.25) 45%, rgba(255,77,79,0.00) 78%)",
-                isGradientTheme: true,
-                appBackground: makeSubtleAppBackground({
-                    base: "var(--ant-color-bg-layout)",
-                    glow: "rgba(255, 77, 79, 0.09)",
-                }),
-            };
-
         case "matrix":
             return {
                 hudGradient: "linear-gradient(135deg, #020806 0%, #063b2b 45%, #00ff9c 100%)",
@@ -640,32 +684,21 @@ export function getThemeSurfaceMeta(themeName: ThemeName): ThemeSurfaceMeta {
                 }),
             };
 
-        case "bladeRunner":
-            return {
-                hudGradient: "linear-gradient(135deg, #120a06 0%, #5a2a10 45%, #ff7a18 100%)",
-                hudGlow: "rgba(255,122,24,0.30)",
-                accentGradient: "linear-gradient(135deg, #ff7a18 0%, #ffb347 100%)",
-                widgetBorderGradient:
-                    "linear-gradient(135deg, rgba(255,122,24,0.55), rgba(255,179,71,0.20) 45%, rgba(255,122,24,0.00) 78%)",
-                isGradientTheme: true,
-                appBackground: makeSubtleAppBackground({
-                    base: "var(--ant-color-bg-layout)",
-                    glow: "rgba(255, 122, 24, 0.09)",
-                }),
-            };
-
         case "dreamy":
             return {
-                hudGradient: "linear-gradient(135deg, #fdfcf3 0%, #dcfce7 42%, #fbcfe8 100%)",
-                hudGlow: "rgba(251,207,232,0.22)",
-                accentGradient: "linear-gradient(135deg, #86efac 0%, #fde68a 50%, #f9a8d4 100%)",
+                hudGradient:
+                    "linear-gradient(135deg, #fff1fb 0%, #f5d0fe 32%, #ddd6fe 64%, #bfdbfe 100%)",
+                hudGlow: "rgba(217,70,239,0.28)",
+                accentGradient:
+                    "linear-gradient(135deg, #f9a8d4 0%, #d946ef 34%, #8b5cf6 68%, #60a5fa 100%)",
                 widgetBorderGradient:
-                    "linear-gradient(135deg, rgba(134,239,172,0.42), rgba(253,230,138,0.24) 45%, rgba(249,168,212,0.00) 78%)",
+                    "linear-gradient(135deg, rgba(217,70,239,0.46), rgba(139,92,246,0.30) 42%, rgba(96,165,250,0.12) 70%, rgba(217,70,239,0.00) 86%)",
                 isGradientTheme: true,
-                appBackground: makeSubtleAppBackground({
-                    base: "var(--ant-color-bg-layout)",
-                    glow: "rgba(249, 168, 212, 0.12)",
-                }),
+                appBackground:
+                    "radial-gradient(circle at top left, rgba(249,168,212,0.30) 0%, rgba(249,168,212,0.00) 34%), " +
+                    "radial-gradient(circle at top right, rgba(139,92,246,0.20) 0%, rgba(139,92,246,0.00) 32%), " +
+                    "radial-gradient(circle at 50% 0%, rgba(96,165,250,0.16) 0%, rgba(96,165,250,0.00) 38%), " +
+                    "linear-gradient(180deg, #fff7ff 0%, #fdf4ff 42%, #fffaf0 100%)",
             };
 
         case "ink":
@@ -681,6 +714,23 @@ export function getThemeSurfaceMeta(themeName: ThemeName): ThemeSurfaceMeta {
                 appBackground:
                     "radial-gradient(circle at top left, rgba(17,17,17,0.025) 0%, rgba(17,17,17,0.00) 30%), " +
                     "linear-gradient(180deg, #ffffff 0%, #ffffff 100%)",
+            };
+
+        case "dumpsterFire":
+            return {
+                hudGradient:
+                    "linear-gradient(135deg, #160806 0%, #3b1208 34%, #7c1d12 62%, #ff6a00 100%)",
+                hudGlow: "rgba(255, 106, 0, 0.30)",
+                accentGradient:
+                    "linear-gradient(135deg, #ef4444 0%, #ff6a00 42%, #facc15 76%, #3b1208 100%)",
+                widgetBorderGradient:
+                    "linear-gradient(135deg, rgba(239,68,68,0.62), rgba(255,106,0,0.42) 38%, rgba(250,204,21,0.20) 62%, rgba(255,106,0,0.00) 82%)",
+                isGradientTheme: true,
+                appBackground:
+                    "radial-gradient(circle at top left, rgba(239,68,68,0.18) 0%, rgba(239,68,68,0.00) 34%), " +
+                    "radial-gradient(circle at top right, rgba(255,106,0,0.14) 0%, rgba(255,106,0,0.00) 30%), " +
+                    "radial-gradient(circle at bottom left, rgba(250,204,21,0.07) 0%, rgba(250,204,21,0.00) 28%), " +
+                    "var(--ant-color-bg-layout)",
             };
 
         default:
