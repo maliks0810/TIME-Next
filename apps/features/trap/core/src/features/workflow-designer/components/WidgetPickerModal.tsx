@@ -60,9 +60,8 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
         themeName === 'greenGradient' ||
         themeName === 'blueGradient' ||
         themeName === 'cyberpunk' ||
-        themeName === 'tron' ||
-        themeName === 'matrix' ||
-        themeName === 'bladeRunner';
+        themeName === 'dumpsterFire' ||
+        themeName === 'matrix';
 
     const modalPanelBackground = surfaceMeta.isGradientTheme
         ? 'rgba(0,0,0,0.32)' // stronger overlay so modal edges are clearer
