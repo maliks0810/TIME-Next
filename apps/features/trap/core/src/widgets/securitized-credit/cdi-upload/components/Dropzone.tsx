@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Input, Space, theme, Typography, Divider } from 'antd';
-const { Text } = Typography;
+import { Input, Space, theme, Divider } from 'antd';
 import { CloudUploadOutlined, DownloadOutlined } from '@ant-design/icons';
 import styles from './Dropzone.module.scss';
+
 export const Dropzone = ({
     handleUpload,
     execute,
@@ -16,6 +16,7 @@ export const Dropzone = ({
 
     const [dealName, setDealName] = useState<string>('');
     const [passcode, setPasscode] = useState<string>('');
+
     const handleFiles = (files: FileList | null) => {
         const file = files?.[0];
         if (file) handleUpload(file);
@@ -26,42 +27,53 @@ export const Dropzone = ({
             execute?.({ dealName, passcode });
         }
     };
+
     return (
         <div className={styles.container}>
-            <Text
+            <span
                 className={styles.label}
                 style={{
                     color: token.colorTextTertiary,
                 }}
             >
                 Fetch from intex
-            </Text>
+            </span>
+
             <Space.Compact size="middle">
                 <Input
                     placeholder="Deal name"
+                    autoComplete='off'
+                    data-form-type='other'
                     style={{ flex: 1 }}
                     value={dealName}
                     onChange={(e) => setDealName(e.target.value)}
                 />
+
                 <Input
                     placeholder="Passcode"
                     style={{ flex: 0, minWidth: 120 }}
                     value={passcode}
                     onChange={(e) => setPasscode(e.target.value)}
                 />
+
                 <Space.Addon onClick={handleExecute} className={styles.download}>
                     <DownloadOutlined />
                 </Space.Addon>
             </Space.Compact>
-            <Divider style={{ margin: 2, color: token.colorTextTertiary }}>or</Divider>
-            <Text
+
+            <Divider style={{ margin: 2, color: token.colorTextTertiary }}>
+                or
+            </Divider>
+
+            <span
                 className={styles.label}
                 style={{
                     color: token.colorTextTertiary,
                 }}
             >
                 Upload file
-            </Text>
+            </span>
+
             <input
                 ref={fileRef}
                 type="file"
@@ -69,6 +81,7 @@ export const Dropzone = ({
                 style={{ display: 'none' }}
                 onChange={(e) => handleFiles(e.target.files)}
             />
+
             <div
                 onClick={() => fileRef.current?.click()}
                 onDragOver={(e) => {
@@ -83,7 +96,8 @@ export const Dropzone = ({
                 }}
                 className={styles.input}
                 style={{
-                    border: `2px dashed ${dragOver ? token.colorPrimary : token.colorBorderSecondary}`,
+                    border: `2px dashed ${dragOver ? token.colorPrimary : token.colorBorderSecondary
+                        }`,
                     borderRadius: token.borderRadius,
                     background: dragOver ? token.colorPrimaryBg : token.colorFillAlter,
                 }}
@@ -95,20 +109,25 @@ export const Dropzone = ({
                         transition: 'color 0.15s',
                     }}
                 />
+
                 <div className={styles.text}>
-                    <Text
+                    <span
+                        className={styles.dropTitle}
                         style={{
-                            display: 'block',
-                            fontSize: 12,
-                            fontWeight: 600,
                             color: token.colorTextSecondary,
                         }}
                     >
                         Drop CDI or ZIP here
-                    </Text>
-                    <Text style={{ fontSize: 11, color: token.colorTextTertiary }}>
+                    </span>
+
+                    <span
+                        className={styles.dropSubText}
+                        style={{
+                            color: token.colorTextTertiary,
+                        }}
+                    >
                         or click to browse · .cdi · .zip
-                    </Text>
+                    </span>
                 </div>
             </div>
         </div>

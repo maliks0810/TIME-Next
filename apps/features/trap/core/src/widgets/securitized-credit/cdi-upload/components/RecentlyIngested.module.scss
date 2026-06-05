@@ -5,14 +5,15 @@
     min-width: 0;
     overflow: hidden;
 }
+
 .items {
     display: flex;
     align-items: center;
     gap: 6px;
 }
+
 .delete {
     font-size: 8px;
-
     height: 16px;
     max-width: 16px;
     box-shadow: none;
@@ -20,17 +21,17 @@
 .tag {
     font-size: 9px;
     margin: 0;
-    font-family: monospace;
-    line-height: 16px;
 }
 .name {
     display: block;
     font-size: 12px;
+    line-height: 16px;
     font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .deals {
     display: flex;
     align-items: center;
@@ -38,10 +39,71 @@
     padding: 8px 12px;
     cursor: pointer;
 }
+
 .uploading {
     display: flex;
     flex-direction: column;
     gap: 12px;
     justify-content: center;
     height: 100%;
+}
+
+.uploadingFileName {
+    font-size: 12px;
+    line-height: 16px;
+    font-family: monospace;
+    font-weight: 500;
+}
+
+.uploadingStatus {
+    font-size: 11px;
+    line-height: 15px;
+}
+
+.errorTitle {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+}
+
+.errorMessage {
+    font-size: 11px;
+    line-height: 15px;
+}
+
+.loadedDealName {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+}
+
+.successDealName {
+    font-size: 13px;
+    line-height: 17px;
+    font-weight: 700;
+}
+
+.packageLoadedText {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+}
+
+.sectionTitle {
+    font-size: 10px;
+    line-height: 14px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.emptyText {
+    font-size: 11px;
+    line-height: 15px;
+}
+
+.recentDealMeta {
+    display: block;
+    font-size: 10px;
+    line-height: 14px;
 }

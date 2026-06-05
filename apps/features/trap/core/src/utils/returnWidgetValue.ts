@@ -29,5 +29,6 @@ export const returnConfigOrDefaultByKey = (
     }
 
     // Return value from config params or the fallback value
-    return config.params[key] || fallback;
+    if (config.params[key] !== undefined) return config.params[key];
+    return fallback;
 };

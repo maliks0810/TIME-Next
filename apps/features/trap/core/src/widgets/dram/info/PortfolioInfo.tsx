@@ -3,7 +3,7 @@ import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import styles from './Portfolio.module.scss';
 import { useGetWidgetValue } from '../../../state/Widgets/hooks';
 import { useEffect } from 'react';
-import { COMMON_DATE_GRID_ROW_KEY, COMMON_TREE_KEY } from '../../constants';
+import { COMMON_TREE_KEY } from '../../constants';
 
 export const PortfolioInfo = ({ result, widgetInstance, execute }: WidgetComponentProps) => {
     const { config = {} } = widgetInstance;
@@ -12,15 +12,11 @@ export const PortfolioInfo = ({ result, widgetInstance, execute }: WidgetCompone
         (result?.portfolioInfo as Record<string, string>)?.['inceptionDate'] || 'uknown';
     const perfStartDate =
         (result?.portfolioInfo as Record<string, string>)?.['perfStartDate'] || 'uknown';
-    const portfolioTree = useGetWidgetValue({
+
+    const portfolio = useGetWidgetValue({
         channelId: config.params?.channel,
         key: COMMON_TREE_KEY,
     });
-    const portfolioGrid = useGetWidgetValue({
-        channelId: config.params?.channel,
-        key: COMMON_DATE_GRID_ROW_KEY,
-    });
-    const portfolio = portfolioTree || portfolioGrid;
 
     const warning = (result?.warning as string) || '';
 
@@ -28,8 +24,9 @@ export const PortfolioInfo = ({ result, widgetInstance, execute }: WidgetCompone
         execute?.({ portfolioNumber: portfolio });
     }, [portfolio]);
 
-    if (!portfolio)
-        return <WidgetCardShell>Please select a portfolio to see more info</WidgetCardShell>;
+    if (!portfolio) {
+        return <WidgetCardShell>To see more info, please select a portfolio</WidgetCardShell>;
+    }
 
     return (
         <WidgetCardShell>

@@ -1,5 +1,6 @@
-import { theme, Typography } from 'antd';
+import clsx from 'clsx';
 import styles from './MetaRow.module.scss';
+
 export function MetaRow({
     label,
     value,
@@ -7,35 +8,27 @@ export function MetaRow({
     last,
 }: {
     label: string;
-    value: string;
+    value: string | null | undefined;
     mono?: boolean;
     last?: boolean;
 }) {
-    const { token } = theme.useToken();
     return (
         <div
-            className={styles.wrapper}
-            style={{
-                borderBottom: last ? 'none' : `1px solid ${token.colorBorderSecondary}`,
-            }}
+            className={clsx(styles.wrapper, {
+                [styles.wrapperBordered]: !last,
+            })}
         >
-            <Typography.Text
-                className={styles.label}
-                style={{
-                    color: token.colorTextSecondary,
-                }}
-            >
+            <span className={styles.label}>
                 {label}
-            </Typography.Text>
-            <Typography.Text
-                className={styles.value}
-                style={{
-                    fontFamily: mono ? 'monospace' : undefined,
-                    color: token.colorText,
-                }}
+            </span>
+
+            <span
+                className={clsx(styles.value, {
+                    [styles.mono]: mono,
+                })}
             >
-                {value}
-            </Typography.Text>
+                {value ?? '—'}
+            </span>
         </div>
     );
 }

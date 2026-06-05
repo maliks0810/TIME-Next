@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Input, Modal, Select, Space, Tag, Typography, theme } from 'antd';
 import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
 import styles from './WidgetPickerModal.module.scss';
@@ -33,6 +33,18 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
     const surfaceMeta = getThemeSurfaceMeta(themeName);
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     const [isPreviewModeEnabled, setIsPreviewModeEnabled] = useState(false);
+    const [paramToUpdate, setParamToUpdate] = useState({ requiredField: '', value: '' });
+
+    // This does not work, comment out for now.
+    // const debouncedParams = useDebounced(paramToUpdate);
+
+    // TODO: add debounce
+    useEffect(() => {
+        props.onSelectParams((params: { [key: string]: string }) => ({
+            ...params,
+            [paramToUpdate.requiredField]: paramToUpdate.value,
+        }));
+    }, [paramToUpdate]);
 
     const selectedWidgetRequiredFields = props.selectedWidgetDef?.configSchema?.required;
     const isSelectedWidgetHasRequiredFields = selectedWidgetRequiredFields?.length > 0;
@@ -48,9 +60,8 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
         themeName === 'greenGradient' ||
         themeName === 'blueGradient' ||
         themeName === 'cyberpunk' ||
-        themeName === 'tron' ||
-        themeName === 'matrix' ||
-        themeName === 'bladeRunner';
+        themeName === 'dumpsterFire' ||
+        themeName === 'matrix';
 
     const modalPanelBackground = surfaceMeta.isGradientTheme
         ? 'rgba(0,0,0,0.32)' // stronger overlay so modal edges are clearer
@@ -233,14 +244,10 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                                       value={inputValue}
                                                       style={{ width: '100%', marginTop: 8 }}
                                                       onChange={(e) =>
-                                                          props.onSelectParams(
-                                                              (params: {
-                                                                  [key: string]: string;
-                                                              }) => ({
-                                                                  ...params,
-                                                                  [requiredField]: e.target.value,
-                                                              })
-                                                          )
+                                                          setParamToUpdate({
+                                                              requiredField,
+                                                              value: e.target.value,
+                                                          })
                                                       }
                                                       placeholder={
                                                           props.selectedWidgetDef.configSchema
@@ -307,7 +314,12 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
 
                 <div className={styles.widgetsContainer}>
                     {/* <div
+                    {/* <div
                         style={{
+                            display: 'flex',
+                            justifyContent: 'end',
+                            marginBottom: 8,
+                            paddingRight: 16,
                             display: 'flex',
                             justifyContent: 'end',
                             marginBottom: 8,

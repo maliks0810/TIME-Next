@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { Typography, Button, Space } from 'antd';
+import { Button, Space } from 'antd';
 import { ApartmentOutlined, RightOutlined, PlusOutlined } from '@ant-design/icons';
+
 import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell';
 import type { WidgetComponentProps } from '../../../../types/widget';
 import { TrancheDetail } from './utils/mockData';
@@ -13,66 +14,97 @@ import {
     ASSET_STAGED_TRANCHE_NAME,
     TRANCHE_ID_KEY,
     TRANCHE_NAME_KEY,
+    DEAL_NAME_KEY,
 } from '../../../constants';
 import { useGetWidgetValue, useSetWidgetValue } from '../../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../../state/Tabs/hooks';
 import styles from './TrancheDetailsWidget.module.scss';
-
-const { Text } = Typography;
+import WidgetLoadingState from '../../../../components/widget-shell/WidgetLoadingState';
 
 export function NARMBSTrancheDetailWidget({
     result,
     loading,
     widgetInstance,
     execute,
+    error,
 }: WidgetComponentProps) {
     const activeTab = useGetActiveTab();
     const setWidgetValueToChannel = useSetWidgetValue();
+    const channelId = widgetInstance?.config?.params?.channel;
 
     const trancheId = useGetWidgetValue({
-        channelId: widgetInstance?.config?.params?.channel,
+        channelId,
         key: TRANCHE_ID_KEY,
     });
 
     const trancheName = useGetWidgetValue({
-        channelId: widgetInstance?.config?.params?.channel,
+        channelId,
         key: TRANCHE_NAME_KEY,
     });
+
+    const dealName = useGetWidgetValue({
+        channelId,
+        key: DEAL_NAME_KEY,
+    });
+
     const data: TrancheDetail | null =
         result && Object.keys(result).length > 0 ? (result as unknown as TrancheDetail) : null;
 
     useEffect(() => {
-        execute?.({ trancheName, trancheId });
-    }, [trancheName, trancheId]);
+        if (!dealName || !trancheName) {
+            return;
+        }
+
+        execute?.({
+            tranche: trancheName as string,
+            dealName: dealName as string,
+        });
+    }, [dealName, trancheName]);
+
 
     const handleAddToStaging = () => {
         if (!trancheId) return;
+
         // Publish to the dedicated staging keys — does not disturb tranche.id
         // which TranchesWidget uses for exploration/row-highlighting
         setWidgetValueToChannel({
             key: ASSET_STAGED_TRANCHE_ID,
-            channelId: widgetInstance?.config?.params?.channel,
+            channelId,
             value: trancheId,
             activeTab,
         });
+
         setWidgetValueToChannel({
             key: ASSET_STAGED_TRANCHE_NAME,
-            channelId: widgetInstance?.config?.params?.channel,
+            channelId,
             value: trancheName,
             activeTab,
         });
+
         // Signal that a new asset needs staging
         setWidgetValueToChannel({
             key: IS_ASSET_NEW_KEY,
-            channelId: widgetInstance?.config?.params?.channel,
+            channelId,
             value: 'true',
             activeTab,
         });
     };
+
     // TODO Re-execute when TitleBar publishes workflow.refresh
 
     const fmt = (n: number) =>
-        n?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        n?.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+
+    if (loading) {
+        return (
+            <WidgetCardShell>
+                <WidgetLoadingState />
+            </WidgetCardShell>
+        );
+    }
 
     return (
         <WidgetCardShell>
@@ -81,28 +113,42 @@ export function NARMBSTrancheDetailWidget({
                 <div className={styles.headerContainer}>
                     <div className={styles.headerTitleContainer}>
                         <ApartmentOutlined className={styles.headerTitleIcon} />
-                        <Text className={styles.headerTitleText}>Tranche detail</Text>
-                        {data && (
+
+                        <span className={styles.headerTitleText}>
+                            Tranche detail
+                        </span>
+
+                        {data && !error && (
                             <>
-                                <Text className={styles.headerTitleDataName}>{data.name}</Text>
-                                <span className={styles.headerTitleDataCusip}>{data.cusip}</span>
-                                <span className={styles.headerTitleDataType}>{data.type}</span>
+                                <span className={styles.headerTitleDataName}>
+                                    {data.name}
+                                </span>
+
+                                <span className={styles.headerTitleDataCusip}>
+                                    {data.cusip}
+                                </span>
+
+                                <span className={styles.headerTitleDataType}>
+                                    {data.type}
+                                </span>
                             </>
                         )}
                     </div>
+
                     <Space size={6} wrap>
                         <Button
                             type="primary"
                             size="small"
                             icon={<RightOutlined />}
-                            disabled={!data}
+                            disabled={!data || !!error}
                         >
                             Run scenario analysis
                         </Button>
+
                         <Button
                             size="small"
                             icon={<PlusOutlined />}
-                            disabled={!data}
+                            disabled={!data || !!error}
                             onClick={handleAddToStaging}
                         >
                             Add to staging
@@ -112,18 +158,19 @@ export function NARMBSTrancheDetailWidget({
 
                 <div style={{ height: 1 }} />
 
-                {/* {loading && Skeletor} */}
-
-                {!loading && !data && (
+                {((!loading && !data) || error) && (
                     <div className={styles.loadingContainer}>
                         <div className={styles.loadingInnerContainer}>
                             <ApartmentOutlined className={styles.loadingIcon} />
                         </div>
-                        <Text className={styles.loadingText}>Select a tranche to view detail</Text>
+
+                        <span className={styles.loadingText}>
+                            Select a tranche to view detail
+                        </span>
                     </div>
                 )}
 
-                {!loading && data && (
+                {!error && !loading && data && (
                     <>
                         {/* ── Headline metrics ── */}
                         <div style={{ display: 'flex', gap: 8 }}>
@@ -133,21 +180,25 @@ export function NARMBSTrancheDetailWidget({
                                 sub="Outstanding"
                                 accent
                             />
+
                             <MetricCard
                                 label="Orig balance"
                                 value={fmt(data.origBalance)}
                                 sub="Original"
                             />
+
                             <MetricCard
                                 label="Factor"
                                 value={data.factor?.toFixed(4)}
                                 sub="Paydown factor"
                             />
+
                             <MetricCard
                                 label="Coupon"
                                 value={data.coupon?.toFixed(4) + '%'}
                                 sub={'Reported: ' + data.reportedCoupon}
                             />
+
                             <MetricCard
                                 label="Implied balance"
                                 value={data.impliedBalance}

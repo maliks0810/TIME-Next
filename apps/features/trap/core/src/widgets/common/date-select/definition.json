@@ -26,6 +26,7 @@
             "stateKey": {
                 "title": "Custom state key",
                 "description": "Default is common.date",
+                "enum": ["common.date", "asOfDate"],
                 "type": "string",
                 "default": ""
             },

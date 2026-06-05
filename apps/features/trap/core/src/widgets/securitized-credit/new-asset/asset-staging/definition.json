@@ -1,0 +1,42 @@
+{
+    "id": "cwd_new_asset_staging_01",
+    "name": "New Asset Staging",
+    "version": 1,
+    "description": "Stage New Asset Metadata",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_new_asset_staging_01",
+    "listensToKeys": [
+        "deal.id",
+        "deal.name",
+        "asset.staged.trancheId",
+        "asset.staged.trancheName",
+        "analysis.sessionId",
+        "scenario.selectedResultId",
+        "scenario.selectedSummary",
+        "asset.isNew",
+        "workflow.refresh"
+    ],
+    "emitsKeys": null,
+    "configSchema": {
+        "properties": {},
+        "required": [],
+        "title": "New Asset Staging",
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Securitized Credit"
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "grid": {
+                "defaultW": 4,
+                "defaultH": 622,
+                "minW": 4,
+                "minH": 480
+            }
+        }
+    ]
+}

@@ -13,7 +13,17 @@
 .editor {
     min-height: 50px;
 }
+.history {
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
 .note {
+    p {
+        margin: 0;
+    }
+    padding-bottom: 8px;
     min-width: 200px;
     display: flex;
     flex-direction: column;

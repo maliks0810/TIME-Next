@@ -25,7 +25,7 @@
             "emitKey": {
                 "title": "Radio emit key",
                 "type": "string",
-                "default": ""
+                "enum": ["portfolio.summary"]
             },
             "checked": {
                 "title": "Is checked by default",

@@ -28,6 +28,7 @@ import { RadioButton } from '../widgets/common/radio-button/RadioButton';
 import { DynamicText } from '../widgets/common/dynamic-text/DynamicText';
 import { TabsControl } from '../widgets/dram/tabs-control/TabsControl';
 import { PortfolioInfo } from '../widgets/dram/info/PortfolioInfo';
+import AssetStagingWidget from '../widgets/securitized-credit/new-asset/asset-staging/AssetStagingWidget';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -69,6 +70,24 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
             'workflow.refresh',
         ],
         emitsKeys: ['asset.staged.trancheId', 'asset.staged.trancheName', 'asset.isNew'],
+    },
+    cwd_new_asset_staging_01: {
+        id: 'cwd_new_asset_staging_01',
+        component: AssetStagingWidget,
+        category: 'NA-RMBS',
+        visibleIn: ['workflow'],
+        listensToKeys: [
+            'deal.id',
+            'deal.name',
+            'asset.staged.trancheId',
+            'asset.staged.trancheName',
+            'analysis.sessionId',
+            'scenario.selectedResultId',
+            'scenario.selectedSummary',
+            'asset.isNew',
+            'workflow.refresh',
+        ],
+        emitsKeys: [],
     },
     cwd_common_data_grid_01: {
         id: 'cwd_common_data_grid_01',

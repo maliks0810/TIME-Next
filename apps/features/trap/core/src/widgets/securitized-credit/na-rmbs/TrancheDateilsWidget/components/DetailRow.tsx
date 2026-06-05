@@ -1,8 +1,5 @@
 import clsx from 'clsx';
-import { Typography } from 'antd';
 import styles from './TrancheDetailsComponents.module.scss';
-
-const { Text } = Typography;
 
 export function DetailRow({
     label,
@@ -11,21 +8,24 @@ export function DetailRow({
     accent,
 }: {
     label: string;
-    value: string;
+    value: string | null | undefined;
     mono?: boolean;
     accent?: boolean;
 }) {
     return (
         <div className={styles.detailRowContainer}>
-            <Text className={styles.detailRowLabel}>{label}</Text>
-            <Text
+            <span className={styles.detailRowLabel}>
+                {label}
+            </span>
+
+            <span
                 className={clsx(styles.detailRowValue, {
                     [styles.fontFamilyMono]: mono,
                     [styles.detailRowValueAccent]: accent,
                 })}
             >
-                {value}
-            </Text>
+                {value ?? '—'}
+            </span>
         </div>
     );
 }

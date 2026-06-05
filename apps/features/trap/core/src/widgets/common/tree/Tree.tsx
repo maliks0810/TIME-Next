@@ -9,11 +9,17 @@ import styles from './Tree.module.scss';
 import { debounce } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingState';
+import { returnConfigOrDefaultByKey } from '../../../utils/returnWidgetValue';
 const { Search } = Input;
 
-export const TreeWidget = ({ widgetInstance, result, loading }: WidgetComponentProps) => {
+export const TreeWidget = ({
+    widgetInstance,
+    widgetDefinition,
+    result,
+    loading,
+}: WidgetComponentProps) => {
     const { config } = widgetInstance;
-    const withSearch = config?.params?.withSearch;
+    const withSearch = returnConfigOrDefaultByKey(config, widgetDefinition, 'withSearch', true);
     const [items, setItems] = useState<TreeDataNode[]>([]);
 
     const [search, setSearch] = useState<string>('');
@@ -36,7 +42,7 @@ export const TreeWidget = ({ widgetInstance, result, loading }: WidgetComponentP
         });
     };
 
-    const handleSearchChange = debounce((e) => setSearch(e.target.value), 1000);
+    const handleSearchChange = debounce((e) => setSearch(e.target.value.toLowerCase()), 1000);
 
     useEffect(() => {
         if (result) {
@@ -52,7 +58,10 @@ export const TreeWidget = ({ widgetInstance, result, loading }: WidgetComponentP
     }, [contextSelected]);
 
     const options = useMemo(
-        () => (!search ? items : items.filter((el) => (el.title as string).includes(search))),
+        () =>
+            !search
+                ? items
+                : items.filter((el) => (el.title as string).toLowerCase().includes(search)),
         [items, search]
     );
     if (loading) {

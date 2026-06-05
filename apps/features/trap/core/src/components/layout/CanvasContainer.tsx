@@ -49,7 +49,7 @@ export default function CanvasContainer({
                         cols: CANVAS_COLUMNS_COUNT,
                         rowHeight: 1,
                         margin: [0, 0],
-                        containerPadding: [0, 0],
+                        containerPadding: [0, 14],
                     }}
                     width={CANVAS_SHELL_WIDTH}
                     style={{

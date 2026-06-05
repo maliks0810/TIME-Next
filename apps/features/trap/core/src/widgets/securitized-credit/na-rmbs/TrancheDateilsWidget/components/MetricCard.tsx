@@ -1,6 +1,5 @@
-import { Typography } from 'antd';
 import clsx from 'clsx';
-const { Text } = Typography;
+
 import { useTheme, getThemeSurfaceMeta } from '../../../../../theme/ThemeContext';
 import styles from './TrancheDetailsComponents.module.scss';
 
@@ -11,12 +10,13 @@ export function MetricCard({
     accent,
 }: {
     label: string;
-    value: string;
+    value: string | null | undefined;
     sub?: string;
     accent?: boolean;
 }) {
     const { themeName } = useTheme();
     const surfaceMeta = getThemeSurfaceMeta(themeName);
+
     return (
         <div className={styles.metricCardContainer}>
             {accent && (
@@ -29,13 +29,24 @@ export function MetricCard({
                     }}
                 />
             )}
-            <Text className={styles.metricCardLabel}>{label}</Text>
-            <Text
-                className={clsx(styles.metricCardValue, { [styles.metricCardValueAccent]: accent })}
+
+            <span className={styles.metricCardLabel}>
+                {label}
+            </span>
+
+            <span
+                className={clsx(styles.metricCardValue, {
+                    [styles.metricCardValueAccent]: accent,
+                })}
             >
-                {value}
-            </Text>
-            {sub && <Text className={styles.metricCardSubText}>{sub}</Text>}
+                {value ?? '—'}
+            </span>
+
+            {sub && (
+                <span className={styles.metricCardSubText}>
+                    {sub}
+                </span>
+            )}
         </div>
     );
 }
