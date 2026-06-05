@@ -1,16 +1,18 @@
 import { useState, useCallback, useEffect } from 'react';
 import { fetchCommissionTrades, fetchReasonCodes, fetchBrokerData, saveBatchUpdateChanges } from '../services/commission-trade-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
 import { CommissionTrade, CommissionTradeDetails, Reason, CRBrokerMapping, CRBrokers, CommissionTradeBatchRequestDto } from '../datatypes/tcw-commission-types';
 import { DateBoxTypes } from 'devextreme-react/date-box';
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info'; 
+import { MaintenanceUser } from '../datatypes/budget-maintenance-types';
 
-interface UseDepartmentsProps {
+interface UseCommissionTradeProps {
     userInfo: UserInfo;
     startDate: Date;
     endDate: Date
 }
 
-export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmentsProps ) {
+export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissionTradeProps ) {
   const [selectedBeginDate, setSelectedBeginDate] = useState<Date | null>(startDate);
   const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(endDate);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,6 +28,8 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
   const [popupVisible, setPopupVisible] = useState(false);  
   const [batchPopupVisible, setBatchPopupVisible] = useState(false);  
   const [formData, setFormData] = useState<CommissionTradeDetails | undefined>(undefined);  
+  const [adminData, setAdminData] = useState<MaintenanceUser[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [batchFormData, setBatchFormData] = useState({  
     reason: '',        
@@ -35,18 +39,31 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
   useEffect(() => {  
     const fetchMasterData = async () => {
       try {  
-        const [reasonCodes, brokerList] = await Promise.all([fetchReasonCodes(), fetchBrokerData()]);  
+        const [reasonCodes, brokerList, adminData] = await Promise.all([
+            fetchReasonCodes(), 
+            fetchBrokerData(),
+            fetchAdminUsers(),
+          ]);  
         setReasonData(reasonCodes);  
         setBrokersData(brokerList);
         const brkData = getUniqueCreditBrokers(brokerList);
         setUniqueCRBrokers(brkData);
-
+        
+        setAdminData(adminData)
+        checkAdmin(adminData);
       } catch (error) {  
         console.error('Failed to load reason/broker data:', error);  
       }  
     };  
     fetchMasterData();
   }, []);  
+
+  function checkAdmin(admData: MaintenanceUser[]){
+    const u = admData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+    if(u){
+      setIsAdmin(true);
+    }
+  }
 
   function getUniqueCreditBrokers(data: CRBrokerMapping[]): CRBrokers[] {
     if (!data) return [];
@@ -68,6 +85,7 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
       setIsLoading(true);
       const data = await fetchCommissionTrades(selectedBeginDate, selectedEndDate);  
       setCommissionTradesData(data);  
+      checkAdmin(adminData);
     } catch (error) {  
       console.error('Error fetching trades:', error);  
     }
@@ -211,6 +229,7 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
     closeBatchUpdatePopup,  
     saveBatchUpdateChange,
     saveCommissionTradeChange,
-    reloadCommissionTrades: loadTrades
+    reloadCommissionTrades: loadTrades,
+    isAdmin
   };  
 }

@@ -198,9 +198,7 @@ export const RecetlyIngested = ({
                     }}
                 >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span className={styles.loadedDealName}>
-                            {fromIntex.dealName}
-                        </span>
+                        <span className={styles.loadedDealName}>{fromIntex.dealName}</span>
                     </div>
 
                     <CloseCircleOutlined
@@ -411,12 +409,12 @@ export const RecetlyIngested = ({
                                 transition: 'background 0.1s',
                             }}
                             onMouseEnter={(e) =>
-                            ((e.currentTarget as HTMLElement).style.background =
-                                token.colorPrimaryBg)
+                                ((e.currentTarget as HTMLElement).style.background =
+                                    token.colorPrimaryBg)
                             }
                             onMouseLeave={(e) =>
-                            ((e.currentTarget as HTMLElement).style.background =
-                                idx % 2 === 0 ? token.colorBgContainer : token.colorFillAlter)
+                                ((e.currentTarget as HTMLElement).style.background =
+                                    idx % 2 === 0 ? token.colorBgContainer : token.colorFillAlter)
                             }
                         >
                             <DatabaseOutlined

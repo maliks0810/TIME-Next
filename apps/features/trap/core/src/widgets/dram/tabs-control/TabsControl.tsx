@@ -74,23 +74,10 @@ export const TabsControl = ({ widgetInstance }: WidgetComponentProps) => {
 
     useEffect(() => {
         // If there is no selected protfolio - ignore
-        console.log(selectedPortfolio);
-        if (!selectedPortfolio) return;
-
-        //If portfolio is selected and current selectedSchemaKey is portfolio summary
         if (selectedPortfolio && selectedSchemaKey === 'portfolio.summary') {
-            console.log(1);
             // Check currently selected tab. If its not portfolio summary, then we need to show portfolio summary and clear list and grid keys
             if (currentlySelectedTab && currentlySelectedTab !== 'portfolio.summary') {
-                console.log(2);
                 setCurrentlySelectedTab(null);
-                setWidgetValueToChannel({
-                    activeTab,
-                    channelId,
-                    key: COMMON_TREE_KEY,
-                    value: null,
-                });
-
                 setWidgetValueToChannel({
                     activeTab,
                     channelId,
@@ -99,7 +86,6 @@ export const TabsControl = ({ widgetInstance }: WidgetComponentProps) => {
                 });
                 return;
             } else {
-                console.log(3);
                 // If currently selected tab is null, that means we need to show tabs and a history table with default selected
                 setCurrentlySelectedTab(DEFAULT_SELECTED);
                 setWidgetValueToChannel({

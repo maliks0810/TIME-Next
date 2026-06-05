@@ -85,7 +85,7 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
             'scenario.selectedResultId',
             'scenario.selectedSummary',
             'asset.isNew',
-            'workflow.refresh'
+            'workflow.refresh',
         ],
         emitsKeys: [],
     },

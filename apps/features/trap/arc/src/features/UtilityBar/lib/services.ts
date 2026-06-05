@@ -1,5 +1,5 @@
 import { serviceRequest } from '../../../lib/serviceUtils';
-import { AbandonAssetPayload, FilePreviewRequestCollection } from './types';
+import { AbandonAssetPayload, DownloadBRSRequestCollection, FilePreviewRequestCollection } from './types';
 
 const abandonAssetUrl = import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/abandon';
 
@@ -21,6 +21,10 @@ const downloadStaticScenariosUrl =
 const downloadAnalyticsOverrideUrl =
     import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/download-analytics-override';
 
+const downloadBrsFileUrl =
+    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/download-brs-file';
+
+
 export const abandonAsset = (payload: AbandonAssetPayload): Promise<void> =>
     serviceRequest(abandonAssetUrl)().post('', payload);
 
@@ -41,3 +45,8 @@ export const downloadStaticScenariosAPI = (payload: FilePreviewRequestCollection
 
 export const downloadAnalyticsOverrideAPI = (payload: FilePreviewRequestCollection) =>
     serviceRequest(downloadAnalyticsOverrideUrl)().post('', payload);
+
+export const downloadBrsFileAPI = (payload: DownloadBRSRequestCollection) =>
+    serviceRequest(downloadBrsFileUrl)().post('', payload, {
+        responseType: 'blob',
+    });

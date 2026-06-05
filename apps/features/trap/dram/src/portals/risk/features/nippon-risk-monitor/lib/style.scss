@@ -1,0 +1,360 @@
+.nippon-layout {
+  /* Dark theme */
+  /* background-color: #0d0f11;
+  color: #fff; */
+  /* Light theme */
+  background-color: #f5f6fa;
+  color: #1f1f1f;
+  min-height: 80vh;
+  padding: 0;
+}
+
+.nippon-header-full {
+  width: 100%;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  height: 56px;
+  border: none;
+  box-shadow: none;
+}
+
+.nippon-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nippon-logo {
+  width: 28px;
+  height: 28px;
+}
+
+.nippon-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.nippon-header-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #e6e6e6;
+  margin-bottom: 16px;
+}
+
+.run-report-btn {
+  background: linear-gradient(90deg, #6e56ff, #9c5fff);
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  transition: all 0.3s;
+
+  &:hover {
+    background: linear-gradient(90deg, #9c5fff, #6e56ff);
+    transform: translateY(-1px);
+  }
+}
+
+.nippon-content {
+  background: transparent;
+  padding: 24px 48px;
+}
+
+.section-title {
+  /* Dark theme */
+  /* color: #fff; */
+  /* Light theme */
+  color: #1a1a1a;
+  font-size: 18px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.section-subtitle {
+  /* Dark theme */
+  /* color: #bbb; */
+  /* Light theme */
+  color: #666;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.month-card,
+.report-card,
+.validation-card {
+  /* Dark theme */
+  /* background: #1b1d20 !important;
+  color: #fff; */
+  /* Light theme */
+  background: #ffffff !important;
+  color: #1a1a1a;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border: 1px solid #e5e6eb;
+  text-overflow: ellipsis;
+
+  .ant-card-head {
+    border-bottom: 1px solid #e6e6e6;
+  }
+
+  .ant-card-head-title {
+    /* Dark theme */
+    /* color: #fff; */
+    /* Light theme */
+    color: #1a1a1a;
+  }
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    border: 1px solid #3b82f6;
+    transform: translateY(-2px);
+  }
+
+  .report-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  .report-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .report-card-year {
+    font-size: 14px;
+    color: rgb(110, 110, 110);
+
+  }
+}
+
+.month-card.active {
+  border: 2px solid #1677ff;
+  box-shadow: 0 0 10px rgba(22, 119, 255, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+
+.month-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: row;
+  padding-top: 14px;
+}
+
+.month-header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.month-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.reports-count {
+  color: #666;
+  font-size: 13px;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.download-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.month-card:hover .download-btn-wrapper {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.download-btn {
+  /* Dark theme */
+  /* background: #1f1f1f;
+  color: #fff;
+  border: 1px solid #2b2b2b; */
+  /* Light theme */
+  background: #f8f8f8;
+  color: #333;
+  border: 1px solid #3b82f6;
+  width: 100%;
+  text-align: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    /* Light theme */
+    background: #e8f1ff;
+  }
+}
+
+.monthly-overview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.monthly-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.monthly-header-title {
+  color: #666;
+  font-weight: 500;
+}
+
+.validated-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .switch-label {
+    color: #666;
+    font-size: 14px;
+    user-select: none;
+  }
+}
+
+.nippon-tabs-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.report-tabs {
+  max-width: fit-content;
+
+  .ant-tabs-nav {
+    background: #ffffff;
+    border: 1px solid #e5e6eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+
+  .ant-tabs-tab {
+    color: #555;
+    font-weight: 600;
+    padding: 10px 28px;
+    margin: 0 4px;
+    border-radius: 8px;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .tab-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-icon {
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+    }
+
+    &:hover {
+      color: #3b82f6;
+      background-color: rgba(59, 130, 246, 0.08);
+    }
+
+    &.ant-tabs-tab-active {
+      color: #3b82f6;
+      background-color: rgba(59, 130, 246, 0.12);
+
+      .ant-tabs-tab-btn {
+        color: #3b82f6;
+      }
+    }
+  }
+
+  .ant-tabs-ink-bar {
+    background: #3b82f6;
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  .ant-tabs-nav::before {
+    border: none;
+  }
+}
+
+.loading-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+}
+
+.download-loading,
+.download-package-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.download-button {
+  transition: opacity 0.2s;
+}
+
+.report-card:hover .download-button,
+.month-card:hover .download-btn {
+  opacity: 1;
+}
+
+.download-btn {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.reports-section-wrapper {
+  margin-top: 32px;
+}
+
+.run-report-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.run-report-form {
+  margin-top: 20px;
+}
+
+.run-report-input {
+  width: 100%;
+}
+
+.report-loader-tip {
+  text-align: center;
+}
+
+.loader-title {
+  font-weight: 500;
+}
+
+.loader-subtitle {
+  font-size: 12px;
+  color: #888;
+}
+
+.loader-icon {
+  font-size: 24px;
+}

@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useBrokers } from '../../hooks/useBrokerData';
 import { fetchBrokers, fetchMasterBrokers, createBroker, deleteBroker, updateBroker} from '../../services/broker-service';
-import { MaintenanceBroker, MaintenanceMasterBroker, RequestMaintenanceBroker } from '../../datatypes/budget-maintenance-types';
+import { fetchAdminUsers } from '../../services/admin-user-service';
+import { MaintenanceBroker, MaintenanceMasterBroker, MaintenanceUser, RequestMaintenanceBroker } from '../../datatypes/budget-maintenance-types';
 import { UserInfo } from '../../../../../../../packages/utils/src/hooks/Authentication/user-info';
 
 vi.mock('@platform/utils', () => ({
@@ -17,6 +18,10 @@ vi.mock('../../services/broker-service', () => ({
     deleteBroker: vi.fn(),    
 }));
 
+vi.mock('../../services/admin-user-service', () => ({
+    fetchAdminUsers: vi.fn(),
+}));
+
 const userInfo: UserInfo = { id:'test1', name: 'Test User', email:'Test@test.com', isAdmin:false };  
 
 const mockBrokersData: MaintenanceBroker[] = [  
@@ -27,6 +32,11 @@ const mockBrokersData: MaintenanceBroker[] = [
 const mockMstBrokers:MaintenanceMasterBroker[] = [
     { ID:1, masterBrokerId:"1", masterBrokerName:"MB1 Name", masterBrokerCode:"MB1", status:"Active", lastUpdateDate: new Date()},
     { ID:2, masterBrokerId:"2", masterBrokerName:"Mb2 Name", masterBrokerCode:"MB2", status:"Active", lastUpdateDate: new Date()}
+];
+
+const mockUsers: MaintenanceUser[] = [
+    { userId: 1, userName: 'User,Test', firstName: 'Test', lastName:'User', locationCode: 'US', status: 'Active', active:true, lastUpdateBy:'User1', 
+        divisionId:1, departmentId:1, startDate:'01-01-2025', endDate:'12-31-2025', coopDptCode:0, coopStaffCode:0, costCenterCode:'', jobCode:'', admin:true  }  
 ];
 
 describe('useBrokers hook', () => {
@@ -82,6 +92,35 @@ describe('useBrokers hook', () => {
         expect(fetchMasterBrokers).toHaveBeenCalledTimes(1);  
     }); 
 
+    it('loads admin users data', async () => {  
+        vi.fn(fetchAdminUsers).mockResolvedValueOnce(mockUsers);  
+
+        const { result } = renderHook(() =>  
+            useBrokers({userInfo})  
+        );  
+
+        await waitFor(() => {  
+            expect(result.current.isAdmin).toEqual(true);  
+        });  
+
+        expect(fetchAdminUsers).toHaveBeenCalledTimes(1);  
+    }); 
+    it('handle error when fetch admin users data failed', async () => {  
+        vi.fn(fetchAdminUsers).mockRejectedValueOnce(  
+            new Error('Failed to fetch admin users data')  
+        );  
+
+        // Act  
+        await act(async () => { 
+            try { 
+                vi.fn(fetchAdminUsers).mockResolvedValueOnce([]);
+            } catch (err) {
+                expect(err).toBeInstanceOf(Error);  
+                expect(String(err)).toBe('Failed to fetch admin users data');
+            }
+        });
+    });
+    
     it('insert broker data successfully', async () => {  
         vi.fn(fetchBrokers).mockResolvedValueOnce([]);  
         const newItem: RequestMaintenanceBroker = { brokerName: 'New Broker', brokerCode: 'NB001', aladdinBrokerCode: 'ABD1', masterBrokerId: "1", status: 'Active', lastUpdateBy: userInfo.name };  

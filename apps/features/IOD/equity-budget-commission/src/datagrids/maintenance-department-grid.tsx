@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import DataGrid, {Column,Editing,Popup,Selection,Button,Form,Item,Toolbar,LoadPanel,Lookup,FilterRow,Scrolling,DataGridTypes
+import DataGrid, {Column,Editing,Popup,Selection,Button,Form,Item,Toolbar,LoadPanel,Lookup,FilterRow,Scrolling,DataGridTypes, RequiredRule
       } from 'devextreme-react/data-grid';
 import CheckBox from 'devextreme-react/check-box';
 import { MaintenanceDepartment } from '../datatypes/budget-maintenance-types';
@@ -8,7 +8,10 @@ import { Toast } from 'devextreme-react/toast';
 import { ToastConfig, ToastType } from '../components/toast-config';
 import { useDepartments } from '../hooks/useDepartmentData';
 import { Item as FormItem } from 'devextreme-react/form';
+import { ValidationMessage } from '../components/validations-message';
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 const onRowDblClickHandler = (e: DataGridTypes.RowDblClickEvent) => {
   e.component.editRow(e.rowIndex);
@@ -40,6 +43,7 @@ const MaintenanceDepartmentGrid: React.FC = () => {
     addDepartment,  
     modifyDepartment,  
     removeDepartment,  
+    isAdmin
   } = useDepartments({ userInfo: userData });  
 
   const [popupTitle, setPopupTitle] = useState('');  
@@ -57,7 +61,12 @@ const MaintenanceDepartmentGrid: React.FC = () => {
     setToastConfig((prev) => ({ ...prev, visible: false }));  
   };  
 
-  const onRowDblClick = useCallback(onRowDblClickHandler, []);  
+  const onRowDblClick = useCallback((e: DataGridTypes.RowDblClickEvent) => {
+    if (!isAdmin) return;
+
+    onRowDblClickHandler(e);  
+  }, [isAdmin]);
+
   const onDataErrorOccurred = useCallback(handleDataError(showToast), [showToast]);  
   const renderStatusCellCallback = useCallback(renderStatusCell, []);  
 
@@ -131,9 +140,9 @@ return (
         <FilterRow visible={true} applyFilter="auto" />  
         <Editing  
           mode="popup"  
-          allowUpdating={true}  
-          allowAdding={true}  
-          allowDeleting={true}  
+          allowUpdating={isAdmin? true: false}  
+          allowAdding={isAdmin? true: false}  
+          allowDeleting={isAdmin? true: false}  
           useIcons={true}  
         >  
           <Popup  
@@ -170,7 +179,9 @@ return (
           allowFiltering={true}  
           allowSorting={true}  
           dataType="string"  
-        />  
+        >
+          <RequiredRule message={ValidationMessage.RequiredField} />
+        </Column>
         <Column  
           dataField="divisionId"  
           caption="Division"  
@@ -179,7 +190,8 @@ return (
           allowSorting={true}  
           dataType="string"  
         >  
-          <Lookup dataSource={divisions} valueExpr="divisionId" displayExpr="divisionName" />  
+          <Lookup dataSource={divisions} valueExpr="divisionId" displayExpr="divisionName" />
+          <RequiredRule message={ValidationMessage.RequiredField} />
         </Column>  
         <Column  
           dataField="status"  
@@ -212,11 +224,11 @@ return (
           dataType="string"  
         />  
 
-        <Column type="buttons" width="5%">  
+        <Column type="buttons" width="5%" visible={isAdmin? true: false}>  
           <Button name="edit" visible={false} />  
           <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Department" visible={true} />  
         </Column>  
-        <Toolbar>  
+        <Toolbar visible={isAdmin? true: false}>  
           <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>  
           {/* ... other toolbar items */}  
         </Toolbar>  

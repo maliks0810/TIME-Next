@@ -46,6 +46,7 @@ export type MaintenanceMasterBroker = {
     masterBrokerName?: string,
     masterBrokerCode?: string,
     status?: string,
+    brokerType?: string,
     lastUpdateDate: Date,
     lastUpdateBy?:string,
     active?:boolean
@@ -97,6 +98,7 @@ export interface MaintenanceUser {
 	status: string,
 	lastUpdateBy: string,
     active?:boolean
+    admin?:boolean
 }
 
 export interface RequestMaintenanceUser {

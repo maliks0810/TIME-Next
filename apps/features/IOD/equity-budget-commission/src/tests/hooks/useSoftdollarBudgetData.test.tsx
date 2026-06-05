@@ -4,10 +4,11 @@ import { useSoftDollarBudgets } from '../../hooks/useSoftDollarBudget';
 import { fetchServices } from '../../services/services-service';
 import { fetchDepartments } from '../../services/department-service';
 import { fetchBrokers } from '../../services/broker-service';
+import { fetchAdminUsers } from '../../services/admin-user-service';
 import { fetchMasterBrokers } from '../../services/master-broker-service';
-import { MaintenanceDepartment, MaintenanceMasterBroker, MaintenanceBroker } 
+import { MaintenanceDepartment, MaintenanceMasterBroker, MaintenanceBroker, MaintenanceUser } 
 from '../../datatypes/budget-maintenance-types';
-import { fetchSoftDollarBudgets, createSoftBudget, updateSoftBudget, deleteSoftBudget } from '../../services/softdollar-service'
+import { fetchSoftDollarBudgets, createSoftBudget, updateSoftBudget, deleteSoftBudget } from '../../services/softdollar-service';
 import { UserInfo } from '../../../../../../../packages/utils/src/hooks/Authentication/user-info';
 import { BudgetService, RequestSoftDollarBudget, SoftDollarBudget } from '@/datatypes/research-budget-types';
 
@@ -34,6 +35,9 @@ vi.mock('../../services/softdollar-service', () => ({
     updateSoftBudget: vi.fn(),
     deleteSoftBudget: vi.fn(),
     fetchAccountUserAllocations: vi.fn(),
+}));
+vi.mock('../../services/admin-user-service', () => ({
+    fetchAdminUsers: vi.fn(),
 }));
 
 const mockUserInfo: UserInfo = { id:'test1', name: 'Test User', email:'Test@test.com', isAdmin:false };  
@@ -68,6 +72,10 @@ const mockSoftdollarData: SoftDollarBudget[] = [
         startDate:new Date(), endDate: new Date(), ratio:1, serviceId:1, serviceName:'Service 1', status:true, totalCommissionBudget:0, totalCost:10, totalNonResearchCost:0,
         year:2026, lastUpdateBy: mockUserInfo.name ??'User1' }
 ];
+const mockUsers: MaintenanceUser[] = [
+    { userId: 1, userName: 'User,Test', firstName: 'Test', lastName:'User', locationCode: 'US', status: 'Active', active:true, lastUpdateBy:'User1', 
+        divisionId:1, departmentId:1, startDate:'01-01-2025', endDate:'12-31-2025', coopDptCode:0, coopStaffCode:0, costCenterCode:'', jobCode:'', admin:true  }  
+];
 
 describe('useSoftDollarBudgets', () => {
     beforeEach(() => {
@@ -83,7 +91,7 @@ describe('useSoftDollarBudgets', () => {
             vi.fn(fetchSoftDollarBudgets).mockResolvedValueOnce(mockSoftdollarData);  
 
             const { result } = renderHook(() =>  
-                useSoftDollarBudgets({userData:mockUserInfo, budgetYear:2026})  
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026})  
             );  
 
             await waitFor(() => {  
@@ -113,7 +121,7 @@ describe('useSoftDollarBudgets', () => {
             vi.fn(fetchMasterBrokers).mockResolvedValueOnce(mockMstBrokerData);  
 
             const { result } = renderHook(() =>  
-                useSoftDollarBudgets({userData:mockUserInfo, budgetYear:2026})  
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026})  
             );  
 
             await waitFor(() => {  
@@ -127,7 +135,7 @@ describe('useSoftDollarBudgets', () => {
             vi.fn(fetchBrokers).mockResolvedValueOnce(mockBrokerData);  
 
             const { result } = renderHook(() =>  
-                useSoftDollarBudgets({userData:mockUserInfo, budgetYear:2026})  
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026})  
             );  
 
             await waitFor(() => {  
@@ -141,7 +149,7 @@ describe('useSoftDollarBudgets', () => {
             vi.fn(fetchDepartments).mockResolvedValueOnce(mockDepartmentData);  
 
             const { result } = renderHook(() =>  
-                useSoftDollarBudgets({userData:mockUserInfo, budgetYear:2026})  
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026})  
             );  
 
             await waitFor(() => {  
@@ -155,7 +163,7 @@ describe('useSoftDollarBudgets', () => {
             vi.fn(fetchServices).mockResolvedValueOnce(mockServiceData);  
 
             const { result } = renderHook(() =>  
-                useSoftDollarBudgets({userData:mockUserInfo, budgetYear:2026})  
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026})  
             );  
 
             await waitFor(() => {  
@@ -163,6 +171,35 @@ describe('useSoftDollarBudgets', () => {
             });  
 
             expect(fetchServices).toHaveBeenCalledTimes(1);
+        });
+        it('loads admin users data', async () => {  
+            vi.fn(fetchAdminUsers).mockResolvedValueOnce(mockUsers);  
+
+            const { result } = renderHook(() =>  
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026})  
+            );  
+
+            await waitFor(() => {  
+                expect(result.current.isAdmin).toEqual(true);  
+            });  
+
+            expect(fetchAdminUsers).toHaveBeenCalledTimes(1);  
+        });        
+
+        it('handle error when fetch admin users data failed', async () => {  
+            vi.fn(fetchAdminUsers).mockRejectedValueOnce(  
+                new Error('Failed to fetch admin users data')  
+            );  
+
+            // Act  
+            await act(async () => { 
+                try { 
+                    vi.fn(fetchAdminUsers).mockResolvedValueOnce([]);
+                } catch (err) {
+                    expect(err).toBeInstanceOf(Error);  
+                    expect(String(err)).toBe('Failed to fetch admin users data');
+                }
+            });
         });
     });
 
@@ -179,7 +216,7 @@ describe('useSoftDollarBudgets', () => {
             vi.fn(createSoftBudget).mockResolvedValueOnce(returnedItem);     
 
             const { result } = renderHook(() =>  
-                useSoftDollarBudgets({userData:mockUserInfo, budgetYear:2026}) 
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026}) 
             );
 
             await waitFor(async () => {  
@@ -198,7 +235,7 @@ describe('useSoftDollarBudgets', () => {
                 budgetTypeId:1, brokerId:99,  departmentId:99, serviceId:99, year:2026, ratio:1, lastUpdateBy: 'User1'  };
         
             const { result } = renderHook(() =>  
-                useSoftDollarBudgets({userData:mockUserInfo, budgetYear:2026})  
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026})  
             );  
 
             await act(async () => { 
@@ -225,7 +262,7 @@ describe('useSoftDollarBudgets', () => {
             vi.fn(updateSoftBudget).mockResolvedValueOnce(returnedItem);     
 
             const { result } = renderHook(() =>  
-                useSoftDollarBudgets({userData:mockUserInfo, budgetYear:2026}) 
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026}) 
             );
 
             await waitFor(async () => {  
@@ -245,7 +282,7 @@ describe('useSoftDollarBudgets', () => {
                 budgetTypeId:1, brokerId:99,  departmentId:99, serviceId:99, year:2026, ratio:1, lastUpdateBy: 'User1'  };
         
             const { result } = renderHook(() =>  
-                useSoftDollarBudgets({userData:mockUserInfo, budgetYear:2026})  
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026})  
             );  
 
             await act(async () => { 
@@ -265,7 +302,7 @@ describe('useSoftDollarBudgets', () => {
             vi.fn(deleteSoftBudget).mockResolvedValueOnce(true);  
         
             const { result } = renderHook(() =>  
-                useSoftDollarBudgets({userData:mockUserInfo, budgetYear:2026})  
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026})  
             );
 
             await waitFor(() => {  
@@ -285,7 +322,7 @@ describe('useSoftDollarBudgets', () => {
             vi.fn(deleteSoftBudget).mockRejectedValueOnce(new Error('Delete failed'));  
 
             const { result } = renderHook(() =>  
-                useSoftDollarBudgets({userData:mockUserInfo, budgetYear:2026})  
+                useSoftDollarBudgets({userInfo:mockUserInfo, budgetYear:2026})  
             );  
 
             await waitFor(() => {  

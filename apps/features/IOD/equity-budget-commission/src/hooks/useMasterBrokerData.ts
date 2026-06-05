@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createMasterBroker, updateMasterBroker, deleteMasterBroker, fetchMasterBrokers, fetchAladMasterBrokers } from '../services/master-broker-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
 import { MaintenanceAladBroker, MaintenanceMasterBroker, RequestMaintenanceMasterBroker } from '../datatypes/budget-maintenance-types';
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info'; 
 
@@ -10,14 +11,16 @@ interface UseMasterBrokersProps {
 export function useMasterBrokers({ userInfo }: UseMasterBrokersProps) {
     const [masterBrokers, setMasterBrokers] = useState<MaintenanceMasterBroker[]>([]);
     const [aladMasterBrokers, setAladMasterBrokers] = useState<MaintenanceAladBroker[]>([]);
+    const [isAdmin,setIsAdmin] = useState<boolean>(false);
 
     // Load data  
     useEffect(() => {  
         const loadData = async () => {  
             try {  
-            const [mBrokerData, aldBrokerData] = await Promise.all([  
+            const [mBrokerData, aldBrokerData, adminData] = await Promise.all([  
                 fetchMasterBrokers(),  
                 fetchAladMasterBrokers(),  
+                fetchAdminUsers(),
             ]);  
             setMasterBrokers(mBrokerData);  
             setMasterBrokers(prev => { 
@@ -30,9 +33,13 @@ export function useMasterBrokers({ userInfo }: UseMasterBrokersProps) {
                 }
             });
             setAladMasterBrokers(aldBrokerData);  
+            const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+            if(u){
+                setIsAdmin(true);
+            }
 
             } catch (error) {  
-            console.error('Error loading data:', error);  
+                console.error('Error loading data:', error);  
             }  
         };  
         loadData();  
@@ -103,6 +110,7 @@ export function useMasterBrokers({ userInfo }: UseMasterBrokersProps) {
         reload:fetchMasterBrokers,
         addMasterBroker,  
         modifyMasterBroker,  
-        removeMasterBroker,  
+        removeMasterBroker,
+        isAdmin
     };  
 }

@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react';  
-import DataGrid, { Column, Editing, Popup, Selection, Button, Form, Item, Toolbar, LoadPanel, Lookup, FilterRow, Scrolling, DataGridTypes,
-  RequiredRule, StringLengthRule } from 'devextreme-react/data-grid';
+import { useState, useCallback, useRef } from 'react';  
+import DataGrid, { Column, Editing, Popup, Selection, Button as GridButton, Form, Item, Toolbar, LoadPanel, Lookup, FilterRow, Scrolling, DataGridTypes,
+  RequiredRule, StringLengthRule, DataGridRef} from 'devextreme-react/data-grid';
 import CheckBox from 'devextreme-react/check-box';
+import {Button} from 'devextreme-react/button';
 import { useUserInfo } from '@platform/utils';
 import { MaintenanceMasterBroker } from '../datatypes/budget-maintenance-types';
 import { useMasterBrokers } from '../hooks/useMasterBrokerData';
@@ -10,6 +11,8 @@ import { ToastConfig, ToastType} from '../components/toast-config'
 import { ValidationMessage } from '../components/validations-message';
 import { Item as FormItem } from 'devextreme-react/form';
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 // Exported handlers for isolated testing  
 const onRowDblClickHandler = (e: DataGridTypes.RowDblClickEvent) => {  
@@ -54,6 +57,8 @@ const renderStatusCell = (cellData: DataGridTypes.ColumnCellTemplateData) => {
 
 const MaintenanceMasterBrokerGrid: React.FC = () => {
   const [popupTitle, setPopupTitle] = useState('');
+  const dataGridRef = useRef<DataGridRef>(null);
+  
   const userInfo = useUserInfo();
   const {
     masterBrokers,
@@ -61,7 +66,8 @@ const MaintenanceMasterBrokerGrid: React.FC = () => {
     reload,
     addMasterBroker,
     modifyMasterBroker,
-    removeMasterBroker
+    removeMasterBroker,
+    isAdmin
   } = useMasterBrokers({userInfo: userInfo})
   
   const [toastConfig, setToastConfig] = useState<ToastConfig>({
@@ -88,7 +94,11 @@ const MaintenanceMasterBrokerGrid: React.FC = () => {
     return isExist;
   }
 
-  const onRowDblClick = useCallback(onRowDblClickHandler, []);  
+  const onRowDblClick = useCallback((e: DataGridTypes.RowDblClickEvent) => {
+     if (!isAdmin) return;
+ 
+     onRowDblClickHandler(e);  
+   }, [isAdmin]); 
   
   const renderStatusCellCallback = useCallback(renderStatusCell, []);  
 
@@ -100,6 +110,11 @@ const MaintenanceMasterBrokerGrid: React.FC = () => {
         setPopupTitle('New Master Broker');
         e.data.active = true;
     };
+
+  const openAddPopup = useCallback(() => {  
+    setPopupTitle('New Master Broker');  
+    dataGridRef.current?.instance().addRow();  
+  }, []);    
 
   const onDataErrorOccurred = useCallback(handleDataError(showToast), [showToast]);  
 
@@ -131,10 +146,11 @@ const MaintenanceMasterBrokerGrid: React.FC = () => {
 
           if (type === 'update') {
             // change.data only contains changed fields; merge with old data for validation checks
-            const oldRow = e.component.byKey(key) as unknown as MaintenanceMasterBroker | undefined;
+            //const oldRow = e.component.byKey(key) as unknown as MaintenanceMasterBroker | undefined;
+            const oldData = masterBrokers.find(x=> x.ID === key);
 
             const merged: MaintenanceMasterBroker = {
-              ...(oldRow ?? ({} as MaintenanceMasterBroker)),
+              ...(oldData ?? ({} as MaintenanceMasterBroker)),
               ...(data as Partial<MaintenanceMasterBroker>),
               ID: key as number,
             };
@@ -174,13 +190,18 @@ const MaintenanceMasterBrokerGrid: React.FC = () => {
       reload,
       showToast,
       checkDuplicateName,
+      isAdmin
     ]);
 
   return (
     <div>      
-      <div className='grid-container-smallest'> 
+      <div className="div-container-left">
+        <Button text="Add" visible={isAdmin?true:false} icon="plus" onClick={openAddPopup} /> 
+      </div>
+      <div className='grid-container-smaller'> 
         <DataGrid
           id="maintenance-master-broker-grid"
+          ref={dataGridRef}  
           dataSource={masterBrokers}
           keyExpr="ID" // Unique key for each item
           allowColumnResizing={true}
@@ -198,52 +219,52 @@ const MaintenanceMasterBrokerGrid: React.FC = () => {
           hoverStateEnabled={true}
           focusedRowEnabled={true}
         >        
-        <Scrolling mode="infinite" columnRenderingMode="virtual" />
-        <LoadPanel enabled={true} />
-        <FilterRow visible={true} applyFilter="auto" />
-        <Editing
-          mode="popup"
-          allowUpdating={true}
-          allowAdding={true}
-          allowDeleting={true}
-          useIcons={true}
-        >
-          <Popup showTitle={true} title={popupTitle} width="30%" height="35%" wrapperAttr= {{ className:'custom-popup-class' }} />
-            <div className='div-container-center'>
-              <Form colCount={1} width="90%">
-                <FormItem dataField="active" label={{text:"Active"}} editorType="dxCheckBox"  />
-                <FormItem name="masterBrokerName" editorType="dxTextBox" />
-                <FormItem name="masterBrokerCode" editorType="dxTextBox" />
-                <FormItem name="masterBrokerId" editorType="dxSelectBox" cssClass="dx-common-selectbox" />
-              </Form>
-            </div>
-        </Editing>
+          <Scrolling mode="infinite" columnRenderingMode="virtual" />
+          <LoadPanel enabled={true} />
+          <FilterRow visible={true} applyFilter="auto" />
+          <Editing
+            mode="popup"
+            allowUpdating={isAdmin? true: false}
+            allowAdding={isAdmin? true: false}
+            allowDeleting={isAdmin? true: false}
+            useIcons={true}
+          >
+            <Popup showTitle={true} title={popupTitle} width="30%" height="35%" wrapperAttr= {{ className:'custom-popup-class' }} />
+              <div className='div-container-center'>
+                <Form colCount={1} width="90%">
+                  <FormItem dataField="active" label={{text:"Active"}} editorType="dxCheckBox"  />
+                  <FormItem name="masterBrokerName" editorType="dxTextBox" />
+                  <FormItem name="masterBrokerCode" editorType="dxTextBox" />
+                  <FormItem name="masterBrokerId" editorType="dxSelectBox" cssClass="dx-common-selectbox" />
+                </Form>
+              </div>
+          </Editing>
 
-        <Selection mode="single" selectByClick={true} />
+          <Selection mode="single" selectByClick={true} />
 
-        <Column  dataField="ID" caption="Id" allowEditing={false} allowFiltering={false} visible={false} allowSorting={true} alignment="left" dataType="number"/>
-        <Column  dataField="masterBrokerId" caption= "Aladdin Master Broker Id" allowEditing={true} allowFiltering={false} visible={false} allowSorting={true} alignment="left" dataType="string">
-          <Lookup dataSource={aladMasterBrokers} displayExpr={(m)=> {return m.masterBrokerCode +" - " + m.masterBrokerName}} valueExpr="masterBrokerId" />
-            <RequiredRule message={ValidationMessage.RequiredField} />          
-            <StringLengthRule max={50} message={ValidationMessage.NameMaxLength.replace('ZZZZ','50')} />
-        </Column>
-        <Column  dataField="masterBrokerCode" caption= "Master Broker Code" allowFiltering={true}  width= "20%" allowSorting={true} dataType="string"/>   
-        <Column  dataField="masterBrokerName" caption= "Master Broker Name" allowFiltering={true} width= "35%" allowSorting={true} dataType="string">
-            <RequiredRule message={ValidationMessage.RequiredField} />          
-            <StringLengthRule max={100} message={ValidationMessage.NameMaxLength.replace('ZZZZ','100')} />
-        </Column>  
-        <Column  dataField="status" caption= "Status" width= "10%" allowFiltering={true} allowSorting={true} dataType="string" filterOperations={["startswith","="]} cellRender={renderStatusCellCallback}/>   
-        <Column  dataField="lastUpdateDate" caption= 'Last Update Dt' allowFiltering={false} allowEditing={false} width="15%" allowSorting={true} dataType="date" format='MM/dd/yyyy hh:mm a'/>   
-        <Column  dataField="lastUpdateBy" caption= "Last Update By" allowFiltering={true} allowEditing={false} width= "15%" allowSorting={true} dataType="string"/>    
-        <Column dataField="active" visible={false} />
-        <Column type="buttons" width="5%">
-              <Button name="edit" visible={false} />
-              <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Master Broker" visible={true} />
-        </Column>
-        <Toolbar>
-          <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
-          {/* ... other toolbar items */}
-        </Toolbar>
+          <Column  dataField="ID" caption="Id" allowEditing={false} allowFiltering={false} visible={false} allowSorting={true} alignment="left" dataType="number"/>
+          <Column  dataField="masterBrokerId" caption= "Aladdin Master Broker Id" allowEditing={true} allowFiltering={false} visible={false} allowSorting={true} alignment="left" dataType="string">
+            <Lookup dataSource={aladMasterBrokers} displayExpr={(m)=> {return m.masterBrokerCode +" - " + m.masterBrokerName}} valueExpr="masterBrokerId" />
+              <RequiredRule message={ValidationMessage.RequiredField} />          
+              <StringLengthRule max={50} message={ValidationMessage.NameMaxLength.replace('ZZZZ','50')} />
+          </Column>
+          <Column  dataField="masterBrokerCode" caption= "Master Broker Code" allowFiltering={true}  width= "13%" allowSorting={true} dataType="string"/>   
+          <Column  dataField="masterBrokerName" caption= "Master Broker Name" allowFiltering={true} width= "30%" allowSorting={true} dataType="string">
+              <RequiredRule message={ValidationMessage.RequiredField} />          
+              <StringLengthRule max={100} message={ValidationMessage.NameMaxLength.replace('ZZZZ','100')} />
+          </Column>  
+          <Column  dataField="brokerType" caption= "Type" allowFiltering={true}  width= "12%" allowSorting={true} dataType="string"/>   
+          <Column  dataField="status" caption= "Status" width= "10%" allowFiltering={true} allowSorting={true} dataType="string" filterOperations={["startswith","="]} cellRender={renderStatusCellCallback}/>   
+          <Column  dataField="lastUpdateDate" caption= 'Last Update Dt' allowFiltering={false} allowEditing={false} width="15%" allowSorting={true} dataType="date" format='MM/dd/yyyy hh:mm a'/>   
+          <Column  dataField="lastUpdateBy" caption= "Last Update By" allowFiltering={true} allowEditing={false} width= "15%" allowSorting={true} dataType="string"/>    
+          <Column dataField="active" visible={false} />
+          <Column type="buttons" width="5%" visible={isAdmin? true: false}>
+              <GridButton name="edit" visible={false} />
+              <GridButton name="delete" cssClass="dx-datagrid-delete-button" text="Delete Master Broker" visible={true} />
+          </Column>
+          <Toolbar visible={false}>
+            <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
+          </Toolbar>
         </DataGrid>
       </div>
       {/* Render the Toast component */}

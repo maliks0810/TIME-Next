@@ -314,7 +314,12 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
 
                 <div className={styles.widgetsContainer}>
                     {/* <div
+                    {/* <div
                         style={{
+                            display: 'flex',
+                            justifyContent: 'end',
+                            marginBottom: 8,
+                            paddingRight: 16,
                             display: 'flex',
                             justifyContent: 'end',
                             marginBottom: 8,

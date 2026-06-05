@@ -24,7 +24,6 @@ import {
 import { useSetWidgetValue } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
 
-
 export default function CDIUploadWidget({
     widgetInstance,
     result,
@@ -45,9 +44,9 @@ export default function CDIUploadWidget({
 
     const widgetDefId = String(
         widgetInstance?.composedWidgetId ??
-        widgetInstance?.widgetDefinitionId ??
-        widgetDefinition?.id ??
-        ''
+            widgetInstance?.widgetDefinitionId ??
+            widgetDefinition?.id ??
+            ''
     );
 
     const isDesigner = mode === 'designer';
@@ -115,13 +114,7 @@ export default function CDIUploadWidget({
         });
     };
 
-    const handleFetch = async ({
-        dealName,
-        passcode,
-    }: {
-        dealName: string;
-        passcode: string;
-    }) => {
+    const handleFetch = async ({ dealName, passcode }: { dealName: string; passcode: string }) => {
         setUploadState('uploading');
         setProgress(20);
         setErrorMsg('');
@@ -255,7 +248,6 @@ export default function CDIUploadWidget({
 
         window.URL.revokeObjectURL(url);
     };
-
     const handleFileDelete = async (dealName: string) => {
         await executeWidget({
             widgetDefinitionId: widgetDefId,
@@ -319,9 +311,7 @@ export default function CDIUploadWidget({
                         />
                     )}
 
-                    {uploadState === 'error' && (
-                        <ErrorMessage errorMsg={errorMsg} reset={reset} />
-                    )}
+                    {uploadState === 'error' && <ErrorMessage errorMsg={errorMsg} reset={reset} />}
                 </div>
 
                 <div

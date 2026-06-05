@@ -8,6 +8,11 @@ export type FilePreviewRequestCollection = {
     aladdinId: string;
 };
 
+export type DownloadBRSRequestCollection = {
+    assetAnalyticsSetupId: number;
+    interface: string;
+};
+
 export type PreviewBondResponseType = {
     feature: string;
     purpose: string;

@@ -11,6 +11,8 @@ import TabPanel, { Item as TabItem} from 'devextreme-react/tab-panel';
 import { ValidationMessage } from '../components/validations-message';
 import { Item as FormItem } from 'devextreme-react/form';
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 const onRowDblClickHandler = (e: DataGridTypes.RowDblClickEvent) => {
   e.component.editRow(e.rowIndex);
@@ -66,7 +68,8 @@ const MaintenancePortfolioGrid: React.FC = () => {
     reloadGroupXref,
     addPortfolioGroupXref,
     modifyPortfolioGroupXref,
-    removePortfolioGroupXref
+    removePortfolioGroupXref,
+    isAdmin
   } = usePortfolios({ userInfo: userData });  
 
   const [popupTitle, setPopupTitle] = useState('');  
@@ -86,7 +89,11 @@ const MaintenancePortfolioGrid: React.FC = () => {
     setToastConfig((prev) => ({ ...prev, visible: false }));  
   };  
 
-  const onRowDblClick = useCallback(onRowDblClickHandler, []);  
+  const onRowDblClick = useCallback((e: DataGridTypes.RowDblClickEvent) => {
+      if (!isAdmin) return;
+  
+      onRowDblClickHandler(e);  
+    }, [isAdmin]); 
   const onDataErrorOccurred = useCallback(handleDataError(showToast), [showToast]);  
   const renderStatusCellCallback = useCallback(renderStatusCell, []);  
   
@@ -179,6 +186,7 @@ const MaintenancePortfolioGrid: React.FC = () => {
       portfolios,
       portfolioGroupXrefs,
       selectedPortfolioId,
+      isAdmin
     ]
   );
 
@@ -240,6 +248,7 @@ const MaintenancePortfolioGrid: React.FC = () => {
       showToast,
       selectedPortfolioId,
       portfolioGroupXrefs,
+      isAdmin
     ]
   );
 
@@ -296,23 +305,23 @@ return (
               <FilterRow visible={true} applyFilter="auto" />  
               <Editing  
                 mode="popup"  
-                allowUpdating={true}  
-                allowAdding={true}  
-                allowDeleting={true}  
+                allowUpdating={isAdmin? true: false}  
+                allowAdding={isAdmin? true: false}  
+                allowDeleting={isAdmin? true: false}  
                 useIcons={true}  
               >  
                 <Popup  
                   data-testid="popup"  
                   showTitle={true}  
                   title={popupTitle}  
-                  width="35%"  
+                  width="30%"  
                   height="35%" 
                   wrapperAttr={{ className: 'custom-popup-class' }}  
                 />  
                 <div className='div-container-center'>
                   <Form colCount={1} width="90%">
                     <FormItem dataField="active" label={{text:"Active"}} editorType="dxCheckBox" />                    
-                    <FormItem dataField="portfolioCode" editorType="dxTextBox" />
+                    <FormItem dataField="portfolioCode" editorType="dxTextBox" cssClass='textInput-popup'/>
                     <FormItem dataField="portfolioName" editorType="dxTextBox" />
                     <FormItem dataField="departmentId" editorType="dxSelectBox" cssClass="dx-common-selectbox" />
                   </Form>  
@@ -331,7 +340,8 @@ return (
                 <RequiredRule message={ValidationMessage.RequiredField} />
               </Column>
               <Column dataField="departmentId" caption="Department" allowFiltering={true} width="20%" allowSorting={true} dataType="string" >  
-                <Lookup dataSource={departments} valueExpr="departmentId" displayExpr="departmentName" />  
+                <Lookup dataSource={departments} valueExpr="departmentId" displayExpr="departmentName" /> 
+                <RequiredRule message={ValidationMessage.RequiredField} /> 
               </Column>
               <Column dataField="divisionId" caption="Division" formItem={{visible:false}} allowFiltering={true} width="15%" allowSorting={true} dataType="string" >  
                 <Lookup dataSource={divisions} valueExpr="divisionId" displayExpr="divisionName" />  
@@ -340,11 +350,11 @@ return (
               <Column dataField="lastUpdateDate" caption="Last Update Dt" formItem={{visible:false}} allowEditing={false} allowFiltering={false} width="10%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a" />  
               <Column dataField="lastUpdateBy" caption="Last Update By" formItem={{visible:false}} allowEditing={false} allowFiltering={true} width="10%" allowSorting={true} dataType="string" />  
               <Column dataField="active" visible={false} />
-              <Column type="buttons" width="5%">  
+              <Column type="buttons" width="5%" visible={isAdmin? true: false}>  
                 <Button name="edit" visible={false} />  
                 <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Portfolio" visible={true} />  
               </Column>  
-              <Toolbar>  
+              <Toolbar visible={isAdmin? true: false}>  
                 <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/> 
               </Toolbar>  
             </DataGrid>  
@@ -371,9 +381,9 @@ return (
               <LoadPanel enabled={true} />  
               <Editing  
                 mode="popup"  
-                allowUpdating={true}  
-                allowAdding={true}  
-                allowDeleting={true}  
+                allowUpdating={isAdmin? true: false}  
+                allowAdding={isAdmin? true: false}  
+                allowDeleting={isAdmin? true: false}  
                 useIcons={true}  
               >  
                 <Popup  
@@ -401,24 +411,32 @@ return (
                   </Form>  
                 </div>
               </Editing>  
-
-              <Column dataField="portfolioGroupId" caption="Portfolio Group Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >  
-                <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupName" />  
+              <Column dataField="portfolioGroupXrefId" visible={false} />
+              <Column dataField="portfolioGroupId" caption="Portfolio Group Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >                  
+                <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupName" />
+                <RequiredRule message={ValidationMessage.RequiredField} />
               </Column>
-              <Column dataField="portfolioGroupId" caption="Portfolio Group Code" width="20%" allowFiltering={false} allowSorting={true} dataType="string" >  
-                <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupCode" />  
+              <Column caption="Portfolio Group Code" width="20%" allowFiltering={false} allowSorting={true} dataType="string"
+                  calculateCellValue={(rowData) => {
+                    const pg = portfolioGroups.find(pg => pg.portfolioGroupId === rowData.portfolioGroupId);
+                    return pg?.portfolioGroupCode ?? null;
+                  }}>
               </Column>              
               <Column dataField="portfolioId" caption="Portfolio Code" width="15%" allowFiltering={false} allowSorting={true} alignment="left" dataType="string" >
                 <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioCode" />
+                <RequiredRule message={ValidationMessage.RequiredField} />
               </Column>  
-              <Column dataField="portfolioId" caption="Portfolio Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >
-                <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioName" />
+              <Column caption="Portfolio Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" 
+                  calculateCellValue={(rowData) => {
+                    const p = portfolios.find(p => p.portfolioId === rowData.portfolioId);
+                    return p?.portfolioName ?? null;
+                  }}>
               </Column>
-              <Column type="buttons" width="5%">  
+              <Column type="buttons" width="5%" visible={isAdmin? true: false}>  
                 <Button name="edit" visible={false} />  
                 <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Portfolio" visible={true} />  
               </Column>  
-              <Toolbar>  
+              <Toolbar visible={isAdmin? true: false}>  
                 <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>  
               </Toolbar>
             </DataGrid>

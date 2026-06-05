@@ -12,6 +12,8 @@ import TabPanel, { Item as TabItem} from 'devextreme-react/tab-panel';
 import { ValidationMessage } from '../components/validations-message';
 import { Item as FormItem } from 'devextreme-react/form';
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 const onRowDblClickHandler = (e: DataGridTypes.RowDblClickEvent) => {
   e.component.editRow(e.rowIndex);
@@ -61,7 +63,8 @@ const MaintenancePortfolioGroupGrid: React.FC = () => {
     reload,
     addPortfolioGroup,  
     modifyPortfolioGroup,  
-    removePortfolioGroup
+    removePortfolioGroup,
+    isAdmin
   } = usePortfolioGroups({ userInfo: userData });
 
   const [popupTitle, setPopupTitle] = useState('');  
@@ -79,7 +82,11 @@ const MaintenancePortfolioGroupGrid: React.FC = () => {
     setToastConfig((prev) => ({ ...prev, visible: false }));  
   };  
 
-  const onRowDblClick = useCallback(onRowDblClickHandler, []);  
+  const onRowDblClick = useCallback((e: DataGridTypes.RowDblClickEvent) => {
+      if (!isAdmin) return;
+  
+      onRowDblClickHandler(e);  
+    }, [isAdmin]); 
   const onDataErrorOccurred = useCallback(handleDataError(showToast), [showToast]);  
   const renderStatusCellCallback = useCallback(renderStatusCell, []);  
   
@@ -174,6 +181,7 @@ const MaintenancePortfolioGroupGrid: React.FC = () => {
       showToast,
       portfolioGroups,
       portfolioGroupXrefs,
+      isAdmin
     ]
   );
   
@@ -213,9 +221,9 @@ return (
               <FilterRow visible={true} applyFilter="auto" />  
               <Editing  
                 mode="popup"  
-                allowUpdating={true}  
-                allowAdding={true}  
-                allowDeleting={true}  
+                allowUpdating={isAdmin ?true:false}  
+                allowAdding={isAdmin ?true:false}  
+                allowDeleting={isAdmin ?true:false}  
                 useIcons={true}  
               >  
                 <Popup  
@@ -250,11 +258,11 @@ return (
               <Column dataField="lastUpdateDate" caption="Last Update Dt" formItem={{visible:false}} allowEditing={false} allowFiltering={false} width="15%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a" />  
               <Column dataField="lastUpdateBy" caption="Last Update By" formItem={{visible:false}} allowEditing={false} allowFiltering={true} width="15%" allowSorting={true} dataType="string" />  
               <Column dataField="active" visible={false} />
-              <Column type="buttons" width="5%">  
+              <Column type="buttons" width="5%" visible={isAdmin ?true:false}>  
                 <Button name="edit" visible={false} />  
                 <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Portfolio Group" visible={true} />  
               </Column>  
-              <Toolbar>  
+              <Toolbar visible={isAdmin ?true:false}>  
                 <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>  
                 {/* ... other toolbar items */}  
               </Toolbar>  
@@ -276,14 +284,20 @@ return (
               <Column dataField="portfolioGroupId" caption="Portfolio Group Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >  
                 <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupName" />  
               </Column>
-              <Column dataField="portfolioGroupId" caption="Portfolio Group Code" width="15%" allowFiltering={false} allowSorting={true} dataType="string" >  
-                <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupCode" />  
+              <Column caption="Portfolio Group Code" width="20%" allowFiltering={false} allowSorting={true} dataType="string" 
+                  calculateCellValue={(rowData) => {
+                    const pg = portfolioGroups.find(pg => pg.portfolioGroupId === rowData.portfolioGroupId);
+                    return pg?.portfolioGroupCode ?? null;
+                  }}>  
               </Column>              
               <Column dataField="portfolioId" caption="Portfolio Code" width="15%" allowEditing={false} allowFiltering={false} allowSorting={true} alignment="left" dataType="string" >
                 <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioCode" />
               </Column>  
-              <Column dataField="portfolioId" caption="Portfolio Name" width="40%" allowFiltering={false} allowEditing={false} allowSorting={true} dataType="string" >
-                <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioName" />
+              <Column caption="Portfolio Name" width="35%" allowFiltering={false} allowEditing={false} allowSorting={true} dataType="string" 
+                  calculateCellValue={(rowData) => {
+                    const p = portfolios.find(p => p.portfolioId === rowData.portfolioId);
+                    return p?.portfolioName ?? null;
+                  }}>
               </Column>
             </DataGrid>
           </div>

@@ -1,6 +1,7 @@
 import { useShallow } from 'zustand/react/shallow';
 import { useSecuritySetupStore } from '../useSecuritySetupStore';
 import { SecuritySetupStore } from '../types';
+import { PERMISSIONS } from '../../constants/roleConstants';
 
 /** SELECTORS
  *
@@ -31,7 +32,8 @@ export const useIdentifierFields = () =>
       isReadOnly: s.isReadOnly,
       pendingUploadFiles: s.pendingUploadFiles,
       isUploadingFile: s.isUploadingFile,
-      fileUploadError: s.fileUploadError
+      fileUploadError: s.fileUploadError,
+      attachments: s.attachments
     }))
   );
 
@@ -106,6 +108,14 @@ export const useFileUploadState = () =>
 
 export const useHasPasswordFlow = () =>
   useSecuritySetupStore((s: SecuritySetupStore) => !!(s.ssapIdPassword?.trim() ?? ''));
+
+export const useHasDmRole = () => {
+  const userIdentity = useSecuritySetupStore((s: SecuritySetupStore) => s.userIdentity);
+
+  return Object.values(userIdentity?.rolePermissions ?? {}).some((perms) =>
+    perms.includes(PERMISSIONS.RELEASE_SSAP)
+  );
+};
 
 // canProceed validation
 export const useValidationFields = () =>

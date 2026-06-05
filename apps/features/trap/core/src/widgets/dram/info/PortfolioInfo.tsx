@@ -18,7 +18,6 @@ export const PortfolioInfo = ({ result, widgetInstance, execute }: WidgetCompone
         key: COMMON_TREE_KEY,
     });
 
-    console.log(portfolio);
     const warning = (result?.warning as string) || '';
 
     useEffect(() => {

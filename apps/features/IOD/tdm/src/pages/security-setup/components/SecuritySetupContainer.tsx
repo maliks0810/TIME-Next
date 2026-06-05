@@ -24,6 +24,7 @@ import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
 import { ISecuritySetupRequestAttachment, ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 import { SecuritySetupService } from '../../../services/SecuritySetupService';
 import { useReferenceData } from '../hooks/useReferenceData';
+import { useIdentity } from '../hooks/useIdentity';
 import { getStepNumber } from '../utils/securitySetupApiTransformer';
 import {
   isValidString,
@@ -70,6 +71,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   // Server state hooks — stay as hooks, not in Zustand
   const { data: referenceData, loading: loadingReferenceData, error: referenceDataError } =
     useReferenceData();
+
+  useIdentity();
+
   const {
     saveStatus,
     queueWizardSave,

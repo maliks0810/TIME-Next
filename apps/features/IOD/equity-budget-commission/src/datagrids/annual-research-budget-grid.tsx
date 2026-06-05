@@ -52,9 +52,10 @@ const AnnualResearchBudgetGrid: React.FC = () => {
         onClearBudgetsClick,
         onSelectionChanged,
         onAddNewRecord,
-        onBudgetQuarterValueChange
+        onBudgetQuarterValueChange,
+        isAdmin
     } = useResearchBudgets({
-        //userData: userInfo,  
+        userInfo: userInfo,  
         budgetYear: selectedFromYear,  
         forYear: selectedForYear
     }); 
@@ -76,14 +77,6 @@ const AnnualResearchBudgetGrid: React.FC = () => {
   const hideToast = () => {
     setToastConfig(prev => ({ ...prev, visible: false }));
   };
-
-  //const onEditorPreparing = useCallback(handleEditorPreparing, []);
-
-  //const onRowDblClick = useCallback(onRowDblClickHandler, []);  
-
-  //const onDataErrorOccurred = useCallback(handleDataError(showToast), [showToast]);   
-  
-  //const onRowUpdated = useCallback(handleRowUpdated(showToast), [showToast]);  
 
   const onGenerateClick = useCallback(async ()=> {
     if(selectedFromYear === 0) {    
@@ -159,9 +152,11 @@ const onBudgetSaveClick = useCallback(async ()=> {
     <div>
       <div className="div-container-left">
         <TextBox label="Create Budget for Year" labelMode="outside" width={130}          
-            text={selectedForYear.toString()} value={selectedForYear.toString()} 
-            mask="0000" placeholder="YYYY" maskInvalidMessage="Enter valid 4-digit year."
-            onValueChanged={(e)=> setSelectedForYear(parseInt(e.value))} >
+          text={selectedForYear.toString()} value={selectedForYear.toString()} 
+          mask="0000" placeholder="YYYY" maskInvalidMessage="Enter valid 4-digit year."
+          onValueChanged={(e)=> setSelectedForYear(parseInt(e.value))}
+          className='inputText-page' 
+        >
             <RequiredRule message={ValidationMessage.RequiredField} />
             <RangeRule min={1900} max={2099} />       
         </TextBox>
@@ -176,13 +171,14 @@ const onBudgetSaveClick = useCallback(async ()=> {
             onValueChanged={(e) => setSelectedFromYear(e.value)}  
             placeholder="Start From"  
             showClearButton={true}  
-            width={100}  
+            width={120}
+            className='dx-common-selectbox'
         >
             <RequiredRule message={ValidationMessage.RequiredField} />
         </SelectBox>              
-        <InputButton type='default' stylingMode='contained' hint='Generate' text='Generate' className='popup-button' onClick={onGenerateClick} />
-        <InputButton type='default' stylingMode='contained' hint='Clear Budget Amounts' text='Clear' className='popup-button' onClick={onClearBudgetsClick} />
-        <InputButton type='default' stylingMode='contained' hint='Save Changes' text='Save' className='popup-button' onClick={onBudgetSaveClick} />
+        <InputButton type='default' disabled={!isAdmin} stylingMode='contained' hint='Generate' text='Generate' className='popup-button' onClick={onGenerateClick} />
+        <InputButton type='default' disabled={!isAdmin} stylingMode='contained' hint='Clear Budget Amounts' text='Clear' className='popup-button' onClick={onClearBudgetsClick} />
+        <InputButton type='default' disabled={!isAdmin} stylingMode='contained' hint='Save Changes' text='Save' className='popup-button' onClick={onBudgetSaveClick} />
         <SelectBox
             label="Division" labelMode="outside" 
             dataSource={divisions}
@@ -194,6 +190,7 @@ const onBudgetSaveClick = useCallback(async ()=> {
             placeholder="Division"
             showClearButton={true}
             width={200}
+            className='dx-common-selectbox'
         />
         <SelectBox
             label="Master Broker" labelMode="outside" 
@@ -206,8 +203,9 @@ const onBudgetSaveClick = useCallback(async ()=> {
             placeholder="Master Broker"
             showClearButton={true}
             width={300}
+            className='dx-common-selectbox'
         />
-        <InputButton text="Add" id="bthAddNew" hint="Add New Broker" className='popup-button' type='default' stylingMode='contained' icon="plus" onClick={onAddNewClick} />
+        <InputButton text="Add" id="bthAddNew" hint="Add New Broker" disabled={!isAdmin} className='popup-button' type='default' stylingMode='contained' icon="plus" onClick={onAddNewClick} />
     </div>  
       { loading ? 
     <div className='div-loader'>  
@@ -239,7 +237,7 @@ const onBudgetSaveClick = useCallback(async ()=> {
           scrolling={{mode:"virtual"}}
           editing={{
             mode:"cell",
-            allowUpdating:true,
+            allowUpdating:isAdmin,
             useIcons:true,
           }}
           onSaving={onCellSaving}          

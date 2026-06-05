@@ -2,13 +2,16 @@ import React, { Dispatch, SetStateAction, useState } from 'react';
 import { Box, Menu, MenuItem, Switch, Button } from '@mui/material';
 import { Settings } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { clearDashboardGridFilters } from '../lib/DashboardSearchParameters';
 
 type DashboardSettingsProps = {
   setAreSecurityRequestStatsVisible: Dispatch<SetStateAction<boolean>>;
+  clearGridFilters: () => void;
 }
 
-const DashboardSettings: React.FC<DashboardSettingsProps> = ({setAreSecurityRequestStatsVisible}) => {
+const DashboardSettings: React.FC<DashboardSettingsProps> = ({
+  setAreSecurityRequestStatsVisible,
+  clearGridFilters,
+}) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const areDashboardSettingsOpen = Boolean(anchorEl);
   const [securityRequestStatsSwitchChecked, setSecurityRequestStatsSwitchChecked] = useState(false);
@@ -33,7 +36,7 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({setAreSecurityRequ
   const handleItemClick = (event: React.MouseEvent<HTMLLIElement>) => {
     if(event.currentTarget.innerText === 'Clear Filters')
     {
-      clearDashboardGridFilters();
+      clearGridFilters();
       navigate('/iod/tdm/*');
     }
   };

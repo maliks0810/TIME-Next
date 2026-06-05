@@ -29,6 +29,8 @@ import { ToastConfig, ToastType } from '../components/toast-config';
 import { useDirectedRules  } from '../hooks/useDirectedRules';
 import { ValidationMessage } from '../components/validations-message';
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 import { MaintenanceBroker, MaintenanceDirectedRules, MaintenanceDirectedRulesXref } from '../datatypes/budget-maintenance-types';
 import { LoadIndicator } from 'devextreme-react';
@@ -89,7 +91,8 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
     reloadDirectRulesXref,
     addDirectedRuleXref,
     modifyDirectedRuleXref,
-    removeDirectedRuleXref
+    removeDirectedRuleXref,
+    isAdmin
   } = useDirectedRules({
     userInfo: userData,
   });
@@ -109,7 +112,12 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
     setToastConfig((prev) => ({ ...prev, visible: false }));
   }, []);
 
-  const onRowDblClick = useCallback(onRowDblClickHandler, []);
+  const onRowDblClick = useCallback((e: DataGridTypes.RowDblClickEvent) => {
+      if (!isAdmin) return;
+  
+      onRowDblClickHandler(e);  
+    }, [isAdmin]); 
+
   const onDataErrorOccurred = useCallback(handleDataError(showToast), [showToast]);
 
   const handleEditingStart = useCallback(() => {
@@ -179,6 +187,7 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
       handleRowDeleted,
       selectedDirectedRuleId,
       directedRulesXref,
+      isAdmin
     ]
   );
   const onSelectionChanged = async (selectedKeys: number[]) => {
@@ -265,7 +274,8 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
       reloadDirectRulesXref,
       selectedDirectedRuleId,
       showToast,
-      handleXrefRowDeleted,
+      handleXrefRowDeleted,,
+      isAdmin
     ]
   );
 
@@ -306,9 +316,9 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
 
                 <Editing
                   mode="popup"
-                  allowUpdating={true}
-                  allowAdding={true}
-                  allowDeleting={true}
+                  allowUpdating={isAdmin ?true:false} 
+                  allowAdding={isAdmin ?true:false} 
+                  allowDeleting={isAdmin ?true:false} 
                   useIcons={true}
                 >
                   <Popup
@@ -341,7 +351,9 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                   <RequiredRule message={ValidationMessage.RequiredField} />
                 </Column>
 
-                <Column dataField="directedRulesName" caption="Name" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="40%" allowSorting={true} dataType="string" />                
+                <Column dataField="directedRulesName" caption="Name" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="40%" allowSorting={true} dataType="string" >
+                  <RequiredRule message={ValidationMessage.RequiredField} />                  
+                </Column>                
                 <Column dataField="comment" caption="Comments" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="20%" allowSorting={true} dataType="string" />
                 <Column dataField="budgetPercent" caption="Budget (%)" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="15%" allowSorting={true} dataType="number" alignment='left'>
                   <NumericRule ignoreEmptyValue={true} type="numeric" />
@@ -349,12 +361,12 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                 <Column dataField="lastUpdateDt" caption="Last Update Dt" formItem={{ visible: false }} allowEditing={false} allowFiltering={false} width="25%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a" />     
                 <Column dataField="lastUpdateBy"caption="Last Update By" formItem={{ visible: false }} allowEditing={false} allowFiltering={true} width="20%" allowSorting={true} dataType="string"/>
 
-                <Column type="buttons" width="5%">
+                <Column type="buttons" width="5%" visible={isAdmin ?true:false} >
                   <Button name="edit" visible={false} />
                   <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Directed Rule" visible={true}/>
                 </Column>
 
-                <Toolbar>
+                <Toolbar visible={isAdmin ?true:false} >
                   <ToolbarItem name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
                 </Toolbar>
               </DataGrid>
@@ -393,9 +405,9 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                   <FilterRow visible={true} applyFilter="auto" />
                   <Editing
                     mode="popup"
-                    allowUpdating={true}
-                    allowAdding={true}
-                    allowDeleting={true}
+                    allowUpdating={isAdmin ?true:false} 
+                    allowAdding={isAdmin ?true:false} 
+                    allowDeleting={isAdmin ?true:false} 
                     useIcons={true}
                   >
                     <Popup
@@ -445,25 +457,30 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                   <Column dataField="directedRulesXRefId" caption="Directed Rules Xref" visible={false} formItem={{visible:false}}/>
                   <Column dataField="directedRulesId" caption="Directed Rules" width="30%" dataType="number" >
                     <Lookup dataSource={directedRules} valueExpr="directedRulesId" displayExpr="directedRulesName"/>
+                    <RequiredRule message={ValidationMessage.RequiredField} />                  
                   </Column>                    
-                  <Column dataField="year" caption="Year" width="8%" alignment="left"/>
+                  <Column dataField="year" caption="Year" width="8%" alignment="left" >
+                    <RequiredRule message={ValidationMessage.RequiredField} />                  
+                  </Column>
                   <Column dataField="accountCode" caption="Portfolio" width="15%">
                     <Lookup dataSource={portfolios} valueExpr="portfolioCode" displayExpr="portfolioCode"/>
+                    <RequiredRule message={ValidationMessage.RequiredField} />                  
                   </Column>
                   <Column dataField="brokerCode" caption="Broker" width="15%" dataType="string" >
                     <Lookup dataSource={brokers} valueExpr="brokerCode" displayExpr="brokerCode"/>
+                    <RequiredRule message={ValidationMessage.RequiredField} />                  
                   </Column>
                   <Column dataField="lastUpdateDt" caption="Last Update Dt" width="15%" allowFiltering={false} allowEditing={false} 
                     dataType="date" format="MM/dd/yyyy hh:mm a" formItem={{visible:false}} />
-                  <Column dataField="lastUpdateBy" caption="Last Update By" width="12%" allowFiltering={false}
+                  <Column dataField="lastUpdateBy" caption="Last Update By" width="12%" allowFiltering={true}
                     formItem={{visible:false}} />
                   
-                  <Column type="buttons" width="5%">
+                  <Column type="buttons" width="5%" visible={isAdmin ?true:false} >
                     <Button name="edit" visible={false} />
                     <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Directed Rules Xref" visible={true}/>
                   </Column>
 
-                <Toolbar>
+                <Toolbar visible={isAdmin ?true:false} >
                   <ToolbarItem name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
                 </Toolbar>
               </DataGrid>

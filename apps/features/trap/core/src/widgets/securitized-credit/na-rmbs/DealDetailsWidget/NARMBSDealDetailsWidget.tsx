@@ -1,7 +1,6 @@
 import React from 'react';
 import { BankOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
-
 import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell';
 import type { WidgetComponentProps } from '../../../../types/widget';
 import { MetricCard } from './components/MetricCard';
@@ -32,7 +31,6 @@ export function NARMBSDealDetailsWidget({
         channelId,
         key: DEAL_NAME_KEY,
     });
-
     const data = mode === 'preview' ? widgetPreviewResult : normaliseDeal(result);
 
     React.useEffect(() => {
@@ -40,7 +38,6 @@ export function NARMBSDealDetailsWidget({
             execute?.({ dealName });
         }
     }, [dealName]);
-
 
     if (loading) {
         return (
@@ -62,14 +59,10 @@ export function NARMBSDealDetailsWidget({
                     <div className={styles.headerTitleContainer}>
                         <BankOutlined className={styles.headerTitleIcon} />
 
-                        <span className={styles.headerTitleText}>
-                            Deal details
-                        </span>
+                        <span className={styles.headerTitleText}>Deal details</span>
 
                         {dealName && (
-                            <span className={styles.headerTitleDealName}>
-                                {dealName as string}
-                            </span>
+                            <span className={styles.headerTitleDealName}>{dealName as string}</span>
                         )}
 
                         {data && (

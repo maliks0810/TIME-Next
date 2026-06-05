@@ -10,7 +10,7 @@ import {
   updateBrokerGroupMember,
   deleteBrokerGroupMember,
 } from '../services/broker-group-service';
-
+import { fetchAdminUsers } from '../services/admin-user-service';
 import {
   MaintenanceBrokerGroupMember,
   MaintenanceBrokerGroup,
@@ -28,6 +28,8 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
   const [brokerGroups, setBrokerGroups] = useState<MaintenanceBrokerGroup[]>([]);
   const [brokerGroupMembers, setBrokerGroupMembers] = useState<MaintenanceBrokerGroupMember[]>([]);
   const [brokers, setBrokers] = useState<MaintenanceBroker[]>([]);
+  const [isAdmin,setIsAdmin] = useState<boolean>(false);
+  const [selectedBrokerGroupId, setSelectedBrokerGroupId] = useState<number>();
 
   /** normalize once, and be defensive */
   const normalizeBrokerGroups = useCallback((items?: MaintenanceBrokerGroup[]) => {
@@ -44,23 +46,30 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
   }, [normalizeBrokerGroups]);
 
   const reloadGroupMemberGroup = useCallback(async () => {
-    const members = await fetchBrokerGroupsMember();
+    const allmembers = await fetchBrokerGroupsMember();
+
+    const members:MaintenanceBrokerGroupMember[] = allmembers?.filter(x=> x.brokerGroupId == selectedBrokerGroupId);
     setBrokerGroupMembers(members ?? []);
-  }, []);
+  }, [selectedBrokerGroupId]);
 
   /** initial load */
   useEffect(() => {
     void (async () => {
       try {
-        const [grpData, memberData, brokerData] = await Promise.all([
+        const [grpData, memberData, brokerData, adminData] = await Promise.all([
           fetchBrokerGroups(),
           fetchBrokerGroupsMember(),
           fetchBrokers(),
+          fetchAdminUsers(),
         ]);
 
         setBrokerGroups(normalizeBrokerGroups(grpData));
         setBrokerGroupMembers(memberData ?? []);
         setBrokers(brokerData ?? []);
+        const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+        if(u){
+          setIsAdmin(true);
+        }
       } catch (error) {
         console.error('Error loading data:', error);
       }
@@ -112,6 +121,10 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
     await deleteBrokerGroup(brokerGroupId);
   }, []);
 
+  const onSelectionChanged = async (selectedKeys: number[]) => {
+    const key: number = selectedKeys[0];
+    setSelectedBrokerGroupId(key);
+  }
   /* ---------------- Broker Group Member CRUD (NO local state mutation) ---------------- */
 
   const addBrokerGroupMember = useCallback(
@@ -122,9 +135,11 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
         lastUpdateBy: userInfo.name ?? ''
       };
 
-      return await createBrokerGroupMember(req);
+      const newMember = await createBrokerGroupMember(req);
+      await reloadGroupMemberGroup();
+      return newMember;
     },
-    [userInfo.name]
+    [userInfo.name, reloadGroupMemberGroup]
   );
 
   const modifyBrokerGroupMember = useCallback(
@@ -140,7 +155,7 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
 
       return await updateBrokerGroupMember(brokerGroupMemberId, req);
     },
-    [brokerGroupMembers, userInfo.name]
+    [userInfo.name]
   );
 
   const removeBrokerGroupMember = useCallback(async (brokerGroupMemberId: number) => {
@@ -156,10 +171,14 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
     modifyBrokerGroup,
     removeBrokerGroup,
     reloadGroup,                 // ✅ now sets state
+    onSelectionChanged,
+    selectedBrokerGroupId,
 
     addBrokerGroupMember,
     modifyBrokerGroupMember,
     removeBrokerGroupMember,
-    reloadGroupMemberGroup,      // ✅ now sets state
+    reloadGroupMemberGroup,  
+    
+    isAdmin    // ✅ now sets state
   };
 }

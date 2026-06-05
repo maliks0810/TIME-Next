@@ -1,30 +1,40 @@
 import { useState, useEffect, useCallback } from 'react';
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid';
 import type { ResearchBudget, RequestResearchBudget, BudgetYear } from '../datatypes/research-budget-types';
 import { fetchResearchBudgets, generateYears,  createResearchBudgets, fetchAllBudgetYears    
- } from '../services/annual-research-budget-service'
+ } from '../services/annual-research-budget-service';
+import { fetchAdminUsers } from '../services/admin-user-service';
+import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info'; 
 
 interface UseResearchBudgetsProps {
+    userInfo: UserInfo;
     budgetYear: number;
     forYear: number;
 }
 
-export function useResearchBudgets({ budgetYear, forYear }: UseResearchBudgetsProps) {
+export function useResearchBudgets({ userInfo, budgetYear, forYear }: UseResearchBudgetsProps) {
     const [researchBudgets, setResearchBudgets] = useState<ResearchBudget[]>([]);
     const [budgetYears, setBudgetYears] = useState<BudgetYear[]>([]);
     const [loading, setLoading] = useState(false);
     const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);  
     const [uniqueYears, setUniqueYears] = useState<number[]>([]);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() =>{
         const loadData = async () => {  
             try {  
-                const [years, uniqueYrs] = await Promise.all([
+                const [years, uniqueYrs, adminData] = await Promise.all([
                     generateYears(2000),  
-                    fetchAllBudgetYears()
+                    fetchAllBudgetYears(),
+                    fetchAdminUsers(),
+                    
                 ]);  
                 setBudgetYears(years);
                 setUniqueYears(uniqueYrs);
+                const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
+                if(u){
+                    setIsAdmin(true);
+                }
             } catch (error) {  
                 console.error('Error loading data:', error);  
             }  
@@ -115,6 +125,7 @@ export function useResearchBudgets({ budgetYear, forYear }: UseResearchBudgetsPr
         onClearBudgetsClick,
         onSelectionChanged,
         onAddNewRecord,
-        onBudgetQuarterValueChange
+        onBudgetQuarterValueChange,
+        isAdmin
     };
 };

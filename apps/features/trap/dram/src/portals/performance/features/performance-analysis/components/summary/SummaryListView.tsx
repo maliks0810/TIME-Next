@@ -12,6 +12,28 @@ export default function SummaryListReport({ asOfDate, rows, onSelect, onToolbarP
   const onDetailToolbarPreparing = React.useCallback((e: ToolbarPreparingEvent) => {
 	onToolbarPreparing(e);
   }, [onToolbarPreparing]);
+	type DxFilterExpression =
+	| string
+	| (string | number | boolean)[]
+	| (() => unknown);
+
+
+	const startsWithFilter = <K extends keyof PortfolioRow>(field: K) => (
+		filterValue: unknown,
+		_selectedFilterOperation: string | null,
+		_target: string
+	): DxFilterExpression => {
+		if (
+			filterValue === undefined ||
+			filterValue === null ||
+			filterValue === ""
+		) {
+			return [String(field), "contains", ""];
+		}
+		void _selectedFilterOperation;
+		void _target;
+		return [String(field), "startswith", String(filterValue)];
+	};
   return (
 
     <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
@@ -42,7 +64,9 @@ export default function SummaryListReport({ asOfDate, rows, onSelect, onToolbarP
 		<ColumnFixing enabled={true} />
 		<SearchPanel visible highlightCaseSensitive={false} />
 
-        <Column dataField="portId" caption="Port ID" width={90} fixed={true} fixedPosition="left"/>
+        <Column dataField="portId" caption="Port ID" width={90} fixed={true} fixedPosition="left"
+			calculateFilterExpression={startsWithFilter("portId")}
+		/>
         <Column dataField="portfolioName" caption="Portfolio Name" minWidth={300} fixed={true} fixedPosition="left"/>
         <Column dataField="inceptionDate" caption="Inception Date" dataType="date" format="MM/dd/yyyy" width={130} />
         <Column dataField="perfStartDate" caption="Perf Start Date" dataType="date" format="MM/dd/yyyy" width={130} />
