@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Divider, Progress, theme, Typography } from "antd";
+import { Button, Divider, Progress, theme, Typography, message } from "antd";
 import {
     ArrowRightOutlined,
     CheckCircleOutlined,
@@ -10,11 +10,15 @@ import clsx from "clsx";
 
 import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell';
 import type { WidgetComponentProps } from '../../../../types/widget';
-import { useGetWidgetValue } from '../../../../state/Widgets/hooks';
+import { useGetWidgetValue, useSetWidgetValue } from '../../../../state/Widgets/hooks';
+import { useGetActiveTab } from '../../../../state/Tabs/hooks';
+import { executeWidget } from '../../../../api/trap';
 
-import { buildAssetStagingLaunchContext } from './utils/buildLaunchContext'
-import { SectionHeader } from './components/SectionTitle'
-import { StagedItemsPanel } from './components/StagedIemsPanel'
+import { buildAssetStagingLaunchContext } from './utils/buildLaunchContext';
+import { validateStagingForm, hasErrors } from '../../../../utils/validation';
+import type { ValidationErrors } from '../../../../utils/validation';
+import { SectionHeader } from './components/SectionTitle';
+import { StagedItemsPanel } from './components/StagedIemsPanel';
 import { InputAssumptionsPanel } from './components/InputAssumptionsPanel';
 import { calculateAssetStagingReadiness } from './utils/readiness';
 import type { CallableType, InputAssumptionsState, StagingItem } from './types';
@@ -24,17 +28,17 @@ import styles from './AssetStagingWidget.module.scss';
 const { Text } = Typography;
 
 const ITEMS: StagingItem[] = [
-    { label: "Deal", ctxKey: "deal.id", required: true },
+    { label: "Deal", ctxKey: "deal.name", required: true },
     { label: "Tranche", ctxKey: "asset.staged.trancheId", required: true },
-    // Scenario result intentionally hidden for now.
-    // { label: "Scenario result", ctxKey: "scenario.selectedResultId", required: false },
     { label: "External ID", ctxKey: "__extId__", required: false, isInput: true },
 ];
 
 export default function AssetStagingWidget({
     widgetInstance,
+    widgetDefinition,
     uiActions,
     loading,
+    mode,
 }: WidgetComponentProps) {
     const { token } = theme.useToken();
 
@@ -54,12 +58,18 @@ export default function AssetStagingWidget({
     const [severity, setSeverity] = React.useState<number | null>(null);
     const [delinquency, setDelinquency] = React.useState<number | null>(null);
 
-    const channelId = widgetInstance?.config?.params?.channel;
+    const [validationErrors, setValidationErrors] = React.useState<ValidationErrors>({});
+    const [submitting, setSubmitting] = React.useState(false);
 
-    const dealId = useGetWidgetValue({
-        channelId,
-        key: "deal.id",
-    }) as string | undefined;
+    const channelId = widgetInstance?.config?.params?.channel;
+    const isDesigner = mode === "designer";
+
+    const widgetDefId = String(
+        widgetInstance?.composedWidgetId ??
+        widgetInstance?.widgetDefinitionId ??
+        widgetDefinition?.id ??
+        ""
+    );
 
     const dealName = useGetWidgetValue({
         channelId,
@@ -86,10 +96,42 @@ export default function AssetStagingWidget({
         key: "asset.isNew",
     }) as string | undefined;
 
+    const setWidgetValueToChannel = useSetWidgetValue();
+    const activeTab = useGetActiveTab();
+
+    // Reset stale state when deal changes
+    const prevDealNameRef = React.useRef(dealName);
+
+    React.useEffect(() => {
+        if (dealName && dealName !== prevDealNameRef.current) {
+            setExtId("");
+            setPrice(null);
+            setCallable("N");
+            setCallDate(null);
+            setCleanupValue(undefined);
+            setPrepaymentType(undefined);
+            setPrepaymentValue(null);
+            setDefaultType(undefined);
+            setDefaultValue(null);
+            setSeverity(null);
+            setDelinquency(null);
+            setValidationErrors({});
+
+            [
+                "asset.staged.trancheId",
+                "asset.staged.trancheName",
+                "scenario.selectedResultId",
+            ].forEach((key) =>
+                setWidgetValueToChannel({ channelId, key, value: null, activeTab })
+            );
+        }
+
+        prevDealNameRef.current = dealName;
+    }, [dealName, channelId, activeTab, setWidgetValueToChannel]);
+
     const baseLaunchContext = React.useMemo<Record<string, unknown>>(() => {
         const context: Record<string, unknown> = {};
 
-        if (dealId) context["deal.id"] = dealId;
         if (dealName) context["deal.name"] = dealName;
         if (trancheId) context["asset.staged.trancheId"] = trancheId;
         if (trancheName) context["asset.staged.trancheName"] = trancheName;
@@ -97,21 +139,20 @@ export default function AssetStagingWidget({
         if (assetIsNew) context["asset.isNew"] = assetIsNew;
 
         return context;
-    }, [dealId, dealName, trancheId, trancheName, scenarioId, assetIsNew]);
-
+    }, [dealName, trancheId, trancheName, scenarioId, assetIsNew]);
 
     const stagingApplicable = assetIsNew === "true";
     const stagingExplicitlyNA = assetIsNew === "false";
 
     const doneMap: Record<string, boolean> = {
-        "deal.id": !!dealId,
+        "deal.name": !!dealName,
         "asset.staged.trancheId": !!trancheId,
         "scenario.selectedResultId": !!scenarioId,
         "__extId__": !!extId.trim(),
     };
 
     const displayVal: Record<string, string | undefined> = {
-        "deal.id": dealName ?? dealId,
+        "deal.name": dealName,
         "asset.staged.trancheId": trancheName ?? trancheId,
         "scenario.selectedResultId": scenarioId,
         "__extId__": extId.trim() || undefined,
@@ -159,15 +200,91 @@ export default function AssetStagingWidget({
         }
     }, []);
 
-    const handleLaunch = React.useCallback(() => {
-        uiActions?.openWorkflow?.({
-            context: buildAssetStagingLaunchContext({
-                contextSnapshot: baseLaunchContext,
-                extId,
-                assumptions,
-            }),
+    // Clear validation error when user corrects the value
+    React.useEffect(() => {
+        setValidationErrors((prev) => {
+            if (!prev.extId) return prev;
+            const { extId: __extId, ...rest } = prev;
+            void __extId;
+            return rest;
         });
-    }, [baseLaunchContext, extId, assumptions, uiActions]);
+    }, [extId]);
+
+    React.useEffect(() => {
+        setValidationErrors((prev) => {
+            if (!prev.prepayment) return prev;
+            const { prepayment: _prepayment, ...rest } = prev;
+            void _prepayment;
+            return rest;
+        });
+    }, [prepaymentValue]);
+
+    React.useEffect(() => {
+        setValidationErrors((prev) => {
+            if (!prev.default) return prev;
+            const { default: _default, ...rest } = prev;
+            void _default;
+            return rest;
+        });
+    }, [defaultValue]);
+
+
+    const handleLaunch = React.useCallback(async () => {
+        // Validate
+        const errors = validateStagingForm({
+            extId,
+            prepaymentType,
+            prepaymentValue,
+            defaultType,
+            defaultValue,
+        });
+
+        setValidationErrors(errors);
+
+        if (hasErrors(errors)) {
+            return;
+        }
+
+        const payload = buildAssetStagingLaunchContext({
+            contextSnapshot: baseLaunchContext,
+            extId,
+            assumptions,
+        });
+
+        setSubmitting(true);
+
+        try {
+            await executeWidget({
+                widgetDefinitionId: widgetDefId,
+                params: {
+                    action: "stage",
+                    ...payload,
+                },
+                context: {},
+                mode: isDesigner ? "MOCK" : "LIVE",
+            });
+
+            message.success("Asset staging submitted");
+
+            uiActions?.openWorkflow?.({ context: payload });
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : "Asset staging failed — try again";
+            message.error(msg);
+        } finally {
+            setSubmitting(false);
+        }
+    }, [
+        baseLaunchContext,
+        extId,
+        assumptions,
+        uiActions,
+        widgetDefId,
+        isDesigner,
+        prepaymentType,
+        prepaymentValue,
+        defaultType,
+        defaultValue,
+    ]);
 
     return (
         <WidgetCardShell>
@@ -193,7 +310,7 @@ export default function AssetStagingWidget({
                 )}
 
                 {/* No signal yet — waiting for CDI upload or security lookup */}
-                {!stagingExplicitlyNA && !stagingApplicable && !dealId && (
+                {!stagingExplicitlyNA && !stagingApplicable && !dealName && (
                     <div className={styles.centerStateCompact}>
                         <div className={styles.centerIcon}>
                             <InboxOutlined style={{ fontSize: 20, color: token.colorTextQuaternary }} />
@@ -205,7 +322,7 @@ export default function AssetStagingWidget({
                     </div>
                 )}
 
-                {!loading && (stagingApplicable || dealId) && !stagingExplicitlyNA && (
+                {!loading && (stagingApplicable || dealName) && !stagingExplicitlyNA && (
                     <>
                         {/* Header */}
                         <div className={styles.headerRow}>
@@ -252,6 +369,7 @@ export default function AssetStagingWidget({
                             displayVal={displayVal}
                             extId={extId}
                             onExtIdChange={setExtId}
+                            validationErrors={validationErrors}
                         />
 
                         {/* Input Assumptions */}
@@ -285,6 +403,7 @@ export default function AssetStagingWidget({
                             onSeverityChange={setSeverity}
                             delinquency={delinquency}
                             onDelinquencyChange={setDelinquency}
+                            validationErrors={validationErrors}
                         />
 
                         {/* Launch */}
@@ -293,6 +412,7 @@ export default function AssetStagingWidget({
                                 type="primary"
                                 icon={<ArrowRightOutlined />}
                                 disabled={!readiness.canLaunch}
+                                loading={submitting}
                                 onClick={handleLaunch}
                                 style={{ width: "100%" }}
                             >
