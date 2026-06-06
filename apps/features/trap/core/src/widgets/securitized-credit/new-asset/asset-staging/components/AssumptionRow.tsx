@@ -4,10 +4,12 @@ import styles from "../AssetStagingWidget.module.scss";
 export function AssumptionRow({
     label,
     required,
+    error,
     children,
 }: {
     label: string;
     required?: boolean;
+    error?: string;
     children: ReactNode;
 }) {
     return (
@@ -25,6 +27,12 @@ export function AssumptionRow({
             </div>
 
             {children}
+
+            {error && (
+                <span className={styles.fieldError}>
+                    {error}
+                </span>
+            )}
         </div>
     );
 }

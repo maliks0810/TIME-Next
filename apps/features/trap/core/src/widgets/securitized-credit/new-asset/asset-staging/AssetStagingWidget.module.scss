@@ -374,3 +374,24 @@
 .widgetBody :global(.ant-btn) {
   font-size: 12px;
 }
+
+.fieldError {
+    display: block;
+    font-size: 11px;
+    line-height: 14px;
+    color: #ff4d4f;
+    margin-top: 2px;
+}
+
+.stagedInputInline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fieldErrorInline {
+    font-size: 11px;
+    line-height: 14px;
+    color: #ff4d4f;
+    white-space: nowrap;
+}

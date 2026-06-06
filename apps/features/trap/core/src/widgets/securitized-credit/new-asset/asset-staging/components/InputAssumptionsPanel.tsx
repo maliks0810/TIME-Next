@@ -1,5 +1,6 @@
 import { DatePicker, InputNumber, Select, Segmented } from "antd";
 import type { CallableType } from "../types";
+import type { ValidationErrors } from "../../../../../utils/validation";
 import type { Dayjs } from 'dayjs';
 import {
     ASSUMPTION_CONTROL_WIDTH,
@@ -39,6 +40,8 @@ export function InputAssumptionsPanel({
 
     delinquency,
     onDelinquencyChange,
+
+    validationErrors,
 }: {
     price: number | null;
     onPriceChange: (value: number | null) => void;
@@ -67,6 +70,8 @@ export function InputAssumptionsPanel({
 
     delinquency: number | null;
     onDelinquencyChange: (value: number | null) => void;
+
+    validationErrors: ValidationErrors;
 }) {
     return (
         <div className={styles.assumptionPanel}>
@@ -153,7 +158,7 @@ export function InputAssumptionsPanel({
 
                 <AssumptionSectionHeader title="Optional" />
 
-                <AssumptionRow label="Prepayment">
+                <AssumptionRow label="Prepayment" error={validationErrors.prepayment}>
                     <div className={styles.assumptionControlGroup}>
                         <Select
                             size="small"
@@ -176,6 +181,7 @@ export function InputAssumptionsPanel({
                             placeholder="Value"
                             controls={false}
                             precision={3}
+                            status={validationErrors.prepayment ? "error" : undefined}
                             style={{
                                 width: ASSUMPTION_CONTROL_WIDTH,
                             }}
@@ -183,7 +189,7 @@ export function InputAssumptionsPanel({
                     </div>
                 </AssumptionRow>
 
-                <AssumptionRow label="Default">
+                <AssumptionRow label="Default" error={validationErrors.default}>
                     <div className={styles.assumptionControlGroup}>
                         <Select
                             size="small"
@@ -206,6 +212,7 @@ export function InputAssumptionsPanel({
                             placeholder="Value"
                             controls={false}
                             precision={3}
+                            status={validationErrors.default ? "error" : undefined}
                             style={{
                                 width: ASSUMPTION_CONTROL_WIDTH,
                             }}

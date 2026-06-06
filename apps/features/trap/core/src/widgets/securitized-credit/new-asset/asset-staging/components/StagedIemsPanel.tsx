@@ -1,6 +1,7 @@
 import { Input } from "antd";
 import clsx from "clsx";
 import type { StagingItem } from "../types";
+import type { ValidationErrors } from "../../../../../utils/validation";
 import { StatusDot } from "./StatusDot";
 import styles from "../AssetStagingWidget.module.scss";
 
@@ -10,12 +11,14 @@ export function StagedItemsPanel({
     displayVal,
     extId,
     onExtIdChange,
+    validationErrors,
 }: {
     items: StagingItem[];
     doneMap: Record<string, boolean>;
     displayVal: Record<string, string | undefined>;
     extId: string;
     onExtIdChange: (value: string) => void;
+    validationErrors: ValidationErrors;
 }) {
     return (
         <div className={styles.stagedPanel}>
@@ -45,13 +48,23 @@ export function StagedItemsPanel({
                                 </span>
                             </div>
 
-                            <Input
-                                size="small"
-                                placeholder="Enter CUSIP / ISIN…"
-                                value={extId}
-                                onChange={e => onExtIdChange(e.target.value)}
-                                className={styles.stagedInput}
-                            />
+                            <div className={styles.stagedInputInline}>
+                                <Input
+                                    size="small"
+                                    placeholder="CUSIP / ISIN"
+                                    value={extId}
+                                    onChange={e => onExtIdChange(e.target.value.toUpperCase())}
+                                    className={styles.stagedInput}
+                                    status={validationErrors.extId ? "error" : undefined}
+                                    style={{ width: 120, fontFamily: "monospace" }}
+                                />
+
+                                {validationErrors.extId && (
+                                    <span className={styles.fieldErrorInline}>
+                                        {validationErrors.extId}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     );
                 }
