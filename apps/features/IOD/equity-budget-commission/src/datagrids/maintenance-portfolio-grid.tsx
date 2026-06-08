@@ -436,7 +436,7 @@ return (
                 <Button name="edit" visible={false} />  
                 <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Portfolio" visible={true} />  
               </Column>  
-              <Toolbar visible={isAdmin? true: false}>  
+              <Toolbar visible={isAdmin? true: false}  disabled={selectedPortfolioId?false:true}>  
                 <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>  
               </Toolbar>
             </DataGrid>

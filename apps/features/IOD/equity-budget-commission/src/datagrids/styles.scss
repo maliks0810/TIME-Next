@@ -758,7 +758,15 @@ $font-size: 12px;
   height: 40px;
 }
 
+.dx-toolbar.dx-state-disabled{
+  opacity: 0.5!important;
+}
 
+.dx-checkbox{
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  font-family: Roboto, Helvetica, Arial, sans-serif !important;
+}
 /* Trade Ticket Popup */
 
 .modern-trade-popup {
@@ -787,14 +795,7 @@ $font-size: 12px;
       font-size: 12px;
     }
   }
-  
-  /* CHECK BOX */
-  .dxCheckboxLabel {
-    font-size: 12px;
-    font-weight: 500 !important;
-    font-family: Roboto, Helvetica, Arial, sans-serif;
-  }
-
+ 
   /* Section cards */
   .form-section {
     background: #ffffff;
