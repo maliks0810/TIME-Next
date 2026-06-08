@@ -5,6 +5,7 @@ import { IUserIdentity } from '../services/domain-objects/UserIdentityResponse';
 export interface SecuritySetupState {
   // identity / audit fields
   securitySetupRequestId: number | null;
+  externalSecuritySetupRequestId: number | null;
   createdBy: string | null;
   createdDate: string | null;
   updatedBy: string | null;

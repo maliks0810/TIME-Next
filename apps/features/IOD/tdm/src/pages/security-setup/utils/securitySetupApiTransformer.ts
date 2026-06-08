@@ -164,6 +164,7 @@ export const transformToApiDomain = (
         CurrentStepDescription: payload.currentStep,
         CurrentStepNumber: payload.currentStepNumber,
         SaveType: payload.saveType,
+        ExternalSecuritySetupRequestId: payload.externalSecuritySetupRequestId,
     };
 };
 
@@ -185,6 +186,7 @@ export const transformFromApiPresentation = (
     return {
         // ID for PUT calls
         securitySetupRequestId: presentation.securitySetupRequestId,
+        externalSecuritySetupRequestId: presentation.externalSecuritySetupRequestId,
 
         securitySetupStatusId: presentation.securitySetupStatusId || null,
 
