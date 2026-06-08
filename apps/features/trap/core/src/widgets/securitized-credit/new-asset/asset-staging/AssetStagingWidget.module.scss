@@ -1,9 +1,10 @@
 .widgetBody {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
   height: 596px;
   overflow: hidden;
+  font-size: 11px;
 }
 
 .centerState {
@@ -92,7 +93,7 @@
 .readinessHeader {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 .readinessLabel {
@@ -115,15 +116,14 @@
 
 .stagedPanel {
   border-radius: var(--ant-border-radius-sm);
-  border: 1px solid var(--ant-color-border-secondary);
   overflow: hidden;
 }
 
 .stagedRow {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: 8px;
+  padding: 4px 10px;
 }
 
 .stagedRowBordered {
@@ -145,8 +145,8 @@
 .stagedInputHeader {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
+  gap: 8px;
+  margin-bottom: 2px;
 }
 
 .stagedLabelRow {
@@ -223,7 +223,7 @@
 }
 
 .inputAssumptionsDivider {
-  margin: 10px 0 6px;
+  margin: 4px 0 2px;
 }
 
 .inputAssumptionsTitle {
@@ -234,7 +234,6 @@
 }
 
 .assumptionPanel {
-  border: 1px solid var(--ant-color-border-secondary);
   border-radius: 4px;
   background: var(--ant-color-fill-tertiary);
   overflow: hidden;
@@ -242,9 +241,9 @@
 }
 
 .assumptionPanelBody {
-  padding: 8px 10px;
+  padding: 4px 10px;
   display: grid;
-  gap: 2px;
+  gap: 1px;
 }
 
 .assumptionSectionHeader {
@@ -387,6 +386,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-left: auto;
 }
 
 .fieldErrorInline {
@@ -394,4 +394,60 @@
     line-height: 14px;
     color: #ff4d4f;
     white-space: nowrap;
+}
+
+.omFileRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    margin-left: auto;
+}
+
+.omFileName {
+    font-size: 11px;
+    line-height: 14px;
+    font-family: monospace;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 180px;
+}
+
+.omFileSize {
+    font-size: 10px;
+    line-height: 14px;
+    flex-shrink: 0;
+}
+
+.stagedValueInline {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: monospace;
+  color: var(--ant-color-text);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.stagedHintInline {
+  font-size: 10px;
+  color: var(--ant-color-text-tertiary);
+  font-style: italic;
+}
+
+.stagedRightAligned {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.fieldErrorRow {
+  font-size: 10px;
+  line-height: 14px;
+  color: #ff4d4f;
+  padding: 0 10px 4px 32px;
 }

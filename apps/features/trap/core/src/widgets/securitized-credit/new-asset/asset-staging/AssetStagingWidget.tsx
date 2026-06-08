@@ -43,6 +43,7 @@ export default function AssetStagingWidget({
     const { token } = theme.useToken();
 
     const [extId, setExtId] = React.useState("");
+    const [omFile, setOmFile] = React.useState<File | null>(null);
 
     const [price, setPrice] = React.useState<number | null>(null);
     const [callable, setCallable] = React.useState<CallableType | null>("N");
@@ -105,6 +106,7 @@ export default function AssetStagingWidget({
     React.useEffect(() => {
         if (dealName && dealName !== prevDealNameRef.current) {
             setExtId("");
+            setOmFile(null);
             setPrice(null);
             setCallable("N");
             setCallDate(null);
@@ -251,6 +253,18 @@ export default function AssetStagingWidget({
             assumptions,
         });
 
+        // Attach OM file as base64 if present
+        let omBase64: string | undefined;
+
+        if (omFile) {
+            omBase64 = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve((reader.result as string).split(',')[1]);
+                reader.onerror = () => reject(new Error('File read failed'));
+                reader.readAsDataURL(omFile);
+            });
+        }
+
         setSubmitting(true);
 
         try {
@@ -259,6 +273,10 @@ export default function AssetStagingWidget({
                 params: {
                     action: "stage",
                     ...payload,
+                    ...(omBase64 && omFile ? {
+                        omFileName: omFile.name,
+                        omFileBase64: omBase64,
+                    } : {}),
                 },
                 context: {},
                 mode: isDesigner ? "MOCK" : "LIVE",
@@ -370,6 +388,8 @@ export default function AssetStagingWidget({
                             extId={extId}
                             onExtIdChange={setExtId}
                             validationErrors={validationErrors}
+                            omFile={omFile}
+                            onOmFileChange={setOmFile}
                         />
 
                         {/* Input Assumptions */}

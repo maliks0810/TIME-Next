@@ -156,7 +156,7 @@ export function validateStagingForm(params: {
         if (id.length !== 9) {
             errors.extId = "CUSIP must be exactly 9 characters";
         } else if (!isValidCusip(id)) {
-            errors.extId = "Invalid CUSIP — check digit does not match";
+            errors.extId = "Invalid CUSIP";
         }
     }
 
