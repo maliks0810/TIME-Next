@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Button, Space } from 'antd';
-import { ApartmentOutlined, RightOutlined, PlusOutlined } from '@ant-design/icons';
+import { ApartmentOutlined } from '@ant-design/icons';
 
 import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell';
 import type { WidgetComponentProps } from '../../../../types/widget';
@@ -137,21 +137,11 @@ export function NARMBSTrancheDetailWidget({
 
                     <Space size={6} wrap>
                         <Button
-                            type="primary"
                             size="small"
-                            icon={<RightOutlined />}
-                            disabled={!data || !!error}
-                        >
-                            Run scenario analysis
-                        </Button>
-
-                        <Button
-                            size="small"
-                            icon={<PlusOutlined />}
                             disabled={!data || !!error}
                             onClick={handleAddToStaging}
                         >
-                            Add to staging
+                            Stage for Asset Setup
                         </Button>
                     </Space>
                 </div>

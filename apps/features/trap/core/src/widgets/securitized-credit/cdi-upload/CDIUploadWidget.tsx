@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { theme } from 'antd';
 import clsx from 'clsx';
 
@@ -17,7 +17,7 @@ import {
     ANALYSIS_SESSION_ID_KEY,
     DEAL_NAME_KEY,
 } from '../../constants';
-import { useSetWidgetValue } from '../../../state/Widgets/hooks';
+import { useSetWidgetValue, useGetWidgetValue } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
 
 export default function CDIUploadWidget({
@@ -40,9 +40,9 @@ export default function CDIUploadWidget({
 
     const widgetDefId = String(
         widgetInstance?.composedWidgetId ??
-            widgetInstance?.widgetDefinitionId ??
-            widgetDefinition?.id ??
-            ''
+        widgetInstance?.widgetDefinitionId ??
+        widgetDefinition?.id ??
+        ''
     );
 
     const isDesigner = mode === 'designer';
@@ -50,6 +50,31 @@ export default function CDIUploadWidget({
 
     const activeTab = useGetActiveTab();
     const setWidgetValueToChannel = useSetWidgetValue();
+
+    const channelDealName = useGetWidgetValue({
+        channelId,
+        key: DEAL_NAME_KEY,
+    }) as string | undefined;
+
+    const lastPublishedDealRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        if (
+            channelDealName &&
+            lastPublishedDealRef.current &&
+            channelDealName !== lastPublishedDealRef.current
+        ) {
+            setUploadState('idle');
+            setFileName('');
+            setProgress(0);
+            setLoadedDeal(null);
+            setFromRecent(false);
+            setFromIntex(null);
+            setErrorMsg('');
+            lastPublishedDealRef.current = null;
+        }
+    }, [channelDealName]);
+
 
     // Recently ingested deals come from the server via the result prop.
     // ds_sc_cdi_upload_01 executor returns { recentDeals: [...] } on mount.
@@ -67,6 +92,8 @@ export default function CDIUploadWidget({
     }, [deletedDeals, result]);
 
     const publishDeal = (deal: { dealName: string; sessionId: string }) => {
+        lastPublishedDealRef.current = deal.dealName;
+
         setWidgetValueToChannel({
             channelId,
             key: DEAL_NAME_KEY,
