@@ -148,6 +148,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const getAllWizardData = (): Record<string, unknown> => {
     const s = useSecuritySetupStore.getState();
     return {
+      externalSecuritySetupRequestId: s.externalSecuritySetupRequestId,
       identifierType: s.identifierType,
       identifierValue: s.identifierValue,
       marketSector: s.marketSector,
