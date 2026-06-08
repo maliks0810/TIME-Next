@@ -336,7 +336,7 @@ const MaintenanceBrokerGroupGrid = () => {
                 <Column type="buttons" width="10%" visible={isAdmin?true:false}>
                   <Button name="delete" />
                 </Column>
-                <Toolbar visible={isAdmin?true:false}>
+                <Toolbar visible={isAdmin} disabled={selectedBrokerGroupId?false:true}>
                   <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
                 </Toolbar>
               </DataGrid>

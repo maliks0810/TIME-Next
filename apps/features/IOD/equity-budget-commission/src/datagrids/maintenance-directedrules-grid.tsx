@@ -480,7 +480,7 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                     <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Directed Rules Xref" visible={true}/>
                   </Column>
 
-                <Toolbar visible={isAdmin ?true:false} >
+                <Toolbar visible={isAdmin ?true:false} disabled={selectedDirectedRuleId?false:true}>
                   <ToolbarItem name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
                 </Toolbar>
               </DataGrid>

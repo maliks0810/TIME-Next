@@ -56,15 +56,15 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
   useEffect(() => {
     void (async () => {
       try {
-        const [grpData, memberData, brokerData, adminData] = await Promise.all([
+        const [grpData, brokerData, adminData] = await Promise.all([
           fetchBrokerGroups(),
-          fetchBrokerGroupsMember(),
+          //fetchBrokerGroupsMember(),
           fetchBrokers(),
           fetchAdminUsers(),
         ]);
 
         setBrokerGroups(normalizeBrokerGroups(grpData));
-        setBrokerGroupMembers(memberData ?? []);
+        //setBrokerGroupMembers(memberData ?? []);
         setBrokers(brokerData ?? []);
         const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
         if(u){
@@ -125,6 +125,16 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
     const key: number = selectedKeys[0];
     setSelectedBrokerGroupId(key);
   }
+
+  useEffect(() => { 
+    void (async () => {
+      if (selectedBrokerGroupId) {
+        await reloadGroupMemberGroup();
+      } else {
+        setBrokerGroupMembers([]);
+      }
+    })();
+  }, [selectedBrokerGroupId, reloadGroupMemberGroup]);
   /* ---------------- Broker Group Member CRUD (NO local state mutation) ---------------- */
 
   const addBrokerGroupMember = useCallback(

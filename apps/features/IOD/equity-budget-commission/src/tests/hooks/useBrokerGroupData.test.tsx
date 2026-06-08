@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useBrokerGroups } from '../../hooks/useBrokerGroupData';
 import { fetchBrokerGroups, createBrokerGroup, deleteBrokerGroup, updateBrokerGroup,   
-    fetchBrokerGroupsMember, createBrokerGroupMember, updateBrokerGroupMember, deleteBrokerGroupMember  
+    createBrokerGroupMember, updateBrokerGroupMember, deleteBrokerGroupMember  
 } from '../../services/broker-group-service';
 import { fetchBrokers } from '../../services/broker-service';
 import { fetchAdminUsers } from '../../services/admin-user-service';
@@ -46,10 +46,10 @@ const mockBrokerGroupsData: MaintenanceBrokerGroup[] = [
     { brokerGroupId: 2, brokerGroupName: 'Broker 2', brokerGroupCode: 'B002', status: 'Active', active:true, lastUpdateDate: new Date(), lastUpdateBy: 'User1' }  
 ];
 
-const mockBrokerGroupMembers:MaintenanceBrokerGroupMember[] = [
+/*const mockBrokerGroupMembers:MaintenanceBrokerGroupMember[] = [
     { brokerGroupMemberId:1, brokerGroupId:1, brokerCode:"MB1", lastUpdateBy:"User1", JoinedGroupAt: new Date()},
     { brokerGroupMemberId:2, brokerGroupId:2, brokerCode:"MB2", lastUpdateBy:"User1", JoinedGroupAt: new Date()}
-];
+];*/
 
 const mockUsers: MaintenanceUser[] = [
     { userId: 1, userName: 'User,Test', firstName: 'Test', lastName:'User', locationCode: 'US', status: 'Active', active:true, lastUpdateBy:'User1', 
@@ -275,20 +275,7 @@ describe('useBrokerGroups hook', () => {
         });  
     });
 
-    /** Broker Groups Member */
-    it('loads brokergroups member data', async () => {  
-        vi.fn(fetchBrokerGroupsMember).mockResolvedValueOnce(mockBrokerGroupMembers);  
-
-        const { result } = renderHook(() =>  
-            useBrokerGroups({userInfo})  
-        );  
-
-        await waitFor(() => {  
-            expect(result.current.brokerGroupMembers).toEqual(mockBrokerGroupMembers);  
-        });  
-
-        expect(fetchBrokerGroupsMember).toHaveBeenCalledTimes(1);  
-    }); 
+    /** Broker Groups Member */    
 
     it('handle error when load brokergroupmembers data failed', async () => {  
         vi.fn(fetchBrokerGroups).mockRejectedValueOnce(  
@@ -384,17 +371,12 @@ describe('useBrokerGroups hook', () => {
 
     it('delete broker group data successfully', async () => {  
         const brokerGroupMemberId: number = 1;
-        vi.fn(fetchBrokerGroupsMember).mockResolvedValueOnce(mockBrokerGroupMembers);  
         vi.fn(deleteBrokerGroupMember).mockResolvedValueOnce(true);  
     
         const { result } = renderHook(() =>  
             useBrokerGroups({userInfo})  
         );
-
-        await waitFor(() => {  
-            expect(result.current.brokerGroupMembers).toEqual(mockBrokerGroupMembers);  
-        }); 
-
+ 
         await act(async () => {  
             await result.current.removeBrokerGroupMember(brokerGroupMemberId);  
         });  
@@ -404,16 +386,11 @@ describe('useBrokerGroups hook', () => {
 
     it('delete broker group throws error on failures', async () => {  
         const brokerGroupMemberId: number = 1;
-        vi.fn(fetchBrokerGroupsMember).mockResolvedValueOnce(mockBrokerGroupMembers);  
         vi.fn(deleteBrokerGroupMember).mockRejectedValueOnce(new Error('Delete failed'));  
 
         const { result } = renderHook(() =>  
             useBrokerGroups({ userInfo })  
-        );  
-
-        await waitFor(() => {  
-            expect(result.current.brokerGroupMembers).toEqual(mockBrokerGroupMembers);  
-        });  
+        );   
 
         await act(async () => { 
             try { 
