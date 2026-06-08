@@ -64,7 +64,7 @@ export function StagedItemsPanel({
                                 <div className={styles.stagedInputInline}>
                                     <Input
                                         size="small"
-                                        placeholder="CUSIP / ISIN"
+                                        placeholder="CUSIP"
                                         value={extId}
                                         onChange={e => onExtIdChange(e.target.value.toUpperCase())}
                                         status={validationErrors.extId ? "error" : undefined}
