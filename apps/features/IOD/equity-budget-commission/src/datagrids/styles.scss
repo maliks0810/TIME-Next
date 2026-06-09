@@ -649,8 +649,8 @@ $font-size: 12px;
 }
 .grid-container-flex {  
   width: var(--container-width, 100%);  
-  margin-bottom: 10px;  
-  padding-right: 30px;  
+  //margin-bottom: 10px;
+  padding-right: 10px;  
   display: flex;  
 }
 .grid-container-detail {  
