@@ -146,9 +146,28 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   )
 
   const handleGridStateLoad = useCallback(
-    () => {
+    (): DataGridState | null => {
       const saved = localStorage.getItem('dashboardGridState');
-      return saved ? JSON.parse(saved) : {};
+
+      if (!saved) return null;
+
+      const state: DataGridState = JSON.parse(saved);
+      state.columns = state.columns?.map((col) => {
+        if (col.dataField === 'createdDate') {
+          return {
+            ...col,
+            sortOrder: 'desc',
+            sortIndex: 0
+          }
+        }
+        return {
+          ...col,
+          sortOrder: undefined,
+          sortIndex: undefined
+        };
+      })
+
+      return state
     },
     [],
   )
