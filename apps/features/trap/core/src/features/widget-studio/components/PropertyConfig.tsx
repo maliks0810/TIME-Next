@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { Typography, Select, Checkbox, Input, ColorPicker } from 'antd';
+import { Typography, Select, Checkbox, Input, ColorPicker, InputNumber } from 'antd';
 import styles from './PropertyConfig.module.scss';
 import { DefaultOptionType } from 'antd/es/select';
 import TextEditor from '../../../components/tiptap/TextEditor';
@@ -98,6 +98,22 @@ export const PropertyConfig = ({
         ),
         [context]
     );
+    const renderNumberInput = useCallback(
+        () => (
+            <>
+                <Typography.Text strong>
+                    {property.title}
+                    {required && '*'}
+                </Typography.Text>
+                <InputNumber
+                    className={styles.select}
+                    defaultValue={(currentValue as number) || Number(property.default.toString())}
+                    onChange={(e: number | null) => setField(propertyKey, e as number)}
+                />
+            </>
+        ),
+        []
+    );
     const renderInput = useCallback(
         () => (
             <>
@@ -128,20 +144,7 @@ export const PropertyConfig = ({
             }
 
             case 'number':
-                return (
-                    <>
-                        <Typography.Text strong>
-                            {property.title}
-                            {required && '*'}
-                        </Typography.Text>
-                        <Input
-                            type="number"
-                            className={styles.select}
-                            defaultValue={(currentValue as number) || property.default.toString()}
-                            onChange={(e) => setField(propertyKey, e.target.value)}
-                        />
-                    </>
-                );
+                return <>{renderNumberInput()}</>;
             case 'boolean':
                 const defaultChecked =
                     currentValue !== undefined ? (currentValue as boolean) : !!property.default;

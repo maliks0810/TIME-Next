@@ -17,11 +17,53 @@
                 "title": "Communication Channel",
                 "type": "string"
             },
+            "customColor": {
+                "default": "#ffffff",
+                "title": "Custom Solid Background Color",
+                "type": "string",
+                "withColorPicker": true
+            },
+            "customGradientEnd": {
+                "default": "#60a5fa",
+                "title": "Gradient Background End Color",
+                "type": "string",
+                "withColorPicker": true
+            },
+            "customGradientStart": {
+                "default": "#2563eb",
+                "title": "Gradient Background Start Color",
+                "type": "string",
+                "withColorPicker": true
+            },
             "content": {
                 "default": "",
                 "title": "Content",
                 "type": "string",
                 "editor": true
+            },
+            "opacity": {
+                "title": "Widget opacity",
+                "type": "number",
+                "default": 100
+            },
+            "schemaKey": {
+                "title": "Schema key",
+                "type": "string",
+                "enum": ["example.calculation"]
+            },
+            "listensToKeys": {
+                "default": "",
+                "title": "Listens to key",
+                "type": "string",
+                "enum": ["example.input", "common.date"],
+
+                "multiselect": true
+            },
+            "themeMode": {
+                "default": "theme",
+                "enum": ["theme", "customSolid", "customGradient"],
+                "title": "Color Mode",
+                "type": "string"
             }
         },
         "required": [],

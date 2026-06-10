@@ -1,0 +1,40 @@
+.group {
+    gap: 4px;
+    display: flex;
+    flex-wrap: wrap;
+}
+.button {
+    background-color: var(--ant-color-primary-bg);
+    border-radius: 0.5rem;
+    padding: 4px;
+    min-width: 32px;
+}
+
+.isActive {
+    background-color: var(--ant-color-primary-active);
+}
+
+.fontSize {
+    width: 36px;
+    font-size: 9px;
+}
+.inputs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+}
+.wrapper {
+    padding: 4px;
+
+    display: flex;
+    gap: 2px;
+    flex-direction: column;
+    border-bottom: 1px solid #0000001a;
+}
+
+.input {
+    width: 32px;
+    height: 32px;
+    border: none;
+}

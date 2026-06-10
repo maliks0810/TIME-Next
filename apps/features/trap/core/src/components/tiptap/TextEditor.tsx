@@ -4,8 +4,13 @@ import Mention from '@tiptap/extension-mention';
 import StarterKit from '@tiptap/starter-kit';
 import styles from './TextEditor.module.scss';
 
+import Document from '@tiptap/extension-document';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
+import { Color, TextStyle, BackgroundColor, FontSize } from '@tiptap/extension-text-style';
 import suggestion from './Suggestion';
 import { Ref, useImperativeHandle } from 'react';
+import { MenuBar } from './MenuBar';
 export type EditorCommands = {
     clear: () => void;
 };
@@ -25,7 +30,16 @@ export const TextEditor = ({
     mentionOptions?: string[];
     mentionEnabled: boolean;
 }) => {
-    const extensions: Extensions = [StarterKit];
+    const extensions: Extensions = [
+        StarterKit,
+        Document,
+        Paragraph,
+        Text,
+        TextStyle,
+        Color,
+        BackgroundColor,
+        FontSize,
+    ];
 
     if (mentionEnabled) {
         extensions.push(
@@ -49,6 +63,7 @@ export const TextEditor = ({
     }));
     return (
         <div className={styles.container}>
+            <MenuBar editor={editor} />
             <EditorContent editor={editor} className={`${className} ${styles.editor}`} />
         </div>
     );

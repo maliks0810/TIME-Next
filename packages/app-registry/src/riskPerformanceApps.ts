@@ -53,7 +53,9 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
 
         path: '/dram/performance/sam',
         team: 'R2',
-        component: lazy(() => import('@r2/dram/src/portals/performance/features/strategy-performance/index')),
+        component: lazy(
+            () => import('@r2/dram/src/portals/performance/features/strategy-performance/index')
+        ),
         description: '',
     },
     {
@@ -82,7 +84,9 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         env: HighestEnv.prod,
         path: '/dram/performance/returns-overlay-upload',
         team: 'R2',
-        component: lazy(() => import('@r2/dram/src/portals/performance/features/returns-management/index')),
+        component: lazy(
+            () => import('@r2/dram/src/portals/performance/features/returns-management/index')
+        ),
         description: '',
     },
     {
