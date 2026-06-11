@@ -82,3 +82,10 @@
     margin: 0;
     border: none;
 }
+
+.selectFixed {
+    width: 88px !important;
+    min-width: 88px !important;
+    max-width: 88px !important;
+    flex: 0 0 88px !important;
+}

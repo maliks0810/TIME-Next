@@ -6,6 +6,7 @@ export interface StagingItem {
     ctxKey: string;
     required: boolean;
     isInput?: boolean;
+    inputType?: "cusip" | "extId";
 }
 
 export interface RequiredAssumptionStatus {
@@ -18,7 +19,9 @@ export interface InputAssumptionsState {
     price: number | null;
     callable: CallableType | null;
     callDate: Dayjs | null;
-    cleanupValue: string | undefined;
+    callValue: string | undefined;
+
+    collateralType: string |undefined;
 
     prepaymentType: string | undefined;
     prepaymentValue: number | null;

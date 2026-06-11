@@ -23,7 +23,7 @@
             "label": "Default",
             "grid": {
                 "defaultW": 8,
-                "defaultH": 622,
+                "defaultH": 650,
                 "minW": 8,
                 "minH": 400,
                 "maxW": null,

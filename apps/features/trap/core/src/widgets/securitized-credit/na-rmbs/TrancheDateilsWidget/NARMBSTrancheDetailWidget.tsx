@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { Button, Space } from 'antd';
-import { ApartmentOutlined } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
+import { Button, Space, theme } from 'antd';
+import { ApartmentOutlined, CheckOutlined } from '@ant-design/icons';
 
 import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell';
 import type { WidgetComponentProps } from '../../../../types/widget';
@@ -28,9 +28,13 @@ export function NARMBSTrancheDetailWidget({
     execute,
     error,
 }: WidgetComponentProps) {
+    const { token } = theme.useToken();
     const activeTab = useGetActiveTab();
     const setWidgetValueToChannel = useSetWidgetValue();
     const channelId = widgetInstance?.config?.params?.channel;
+
+    const [staging, setStaging] = useState(false);
+    const [staged, setStaged] = useState(false);
 
     const trancheId = useGetWidgetValue({
         channelId,
@@ -61,9 +65,15 @@ export function NARMBSTrancheDetailWidget({
         });
     }, [dealName, trancheName]);
 
+    // Reset staged state when tranche changes
+    useEffect(() => {
+        setStaged(false);
+    }, [trancheId]);
 
     const handleAddToStaging = () => {
         if (!trancheId) return;
+
+        setStaging(true);
 
         // Publish to the dedicated staging keys — does not disturb tranche.id
         // which TranchesWidget uses for exploration/row-highlighting
@@ -88,6 +98,11 @@ export function NARMBSTrancheDetailWidget({
             value: 'true',
             activeTab,
         });
+
+        setTimeout(() => {
+            setStaging(false);
+            setStaged(true);
+        }, 600);
     };
 
     // TODO Re-execute when TitleBar publishes workflow.refresh
@@ -138,10 +153,19 @@ export function NARMBSTrancheDetailWidget({
                     <Space size={6} wrap>
                         <Button
                             size="small"
-                            disabled={!data || !!error}
+                            disabled={!data || !!error || staged}
+                            loading={staging}
+                            icon={staged ? <CheckOutlined /> : undefined}
                             onClick={handleAddToStaging}
+                            style={{
+                                fontSize: 12,
+                                ...(staged ? {
+                                    borderColor: token.colorSuccess,
+                                    color: token.colorSuccess,
+                                } : {}),
+                            }}
                         >
-                            Stage for Asset Setup
+                            {staged ? "Staged" : "Stage for asset setup"}
                         </Button>
                     </Space>
                 </div>

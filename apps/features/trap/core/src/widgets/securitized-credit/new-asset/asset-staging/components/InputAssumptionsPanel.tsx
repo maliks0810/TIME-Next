@@ -1,10 +1,11 @@
 import { DatePicker, InputNumber, Select, Segmented } from "antd";
+import clsx from "clsx";
 import type { CallableType } from "../types";
 import type { ValidationErrors } from "../../../../../utils/validation";
 import type { Dayjs } from 'dayjs';
 import {
     ASSUMPTION_CONTROL_WIDTH,
-    cleanupOptions,
+    collateralTypeOptions,
     defaultOptions,
     prepaymentOptions,
 } from "../utils/options";
@@ -22,8 +23,12 @@ export function InputAssumptionsPanel({
     callDate,
     onCallDateChange,
 
-    cleanupValue,
-    onCleanupValueChange,
+    callValue,
+    onCallValueChange,
+    callOptions,
+
+    collateralType,
+    onCollateralTypeChange,
 
     prepaymentType,
     onPrepaymentTypeChange,
@@ -52,8 +57,12 @@ export function InputAssumptionsPanel({
     callDate: Dayjs | null;
     onCallDateChange: (value: Dayjs | null) => void;
 
-    cleanupValue: string | undefined;
-    onCleanupValueChange: (value: string | undefined) => void;
+    callValue: string | undefined;
+    onCallValueChange: (value: string | undefined) => void;
+    callOptions: { label: string; value: string }[];
+
+    collateralType: string | undefined;
+    onCollateralTypeChange: (value: string | undefined) => void;
 
     prepaymentType: string | undefined;
     onPrepaymentTypeChange: (value: string | undefined) => void;
@@ -76,23 +85,42 @@ export function InputAssumptionsPanel({
     return (
         <div className={styles.assumptionPanel}>
             <div className={styles.assumptionPanelBody}>
-                <AssumptionSectionHeader title="Required" />
+                <AssumptionSectionHeader title="Required" variant="required" />
 
                 <AssumptionRow label="Price">
-                    <InputNumber
-                        className={styles.priceInput}
-                        size="small"
-                        value={price}
-                        onChange={(value) => onPriceChange(typeof value === "number" ? value : null)}
-                        placeholder="100.000"
-                        controls={false}
-                        precision={3}
-                        min={0}
-                        max={200.0}
-                        style={{
-                            width: ASSUMPTION_CONTROL_WIDTH,
-                        }}
-                    />
+                    <div className={clsx(price === null && styles.requiredBorder)}>
+                        <InputNumber
+                            className={styles.priceInput}
+                            size="small"
+                            value={price}
+                            onChange={(value) => onPriceChange(typeof value === "number" ? value : null)}
+                            placeholder="100.000"
+                            controls={false}
+                            precision={3}
+                            min={0}
+                            max={200.0}
+                            style={{
+                                width: ASSUMPTION_CONTROL_WIDTH,
+                            }}
+                        />
+                    </div>
+                </AssumptionRow>
+
+                <AssumptionRow label="Collateral Type" error={validationErrors.collateralType}>
+                    <div className={clsx(!validationErrors.collateralType && !collateralType && styles.requiredBorder)}>
+                        <Select
+                            size="small"
+                            value={collateralType}
+                            onChange={onCollateralTypeChange}
+                            placeholder="Select"
+                            options={collateralTypeOptions}
+                            status={validationErrors.collateralType ? "error" : undefined}
+                            style={{
+                                width: ASSUMPTION_CONTROL_WIDTH * 3,
+                                fontSize: 11,
+                            }}
+                        />
+                    </div>
                 </AssumptionRow>
 
                 <AssumptionRow label="Callable">
@@ -124,32 +152,36 @@ export function InputAssumptionsPanel({
                 <div className={styles.callableDetailRow}>
                     {callable === "Y" && (
                         <AssumptionRow label="Call Date" required>
-                            <DatePicker
-                                size="small"
-                                value={callDate}
-                                onChange={onCallDateChange}
-                                placeholder="Date"
-                                style={{
-                                    width: 120,
-                                    fontSize: 11,
-                                }}
-                            />
+                            <div className={clsx(!callDate && styles.requiredBorder)}>
+                                <DatePicker
+                                    size="small"
+                                    value={callDate}
+                                    onChange={onCallDateChange}
+                                    placeholder="Date"
+                                    style={{
+                                        width: 120,
+                                        fontSize: 11,
+                                    }}
+                                />
+                            </div>
                         </AssumptionRow>
                     )}
 
                     {callable === "C" && (
                         <AssumptionRow label="Cleanup" required>
-                            <Select
-                                size="small"
-                                value={cleanupValue}
-                                onChange={onCleanupValueChange}
-                                placeholder="Select"
-                                options={cleanupOptions}
-                                style={{
-                                    width: 300,
-                                    fontSize: 11,
-                                }}
-                            />
+                            <div className={clsx(!callValue && styles.requiredBorder)}>
+                                <Select
+                                    size="small"
+                                    value={callValue}
+                                    onChange={onCallValueChange}
+                                    placeholder="Select"
+                                    options={callOptions}
+                                    style={{
+                                        width: ASSUMPTION_CONTROL_WIDTH * 4,
+                                        fontSize: 11,
+                                    }}
+                                />
+                            </div>
                         </AssumptionRow>
                     )}
                 </div>

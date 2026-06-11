@@ -7,6 +7,18 @@
   font-size: 11px;
 }
 
+.widgetBody :global(.ant-input),
+.widgetBody :global(.ant-input-number-input),
+.widgetBody :global(.ant-select-selection-item),
+.widgetBody :global(.ant-select-selection-placeholder),
+.widgetBody :global(.ant-picker-input > input) {
+  font-size: 11px;
+}
+
+.widgetBody :global(.ant-btn) {
+  font-size: 12px;
+}
+
 .centerState {
   flex: 1;
   display: flex;
@@ -174,7 +186,7 @@
 }
 
 .stagedValue {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   font-family: monospace;
   color: var(--ant-color-text);
@@ -192,7 +204,7 @@
 
 .stagedInput {
   font-family: monospace;
-  font-size: 11px;
+  font-size: 12px;
   margin-left: 26px;
   width: calc(100% - 26px);
 }
@@ -268,6 +280,23 @@
   font-style: italic;
 }
 
+.assumptionSectionTitleRequired {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ant-color-primary);
+}
+
+.assumptionSectionTitleOptional {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ant-color-text-tertiary);
+  font-style: italic;
+}
+
 .assumptionRow {
   display: flex;
   align-items: center;
@@ -294,7 +323,7 @@
 .assumptionSectionDivider {
   height: 1px;
   background: var(--ant-color-border-secondary);
-  opacity: 0.55;
+  margin: 6px 0;
 }
 
 .assumptionControlGroup {
@@ -358,73 +387,65 @@
 .assumptionNumberInput input {
   text-align: right;
   font-family: monospace;
-  font-size: 11px;
-}
-.widgetBody {
-  font-size: 11px;
-}
-
-.widgetBody :global(.ant-input),
-.widgetBody :global(.ant-input-number-input),
-.widgetBody :global(.ant-select-selection-item),
-.widgetBody :global(.ant-select-selection-placeholder),
-.widgetBody :global(.ant-picker-input > input) {
-  font-size: 11px;
-}
-
-.widgetBody :global(.ant-btn) {
   font-size: 12px;
 }
 
 .fieldError {
-    display: block;
-    font-size: 11px;
-    line-height: 14px;
-    color: #ff4d4f;
-    margin-top: 2px;
+  display: block;
+  font-size: 11px;
+  line-height: 14px;
+  color: #ff4d4f;
+  margin-top: 2px;
 }
 
 .stagedInputInline {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .fieldErrorInline {
-    font-size: 11px;
-    line-height: 14px;
-    color: #ff4d4f;
-    white-space: nowrap;
+  font-size: 11px;
+  line-height: 14px;
+  color: #ff4d4f;
+  white-space: nowrap;
+}
+
+.fieldErrorRow {
+  font-size: 10px;
+  line-height: 14px;
+  color: #ff4d4f;
+  padding: 0 10px 4px 32px;
 }
 
 .omFileRow {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-    margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-left: auto;
 }
 
 .omFileName {
-    font-size: 11px;
-    line-height: 14px;
-    font-family: monospace;
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 180px;
+  font-size: 12px;
+  line-height: 14px;
+  font-family: monospace;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
 }
 
 .omFileSize {
-    font-size: 10px;
-    line-height: 14px;
-    flex-shrink: 0;
+  font-size: 10px;
+  line-height: 14px;
+  flex-shrink: 0;
 }
 
 .stagedValueInline {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   font-family: monospace;
   color: var(--ant-color-text);
@@ -441,15 +462,66 @@
   font-style: italic;
 }
 
+.stagedHintRequired {
+  font-size: 10px;
+  color: var(--ant-color-primary);
+  font-style: italic;
+}
+
 .stagedRightAligned {
   display: flex;
   align-items: center;
   margin-left: auto;
 }
 
-.fieldErrorRow {
+.requiredBorder {
+  :global(.ant-input),
+  :global(.ant-input-number),
+  :global(.ant-select-selector),
+  :global(.ant-picker) {
+    border-color: var(--ant-color-primary) !important;
+  }
+}
+
+.payloadPreviewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.payloadPreviewTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ant-color-text-tertiary);
+}
+
+.payloadPreviewList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 12px;
+}
+
+.payloadPreviewRow {
+  display: contents;
+}
+
+.payloadPreviewKey {
   font-size: 10px;
-  line-height: 14px;
-  color: #ff4d4f;
-  padding: 0 10px 4px 32px;
+  font-family: monospace;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.payloadPreviewValue {
+  font-size: 10px;
+  font-family: monospace;
+  font-weight: 600;
+  line-height: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

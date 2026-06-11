@@ -58,9 +58,9 @@ export function buildAssetStagingLaunchContext({
             }
             : {}),
 
-        ...(assumptions.callable === "C" && assumptions.cleanupValue
+        ...(assumptions.callable === "C" && assumptions.callValue
             ? {
-                "asset.assumptions.cleanupValue": assumptions.cleanupValue,
+                "asset.assumptions.callValue": assumptions.callValue,
             }
             : {}),
 

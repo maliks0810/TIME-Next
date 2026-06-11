@@ -1,8 +1,11 @@
 export type ValidationErrors = {
     extId?: string;
+    cusip?: string;
+    collateralType?: string;
     prepayment?: string;
     default?: string;
 };
+
 
 /**
  * CUSIP check-digit (Luhn-variant for alphanumeric identifiers).
@@ -143,6 +146,8 @@ export function isValidFigi(figi: string): boolean {
 
 export function validateStagingForm(params: {
     extId: string;
+    cusipOverride?: string;
+    collateralType?: string;
     prepaymentType?: string;
     prepaymentValue: number | null;
     defaultType?: string;
@@ -150,8 +155,18 @@ export function validateStagingForm(params: {
 }): ValidationErrors {
     const errors: ValidationErrors = {};
 
-    const id = params.extId.trim().toUpperCase();
+    // CUSIP override checksum
+    const cusip = params.cusipOverride?.trim().toUpperCase();
+    if (cusip) {
+        if (cusip.length !== 9) {
+            errors.cusip = "CUSIP must be exactly 9 characters";
+        } else if (!isValidCusip(cusip)) {
+            errors.cusip = "Invalid CUSIP";
+        }
+    }
 
+    // External ID checksum
+    const id = params.extId.trim().toUpperCase();
     if (id) {
         if (id.length !== 9) {
             errors.extId = "CUSIP must be exactly 9 characters";
@@ -160,10 +175,17 @@ export function validateStagingForm(params: {
         }
     }
 
+    // Collateral type required
+    if (!params.collateralType) {
+        errors.collateralType = "Collateral type is required";
+    }
+
+    // Prepayment: type selected → value required
     if (params.prepaymentType && params.prepaymentValue == null) {
         errors.prepayment = "Value is required when a prepayment type is selected";
     }
 
+    // Default: type selected → value required
     if (params.defaultType && params.defaultValue == null) {
         errors.default = "Value is required when a default type is selected";
     }

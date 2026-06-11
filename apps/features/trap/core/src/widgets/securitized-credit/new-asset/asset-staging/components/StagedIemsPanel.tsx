@@ -4,6 +4,7 @@ import { useRef } from "react";
 import clsx from "clsx";
 import type { StagingItem } from "../types";
 import type { ValidationErrors } from "../../../../../utils/validation";
+import { isValidCusip } from "../../../../../utils/validation";
 import { StatusDot } from "./StatusDot";
 import styles from "../AssetStagingWidget.module.scss";
 
@@ -13,7 +14,11 @@ export function StagedItemsPanel({
     displayVal,
     extId,
     onExtIdChange,
+    cusipOverride,
+    onCusipOverrideChange,
+    trancheCusip,
     validationErrors,
+    onValidationErrorChange,
     omFile,
     onOmFileChange,
 }: {
@@ -22,7 +27,11 @@ export function StagedItemsPanel({
     displayVal: Record<string, string | undefined>;
     extId: string;
     onExtIdChange: (value: string) => void;
+    cusipOverride: string;
+    onCusipOverrideChange: (value: string) => void;
+    trancheCusip: string | undefined;
     validationErrors: ValidationErrors;
+    onValidationErrorChange: (errors: Partial<ValidationErrors>) => void;
     omFile: File | null;
     onOmFileChange: (file: File | null) => void;
 }) {
@@ -35,6 +44,36 @@ export function StagedItemsPanel({
         return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     };
 
+    const validateCusipOnBlur = () => {
+        const trimmed = cusipOverride.trim().toUpperCase();
+        if (!trimmed) {
+            onValidationErrorChange({ cusip: undefined });
+            return;
+        }
+        if (trimmed.length !== 9) {
+            onValidationErrorChange({ cusip: "CUSIP must be exactly 9 characters" });
+        } else if (!isValidCusip(trimmed)) {
+            onValidationErrorChange({ cusip: "Invalid CUSIP" });
+        } else {
+            onValidationErrorChange({ cusip: undefined });
+        }
+    };
+
+    const validateExtIdOnBlur = () => {
+        const trimmed = extId.trim().toUpperCase();
+        if (!trimmed) {
+            onValidationErrorChange({ extId: undefined });
+            return;
+        }
+        if (trimmed.length !== 9) {
+            onValidationErrorChange({ extId: "CUSIP must be exactly 9 characters" });
+        } else if (!isValidCusip(trimmed)) {
+            onValidationErrorChange({ extId: "Invalid CUSIP" });
+        } else {
+            onValidationErrorChange({ extId: undefined });
+        }
+    };
+
     return (
         <div className={styles.stagedPanel}>
             {items.map((item, idx) => {
@@ -42,46 +81,93 @@ export function StagedItemsPanel({
                 const val = displayVal[item.ctxKey];
                 const isLast = idx === items.length - 1;
 
-                if (item.isInput) {
+                // CUSIP override row
+                if (item.inputType === "cusip") {
                     return (
-                        <div key={item.label}>
-                            <div
-                                className={clsx(
-                                    styles.stagedRow,
-                                    idx % 2 === 0 ? styles.stagedRowEven : styles.stagedRowOdd
-                                )}
-                            >
-                                <StatusDot done={!!extId.trim()} />
-
-                                <span className={styles.stagedLabel}>
-                                    {item.label}
-                                </span>
-
-                                <span className={styles.stagedHintInline}>
-                                    optional
-                                </span>
-
-                                <div className={styles.stagedInputInline}>
-                                    <Input
-                                        size="small"
-                                        placeholder="CUSIP"
-                                        value={extId}
-                                        onChange={e => onExtIdChange(e.target.value.toUpperCase())}
-                                        status={validationErrors.extId ? "error" : undefined}
-                                        style={{ width: 110, fontFamily: "monospace", fontSize: 11 }}
-                                    />
-                                </div>
-                            </div>
-
-                            {validationErrors.extId && (
-                                <div className={styles.fieldErrorRow}>
-                                    {validationErrors.extId}
-                                </div>
+                        <div
+                            key={item.label}
+                            className={clsx(
+                                styles.stagedRow,
+                                !isLast && styles.stagedRowBordered,
+                                idx % 2 === 0 ? styles.stagedRowEven : styles.stagedRowOdd
                             )}
+                        >
+                            <StatusDot done={done} />
+
+                            <span className={styles.stagedLabel}>
+                                {item.label}
+                            </span>
+
+                            <span className={item.required ? styles.stagedHintRequired : styles.stagedHintInline}>
+                                {item.required ? "required" : "optional"}
+                            </span>
+
+                            {validationErrors.cusip && (
+                                <span className={styles.fieldErrorInline}>
+                                    {validationErrors.cusip}
+                                </span>
+                            )}
+
+                            <div className={clsx(
+                                styles.stagedInputInline,
+                                item.required && !validationErrors.cusip && !cusipOverride.trim() && styles.requiredBorder
+                            )}>
+                                <Input
+                                    size="small"
+                                    placeholder={trancheCusip && !item.required ? trancheCusip : "Enter CUSIP"}
+                                    value={cusipOverride}
+                                    onChange={e => onCusipOverrideChange(e.target.value.toUpperCase())}
+                                    onBlur={validateCusipOnBlur}
+                                    status={validationErrors.cusip ? "error" : undefined}
+                                    style={{ width: 110, fontFamily: "monospace", fontSize: 11 }}
+                                />
+                            </div>
                         </div>
                     );
                 }
 
+                // External ID row
+                if (item.inputType === "extId") {
+                    return (
+                        <div
+                            key={item.label}
+                            className={clsx(
+                                styles.stagedRow,
+                                idx % 2 === 0 ? styles.stagedRowEven : styles.stagedRowOdd
+                            )}
+                        >
+                            <StatusDot done={!!extId.trim()} />
+
+                            <span className={styles.stagedLabel}>
+                                {item.label}
+                            </span>
+
+                            <span className={styles.stagedHintInline}>
+                                optional
+                            </span>
+
+                            {validationErrors.extId && (
+                                <span className={styles.fieldErrorInline}>
+                                    {validationErrors.extId}
+                                </span>
+                            )}
+
+                            <div className={styles.stagedInputInline}>
+                                <Input
+                                    size="small"
+                                    placeholder="Enter CUSIP"
+                                    value={extId}
+                                    onChange={e => onExtIdChange(e.target.value.toUpperCase())}
+                                    onBlur={validateExtIdOnBlur}
+                                    status={validationErrors.extId ? "error" : undefined}
+                                    style={{ width: 110, fontFamily: "monospace", fontSize: 11 }}
+                                />
+                            </div>
+                        </div>
+                    );
+                }
+
+                // Standard row (Deal, Tranche)
                 return (
                     <div
                         key={item.label}
@@ -97,13 +183,17 @@ export function StagedItemsPanel({
                             {item.label}
                         </span>
 
+                        <span className={item.required ? styles.stagedHintRequired : styles.stagedHintInline}>
+                            {item.required ? "required" : "optional"}
+                        </span>
+
                         {done && val ? (
                             <span className={styles.stagedValueInline}>
                                 {val}
                             </span>
                         ) : (
                             <span className={styles.stagedAwaiting}>
-                                {item.required ? "awaiting…" : "optional"}
+                                awaiting…
                             </span>
                         )}
                     </div>
@@ -114,7 +204,7 @@ export function StagedItemsPanel({
             <div
                 className={clsx(
                     styles.stagedRow,
-                    styles.stagedRowOdd
+                    styles.stagedRowEven
                 )}
             >
                 <StatusDot done={!!omFile} />
