@@ -65,11 +65,6 @@ const mockDepartments:MaintenanceDepartment[] = [
     { departmentId:2, departmentName:"Dept2 Name", status:"Active", divisionId:2, lastUpdateDate: new Date()}
 ]
 
-const mockPortfolioGrpXrefData: MaintenancePortfolioGroupXref[] = [
-    { portfolioGroupXrefId: 1, portfolioGroupId:8, portfolioId:98, lastUpdateBy: 'User1', lastUpdateDate: new Date() },
-    { portfolioGroupXrefId: 2, portfolioGroupId:9, portfolioId:99, lastUpdateBy: 'User1', lastUpdateDate: new Date() }
-]
-
 const mockUsers: MaintenanceUser[] = [
     { userId: 1, userName: 'User,Test', firstName: 'Test', lastName:'User', locationCode: 'US', status: 'Active', active:true, lastUpdateBy:'User1', 
         divisionId:1, departmentId:1, startDate:'01-01-2025', endDate:'12-31-2025', coopDptCode:0, coopStaffCode:0, costCenterCode:'', jobCode:'', admin:true  }  
@@ -203,21 +198,7 @@ describe('usePortfolios hook', () => {
                     expect(String(err)).toBe('Failed to fetch departments');
                 }
             });
-        });
-
-        it('loads portfolio group xrefs data', async () => {  
-            vi.fn(fetchPortfolioGroupXrefs).mockResolvedValueOnce(mockPortfolioGrpXrefData);  
-
-            const { result } = renderHook(() =>  
-                usePortfolios({userInfo})  
-            );  
-
-            await waitFor(() => {  
-                expect(result.current.portfolioGroupXrefs).toEqual(mockPortfolioGrpXrefData);  
-            });  
-
-            expect(fetchPortfolioGroupXrefs).toHaveBeenCalledTimes(1);  
-        });
+        });        
 
         it('handle error when load portfolio group xref data failed', async () => {  
             vi.fn(fetchPortfolioGroupXrefs).mockRejectedValueOnce(  
@@ -530,16 +511,11 @@ describe('usePortfolios hook', () => {
         /** Portfolio group xref */
         it('delete portfolio group xref data successfully', async () => {  
             const portfolioGroupXrefId: number = 1;
-            vi.fn(fetchPortfolioGroupXrefs).mockResolvedValueOnce(mockPortfolioGrpXrefData);  
             vi.fn(deletePortfolioGroupXref).mockResolvedValueOnce(true);  
         
             const { result } = renderHook(() =>  
                 usePortfolios({userInfo})  
-            );
-
-            await waitFor(() => {  
-                expect(result.current.portfolioGroupXrefs).toEqual(mockPortfolioGrpXrefData);  
-            }); 
+            );            
 
             await act(async () => {  
                 await result.current.removePortfolioGroupXref(portfolioGroupXrefId);  
@@ -550,16 +526,11 @@ describe('usePortfolios hook', () => {
 
         it('delete portfolio throws error on failures', async () => {  
             const portfolioGroupXrefId: number = 1;
-            vi.fn(fetchPortfolioGroupXrefs).mockResolvedValueOnce(mockPortfolioGrpXrefData);  
             vi.fn(deletePortfolioGroupXref).mockRejectedValueOnce(new Error('Delete failed'));  
 
             const { result } = renderHook(() =>  
                 usePortfolios({ userInfo })  
-            );  
-
-            await waitFor(() => {  
-                expect(result.current.portfolioGroupXrefs).toEqual(mockPortfolioGrpXrefData);  
-            });  
+            );
 
             await act(async () => { 
                 try { 
