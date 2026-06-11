@@ -13,27 +13,32 @@
             "url": {
                 "title": "URL",
                 "type": "string",
-                "default": ""
+                "default": "",
+                "category": "Interactions"
             },
             "icon": {
                 "title": "Link Icon",
                 "type": "string",
-                "default": ""
+                "default": "",
+                "category": "View Parameters"
             },
             "title": {
                 "title": "Widget Title",
                 "type": "string",
-                "default": "Link"
+                "default": "Link",
+                "category": "View Parameters"
             },
             "displayText": {
                 "title": "Display Text",
                 "type": "string",
-                "default": ""
+                "default": "",
+                "category": "View Parameters"
             },
             "description": {
                 "title": "Description",
                 "type": "string",
-                "default": ""
+                "default": "",
+                "category": "View Parameters"
             }
         },
         "required": ["url"],

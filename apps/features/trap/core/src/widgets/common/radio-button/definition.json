@@ -15,27 +15,32 @@
                 "description": "Widgets connected to the same channel able to share data between each other",
                 "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             },
             "label": {
                 "title": "Radio label",
                 "type": "string",
-                "default": ""
+                "default": "",
+                "category": "View Parameters"
             },
             "emitKey": {
                 "title": "Radio emit key",
                 "type": "string",
-                "enum": ["portfolio.summary"]
+                "enum": ["portfolio.summary"],
+                "category": "Interactions"
             },
             "checked": {
                 "title": "Is checked by default",
                 "type": "boolean",
-                "default": false
+                "default": false,
+                "category": "Interactions"
             },
             "variant": {
                 "title": "Variant",
                 "type": "string",
-                "enum": ["button", "radio"]
+                "enum": ["button", "radio"],
+                "category": "View Parameters"
             }
         },
         "required": ["emitKey", "label"],

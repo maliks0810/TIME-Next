@@ -15,18 +15,21 @@
                 "description": "Widgets connected to the same channel able to share data between each other",
                 "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             },
 
             "withSearch": {
                 "title": "has search",
                 "type": "boolean",
-                "default": true
+                "default": true,
+                "category": "Interactions"
             },
             "schemaKey": {
                 "title": "Schema key",
                 "enum": ["dram.portfolios"],
-                "type": "string"
+                "type": "string",
+                "category": "System Parameters"
             }
         },
         "required": ["schemaKey"],

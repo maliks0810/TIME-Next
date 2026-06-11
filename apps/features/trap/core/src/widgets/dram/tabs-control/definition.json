@@ -15,13 +15,15 @@
                 "description": "Widgets connected to the same channel able to share data between each other",
                 "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             },
 
             "variant": {
                 "title": "Variant",
                 "type": "string",
-                "enum": ["button", "radio"]
+                "enum": ["button", "radio"],
+                "category": "View Parameters"
             }
         },
         "required": [],

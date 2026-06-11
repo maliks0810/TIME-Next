@@ -15,41 +15,48 @@
                 "description": "Widgets connected to the same channel able to share data between each other",
                 "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             },
             "customColor": {
                 "default": "#ffffff",
                 "title": "Custom Solid Background Color",
                 "type": "string",
-                "withColorPicker": true
+                "withColorPicker": true,
+                "category": "Colors"
             },
             "customGradientEnd": {
                 "default": "#60a5fa",
                 "title": "Gradient Background End Color",
                 "type": "string",
-                "withColorPicker": true
+                "withColorPicker": true,
+                "category": "Colors"
             },
             "customGradientStart": {
                 "default": "#2563eb",
                 "title": "Gradient Background Start Color",
                 "type": "string",
-                "withColorPicker": true
+                "withColorPicker": true,
+                "category": "Colors"
             },
             "content": {
                 "default": "",
                 "title": "Content",
                 "type": "string",
-                "editor": true
+                "editor": true,
+                "category": "View Parameters"
             },
             "opacity": {
                 "title": "Widget opacity",
                 "type": "number",
-                "default": 100
+                "default": 100,
+                "category": "View Parameters"
             },
             "schemaKey": {
                 "title": "Schema key",
                 "type": "string",
-                "enum": ["example.calculation"]
+                "enum": ["example.calculation"],
+                "category": "System Parameters"
             },
             "listensToKeys": {
                 "default": "",
@@ -57,13 +64,15 @@
                 "type": "string",
                 "enum": ["example.input", "common.date"],
 
-                "multiselect": true
+                "multiselect": true,
+                "category": "Interactions"
             },
             "themeMode": {
                 "default": "theme",
                 "enum": ["theme", "customSolid", "customGradient"],
                 "title": "Color Mode",
-                "type": "string"
+                "type": "string",
+                "category": "Colors"
             }
         },
         "required": [],

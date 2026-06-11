@@ -14,6 +14,7 @@ export type WidgetConfigProperty = {
     context?: Record<string, WidgetValueType>;
     multiselect?: boolean;
     type: 'string' | 'boolean' | 'number';
+    category?: "string";
 };
 export const PropertyConfig = ({
     property,
