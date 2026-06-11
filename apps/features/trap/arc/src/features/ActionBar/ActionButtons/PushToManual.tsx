@@ -27,7 +27,7 @@ export const PushToManualButton = ({
 
     const manualModeDisabled =
         !!selectedAssetStatus
-            ? (normalizeStatus(selectedAssetStatus) === 'MANUAL' || normalizeStatus(selectedAssetStatus) === 'ANALYTICS VERIFIED IN ALADDIN')
+            ? (normalizeStatus(selectedAssetStatus) === 'MANUAL' || normalizeStatus(selectedAssetStatus) === 'ANALYTICS VERIFIED IN ALADDIN' || normalizeStatus(selectedAssetStatus) === 'CORRECTION')
             : true;
 
     const conditionalOnClickAction = async () => {

@@ -13,7 +13,8 @@ export const AbandonButton = ({ selectedAssetStatus }: AbandonButtonProps) => {
     const canAbandon =
         selectedAssetStatus &&
         selectedAssetStatus != 'ANALYTICS VERIFIED IN ALADDIN' &&
-        selectedAssetStatus != 'ABANDONED';
+        selectedAssetStatus != 'ABANDONED' &&
+        selectedAssetStatus != 'CORRECTION';
     const handleToggleAbandonModal = useCallback(() => {
         setIsAbandonModalOpen((isOpen) => !isOpen);
     }, []);

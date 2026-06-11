@@ -33,6 +33,8 @@ export function NewAssetsList({ newAssets, selectedRowId }: NewAssetsListProps) 
                 return 'Analytics Verified In Aladdin (Last 2 days)';
             case 'Invalid Request':
                 return 'Invalid Request (Last 2 days)';
+            case 'Cancelled':
+                return 'Cancelled (Last 2 days)';
             default:
                 return status;
         }
