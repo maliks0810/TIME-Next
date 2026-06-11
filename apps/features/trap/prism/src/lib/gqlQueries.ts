@@ -143,28 +143,6 @@ query EquitiesAnalystPerformanceFilter($request: AnalystPerformanceFilterRequest
               relative
             }
           }
-          series {
-            cumulativePortfolio {
-              date
-              value
-            }
-            cumulativeBenchmark {
-              date
-              value
-            }
-            cumulativeExcessRel {
-              date
-              value
-            }
-            drawdownPortfolio {
-              date
-              value
-            }
-            drawdownBenchmark {
-              date
-              value
-            }
-          }
           errorMessage
         }
         returns {
@@ -172,16 +150,6 @@ query EquitiesAnalystPerformanceFilter($request: AnalystPerformanceFilterRequest
           analystPerformance
           benchmarkPerformance
           excessReturn
-        }
-        stats {
-          mtd
-          qtd
-          ytd
-          oneYear
-          threeYear
-          fiveYear
-          inception
-          type
         }
       }
       totalCount

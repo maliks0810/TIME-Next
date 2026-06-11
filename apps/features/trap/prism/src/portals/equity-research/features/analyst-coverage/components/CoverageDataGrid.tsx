@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "devextreme/dist/css/dx.light.css";
 import { useCallback, useEffect, useState } from "react";
+import { Spin } from "antd";
 import DataGrid, {
   Column,
   SearchPanel,
@@ -22,7 +23,7 @@ import "../../../../../lib/styles.scss";
 
 export default function CoverageDataGrid() {
   const [data, setData] = useState<Coverage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [runDate, setRunDate] = useState("");
 
   const fetchCoverageList = useCallback(async () => {
@@ -115,6 +116,14 @@ export default function CoverageDataGrid() {
         </div>
       </div>
 
+      {isLoading ? (
+        <div
+          className="equity-loading-spin"
+          style={{ height: `calc(90vh - var(--main-header-height))` }}
+        >
+          <Spin size="large" />
+        </div>
+      ) : (
       <DataGrid
         className="analyst-coverage-datagrid analyst-coverage-headers"
         dataSource={data}
@@ -211,6 +220,7 @@ export default function CoverageDataGrid() {
         <Column width={"8%"} dataField="coverageDate" dataType="date" />
         <LoadPanel enabled={isLoading} />
       </DataGrid>
+      )}
     </div>
   );
 }
