@@ -36,7 +36,7 @@ export default function ReturnsOverlayUpload() {
 
   const [role, setRole] = useState<Role>('R2-Developer-ReadWrite');
   const [persona, setPersona] = useState<Persona>('Ops');
-
+  const [noPermission,setNoPermission] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -55,7 +55,17 @@ export default function ReturnsOverlayUpload() {
     if (!claims?.OrgLevel4) return;
 
     const resolvedRole = getRoleByOrg(claims.OrgLevel4) as Role;
-    setRole(resolvedRole);
+    if(resolvedRole === undefined){
+      const resolvedRole1 = getRoleByOrg(claims.OrgLevel1) as Role
+      if(resolvedRole1 !== undefined)
+        setRole(resolvedRole1);
+    }
+    else{
+      setRole(resolvedRole);
+      if(resolvedRole === 'None')
+        setNoPermission('You have no permission to view the page');
+        message.warning('You do not have permission to preview CSV.');
+    }
 
     if (resolvedRole === 'PMRA-Analyst-ReadWrite') {
       setPersona('PerformanceAnalyst');
@@ -226,8 +236,10 @@ export default function ReturnsOverlayUpload() {
   ]);
 
   return (
+
     <Card style={{ borderRadius: 24 }}>
       <Spin spinning={loading} style={{ marginTop: 12 }}>
+        <div>{noPermission}</div>
         <Tabs items={tabItems} />
       </Spin>
 

@@ -4,6 +4,18 @@ import { WorkflowState } from "../lib/services";
 export const EQ_KEY = 'equity-configure-workflow-state';
 export const EM_KEY = 'em-configure-workflow-state';
 export const FI_KEY = 'fi-configure-workflow-state';
+
+export function getKeyByAssetClass(assetClass: string){
+  if(assetClass === 'EQ')
+    return EQ_KEY;
+  if(assetClass === 'EM'){
+    return EM_KEY;
+  }
+  if(assetClass === 'FI'){
+    return FI_KEY;
+  }
+  return '';
+}
 /**
  * Load wizard state from localStorage (safe + typed)
  */

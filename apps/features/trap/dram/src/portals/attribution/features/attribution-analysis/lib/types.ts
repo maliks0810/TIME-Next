@@ -2,6 +2,13 @@ import { MetricLabel } from "./metrics";
 import { PeriodCode } from "./periods";
 
 export type FrequencyMode = "Monthly" | "Daily";
+export type AssetClass = "EM" | "EQ" | "FI";
+
+export const ASSET_CLASS_OPTIONS: { label: string; value: AssetClass }[] = [
+  { label: "Fixed Income (FI)", value: "FI" },
+  { label: "Equity (EQ)", value: "EQ" },
+  { label: "Emerging Market Fixed Income (EM)", value: "EM" },
+];
 
 export interface ColumnMeta {
   key: string;
@@ -54,8 +61,8 @@ export type SelectOption = Readonly<{
   asOfDate: string;
   startDate: string;
   endDate: string;
-  portfolios: string[],
-  benchmarks: string[];
+  portfolios: string,
+  benchmarks: string;
 
   periods: PeriodCode[];
   metrics: MetricLabel[];
@@ -70,5 +77,40 @@ export type SelectOption = Readonly<{
 export type Props = {
   onComplete?: () => void;
   onConfigure?: () => void;
-  onCallback?: (info: string) => void;
+  onCallback?: (info: string, targetView?: string) => void;
+  assetClass?: string;
+  isConfigView?: boolean,
+};
+
+
+export interface DispersionRequest {
+    selectedDate?: string,
+}
+
+export interface DispersionReportResponse {
+    columns?: string,
+    data?: string[]
+}
+
+
+export interface DispersionReportPayloadData {
+  name: string;
+  age: number;
+}
+export type Primitive = string | number | boolean | null;
+export type GridRow = Record<string, Primitive>;
+export type Grid = { title: string; rows?: GridRow[] };
+
+export type AttributionDispersionResponse = {
+  message: string;
+  data: {
+    metadata: {
+      page_title: string;
+      value_date: string;
+      grid_count: number;
+      request_id: string | null;
+      timestamp: string;
+    };
+    grids?: Grid[];
+  }
 };

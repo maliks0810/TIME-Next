@@ -44,7 +44,7 @@ export function HighlightsPanel({ highlights }: Props): React.JSX.Element {
             {highlights.largestSpread
               ? `${highlights.largestSpread.label}: ${formatPct(
                   safeSpread(
-                    highlights.largestSpread.grossReturn,
+                    highlights.largestSpread.benchReturn,
                     highlights.largestSpread.netReturn,
                   ),
                   3,

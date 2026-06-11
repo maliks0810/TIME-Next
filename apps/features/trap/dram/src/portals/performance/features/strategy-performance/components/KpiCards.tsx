@@ -13,7 +13,7 @@ export function KpiCards({ items }: Props): React.JSX.Element {
   return (
     <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
       {items.map((item) => (
-        <Col key={item.key} xs={24} sm={12} lg={8} xl={4}>
+        <Col key={item.key} xs={24} sm={24} lg={12} xl={4}>
           <Card size="small">
             <Text type="secondary">{item.title}</Text>
             <div style={{ marginTop: 8 }}>

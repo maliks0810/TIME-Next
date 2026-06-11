@@ -1,16 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Card, Col, message, Row, Table, Typography } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import { Button, Card, Col, message, Row, Typography } from "antd";
 
 import { api, OptionsResponse } from "../lib/services";
 import { buildPortfolioOptions } from "../lib/helpers";
 import { PortBenchRow, Props } from "../lib/types";
-
-interface SavedView {
-  key: string;
-  name: string;
-  status: string;
-}
 
 /* ---------------------------------- */
 /*  Component */
@@ -20,7 +13,7 @@ export default function EquityPersonaHomePage({ onConfigure, onComplete }: Props
   const [portBenchRows, setPortBenchRows] = useState<PortBenchRow[]>([]);
   useEffect(() => {
     Promise.all([
-      api.getEQOptions().catch((err) => {
+      api.getEQAccounts().catch((err) => {
         console.error("getOptions failed:", err);
         message.warning("Options failed to load; showing saved selections only.");
         return []; // fallback
@@ -77,28 +70,8 @@ export default function EquityPersonaHomePage({ onConfigure, onComplete }: Props
       ["Benchmark Count", `${benchmarkSelectOptions.length}`],
     ];
 
-  const savedViews: SavedView[] = [
-    {
-      key: "1",
-      name: "Equity YTD Review",
-      status: "Draft",
-    },
-  ];
-
-  const columns: ColumnsType<SavedView> = [
-    {
-      title: "Name",
-      dataIndex: "name",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      width: 110,
-    },
-  ];
-
   return (
-    <div style={{margin:'16px'}}>
+    <div style={{margin:'16px' , height: "95vh", overflowY: "auto" }}>
       <Typography.Title level={2}>
         Equity Performance Analyst Persona Home
       </Typography.Title>
@@ -157,17 +130,6 @@ export default function EquityPersonaHomePage({ onConfigure, onComplete }: Props
           </Card>
         </Col>
 
-        <Col xs={24} lg={8}>
-          <Card title="Saved Views">
-            <Table<SavedView>
-              rowKey="key"
-              size="small"
-              pagination={false}
-              dataSource={savedViews}
-              columns={columns}
-            />
-          </Card>
-        </Col>
       </Row>
     </div>
   );

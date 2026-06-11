@@ -5,7 +5,9 @@
 */
 export function getRoleByOrg(group: string): string {
   if (group === 'Inv Risk & Research Tech') return 'R2-Developer-ReadWrite';
-  if (group === 'Performance Measurement & Attribution') return 'PMRA-Analyst-ReadWrite';
+  if (group === 'Performance Measurement & Attribution'
+    || group === 'Investment Risk & Quantitative Research Group'
+  ) return 'PMRA-Analyst-ReadWrite';
   return '';
 }
 
@@ -27,3 +29,4 @@ export function resolveRoleFromOrg(group: string): ResolvedRole {
   const raw = getRoleByOrg(group);
   return isRoleId(raw) ? raw : 'UNKNOWN';
 }
+//Investment Risk & Quantitative Research Group

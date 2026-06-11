@@ -1,0 +1,9 @@
+.abor-ibor-row-total > td {
+  background: #fafafa !important;
+  font-weight: 700;
+  border-top: 2px solid #d9d9d9;
+}
+
+.abor-ibor-row-break > td {
+  background: #fff2f0 !important;
+}
