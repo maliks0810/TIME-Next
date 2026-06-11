@@ -69,7 +69,7 @@ export default function AttributionAnalysisDashboard() {
 
   return (
     <div className="dram-attribution-dashboard">
-      <div style={{ marginTop: 24 }} />
+      <div style={{ marginTop: 12, marginLeft: 24 }} />
       <div className="componentHighlight">
         <Tabs
           activeKey={activeKey}

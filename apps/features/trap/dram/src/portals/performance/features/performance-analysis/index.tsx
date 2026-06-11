@@ -32,7 +32,7 @@ import ExclusionAccountsView from "./components/summary/ExclusionAccountsView";
 import PortfolioTree from "./components/tree/PortfolioTree";
 
 /** Tabs */
-type TabKey = "portfolioHistory" | "benchmarkHistory" | "portfolioNetHistory" | "secondBenchmarkHistory"  ;
+type TabKey = "portfolioHistory"  | "portfolioNetHistory" | "benchmarkHistory" | "secondBenchmarkHistory"  ;
 
 /** Summary view type */
 type SummaryView = "summaryReport" | "summaryList" | "exclusionAccounts";
@@ -496,6 +496,19 @@ React.useEffect(() => {
                       ),
                     },
                     {
+                      key: "portfolioNetHistory",
+                      label: "Portfolio Net History",
+                      children: (
+                        <div style={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
+                          <FeeDetailHistory
+                            portfolioId={selectedPortId ?? ''}
+                            rows={detailNetRows}
+                            onToolbarPreparing={onDetailToolbarPreparing}
+                          />
+                        </div>
+                      ),
+                    },
+                    {
                       key: "benchmarkHistory",
                       label: "Benchmark History",
                       children: (
@@ -504,19 +517,6 @@ React.useEffect(() => {
                             portfolioId={selectedPortId ?? ''}
                             isSecondary={false}
                             rows={detailBMRows}
-                            onToolbarPreparing={onDetailToolbarPreparing}
-                          />
-                        </div>
-                      ),
-                    },
-                    {
-                      key: "portfolioNetHistory",
-                      label: "Portfolio Net History",
-                      children: (
-                        <div style={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
-                          <FeeDetailHistory
-                            portfolioId={selectedPortId ?? ''}
-                            rows={detailNetRows}
                             onToolbarPreparing={onDetailToolbarPreparing}
                           />
                         </div>

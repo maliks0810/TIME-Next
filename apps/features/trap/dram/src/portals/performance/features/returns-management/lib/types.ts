@@ -81,7 +81,7 @@ export type RecomputeResultRow = {
   durationMs?: number;
 };
 
-export type Role = 'ClientServices' | 'PMRA-Analyst-ReadWrite' | 'R2-Developer-ReadWrite';
+export type Role = 'ClientServices' | 'PMRA-Analyst-ReadWrite' | 'R2-Developer-ReadWrite' | 'None';
 export type Persona = 'Ops' | 'PerformanceAnalyst' | 'Risk' | 'ClientService' | 'None';
 
 export type ImportUploadResult = {

@@ -1,7 +1,8 @@
+import { GridConfigResponse } from "../components/dram-grid";
 import { referencePeriods } from "./constants";
 import { PeriodCode } from "./periods";
 import { WorkflowState } from "./services";
-import { PortBenchRow, SelectOption } from "./types";
+import { AttributionDispersionResponse, PortBenchRow, SelectOption } from "./types";
 import { Dayjs } from "dayjs";
 
 export function isMonthEnd(date: Dayjs | null | undefined): boolean {
@@ -137,3 +138,106 @@ export function normalizeWorkflowState(raw: Partial<WorkflowState>): WorkflowSta
     label: p,
     value: p as PeriodCode,
   }));
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+
+export const isGridConfigResponse = (value: unknown): value is GridConfigResponse => {
+  if (!isRecord(value)) return false;
+
+  return (
+	"columnConfigs" in value &&
+	"metrics" in value &&
+	"periods" in value &&
+	"breakdownMode" in value
+  );
+};
+
+/**
+ * Accepts real backend payloads in any of these shapes:
+ * 1) payload.columnConfigs / metrics / periods / breakdownMode
+ * 2) payload.data.columnConfigs / metrics / periods / breakdownMode
+ * 3) payload.gridConfig where gridConfig is the full GridConfigResponse
+ * 4) payload.data.gridConfig where gridConfig is the full GridConfigResponse
+ */
+export const extractGridConfig = (payload: unknown): GridConfigResponse | null => {
+  if (isGridConfigResponse(payload)) {
+  return payload;
+  }
+
+  if (!isRecord(payload)) {
+  return null;
+  }
+
+  if ("gridConfig" in payload && isGridConfigResponse(payload.gridConfig)) {
+  return payload.gridConfig;
+  }
+
+  if ("data" in payload && isRecord(payload.data)) {
+  if (isGridConfigResponse(payload.data)) {
+    return payload.data;
+  }
+
+  if ("gridConfig" in payload.data && isGridConfigResponse(payload.data.gridConfig)) {
+    return payload.data.gridConfig;
+  }
+  }
+
+  return null;
+};
+export function formatDateOnly(value: string | Date): string {
+  // If already YYYY-MM-DD, return as-is
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+
+  const d = typeof value === "string" ? new Date(value) : value;
+
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+export
+function isAttributionDispersionResponse(
+  obj: unknown
+): obj is AttributionDispersionResponse {
+  if (
+    typeof obj !== "object" ||
+    obj === null
+  ) return false;
+
+  const o = obj as AttributionDispersionResponse;
+
+  return (
+    typeof o.message === "string" &&
+    typeof o.data === "object" &&
+    o.data !== null &&
+    typeof o.data.metadata === "object"
+  );
+}
+export function normalizeDispersionResponse(
+  input: unknown
+): AttributionDispersionResponse | undefined {
+  if (!input) return undefined;
+
+  if (
+    typeof input === "object" &&
+    input !== null &&
+    "data" in input
+  ) {
+    const candidate = (input as { data: unknown }).data;
+
+    if (isAttributionDispersionResponse(candidate)) {
+      return candidate;
+    }
+  }
+
+  if (isAttributionDispersionResponse(input)) {
+    return input;
+  }
+
+  return undefined;
+}
