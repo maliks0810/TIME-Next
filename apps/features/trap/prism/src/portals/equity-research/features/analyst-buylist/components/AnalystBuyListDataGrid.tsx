@@ -2,7 +2,7 @@
 import "devextreme/dist/css/dx.light.css";
 import "../../../../../lib/styles.scss";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Segmented } from "antd";
+import { Segmented, Spin } from "antd";
 import DataGrid, {
   Column,
   Grouping,
@@ -17,6 +17,7 @@ import FormatPercent, {
   formatAnalystPerformanceLabel,
 } from "../../../lib/helpers";
 import { ClientSideExport } from "./ClientSideExport";
+import { WeeklyEquitiesExport } from "./WeeklyEquitiesExport";
 import { RecommendationItem } from "../../analyst-buylist/lib/types";
 import { getBuyList, getDroppedList } from "../../../../../lib/services";
 
@@ -24,7 +25,7 @@ type GridRow = RecommendationItem & { droppedDate?: string };
 
 export default function AnalystBuyListDataGrid() {
   const [data, setData] = useState<GridRow[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [runDate, setRunDate] = useState("");
   const [listType, setListType] = useState<"Buy List" | "Dropped List">(
     "Buy List"
@@ -172,6 +173,9 @@ export default function AnalystBuyListDataGrid() {
             alignItems: "center",
           }}
         >
+          <div style={{ opacity: 0.8 }}> Weekly Equities as of {runDate}</div>
+          <WeeklyEquitiesExport />
+          <span style={{ paddingRight: '2vw' }}></span>
           <div style={{ opacity: 0.8 }}>As of {runDate}</div>
           <Segmented
             options={["Buy List", "Dropped List"]}
@@ -182,6 +186,14 @@ export default function AnalystBuyListDataGrid() {
         </div>
       </div>
 
+      {isLoading ? (
+        <div
+          className="equity-loading-spin"
+          style={{ height: `calc(90vh - var(--main-header-height))` }}
+        >
+          <Spin size="large" />
+        </div>
+      ) : (
       <DataGrid
         className="analyst-coverage-datagrid analyst-coverage-headers"
         dataSource={data}
@@ -344,6 +356,7 @@ export default function AnalystBuyListDataGrid() {
 
         <LoadPanel enabled={isLoading} />
       </DataGrid>
+      )}
     </div>
   );
 }
