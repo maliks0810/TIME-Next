@@ -20,7 +20,7 @@ export function AssumptionRow({
                 </span>
 
                 {required && (
-                    <span className={styles.assumptionRequired}>
+                    <span className={styles.stagedHintRequired}>
                         required
                     </span>
                 )}

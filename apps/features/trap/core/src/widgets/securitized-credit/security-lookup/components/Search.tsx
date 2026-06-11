@@ -90,8 +90,8 @@ export const Search = ({
                     ((e.currentTarget as HTMLElement).style.background = token.colorPrimaryBg)
                 }
                 onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLElement).style.background =
-                        index % 2 === 0 ? token.colorBgElevated : token.colorFillAlter)
+                ((e.currentTarget as HTMLElement).style.background =
+                    index % 2 === 0 ? token.colorBgElevated : token.colorFillAlter)
                 }
             >
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -170,7 +170,8 @@ export const Search = ({
                             setSearchType(v);
                             handleClear();
                         }}
-                        style={{ width: 88 }}
+                        className={styles.selectFixed}
+
                     >
                         <Select.Option value="CUSIP">CUSIP</Select.Option>
                         <Select.Option value="ISIN">ISIN</Select.Option>

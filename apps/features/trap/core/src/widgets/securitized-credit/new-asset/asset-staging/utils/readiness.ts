@@ -17,8 +17,8 @@ export function calculateAssetStagingReadiness({
             done: assumptions.price !== null,
         },
         {
-            key: "callable",
-            done: assumptions.callable !== null,
+            key: "collateralType",
+            done: !!assumptions.collateralType,
         },
         {
             key: "callDate",
@@ -26,8 +26,8 @@ export function calculateAssetStagingReadiness({
             active: assumptions.callable === "Y",
         },
         {
-            key: "cleanup",
-            done: assumptions.callable !== "C" || !!assumptions.cleanupValue,
+            key: "callValue",
+            done: assumptions.callable !== "C" || !!assumptions.callValue,
             active: assumptions.callable === "C",
         },
     ];
