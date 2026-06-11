@@ -62,10 +62,13 @@ const MaintenancePortfolioGrid: React.FC = () => {
     portfolioGroups,
     portfolioGroupXrefs,
     reload,
+    onSelectionChanged,
+    selectedPortfolioId,
+
     addPortfolio,  
     modifyPortfolio,  
     removePortfolio,
-    reloadGroupXref,
+    //reloadGroupXref,
     addPortfolioGroupXref,
     modifyPortfolioGroupXref,
     removePortfolioGroupXref,
@@ -73,8 +76,6 @@ const MaintenancePortfolioGrid: React.FC = () => {
   } = usePortfolios({ userInfo: userData });  
 
   const [popupTitle, setPopupTitle] = useState('');  
-  const [portfolioGroupFilterXrefs,setPortfolioGroupFilterXrefs] = useState<MaintenancePortfolioGroupXref[]>([])
-  const [selectedPortfolioId,setSelectedPortfolioId] = useState<number>()
 
   const [toastConfig, setToastConfig] = useState<ToastConfig>({  
     visible: false,  
@@ -165,12 +166,7 @@ const MaintenancePortfolioGrid: React.FC = () => {
 
           // refresh from server/state source
           await reload();
-
-          // if portfolio list changed, refresh xref filter (optional)
-          if (selectedPortfolioId) {
-            const filterGrpXref = portfolioGroupXrefs.filter(x => x.portfolioId === selectedPortfolioId);
-            setPortfolioGroupFilterXrefs(filterGrpXref);
-          }
+          
         } catch (err) {
           showToast(`Save error: ${(err as Error).message}`, 'error');
           throw err;
@@ -184,7 +180,7 @@ const MaintenancePortfolioGrid: React.FC = () => {
       reload,
       showToast,
       portfolios,
-      portfolioGroupXrefs,
+      //reloadGroupXref,
       selectedPortfolioId,
       isAdmin
     ]
@@ -227,13 +223,7 @@ const MaintenancePortfolioGrid: React.FC = () => {
 
           e.component.cancelEditData();
 
-          await reloadGroupXref();
-
-          // re-apply filter after reload (so the tab stays in sync)
-          if (selectedPortfolioId) {
-            const filterGrpXref = portfolioGroupXrefs.filter(x => x.portfolioId === selectedPortfolioId);
-            setPortfolioGroupFilterXrefs(filterGrpXref);
-          }
+          //await reloadGroupXref();          
         } catch (err) {
           showToast(`Save error: ${(err as Error).message}`, 'error');
           throw err;
@@ -244,7 +234,7 @@ const MaintenancePortfolioGrid: React.FC = () => {
       addPortfolioGroupXref,
       modifyPortfolioGroupXref,
       removePortfolioGroupXref,
-      reloadGroupXref,
+      //reloadGroupXref,
       showToast,
       selectedPortfolioId,
       portfolioGroupXrefs,
@@ -253,15 +243,6 @@ const MaintenancePortfolioGrid: React.FC = () => {
   );
 
   
-  // selection  
-  const onSelectionChanged = async (selectedKeys: number[]) => {
-      const key: number = selectedKeys[0];
-      setSelectedPortfolioId(key);
-
-      const filterGrpXref: MaintenancePortfolioGroupXref[] = portfolioGroupXrefs.filter(x=> x.portfolioId == key);
-      setPortfolioGroupFilterXrefs(filterGrpXref);
-  }; 
-
   /** Portfolio Group XRef */
   const handleXRefEditingStart = () => {  
     setPopupTitle('Edit Portfolio Group XRef');  
@@ -363,7 +344,7 @@ return (
         <TabItem title="Portfolio Group xRef">
           <div className="grid-container-small">
             <DataGrid 
-              dataSource={portfolioGroupFilterXrefs}
+              dataSource={portfolioGroupXrefs}
               keyExpr="portfolioGroupXrefId"  
               allowColumnResizing={true}  
               allowColumnReordering={true}  
@@ -395,7 +376,7 @@ return (
                   wrapperAttr={{ className: 'custom-popup-class' }}  
                 />  
                 <div className='div-container-center'>
-                  <Form colCount={1} width="90%">
+                  <Form colCount={1} width="95%">
                     <FormItem dataField="portfolioId" label={{text:"Portfolio"}} editorType="dxSelectBox" 
                       editorOptions={{
                         dataSource: portfolios, displayExpr:"portfolioName", valueExpr:"portfolioId",
