@@ -85,7 +85,7 @@ export async function getAlphaRankings(
 
   });
 
-  const response = await fetch(buildDram2Url(`/api/performance/pa/alpha-rankings?${qs.toString()}`), {
+  const response = await fetch(buildDram2Url(`/api/performance/pa/alpha-rankings/?${qs.toString()}`), {
     method: "GET",
     headers: {
       Accept: "application/json",
