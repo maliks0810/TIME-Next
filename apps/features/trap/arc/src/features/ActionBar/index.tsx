@@ -1,8 +1,10 @@
 import { AbandonButton } from '../UtilityBar/ActionButtons/AbandonButton';
+import { AcceptButton } from './ActionButtons/AcceptButton';
 import { PublishAnalyticsButton } from './ActionButtons/PublishAnalyticsButton';
 import { PublishButton } from './ActionButtons/PublishButton';
 import { PublishToTDCButton } from './ActionButtons/PublishToTDC';
 import { PushToManualButton } from './ActionButtons/PushToManual';
+import { RejectButton } from './ActionButtons/RejectButton';
 import { RunAnalyticsButton } from './ActionButtons/RunAnalyticsButton';
 import { message } from 'antd';
 
@@ -36,6 +38,8 @@ export const ActionBar = ({ selectedAssetStatus, selectedPayload, setIsActionInp
                     selectedAssetStatus={selectedAssetStatus}
                     setIsActionInprogress={setIsActionInprogress}
                 />
+                <AcceptButton messageApi={messageApi} selectedAssetStatus={selectedAssetStatus} selectedPayload={selectedPayload} setIsActionInprogress={setIsActionInprogress} />
+                <RejectButton messageApi={messageApi} selectedAssetStatus={selectedAssetStatus} selectedPayload={selectedPayload} setIsActionInprogress={setIsActionInprogress} />
                 <PushToManualButton
                     messageApi={messageApi}
                     selectedAssetStatus={selectedAssetStatus}

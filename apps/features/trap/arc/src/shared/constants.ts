@@ -1,4 +1,5 @@
 export const STATUSES = [
+    'Correction',
     'Manual',
     'Analytics Input Pending Review',
     'Analytics Input Sent To Aladdin',
@@ -7,6 +8,7 @@ export const STATUSES = [
     'Analytics Sent To Aladdin',
     'Analytics Verified In Aladdin',
     'Abandoned',
+    'Cancelled',
     'Invalid Request',
 ];
 
@@ -71,3 +73,7 @@ export const ANALYTICS_INTERFACE = '315';
 export const BOND_INTERFACE = '324';
 export const STATIC_INTERFACE = '425';
 
+export const ACCEPT_BUTTON_HELPTEXT =
+    'Enabled for status Correction or Cancel.';
+export const REJECT_BUTTON_HELPTEXT =
+    'Enabled for status Correction or Cancel.';
