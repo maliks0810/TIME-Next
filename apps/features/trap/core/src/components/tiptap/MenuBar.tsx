@@ -6,6 +6,20 @@ import clsx from 'clsx';
 import { debounce } from 'lodash';
 import { InputNumber } from 'antd';
 import { useEffect, useState } from 'react';
+
+const getFontSize = (value: number | null) => {
+    const fontSize = Number(value);
+
+    switch (true) {
+        case fontSize > 72:
+            return 72;
+        case fontSize < 1:
+            return 1;
+        default:
+            return fontSize;
+    }
+};
+
 /**
  * State selector for the MenuBar component.
  * Extracts the relevant editor state for rendering menu buttons.
@@ -103,7 +117,7 @@ export const MenuBar = ({ editor }: { editor: Editor }) => {
                         className={styles.fontSize}
                         type="number"
                         controls={false}
-                        onChange={(e) => setFontSize(Number(e))}
+                        onChange={(value) => setFontSize(getFontSize(value))}
                         value={fontSize}
                     />
                 </div>

@@ -14,7 +14,7 @@ export type WidgetConfigProperty = {
     context?: Record<string, WidgetValueType>;
     multiselect?: boolean;
     type: 'string' | 'boolean' | 'number';
-    category?: "string";
+    category?: 'string';
 };
 export const PropertyConfig = ({
     property,
@@ -92,7 +92,7 @@ export const PropertyConfig = ({
                 <TextEditor
                     mentionEnabled
                     mentionOptions={Object.keys(context || {})}
-                    initial={(currentValue as string) || property.default.toString()}
+                    initial={(currentValue as string) || property.default?.toString()}
                     onChange={(e) => setField(propertyKey, e)}
                 />
             </>

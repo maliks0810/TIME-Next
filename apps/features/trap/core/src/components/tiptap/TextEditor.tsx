@@ -64,7 +64,12 @@ export const TextEditor = ({
     return (
         <div className={styles.container}>
             <MenuBar editor={editor} />
-            <div className={styles.editoContainer}>
+            <div
+                className={styles.editoContainer}
+                onClick={() => {
+                    editor.chain().focus();
+                }}
+            >
                 <EditorContent editor={editor} className={`${className} ${styles.editor}`} />
             </div>
         </div>

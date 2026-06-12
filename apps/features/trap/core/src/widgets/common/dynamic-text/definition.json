@@ -59,7 +59,7 @@
                 "category": "System Parameters"
             },
             "listensToKeys": {
-                "default": "",
+                "default": null,
                 "title": "Listens to key",
                 "type": "string",
                 "enum": ["example.input", "common.date"],
