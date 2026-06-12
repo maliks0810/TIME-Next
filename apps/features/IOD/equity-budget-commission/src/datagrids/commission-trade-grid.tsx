@@ -86,12 +86,12 @@ export const CommissionTradeGrid = () => {
                 throw Error("Update failed due to Invalid key.");
             
             // Update existing  
-            saveCommissionTradeChange(formData.orderId, formData.crBroker, formData.reason);             
+            await saveCommissionTradeChange(formData.orderId, formData.crBroker, formData.reason);             
             if(isSaveError)
                 showToast('Update failed: Unknown error', 'error');  
             else {
+                await reloadCommissionTrades();
                 showToast('Saved successfully', 'success');  
-                reloadCommissionTrades();
             }
         } catch (error) {  
             if (error instanceof Error) {  

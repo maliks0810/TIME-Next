@@ -151,7 +151,7 @@ const onBudgetSaveClick = useCallback(async ()=> {
   return (
     <div>
       <div className="div-container-left">
-        <TextBox label="Create Budget for Year" labelMode="outside" width={130}          
+        <TextBox label="Create Budget for Year" labelMode="outside" width={130} hint="Create Budget for Year"         
           text={selectedForYear.toString()} value={selectedForYear.toString()} 
           mask="0000" placeholder="YYYY" maskInvalidMessage="Enter valid 4-digit year."
           onValueChanged={(e)=> setSelectedForYear(parseInt(e.value))}
@@ -162,6 +162,7 @@ const onBudgetSaveClick = useCallback(async ()=> {
         </TextBox>
         <SelectBox  
             label="Start From"  
+            hint="Start From"  
             labelMode="outside"  
             dataSource={budgetYears}  
             value={selectedFromYear}  
