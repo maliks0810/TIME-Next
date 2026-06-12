@@ -3,7 +3,16 @@
     border: 1px solid #0000001a;
     width: 100%;
     min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
+
+.editoContainer {
+    max-height: 200px;
+    overflow: auto;
+}
+
 .editor {
     height: 100%;
     padding: 4px;

@@ -64,7 +64,9 @@ export const TextEditor = ({
     return (
         <div className={styles.container}>
             <MenuBar editor={editor} />
-            <EditorContent editor={editor} className={`${className} ${styles.editor}`} />
+            <div className={styles.editoContainer}>
+                <EditorContent editor={editor} className={`${className} ${styles.editor}`} />
+            </div>
         </div>
     );
 };

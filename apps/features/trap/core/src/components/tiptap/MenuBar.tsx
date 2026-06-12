@@ -141,7 +141,7 @@ export const MenuBar = ({ editor }: { editor: Editor }) => {
                     >
                         <s>S</s>
                     </button>
-                    <button
+                    {/* <button
                         onClick={() => editor.chain().focus().toggleCode().run()}
                         disabled={!editorState.canCode}
                         className={
@@ -151,7 +151,7 @@ export const MenuBar = ({ editor }: { editor: Editor }) => {
                         }
                     >
                         Code
-                    </button>
+                    </button> */}
                     <button
                         onClick={() => editor.chain().focus().toggleBulletList().run()}
                         className={
@@ -172,7 +172,7 @@ export const MenuBar = ({ editor }: { editor: Editor }) => {
                     >
                         Ordered list
                     </button>
-                    <button
+                    {/* <button
                         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
                         className={
                             editorState.isCodeBlock
@@ -181,7 +181,7 @@ export const MenuBar = ({ editor }: { editor: Editor }) => {
                         }
                     >
                         Code block
-                    </button>
+                    </button> */}
                     <button
                         onClick={() => editor.chain().focus().toggleBlockquote().run()}
                         className={

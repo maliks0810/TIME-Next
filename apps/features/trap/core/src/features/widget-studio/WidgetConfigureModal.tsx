@@ -52,41 +52,49 @@ export const WidgetConfigureModal = ({
     const required = configSchema['required'];
 
     const groupByCategory = (properties: any) => {
-        return (Object.entries(properties) as [string, WidgetConfigProperty][])
-            .reduce((acc, [key, widgetConfigProperty]: [string, WidgetConfigProperty]) => {
-                const category = widgetConfigProperty.category ? startCase(widgetConfigProperty.category.toLowerCase()) : "Uncategorized";
+        return (Object.entries(properties) as [string, WidgetConfigProperty][]).reduce(
+            (acc, [key, widgetConfigProperty]: [string, WidgetConfigProperty]) => {
+                const category = widgetConfigProperty.category
+                    ? startCase(widgetConfigProperty.category.toLowerCase())
+                    : 'Uncategorized';
                 if (!acc[category]) {
                     acc[category] = [];
                 }
                 acc[category].push({ ...widgetConfigProperty, key });
                 return acc;
-            }, {} as any);
+            },
+            {} as any
+        );
     };
 
-    const collapseItems: CollapseProps['items'] = useMemo(() => Object.entries(groupByCategory(properties))
-        .sort(([a,], [b,]) => a.localeCompare(b))
-        .map(([categoryName, fields]: [string, any]) => ({
-            key: categoryName,
-            label: categoryName,
-            children: (
-                <Space direction="vertical" size="middle">
-                    {
-                        fields?.map((field: any) => {
-                            const key = field.key;
-                            return <PropertyConfig
-                                property={field}
-                                key={key}
-                                setField={setField}
-                                propertyKey={key}
-                                required={required.includes(key)}
-                                currentValue={params[key]}
-                                context={context}
-                            />
-                        })
-                    }
-                </Space>
-            ),
-        })), [properties, required, instance, context, params]);
+    const collapseItems: CollapseProps['items'] = useMemo(
+        () =>
+            Object.entries(groupByCategory(properties))
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([categoryName, fields]: [string, any]) => ({
+                    key: categoryName,
+                    label: categoryName,
+                    children: (
+                        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                            {fields?.map((field: any) => {
+                                const key = field.key;
+                                return (
+                                    <PropertyConfig
+                                        property={field}
+                                        key={key}
+                                        setField={setField}
+                                        propertyKey={key}
+                                        required={required.includes(key)}
+                                        currentValue={params[key]}
+                                        context={context}
+                                    />
+                                );
+                            })}
+                        </Space>
+                    ),
+                })),
+        [properties, required, instance, context, params]
+    );
 
     if (!isOpen) return null; //Don't render on closed
 
@@ -152,11 +160,7 @@ export const WidgetConfigureModal = ({
             centered
         >
             <div className={styles.content}>
-                <Collapse
-                    items={collapseItems}
-                    bordered={false}
-                    expandIconPosition="start"
-                />
+                <Collapse items={collapseItems} bordered={false} expandIconPosition="start" />
             </div>
         </Modal>
     );
