@@ -76,12 +76,12 @@ const {
               throw Error("Update failed due to Invalid key.");
           
           // Update existing  
-          saveCommissionReconChange(reconDetailData.orderId, reconDetailData.crBroker, reconDetailData.reason);             
+          await saveCommissionReconChange(reconDetailData.orderId, reconDetailData.crBroker, reconDetailData.reason);             
           if(isSaveError)
               showToast('Update failed: Unknown error', 'error');  
           else {
+              await reloadReconData();
               showToast('Saved successfully', 'success');  
-              reloadReconData();
           }
       } catch (error) {  
           if (error instanceof Error) {  

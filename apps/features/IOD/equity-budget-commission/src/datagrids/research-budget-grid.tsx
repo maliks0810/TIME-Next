@@ -263,7 +263,7 @@ const ResearchBudgetGrid: React.FC = () => {
                   cssClass="dx-common-selectbox"
                   label={{ text: "Division" }}                
                   editorType='dxSelectBox'
-                  colSpan={2}
+                  colSpan={3}
                 />
               </FormItem>
 
