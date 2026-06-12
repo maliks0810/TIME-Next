@@ -211,6 +211,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         className='dashboard-grid'
         allowColumnResizing={true}
         columnResizingMode='nextColumn'
+        columnMinWidth={100}
         onRowDblClick={handleRowDbleClick}
         onRowClick={onRowClick}
         repaintChangesOnly={false}
