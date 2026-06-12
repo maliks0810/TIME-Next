@@ -96,7 +96,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
   const setCallDateRequiredField = (callableValue: string | null | undefined,
     sectorValue: string | null | undefined): string => {
     if (callableValue === 'Y') return ' *';
-    if (sectorValue === 'RPL' && callableValue !== 'N' && callableValue !== 'Cleanup') return '*';
+    if (sectorValue === 'RPL' && callableValue !== 'N' && callableValue !== 'C') return '*';
     return '';
   }
 

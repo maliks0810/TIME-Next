@@ -38,7 +38,7 @@ export const isValidCallDate = (
   dateValue: string | null | undefined,
 ): boolean => {
   if (sectorValue === "RPL") {
-    if (isValidString(callableValue) && callableValue !== 'N' && callableValue !== 'Cleanup') {
+    if (isValidString(callableValue) && callableValue !== 'N' && callableValue !== 'C') {
       return isValidString(dateValue);
     }
     return true;
