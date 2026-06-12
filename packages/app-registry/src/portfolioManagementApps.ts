@@ -146,5 +146,101 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         component: lazy(() => import('@IOD/bskt-composition/src/App')),
         description: '',
     },
+    {
+        header: NavbarHeader.PortfolioManagement,  
+        subHeader: NavbarSubHeader.Equity,  
+        type: 'internal',  
+        id: '@iod/ebc/maintenance',  
+        name: 'IOD-EBC-Maintenance',  
+        title: 'Budget - Maintenance',  
+        path: '/equity/budget/maintenance',  
+        team: 'IOD',  
+        env: HighestEnv.prod,            
+        component: lazy(() => import('@iod/equity-budget-commission/src/pages/budget-maintenance-page'))       
+    },
+    {
+        header: NavbarHeader.PortfolioManagement,  
+        subHeader: NavbarSubHeader.Equity,  
+        type: 'internal',  
+        id: '@iod/ebc/softdollar',  
+        name: 'IOD-EBC-Softdollar',  
+        title: 'Budget - Soft Dollar Budget',  
+        path: '/equity/budget/softdollarbudget',  
+        team: 'IOD',                  
+        env: HighestEnv.prod,            
+        component: lazy(() => import('@iod/equity-budget-commission/src/pages/budget-soft-dollar-page'))       
+    },    
+    {
+        header: NavbarHeader.PortfolioManagement,  
+        subHeader: NavbarSubHeader.Equity,  
+        type: 'internal',  
+        id: '@iod/ebc/researchbudget',  
+        name: 'IOD-EBC-ResearchBudget',  
+        title: 'Budget - Research Budget',  
+        path: '/equity/budget/researchbudget',  
+        team: 'IOD',                  
+        env: HighestEnv.prod,            
+        component: lazy(() => import('@iod/equity-budget-commission/src/pages/budget-research-budget-page'))       
+    },
+    {
+        header: NavbarHeader.PortfolioManagement,  
+        subHeader: NavbarSubHeader.Equity,  
+        type: 'internal',  
+        id: '@iod/ebc/annualresearchbudget',  
+        name: 'IOD-EBC-AnnualResearchBudget',  
+        title: 'Budget - Create Annual Research Budget',  
+        path: '/equity/budget/annualresearchbudget',  
+        team: 'IOD',                  
+        env: HighestEnv.prod,            
+        component: lazy(() => import('@iod/equity-budget-commission/src/pages/annual-research-budget-page'))       
+    },
+    {
+        header: NavbarHeader.PortfolioManagement,  
+        subHeader: NavbarSubHeader.Equity,  
+        type: 'internal',  
+        id: '@iod/ebc/combinedbudget',  
+        name: 'IOD-EBC-CombinedBudget',  
+        title: 'Commission - Combined Budgets', 
+        path: '/equity/commission/combinedbudget',  
+        team: 'IOD',                  
+        env: HighestEnv.prod,            
+        component: lazy(() => import('@iod/equity-budget-commission/src/pages/commission-combinedbudget-page'))       
+    },
+    {
+        header: NavbarHeader.PortfolioManagement,  
+        subHeader: NavbarSubHeader.Equity,  
+        type: 'internal',  
+        id: '@iod/ebc/commissiontrades',  
+        name: 'IOD-EBC-CombinedBudget',  
+        title: 'Commission - Trades',  
+        path: '/equity/commission/trades',  
+        team: 'IOD',                  
+        env: HighestEnv.prod,            
+        component: lazy(() => import('@iod/equity-budget-commission/src/pages/commission-trade-page'))       
+    },
+    {
+        header: NavbarHeader.PortfolioManagement,  
+        subHeader: NavbarSubHeader.Equity,  
+        type: 'internal',  
+        id: '@iod/ebc/csamonthlycommission',  
+        name: 'IOD-EBC-CSAMonthly',  
+        title: 'Commission - CSA Monthly Commission',  
+        path: '/equity/commission/csa-monthly',  
+        team: 'IOD',
+        env: HighestEnv.prod,            
+        component: lazy(() => import('@iod/equity-budget-commission/src/pages/commission-csa-monthly-page'))
+    },
+    {
+        header: NavbarHeader.PortfolioManagement,  
+        subHeader: NavbarSubHeader.Equity,  
+        type: 'internal',  
+        id: '@iod/ebc/reports',  
+        name: 'IOD-EBC-reports',  
+        title: 'Reports',  
+        path: '/equity/reports',  
+        team: 'IOD',                  
+        env: HighestEnv.prod,            
+        component: lazy(() => import('@iod/equity-budget-commission/src/pages/report-dashboard'))       
+    }
     // PLOP_INJECT_APP
 ]
