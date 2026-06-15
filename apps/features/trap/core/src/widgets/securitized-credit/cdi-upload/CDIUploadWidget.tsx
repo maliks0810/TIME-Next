@@ -215,8 +215,8 @@ export default function CDIUploadWidget({
         [widgetDefId, isDesigner]
     );
 
-    const handleDownload = async () => {
-        if (!fromIntex?.dealName) {
+    const handleDownload = async (dealName: string) => {
+        if (!dealName) {
             return;
         }
 
@@ -224,13 +224,21 @@ export default function CDIUploadWidget({
             widgetDefinitionId: widgetDefId,
             params: {
                 action: 'download',
-                dealName: fromIntex.dealName,
+                dealName,
             },
             context: {},
             mode: isDesigner ? 'MOCK' : 'LIVE',
         });
 
-        const blob = new Blob([result.base64]);
+        // Decode base64 to binary
+        const byteCharacters = atob(result.base64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+
+        const blob = new Blob([byteArray], { type: result.contentType || 'application/octet-stream' });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
 
