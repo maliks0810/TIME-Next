@@ -8,10 +8,12 @@
     border-radius: 0.5rem;
     padding: 4px;
     min-width: 32px;
+    color: var(--ant-color-text);
 }
 
 .isActive {
-    background-color: var(--ant-color-primary-active);
+    background-color: var(--ant-color-bg-solid-active);
+    color: var(--ant-color-bg-base);
 }
 
 .fontSize {

@@ -31,8 +31,8 @@ export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
         canBold: ctx.editor.can().chain().toggleBold().run() ?? false,
         isItalic: ctx.editor.isActive('italic') ?? false,
         canItalic: ctx.editor.can().chain().toggleItalic().run() ?? false,
-        isStrike: ctx.editor.isActive('strike') ?? false,
-        canStrike: ctx.editor.can().chain().toggleStrike().run() ?? false,
+        isUnderline: ctx.editor.isActive('underline') ?? false,
+        canUnderline: ctx.editor.can().chain().toggleUnderline().run() ?? false,
         isCode: ctx.editor.isActive('code') ?? false,
         canCode: ctx.editor.can().chain().toggleCode().run() ?? false,
         canClearMarks: ctx.editor.can().chain().unsetAllMarks().run() ?? false,
@@ -145,15 +145,13 @@ export const MenuBar = ({ editor }: { editor: Editor }) => {
                         <i>I</i>
                     </button>
                     <button
-                        onClick={() => editor.chain().focus().toggleStrike().run()}
-                        disabled={!editorState.canStrike}
-                        className={
-                            editorState.isStrike
-                                ? clsx(styles.button, styles.isActive)
-                                : styles.button
-                        }
+                        onClick={() => editor.chain().focus().toggleUnderline().run()}
+                        disabled={!editorState.canUnderline}
+                        className={clsx(styles.button, {
+                            [styles.isActive]: editorState.isUnderline,
+                        })}
                     >
-                        <s>S</s>
+                        <u>U</u>
                     </button>
                     {/* <button
                         onClick={() => editor.chain().focus().toggleCode().run()}
