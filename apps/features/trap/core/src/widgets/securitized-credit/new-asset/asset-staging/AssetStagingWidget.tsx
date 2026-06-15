@@ -479,8 +479,9 @@ export default function AssetStagingWidget({
 
     // ─── Step 4: Launch — merge snapshot + user inputs → call GraphQL ───
     const handleLaunch = React.useCallback(async () => {
-        setStageError(null);
-        setStageSuccess(false);
+        // Don't clear banners here — wait for final result
+
+        if (submitting) return; // Guard against double-click
 
         const errors = validateStagingForm({
             extId,
@@ -524,7 +525,10 @@ export default function AssetStagingWidget({
             });
         }
 
+        // Now commit — disable button, hide previous banners
         setSubmitting(true);
+        setStageError(null);
+        setStageSuccess(false);
 
         try {
             const { result: stageResult } = await executeWidget({
@@ -545,15 +549,11 @@ export default function AssetStagingWidget({
 
             // Check for error returned from backend
             if (staged?.success === false || staged?.error) {
-                const errorMsg = String(staged.error ?? "Asset staging failed — try again");
-                setStageError(errorMsg);
-                message.error(errorMsg);
-                setSubmitting(false);
+                setStageError(String(staged.error ?? "Asset staging failed — try again"));
                 return;
             }
 
             // Success
-            setStageError(null);
             setStageSuccess(true);
 
             if (staged?.omUploaded === false && staged?.omError) {
@@ -573,7 +573,6 @@ export default function AssetStagingWidget({
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : "Asset staging failed — try again";
             setStageError(msg);
-            message.error(msg);
         } finally {
             setSubmitting(false);
         }
@@ -582,6 +581,7 @@ export default function AssetStagingWidget({
         collateralType, assumptions, uiActions, widgetDefId,
         isDesigner, omFile, prepaymentType, prepaymentValue,
         defaultType, defaultValue, payloadFields, validationErrors,
+        submitting,
     ]);
 
     const handleValidationErrorChange = React.useCallback((errors: Partial<ValidationErrors>) => {
@@ -785,7 +785,7 @@ export default function AssetStagingWidget({
                                     <Button
                                         type="primary"
                                         icon={<ArrowRightOutlined />}
-                                        disabled={!readiness.canLaunch || stageSuccess}
+                                        disabled={!readiness.canLaunch || stageSuccess || submitting}
                                         loading={submitting}
                                         onClick={handleLaunch}
                                         style={{ width: "100%" }}

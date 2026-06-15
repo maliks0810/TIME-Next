@@ -34,7 +34,7 @@ type RecetlyIngestedProps = {
     reset: () => void;
     publishDeal: (deal: { dealName: string; sessionId: string }) => void;
     config: WidgetComponentProps['widgetInstance']['config'];
-    handelDownload: () => void;
+    handelDownload: (dealName: string) => void;
     onFileDelete: (id: string) => void;
 };
 
@@ -233,7 +233,7 @@ export const RecetlyIngested = ({
                             {fromIntex.dealName}
                         </span>
 
-                        <DownloadOutlined onClick={handelDownload} />
+                        <DownloadOutlined onClick={() => handelDownload(fromIntex.dealName)} />
                     </div>
 
                     <MetaRow label="Uploaded" value={fromIntex.uploadedAt} />
@@ -401,12 +401,12 @@ export const RecetlyIngested = ({
                                 transition: 'background 0.1s',
                             }}
                             onMouseEnter={(e) =>
-                                ((e.currentTarget as HTMLElement).style.background =
-                                    token.colorPrimaryBg)
+                            ((e.currentTarget as HTMLElement).style.background =
+                                token.colorPrimaryBg)
                             }
                             onMouseLeave={(e) =>
-                                ((e.currentTarget as HTMLElement).style.background =
-                                    idx % 2 === 0 ? token.colorBgContainer : token.colorFillAlter)
+                            ((e.currentTarget as HTMLElement).style.background =
+                                idx % 2 === 0 ? token.colorBgContainer : token.colorFillAlter)
                             }
                         >
                             <DatabaseOutlined
@@ -453,8 +453,21 @@ export const RecetlyIngested = ({
                                     menu={{
                                         items: [
                                             {
+                                                key: 'download',
+                                                label: 'Download',
+                                                icon: <DownloadOutlined style={{ fontSize: 12 }} />,
+                                                onClick: (e) => {
+                                                    e.domEvent.stopPropagation();
+                                                    handelDownload(deal.dealName);
+                                                },
+                                            },
+                                            {
+                                                type: 'divider',
+                                            },
+                                            {
                                                 key: 'delete',
                                                 label: 'Delete',
+                                                icon: <CloseCircleOutlined style={{ fontSize: 12 }} />,
                                                 danger: true,
                                                 onClick: (e) => {
                                                     e.domEvent.stopPropagation();
