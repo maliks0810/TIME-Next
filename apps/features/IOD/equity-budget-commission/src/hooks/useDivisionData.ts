@@ -23,7 +23,8 @@ export function useDivisions({ userInfo }: UseDivisionsProps) {
   const reload = useCallback(async () => {
     const data = await fetchDivisions();
     setDivisions(normalize(data));
-    checkAdmin(adminData);    
+    if(adminData.length > 0)
+      checkAdmin(adminData);    
   }, [normalize]);
 
   useEffect(() => {
@@ -32,8 +33,9 @@ export function useDivisions({ userInfo }: UseDivisionsProps) {
       const [adData] = await Promise.all([
         fetchAdminUsers()
       ]);
-      setAdminData(adData);
+      
       checkAdmin(adData);
+      setAdminData(adData);
     };
     loadAdminData();
     void reload();

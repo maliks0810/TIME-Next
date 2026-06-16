@@ -30,7 +30,7 @@
 .dx-datagrid-headers .dx-header-row .dx-datagrid-text-content {
   font-weight: bold;
   font-family: Helvetica Neue,Segoe UI,helvetica,verdana,sans-serif;
-  font-size: 12px;
+  font-size: 12px!important;
   color: #f0f0f0;
   text-align: center;
 }
@@ -43,7 +43,7 @@
 {
   font-weight: 400;
   font-family: Helvetica Neue,Segoe UI,helvetica,verdana,sans-serif;
-  font-size: 12px; 
+  font-size: 12px!important; 
 }
 .redHighlight {
     color: red !important;
@@ -81,7 +81,7 @@
 .dx-editor-outlined.dx-texteditor-label-outside .dx-label span
 {
     text-align: left;
-    font-size: 12px;
+    font-size: 12px!important;
     font-family: Roboto, Helvetica, Arial, sans-serif;
     font-weight: 500;
 }
@@ -137,7 +137,7 @@
 
 .dx-popup-title.dx-toolbar{
     background-color: #337ab7;
-    font-size: 12px;
+    font-size: 12px!important;
     color: white;
     font-family: Roboto, Helvetica, Arial, sans-serif;
     font-weight: 500;
@@ -154,14 +154,14 @@
 }
 .custom-popup-class .dx-popup-title {
     background-color: #337ab7;
-    font-size: 12px;
+    font-size: 12px!important;
     color: white;
     padding-top: 10px;    
 }
 
 .custom-popup-selectbox {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     font-weight: 500;
     line-height: 1.4375em;
     letter-spacing: 0.00938em;
@@ -180,7 +180,7 @@
 
 .custom-popup-selectbox-long {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     font-weight: 500;
     line-height: 1.4375em;
     letter-spacing: 0.00938em;
@@ -198,7 +198,7 @@
 
 .dx-layout-manager .dx-label-h-align .dx-field-item-label .dx-field-item-label-content .dx-field-item-label-text{
     color: rgba(0, 0, 0, 0.87)!important; /* Example: Dark gray */
-    font-size: 12px;
+    font-size: 12px!important;
     font-weight: bold;
     font-family: Roboto, Helvetica, Arial, sans-serif;
     }
@@ -238,7 +238,7 @@
 .textInput-popup-num
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: '50%';
     font-weight: 400;
     text-align: left;
@@ -254,7 +254,7 @@
 .textInput-popup-num-wt-margin
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: '50%';
     font-weight: 400;
     text-align: left;
@@ -268,7 +268,7 @@
 .textInput-popup-short
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 200px;
     font-weight: 500;
     text-align: left;
@@ -283,7 +283,7 @@
 .textInput-popup
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 250px;
     font-weight: 500;
     text-align: left;
@@ -297,7 +297,7 @@
 .textInput-popup-date
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 250px;
     font-weight: 500;
     text-align: left;
@@ -313,7 +313,7 @@
 .textInput-popup-long
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 300px;
     text-align: left;
 }
@@ -325,7 +325,7 @@
 .textInput-popup-verylong
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 400px;
     text-align: left;
 }
@@ -333,7 +333,7 @@
 .form-input-short
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 150px;
     font-weight: 500;
     text-align: left;
@@ -348,7 +348,7 @@
 .form-input-long
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 250px;
     font-weight: 500;
     text-align: left;
@@ -374,7 +374,7 @@
 .label-title
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 200px;
     text-align: left;
 }
@@ -392,7 +392,7 @@
 .label-title.row
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 200px;
     text-align: left;
     font-weight: 500;
@@ -479,7 +479,7 @@ $active-bg: #ffffff;
 $border-color: #dee2e6;
 $active-border-color: #0056b3;
 $font-family: Roboto, Helvetica, Arial, sans-serif;
-$font-size: 12px;
+$font-size: 12px!important;
 
 /* Target the main TabPanel container and its inner components */
 .custom-tab-panel {
@@ -631,7 +631,7 @@ $font-size: 12px;
 
 .nested-tab-container .dx-tab {
     background-color: #f0f0f0; /* Example: change background of nested tabs */
-    font-size: 12px; /* Example: change font size */
+    font-size: 12px!important; /* Example: change font size */
     padding: 5px 10px; /* Example: adjust padding */
 }
 
@@ -682,7 +682,7 @@ $font-size: 12px;
 
 .header-wrap{
   word-wrap: normal;
-  font-size:12px;
+  font-size:12px!important;
   font-family: Roboto, Helvetica, Arial, sans-serif;
   font-weight: bold;
   color:#f0f0f0;
@@ -786,13 +786,13 @@ $font-size: 12px;
   /* Form layout */
   .modern-popup-form {
     .dx-field-item-label-text {
-      font-size: 12px;
+      font-size: 12px!important;
       font-weight: 500;
       color: #6b7280; // slate-500
     }
 
     .dx-texteditor-input {
-      font-size: 12px;
+      font-size: 12px!important;
     }
   }
  
@@ -848,13 +848,13 @@ $font-size: 12px;
   }
 
   .dx-field-item-label-text {
-    font-size: 14px;
+    font-size: 12px!important;
     font-weight: 600;
     color: #6b7280; // slate-500
   }
 
   .dx-texteditor-input {
-    font-size: 12px;
+    font-size: 12px!important;
     padding: 6px 8px;
   }
 }
@@ -887,7 +887,7 @@ $font-size: 12px;
 .textInput-popup-num .dx-texteditor-input {
   text-align: left;
   font-variant-numeric: tabular-nums;
-  font-size: 12px;
+  font-size: 12px!important;
 }
 
 /* ============================= */
@@ -895,7 +895,7 @@ $font-size: 12px;
 /* ============================= */
 .custom-popup-selectbox {
   .dx-texteditor-input {
-    font-size: 12px;
+    font-size: 12px!important;
   }
 }
 
@@ -917,13 +917,13 @@ $font-size: 12px;
 
     /* TEXT Inputs */
   .inputText-page {
-    font-size: 12px;
+    font-size: 12px!important;
     padding-bottom: 2px;
   }
 
   /* Inputs */
   .dx-texteditor-input {
-    font-size: 12px;
+    font-size: 12px!important;
     padding: 7px 10px;
   }
 
@@ -945,7 +945,7 @@ $font-size: 12px;
 
   /* Group title */
   .dx-form-group-caption {
-    font-size: 13px;
+    font-size: 13px!important;
     font-weight: 700;
     color: #111827;
     margin-bottom: 10px;
@@ -966,5 +966,5 @@ $font-size: 12px;
 
 /* Optional: make select boxes feel consistent */
 .modern-detail-form .dx-selectbox .dx-texteditor-input {
-  font-size: 12px;
+  font-size: 12px!important;
 }

@@ -156,7 +156,11 @@ const MaintenanceDivisionGrid: React.FC = () => {
           allowDeleting={isAdmin? true: false}
           useIcons={true}
         >
-          <Popup showTitle={true} title={popupTitle} width="30%" height="25%" wrapperAttr= {{ className:'custom-popup-class' }} />
+          <Popup showTitle={true} title={popupTitle} 
+            width="30%" height="20%" 
+            minHeight='200px' 
+            minWidth='300px' 
+            wrapperAttr= {{ className:'custom-popup-class' }} />
           <Form colCount={1} width="90%">
               <FormItem dataField="active" label={{text:"Active"}} editorType="dxCheckBox" />
               <FormItem name="divisionName" />
