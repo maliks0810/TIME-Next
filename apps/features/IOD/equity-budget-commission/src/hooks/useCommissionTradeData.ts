@@ -32,8 +32,8 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [batchFormData, setBatchFormData] = useState({  
-    reason: '',        
-    creditBroker: '', 
+    reason: null,        
+    creditBroker: null, 
   });  
 
   useEffect(() => {  
@@ -128,19 +128,19 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
       // create CommissionTradeDetails from CommissionTrade 
       const childData: CommissionTradeDetails =  {
         orderId: rowData.orderId,  
-        trader: rowData.trader,  
-        ticker: rowData.ticker,  
-        side: rowData.side,  
-        cusip: rowData.cusip,  
-        currency: rowData.currency,  
-        crBroker: rowData.creditBroker,  
-        exBroker: rowData.execBroker,  
+        trader: rowData.trader??'',  
+        ticker: rowData.ticker??'',  
+        side: rowData.side??'',  
+        cusip: rowData.cusip??'',  
+        currency: rowData.currency??'',  
+        crBroker: rowData.creditBroker??'',  
+        exBroker: rowData.execBroker??'',  
         strategy: '',  
-        division: rowData.divisionName,  
+        division: rowData.divisionName??'',  
         shares: rowData.shares,  
         commission: rowData.totalComm,  
         price: rowData.price,  
-        reason: rowData.reason,  
+        reason: rowData.reason??'',  
       }; 
       return childData;
   }
@@ -149,7 +149,7 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
   const handleBatchUpdate = useCallback(() => {  
     if (selectedRowKeys.length > 1) {  
       setBatchPopupVisible(true);  
-    }  
+    }
   }, [selectedRowKeys]);  
 
   const closeBatchUpdatePopup = () => {  
@@ -167,8 +167,8 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
       const tradeIds: string[] = selectedRowKeys.map(s=> s);
       const updateDto: CommissionTradeBatchRequestDto = {
         orderId: tradeIds,
-        creditBroker: batchFormData.creditBroker,
-        reason: batchFormData.reason,
+        creditBroker: batchFormData.creditBroker??'',
+        reason: batchFormData.reason??'',
         lastUpdateBy: userInfo.name
       }
       const result = await saveBatchUpdateChanges(updateDto);
