@@ -150,7 +150,9 @@ return (
             showTitle={true}  
             title={popupTitle}  
             width="30%"  
-            height="30%" 
+            height="25%"
+            minHeight='200px' 
+            minWidth='350px' 
             wrapperAttr={{ className: 'custom-popup-class' }}  
           />  
           <Form width="90%" colCount={1}>  

@@ -234,8 +234,10 @@ const MaintenanceBrokerGroupGrid = () => {
                   <Popup
                     title={popupTitle}
                     width="30%"
-                    height="30%"
+                    height="20%"
                     showTitle
+                    minHeight='200px' 
+                    minWidth='350px' 
                   />
                   <Form colCount={1} width="95%">
                     <FormItem dataField="active" label={{ text: 'Active' }} editorType="dxCheckBox" />

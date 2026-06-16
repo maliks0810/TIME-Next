@@ -327,6 +327,8 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                     title={popupTitle}
                     width="40%"
                     height="30%"
+                    minHeight='250px' 
+                    minWidth='400px' 
                     wrapperAttr={{ className: 'custom-popup-class' }}
                   />
                   <div className="div-container-center">
@@ -416,6 +418,8 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                       title={popupTitle}
                       width="30%"
                       height="30%"
+                      minHeight='250px' 
+                      minWidth='400px' 
                       wrapperAttr={{ className: 'custom-popup-class' }}
                     />
                     <div className="div-container-center">
@@ -429,7 +433,7 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                         editorOptions={{
                           searchEnabled: true, searchMode: "contains" 
                         }}                      
-                        cssClass="dx-common-selectbox-short60"
+                        cssClass="dx-common-selectbox-short80"
                       />
                       <FormItem
                         dataField="brokerCode" editorType="dxSelectBox" label={{text:"Broker"}} 
@@ -449,7 +453,7 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                           dataSource:directedRules, valueExpr:"directedRulesId", displayExpr:"directedRulesName",
                           searchEnabled: true, searchMode: "contains"
                         }}
-                        cssClass="dx-common-selectbox-short80"
+                        cssClass="dx-common-selectbox"
                       />                      
                     </Form>
                   </div>

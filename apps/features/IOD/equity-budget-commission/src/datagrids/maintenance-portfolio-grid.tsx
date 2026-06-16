@@ -296,7 +296,9 @@ return (
                   showTitle={true}  
                   title={popupTitle}  
                   width="30%"  
-                  height="35%" 
+                  height="30%" 
+                  minHeight='250px' 
+                  minWidth='400px' 
                   wrapperAttr={{ className: 'custom-popup-class' }}  
                 />  
                 <div className='div-container-center'>
@@ -371,8 +373,10 @@ return (
                   data-testid="popup"  
                   showTitle={true}  
                   title={popupTitle}  
-                  width="35%"  
-                  height="30%" 
+                  width="30%"  
+                  height="25%" 
+                  minHeight='200px' 
+                  minWidth='400px' 
                   wrapperAttr={{ className: 'custom-popup-class' }}  
                 />  
                 <div className='div-container-center'>
@@ -382,13 +386,13 @@ return (
                         dataSource: portfolios, displayExpr:"portfolioName", valueExpr:"portfolioId",
                         searchEnabled:true, searchMode: "contains"
                       }}
-                      cssClass="dx-common-selectbox-short80" />
+                      cssClass="dx-common-selectbox" />
                     <FormItem dataField="portfolioGroupId" label={{text:"Portfolio Group"}} editorType="dxSelectBox"
                       editorOptions={{
                         dataSource: portfolioGroups, displayExpr:"portfolioGroupName", valueExpr:"portfolioGroupId",
                         searchEnabled:true, searchMode: "contains"
                       }} 
-                      cssClass="dx-common-selectbox-short80" />   
+                      cssClass="dx-common-selectbox" />   
                   </Form>  
                 </div>
               </Editing>  
