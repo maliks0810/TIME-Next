@@ -25,6 +25,7 @@ export const CommissionTradeGrid = () => {
     const endDate = new Date();  // end date - Current Day
     startDate.setDate(endDate.getDate() - 14);
     const userInfo = useUserInfo();
+    const [tradeDataSaving, setTradeDataSaving] = useState(false);
 
     const { isLoading, isSaveError, isBatchSaveError,
             selectedBeginDate,
@@ -84,7 +85,8 @@ export const CommissionTradeGrid = () => {
         try {  
             if(formData?.orderId == undefined)
                 throw Error("Update failed due to Invalid key.");
-            
+
+            setTradeDataSaving(true);
             // Update existing  
             await saveCommissionTradeChange(formData.orderId, formData.crBroker, formData.reason);             
             if(isSaveError)
@@ -96,25 +98,32 @@ export const CommissionTradeGrid = () => {
         } catch (error) {  
             if (error instanceof Error) {  
                 showToast('Save failed: ' + error.message, 'error');  
-            }  
-        }  
+            }
+        }
+        finally{
+            setTradeDataSaving(false);
+        }
     }; 
 
     const onBatchPopupSave = async () => {
        try {            
+            setTradeDataSaving(true);
             // Batch Update existing  
-            saveBatchUpdateChange();             
+            await saveBatchUpdateChange();             
             if(isBatchSaveError)
                 showToast('Batch Update failed: Unknown error', 'error');  
             else {    
+                await reloadCommissionTrades();
                 showToast('Batch Saved successfully', 'success');            
-                reloadCommissionTrades();
             }
         } catch (error) {  
             if (error instanceof Error) {  
                 showToast('Save failed: ' + error.message, 'error');  
             }  
-        } 
+        }
+        finally{
+            setTradeDataSaving(false);
+        }
     };
 
     return (
@@ -193,7 +202,7 @@ export const CommissionTradeGrid = () => {
         /> 
         {/* Popup form details */}
         <div>
-
+        { formData &&
             <Popup
                 visible={popupVisible}
                 onHiding={handleClosePopup}
@@ -284,7 +293,7 @@ export const CommissionTradeGrid = () => {
                             searchEnabled: true,
                             dataSource: brokersData.filter(
                                 (broker) => broker.execBroker === formData?.exBroker
-                            ),
+                            )??[],
                             displayExpr: "creditBrokerName",
                             valueExpr: "creditBroker"
                         }}
@@ -360,12 +369,14 @@ export const CommissionTradeGrid = () => {
 
                 <div className="popup-footer" style={{textAlign:'center'}}>
                     <Button text="Cancel" stylingMode="text" onClick={handleClosePopup} />
-                    <Button text="Save" type="default" onClick={onPopupSave} />
+                    <Button text={tradeDataSaving?"Saving..":"Save"} disabled={tradeDataSaving} type="default" onClick={onPopupSave} />
                 </div>
             </Popup>
-
-            </div>
+        }
+        </div>
             {/* Batch update popup */}  
+        <div>
+        { batchPopupVisible &&
             <Popup  
                 visible={batchPopupVisible}  
                 onHiding={closeBatchUpdatePopup}  
@@ -378,7 +389,8 @@ export const CommissionTradeGrid = () => {
             >  
                 {/* Example batch update form or content */}  
                 <div style={{ padding: 20 }}>  
-                    <Form colCount={1} formData={batchFormData} onFieldDataChanged={(e) => {     
+                    <Form colCount={1} formData={batchFormData} 
+                        onFieldDataChanged={(e) => {     
                             if(e.dataField === "reason")                      
                                 batchFormData.reason = e.value;
                             if(e.dataField === "creditBroker")                      
@@ -391,32 +403,35 @@ export const CommissionTradeGrid = () => {
                           cssClass="dx-common-selectbox" 
                           editorOptions={{ 
                             searchEnabled: true,  
-                            dataSource: uniqueCRBrokers,
-                            displayExpr: "creditBrokerName",   // field to display
-                            valueExpr: "creditBroker",     // field to use as the value                              
+                            searchMode: "contains",
+                            dataSource: uniqueCRBrokers ?? [],
+                            displayExpr: 'creditBrokerName',   // field to display
+                            valueExpr: 'creditBroker',     // field to use as the value                              
                           }} />
-                        <Item colSpan={1}></Item>
+                        <Item colSpan={1} itemType='empty'></Item>
                         <Item dataField ="reason" colSpan={1} label={{text:"Reason"}} 
                           editorType="dxSelectBox" 
                           cssClass="dx-common-selectbox" 
                           editorOptions = {{
-                            items: reasonData,    // data source for the dropdown
-                            displayExpr: "name",  // field to display
-                            valueExpr: "code",    // field to use as the value                              
+                            dataSource: reasonData ?? [],    // data source for the dropdown
+                            displayExpr: 'name',  // field to display
+                            valueExpr: 'code',    // field to use as the value                              
                             searchEnabled: false,  
                           }} />
-                        <Item colSpan={1}></Item>
-                        <Item colSpan={1}></Item>
-                        <Item colSpan={1}></Item>
+                        <Item colSpan={1} itemType='empty'></Item>
+                        <Item colSpan={1} itemType='empty'></Item>
+                        <Item colSpan={1} itemType='empty'></Item>
                         <Item colSpan={1} horizontalAlignment="right">
                             <div className="div-container-center">
-                                <Button text="Save" width={150} height={32} className="dxButton" onClick={() => { onBatchPopupSave(); }}></Button>
+                                <Button text={tradeDataSaving?"Saving..":"Save"} disabled={tradeDataSaving} width={150} height={32} className="dxButton" onClick={() => { onBatchPopupSave(); }}></Button>
                                 <Button text="Cancel" width={150} height={32} className="dxButton" onClick={() => { closeBatchUpdatePopup(); }}></Button>
                             </div>
                         </Item> 
                     </Form>  
                 </div>  
-            </Popup>  
+            </Popup>
+        }
+        </div>  
     </div>
     )
 };

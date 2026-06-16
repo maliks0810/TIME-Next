@@ -877,14 +877,14 @@ return (
           <FormItem dataField="startDate" label={{ text: 'Start Date' }} editorType="dxDateBox" />  
           <FormItem dataField="account" label={{ text: 'Name' }} />  
           <FormItem dataField="endDate" label={{ text: 'End Date' }} editorType="dxDateBox" /> 
-          <FormItem colSpan={2} />  
-          <FormItem colSpan={2} />  
+          <FormItem colSpan={2} itemType='empty'/>  
+          <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} horizontalAlignment="center">  
             <div className="div-container-center">  
               <Button text="Save" onClick={onChildAccountPopupSave} width={100} className="dxButton" />  
               <Button text="Cancel" onClick={onChildAccountPopupCancel} width={100} className="dxButton" />  
             </div>  
-          </FormItem>  
+          </FormItem>
         </Form>  
       )}  
     </Popup>
@@ -923,8 +923,8 @@ return (
               searchEnabled: true, searchMode: "contains", placeholder: "Select a department..."
             }} />
           <FormItem dataField="endDate" label={{ text: 'End Date' }} editorType="dxDateBox" /> 
-          <FormItem colSpan={2} />  
-          <FormItem colSpan={2} />  
+          <FormItem colSpan={2} itemType='empty'/>  
+          <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} horizontalAlignment="center">  
             <div className="div-container-center">  
               <Button text="Save" onClick={onChildPopupUserAllocationSave} width={100} className="dxButton" />  

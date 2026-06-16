@@ -20,47 +20,48 @@ export type BrokerDetailData = {
 }
 
 export const CommissionReconGrid = () => {
-// Derive an initial “year” range
-const startDate = new Date();// start date - 14 Days back from of current day
-const endDate = new Date();  // end date - Current Day
-startDate.setDate(endDate.getDate() - 14);
-const userInfo = useUserInfo();
+    // Derive an initial “year” range
+    const startDate = new Date();// start date - 14 Days back from of current day
+    const endDate = new Date();  // end date - Current Day
+    startDate.setDate(endDate.getDate() - 14);
+    const userInfo = useUserInfo();
+    const [reconDataSaving, setReconDataSaving] = useState(false);
 
     // Use hook calls
-const {  
-  selectedBeginDate,  
-  selectedEndDate,  
-  reconData,  
-  isLoading,
-  handleRefresh,  
-  handleFromDateChanged,  
-  handleToDateChanged,  
-  isAdmin,
-  popupVisible,
-  reconDetailData,
-  reasonsData,
-  brokersData,
-  onRowDblClick,
-  handleClosePopup,
-  isSaveError,
-  reloadReconData,
-  saveCommissionReconChange
-} = useCommissionTradeRecon({userInfo, startDate: startDate, endDate:endDate});  
+    const {  
+        selectedBeginDate,  
+        selectedEndDate,  
+        reconData,  
+        isLoading,
+        handleRefresh,  
+        handleFromDateChanged,  
+        handleToDateChanged,  
+        isAdmin,
+        popupVisible,
+        reconDetailData,
+        reasonsData,
+        brokersData,
+        onRowDblClick,
+        handleClosePopup,
+        isSaveError,
+        reloadReconData,
+        saveCommissionReconChange
+    } = useCommissionTradeRecon({userInfo, startDate: startDate, endDate:endDate});  
 
-  // Toast handling  
-  const [toastConfig, setToastConfig] = useState<ToastConfig>({  
-  visible: false,  
-  message: '',  
-  type: 'info',  
-  });  
-  const showToast = (message: string, type: ToastType) => {  
-      setToastConfig({ visible: true, message, type });  
-  };  
-  const hideToast = () => {  
-      setToastConfig((prev) => ({ ...prev, visible: false }));  
-  };
+    // Toast handling  
+    const [toastConfig, setToastConfig] = useState<ToastConfig>({  
+        visible: false,  
+        message: '',  
+        type: 'info',  
+    });  
+    const showToast = (message: string, type: ToastType) => {  
+        setToastConfig({ visible: true, message, type });  
+    };  
+    const hideToast = () => {  
+        setToastConfig((prev) => ({ ...prev, visible: false }));  
+    };
 
-  const groupCellRender = (cellInfo:DataGridTypes.ColumnGroupCellTemplateData) => {
+    const groupCellRender = (cellInfo:DataGridTypes.ColumnGroupCellTemplateData) => {
     // Access the first summary item (which is our count)
     const count = cellInfo.summaryItems[0].value;
     const countText = `(${count} Trades)`
@@ -75,6 +76,7 @@ const {
           if(reconDetailData?.orderId == undefined)
               throw Error("Update failed due to Invalid key.");
           
+          setReconDataSaving(true);
           // Update existing  
           await saveCommissionReconChange(reconDetailData.orderId, reconDetailData.crBroker, reconDetailData.reason);             
           if(isSaveError)
@@ -87,7 +89,10 @@ const {
           if (error instanceof Error) {  
               showToast('Save failed: ' + error.message, 'error');  
           }  
-      }  
+      }
+      finally{
+        setReconDataSaving(false);
+      }
   }; 
 
 return (  
@@ -343,7 +348,7 @@ return (
 
           <div className="popup-footer" style={{textAlign:'center'}}>
               <Button text="Cancel" stylingMode="text" onClick={handleClosePopup} />
-              <Button text="Save" type="default" onClick={onPopupSave} />
+              <Button text={reconDataSaving?"Saving..":"Save"} disabled={reconDataSaving} type="default" onClick={onPopupSave} />
           </div>
       </Popup>    
     </div>
