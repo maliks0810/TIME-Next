@@ -240,11 +240,11 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
 
           <Divider flexItem />
 
-          <Grid>
-            <Typography variant="subtitle2">
+          <Grid >
+            <Typography variant="subtitle2" sx={{ minWidth: 0 }}>
               <b>{securityRequest.securityRequestDetails.identifierType}:</b> {securityRequest.securityRequestDetails.identifierValue}
             </Typography>
-            <Typography variant="subtitle2">
+            <Typography variant="subtitle2" sx={{ maxWidth: "50%", wordBreak: "break-word" }}>
               <b>SSAP Password:</b> {securityRequest.securityRequestDetails.ssapIdPassword}
             </Typography>
             <Typography variant="subtitle2">
@@ -261,11 +261,11 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
               </Typography>
             </Grid>
             <Grid container flexDirection={'row'} columns={2} spacing={1}>
-              <Grid size={1}>
+              <Grid size={1} sx={{ minWidth: 0 }}>
                 <Typography variant="caption">
                   Aladdin CDI ID
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestDetails.aladdinCdiId}
                 </Typography>
               </Grid>
@@ -293,11 +293,11 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                   {securityRequest.securityRequestDetails.isNewIssue}
                 </Typography>
               </Grid>
-              <Grid size={1}>
+              <Grid size={1} sx={{ minWidth: 0 }}>
                 <Typography variant="caption">
                   EU Securitization TIP ID
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestDetails.euSecuritizationTipEuId}
                 </Typography>
               </Grid>
