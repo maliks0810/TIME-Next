@@ -230,10 +230,10 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
           <Divider flexItem />
 
           <Grid>
-            <Typography variant="subtitle2">
+            <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
               <b>Date Requested:</b> {formatDate(securityRequest.createdDate)}
             </Typography>
-            <Typography variant="subtitle2">
+            <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
               <b>Requested By:</b> {securityRequest.createdBy}
             </Typography>
           </Grid>
@@ -241,13 +241,13 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
           <Divider flexItem />
 
           <Grid >
-            <Typography variant="subtitle2" sx={{ minWidth: 0 }}>
+            <Typography variant="subtitle2" sx={{ minWidth: 0, wordBreak: "break-word" }} >
               <b>{securityRequest.securityRequestDetails.identifierType}:</b> {securityRequest.securityRequestDetails.identifierValue}
             </Typography>
             <Typography variant="subtitle2" sx={{ maxWidth: "50%", wordBreak: "break-word" }}>
               <b>SSAP Password:</b> {securityRequest.securityRequestDetails.ssapIdPassword}
             </Typography>
-            <Typography variant="subtitle2">
+            <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
               <b>Market Sector:</b> {securityRequest.securityRequestDetails.marketSectorType}
             </Typography>
           </Grid>
@@ -269,27 +269,27 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                   {securityRequest.securityRequestDetails.aladdinCdiId}
                 </Typography>
               </Grid>
-              <Grid size={1}>
+              <Grid size={1} sx={{ minWidth: 0 }}>
                 <Typography variant="caption">
                   Description
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestDetails.description}
                 </Typography>
               </Grid>
-              <Grid size={1}>
+              <Grid size={1} sx={{ minWidth: 0 }}>
                 <Typography variant="caption">
                   Tranche
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestDetails.tranche}
                 </Typography>
               </Grid>
-              <Grid size={1}>
+              <Grid size={1} sx={{ minWidth: 0 }}>
                 <Typography variant="caption">
                   New Issue
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestDetails.isNewIssue}
                 </Typography>
               </Grid>
@@ -301,27 +301,27 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                   {securityRequest.securityRequestDetails.euSecuritizationTipEuId}
                 </Typography>
               </Grid>
-              <Grid size={1}>
+              <Grid size={1} sx={{ minWidth: 0 }}>
                 <Typography variant="caption">
                   Call Date
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {formatDate(securityRequest.securityRequestDetails.callDate)}
                 </Typography>
               </Grid>
-              <Grid size={1}>
+              <Grid size={1} sx={{ minWidth: 0 }}>
                 <Typography variant="caption">
                   Price
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestDetails.price}
                 </Typography>
               </Grid>
-              <Grid size={1}>
+              <Grid size={1} sx={{ minWidth: 0 }}>
                 <Typography variant="caption">
                   Callable
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestDetails.callableValue}
                 </Typography>
               </Grid>
@@ -341,7 +341,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   TCW ESG
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestEsgFields.tcwEsg}
                 </Typography>
               </Grid>
@@ -349,7 +349,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   ESG Collateral Type <span className='red-text'>(CLO Only)</span>
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestEsgFields.esgCollateralType}
                 </Typography>
               </Grid>
@@ -357,7 +357,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   TCW ESG Type
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestEsgFields.tcwEsgType}
                 </Typography>
               </Grid>
@@ -377,7 +377,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   Slicer Type
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestTradeFields.slicerType}
                 </Typography>
               </Grid>
@@ -385,7 +385,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   MBS Type
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestTradeFields.mbsType}
                 </Typography>
               </Grid>
@@ -393,7 +393,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   Loan Credit
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestTradeFields.loanCredit}
                 </Typography>
               </Grid>
@@ -401,7 +401,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   MBS Collateral
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestTradeFields.mbsCollateral}
                 </Typography>
               </Grid>
@@ -409,7 +409,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   MBS Collateral Sub
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestTradeFields.mbsCollateralSub}
                 </Typography>
               </Grid>
@@ -417,7 +417,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   Sr. Most Cash Flow
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestTradeFields.srMostCashFlow}
                 </Typography>
               </Grid>
@@ -425,7 +425,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   Tranche Type
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestTradeFields.trancheType}
                 </Typography>
               </Grid>
@@ -433,7 +433,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   Loan Category
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestTradeFields.loanCategory}
                 </Typography>
               </Grid>
@@ -441,7 +441,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption" flex={1}>
                   Collateral
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestTradeFields.collateral}
                 </Typography>
               </Grid>
@@ -461,7 +461,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption">
                   Intex Deal Name
                 </Typography>
-                <Typography variant="subtitle2" flex={1}>
+                <Typography variant="subtitle2" flex={1} sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestIntexFields.intexDealName}
                 </Typography>
               </Grid>
@@ -469,7 +469,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption">
                   Intex Password
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestIntexFields.intexPassword}
                 </Typography>
               </Grid>
@@ -477,7 +477,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption">
                   Deal Name
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestIntexFields.dealName}
                 </Typography>
               </Grid>
@@ -497,7 +497,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption">
                   Prepayment Type Value
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestArcFields.prepaymentTypeValue}
                 </Typography>
               </Grid>
@@ -506,7 +506,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption">
                   Default Type Value
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestArcFields.defaultTypeValue}
                 </Typography>
               </Grid>
@@ -514,7 +514,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption">
                   Prepayment Speed
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestArcFields.prepaymentSpeed}
                 </Typography>
               </Grid>
@@ -522,7 +522,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption">
                   Default Speed
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestArcFields.defaultSpeed}
                 </Typography>
               </Grid>
@@ -530,7 +530,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption">
                   Severity
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestArcFields.severity}
                 </Typography>
               </Grid>
@@ -538,7 +538,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
                 <Typography variant="caption">
                   Delinquency
                 </Typography>
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                   {securityRequest.securityRequestArcFields.delinquency}
                 </Typography>
               </Grid>
@@ -552,7 +552,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
               <Typography variant="subtitle1">
                 <b>Notes / Instructions</b>
               </Typography>
-              <Typography variant="subtitle2">
+              <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
                 {securityRequest.noteInstructions}
               </Typography>
             </Grid>
