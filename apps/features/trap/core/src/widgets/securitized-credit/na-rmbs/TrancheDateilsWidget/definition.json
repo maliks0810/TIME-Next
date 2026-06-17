@@ -21,13 +21,15 @@
                 "default": true,
                 "description": "Show Run Scenario Analysis button in header",
                 "title": "Show Scenario Action",
-                "type": "boolean"
+                "type": "boolean",
+                "category": "View Parameters"
             },
             "showStagingAction": {
                 "default": true,
                 "description": "Show Add to Staging button in header",
                 "title": "Show Staging Action",
-                "type": "boolean"
+                "type": "boolean",
+                "category": "View Parameters"
             }
         },
         "required": [],

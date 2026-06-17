@@ -15,35 +15,40 @@
                 "description": "Widgets connected to the same channel able to share data between each other",
                 "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             },
 
             "label": {
                 "title": "Checkbox label",
                 "type": "string",
-                "default": ""
+                "default": "",
+                "category": "View Parameters"
             },
             "emitsKeys": {
                 "title": "Emits Keys",
                 "type": "string",
-                "enum": ["schemaKey"]
+                "enum": ["schemaKey"],
+                "category": "Interactions"
             },
             "emitValue": {
                 "title": "Emits Value",
                 "type": "string",
-                "enum": ["portfolio.summary"]
+                "enum": ["portfolio.summary"],
+                "category": "Interactions"
             },
             "type": {
                 "title": "Type",
                 "enum": ["primary", "default", "dashed", "link", "text"],
                 "default": "default",
-                "type": "string"
+                "type": "string",
+                "category": "System Parameters"
             },
             "buttonAction": {
                 "title": "Button Action",
                 "enum": ["emitKey", "export", "redirect"],
-
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             }
         },
         "required": ["label"],

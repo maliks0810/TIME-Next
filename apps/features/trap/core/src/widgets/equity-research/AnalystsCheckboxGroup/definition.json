@@ -15,12 +15,14 @@
                 "description": "Widgets connected to the same channel able to share data between each other",
                 "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             },
             "schemaKey": {
                 "title": "Schema Key",
                 "enum": ["prism.equity.analyst.list"],
-                "type": "string"
+                "type": "string",
+                "category": "System Parameters"
             }
         },
         "required": ["schemaKey"],

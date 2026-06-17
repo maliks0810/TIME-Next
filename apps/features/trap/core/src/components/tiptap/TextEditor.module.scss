@@ -2,7 +2,19 @@
     border-radius: 4px;
     border: 1px solid #0000001a;
     width: 100%;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
+
+.editoContainer {
+    min-height: 200px;
+    max-height: 200px;
+    overflow: auto;
+    flex: 1;
+}
+
 .editor {
     height: 100%;
     padding: 4px;

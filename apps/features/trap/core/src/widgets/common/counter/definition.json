@@ -15,41 +15,48 @@
                 "description": "Widgets connected to the same channel able to share data between each other",
                 "enum": [1, 2, 3, 4, 5],
                 "title": "Communication Channel",
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             },
             "textColor": {
                 "default": "#000000",
                 "title": "Custom Text Color",
                 "type": "string",
-                "withColorPicker": true
+                "withColorPicker": true,
+                "category": "Colors"
             },
             "customColor": {
                 "default": "#ffffff",
                 "title": "Custom Solid Color",
                 "type": "string",
-                "withColorPicker": true
+                "withColorPicker": true,
+                "category": "Colors"
             },
             "customGradientEnd": {
                 "default": "#60a5fa",
                 "title": "Gradient End Color",
                 "type": "string",
-                "withColorPicker": true
+                "withColorPicker": true,
+                "category": "Colors"
             },
             "customGradientStart": {
                 "default": "#2563eb",
                 "title": "Gradient Start Color",
                 "type": "string",
-                "withColorPicker": true
+                "withColorPicker": true,
+                "category": "Colors"
             },
             "clickable": {
                 "default": true,
                 "title": "Tile is clickable",
-                "type": "boolean"
+                "type": "boolean",
+                "category": "Interactions"
             },
             "emptyStateText": {
                 "default": "No value",
                 "title": "Empty State Text",
-                "type": "string"
+                "type": "string",
+                "category": "View Parameters"
             },
             "filter": {
                 "description": "Which status value to filter by",
@@ -68,46 +75,54 @@
                     "TOTAL"
                 ],
                 "title": "Filter",
-                "type": "string"
+                "type": "string",
+                "category": "System Parameters"
             },
             "numberFormat": {
                 "default": "integer",
                 "enum": ["integer", "decimal", "currency", "percent"],
                 "title": "Number Format",
-                "type": "string"
+                "type": "string",
+                "category": "View Parameters"
             },
             "prefixText": {
                 "default": "",
                 "title": "Prefix Text",
-                "type": "string"
+                "type": "string",
+                "category": "View Parameters"
             },
             "schemaKey": {
                 "description": "Logical counter scenario resolved by GraphQL.",
                 "enum": ["arc.status.query"],
                 "title": "Schema Key",
-                "type": "string"
+                "type": "string",
+                "category": "System Parameters"
             },
             "suffixText": {
                 "default": "",
                 "title": "Suffix Text",
-                "type": "string"
+                "type": "string",
+                "category": "View Parameters"
             },
             "themeMode": {
                 "default": "theme",
                 "enum": ["theme", "customSolid", "customGradient"],
                 "title": "Color Mode",
-                "type": "string"
+                "type": "string",
+                "category": "Colors"
             },
             "titlePosition": {
                 "default": "top",
                 "enum": ["top", "bottom"],
                 "title": "Title Position",
-                "type": "string"
+                "type": "string",
+                "category": "View Parameters"
             },
             "titleText": {
                 "default": "",
                 "title": "Custom Title Text",
-                "type": "string"
+                "type": "string",
+                "category": "View Parameters"
             }
         },
         "required": ["schemaKey", "filter"],

@@ -1,8 +1,8 @@
 {
-    "id": "cwd_common_data_grid_01",
-    "name": "Common Data Grid",
+    "id": "cwd_arc_dashboard",
+    "name": "ARC Status Monitor",
     "version": 1,
-    "description": "Reusable DevExtreme-based data grid widget for domain driven tabular data.",
+    "description": "ARC Specific Status Monitor with Preview and Redirect to Asset functionality",
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_common_data_grid_01",
@@ -10,17 +10,29 @@
     "emitsKeys": null,
     "configSchema": {
         "properties": {
-            "defaultGroups": {
-                "default": "",
-                "description": "Comma separated column groups",
-                "title": "Default groups",
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "title": "Communication Channel",
                 "type": "string",
-                "category": "View Parameters"
+                "category": "Interactions"
             },
             "pageSize": {
                 "default": 50,
+                "enum": [
+                    10,
+                    25,
+                    50,
+                    "all"
+                ],
                 "title": "Page Size",
-                "type": "number",
+                "type": "string",
                 "category": "View Parameters"
             },
             "rowKeyField": {
@@ -32,14 +44,7 @@
             "schemaKey": {
                 "description": "Logical grid schema resolved by GraphQL",
                 "enum": [
-                    "portfolio.summary",
-                    "prism.equity.analyst.buy.list",
-                    "prism.equity.analyst.drop.list",
-                    "prism.equity.analyst.coverage.list",
-                    "arc.risk.status.grid",
-                    "portfolio.gross.history",
-                    "portfolio.benchmark.history",
-                    "portfolio.net.history"
+                    "arc.risk.status.grid"
                 ],
                 "title": "Schema Key",
                 "type": "string",
@@ -47,31 +52,33 @@
             },
             "selectionMode": {
                 "default": "single",
-                "enum": ["none", "single", "multiple"],
+                "enum": [
+                    "none",
+                    "single",
+                    "multiple"
+                ],
                 "title": "Selection Mode",
-                "type": "string",
-                "category": "Interactions"
-            },
-            "listensToKeys": {
-                "enum": ["asOfDate", "common.data.grid.row", "schemaKey", "common.tree.item"],
-                "title": "Listens to keys",
-                "multiselect": true,
                 "type": "string",
                 "category": "Interactions"
             }
         },
-        "required": ["schemaKey"],
+        "required": [
+            "schemaKey"
+        ],
         "type": "object"
     },
     "uiHints": {
-        "category": "Common",
+        "category": "ARC",
         "library": "DevExtreme",
-        "visibleIn": ["workflow", "landing"]
+        "visibleIn": [
+            "workflow",
+            "landing"
+        ]
     },
     "variants": [
         {
-            "id": "medium",
-            "label": "Medium",
+            "id": "small",
+            "label": "Small",
             "grid": {
                 "defaultW": 6,
                 "defaultH": 360,
@@ -82,27 +89,27 @@
             }
         },
         {
-            "id": "large",
-            "label": "Large",
+            "id": "medium",
+            "label": "Medium",
             "grid": {
                 "defaultW": 10,
-                "defaultH": 900,
+                "defaultH": 820,
                 "minW": 8,
                 "minH": 320,
                 "maxW": 12,
-                "maxH": 1200
+                "maxH": 820
             }
         },
         {
-            "id": "full-width",
-            "label": "Full Width",
+            "id": "large",
+            "label": "Large",
             "grid": {
                 "defaultW": 12,
-                "defaultH": 1000,
-                "minW": 12,
-                "minH": 320,
+                "defaultH": 1120,
+                "minW": 8,
+                "minH": 720,
                 "maxW": 12,
-                "maxH": 1200
+                "maxH": 1220
             }
         }
     ]
