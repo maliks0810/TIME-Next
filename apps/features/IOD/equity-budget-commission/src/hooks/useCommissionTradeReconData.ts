@@ -23,7 +23,6 @@ const [reconData, setReconData] = useState<CommissionRecon[]>([]);
 const [reasonsData, setReasonsData] = useState<Reason[]>([]);  
 const [brokersData, setBrokersData] = useState<CRBrokerMapping[]>([]);  
 const [uniqueCRBrokers, setUniqueCRBrokers] = useState<CRBrokers[]>([]);  
-const [isAdmin, setIsAdmin] = useState(false);
 const [popupVisible, setPopupVisible] = useState(false);  
 const [reconDetailData, setReconDetailData] = useState<CommissionReconDetail | undefined>(undefined);  
 const [isSaveError, setIsSaveError] = useState(false);
@@ -43,8 +42,6 @@ useEffect(() => {
       setUniqueCRBrokers(brkData);
 
       setAdminData(adminData);
-      checkAdmin(adminData);
-
     } catch (error) {  
       console.error('Failed to load reason/broker data:', error);  
     }  
@@ -52,12 +49,9 @@ useEffect(() => {
   fetchMasterData();
 }, []);  
 
-  function checkAdmin(admData: MaintenanceUser[]){
-    const u = admData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
-    if(u){
-      setIsAdmin(true);
-    }
-  }
+  const isAdmin = Array.isArray(adminData) && userInfo?.name
+    ? adminData.some(a => `${a.firstName ?? ''} ${a.lastName ?? ''}`.trim() === userInfo.name)
+    : false;
 
   function getUniqueCreditBrokers(data: CRBrokerMapping[]): CRBrokers[] {
     if (!data) return [];
@@ -79,7 +73,6 @@ useEffect(() => {
       setIsLoading(true);  
       const data = await fetchReconData(selectedBeginDate, selectedEndDate);  
       setReconData(data);  
-      checkAdmin(adminData);
     } catch (error) {  
       console.error(error);  
       // handle error if needed  

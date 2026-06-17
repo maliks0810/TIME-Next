@@ -29,7 +29,6 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
   const [batchPopupVisible, setBatchPopupVisible] = useState(false);  
   const [formData, setFormData] = useState<CommissionTradeDetails | undefined>(undefined);  
   const [adminData, setAdminData] = useState<MaintenanceUser[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   const [batchFormData, setBatchFormData] = useState({  
     reason: null,        
@@ -50,7 +49,6 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
         setUniqueCRBrokers(brkData);
         
         setAdminData(adminData)
-        checkAdmin(adminData);
       } catch (error) {  
         console.error('Failed to load reason/broker data:', error);  
       }  
@@ -58,12 +56,9 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
     fetchMasterData();
   }, []);  
 
-  function checkAdmin(admData: MaintenanceUser[]){
-    const u = admData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
-    if(u){
-      setIsAdmin(true);
-    }
-  }
+  const isAdmin = Array.isArray(adminData) && userInfo?.name
+    ? adminData.some(a => `${a.firstName ?? ''} ${a.lastName ?? ''}`.trim() === userInfo.name)
+    : false;
 
   function getUniqueCreditBrokers(data: CRBrokerMapping[]): CRBrokers[] {
     if (!data) return [];
@@ -85,7 +80,6 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
       setIsLoading(true);
       const data = await fetchCommissionTrades(selectedBeginDate, selectedEndDate);  
       setCommissionTradesData(data);  
-      checkAdmin(adminData);
     } catch (error) {  
       console.error('Error fetching trades:', error);  
     }

@@ -11,7 +11,20 @@ interface UseDivisionsProps {
 export function useDivisions({ userInfo }: UseDivisionsProps) {
   const [divisions, setDivisions] = useState<MaintenanceDivision[]>([]);
   const [adminData, setAdminData] = useState<MaintenanceUser[]>([]);
-  const [isAdmin,setIsAdmin] = useState<boolean>(false);
+      
+  useEffect(() => {
+    // initial load
+    const loadAdminData = async() => {
+      const adData = await fetchAdminUsers();      
+      setAdminData(adData);
+    };
+
+    loadAdminData();
+  }, []);
+
+  const isAdmin = Array.isArray(adminData) && userInfo?.name
+      ? adminData.some(a => `${a.firstName ?? ''} ${a.lastName ?? ''}`.trim() === userInfo.name)
+      : false;
 
   const normalize = useCallback((items: MaintenanceDivision[]) => {
     return (items ?? []).map(d => ({
@@ -22,31 +35,13 @@ export function useDivisions({ userInfo }: UseDivisionsProps) {
 
   const reload = useCallback(async () => {
     const data = await fetchDivisions();
-    setDivisions(normalize(data));
-    if(adminData.length > 0)
-      checkAdmin(adminData);    
+    setDivisions(normalize(data));      
   }, [normalize]);
 
-  useEffect(() => {
-    // initial load
-    const loadAdminData = async() => {
-      const [adData] = await Promise.all([
-        fetchAdminUsers()
-      ]);
-      
-      checkAdmin(adData);
-      setAdminData(adData);
-    };
-    loadAdminData();
+
+  useEffect(() => {    
     void reload();
   }, [reload]);
-  
-  function checkAdmin(admData: MaintenanceUser[]){
-    const u = admData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
-    if(u){
-      setIsAdmin(true);
-    }
-  }
 
   // Create (no local append when using onSaving + reload)
   const addDivision = useCallback(
