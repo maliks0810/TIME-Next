@@ -602,6 +602,9 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             isSaving={saveStatus === "saving" || saveStatus === "saved"}
             onBack={() => {
               resetUploadState();
+              if (useSecuritySetupStore.getState().isSsapReleasedByDm) {
+                setReadOnly(true);
+              }
               goToStep("enter-identifier");
             }}
           />
