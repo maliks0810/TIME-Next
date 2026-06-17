@@ -4,11 +4,21 @@ import type { LandingTabProps } from './types/landing.types';
 import { Alert } from 'antd';
 
 export default function LandingTab(props: LandingTabProps) {
-    const { openWorkflowFromRecent, compiledLandingVersion, hasLanding, isLoading } =
+    const { openWorkflowFromRecent, compiledLandingVersion, hasLanding, isLoading, error } =
         useLanding(props);
-
     if (isLoading) {
         return null;
+    }
+    if (error) {
+        return (
+            <Alert
+                type="error"
+                showIcon
+                message="Landing not found"
+                description={error}
+                style={{ marginTop: 12 }}
+            />
+        );
     }
     if (!hasLanding) {
         return (
