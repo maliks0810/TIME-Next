@@ -344,6 +344,8 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             onChange={handleNotesChange}
             disabled={isReadOnly}
             variant="outlined"
+            slotProps={{ htmlInput: { maxLength: 510 } }}
+            helperText={`${(notesInstructions || '').length}/510`}
             placeholder=""
           />
         </div>

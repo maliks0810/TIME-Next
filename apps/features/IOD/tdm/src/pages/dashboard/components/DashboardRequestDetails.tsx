@@ -552,7 +552,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({ secur
               <Typography variant="subtitle1">
                 <b>Notes / Instructions</b>
               </Typography>
-              <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
+              <Typography variant="subtitle2" sx={{ maxWidth: "95%", wordBreak: "break-word" }}>
                 {securityRequest.noteInstructions}
               </Typography>
             </Grid>
