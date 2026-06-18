@@ -234,11 +234,11 @@ export default function EmergingMarketWorkspace() {
 		disabled={!canRun}
 		onClick={async () => {
 		try {
-		  const resp = (await api.runMonthlyAssetAnalyis(
-		  assetType,
-		  viewPortfolios ?? default_em_port,
-		  viewAsOfDate
-		  )) as AnalyticsResponse;
+          const resp = (await api.runAnalysis(
+          assetType,
+          viewPortfolios ?? default_em_port,"monthly","GICS","",
+          viewAsOfDate
+          )) as AnalyticsResponse;
 
 		  const nextConfig = extractGridConfig(resp);
 		  if (nextConfig) {

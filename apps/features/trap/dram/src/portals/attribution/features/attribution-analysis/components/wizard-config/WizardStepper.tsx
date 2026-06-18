@@ -665,16 +665,16 @@ export default function WizardStepper({
     try {
       const response =
         state.frequencyMode === "monthly"
-          ? await api.runMonthlyAssetAnalyis(
-              assetClass,
-              state.portfolio,
-              state.asOfDate
-            )
+          ? await api.runAnalysis(
+                    assetClass,
+                    state.portfolio,
+                    "monthly","",
+                    state.asOfDate,"")
           : await api.runAnalysis(
-              state.portfolio,
-              assetClass,
-              state.startDate,
-              state.endDate
+                    assetClass,
+                    state.portfolio,
+                    "daily","",
+                    state.startDate,state.endDate
             );
 
       const rows = processAnalysisResult(response);

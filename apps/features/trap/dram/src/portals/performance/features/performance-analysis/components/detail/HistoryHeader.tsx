@@ -67,7 +67,7 @@ export default function HistoryHeader({
 
         {/*  Save button (event only) */}
         <Button
-          text={saving ? "Saving..." : "Save"}
+          text={saving ? "Saving..." : "Save Notes"}
           type="success"
           stylingMode="contained"
           disabled={isEmpty || saving}

@@ -56,7 +56,7 @@ const extractPortBenchRows = (apiResp: OptionsResponse): PortBenchRow[] => {
 /* Component */
 /* ---------------------------------- */
 
-export default function EmergingMarketWorkspace() {
+export default function EquityResearchWorkspace() {
   const businessDates = getBusinessDates();
 
   const [portBenchRows, setPortBenchRows] = useState<PortBenchRow[]>([]);
@@ -234,9 +234,9 @@ export default function EmergingMarketWorkspace() {
         disabled={!canRun}
         onClick={async () => {
         try {
-          const resp = (await api.runMonthlyAssetAnalyis(
+          const resp = (await api.runAnalysis(
           assetType,
-          viewPortfolios ?? default_em_port,
+          viewPortfolios ?? default_em_port,"monthly","GICS","",
           viewAsOfDate
           )) as AnalyticsResponse;
 

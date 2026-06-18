@@ -15,10 +15,18 @@ const buildDram2Url = (path: string) => resolveUri(BASE_DRAM_2_PATH, path);
 const URL_PORT_LIST = buildUrl('./official-perf-portfolio-list');
 const URL_PORT_SUMMARY = buildUrl('./official-perf-portfolio-summary');
 const URL_PERFORMANCE_OFFICIAL = buildUrl('./official-performance-returns');
-export const fetchPortfolioListService = () => serviceRequest(URL_PORT_LIST)().get('');
+const URL_PERFORMANCE_OFFICIAL_EXCEL = buildUrl('./official-performance-returns-excel');
+
+export const fetchPortfolioListService = (userId: string) => serviceRequest(URL_PORT_LIST)()
+	.get(`?userId=${userId}`);
 export const fetchPortfolioSummaryService = (asOfDate: string | unknown) => serviceRequest(URL_PORT_SUMMARY)().get(`?asOfDate=${asOfDate}`);
 export const fetchOfficalPerformanceReturnsService = (portfolioNumber: string) => serviceRequest(URL_PERFORMANCE_OFFICIAL)()
 	.get(`?portfolioNumber=${portfolioNumber}`);
+
+export const fetchOfficalPerformanceReturnsExcelService = (portfolioNumber: string) => serviceRequest(URL_PERFORMANCE_OFFICIAL_EXCEL)()
+    .get(`?portfolioNumber=${portfolioNumber}`,
+    { responseType: 'blob' },
+);
 
 const URL_NOTES = buildDram2Url('./notes/');
 export async function saveNotesService(notes: string, noteType: string, portfolioId: string, userId: string) {

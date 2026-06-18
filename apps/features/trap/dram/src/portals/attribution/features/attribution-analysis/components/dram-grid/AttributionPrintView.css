@@ -1,0 +1,33 @@
+.attribution-print-view {
+  background: #ffffff;
+}
+@media print {
+
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-root {
+    width: 100%;
+  }
+
+  /*  scale to fit page */
+  .print-scale {
+    transform: scale(0.9);
+    transform-origin: top left;
+    width: 111%;
+  }
+
+  table, tr, td, th {
+    page-break-inside: avoid !important;
+  }
+}

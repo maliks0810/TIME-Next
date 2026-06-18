@@ -1,4 +1,3 @@
-import React from "react";
 import type { ColumnsType, ColumnType } from "antd/es/table";
 import type {
   AttributionRow,
@@ -11,6 +10,7 @@ import type {
 
 import { formatValue, getDefaultWidth, getMinWidth } from "./formatters";
 import { GroupHeader } from "./GroupHeader";
+import { AnalyticResultRow, AnalyticsResponse } from "../../lib/services";
 
 /* =========================================================
    Constants
@@ -210,6 +210,10 @@ export const buildColumns = ({
   const frozenColumns = visible.filter((c) => c.frozen);
   const nonFrozenColumns = visible.filter((c) => !c.frozen);
 
+  const isTotalRow = (record: AttributionRow): boolean => {
+    return record.SecurityGroup === "Total";
+  };
+
   const buildLeaf = (
     col: NormalizedColumnConfig
   ): ColumnType<AttributionRow> => ({
@@ -222,8 +226,24 @@ export const buildColumns = ({
     align: col.format === "text" ? "left" : "right",
     shouldCellUpdate: (record, prev) =>
       record[col.accessor] !== prev[col.accessor],
-    render: (value: PrimitiveCellValue) =>
-      formatValue(value, col.format),
+
+    render: (value: PrimitiveCellValue, record: AttributionRow) => {
+      if (col.accessor === "SecurityGroup") {
+
+        if (isTotalRow(record)) {
+          return <span><strong>{value}</strong></span>;
+        }
+
+        return (
+          <span style={{ paddingLeft: 16 }}>
+            {value}
+          </span>
+        );
+      }
+
+      return formatValue(value, col.format);
+    },
+
   });
 
   const result: ColumnsType<AttributionRow> = frozenColumns.map(buildLeaf);
@@ -275,3 +295,59 @@ export const mapRowsToTableRows = (
     key: String(idx),
     ...row,
   }));
+
+export const buildRawTree = (rows: AnalyticResultRow[]): DrilldownGroupRow[] => {
+  const map = new Map<string, AnalyticResultRow[]>();
+
+  for (const row of rows) {
+    const date = String(row["ASOfDate"] ?? "Unknown");
+
+    if (!map.has(date)) {
+      map.set(date, []);
+    }
+
+    map.get(date)!.push(row);
+  }
+
+  return Array.from(map.entries()).map(([date, items], i) => ({
+    key: `group-${date}`,
+    __rowType: "group",
+    ASOfDate: date,
+    SecurityGroup: date,
+    children: items.map((r, j) => ({
+      ...r,
+      key: `detail-${i}-${j}`,
+      __rowType: "detail" as const,
+    })),
+  }));
+};
+
+
+export type DrilldownDetailRow = AnalyticResultRow & {
+  key: string;
+  __rowType: "detail";
+};
+
+export type DrilldownGroupRow = {
+  key: string;
+  __rowType: "group";
+  ASOfDate: string;
+  SecurityGroup: string;
+  children: DrilldownDetailRow[];
+};
+
+export type DrilldownRow = DrilldownGroupRow | DrilldownDetailRow;
+
+export const extractAnalysisDatasets = (apiResp: AnalyticsResponse) => {
+  const grids = Array.isArray(apiResp.data?.grids)
+    ? apiResp.data.grids
+    : [];
+
+  const aggregated = grids.find((g) => g.title === "ytd");
+  const raw = grids.find((g) => g.title === "all_data");
+
+  return {
+    main: aggregated?.rows ?? [],
+    drilldown: buildRawTree(raw?.rows ?? []),
+  };
+};

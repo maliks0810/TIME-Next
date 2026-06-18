@@ -11,6 +11,11 @@ interface DramGridContextValue {
   setColumnVisibility: (id: string, visible: boolean) => void;
   reorderColumns: (activeId: string, overId: string) => void;
 
+   applyColumnLayout: (columns: NormalizedColumnConfig[]) => void;
+
+
+  resetLayout: () => void;
+
   draggingColumnId: string | null;
   dropTargetColumnId: string | null;
 
