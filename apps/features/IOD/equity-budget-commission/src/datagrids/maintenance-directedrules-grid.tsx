@@ -332,7 +332,7 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                     wrapperAttr={{ className: 'custom-popup-class' }}
                   />
                   <div className="div-container-center">
-                    <Form colCount={2} width="90%">
+                    <Form colCount={2} width="95%">
                       <FormItem colSpan={1} dataField="active" label={{ text: 'Active' }} editorType="dxCheckBox"/>
                       <FormItem colSpan={1} dataField="directedRulesCode" editorType="dxTextBox"  cssClass="textInput-popup-short"/>
                       <FormItem colSpan={1} dataField="budgetPercent" editorType="dxNumberBox" cssClass="textInput-popup-num"/>

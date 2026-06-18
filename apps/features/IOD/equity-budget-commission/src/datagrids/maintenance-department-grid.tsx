@@ -158,7 +158,7 @@ return (
           <Form width="90%" colCount={1}>  
             <FormItem dataField="active" label={{text:"Active"}} editorType="dxCheckBox" />
             <FormItem name="departmentName" editorType="dxTextBox" />  
-            <FormItem name="divisionId" cssClass="dx-common-selectbox-short80" editorType="dxSelectBox" />  
+            <FormItem name="divisionId" cssClass="dx-common-selectbox" editorType="dxSelectBox" />  
           </Form>  
         </Editing>  
 
