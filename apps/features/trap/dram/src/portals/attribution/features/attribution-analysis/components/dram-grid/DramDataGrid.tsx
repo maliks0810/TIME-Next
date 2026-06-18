@@ -2,19 +2,14 @@ import React, { useMemo } from "react";
 import {
   Button,
   Card,
-  Checkbox,
-  Divider,
-  Dropdown,
   Space,
   Table,
   Tag,
   Typography,
   message,
 } from "antd";
-import type { MenuProps } from "antd";
 import {
   DownloadOutlined,
-  SettingOutlined,
 } from "@ant-design/icons";
 import type { GridConfigResponse, PrimitiveCellValue } from "./types";
 import {
@@ -25,7 +20,6 @@ import {
 } from "./columnBuilder";
 import { formatValue } from "./formatters";
 import { useDramGridContext } from "./DramGridContext";
-import { HeaderCell } from "./HeaderCell";
 
 interface DramDataGridProps {
   config: GridConfigResponse;
@@ -35,15 +29,6 @@ interface DramDataGridProps {
   title?: string;
   storageKey?: string;
   isConfigView: boolean;
-}
-
-interface ColumnChooserGroup {
-  groupKey: string;
-  groupLabel: string;
-  groupOrder: number;
-  groupStyleToken: string;
-  firstColumnServerIndex: number;
-  columns: ReturnType<typeof normalizeColumns>;
 }
 
 const sanitizeFileName = (value: string): string =>
@@ -58,14 +43,37 @@ const escapeCsvCell = (value: string): string => {
   }
   return value;
 };
+type TreeRow = Record<string, unknown> & {
+  key?: string;
+  children?: TreeRow[];
+};
 
+export const mapRowsToTreeTableRows = (
+  rows: TreeRow[],
+  parentKey = "row"
+): TreeRow[] => {
+  return rows.map((row, index) => {
+    const nextKey = row.key ?? `${parentKey}-${index}`;
+
+    const mapped: TreeRow = {
+      ...row,
+      key: nextKey,
+    };
+
+    if (Array.isArray(row.children) && row.children.length > 0) {
+      mapped.children = mapRowsToTreeTableRows(row.children, nextKey);
+    }
+
+    return mapped;
+  });
+};
 export const DramDataGrid: React.FC<DramDataGridProps> = ({
   config,
   rows,
   accessorOverrides,
   height = 600,
   title = "Analytics Grid",
-  isConfigView,
+  // isConfigView,
 }) => {
   const ctx = useDramGridContext();
 
@@ -93,52 +101,6 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
     () => normalized.filter((c) => c.visible),
     [normalized]
   );
-
-  const groupedChooserColumns = useMemo<ColumnChooserGroup[]>(() => {
-    const buckets = new Map<string, ColumnChooserGroup>();
-
-    for (const col of normalized) {
-      const existing = buckets.get(col.groupKey);
-
-      if (existing) {
-        existing.columns.push(col);
-        existing.groupOrder = Math.min(existing.groupOrder, col.groupOrder);
-        existing.firstColumnServerIndex = Math.min(
-          existing.firstColumnServerIndex,
-          col.serverIndex
-        );
-
-        if (existing.groupLabel === "" && col.groupLabel !== "") {
-          existing.groupLabel = col.groupLabel;
-        }
-
-        if (
-          existing.groupStyleToken === "default" &&
-          col.groupStyleToken !== "default"
-        ) {
-          existing.groupStyleToken = col.groupStyleToken;
-        }
-
-        continue;
-      }
-
-      buckets.set(col.groupKey, {
-        groupKey: col.groupKey,
-        groupLabel: col.groupLabel,
-        groupOrder: col.groupOrder,
-        groupStyleToken: col.groupStyleToken,
-        firstColumnServerIndex: col.serverIndex,
-        columns: [col],
-      });
-    }
-
-    return Array.from(buckets.values()).sort((a, b) => {
-      if (a.groupOrder !== b.groupOrder) {
-        return a.groupOrder - b.groupOrder;
-      }
-      return a.firstColumnServerIndex - b.firstColumnServerIndex;
-    });
-  }, [normalized]);
 
   const handleExportCsv = (): void => {
     if (visibleColumns.length === 0) {
@@ -183,55 +145,6 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
     message.success("CSV export complete.");
   };
 
-  const columnMenuItems: MenuProps["items"] = [
-    {
-      key: "columns",
-      label: (
-        <div style={{ maxHeight: 420, overflowY: "auto", padding: 8, minWidth: 280 }}>
-          <Typography.Text strong style={{ display: "block", marginBottom: 8 }}>
-            Columns
-          </Typography.Text>
-
-          {groupedChooserColumns.map((group, groupIndex) => (
-            <div key={group.groupKey} style={{ marginBottom: 12 }}>
-              {group.groupLabel !== "" ? (
-                <Typography.Text
-                  type="secondary"
-                  style={{ display: "block", marginBottom: 6, fontSize: 12 }}
-                >
-                  {group.groupLabel}
-                </Typography.Text>
-              ) : null}
-
-              {group.columns.map((col) => {
-                const checked =
-                  ctx.state.visibility[col.id] !== undefined
-                    ? ctx.state.visibility[col.id]
-                    : col.visible;
-
-                return (
-                  <div key={col.id} style={{ marginBottom: 4 }}>
-                    <Checkbox
-                      checked={checked}
-                      onChange={(e) =>
-                        ctx.setColumnVisibility(col.id, e.target.checked)
-                      }
-                    >
-                      {col.label}
-                    </Checkbox>
-                  </div>
-                );
-              })}
-
-              {groupIndex < groupedChooserColumns.length - 1 ? (
-                <Divider style={{ margin: "8px 0" }} />
-              ) : null}
-            </div>
-          ))}
-        </div>
-      ),
-    },
-  ];
 
   return (
     <Card
@@ -249,12 +162,6 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
       }
       extra={
         <Space>
-          <Dropdown trigger={["click"]} menu={{ items: columnMenuItems }} disabled={isConfigView}>
-            <Button icon={<SettingOutlined />}>Columns</Button>
-          </Dropdown>
-
-          <Divider type="vertical" />
-
           <Button
             type="primary"
             icon={<DownloadOutlined />}
@@ -265,25 +172,28 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
         </Space>
       }
     >
-      <Table
-        rowKey="key"
-        columns={columns}
-        dataSource={dataSource}
-        pagination={false}
-        size="small"
-        bordered
-        sticky
-        virtual
-        scroll={{
-          x: scrollX,
-          y: height,
-        }}
-        components={{
-          header: {
-            cell: HeaderCell,
-          },
-        }}
-      />
+    <Table
+      rowKey="key"
+      columns={columns}
+      dataSource={dataSource}
+      pagination={false}
+      size="small"
+      bordered
+      sticky
+      virtual={false}
+      scroll={{
+        x: scrollX,
+        y: height,
+      }}
+      expandable={{
+        childrenColumnName: "children",
+        defaultExpandAllRows: true,
+
+        rowExpandable: (record) =>
+          Array.isArray((record as { children?: unknown[] }).children) &&
+          (record as { children?: unknown[] }).children!.length > 0,
+      }}
+    />
     </Card>
   );
 };

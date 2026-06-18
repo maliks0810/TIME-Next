@@ -235,10 +235,11 @@ export default function EmergingMarketWorkspace() {
 			  disabled={!canRun}
 			  onClick={async () => {
 				try {
-				  const resp = (await api.runMonthlyAssetAnalyis(
+				  const resp = (await api.runAnalysis(
 					assetType,
 					viewPortfolios ?? default_em_port,
-					viewAsOfDate
+					"monthly","",
+					viewAsOfDate,""
 				  )) as AnalyticsResponse;
 
 				  const nextConfig = extractGridConfig(resp);

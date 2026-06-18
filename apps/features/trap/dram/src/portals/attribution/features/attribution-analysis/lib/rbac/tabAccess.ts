@@ -4,8 +4,8 @@ import { ResolvedRole, ROLE_IDS, RoleId } from './roles';
 
 // Central allow-list mapping (easy onboarding)
 const ROLE_TO_TABS: Readonly<Record<RoleId, readonly TabKey[]>> = {
-  'R2-Developer-ReadWrite': ['dashboard','pma-landing', 'attribution-analysis','diagnostics'],
-  'PMRA-Analyst-ReadWrite': ['dashboard','pma-landing', 'attribution-analysis','diagnostics'], // partial access example
+  'R2-Developer-ReadWrite': ['dashboard','pma-landing', 'attribution-analysis','diagnostics','admin'],
+  'PMRA-Analyst-ReadWrite': ['dashboard','pma-landing', 'attribution-analysis','diagnostics','admin'], // partial access example
 } as const;
 
 // Fallback behavior for unknown roles

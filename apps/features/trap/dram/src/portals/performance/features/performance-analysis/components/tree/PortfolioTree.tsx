@@ -3,6 +3,7 @@ import { Input, Tree, Card, Typography } from "antd";
 import { PortfolioRow } from "./../../lib/types";
 import { fetchPortfolioListService } from "../../lib/services";
 import type { DataNode } from "antd/es/tree";
+import { useUserInfo } from "@platform/utils";
 const { Text } = Typography;
 type PortfolioTreeNode = DataNode & {
     key: string;
@@ -71,13 +72,15 @@ export default function PortfolioTree({
   const [searchText, setSearchText] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const userInfo = useUserInfo();
  //  fetch ONCE only
 
 React.useEffect(() => {
   let cancelled = false;
 
   (async () => {
-    const resp = await fetchPortfolioListService();
+
+    const resp = await fetchPortfolioListService(encodeURIComponent(userInfo?.name ?? ''));
 
     if (!cancelled) {
       const sorted = [...(resp?.data?.results ?? [])].sort((a, b) =>
