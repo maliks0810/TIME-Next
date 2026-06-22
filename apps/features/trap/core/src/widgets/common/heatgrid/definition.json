@@ -1,0 +1,126 @@
+{
+    "id": "cwd_heatmap",
+    "name": "Heatmap",
+    "version": 1,
+    "description": "A heatmap widget",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_heatmap",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string",
+                "category": "Interactions"
+            },
+            "showTitle": {
+                "title": "Widget name in the header",
+                "type": "boolean",
+                "default": true,
+                "category": "View Parameters"
+            },
+            "showGrouping": {
+                "title": "Breadcrumb of active row groups",
+                "type": "boolean",
+                "default": true,
+                "category": "View Parameters"
+            },
+            "showSearch": {
+                "title": "Filter box",
+                "type": "boolean",
+                "default": true,
+                "category": "View Parameters"
+            },
+            "showLegend": {
+                "title": "Heat-scale key",
+                "type": "boolean",
+                "default": true,
+                "category": "View Parameters"
+            },
+            "showTooltip": {
+                "title": "Hover a cell for detail",
+                "type": "boolean",
+                "default": true,
+                "category": "View Parameters"
+            },
+            "showExport": {
+                "title": "Excel download button",
+                "type": "boolean",
+                "default": true,
+                "category": "View Parameters"
+            },
+            "showExpand": {
+                "title": "Open every group",
+                "type": "boolean",
+                "default": true,
+                "category": "View Parameters"
+            },
+            "showCollapse": {
+                "title": "Close every group",
+                "type": "boolean",
+                "default": true,
+                "category": "View Parameters"
+            },
+            "showGridLines": {
+                "title": "Cell borders",
+                "type": "boolean",
+                "default": true,
+                "category": "View Parameters"
+            },
+            "title": {
+                "title": "Title",
+                "type": "string",
+                "default": "",
+                "category": "View Parameters"
+            },
+            "leafLabel": {
+                "title": "Leaf Label",
+                "type": "string",
+                "default": "",
+                "category": "View Parameters"
+            },
+            "settingsStorageKey": {
+                "title": "Settings Storage Key",
+                "type": "string",
+                "default": "aqi-grid.settings.v3",
+                "category": "Storage"
+            },
+            "templatesStorageKey": {
+                "title": "Templates Storage Key",
+                "type": "string",
+                "default": "aqi-grid.template.v1",
+                "category": "Storage"
+            },
+            "activeTemplateStorageKey": {
+                "title": "Active Template Storage Key",
+                "type": "string",
+                "default": "aqi-grid.activeTemplate.v1",
+                "category": "Storage"
+            }
+        },
+        "required": [],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "large",
+            "label": "Large",
+            "grid": {
+                "defaultW": 2,
+                "defaultH": 900,
+                "minW": 12,
+                "minH": 900,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}
