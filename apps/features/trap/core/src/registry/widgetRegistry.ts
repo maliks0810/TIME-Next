@@ -29,6 +29,7 @@ import { DynamicText } from '../widgets/common/dynamic-text/DynamicText';
 import { TabsControl } from '../widgets/dram/tabs-control/TabsControl';
 import { PortfolioInfo } from '../widgets/dram/info/PortfolioInfo';
 import AssetStagingWidget from '../widgets/securitized-credit/new-asset/asset-staging/AssetStagingWidget';
+import { HeatGridWidget } from '../widgets/common/heatgrid/HeatGridWidget';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -279,6 +280,14 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         id: 'wd_portfolio_info',
         component: PortfolioInfo,
         category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_heatmap: {
+        id: 'cwd_heatmap',
+        component: HeatGridWidget,
+        category: 'View',
         visibleIn: ['workflow'],
         listensToKeys: [],
         emitsKeys: [],
