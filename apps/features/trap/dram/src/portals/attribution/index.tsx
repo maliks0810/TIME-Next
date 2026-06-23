@@ -6,10 +6,11 @@ import { ResolvedRole, resolveRoleFromOrg } from './features/attribution-analysi
 import { getAllowedTabs, getAllowedTabSet } from './features/attribution-analysis/lib/rbac/tabAccess';
 import { TAB_CONFIG, TabKey, typedKeys } from './features/attribution-analysis/components/tabs/tabConfig';
 import { useUserInfo } from '@platform/utils';
+import { registerDramChartTheme } from './features/attribution-analysis/components/dram-grid/dramChartTheme';
 
 export default function AttributionAnalysisDashboard() {
   const { claims } = useUserInfo();
-
+  registerDramChartTheme();
   /** FIXED: use claims instead of props */
   const role: ResolvedRole = useMemo(
     () => resolveRoleFromOrg(claims?.OrgLevel4 ?? ''),

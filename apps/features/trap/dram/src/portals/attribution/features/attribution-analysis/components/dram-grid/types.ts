@@ -1,4 +1,4 @@
-import { BackendFrequencyMode, FrequencyModeId } from "../wizard-config/wizardConfigTypes";
+import { FrequencyModeId } from "../attrib-analysis-config/types";
 
 export type ColumnFormat = "text" | "percent" | "bps";
 
@@ -66,8 +66,13 @@ export interface BreakdownMode {
   label: string;
   group: string;
 }
-
+export interface BackendFrequencyMode {
+  id: FrequencyModeId;
+  label: string;
+  group: string;
+}
 export interface GridConfigResponse {
+  holidays: unknown;
   columnConfigs: {
     all: ApiColumnConfig[];
   };
