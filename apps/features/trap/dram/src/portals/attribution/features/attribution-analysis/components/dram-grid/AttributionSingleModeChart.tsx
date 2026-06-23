@@ -1,12 +1,16 @@
-import { useMemo, useRef, useState } from "react";import { Button, Empty, Segmented, Space, Typography } from "antd";
+import { useMemo, useRef, useState } from "react";
+import { Button, Empty, Segmented, Space, Typography } from "antd";
 import ReactECharts from "echarts-for-react";
+import type { CallbackDataParams } from "echarts/types/dist/shared";
 import type { PrimitiveCellValue } from "../dram-grid/types";
+import { DRAM_CHART_THEME_NAME } from "./dramChartTheme";
 
 const { Text } = Typography;
 
 type Row = Record<string, PrimitiveCellValue>;
 
 type ChartMode = "weight" | "return" | "contribution" | "effects";
+type WeightViewMode = "pie" | "bars";
 
 type Props = {
   data: Row[];
@@ -28,6 +32,20 @@ type EffectsMetricConfig = {
 };
 
 type MetricConfig = PairedMetricConfig | EffectsMetricConfig;
+
+type AxisTooltipParam = CallbackDataParams & {
+  axisValue?: unknown;
+  axisValueLabel?: unknown;
+};
+
+type PieTooltipParam = CallbackDataParams & {
+  percent?: unknown;
+  seriesName?: string;
+};
+
+type ChartClickParam = {
+  name?: unknown;
+};
 
 const METRIC_CONFIG: Record<ChartMode, MetricConfig> = {
   weight: {
@@ -54,18 +72,63 @@ const METRIC_CONFIG: Record<ChartMode, MetricConfig> = {
   },
 };
 
-const COLORS = {
-  portfolio: "#1f6aa5",
-  benchmark: "#6b6b6b",
-  allocation: "#1f6aa5",
-  selection: "#6b6b6b",
-  interaction: "#faad14",
-};
+function toNum(value: PrimitiveCellValue | unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
 
-const toNum = (value: PrimitiveCellValue): number =>
-  typeof value === "number" && Number.isFinite(value) ? value : 0;
+function fmtPct(value: number): string {
+  return `${(value * 100).toFixed(2)}%`;
+}
 
-const fmtPct = (value: number): string => `${(value * 100).toFixed(2)}%`;
+function fmtPctValue(value: number): string {
+  return (value * 100).toFixed(2);
+}
+
+function getChartValue(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    const numericValue = value.find(
+      (item): item is number => typeof item === "number" && Number.isFinite(item)
+    );
+
+    return numericValue ?? 0;
+  }
+
+  if (value && typeof value === "object" && "value" in value) {
+    return getChartValue((value as { value?: unknown }).value);
+  }
+
+  return 0;
+}
+
+function getAxisValue(params: CallbackDataParams[]): string {
+  const first = params[0] as AxisTooltipParam | undefined;
+
+  if (!first) {
+    return "";
+  }
+
+  if (typeof first.axisValueLabel === "string") {
+    return first.axisValueLabel;
+  }
+
+  if (typeof first.axisValue === "string") {
+    return first.axisValue;
+  }
+
+  if (typeof first.name === "string") {
+    return first.name;
+  }
+
+  return "";
+}
+
+function getGroup(row: Row): string {
+  return String(row["SecurityGroup"] ?? "");
+}
 
 export default function AttributionSingleModeChart({
   data,
@@ -74,22 +137,263 @@ export default function AttributionSingleModeChart({
   onSelect,
 }: Props) {
   const [mode, setMode] = useState<ChartMode>("weight");
+  const [weightViewMode, setWeightViewMode] = useState<WeightViewMode>("bars");
+
   const chartRef = useRef<ReactECharts | null>(null);
+
   const metricConfig = METRIC_CONFIG[mode];
 
   const chartRows = useMemo(() => {
-    return data.filter(
-      (row) => String(row["SecurityGroup"] ?? "") !== "Total"
-    );
+    return data.filter((row) => getGroup(row) !== "Total");
   }, [data]);
 
   const option = useMemo(() => {
-    if (!chartRows.length) return null;
+    if (!chartRows.length) {
+      return null;
+    }
 
-    const categories = chartRows.map((row) =>
-      String(row["SecurityGroup"] ?? "")
-    );
+    const categories = chartRows.map((row) => getGroup(row));
 
+    /**
+     * WEIGHT = PIE / GROUPED HORIZONTAL BARS
+     */
+    if (mode === "weight") {
+      const portfolioData = chartRows.map((row) => toNum(row["PFAvgWeight"]));
+      const benchmarkData = chartRows.map((row) => toNum(row["BMAvgWeight"]));
+
+      if (weightViewMode === "pie") {
+        const portfolioPieData = chartRows.map((row) => ({
+          name: getGroup(row),
+          value: toNum(row["PFAvgWeight"]),
+        }));
+
+        const benchmarkPieData = chartRows.map((row) => ({
+          name: getGroup(row),
+          value: toNum(row["BMAvgWeight"]),
+        }));
+
+        return {
+          animation: false,
+
+          tooltip: {
+            trigger: "item",
+            formatter: (params: PieTooltipParam): string => {
+              const value = getChartValue(params.value);
+              const percent =
+                typeof params.percent === "number" &&
+                Number.isFinite(params.percent)
+                  ? params.percent
+                  : 0;
+
+              return [
+                `<strong>${params.seriesName ?? ""}</strong>`,
+                `${params.name}`,
+                `Value: ${fmtPct(value)}`,
+                `Share: ${percent.toFixed(2)}%`,
+              ].join("<br/>");
+            },
+          },
+
+          legend: {
+            type: "scroll",
+            bottom: 0,
+            textStyle: {
+              fontSize: 11,
+            },
+          },
+
+          series: [
+            {
+              name: "Portfolio",
+              type: "pie",
+              radius: ["42%", "68%"],
+              center: ["30%", "45%"],
+              data: portfolioPieData,
+              stillShowZeroSum: true,
+              avoidLabelOverlap: true,
+              label: {
+                show: true,
+                fontSize: 10,
+                formatter: (params: CallbackDataParams): string => {
+                  const name =
+                    typeof params.name === "string" ? params.name : "";
+
+                  const percent =
+                    "percent" in params &&
+                    typeof (params as PieTooltipParam).percent === "number"
+                      ? (params as PieTooltipParam).percent
+                      : 0;
+
+                  return `${name}\n${percent?.toFixed(1)}%`;
+                },
+              },
+              itemStyle: {
+                borderWidth: 1,
+                borderColor: "#fff",
+              },
+            },
+            {
+              name: "Benchmark",
+              type: "pie",
+              radius: ["42%", "68%"],
+              center: ["70%", "45%"],
+              data: benchmarkPieData,
+              stillShowZeroSum: true,
+              avoidLabelOverlap: true,
+              label: {
+                show: true,
+                fontSize: 10,
+                formatter: (params: CallbackDataParams): string => {
+                  const name =
+                    typeof params.name === "string" ? params.name : "";
+
+                  const percent =
+                    "percent" in params &&
+                    typeof (params as PieTooltipParam).percent === "number"
+                      ? (params as PieTooltipParam).percent
+                      : 0;
+
+                  return `${name}\n${percent?.toFixed(1)}%`;
+                },
+              },
+              itemStyle: {
+                borderWidth: 1,
+                borderColor: "#fff",
+              },
+            },
+          ],
+
+          graphic: [
+            {
+              type: "text",
+              left: "24%",
+              top: 10,
+              style: {
+                text: "Portfolio",
+                fill: "#333",
+                fontSize: 13,
+                fontWeight: 600,
+              },
+            },
+            {
+              type: "text",
+              left: "66%",
+              top: 10,
+              style: {
+                text: "Benchmark",
+                fill: "#333",
+                fontSize: 13,
+                fontWeight: 600,
+              },
+            },
+          ],
+        };
+      }
+
+      /**
+       * WEIGHT = GROUPED HORIZONTAL BARS
+       *
+       * This is the better default compare view:
+       * - same baseline
+       * - easier PF vs BM comparison
+       * - closer to client-report style sector weighting chart
+       */
+      return {
+        animation: false,
+
+        tooltip: {
+          trigger: "axis",
+          axisPointer: {
+            type: "shadow",
+          },
+          formatter: (params: CallbackDataParams[]): string => {
+            if (!params.length) {
+              return "";
+            }
+
+            const axisValue = getAxisValue(params);
+
+            return [
+              `<strong>${axisValue}</strong>`,
+              ...params.map((param) => {
+                const value = getChartValue(param.value);
+                return `${param.seriesName}: ${fmtPct(value)}`;
+              }),
+            ].join("<br/>");
+          },
+        },
+
+        legend: {
+          bottom: 0,
+        },
+
+        grid: {
+          left: 170,
+          right: 56,
+          top: 28,
+          bottom: 70,
+        },
+
+        xAxis: {
+          type: "value",
+          name: "% of Portfolio",
+          nameLocation: "end",
+          nameGap: 18,
+          axisLabel: {
+            formatter: (value: number): string => fmtPctValue(value),
+          },
+          splitLine: {
+            show: false,
+          },
+        },
+
+        yAxis: {
+          type: "category",
+          data: categories,
+          inverse: true,
+          axisTick: {
+            show: false,
+          },
+          axisLabel: {
+            width: 150,
+            overflow: "truncate",
+          },
+        },
+
+        series: [
+          {
+            name: "Portfolio",
+            type: "bar",
+            data: portfolioData,
+            barMaxWidth: 14,
+            label: {
+              show: true,
+              position: "right",
+              formatter: (params: CallbackDataParams): string => {
+                return fmtPctValue(getChartValue(params.value));
+              },
+            },
+          },
+          {
+            name: "Benchmark",
+            type: "bar",
+            data: benchmarkData,
+            barMaxWidth: 14,
+            label: {
+              show: true,
+              position: "right",
+              formatter: (params: CallbackDataParams): string => {
+                return fmtPctValue(getChartValue(params.value));
+              },
+            },
+          },
+        ],
+      };
+    }
+
+    /**
+     * EFFECTS = BAR
+     */
     if (metricConfig.kind === "effects") {
       const allocData = chartRows.map((row) => toNum(row["AllocEffect"]));
       const selectData = chartRows.map((row) => toNum(row["SelectEffect"]));
@@ -97,199 +401,182 @@ export default function AttributionSingleModeChart({
 
       return {
         animation: false,
+
         tooltip: {
           trigger: "axis",
-          axisPointer: { type: "shadow" },
-          formatter: (
-            params: Array<{
-              seriesName: string;
-              value: number;
-              axisValue: string;
-            }>
-          ) => {
-            if (!Array.isArray(params) || params.length === 0) return "";
+          axisPointer: {
+            type: "shadow",
+          },
+          formatter: (params: CallbackDataParams[]): string => {
+            if (!params.length) {
+              return "";
+            }
+
+            const axisValue = getAxisValue(params);
 
             return [
-              `<strong>${params[0].axisValue}</strong>`,
-              ...params.map(
-                (p) => `${p.seriesName}: ${fmtPct(Number(p.value ?? 0))}`
-              ),
+              `<strong>${axisValue}</strong>`,
+              ...params.map((param) => {
+                const value = getChartValue(param.value);
+                return `${param.seriesName}: ${fmtPct(value)}`;
+              }),
             ].join("<br/>");
           },
         },
+
         legend: {
-          data: ["Allocation", "Selection", "Interaction"],
           bottom: 0,
-          textStyle: {
-            fontSize: 11,
-            color: "#333",
-          },
         },
+
         grid: {
           left: 40,
           right: 20,
           top: 28,
           bottom: 70,
         },
+
         xAxis: {
           type: "category",
           data: categories,
-          axisLabel: {
-            rotate: 25,
-            fontSize: 10,
-            color: "#333",
-          },
         },
+
         yAxis: {
           type: "value",
           axisLabel: {
-            formatter: (v: number) => fmtPct(v),
-            fontSize: 10,
-            color: "#333",
+            formatter: (value: number): string => fmtPct(value),
           },
         },
+
         series: [
           {
             name: "Allocation",
             type: "bar",
             data: allocData,
-            itemStyle: {
-              color: COLORS.allocation,
-            },
-            barCategoryGap: "35%",
           },
           {
             name: "Selection",
             type: "bar",
             data: selectData,
-            itemStyle: {
-              color: COLORS.selection,
-            },
           },
           {
             name: "Interaction",
             type: "bar",
             data: interData,
-            itemStyle: {
-              color: COLORS.interaction,
-            },
           },
         ],
       };
     }
 
+    /**
+     * RETURN / CONTRIBUTION = BAR
+     */
     const portfolioData = chartRows.map((row) =>
       toNum(row[metricConfig.portfolioField])
     );
+
     const benchmarkData = chartRows.map((row) =>
       toNum(row[metricConfig.benchmarkField])
     );
 
     return {
       animation: false,
+
       tooltip: {
         trigger: "axis",
-        axisPointer: { type: "shadow" },
-        formatter: (
-          params: Array<{
-            seriesName: string;
-            value: number;
-            axisValue: string;
-          }>
-        ) => {
-          if (!Array.isArray(params) || params.length === 0) return "";
+        axisPointer: {
+          type: "shadow",
+        },
+        formatter: (params: CallbackDataParams[]): string => {
+          if (!params.length) {
+            return "";
+          }
+
+          const axisValue = getAxisValue(params);
 
           return [
-            `<strong>${params[0].axisValue}</strong>`,
-            ...params.map(
-              (p) => `${p.seriesName}: ${fmtPct(Number(p.value ?? 0))}`
-            ),
+            `<strong>${axisValue}</strong>`,
+            ...params.map((param) => {
+              const value = getChartValue(param.value);
+              return `${param.seriesName}: ${fmtPct(value)}`;
+            }),
           ].join("<br/>");
         },
       },
+
       legend: {
-        data: ["Portfolio", "Benchmark"],
         bottom: 0,
-        textStyle: {
-          fontSize: 11,
-          color: "#333",
-        },
       },
+
       grid: {
         left: 40,
         right: 20,
         top: 28,
         bottom: 70,
       },
+
       xAxis: {
         type: "category",
         data: categories,
-        axisLabel: {
-          rotate: 25,
-          fontSize: 10,
-          color: "#333",
-        },
       },
+
       yAxis: {
         type: "value",
         axisLabel: {
-          formatter: (v: number) => fmtPct(v),
-          fontSize: 10,
-          color: "#333",
+          formatter: (value: number): string => fmtPct(value),
         },
       },
+
       series: [
         {
           name: "Portfolio",
           type: "bar",
           data: portfolioData,
-          itemStyle: {
-            color: COLORS.portfolio,
-          },
-          barCategoryGap: "35%",
         },
         {
           name: "Benchmark",
           type: "bar",
           data: benchmarkData,
-          itemStyle: {
-            color: COLORS.benchmark,
-          },
         },
       ],
     };
-  }, [chartRows, metricConfig]);
+  }, [chartRows, metricConfig, mode, weightViewMode]);
 
   const onEvents = useMemo(
     () => ({
-      click: (params: { name?: string }) => {
-        if (typeof params?.name === "string") {
-          onSelect?.(params.name);
+      click: (params: ChartClickParam) => {
+        if (typeof params.name === "string") {
+          const next =
+            params.name === selectedGroup ? null : params.name;
+          onSelect?.(next ?? "");
         }
       },
     }),
     [onSelect]
   );
 
+  function exportChartAsImage(): void {
+    const chartInstance = chartRef.current?.getEchartsInstance();
+
+    if (!chartInstance) {
+      return;
+    }
+
+    const url = chartInstance.getDataURL({
+      type: "png",
+      pixelRatio: 2,
+      backgroundColor: "#ffffff",
+    });
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "chart.png";
+    link.click();
+  }
+
   if (!chartRows.length) {
     return <Empty description="No chart data available" />;
   }
-function exportChartAsImage() {
-  const chartInstance = chartRef.current?.getEchartsInstance();
 
-  if (!chartInstance) return;
-
-  const url = chartInstance.getDataURL({
-    type: "png",
-    pixelRatio: 2,
-    backgroundColor: "#ffffff",
-  });
-
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "chart.png";
-  link.click();
-}
   return (
     <Space direction="vertical" size={12} style={{ width: "100%" }}>
       <div
@@ -297,24 +584,45 @@ function exportChartAsImage() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          gap: 12,
+          flexWrap: "wrap",
         }}
       >
-        <Text strong>{metricConfig.label}</Text>
+        <Text strong>
+          {mode === "weight" && weightViewMode === "bars"
+            ? "Portfolio vs Benchmark Weight - Bar Compare"
+            : mode === "weight" && weightViewMode === "pie"
+              ? "Portfolio vs Benchmark Weight - Pie Compare"
+              : metricConfig.label}
+        </Text>
 
-        <Segmented
-          value={mode}
-          onChange={(value) => setMode(value as ChartMode)}
-          options={[
-            { label: "Weight", value: "weight" },
-            { label: "Return", value: "return" },
-            { label: "Contribution", value: "contribution" },
-            { label: "Effects", value: "effects" },
-          ]}
-          size="middle"
-        />
-        <Button onClick={exportChartAsImage}>
-                    Export Chart
-        </Button>
+        <Space wrap>
+          <Segmented
+            value={mode}
+            onChange={(value) => setMode(value as ChartMode)}
+            options={[
+              { label: "Weight", value: "weight" },
+              { label: "Return", value: "return" },
+              { label: "Contribution", value: "contribution" },
+              { label: "Effects", value: "effects" },
+            ]}
+            size="middle"
+          />
+
+          {mode === "weight" ? (
+            <Segmented
+              value={weightViewMode}
+              onChange={(value) => setWeightViewMode(value as WeightViewMode)}
+              options={[
+                { label: "Bars", value: "bars" },
+                { label: "Pie", value: "pie" },
+              ]}
+              size="middle"
+            />
+          ) : null}
+
+          <Button onClick={exportChartAsImage}>Export Chart</Button>
+        </Space>
       </div>
 
       {selectedGroup ? (
@@ -325,10 +633,17 @@ function exportChartAsImage() {
         <ReactECharts
           ref={chartRef}
           option={option}
-          style={{ width: "100%", height }}
+          style={{
+            width: "100%",
+            height:
+              mode === "weight" && weightViewMode === "bars"
+                ? Math.max(height, chartRows.length * 34 + 90)
+                : height,
+          }}
           notMerge
           lazyUpdate
           onEvents={onEvents}
+          theme={DRAM_CHART_THEME_NAME}
         />
       ) : (
         <Empty description="No chartable values available" />

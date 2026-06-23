@@ -482,9 +482,11 @@ React.useEffect(() => {
                   <div style={styles.headerLabel}>Perf Start Dt</div>
                   <div style={styles.headerValue}>{formatMMDDYYYY(detailHeader?.perfStartDate)}</div>
                 </div>
-                <div style={styles.headerField}>
-                  <div style={{width:"650px"}} >All returns for periods of one year or longer are <b>annualized</b> unless otherwise stated.</div>
+                <div style={styles.bmHeaderField}>
+                  <div style={styles.headerLabel}>Benchmark</div>
+                  <div style={styles.bmheaderValue}><b>{detailHeader?.benchmark}</b> All returns for periods of one year or longer are <b>annualized</b> unless otherwise stated.</div>
                 </div>
+
               </div>
 
               <div style={styles.tabsRow}>
@@ -652,4 +654,10 @@ const styles: Record<string, React.CSSProperties> = {
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
+  bmheaderValue: {
+    fontSize: 12,
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+  },
+  bmHeaderField: { display: "flex", flexDirection: "column", minWidth: 450 },
 };

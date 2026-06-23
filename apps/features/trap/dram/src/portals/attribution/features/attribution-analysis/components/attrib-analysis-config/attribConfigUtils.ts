@@ -1,10 +1,6 @@
 import { AnalyticResultRow, AnalyticsResponse } from "../../lib/services";
 import { ApiColumnConfig, GridConfigResponse, PeriodConfig, PrimitiveCellValue } from "../dram-grid";
-import {
-  FrequencyModeId,
-  WizardSelectionState,
-} from "./wizardConfigTypes";
-
+import { AttribConfigSelectionState, FrequencyModeId } from "./types";
 export interface SelectOption {
   value: string;
   label: string;
@@ -106,7 +102,7 @@ export function getDefaultBreakdownModeId(config: GridConfigResponse): string | 
 
 export function getDefaultWizardSelection(
   config: GridConfigResponse
-): WizardSelectionState {
+): AttribConfigSelectionState {
   const frequencyMode = getDefaultFrequencyMode(config);
 
   return {

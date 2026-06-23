@@ -27,8 +27,9 @@ import {
 import { PortBenchRow } from "../lib/types";
 import { default_em_port } from "../lib/constants";
 import { DramDataGrid, DramGridProvider, GridConfigResponse, normalizeColumns } from "../components/dram-grid";
-import { extractAnalysisRows, toGridRows } from "../components/wizard-config/wizardConfigUtils";
+
 import { getKeyByAssetClass } from "../components/WizardStateStore";
+import { extractAnalysisRows, toGridRows } from "../components/attrib-analysis-config/attribConfigUtils";
 
 const extractPortBenchRows = (apiResp: OptionsResponse): PortBenchRow[] => {
   const allRows = Array.isArray(apiResp.data?.grids)

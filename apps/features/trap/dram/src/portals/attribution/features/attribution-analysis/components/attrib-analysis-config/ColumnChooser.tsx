@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ColumnChooserItem, reorderSelectedIds } from "./wizardConfigUtils";
+import { ColumnChooserItem, reorderSelectedIds } from "./attribConfigUtils";
 import { Space, Button, List, Card, Typography } from "antd";
 
 interface ColumnChooserProps {

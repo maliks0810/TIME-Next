@@ -3,10 +3,10 @@ import {
   Button,
   Card,
   Col,
-  Drawer,
   Empty,
   Row,
   Segmented,
+  SegmentedProps,
   Select,
   Space,
   Spin,
@@ -23,7 +23,6 @@ import {
   OptionsResponse,
 } from "../../lib/services";
 import {
-  ASSET_CLASS_OPTIONS,
   AssetClass,
   PortBenchRow,
 } from "../../lib/types";
@@ -41,11 +40,9 @@ import {
 } from "../../components/dram-grid";
 import { getKeyByAssetClass } from "../../components/WizardStateStore";
 import { getLastMonthEnd } from "../../components/AlphaDashboard/utils/alphaDashboardHelpers";
-import WizardTabbedCompact, {
-  WizardApplyPayload,
-} from "../../components/wizard-config/WizardTabbedCompact";
 import AttributionCompareView from "../../components/dram-grid/AttributionCompareView";
 import AttributionSingleModeChart from "../../components/dram-grid/AttributionSingleModeChart";
+import ConfigTabbedCompact, { AttribAnalysisApplyPayload } from "../../components/attrib-analysis-config/ConfigTabbedCompact";
 
 const { Title, Text } = Typography;
 
@@ -111,6 +108,7 @@ const EMPTY_CONFIG: GridConfigResponse = {
   ],
   periods: [[]],
   metrics: [],
+  holidays: new Set(new Set<string>())
 };
 
 const toRowId = (
@@ -198,7 +196,7 @@ const [pendingPrint, setPendingPrint] = useState(false);
   const [viewEndDate, setViewEndDate] = useState<string>("");
   const [viewFrequencyMode, setViewFrequencyMode] =
     useState<string>("monthly");
-  const [viewAssetClass, setViewAssetClass] = useState<AssetClass | null>(null);
+  const [viewAssetClass, setViewAssetClass] = useState<AssetClass | null>("EQ");
   const [viewBreakdown, setViewBreakdown] = useState<string>("");
 
   const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<
@@ -219,21 +217,27 @@ const [pendingPrint, setPendingPrint] = useState(false);
   const [comparePeriods, setComparePeriods] = useState<string[]>([]);
 
   const storageKey = getKeyByAssetClass(viewAssetClass ?? "");
+  const [configDraftPortfolio, setConfigDraftPortfolio] = useState<string>("");
 
   const portfolioSelectOptions = useMemo(
     () => buildPortfolioOptions(portBenchRows),
     [portBenchRows]
   );
 
-  const benchmarkSelectOptions = useMemo(
-    () =>
-      buildBenchmarkOptions(
-        portBenchRows,
-        viewPortfolio ? [viewPortfolio] : []
-      ),
-    [portBenchRows, viewPortfolio]
-  );
+  const benchmarkSelectOptions = useMemo(() => {
+    const activePortfolio = configOpen ? configDraftPortfolio : viewPortfolio;
 
+    return buildBenchmarkOptions(
+      portBenchRows,
+      activePortfolio ? [activePortfolio] : []
+    );
+  }, [portBenchRows, configOpen, configDraftPortfolio, viewPortfolio]);
+
+  useEffect(() => {
+    if (configOpen) {
+      setConfigDraftPortfolio(viewPortfolio);
+    }
+  }, [configOpen, viewPortfolio]);
   const initialColumns = useMemo(() => {
     if (!gridConfig) return [];
 
@@ -327,7 +331,7 @@ const [pendingPrint, setPendingPrint] = useState(false);
   }, [viewAssetClass]);
 
   const buildAnalysisInput = (
-    payload?: WizardApplyPayload
+    payload?: AttribAnalysisApplyPayload
   ): AnalysisInput | null => {
     const assetClass = (payload?.assetClass ?? viewAssetClass) as
       | AssetClass
@@ -347,8 +351,8 @@ const [pendingPrint, setPendingPrint] = useState(false);
       return null;
     }
 
-    if (frequencyMode.toLowerCase() !== "daily" && !asOfDate) {
-      message.warning("Please select an as of date.");
+    if (frequencyMode.toLowerCase() !== "daily" && !endDate) {
+      message.warning("Please select at lease end date.");
       return null;
     }
 
@@ -372,33 +376,26 @@ const [pendingPrint, setPendingPrint] = useState(false);
     };
   };
 
-  const runAnalysis = async (payload?: WizardApplyPayload): Promise<void> => {
+  const runAnalysis = async (payload?: AttribAnalysisApplyPayload): Promise<void> => {
     const input = buildAnalysisInput(payload);
     if (!input) return;
 
     setRunningAnalysis(true);
 
     try {
-      const analysisDate =
-        input.frequencyMode.toLowerCase() === "daily"
-          ? input.startDate
-          : input.asOfDate;
-
-      const resp = (await api.runTestAnalysis(
+      const resp = (await api.runAnalysis(
         input.assetClass,
         input.portfolio,
         input.frequencyMode,
         input.breakdownModeId || "GICS",
-        analysisDate
+        input.startDate,
+        input.endDate
       )) as ResponseWithPeriodGrids;
 
       const meta = extractMetadata(resp);
       setPageTitle(meta.pageTitle);
       setValueDate(meta.valueDate);
 
-      // Keep this only if your analysis response also returns the correct grid config.
-      // If your canonical grid config should come ONLY from api.getConfigs(assetClass),
-      // remove the next 4 lines.
       const nextGridConfig = extractGridConfig(resp);
       if (nextGridConfig) {
         setGridConfig(nextGridConfig);
@@ -420,11 +417,11 @@ const [pendingPrint, setPendingPrint] = useState(false);
     }
   };
 
-  const handleRunAnalysis = (payload?: WizardApplyPayload): void => {
+  const handleRunAnalysis = (payload?: AttribAnalysisApplyPayload): void => {
     void runAnalysis(payload);
   };
 
-  const applySelectionToView = (payload: WizardApplyPayload): void => {
+  const applySelectionToView = (payload: AttribAnalysisApplyPayload): void => {
     setViewAssetClass(payload.assetClass as AssetClass);
     setViewPortfolio(payload.portfolio);
     setViewBenchmarks(payload.benchmark);
@@ -455,6 +452,13 @@ useEffect(() => {
 
   return () => cancelAnimationFrame(id);
 }, [pendingPrint, screenMode]);
+
+const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
+  // { label: "FI", value: "FI" },
+  { label: "EQ", value: "EQ" },
+  { label: "EM", value: "EM" },
+];
+
   return (
     <div style={{ margin: "16px" }}>
       <Row justify="end" style={{ marginBottom: 12 }}>
@@ -466,20 +470,13 @@ useEffect(() => {
           Configure
         </Button>
       </Row>
-
-      <Drawer
-        title="Configure Analysis"
-        open={configOpen}
-        onClose={() => setConfigOpen(false)}
-        width={900}
-      >
-        <WizardTabbedCompact
+        <ConfigTabbedCompact open={configOpen} onClose={() => setConfigOpen(false)}
           config={gridConfig ?? EMPTY_CONFIG}
-          assetClassOptions={ASSET_CLASS_OPTIONS}
+          assetClassOptions={assetClassOptions}
           portfolioOptions={portfolioSelectOptions}
           benchmarkOptions={benchmarkSelectOptions}
           initialValues={{
-            assetClass: viewAssetClass ?? "",
+            assetClass: viewAssetClass ?? null,
             portfolio: viewPortfolio,
             benchmark: viewBenchmarks,
             frequencyMode: viewFrequencyMode,
@@ -493,6 +490,7 @@ useEffect(() => {
 
             setViewAssetClass(nextAsset);
             setViewPortfolio("");
+            setConfigDraftPortfolio("");
             setViewBenchmarks("");
             setViewBreakdown("");
             setConfiguredColumns([]);
@@ -504,6 +502,11 @@ useEffect(() => {
 
             void loadForAssetClass(nextAsset);
           }}
+
+          onPortfolioChange={(portfolio) => {
+            setConfigDraftPortfolio(portfolio);
+          }}
+
           onApply={(payload) => {
             applySelectionToView(payload);
             setConfigOpen(false);
@@ -523,7 +526,6 @@ useEffect(() => {
             handleRunAnalysis(payload);
           }}
         />
-      </Drawer>
 
       {!viewAssetClass ? (
         <Card style={{ marginTop: 16 }}>

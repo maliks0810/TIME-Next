@@ -36,6 +36,9 @@ export default function BMDetailHistory({portfolioId,isSecondary, rows, onToolba
 
       }
   };
+      React.useEffect(() => {
+           handleLoadHistoryNotes();
+      }, []);
   return (
     <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
       <div style={{height: '80px', width:"95%"}}>

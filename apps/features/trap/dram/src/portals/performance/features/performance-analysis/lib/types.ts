@@ -92,4 +92,6 @@ export interface Note {
   EntityType: string,
   EntityId: string,
   NoteText: string,
+  CreatedBy?: string,
+  CreatedAt?: string,
 }

@@ -4,10 +4,11 @@ import PMAHomePage from '../../pages/attribution/PMAHomePage';
 import { DiagnosticsWorkspacePage } from '../../pages/diagnostics/DiagnosticsWorkspacePage';
 import AtributionAnalysisWorkspace from '../../pages/attribution/AtributionAnalysisWorkspace';
 import PMAAdminPage from '../../pages/attribution/PMAAdminPage';
+import { DriverAnalysisWorkspace } from '../driver-analysis-config/DriverAnalysisWorkspace';
 
 
 /** 1. Define keys FIRST -- add new key here */
-export type TabKey = 'pma-landing' | 'dashboard'| 'attribution-analysis' | 'diagnostics' | 'admin';
+export type TabKey = 'pma-landing' | 'dashboard'| 'attribution-analysis' | 'diagnostics' | 'admin' | 'driver-analysis';
 
 /** 2. Navigation type */
 export type NavigateFn = (key: TabKey) => void;
@@ -45,6 +46,14 @@ export const TAB_CONFIG: Readonly<Record<TabKey, TabConfigEntry>> = {
       />
     ),
   },
+  'driver-analysis': {
+     label: 'Driver Analysis',
+    getChildren: () => (
+      <DriverAnalysisWorkspace
+      />
+    ),
+  }
+  ,
   'diagnostics' : {
     label: 'Diagnostics',
     getChildren: () => <DiagnosticsWorkspacePage />
