@@ -432,14 +432,6 @@ const [pendingPrint, setPendingPrint] = useState(false);
     setViewBreakdown(payload.breakdownModeId);
     setConfiguredColumns(payload.configuredColumns);
   };
-const handleExportPdf = () => {
-  setScreenMode("print");
-
-  setTimeout(() => {
-    window.print();
-    setScreenMode("view");  //  reset after print
-  }, 100);
-};
 
 useEffect(() => {
   if (!pendingPrint || screenMode !== "print") return;
@@ -580,9 +572,7 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
                     ]}
                   />
 
-                  <Button onClick={handleExportPdf}>Export PDF</Button>
-
-                    <Button onClick={handleToggleCompareMode}>
+                  <Button onClick={handleToggleCompareMode}>
                       {compareMode ? "Single View" : "Compare Periods"}
                     </Button>
 
@@ -628,7 +618,7 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
   {/*  PRINT MODE FIRST */}
   {screenMode === "print" ? (
 
-<div className="print-root">
+<div id="print-root">
     <AttributionPrintView
       rows={rawRowsByPeriod[selectedPeriod] ?? []}
       period={selectedPeriod}

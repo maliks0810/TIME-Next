@@ -29,7 +29,7 @@ import {
   NormalizedColumnConfig,
 } from "../dram-grid";
 import { ColumnSelector } from "./ColumnSelector";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { AssetClass } from "../../lib/types";
 const { Text, Title } = Typography;
 
@@ -66,6 +66,7 @@ type ColumnItem = {
 type Option = {
   label: string;
   value: string;
+  inceptionDate?: string;
 };
 
 type Props = {
@@ -179,6 +180,90 @@ export const createRangeDisabledDate = ({
   };
 };
 
+type PeriodBoundaryInput = {
+  asOfDate: Dayjs;
+  inceptionDate?: Dayjs | null;
+};
+
+const DATE_FORMAT = "YYYY-MM-DD";
+
+const normalizePeriodCode = (periodId: string): string =>
+  periodId.trim().toUpperCase();
+
+const getQuarterStart = (d: Dayjs): Dayjs => {
+  const quarterStartMonth = Math.floor(d.month() / 3) * 3;
+  return d.month(quarterStartMonth).startOf("month");
+};
+
+const getRollingMonthStart = (asOfDate: Dayjs, months: number): Dayjs =>
+  asOfDate.subtract(months - 1, "month").startOf("month");
+
+const clampToInception = (
+  startDate: Dayjs,
+  inceptionDate?: Dayjs | null
+): Dayjs => {
+  if (inceptionDate && startDate.isBefore(inceptionDate, "day")) {
+    return inceptionDate.startOf("day");
+  }
+
+  return startDate.startOf("day");
+};
+
+const getPeriodStartDate = (
+  periodId: string,
+  input: PeriodBoundaryInput
+): Dayjs | null => {
+  const code = normalizePeriodCode(periodId);
+  const { asOfDate, inceptionDate } = input;
+
+  if (code === "MTD") {
+    return clampToInception(asOfDate.startOf("month"), inceptionDate);
+  }
+
+  if (code === "QTD") {
+    return clampToInception(getQuarterStart(asOfDate), inceptionDate);
+  }
+
+  if (code === "YTD") {
+    return clampToInception(asOfDate.startOf("year"), inceptionDate);
+  }
+
+  if (code === "ITD" || code === "SI") {
+    return inceptionDate ? inceptionDate.startOf("day") : null;
+  }
+
+  const yearMatch = /^(\d+)Y$/.exec(code);
+  if (yearMatch) {
+    const years = Number(yearMatch[1]);
+    return clampToInception(getRollingMonthStart(asOfDate, years * 12), inceptionDate);
+  }
+
+  const monthMatch = /^(\d+)M$/.exec(code);
+  if (monthMatch) {
+    const months = Number(monthMatch[1]);
+    return clampToInception(getRollingMonthStart(asOfDate, months), inceptionDate);
+  }
+
+  return null;
+};
+
+const getMinStartDateFromPeriods = (
+  periodIds: string[],
+  input: PeriodBoundaryInput
+): Dayjs | null => {
+  const dates = periodIds
+    .map((periodId) => getPeriodStartDate(periodId, input))
+    .filter((value): value is Dayjs => value !== null);
+
+  if (!dates.length) {
+    return null;
+  }
+
+  return dates.reduce((min, current) =>
+    current.isBefore(min, "day") ? current : min
+  );
+};
+
 export default function ConfigTabbedCompact({
   config,
   assetClassOptions,
@@ -270,28 +355,95 @@ export default function ConfigTabbedCompact({
       ? state.benchmark
       : undefined;
 
-   const hasValidDate =
-    state.frequencyMode.toLowerCase() === "monthly"
-      ? Boolean(state.endDate)
-      : Boolean(state.startDate && state.endDate);
+const hasValidDate =
+  state.frequencyMode.toLowerCase() === "monthly"
+    ? Boolean(state.asOfDate && state.startDate && state.endDate)
+    : Boolean(state.startDate && state.endDate);
 
-  const canApply =
-    Boolean(state.assetClass) &&
-    Boolean(state.portfolio) &&
-    Boolean(state.breakdownModeId) &&
-    state.selectedColumnIds.length > 0 &&
-    state.periodIds.length > 0 &&
-    hasValidDate;
+const hasItdSelected = useMemo(() => {
+  return state.periodIds.some((periodId) => {
+    const code = normalizePeriodCode(periodId);
+    return code === "ITD" || code === "SI";
+  });
+}, [state.periodIds]);
+
+const selectedPortfolioOption = useMemo(() => {
+  return portfolioOptions.find((option) => option.value === state.portfolio);
+}, [portfolioOptions, state.portfolio]);
+const portfolioInceptionDate = useMemo(() => {
+  if (!selectedPortfolioOption?.inceptionDate) {
+    return null;
+  }
+
+  const parsed = dayjs(selectedPortfolioOption.inceptionDate);
+  return parsed.isValid() ? parsed : null;
+}, [selectedPortfolioOption?.inceptionDate]);
+
+const hasValidItdSelection = !hasItdSelected || Boolean(portfolioInceptionDate);
+const canApply =
+  Boolean(state.assetClass) &&
+  Boolean(state.portfolio) &&
+  Boolean(state.breakdownModeId) &&
+  state.selectedColumnIds.length > 0 &&
+  state.periodIds.length > 0 &&
+  hasValidDate &&
+  hasValidItdSelection;
 
 const { RangePicker } = DatePicker;
 
-const [dates, setDates] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+const monthlyAsOfValue = useMemo(() => {
+  if (!state.asOfDate) {
+    return null;
+  }
 
-const handleChange = (vals: [Dayjs | null, Dayjs | null] | null) => {
-  if (!vals) {
-    setDates(null);
+  const parsed = dayjs(state.asOfDate);
+  return parsed.isValid() ? parsed : null;
+}, [state.asOfDate]);
+
+const dailyRangeValue = useMemo<[Dayjs | null, Dayjs | null] | null>(() => {
+  if (!state.startDate && !state.endDate) {
+    return null;
+  }
+
+  return [
+    state.startDate ? dayjs(state.startDate) : null,
+    state.endDate ? dayjs(state.endDate) : null,
+  ];
+}, [state.startDate, state.endDate]);
+
+
+const handleMonthlyAsOfChange = (value: Dayjs | null): void => {
+  if (!value) {
     setState((prev) => ({
       ...prev,
+      asOfDate: "",
+      startDate: "",
+      endDate: "",
+    }));
+    return;
+  }
+
+  const normalizedAsOf = value.endOf("month");
+  const minStartDate = getMinStartDateFromPeriods(state.periodIds, {
+    asOfDate: normalizedAsOf,
+    inceptionDate: portfolioInceptionDate,
+  });
+
+  setState((prev) => ({
+    ...prev,
+    asOfDate: normalizedAsOf.format(DATE_FORMAT),
+    startDate: minStartDate ? minStartDate.format(DATE_FORMAT) : "",
+    endDate: normalizedAsOf.format(DATE_FORMAT),
+  }));
+};
+
+const handleDailyRangeChange = (
+  vals: [Dayjs | null, Dayjs | null] | null
+): void => {
+  if (!vals) {
+    setState((prev) => ({
+      ...prev,
+      asOfDate: "",
       startDate: "",
       endDate: "",
     }));
@@ -300,38 +452,70 @@ const handleChange = (vals: [Dayjs | null, Dayjs | null] | null) => {
 
   const [start, end] = vals;
 
-  const normalizedStart =
-    state.frequencyMode === "monthly" && start
-      ? start.endOf("month")
-      : start;
-
-  const normalizedEnd =
-    state.frequencyMode === "monthly" && end
-      ? end.endOf("month")
-      : end;
-
-  const normalized: [Dayjs | null, Dayjs | null] = [
-    normalizedStart,
-    normalizedEnd,
-  ];
-
-  setDates(normalized);
-
-      setState((prev) => ({
-        ...prev,
-        startDate: normalizedStart ? normalizedStart.format("YYYY-MM-DD") : "",
-        endDate: normalizedEnd ? normalizedEnd.format("YYYY-MM-DD") : "",
-      }));
-
+  setState((prev) => ({
+    ...prev,
+    asOfDate: end ? end.format(DATE_FORMAT) : "",
+    startDate: start ? start.format(DATE_FORMAT) : "",
+    endDate: end ? end.format(DATE_FORMAT) : "",
+  }));
 };
-const disabledDate = useMemo(
+
+const monthlyDisabledDate = (current: Dayjs): boolean => {
+  if (!current) {
+    return false;
+  }
+
+  return !isMonthEnd(current);
+};
+
+const dailyDisabledDate = useMemo(
   () =>
     createRangeDisabledDate({
-      frequency: state.frequencyMode === "monthly" ? "monthly" : "daily",
-      startValue: dates?.[0] ?? null,
+      frequency: "daily",
+      startValue: dailyRangeValue?.[0] ?? null,
     }),
-  [state.frequencyMode, dates]
+  [dailyRangeValue]
 );
+
+useEffect(() => {
+  if (state.frequencyMode !== "monthly") {
+    return;
+  }
+
+  if (!state.asOfDate) {
+    return;
+  }
+
+  const parsedAsOfDate = dayjs(state.asOfDate);
+  if (!parsedAsOfDate.isValid()) {
+    return;
+  }
+
+  const minStartDate = getMinStartDateFromPeriods(state.periodIds, {
+    asOfDate: parsedAsOfDate,
+    inceptionDate: portfolioInceptionDate,
+  });
+
+  const nextStartDate = minStartDate ? minStartDate.format(DATE_FORMAT) : "";
+  const nextEndDate = parsedAsOfDate.format(DATE_FORMAT);
+
+  if (state.startDate === nextStartDate && state.endDate === nextEndDate) {
+    return;
+  }
+
+  setState((prev) => ({
+    ...prev,
+    startDate: nextStartDate,
+    endDate: nextEndDate,
+  }));
+}, [
+  state.frequencyMode,
+  state.asOfDate,
+  state.periodIds,
+  state.startDate,
+  state.endDate,
+  portfolioInceptionDate,
+]);
 
 const portfolioValue =
   state.portfolio &&
@@ -453,6 +637,7 @@ const portfolioValue =
                               value: f.id,
                               label: f.label,
                             }))}
+
                             onChange={(val) =>
                               setState((prev) => ({
                                 ...prev,
@@ -460,24 +645,46 @@ const portfolioValue =
                                 asOfDate: "",
                                 startDate: "",
                                 endDate: "",
-                                periodIds: val === 'daily' ? ['1D']:['MTD'],
+                                periodIds: val === "daily" ? ["1D"] : ["MTD"],
                               }))
                             }
+
                           />
                         </Form.Item>
                       </Col>
                         <Col span={18}>
-                          <Form.Item label="Start Date - End Date">
+                            {state.frequencyMode === "monthly" ? (
+                              <Form.Item label="As Of Date">
+                                <DatePicker
+                                  value={monthlyAsOfValue}
+                                  onChange={handleMonthlyAsOfChange}
+                                  disabledDate={monthlyDisabledDate}
+                                  style={{ width: "100%" }}
+                                />
 
-                            <RangePicker
-                              value={dates}
-                              onChange={handleChange}
-                              disabledDate={disabledDate}
-                            />
+                                {state.startDate && state.endDate ? (
+                                  <Text type="secondary" style={{ display: "block", fontSize: 12, marginTop: 4 }}>
+                                    Run analysis range: {state.startDate} → {state.endDate}
+                                  </Text>
+                                ) : null}
 
-                          </Form.Item>
-
-                        </Col>
+                                {hasItdSelected && !portfolioInceptionDate ? (
+                                  <Text type="warning" style={{ display: "block", fontSize: 12, marginTop: 4 }}>
+                                    ITD requires portfolio inceptionDate to calculate the min start date.
+                                  </Text>
+                                ) : null}
+                              </Form.Item>
+                            ) : (
+                              <Form.Item label="Start Date - End Date">
+                                <RangePicker
+                                  value={dailyRangeValue}
+                                  onChange={handleDailyRangeChange}
+                                  disabledDate={dailyDisabledDate}
+                                  style={{ width: "100%" }}
+                                />
+                              </Form.Item>
+                            )}
+                          </Col>
                       </Row>
                   </Form>
                 </Card>
