@@ -141,8 +141,8 @@ export default function HeatMapGrid({
         tip.innerHTML = parts.join('');
 
         const widgetOffset = tableRef.current?.getBoundingClientRect();
-        tip.style.left = `${e.clientX - (widgetOffset?.x || 0)}px`;
-        tip.style.top = `${e.clientY - (widgetOffset?.y || 0) + 64}px`;
+        tip.style.left = `${e.pageX - (widgetOffset?.x || 0 + 124)}px`;
+        tip.style.top = `${e.pageY - (widgetOffset?.y || 0) + 84}px`;
 
         tip.classList.add('show');
     };

@@ -203,7 +203,9 @@
 }
 
 /* frozen-pane edge shadow once numeric columns scroll under the name column */
-
+.grid-aria {
+    overflow: auto;
+}
 .grid-area[data-hscroll='true'] .hg-table thead th.h-name,
 .grid-area[data-hscroll='true'] .hg-table tbody th.cell-name {
     box-shadow: var(--pin-shadow);
@@ -660,7 +662,7 @@
 /* ---------- delegated cell tooltip ---------- */
 
 .hg-tip {
-    position: fixed;
+    position: absolute;
     z-index: 1000;
     max-width: 232px;
     padding: 8px 10px;
@@ -867,7 +869,7 @@
     background: var(--ant-color-bg-container);
     border: 1px solid var(--ant-color-border);
     border-radius: 10px;
-    overflow: auto;
+    overflow: hidden;
 }
 
 .ws-canvas.designing .widget {
@@ -877,6 +879,7 @@
 .settings-wrapper {
     max-height: 80vh;
     overflow: auto;
+    padding-right: 2px;
 }
 
 .group-path {
