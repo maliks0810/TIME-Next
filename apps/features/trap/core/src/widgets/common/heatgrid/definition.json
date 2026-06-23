@@ -87,23 +87,35 @@
             "settingsStorageKey": {
                 "title": "Settings Storage Key",
                 "type": "string",
-                "default": "aqi-grid.settings.v3",
+                "enum": ["aqi-grid.settings.v3"],
                 "category": "Storage"
             },
             "templatesStorageKey": {
                 "title": "Templates Storage Key",
                 "type": "string",
-                "default": "aqi-grid.template.v1",
+                "enum": ["aqi-grid.template.v1"],
                 "category": "Storage"
             },
             "activeTemplateStorageKey": {
                 "title": "Active Template Storage Key",
                 "type": "string",
-                "default": "aqi-grid.activeTemplate.v1",
+                "enum": ["aqi-grid.activeTemplate.v1"],
                 "category": "Storage"
+            },
+            "exportFileNameTitle": {
+                "title": "Exported Excel File Title",
+                "type": "string",
+                "category": "Export",
+                "default": ""
+            },
+            "exportFileName": {
+                "title": "Exported Excel File Name",
+                "type": "string",
+                "category": "Export",
+                "default": ""
             }
         },
-        "required": [],
+        "required": ["activeTemplateStorageKey", "settingsStorageKey", "templatesStorageKey"],
         "type": "object"
     },
     "uiHints": {
@@ -114,7 +126,7 @@
             "id": "large",
             "label": "Large",
             "grid": {
-                "defaultW": 2,
+                "defaultW": 12,
                 "defaultH": 900,
                 "minW": 12,
                 "minH": 900,

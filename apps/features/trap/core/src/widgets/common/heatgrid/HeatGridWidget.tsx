@@ -216,6 +216,9 @@ export const HeatGridWidget = ({ widgetInstance }: WidgetComponentProps) => {
             // persistence unavailable
         }
     };
+    const groupingLabels = settings.groupBy.map(
+        (group) => AQI_DIMENSIONS.find((dimension) => dimension.key === group)?.shortLabel ?? group
+    );
     useEffect(() => {
         const seq = ++requestSeq.current;
         setLoading(true);
@@ -231,7 +234,8 @@ export const HeatGridWidget = ({ widgetInstance }: WidgetComponentProps) => {
     };
 
     const title = config?.params?.title || '';
-
+    const exportFileName = config?.params?.title || 'Exported heat map';
+    const exportFileNameTitle = config?.params?.title || 'Exported heat map';
     const leafLabel = config?.params?.leafLabel || '';
     const foundation: FoundationConfig = {
         showTitle: config?.params?.showTitle,
@@ -289,7 +293,11 @@ export const HeatGridWidget = ({ widgetInstance }: WidgetComponentProps) => {
         storedTemplates.persistTemplates(next);
         if (activeTemplateId === id) setActiveTemplate(null);
     };
-
+    const exportMeta = {
+        fileName: exportFileName,
+        title: exportFileNameTitle,
+        subtitleLines: [],
+    };
     return (
         <WidgetCardShell>
             <HeatGridWidgetBase
@@ -304,7 +312,7 @@ export const HeatGridWidget = ({ widgetInstance }: WidgetComponentProps) => {
                 showLeaves={settings.showLeaves}
                 onShowLeavesChange={(v) => setSettings({ ...settings, showLeaves: v })}
                 onColumnsChange={onColumnsChange}
-                groupingLabels={[]}
+                groupingLabels={groupingLabels}
                 onReset={() => setSettings(structuredClone(DEFAULTS))}
                 leafLabel={leafLabel}
                 templatesSection={{
@@ -316,6 +324,7 @@ export const HeatGridWidget = ({ widgetInstance }: WidgetComponentProps) => {
                     onUpdate: updateTemplate,
                     onDelete: deleteTemplate,
                 }}
+                exportMeta={exportMeta}
                 // leafRows={{
                 //     title: 'Show individual countries',
                 //     sub: 'List countries under the deepest group',
