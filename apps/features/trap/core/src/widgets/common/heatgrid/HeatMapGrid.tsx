@@ -13,7 +13,7 @@ import {
     type ColumnNode,
     type GridRow,
 } from './types';
-import './heatgrid.css';
+import './heatgrid.scss';
 import { buildHeaderModel, fmt } from './utils';
 
 /**
@@ -141,8 +141,8 @@ export default function HeatMapGrid({
         tip.innerHTML = parts.join('');
 
         const widgetOffset = tableRef.current?.getBoundingClientRect();
-        tip.style.left = `${e.clientX - (widgetOffset?.x || 0) + 24}px`;
-        tip.style.top = `${e.clientY - (widgetOffset?.y || 0) + 44}px`;
+        tip.style.left = `${e.clientX - (widgetOffset?.x || 0)}px`;
+        tip.style.top = `${e.clientY - (widgetOffset?.y || 0) + 64}px`;
 
         tip.classList.add('show');
     };

@@ -52,6 +52,7 @@ export const WidgetConfigureModal = ({
     const required = configSchema['required'];
 
     const groupByCategory = (properties: any) => {
+        if (!properties) return {};
         return (Object.entries(properties) as [string, WidgetConfigProperty][]).reduce(
             (acc, [key, widgetConfigProperty]: [string, WidgetConfigProperty]) => {
                 const category = widgetConfigProperty.category

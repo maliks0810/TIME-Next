@@ -178,7 +178,7 @@
     position: sticky;
     top: var(--hdr-h, 56px);
     z-index: 4;
-    background-color: var(--total-bg);
+    background-color: color-mix(in srgb, var(--ant-color-text) 9%, var(--ant-color-bg-container));
     border-bottom: 1px solid var(--ant-color-border-secondary-strong);
     font-weight: 650;
     height: 32px;
@@ -867,10 +867,67 @@
     background: var(--ant-color-bg-container);
     border: 1px solid var(--ant-color-border);
     border-radius: 10px;
-    overflow: hidden;
+    overflow: auto;
 }
 
 .ws-canvas.designing .widget {
     border-style: dashed;
     border-color: color-mix(in srgb, var(--ant-color-primary) 50%, var(--ant-color-border));
+}
+.settings-wrapper {
+    max-height: 80vh;
+    overflow: auto;
+}
+
+.group-path {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    border: none;
+    background: none;
+    padding: 4px 6px;
+    margin-left: -6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+}
+
+.group-path:hover {
+    background: var(--hover);
+}
+
+.path-seg {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.path-sep {
+    color: var(--text-3);
+    margin: 0 4px;
+    font-size: 11px;
+}
+
+.path-chip {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-2);
+    background: var(--panel-2);
+    border: 1px solid var(--hairline);
+    border-radius: 5px;
+    padding: 2px 8px;
+}
+
+.path-chip.muted {
+    color: var(--text-3);
+    font-weight: 500;
+    background: transparent;
+    border-style: dashed;
+}
+
+.path-empty {
+    font-size: 11px;
+    color: var(--text-3);
+    font-style: italic;
 }
