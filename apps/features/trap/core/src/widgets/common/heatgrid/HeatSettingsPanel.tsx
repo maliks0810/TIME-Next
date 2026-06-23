@@ -1,5 +1,16 @@
 import { useState } from 'react';
-import { Button, ColorPicker, Dropdown, Input, Modal, Select, Space, Switch, Tooltip } from 'antd';
+import {
+    Button,
+    ColorPicker,
+    Drawer,
+    Dropdown,
+    Input,
+    Modal,
+    Select,
+    Space,
+    Switch,
+    Tooltip,
+} from 'antd';
 import {
     CloseOutlined,
     DeleteOutlined,
@@ -65,6 +76,7 @@ export interface TemplatesSection<T> {
 }
 
 interface Props {
+    view: 'drawer' | 'modal';
     open: boolean;
     onClose: () => void;
     columns: ColumnDef[];
@@ -157,6 +169,7 @@ function ToggleRow({
 
 export default function HeatSettingsPanel({
     open,
+    view,
     onClose,
     columns,
     onColumnsChange,
@@ -271,6 +284,278 @@ export default function HeatSettingsPanel({
         </div>
     ) : undefined;
 
+    const content = (
+        <div className="settings-wrapper">
+            <div className="ds-sec first">Rows</div>
+            <div className="sec-caption">Drag to reorder — rows nest in this order.</div>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                <SortableContext items={groupKeys} strategy={verticalListSortingStrategy}>
+                    {active.map((d, i) => (
+                        <SortableLevel
+                            key={d.key}
+                            id={d.key}
+                            index={i}
+                            label={d.label}
+                            onRemove={() => applyGrouping(groupKeys.filter((k) => k !== d.key))}
+                        />
+                    ))}
+                </SortableContext>
+            </DndContext>
+            <Dropdown
+                trigger={['click']}
+                disabled={available.length === 0}
+                menu={{
+                    items: available.map((d) => ({ key: d.key, label: d.label })),
+                    onClick: ({ key }) => applyGrouping([...groupKeys, key]),
+                }}
+            >
+                <Button block type="dashed" icon={<PlusOutlined />}>
+                    Add grouping level
+                </Button>
+            </Dropdown>
+            {leafRows && (
+                <ToggleRow
+                    title={leafRows.title}
+                    sub={leafRows.sub}
+                    checked={showLeaves}
+                    disabled={groupKeys.length === 0 || blankGroupRows}
+                    disabledHint={
+                        blankGroupRows
+                            ? "Turn off 'Blank rollup rows' first"
+                            : 'Add a grouping level first'
+                    }
+                    onChange={onShowLeavesChange}
+                />
+            )}
+            {onBlankGroupRowsChange && (
+                <ToggleRow
+                    title="Blank rollup rows"
+                    sub="Group rows show labels only — no values or color"
+                    checked={blankGroupRows}
+                    disabled={!showLeaves}
+                    disabledHint="Show detail rows first — otherwise nothing would render"
+                    onChange={onBlankGroupRowsChange}
+                />
+            )}
+            {onShowTotalChange && (
+                <ToggleRow
+                    title="Show total row"
+                    sub="The pinned summary row above the grid"
+                    checked={showTotal}
+                    onChange={onShowTotalChange}
+                />
+            )}
+            {onShowNameHeaderChange && (
+                <ToggleRow
+                    title="Column header"
+                    sub="Title above the dimension column"
+                    checked={showNameHeader}
+                    onChange={onShowNameHeaderChange}
+                />
+            )}
+
+            {axes.length > 0 && (
+                <>
+                    <div className="ds-sec">{axes.length === 1 ? axes[0].label : 'Stacks'}</div>
+                    {axes.map((axis) => {
+                        const members = (axis.children ?? []).filter(
+                            (m) => m.role === 'group' && m.selectable
+                        );
+                        return (
+                            <div key={axis.key} className="pg-block hg-block">
+                                {axes.length > 1 && <div className="pg-label">{axis.label}</div>}
+                                <div className="freq-grid">
+                                    {members.map((m) => {
+                                        const on = !!m.selected;
+                                        return (
+                                            <Tooltip key={m.key} title={m.tooltip}>
+                                                <button
+                                                    type="button"
+                                                    className={`freq-chip${on ? ' on' : ''}`}
+                                                    onClick={() =>
+                                                        onColumnsChange(
+                                                            setMemberSelected(columns, m.key, !on)
+                                                        )
+                                                    }
+                                                >
+                                                    {m.label}
+                                                </button>
+                                            </Tooltip>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </>
+            )}
+
+            <ColumnTreeField
+                columns={columns}
+                onColumnsChange={onColumnsChange}
+                label={seriesLabel}
+            />
+
+            {scales.length > 0 && (
+                <>
+                    <div className="ds-sec">Color spectrum</div>
+                    <div className="sec-caption">
+                        Spectrum, outliers, and no-data — per heat scale.
+                    </div>
+                    {scales.map((s) => {
+                        const custom = isRampSpec(s.ramp);
+                        const fromHex = custom
+                            ? (s.ramp as RampSpec).from
+                            : rgbToHex(rampRgb(0, s.ramp));
+                        const midHex = custom
+                            ? ((s.ramp as RampSpec).mid ?? rgbToHex(rampRgb(0.5, s.ramp)))
+                            : rgbToHex(rampRgb(0.5, s.ramp));
+                        const toHex = custom
+                            ? (s.ramp as RampSpec).to
+                            : rgbToHex(rampRgb(1, s.ramp));
+                        return (
+                            <div key={s.scale} className="ds-color">
+                                {scales.length > 1 && <div className="pg-label">{s.label}</div>}
+                                <div className="toggle-row">
+                                    <div className="toggle-title">Spectrum</div>
+                                    <Select
+                                        size="small"
+                                        value={custom ? 'custom' : (s.ramp as RampPreset)}
+                                        style={{ width: 132 }}
+                                        popupMatchSelectWidth={false}
+                                        options={[
+                                            ...HEAT_RAMPS.map((r) => ({
+                                                value: r.key,
+                                                label: r.label,
+                                            })),
+                                            { value: 'custom', label: 'Custom…' },
+                                        ]}
+                                        onChange={(v: string) =>
+                                            onColumnsChange(
+                                                setHeatRamp(
+                                                    columns,
+                                                    s.scale,
+                                                    v === 'custom'
+                                                        ? {
+                                                              from: fromHex,
+                                                              mid: midHex,
+                                                              to: toHex,
+                                                          }
+                                                        : (v as RampPreset)
+                                                )
+                                            )
+                                        }
+                                    />
+                                </div>
+                                {custom && (
+                                    <div className="ds-color-pair">
+                                        <span>Begin</span>
+                                        <ColorPicker
+                                            size="small"
+                                            disabledAlpha
+                                            value={fromHex}
+                                            onChange={(c) =>
+                                                onColumnsChange(
+                                                    setHeatRamp(columns, s.scale, {
+                                                        ...(s.ramp as RampSpec),
+                                                        from: c.toHexString(),
+                                                    })
+                                                )
+                                            }
+                                        />
+                                        <span>Mid</span>
+                                        <ColorPicker
+                                            size="small"
+                                            disabledAlpha
+                                            value={midHex}
+                                            onChange={(c) =>
+                                                onColumnsChange(
+                                                    setHeatRamp(columns, s.scale, {
+                                                        ...(s.ramp as RampSpec),
+                                                        mid: c.toHexString(),
+                                                    })
+                                                )
+                                            }
+                                        />
+                                        <span>End</span>
+                                        <ColorPicker
+                                            size="small"
+                                            disabledAlpha
+                                            value={toHex}
+                                            onChange={(c) =>
+                                                onColumnsChange(
+                                                    setHeatRamp(columns, s.scale, {
+                                                        ...(s.ramp as RampSpec),
+                                                        to: c.toHexString(),
+                                                    })
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                )}
+                                <div className="toggle-row">
+                                    <div className="toggle-title">Outlier</div>
+                                    <ColorPicker
+                                        size="small"
+                                        disabledAlpha
+                                        value={s.outlierColor ?? DEFAULT_OUTLIER_COLOR}
+                                        onChange={(c) =>
+                                            onColumnsChange(
+                                                setHeatOutlierColor(
+                                                    columns,
+                                                    s.scale,
+                                                    c.toHexString()
+                                                )
+                                            )
+                                        }
+                                    />
+                                </div>
+                                <div className="toggle-row">
+                                    <div className="toggle-title">No data</div>
+                                    <ColorPicker
+                                        size="small"
+                                        disabledAlpha
+                                        value={s.missingColor ?? DEFAULT_MISSING_COLOR}
+                                        onChange={(c) =>
+                                            onColumnsChange(
+                                                setHeatMissingColor(
+                                                    columns,
+                                                    s.scale,
+                                                    c.toHexString()
+                                                )
+                                            )
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })}
+                </>
+            )}
+            {footer}
+        </div>
+    );
+    if (view === 'drawer') {
+        return (
+            <Drawer
+                title="Display settings"
+                open={open}
+                onClose={onClose}
+                width={376}
+                getContainer={false}
+                rootStyle={{ position: 'absolute' }}
+                rootClassName="hg-panel"
+                extra={
+                    <Button type="text" size="small" icon={<UndoOutlined />} onClick={onReset}>
+                        Reset
+                    </Button>
+                }
+            >
+                {content}
+            </Drawer>
+        );
+    }
+
     return (
         <Modal
             title="Display settings"
@@ -288,265 +573,7 @@ export default function HeatSettingsPanel({
                 </Space>
             }
         >
-            <div className="settings-wrapper">
-                <div className="ds-sec first">Rows</div>
-                <div className="sec-caption">Drag to reorder — rows nest in this order.</div>
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={onDragEnd}
-                >
-                    <SortableContext items={groupKeys} strategy={verticalListSortingStrategy}>
-                        {active.map((d, i) => (
-                            <SortableLevel
-                                key={d.key}
-                                id={d.key}
-                                index={i}
-                                label={d.label}
-                                onRemove={() => applyGrouping(groupKeys.filter((k) => k !== d.key))}
-                            />
-                        ))}
-                    </SortableContext>
-                </DndContext>
-                <Dropdown
-                    trigger={['click']}
-                    disabled={available.length === 0}
-                    menu={{
-                        items: available.map((d) => ({ key: d.key, label: d.label })),
-                        onClick: ({ key }) => applyGrouping([...groupKeys, key]),
-                    }}
-                >
-                    <Button block type="dashed" icon={<PlusOutlined />}>
-                        Add grouping level
-                    </Button>
-                </Dropdown>
-                {leafRows && (
-                    <ToggleRow
-                        title={leafRows.title}
-                        sub={leafRows.sub}
-                        checked={showLeaves}
-                        disabled={groupKeys.length === 0 || blankGroupRows}
-                        disabledHint={
-                            blankGroupRows
-                                ? "Turn off 'Blank rollup rows' first"
-                                : 'Add a grouping level first'
-                        }
-                        onChange={onShowLeavesChange}
-                    />
-                )}
-                {onBlankGroupRowsChange && (
-                    <ToggleRow
-                        title="Blank rollup rows"
-                        sub="Group rows show labels only — no values or color"
-                        checked={blankGroupRows}
-                        disabled={!showLeaves}
-                        disabledHint="Show detail rows first — otherwise nothing would render"
-                        onChange={onBlankGroupRowsChange}
-                    />
-                )}
-                {onShowTotalChange && (
-                    <ToggleRow
-                        title="Show total row"
-                        sub="The pinned summary row above the grid"
-                        checked={showTotal}
-                        onChange={onShowTotalChange}
-                    />
-                )}
-                {onShowNameHeaderChange && (
-                    <ToggleRow
-                        title="Column header"
-                        sub="Title above the dimension column"
-                        checked={showNameHeader}
-                        onChange={onShowNameHeaderChange}
-                    />
-                )}
-
-                {axes.length > 0 && (
-                    <>
-                        <div className="ds-sec">{axes.length === 1 ? axes[0].label : 'Stacks'}</div>
-                        {axes.map((axis) => {
-                            const members = (axis.children ?? []).filter(
-                                (m) => m.role === 'group' && m.selectable
-                            );
-                            return (
-                                <div key={axis.key} className="pg-block hg-block">
-                                    {axes.length > 1 && (
-                                        <div className="pg-label">{axis.label}</div>
-                                    )}
-                                    <div className="freq-grid">
-                                        {members.map((m) => {
-                                            const on = !!m.selected;
-                                            return (
-                                                <Tooltip key={m.key} title={m.tooltip}>
-                                                    <button
-                                                        type="button"
-                                                        className={`freq-chip${on ? ' on' : ''}`}
-                                                        onClick={() =>
-                                                            onColumnsChange(
-                                                                setMemberSelected(
-                                                                    columns,
-                                                                    m.key,
-                                                                    !on
-                                                                )
-                                                            )
-                                                        }
-                                                    >
-                                                        {m.label}
-                                                    </button>
-                                                </Tooltip>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </>
-                )}
-
-                <ColumnTreeField
-                    columns={columns}
-                    onColumnsChange={onColumnsChange}
-                    label={seriesLabel}
-                />
-
-                {scales.length > 0 && (
-                    <>
-                        <div className="ds-sec">Color spectrum</div>
-                        <div className="sec-caption">
-                            Spectrum, outliers, and no-data — per heat scale.
-                        </div>
-                        {scales.map((s) => {
-                            const custom = isRampSpec(s.ramp);
-                            const fromHex = custom
-                                ? (s.ramp as RampSpec).from
-                                : rgbToHex(rampRgb(0, s.ramp));
-                            const midHex = custom
-                                ? ((s.ramp as RampSpec).mid ?? rgbToHex(rampRgb(0.5, s.ramp)))
-                                : rgbToHex(rampRgb(0.5, s.ramp));
-                            const toHex = custom
-                                ? (s.ramp as RampSpec).to
-                                : rgbToHex(rampRgb(1, s.ramp));
-                            return (
-                                <div key={s.scale} className="ds-color">
-                                    {scales.length > 1 && <div className="pg-label">{s.label}</div>}
-                                    <div className="toggle-row">
-                                        <div className="toggle-title">Spectrum</div>
-                                        <Select
-                                            size="small"
-                                            value={custom ? 'custom' : (s.ramp as RampPreset)}
-                                            style={{ width: 132 }}
-                                            popupMatchSelectWidth={false}
-                                            options={[
-                                                ...HEAT_RAMPS.map((r) => ({
-                                                    value: r.key,
-                                                    label: r.label,
-                                                })),
-                                                { value: 'custom', label: 'Custom…' },
-                                            ]}
-                                            onChange={(v: string) =>
-                                                onColumnsChange(
-                                                    setHeatRamp(
-                                                        columns,
-                                                        s.scale,
-                                                        v === 'custom'
-                                                            ? {
-                                                                  from: fromHex,
-                                                                  mid: midHex,
-                                                                  to: toHex,
-                                                              }
-                                                            : (v as RampPreset)
-                                                    )
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                    {custom && (
-                                        <div className="ds-color-pair">
-                                            <span>Begin</span>
-                                            <ColorPicker
-                                                size="small"
-                                                disabledAlpha
-                                                value={fromHex}
-                                                onChange={(c) =>
-                                                    onColumnsChange(
-                                                        setHeatRamp(columns, s.scale, {
-                                                            ...(s.ramp as RampSpec),
-                                                            from: c.toHexString(),
-                                                        })
-                                                    )
-                                                }
-                                            />
-                                            <span>Mid</span>
-                                            <ColorPicker
-                                                size="small"
-                                                disabledAlpha
-                                                value={midHex}
-                                                onChange={(c) =>
-                                                    onColumnsChange(
-                                                        setHeatRamp(columns, s.scale, {
-                                                            ...(s.ramp as RampSpec),
-                                                            mid: c.toHexString(),
-                                                        })
-                                                    )
-                                                }
-                                            />
-                                            <span>End</span>
-                                            <ColorPicker
-                                                size="small"
-                                                disabledAlpha
-                                                value={toHex}
-                                                onChange={(c) =>
-                                                    onColumnsChange(
-                                                        setHeatRamp(columns, s.scale, {
-                                                            ...(s.ramp as RampSpec),
-                                                            to: c.toHexString(),
-                                                        })
-                                                    )
-                                                }
-                                            />
-                                        </div>
-                                    )}
-                                    <div className="toggle-row">
-                                        <div className="toggle-title">Outlier</div>
-                                        <ColorPicker
-                                            size="small"
-                                            disabledAlpha
-                                            value={s.outlierColor ?? DEFAULT_OUTLIER_COLOR}
-                                            onChange={(c) =>
-                                                onColumnsChange(
-                                                    setHeatOutlierColor(
-                                                        columns,
-                                                        s.scale,
-                                                        c.toHexString()
-                                                    )
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                    <div className="toggle-row">
-                                        <div className="toggle-title">No data</div>
-                                        <ColorPicker
-                                            size="small"
-                                            disabledAlpha
-                                            value={s.missingColor ?? DEFAULT_MISSING_COLOR}
-                                            onChange={(c) =>
-                                                onColumnsChange(
-                                                    setHeatMissingColor(
-                                                        columns,
-                                                        s.scale,
-                                                        c.toHexString()
-                                                    )
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </>
-                )}
-                {footer}
-            </div>
+            {content}
         </Modal>
     );
 }

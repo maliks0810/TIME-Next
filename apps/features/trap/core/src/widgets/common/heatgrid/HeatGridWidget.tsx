@@ -51,6 +51,7 @@ interface Props {
     toolbarExtras?: ReactNode;
     /** Filter/search box, in the controls bar; gated by the Foundation toggle. */
     search?: ReactNode;
+    view: 'drawer' | 'modal';
     /** Heat-scale legend, shown in the controls bar; gated by the Foundation toggle. */
     legend?: ReactNode;
 
@@ -184,6 +185,7 @@ function loadSettings(storageKey: string): HeatmapSettings {
 
 export const HeatGridWidget = ({ widgetInstance }: WidgetComponentProps) => {
     const { config } = widgetInstance;
+    const view = config?.params?.settingsView || 'modal';
     const settingsStorageKey = config?.params?.settingsStorageKey || '';
     const templatesStorageKey = config?.params?.templatesStorageKey || '';
     const activeTemplateStorageKey = config?.params?.activeTemplateStorageKey || '';
@@ -301,6 +303,7 @@ export const HeatGridWidget = ({ widgetInstance }: WidgetComponentProps) => {
     return (
         <WidgetCardShell>
             <HeatGridWidgetBase
+                view={view}
                 foundation={foundation}
                 className={''}
                 title={<span>{title}</span>}
@@ -363,6 +366,7 @@ export default function HeatGridWidgetBase({
     ready = true,
     foundation,
     exportMeta,
+    view,
 }: Props) {
     // const [foundation, setFoundation] = useFoundation(`perf-attribution.foundation.${className}`);
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -586,6 +590,7 @@ export default function HeatGridWidgetBase({
             </main>
 
             <HeatSettingsPanel
+                view={view}
                 open={drawerOpen}
                 onClose={() => setDrawerOpen(false)}
                 columns={columns}
