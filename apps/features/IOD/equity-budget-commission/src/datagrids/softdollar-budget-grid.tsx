@@ -565,7 +565,7 @@ return (
           allowAdding: false,  
           allowUpdating: false,  
           allowDeleting: isAdmin,  
-          useIcons: true,  
+          useIcons: true,
         }}  
         width="100%"
       >  
@@ -612,7 +612,9 @@ return (
       showTitle={true}  
       title={isAddMode ? 'New Service' : 'Soft Dollar Budget Details'}  
       width={isAddMode ? "30%" : "80%"}  
-      height={isAddMode ? "35%" : "85%"}
+      minWidth={400}
+      height={isAddMode ? "40%" : "85%"}
+      minHeight={350}
       dragEnabled={false}  
       hideOnOutsideClick={true}  
       wrapperAttr={{ class: 'custom-popup-class' }}  
@@ -859,7 +861,7 @@ return (
       visible={childAccountPopupVisible}  
       onHiding={onChildAccountPopupCancel}  
       showTitle={true}  
-      title={childAccountIsAddMode ? 'Create a new Account' : 'Edit Account'}  
+      title={childAccountIsAddMode ? 'Create New Account' : 'Edit Account'}  
       width="35%"  
       minWidth={400}
       height="25%"  
@@ -896,7 +898,7 @@ return (
       visible={childUserAllocationPopupVisible}
       onHiding={onChildPopupUserAllocationCancel}  
       showTitle={true}  
-      title={childUserAllocationIsAddMode ? 'Create a new User' : 'Edit User'}  
+      title={childUserAllocationIsAddMode ? 'Create New User' : 'Edit User'}  
       width='35%'
       minWidth={400}
       height='25%'  
