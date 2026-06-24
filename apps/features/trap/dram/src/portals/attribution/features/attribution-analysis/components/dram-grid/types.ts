@@ -149,3 +149,23 @@ export interface NormalizedColumnConfig {
   minWidth: number;
   serverIndex: number;
 }
+
+export interface SinglePeriodAttributionRow {
+  key: string;
+  securityGroup: string;
+  level?: number;
+
+  portfolioAvgWeight: number | null;
+  portfolioTotalReturn: number | null;
+  portfolioContributionTotalReturn: number | null;
+
+  benchmarkAvgWeight: number | null;
+  benchmarkTotalReturn: number | null;
+  benchmarkContributionTotalReturn: number | null;
+
+  allocationEffect: number | null;
+  selectionEffect: number | null;
+  interactionEffect: number | null;
+
+  children?: SinglePeriodAttributionRow[];
+}
