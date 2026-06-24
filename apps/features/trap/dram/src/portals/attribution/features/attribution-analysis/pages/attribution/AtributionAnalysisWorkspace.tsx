@@ -43,6 +43,10 @@ import { getLastMonthEnd } from "../../components/AlphaDashboard/utils/alphaDash
 import AttributionCompareView from "../../components/dram-grid/AttributionCompareView";
 import AttributionSingleModeChart from "../../components/dram-grid/AttributionSingleModeChart";
 import ConfigTabbedCompact, { AttribAnalysisApplyPayload } from "../../components/attrib-analysis-config/ConfigTabbedCompact";
+import { CompositeAttributionView } from "../../components/dram-grid/CompositeAttributionView";
+import { buildCompositeAttributionData, toCompositePeriods } from "../../components/dram-grid/compositeAttributionAdapter";
+import CompositeSummaryChart from "../../components/dram-grid/CompositeSummaryChart";
+import CompositeMatrixChart from "../../components/dram-grid/CompositeMatrixChart";
 
 const { Title, Text } = Typography;
 
@@ -180,6 +184,12 @@ function extractMetadata(resp: AnalyticsResponse) {
 
 export default function AtributionAnalysisWorkspace() {
 
+type WorkspaceMode = "single" | "compare" | "composite";
+
+const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("single");
+const [compositePeriods, setCompositePeriods] = useState<string[]>([]);
+const isCompareMode = workspaceMode === "compare";
+const isCompositeMode = workspaceMode === "composite";
 const [screenMode, setScreenMode] = useState<"view" | "print">("view");
 const [pendingPrint, setPendingPrint] = useState(false);
 
@@ -213,7 +223,6 @@ const [pendingPrint, setPendingPrint] = useState(false);
   const [rawRowsByPeriod, setRawRowsByPeriod] = useState<PeriodGridMap>({});
   const [selectedPeriod, setSelectedPeriod] = useState<string>("");
 
-  const [compareMode, setCompareMode] = useState(false);
   const [comparePeriods, setComparePeriods] = useState<string[]>([]);
 
   const storageKey = getKeyByAssetClass(viewAssetClass ?? "");
@@ -268,10 +277,20 @@ const [pendingPrint, setPendingPrint] = useState(false);
     [rawRowsByPeriod]
   );
 
-  const comparePeriodPair = useMemo<[string, string] | null>(() => {
-    if (!compareMode || comparePeriods.length < 2) return null;
-    return [comparePeriods[0], comparePeriods[1]];
-  }, [compareMode, comparePeriods]);
+const comparePeriodPair = useMemo<[string, string] | null>(() => {
+  if (!isCompareMode || comparePeriods.length < 2) return null;
+  return [comparePeriods[0], comparePeriods[1]];
+}, [isCompareMode, comparePeriods]);
+
+useEffect(() => {
+  if (!isCompareMode) {
+    setComparePeriods([]);
+  }
+
+  if (!isCompositeMode) {
+    setCompositePeriods([]);
+  }
+}, [isCompareMode, isCompositeMode]);
 
   useEffect(() => {
     if (!selectedPeriod && periodKeys.length > 0) {
@@ -279,26 +298,44 @@ const [pendingPrint, setPendingPrint] = useState(false);
     }
   }, [periodKeys, selectedPeriod]);
 
-  useEffect(() => {
-    if (!compareMode) {
-      setComparePeriods([]);
-    }
-  }, [compareMode]);
+const compositePeriodOptions = useMemo(
+  () =>
+    periodKeys.map((period) => ({
+      label: period.toUpperCase(),
+      value: period,
+    })),
+  [periodKeys]
+);
 
-  const handleToggleCompareMode = () => {
-    setCompareMode((prev) => {
-      const next = !prev;
+const compositeViewData = useMemo(() => {
+  if (!gridConfig || compositePeriods.length === 0) {
+    return null;
+  }
 
-      if (!next) {
-        setComparePeriods([]);
-      } else if (selectedPeriod) {
-        setComparePeriods([selectedPeriod]);
-      }
+  const selectedRowsByPeriod = Object.fromEntries(
+    compositePeriods.map((period) => [
+      period,
+      rawRowsByPeriod[period] ?? [],
+    ])
+  ) as PeriodGridMap;
 
-      setSelectedSecurityGroup(null);
-      return next;
-    });
-  };
+  return buildCompositeAttributionData({
+    pageTitle,
+    valueDate,
+    portfolioName: viewPortfolio,
+    benchmarkName: viewBenchmarks,
+    periods: toCompositePeriods(compositePeriods, gridConfig),
+    rowsByPeriod: selectedRowsByPeriod,
+  });
+}, [
+  compositePeriods,
+  gridConfig,
+  pageTitle,
+  rawRowsByPeriod,
+  valueDate,
+  viewBenchmarks,
+  viewPortfolio,
+]);
 
   const loadForAssetClass = async (asset: AssetClass): Promise<void> => {
     setLoadingConfig(true);
@@ -491,6 +528,9 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
             setSelectedPeriod("");
             setSelectedSecurityGroup(null);
             setComparePeriods([]);
+            setWorkspaceMode("single");
+            setCompositePeriods([]);
+
 
             void loadForAssetClass(nextAsset);
           }}
@@ -549,14 +589,19 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
                       </div>
                     )}
 
-                    {compareMode && comparePeriods.length > 0 && (
+
+                    {isCompareMode && comparePeriods.length > 0 && (
                       <Text type="secondary">
-                        Comparing:{" "}
-                        {comparePeriods
-                          .map((p) => p.toUpperCase())
-                          .join(" vs ")}
+                        Comparing: {comparePeriods.map((p) => p.toUpperCase()).join(" vs ")}
                       </Text>
                     )}
+
+                    {isCompositeMode && compositePeriods.length > 0 && (
+                      <Text type="secondary">
+                        Composite Periods: {compositePeriods.map((p) => p.toUpperCase()).join(", ")}
+                      </Text>
+                    )}
+
                   </div>
                 </Col>
 
@@ -572,40 +617,79 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
                     ]}
                   />
 
-                  <Button onClick={handleToggleCompareMode}>
-                      {compareMode ? "Single View" : "Compare Periods"}
-                    </Button>
+                <Segmented<WorkspaceMode>
+                  value={workspaceMode}
+                  onChange={(value) => {
+                    const nextMode = value as WorkspaceMode;
 
-                    {compareMode ? (
-                      <Select
-                        mode="multiple"
-                        value={comparePeriods}
-                        maxTagCount={2}
-                        style={{ minWidth: 260 }}
-                        placeholder="Select 2 periods"
-                        options={periodKeys.map((p) => ({
-                          label: p.toUpperCase(),
-                          value: p,
-                        }))}
-                        onChange={(values) => {
-                          const next = values.slice(-2);
-                          setComparePeriods(next);
-                          setSelectedSecurityGroup(null);
-                        }}
-                      />
-                    ) : (
-                      <Segmented
-                        value={selectedPeriod}
-                        onChange={(val) => {
-                          setSelectedPeriod(val as string);
-                          setSelectedSecurityGroup(null);
-                        }}
-                        options={periodKeys.map((p) => ({
-                          label: p.toUpperCase(),
-                          value: p,
-                        }))}
-                      />
-                    )}
+                    setWorkspaceMode(nextMode);
+                    setSelectedSecurityGroup(null);
+
+                    if (nextMode === "single") {
+                      setComparePeriods([]);
+                      setCompositePeriods([]);
+                    }
+
+                    if (nextMode === "compare") {
+                      setCompositePeriods([]);
+
+                      if (selectedPeriod) {
+                        setComparePeriods([selectedPeriod]);
+                      }
+                    }
+
+                    if (nextMode === "composite") {
+                      setComparePeriods([]);
+
+                      if (compositePeriods.length === 0) {
+                        setCompositePeriods(periodKeys.slice(0, Math.min(periodKeys.length, 6)));
+                      }
+                    }
+                  }}
+                  options={[
+                    { label: "Single", value: "single" },
+                    { label: "Compare", value: "compare" },
+                    { label: "Composite", value: "composite" },
+                  ]}
+                />
+
+                {isCompareMode ? (
+                  <Select
+                    mode="multiple"
+                    value={comparePeriods}
+                    maxTagCount={2}
+                    style={{ minWidth: 260 }}
+                    placeholder="Select 2 periods"
+                    options={compositePeriodOptions}
+                    onChange={(values) => {
+                      const next = values.slice(-2);
+                      setComparePeriods(next);
+                      setSelectedSecurityGroup(null);
+                    }}
+                  />
+                ) : isCompositeMode ? (
+                  <Select
+                    mode="multiple"
+                    value={compositePeriods}
+                    maxTagCount={4}
+                    style={{ minWidth: 340 }}
+                    placeholder="Select periods for composite view"
+                    options={compositePeriodOptions}
+                    onChange={(values) => {
+                      setCompositePeriods(values);
+                      setSelectedSecurityGroup(null);
+                    }}
+                  />
+                ) : (
+                  <Segmented
+                    value={selectedPeriod}
+                    onChange={(val) => {
+                      setSelectedPeriod(val as string);
+                      setSelectedSecurityGroup(null);
+                    }}
+                    options={compositePeriodOptions}
+                  />
+                )}
                   </Space>
                 </Col>
               </Row>
@@ -634,31 +718,84 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
     />
   </div>
 
-  ) : compareMode ? (
+  ) :
+ isCompositeMode ? (
+  compositeViewData ? (
 
-    /*  COMPARE MODE */
-    comparePeriodPair ? (
-      <Card>
-        <AttributionCompareView
-          leftPeriod={comparePeriodPair[0]}
-          rightPeriod={comparePeriodPair[1]}
-          leftRows={rawRowsByPeriod[comparePeriodPair[0]] ?? []}
-          rightRows={rawRowsByPeriod[comparePeriodPair[1]] ?? []}
-          selectedGroup={selectedSecurityGroup}
-          onSelect={(group) =>
-            setSelectedSecurityGroup((prev) =>
-              prev === group ? null : group
-            )
-          }
-        />
-      </Card>
-    ) : (
-      <Card>
-        <Empty description="Select 2 periods to compare." />
-      </Card>
-    )
+
+    <Row gutter={[16, 16]}>
+      <Col span={24}>
+        <Card title="Performance Summary" loading={runningAnalysis}>
+          <CompositeSummaryChart
+            data={compositeViewData}
+            decimalPlaces={2}
+          />
+        </Card>
+      </Col>
+
+      <Col span={24}>
+        <Card title="Attribution Chart" loading={runningAnalysis}>
+          <CompositeMatrixChart
+            title="Attribution of Gross Out/Underperformance"
+            subtitle="bps by period"
+            periods={compositeViewData.periods}
+            rows={compositeViewData.attributionRows}
+          //  decimalPlaces={compositeDecimalPlaces}
+          />
+        </Card>
+      </Col>
+
+      <Col span={24}>
+        <Card title="Contribution to Return Chart" loading={runningAnalysis}>
+          <CompositeMatrixChart
+            title="Contribution to Total Return"
+            subtitle="bps by period"
+            periods={compositeViewData.periods}
+            rows={compositeViewData.contributionRows}
+        //    decimalPlaces={compositeDecimalPlaces}
+          />
+        </Card>
+      </Col>
+
+      <Col span={24}>
+        <Card loading={runningAnalysis}>
+          <CompositeAttributionView
+            data={compositeViewData}
+          //  decimalPlaces={compositeDecimalPlaces}
+          />
+        </Card>
+      </Col>
+    </Row>
+
 
   ) : (
+    <Card>
+      <Empty description="Select multiple periods to view composite attribution." />
+    </Card>
+  )
+) : isCompareMode ? (
+  comparePeriodPair ? (
+    <Card>
+      <AttributionCompareView
+        leftPeriod={comparePeriodPair[0]}
+        rightPeriod={comparePeriodPair[1]}
+        leftRows={rawRowsByPeriod[comparePeriodPair[0]] ?? []}
+        rightRows={rawRowsByPeriod[comparePeriodPair[1]] ?? []}
+        selectedGroup={selectedSecurityGroup}
+        onSelect={(group) =>
+          setSelectedSecurityGroup((prev) =>
+            prev === group ? null : group
+          )
+        }
+      />
+    </Card>
+  ) : (
+    <Card>
+      <Empty description="Select 2 periods to compare." />
+    </Card>
+  )
+)
+ : (
 
     /*  SINGLE VIEW (UNCHANGED) */
     <Row gutter={[16, 16]}>
