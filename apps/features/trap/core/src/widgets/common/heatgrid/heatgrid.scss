@@ -202,21 +202,6 @@
     font-size: 11.5px;
 }
 
-/* frozen-pane edge shadow once numeric columns scroll under the name column */
-.grid-aria {
-    overflow: auto;
-}
-.grid-area[data-hscroll='true'] .hg-table thead th.h-name,
-.grid-area[data-hscroll='true'] .hg-table tbody th.cell-name {
-    box-shadow: var(--pin-shadow);
-}
-
-.grid-area[data-hscroll='true'] .hg-table tr.row-total th.cell-name {
-    box-shadow:
-        inset 2px 0 0 var(--ant-color-primary),
-        var(--pin-shadow);
-}
-
 /* ---------- settings panel ---------- */
 
 .hg-panel .sec-title {
@@ -870,6 +855,10 @@
     border: 1px solid var(--ant-color-border);
     border-radius: 10px;
     overflow: hidden;
+
+    .grid-area {
+        overflow: auto;
+    }
 }
 
 .ws-canvas.designing .widget {

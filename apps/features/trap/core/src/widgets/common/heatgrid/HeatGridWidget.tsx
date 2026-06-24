@@ -27,6 +27,7 @@ import { WidgetComponentProps } from '../../../types/widget';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import { buildCatalog } from './utils';
 import { AQI_DIMENSIONS, fetchAirQuality } from './mock';
+import './heatgrid.scss';
 
 /**
  * Common Heat Map Grid widget shell — the heatgrid counterpart of GridWidget.
@@ -546,7 +547,7 @@ export default function HeatGridWidgetBase({
                 </div>
             )}
 
-            <main
+            <div
                 ref={(el) => {
                     gridAreaRef.current = el;
                 }}
@@ -587,7 +588,7 @@ export default function HeatGridWidgetBase({
                         showTooltip={foundation.showTooltip}
                     />
                 )}
-            </main>
+            </div>
 
             <HeatSettingsPanel
                 view={view}
