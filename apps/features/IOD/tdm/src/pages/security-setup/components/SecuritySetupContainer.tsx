@@ -600,9 +600,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           <SSAPApprovalPage
             onProceedToReview={handleNext}
             isSaving={saveStatus === "saving" || saveStatus === "saved"}
+            hasSaveError={saveStatus === "error"}
             onBack={() => {
               resetUploadState();
-              if (useSecuritySetupStore.getState().isSsapReleasedByDm) {
+              const released = useSecuritySetupStore?.getState()?.isSsapReleasedByDm;
+              if (released && saveStatus !== "error") {
                 setReadOnly(true);
               }
               goToStep("enter-identifier");
