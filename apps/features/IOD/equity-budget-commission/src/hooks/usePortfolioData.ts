@@ -99,7 +99,7 @@ export function usePortfolios({ userInfo }: UsePortfoliosProps) {
 
           setPortfolios((portfolioData ?? []).map(p => ({ ...p, active: p.status === "Active" || p.status === "A" })));
           setDivisions(divData ?? []);
-          setDepartments(deptData ?? []);
+          setDepartments(deptData?.filter(x=> x.divisionId??0 > 0)??[]);
           setPortfolioGroups(portGrpData ?? []);
           //setPortfolioGroupXrefs(portGrpDataXref ?? []);
           const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
