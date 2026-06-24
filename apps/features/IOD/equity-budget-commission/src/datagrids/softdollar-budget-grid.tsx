@@ -612,7 +612,7 @@ return (
       showTitle={true}  
       title={isAddMode ? 'New Service' : 'Soft Dollar Budget Details'}  
       width={isAddMode ? "30%" : "80%"}  
-      height={isAddMode ? "45%" : "85%"}  
+      height={isAddMode ? "35%" : "85%"}
       dragEnabled={false}  
       hideOnOutsideClick={true}  
       wrapperAttr={{ class: 'custom-popup-class' }}  
@@ -620,7 +620,7 @@ return (
       {isAddMode ? (  
         <div>  
           <Form  
-            width="100%" 
+            width="95%" 
             height="100%" 
             formData={editingDetailData}  
             colCount={1}  
@@ -628,7 +628,7 @@ return (
               setEditingDetailData((prev) => ({ ...prev, [e.dataField as string]: e.value }))  
             }  
           >  
-            <FormItem dataField="year" label={{ text: 'Year' }} editorOptions={{ readOnly: true }} cssClass='textInput-popup-num'/>  
+            <FormItem dataField="year" label={{ text: 'Year' }} editorOptions={{ readOnly: true, width: '40%' }} />  
             <FormItem dataField="budgetTypeId" label={{ text: 'Soft/Hard Dollar' }} editorType="dxSelectBox"  cssClass='dx-common-selectbox-short60'
               editorOptions={{  
                 dataSource: budgetTypeMap, valueExpr: 'id', displayExpr: 'text' }} />  
@@ -644,8 +644,8 @@ return (
               editorOptions={{  
                 dataSource: services, valueExpr: 'serviceId',  displayExpr: 'ServiceName',
                 searchEnabled: true, searchMode: "contains", placeholder: "Select a service..."  }}  />  
-            <FormItem dataField="ratio" label={{ text: 'Ratio' }}  editorType="dxNumberBox" cssClass='textInput-popup-num'/>  
-            <FormItem colSpan={1} />             
+            <FormItem dataField="ratio" label={{ text: 'Ratio' }} editorType="dxNumberBox" editorOptions={{width: '40%'}} />  
+            <FormItem colSpan={1} itemType='empty'/>             
           </Form>
           <div className="popup-footer" style={{textAlign:'center', margin:10}}>
             <Button text="Cancel" onClick={onBudgetDetailPopupCancel} className="dxButton" width={100} height={35} style={{margin:10}}/>
@@ -654,7 +654,7 @@ return (
         </div>  
         ) : loadingEditData && softBudgetDetails? (  
           <div className='div-loader'>  
-            <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={40} />  
+            <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={60} />  
             <p>Loading details data...</p>  
           </div>   
         ) : (  
@@ -691,7 +691,7 @@ return (
           <BlockFormContainer title="Accounts" className="form-title">  
             { isAccountDataLoading ? (
               <div className='div-loader'>  
-                <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={40} />  
+                <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={60} />  
                 <p>Loading accounts data...</p>  
               </div> ) : (
             <div>  
@@ -750,7 +750,7 @@ return (
                 <TabItem title="User Allocations" >
                   {isUserLoading ? (  
                     <div className="div-loader">  
-                      <LoadIndicator height={30} width={30} />  
+                      <LoadIndicator height={40} width={60} />  
                       <p>Loading user allocations data...</p>  
                     </div>  
                   ) : (  
@@ -807,7 +807,7 @@ return (
                 <TabItem title="Comments" >
                   { isCommentsLoading && commentsData.length > 0 ? (
                     <div className="div-loader">  
-                      <LoadIndicator height={30} width={30} />  
+                      <LoadIndicator height={40} width={60} />  
                       <p>Loading comments data...</p>  
                     </div> 
                   ) : (
@@ -827,7 +827,7 @@ return (
                 <TabItem title="Change Log" >
                   {isChangeLogLoading && changeLogsData.length > 0 ? (  
                     <div className="div-loader">  
-                      <LoadIndicator height={30} width={30} />  
+                      <LoadIndicator height={40} width={60} />  
                       <p>Loading changelogs data...</p>  
                     </div>  
                   ) : (
@@ -861,14 +861,16 @@ return (
       showTitle={true}  
       title={childAccountIsAddMode ? 'Create a new Account' : 'Edit Account'}  
       width="35%"  
+      minWidth={400}
       height="25%"  
+      minHeight={250}
       dragEnabled={false}  
       hideOnOutsideClick={true}  
       wrapperAttr={{ class: 'custom-popup-class' }}
     >  
       {childAccountPopupLoading ? ( 
         <div className='div-loader'>  
-         <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={40} />  
+         <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={60} />  
          <p>Loading account details...</p>  
         </div>  
       ) : (  
@@ -895,15 +897,17 @@ return (
       onHiding={onChildPopupUserAllocationCancel}  
       showTitle={true}  
       title={childUserAllocationIsAddMode ? 'Create a new User' : 'Edit User'}  
-      width={600}
-      height={250}  
+      width='35%'
+      minWidth={400}
+      height='25%'  
+      minHeight={280}
       dragEnabled={false}
       hideOnOutsideClick={true}  
       wrapperAttr={{ class: 'custom-popup-class' }} 
     >
       {childAccountUserPopupLoading || userDataSaving? ( 
         <div className='div-loader'>  
-         <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={40} />  
+         <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={60} />  
          <p>Loading User details...</p>  
         </div>  
       ) : (
