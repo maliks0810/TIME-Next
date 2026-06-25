@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';  
+import { useState, useCallback, useRef, useMemo } from 'react';  
 import DataGrid, { Column, Editing, Popup, Selection, Button as GridButton, Form, Item, Toolbar, LoadPanel, Lookup, FilterRow, Scrolling, DataGridTypes,
   RequiredRule, StringLengthRule, DataGridRef} from 'devextreme-react/data-grid';
 import CheckBox from 'devextreme-react/check-box';
@@ -58,6 +58,7 @@ const renderStatusCell = (cellData: DataGridTypes.ColumnCellTemplateData) => {
 const MaintenanceMasterBrokerGrid: React.FC = () => {
   const [popupTitle, setPopupTitle] = useState('');
   const dataGridRef = useRef<DataGridRef>(null);
+  const [isLegacy, setIsLegacy] = useState<boolean>(false);  
   
   const userInfo = useUserInfo();
   const {
@@ -87,6 +88,14 @@ const MaintenanceMasterBrokerGrid: React.FC = () => {
   const hideToast = () => {
     setToastConfig(prev => ({ ...prev, visible: false }));
   };
+
+/** filtering master brokers data based on legacy checkbox */
+  const filteredMasterBrokers = useMemo(() => {  
+    if (!isLegacy) {  
+      return masterBrokers.filter(b => b.brokerType !== 'LEGACY');
+    }   
+    return masterBrokers;  
+  }, [isLegacy, masterBrokers]);
 
   //Check duplicate name validations
   function checkDuplicateName(data: MaintenanceMasterBroker){
@@ -197,12 +206,13 @@ const MaintenanceMasterBrokerGrid: React.FC = () => {
     <div>      
       <div className="div-container-left">
         <Button text="Add" visible={isAdmin?true:false} icon="plus" onClick={openAddPopup} /> 
+        <CheckBox text='Legacy' value={isLegacy} onValueChanged={(e) => setIsLegacy(e.value)}/>
       </div>
       <div className='grid-container-smaller'> 
         <DataGrid
           id="maintenance-master-broker-grid"
           ref={dataGridRef}  
-          dataSource={masterBrokers}
+          dataSource={filteredMasterBrokers}
           keyExpr="ID" // Unique key for each item
           allowColumnResizing={true}
           allowColumnReordering={true}
@@ -229,7 +239,11 @@ const MaintenanceMasterBrokerGrid: React.FC = () => {
             allowDeleting={isAdmin? true: false}
             useIcons={true}
           >
-            <Popup showTitle={true} title={popupTitle} width="30%" height="35%" wrapperAttr= {{ className:'custom-popup-class' }} />
+            <Popup showTitle={true} title={popupTitle} 
+              width="30%" height="35%" 
+              minHeight='250px' 
+              minWidth='350px' 
+              wrapperAttr= {{ className:'custom-popup-class' }} />
               <div className='div-container-center'>
                 <Form colCount={1} width="90%">
                   <FormItem dataField="active" label={{text:"Active"}} editorType="dxCheckBox"  />

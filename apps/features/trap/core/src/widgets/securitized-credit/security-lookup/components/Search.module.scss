@@ -1,8 +1,10 @@
 .container {
     display: flex;
     flex-direction: column;
-    gap: 12;
+    gap: 8px;
+    height: 100%;
 }
+
 .dropdown {
     position: absolute;
     top: calc(100% + 4px);
@@ -12,24 +14,78 @@
     max-height: 320px;
     overflow-y: auto;
 }
+
 .name {
     display: block;
-    font-size: 12;
+    font-size: 12px;
     font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .tag {
-    font-size: 9;
+    font-size: 9px;
     margin: 0;
     flex-shrink: 0;
 }
+
 .option {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 8px 12px;
     cursor: pointer;
-    transition: 'background' 0.1s;
+    transition: background 0.1s;
+}
+
+.validationError {
+    font-size: 11px;
+    line-height: 14px;
+    color: #ff4d4f;
+}
+
+.hintSection {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.hintLabel {
+    font-size: 10px;
+    line-height: 14px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+.hintDetail {
+    font-size: 10px;
+    line-height: 14px;
+}
+
+.assetTypesSection {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.assetTypeTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.assetTypeTag {
+    font-size: 10px;
+    margin: 0;
+    border: none;
+}
+
+.selectFixed {
+    width: 88px !important;
+    min-width: 88px !important;
+    max-width: 88px !important;
+    flex: 0 0 88px !important;
 }

@@ -176,6 +176,16 @@ export function useWorkflowDesigner() {
         if (!widgetCategories.includes(selectedCategory)) {
             setSelectedCategory('All');
         }
+
+        // Logic to change the widget based on category change
+        // If previously selected widget is present in changed category, then keep the existing widget selection.
+        // If previously selected widget is not present in changed category, then select the first widget. Also clear the variant & params.
+        let isWidgetPresentInCategory = filteredWidgetDefs.some(widget => widget.id === selectedWidgetDefId);
+        if(!isWidgetPresentInCategory) {
+            setSelectedWidgetDefId(filteredWidgetDefs?.[0]?.id);
+            setSelectedWidgetVariantId(undefined);
+            setSelectedWidgetParams({});
+        }
     }, [widgetCategories, selectedCategory]);
 
     const hydrateFromTemplateVersion = React.useCallback((tv: any) => {

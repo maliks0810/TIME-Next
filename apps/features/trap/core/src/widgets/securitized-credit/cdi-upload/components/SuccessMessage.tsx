@@ -1,9 +1,10 @@
-import { Typography, theme, Button } from 'antd';
-import styles from './SuccessMessage.module.scss';
+import { theme, Button } from 'antd';
 import { CheckCircleFilled, ReloadOutlined } from '@ant-design/icons';
-const { Text } = Typography;
+import styles from './SuccessMessage.module.scss';
+
 export const SuccessMessage = ({ reset, text }: { text: string; reset: () => void }) => {
     const { token } = theme.useToken();
+
     return (
         <div className={styles.container}>
             <div
@@ -15,9 +16,14 @@ export const SuccessMessage = ({ reset, text }: { text: string; reset: () => voi
             >
                 <CheckCircleFilled style={{ fontSize: 20, color: token.colorSuccess }} />
             </div>
-            <Text style={{ color: token.colorSuccess }} className={styles.text}>
+
+            <span
+                style={{ color: token.colorSuccess }}
+                className={styles.text}
+            >
                 {text}
-            </Text>
+            </span>
+
             <Button size="small" icon={<ReloadOutlined />} onClick={reset}>
                 Re-upload
             </Button>

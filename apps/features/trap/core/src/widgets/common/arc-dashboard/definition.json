@@ -1,0 +1,116 @@
+{
+    "id": "cwd_arc_dashboard",
+    "name": "ARC Status Monitor",
+    "version": 1,
+    "description": "ARC Specific Status Monitor with Preview and Redirect to Asset functionality",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_common_data_grid_01",
+    "listensToKeys": null,
+    "emitsKeys": null,
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "title": "Communication Channel",
+                "type": "string",
+                "category": "Interactions"
+            },
+            "pageSize": {
+                "default": 50,
+                "enum": [
+                    10,
+                    25,
+                    50,
+                    "all"
+                ],
+                "title": "Page Size",
+                "type": "string",
+                "category": "View Parameters"
+            },
+            "rowKeyField": {
+                "default": "id",
+                "title": "Row Key Field",
+                "type": "string",
+                "category": "Interactions"
+            },
+            "schemaKey": {
+                "description": "Logical grid schema resolved by GraphQL",
+                "enum": [
+                    "arc.risk.status.grid"
+                ],
+                "title": "Schema Key",
+                "type": "string",
+                "category": "System Parameters"
+            },
+            "selectionMode": {
+                "default": "single",
+                "enum": [
+                    "none",
+                    "single",
+                    "multiple"
+                ],
+                "title": "Selection Mode",
+                "type": "string",
+                "category": "Interactions"
+            }
+        },
+        "required": [
+            "schemaKey"
+        ],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "ARC",
+        "library": "DevExtreme",
+        "visibleIn": [
+            "workflow",
+            "landing"
+        ]
+    },
+    "variants": [
+        {
+            "id": "small",
+            "label": "Small",
+            "grid": {
+                "defaultW": 6,
+                "defaultH": 360,
+                "minW": 4,
+                "minH": 280,
+                "maxW": 8,
+                "maxH": 520
+            }
+        },
+        {
+            "id": "medium",
+            "label": "Medium",
+            "grid": {
+                "defaultW": 10,
+                "defaultH": 820,
+                "minW": 8,
+                "minH": 320,
+                "maxW": 12,
+                "maxH": 820
+            }
+        },
+        {
+            "id": "large",
+            "label": "Large",
+            "grid": {
+                "defaultW": 12,
+                "defaultH": 1120,
+                "minW": 8,
+                "minH": 720,
+                "maxW": 12,
+                "maxH": 1220
+            }
+        }
+    ]
+}

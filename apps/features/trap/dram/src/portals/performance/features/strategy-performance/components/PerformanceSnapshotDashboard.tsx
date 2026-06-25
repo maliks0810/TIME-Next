@@ -12,7 +12,7 @@ import type {
 const { Title, Text } = Typography;
 
 type MatrixRow = {
-  key: "NET" | "GROSS" | "SPREAD";
+  key: "NET" | "BENCH" | "SPREAD";
   metric: string;
   values: Record<string, number>;
 };
@@ -27,6 +27,7 @@ function formatPct(value: number | null | undefined, digits = 2): string {
 const EMPTY_SNAPSHOT: PerformanceSnapshotItem = {
   shareClassKey: "",
   asOfDate: "",
+  portfolioName:"",
   horizons: [],
 };
 
@@ -138,7 +139,7 @@ export default function PerformanceSnapshotDashboard(): React.JSX.Element {
 
   const chartOption = useMemo(() => ({
     tooltip: { trigger: "axis" },
-    legend: { data: ["Net", "Gross"] },
+    legend: { data: ["Net", "Bench"] },
     xAxis: {
       type: "category",
       data: currentSnapshot.horizons.map((h) => h.label),
@@ -158,7 +159,7 @@ export default function PerformanceSnapshotDashboard(): React.JSX.Element {
         name: "Gross",
         type: "bar",
         data: currentSnapshot.horizons.map((h) =>
-          typeof h.grossReturn === "number" ? h.grossReturn : null
+          typeof h.benchReturn === "number" ? h.benchReturn : null
         ),
       },
     ],
@@ -171,7 +172,7 @@ export default function PerformanceSnapshotDashboard(): React.JSX.Element {
 
     snapshot.horizons.forEach((h) => {
       const n = typeof h.netReturn === "number" ? h.netReturn : 0;
-      const g = typeof h.grossReturn === "number" ? h.grossReturn : 0;
+      const g = typeof h.benchReturn === "number" ? h.benchReturn : 0;
 
       net[h.key] = n;
       gross[h.key] = g;
@@ -180,7 +181,7 @@ export default function PerformanceSnapshotDashboard(): React.JSX.Element {
 
     return [
       { key: "NET", metric: "Net", values: net },
-      { key: "GROSS", metric: "Gross", values: gross },
+      { key: "BENCH", metric: "Bench", values: gross },
       { key: "SPREAD", metric: "Spread", values: spread },
     ];
   }

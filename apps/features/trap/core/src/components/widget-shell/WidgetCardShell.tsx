@@ -6,6 +6,7 @@ import { useTheme, getThemeSurfaceMeta } from '../../theme/ThemeContext';
 export default function WidgetCardShell(props: {
     style?: Record<string, string>;
     children: React.ReactNode;
+
     containerClassname?: string;
 }) {
     const { token } = theme.useToken();

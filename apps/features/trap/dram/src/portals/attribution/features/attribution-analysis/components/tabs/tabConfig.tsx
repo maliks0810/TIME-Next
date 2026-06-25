@@ -1,13 +1,14 @@
 import React from 'react';
-import MultiPersonaLandingPage from '../../pages/MultiPersonaLandingPage';
-import EquityPersonaHomePage from '../../pages/EquityPersonaHomePage';
-import EquityWorkspacePage from '../../pages/EquityWorkspacePage';
-import EquityWizardPage from '../../pages/EquityWizardPage';
-import EmergingMarketWorkspace from '../../pages/EmergingMarketWorkspace';
+import PortfolioManagerPersonaHomePage from '../../pages/PortfolioManagerPersonaHomePage';
+import PMAHomePage from '../../pages/attribution/PMAHomePage';
+import { DiagnosticsWorkspacePage } from '../../pages/diagnostics/DiagnosticsWorkspacePage';
+import AtributionAnalysisWorkspace from '../../pages/attribution/AtributionAnalysisWorkspace';
+import PMAAdminPage from '../../pages/attribution/PMAAdminPage';
+import { DriverAnalysisWorkspace } from '../driver-analysis-config/DriverAnalysisWorkspace';
 
 
 /** 1. Define keys FIRST -- add new key here */
-export type TabKey = 'dashboard' | 'eq-landing' | 'eq-workspace' | 'em-workspace' | 'wizard';
+export type TabKey = 'pma-landing' | 'dashboard'| 'attribution-analysis' | 'diagnostics' | 'admin' | 'driver-analysis';
 
 /** 2. Navigation type */
 export type NavigateFn = (key: TabKey) => void;
@@ -21,46 +22,53 @@ type TabConfigEntry = Readonly<{
 /** 4. Strongly-typed config  */
 export const TAB_CONFIG: Readonly<Record<TabKey, TabConfigEntry>> = {
   dashboard: {
-    label: 'Overview',
+    label: ' Overview',
     getChildren: (navigate) => (
-      <MultiPersonaLandingPage
+      <PortfolioManagerPersonaHomePage
         onCallback={(key: string) => {
           if (isTabKey(key)) navigate(key);
         }}
       />
     ),
   },
-  'eq-landing': {
-    label: 'Attribution Analysis Landing',
+  'pma-landing': {
+    label: 'PMA Home',
     getChildren: (navigate) => (
-      <EquityPersonaHomePage
-        onConfigure={() => navigate('wizard')}
-        onComplete={() => navigate('eq-workspace')}
+      <PMAHomePage
+        onComplete={() => navigate('dashboard')}
       />
     ),
   },
-  'eq-workspace': {
-    label: 'Equity Attribution Analysis',
-    getChildren: () => <EquityWorkspacePage />,
-  },
-  wizard: {
-    label: 'Configure Entry Equity Attribution Analysis',
-    getChildren: (navigate) => (
-      <EquityWizardPage onComplete={() => navigate('eq-workspace')} />
+  'attribution-analysis': {
+    label: 'Attribution Analysis',
+    getChildren: () => (
+      <AtributionAnalysisWorkspace
+      />
     ),
   },
-  'em-workspace': {
-    label: 'EM Attribution Analysis',
-    getChildren: () => <EmergingMarketWorkspace />
+  'driver-analysis': {
+     label: 'Driver Analysis',
+    getChildren: () => (
+      <DriverAnalysisWorkspace
+      />
+    ),
+  }
+  ,
+  'diagnostics' : {
+    label: 'Diagnostics',
+    getChildren: () => <DiagnosticsWorkspacePage />
+  },
+  'admin' : {
+    label: 'Admin',
+    getChildren: () => <PMAAdminPage />
   },
 } as const;
 
-/** 5. Safe runtime guard */
+
 export function isTabKey(value: string): value is TabKey {
   return (Object.keys(TAB_CONFIG) as readonly string[]).includes(value);
 }
 
-/** 6. Typed Object.keys helper */
 export function typedKeys<T extends object>(obj: T): Array<keyof T> {
   return Object.keys(obj) as Array<keyof T>;
 }

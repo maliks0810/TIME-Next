@@ -232,6 +232,8 @@ return (
                   title={popupTitle}  
                   width="35%" 
                   height="30%"  
+                  minHeight='200px' 
+                  minWidth='350px' 
                   wrapperAttr={{ className: 'custom-popup-class' }}  
                 />  
                 <div className='div-container-center'>

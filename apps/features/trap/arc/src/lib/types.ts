@@ -293,6 +293,7 @@ export type PayloadItem =
   | { type: 'CALLABLE'; parameters: { callable: string } }
   | { type: 'COLLATERAL_TYPE'; parameters: { collateralType: string } }
   | { type: 'SECURITY_SETTINGS'; parameters: { interestRateScenario: string,modelFamilyOverride:string } }
+  | { type: 'CORRECTION'; parameters: { assetAnalyticsSetupId: string } }
   | {
       type: 'SPEED_OVERRIDES';
       parameters: {

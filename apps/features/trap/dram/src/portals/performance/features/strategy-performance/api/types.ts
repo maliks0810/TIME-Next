@@ -17,7 +17,7 @@ export type Highlights = {
 };
 
 export type MatrixRow = {
-  key: "NET" | "GROSS" | "SPREAD";
+  key: "NET" | "BENCH" | "SPREAD";
   metric: string;
   values: Record<string, number>;
 };
@@ -25,13 +25,14 @@ export type SnapshotHorizon = {
   key: string;
   label: string;
   netReturn: number | null;
-  grossReturn: number | null;
+  benchReturn: number | null;
 };
 
 
 export type PerformanceSnapshotItem = {
   shareClassKey: string;
   asOfDate: string;
+  portfolioName: string;
   horizons: SnapshotHorizon[];
 };
 

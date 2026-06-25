@@ -8,8 +8,14 @@ import TemplateDesignerPage from './features/workflow-designer/WorkflowDesignerP
 import WidgetStudioConfigurePage from './features/widget-studio/WidgetStudioConfigurePage';
 import 'devextreme/dist/css/dx.light.css';
 import './styles/datagrid-theme-bridge.scss';
+import './styles/scrollbars.scss';
 
-import { ThemeContext, getThemeConfig, ThemeName } from './theme/ThemeContext';
+import {
+    ThemeContext,
+    getThemeConfig,
+    getAppSurfaceBackground,
+    ThemeName,
+} from './theme/ThemeContext';
 import { AdminPanel } from './features/AdminPanel';
 import { useSetActiveUser } from './state/User/hooks';
 
@@ -29,6 +35,8 @@ export default function App() {
     const { claims } = useUserInfo();
     const setActiveUser = useSetActiveUser();
 
+
+
     React.useEffect(() => {
         if (claims) {
             sessionStorage.setItem('okta-user', claims.ad_samaccountname);
@@ -46,6 +54,10 @@ export default function App() {
         localStorage.setItem(THEME_STORAGE_KEY, themeName);
     }, [themeName]);
 
+    const appBackground = React.useMemo(
+        () => getAppSurfaceBackground(themeName),
+        [themeName]
+    );
     const themeConfig = React.useMemo(() => getThemeConfig(themeName), [themeName]);
 
     return (
@@ -58,6 +70,8 @@ export default function App() {
                         maxWidth: '100vw',
                         minWidth: APP_SHELL_MIN_WIDTH,
                         overflowX: 'auto',
+                        background: appBackground,
+                        transition: 'background 180ms ease',
                     }}
                 >
                     <Content

@@ -93,11 +93,26 @@ export function useUsers({ userInfo }: UseUsersProps) {
         if (!prev) 
             throw new Error('User not found');  
 
-        const updatedReq: RequestMaintenanceUser = {  
+        var userName: string;        
+        var fname: string;
+        var lname: string;
+        if(values['lastName'])
+            lname = values['lastName'];
+        else
+            lname = prev.lastName;
+
+        if(values['firstName'])
+            fname = values['firstName'];
+        else
+            fname = prev.firstName;
+
+        userName = lname + "," + fname;
+        
+        const updatedReq: RequestMaintenanceUser = {
             userId: userId,
             firstName: values['firstName']!= undefined?values['firstName']:prev?.firstName??"",
             lastName: values['lastName']!= undefined?values['lastName']:prev?.lastName??"",
-            userName: values['lastName']!= undefined?values['lastName']:prev?.lastName??"" + "," + values['firstName']!= undefined?values['firstName']:prev?.firstName??"",
+            userName: userName,
             coopDptCode: values['coopDptCode']!= undefined?values['coopDptCode']:prev?.coopDptCode?? 0,
             coopStaffCode: values['coopStaffCode']!= undefined?values['coopStaffCode']:prev?.coopStaffCode??0,
             costCenterCode: values['costCenterCode']!= undefined?values['costCenterCode']:prev?.costCenterCode??"",

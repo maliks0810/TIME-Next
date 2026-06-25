@@ -56,16 +56,18 @@ html, body {
     align-items: center;
 }
 
-.dram-attribiution-dashboard {
+.dram-attribution-dashboard {
     height: 95vh;
+    padding: 8px;
+    overflow-y: "auto" ;
 }
 /* Container */
-.attribiution-dashboard-tabs .dx-tabs {
+.attribution-dashboard-tabs .dx-tabs {
   border-bottom: 1px solid #d9d9d9;
 }
 
 /* Individual tab */
-.attribiution-dashboard-tabs .dx-tab {
+.attribution-dashboard-tabs .dx-tab {
   padding: 8px 16px;
   font-size: 13px;
   color: #666;
@@ -74,18 +76,18 @@ html, body {
 }
 
 /* Hover */
-.attribiution-dashboard-tabs .dx-tab:hover {
+.attribution-dashboard-tabs .dx-tab:hover {
   color: #1677ff;
 }
 
 /* Active tab */
-.attribiution-dashboard-tabs .dx-tab-selected {
+.attribution-dashboard-tabs .dx-tab-selected {
   color: #1677ff;
   font-weight: 600;
 }
 
 /* Underline (VERY IMPORTANT) */
-.attribiution-dashboard-tabs .dx-tab-selected::after {
+.attribution-dashboard-tabs .dx-tab-selected::after {
   content: "";
   position: absolute;
   left: 0;
@@ -97,7 +99,7 @@ html, body {
 }
 
 /* Remove default ugly focus */
-.attribiution-dashboard-tabs .dx-tab:focus {
+.attribution-dashboard-tabs .dx-tab:focus {
   outline: none;
 }
 .dramContainer {
@@ -379,4 +381,9 @@ html, body {
 /* remove borders */
 .dram-grid .dx-datagrid .dx-row > td {
   border-right: none;
+}
+.pa-card {
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(16, 24, 40, 0.06);
+  border-top-color: #013D7D;
 }

@@ -15,7 +15,8 @@ import { supportApps } from './supportApps';
 import { aiProductsApps } from './aiProductsApps';
 import { productApps } from './productsApps';
 import { coreApps } from './coreApps';
-import { equityApps } from './equityApps';  
+
+
 
 const currentEnv = import.meta.env.VITE_APP_ENV;
 
@@ -31,8 +32,7 @@ const apps: (InternalAppMetadata | ExternalAppMetadata)[] = [
     ...productApps,
     ...aiProductsApps,
     ...supportApps,
-    ...coreApps,
-    ...equityApps
+    ...coreApps
 ];
 
 const teams: TeamMetadata[] = [

@@ -50,24 +50,24 @@ export const SimplifiedWidgetView = ({
     return (
         <>
             <div className={styles.widgetPreviewContainer}>
-                {selectedWidgetDefId ? (
-                    <>
-                        <h3>Widget Preview</h3>
+                <>
+                    <h3>Widget Preview</h3>
 
-                        <div
-                            style={{
-                                height: 320,
-                                width: '100%',
-                            }}
-                        >
-                            <div className={styles.modalPreviewContainer}>
-                                <CanvasContainer
-                                    layout={computedLayout}
-                                    isDraggable={false}
-                                    isResizable={false}
-                                    isInitialLoading={false}
-                                >
-                                    <div key="widget_picker_preview_item">
+                    <div
+                        style={{
+                            height: 320,
+                            width: '100%',
+                        }}
+                    >
+                        <div className={styles.modalPreviewContainer}>
+                            <CanvasContainer
+                                layout={computedLayout}
+                                isDraggable={false}
+                                isResizable={false}
+                                isInitialLoading={false}
+                            >
+                                <div key="widget_picker_preview_item">
+                                    {selectedWidgetDefId ? (
                                         <WidgetHost
                                             widgetInstance={{
                                                 id: selectedWidgetDef?.id,
@@ -79,18 +79,14 @@ export const SimplifiedWidgetView = ({
                                             widgetDefinition={selectedWidgetDef}
                                             mode="designer"
                                         />
-                                    </div>
-                                </CanvasContainer>
-                            </div>
+                                    ) : null}
+                                </div>
+                            </CanvasContainer>
                         </div>
-                    </>
-                ) : (
-                    <div className={styles.emptyWidgetPreviewContainer}>
-                        <h4>Select widget for preview</h4>
                     </div>
-                )}
+                </>
             </div>
-            <Divider />
+            <Divider size="middle" />
             <div className={styles.widgetsGridContainer}>
                 {filteredWidgetDefs.length === 0 ? (
                     <div style={{ gridColumn: '1 / -1', paddingTop: 40 }}>

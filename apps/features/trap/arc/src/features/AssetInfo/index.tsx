@@ -10,7 +10,7 @@ import { claimAsset } from '../../lib/services';
 import { useUserInfo } from '@platform/utils';
 import { updateAnalyticsInputOverrides } from '../../lib/services';
 import { PayloadItem} from '../../lib/types';
-import { extractCallable, extractCallDate, extractCollateralType, extractDefaultSpeed, extractDefaultType, extractDelinquency, extractPrepaymentSpeed, extractPrepaymentType, extractSeverity, hasValue, extractCallDateText, extractInfoInterestRateScenarioType, extractInfoModelFamilyOverrideType } from '../../lib/helpers';
+import { extractCallable, extractCallDate, extractCollateralType, extractDefaultSpeed, extractDefaultType, extractDelinquency, extractPrepaymentSpeed, extractPrepaymentType, extractSeverity, hasValue, extractCallDateText, extractInfoInterestRateScenarioType, extractInfoModelFamilyOverrideType, extractOriginalAssetSetupId } from '../../lib/helpers';
 import { AssetInfoInput } from './components/AssetInfoInput';
 import { AssetInfoSelectCollateralType } from './components/AssetInfoSelectCollateralType';
 import { AssetInfoDatePicker } from './components/AssetInfoDatePicker';
@@ -92,6 +92,7 @@ export const AssetInfo = ({
         form.setFieldValue('defaultSpeedInput', extractDefaultSpeed(assetInfo?.payload));
         form.setFieldValue('severityInput', extractSeverity(assetInfo?.payload));
         form.setFieldValue('delinquencyInput', extractDelinquency(assetInfo?.payload));
+        form.setFieldValue('originalAssetSetupIdInput', extractOriginalAssetSetupId(assetInfo?.payload));
         form.setFieldValue('noteTextArea', note?.noteText);
         form.setFieldValue('interestRateScenarioType', extractInfoInterestRateScenarioType(assetInfo?.payload));
         form.setFieldValue('modelFamilyOverrideType', extractInfoModelFamilyOverrideType(assetInfo?.payload));
@@ -126,6 +127,7 @@ export const AssetInfo = ({
             const defaultSpeedValue = form.getFieldValue('defaultSpeedInput');
             const severityValue = form.getFieldValue('severityInput');
             const delinquencyValue = form.getFieldValue('delinquencyInput');
+            const originalAssetSetupIdValue = form.getFieldValue('originalAssetSetupIdInput');
 
             // COLLATERAL_TYPE
             if (hasValue(collateralTypeValue)) {
@@ -162,6 +164,14 @@ export const AssetInfo = ({
                 payloadObj.push({
                     type: 'SECURITY_SETTINGS',
                     parameters: { interestRateScenario: interestRateScenarioValue, modelFamilyOverride:modelFamilyOverrideValue },
+                });
+            }
+
+            // CORRECTION
+            if (hasValue(originalAssetSetupIdValue)) {
+                payloadObj.push({
+                    type: 'CORRECTION',
+                    parameters: { assetAnalyticsSetupId: originalAssetSetupIdValue},
                 });
             }
 
@@ -252,6 +262,15 @@ export const AssetInfo = ({
                         title="Internal Asset ID"
                         value={assetInfo?.assetAnalyticsSetupId}
                     />
+                    {assetInfo?.status == 'CORRECTION' ? (
+                       <AssetInfoInput
+                        title="Original Asset ID"
+                        value={extractOriginalAssetSetupId(assetInfo?.payload)}
+                        formItemName="originalAssetSetupIdInput"
+                        inputType="number"
+                        controls={false}
+                    />
+                    ) : null}
                     <AssetInfoItem title="Asset Type" value={assetInfo?.assetType} />
                     <AssetInfoSelectCollateralType
                         title="Collateral Type"

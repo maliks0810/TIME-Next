@@ -2,18 +2,14 @@
     flex: 1;
     min-width: 0;
     background: var(--ant-color-bg-elevated);
-    border: 1px solid var(--ant-color-border-secondary);
+    border: 1px solid var(--ant-color-primary-border);
     border-radius: var(--ant-border-radius);
     padding: 9px 12px;
     display: flex;
     flex-direction: column;
-    gap: 2;
+    gap: 2px;
     position: relative;
     overflow: hidden;
-}
-
-.metricCardContainer {
-    border: 1px solid var(--ant-color-primary-border);
 }
 
 .metricCardAccentHighlight {
@@ -22,15 +18,14 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(
-        90deg,
-        var(--ant-color-primary) 0%,
-        var(--ant-color-primary-hover) 100%
-    );
+    background: linear-gradient(90deg,
+            var(--ant-color-primary) 0%,
+            var(--ant-color-primary-hover) 100%);
 }
 
 .metricCardLabel {
     font-size: 9px;
+    line-height: 12px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.07em;
@@ -39,8 +34,8 @@
 
 .metricCardValue {
     font-size: 15px;
+    line-height: 19px;
     font-weight: 700;
-    line-height: 1.25;
     color: var(--ant-color-text);
 }
 
@@ -50,6 +45,7 @@
 
 .metricCardSubText {
     font-size: 9px;
+    line-height: 12px;
     color: var(--ant-color-text-tertiary);
 }
 
@@ -64,7 +60,7 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 10;
+    gap: 10px;
     padding: 4px 0;
     border-bottom: 1px solid var(--ant-color-border-secondary);
 
@@ -75,12 +71,15 @@
 
 .detailRowLabel {
     font-size: 11px;
+    line-height: 16px;
     color: var(--ant-color-text-secondary);
     flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .detailRowValue {
-    font-size: 11px;
+    font-size: 12px;
+    line-height: 16px;
     font-weight: 600;
     color: var(--ant-color-text);
     text-align: right;
@@ -101,9 +100,10 @@
 .sectionLabelContainer {
     display: block;
     font-size: 10px;
+    line-height: 14px;
     font-weight: 700;
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--ant-color-text-tertiary);
-    margin-bottom: 6;
+    margin-bottom: 6px;
 }

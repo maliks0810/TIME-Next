@@ -13,19 +13,22 @@
             "content": {
                 "title": "Content",
                 "type": "string",
-                "default": ""
+                "default": "",
+                "category": "View Parameters"
             },
             "fontWeight": {
                 "title": "Font Weight",
                 "type": "string",
                 "default": "500",
-                "enum": ["400", "500", "600", "700", "800"]
+                "enum": ["400", "500", "600", "700", "800"],
+                "category": "View Parameters"
             },
             "textAlign": {
                 "title": "Text Align",
                 "type": "string",
                 "default": "left",
-                "enum": ["left", "center", "right"]
+                "enum": ["left", "center", "right"],
+                "category": "View Parameters"
             }
         },
         "required": ["content"],

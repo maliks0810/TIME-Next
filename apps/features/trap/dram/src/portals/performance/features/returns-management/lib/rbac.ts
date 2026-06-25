@@ -2,10 +2,14 @@ import { Role } from "./types";
 export function getRoleByOrg(group: string) : string{
   if (group === 'Inv Risk & Research Tech')
     return'R2-Developer-ReadWrite';
-  if (group === 'Performance Measurement & Attribution')
+
+  if (group === 'Inv Risk & Research Tech') return 'R2-Developer-ReadWrite';
+  if (group === 'Perf Measurement & Attrib' || group === 'Inv Risk & Quant Research' ||
+    group === 'Performance Measurement & Attribution' || group === 'Investment Risk & Quantitative Research Group')
+
     return 'PMRA-Analyst-ReadWrite';
   else
-    return '';
+    return 'None';
 }
 
 export const RBAC = {

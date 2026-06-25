@@ -24,7 +24,7 @@ export function buildSnapshotChartOption(
       axisPointer: { type: "shadow" },
     },
     legend: {
-      data: ["Net", "Gross", "Spread"],
+      data: ["Net", "Bench", "Spread"],
       top: 0,
     },
     grid: {
@@ -70,12 +70,12 @@ export function buildSnapshotChartOption(
         },
       },
       {
-        name: "Gross",
+        name: "Bench",
         type: "bar",
-        data: snapshot.horizons.map((h) => safeNumber(h.grossReturn)),
+        data: snapshot.horizons.map((h) => safeNumber(h.benchReturn)),
         itemStyle: {
           borderRadius: [8, 8, 0, 0],
-          color: "#4B773D",
+          color: "#B2B2B2",
         },
       },
       {
@@ -84,7 +84,7 @@ export function buildSnapshotChartOption(
         yAxisIndex: 1,
         smooth: true,
         data: snapshot.horizons.map((h) =>
-          safeSpread(h.grossReturn, h.netReturn),
+          safeSpread(h.benchReturn, h.netReturn),
         ),
         lineStyle: {
           width: 3,
@@ -101,7 +101,7 @@ export function buildSnapshotChartOption(
 export function buildChart(snapshot: PerformanceSnapshotItem): EChartsOption {
   return {
     tooltip: { trigger: "axis" },
-    legend: { data: ["Net", "Gross"] },
+    legend: { data: ["Net", "Bench"] },
     xAxis: {
       type: "category",
       data: snapshot.horizons.map((h) => h.label),
@@ -117,9 +117,9 @@ export function buildChart(snapshot: PerformanceSnapshotItem): EChartsOption {
         data: snapshot.horizons.map((h) => safeNumber(h.netReturn)),
       },
       {
-        name: "Gross",
+        name: "Bench",
         type: "bar",
-        data: snapshot.horizons.map((h) => safeNumber(h.grossReturn)),
+        data: snapshot.horizons.map((h) => safeNumber(h.benchReturn)),
       },
     ],
   };

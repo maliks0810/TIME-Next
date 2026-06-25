@@ -14,17 +14,20 @@
                 "default": "",
                 "description": "Comma separated column groups",
                 "title": "Default groups",
-                "type": "string"
+                "type": "string",
+                "category": "View Parameters"
             },
             "pageSize": {
                 "default": 50,
                 "title": "Page Size",
-                "type": "number"
+                "type": "number",
+                "category": "View Parameters"
             },
             "rowKeyField": {
                 "default": "id",
                 "title": "Row Key Field",
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             },
             "schemaKey": {
                 "description": "Logical grid schema resolved by GraphQL",
@@ -39,19 +42,22 @@
                     "portfolio.net.history"
                 ],
                 "title": "Schema Key",
-                "type": "string"
+                "type": "string",
+                "category": "System Parameters"
             },
             "selectionMode": {
                 "default": "single",
                 "enum": ["none", "single", "multiple"],
                 "title": "Selection Mode",
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             },
             "listensToKeys": {
                 "enum": ["asOfDate", "common.data.grid.row", "schemaKey", "common.tree.item"],
                 "title": "Listens to keys",
                 "multiselect": true,
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             }
         },
         "required": ["schemaKey"],

@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
-import React from 'react';
+import React, { useState } from 'react';
 import { message } from 'antd';
 
 import {
@@ -24,7 +24,7 @@ import { useGetActiveUser } from '../../../state/User/hooks';
 export function useLanding(props: LandingTabProps) {
     const defaultLanding = React.useMemo(() => getDefaultLandingTemplate(), []);
 
-    const { claims } = useUserInfo();
+    const { claims, ...info } = useUserInfo();
     const [compiledLandingVersion, setCompiledLandingVersion] = React.useState<any>(null);
     const [targetTemplateId, setTargetTemplateId] = React.useState<string>();
     const [targetTemplateVersionId, setTargetTemplateVersionId] = React.useState<string>();
@@ -32,17 +32,7 @@ export function useLanding(props: LandingTabProps) {
     const [isLoading, setIsLoading] = React.useState(false);
     const hasLanding = Boolean(targetTemplateId && targetTemplateVersionId);
     const activeUser = useGetActiveUser();
-
-    const getSavedLandingTemplate = () => {
-        const saved = getDefaultLandingTemplate();
-        if (!saved?.templateId || !saved?.versionId) return undefined;
-
-        return {
-            templateId: saved.templateId,
-            templateVersionId: saved.versionId,
-        };
-    };
-
+    const [error, setError] = useState<string | null>(null);
     const initLandingFromActive = (
         templates: TemplateSummary[],
         activeLandingSelection: LandingTabProps['activeLandingSelection']
@@ -80,12 +70,15 @@ export function useLanding(props: LandingTabProps) {
             ? templates.find((template) => template.id === savedTemplateId)
             : undefined;
 
-        if (savedTemplate?.id && String(savedTemplate.kind ?? '').toLowerCase() === 'landing') {
+        if (savedTemplate?.id) {
             setTargetTemplateId(savedTemplate.id);
             setTargetTemplateVersionId(savedVersionId);
 
             setIsLoading(false);
             return;
+        } else {
+            setIsLoading(false);
+            setError('Activated landing no longer available');
         }
     };
 
@@ -101,9 +94,11 @@ export function useLanding(props: LandingTabProps) {
         });
         if (template) return template;
 
-        // If there are no department landings to activate, then activate first private
-
-        const myTemplate = templates.filter((el) => el.kind !== 'LANDING')[0];
+        // If there are no department landings to activate, then activate first landing that belongs to user
+        const myTemplate = templates.filter(
+            (el) =>
+                el.kind === 'LANDING' && el.scopeType === 'USER' && el.ownerUserId === info.login
+        )[0];
 
         return myTemplate;
     };
@@ -151,6 +146,7 @@ export function useLanding(props: LandingTabProps) {
     };
     React.useEffect(() => {
         if (activeUser) {
+            setError(null);
             initDefaultLanding(defaultLanding, props.activeLandingSelection);
         }
     }, [defaultLanding, props.activeLandingSelection, activeUser]);
@@ -242,5 +238,6 @@ export function useLanding(props: LandingTabProps) {
         compiledLandingVersion,
         hasLanding,
         isLoading,
+        error,
     };
 }

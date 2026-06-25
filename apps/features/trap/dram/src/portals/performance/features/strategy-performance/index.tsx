@@ -5,7 +5,7 @@ import type { ColumnsType } from "antd/es/table";
 import { MatrixRow, PerformanceSnapshotApiResponse, PerformanceSnapshotItem, SnapshotHorizon } from "./api/types";
 import { usePerformanceSnapshot } from "./hooks/usePerformanceSnapshot";
 
-
+import "./lib/styles.scss"
 const { Title, Text } = Typography;
 
 
@@ -20,6 +20,7 @@ function formatPct(value: number | null | undefined, digits = 2): string {
 const EMPTY_SNAPSHOT: PerformanceSnapshotItem = {
   shareClassKey: "",
   asOfDate: "",
+  portfolioName: "",
   horizons: [],
 };
 
@@ -89,13 +90,26 @@ export default function PerformanceSnapshotDashboard(): React.JSX.Element {
 	);
   }
 
-  function getLastMonthDaily(data: PerformanceSnapshotApiResponse) {
-	if (!data.length) return [];
 
-	const latestMonth = data[0].asOfDate.slice(0, 7);
+function getLastMonthDaily(
+  data: PerformanceSnapshotApiResponse
+): PerformanceSnapshotApiResponse {
+  if (!data.length) return [];
 
-	return data.filter((d) => d.asOfDate.startsWith(latestMonth));
-  }
+  const now = new Date();
+
+  // first day of last month
+  const firstDayLastMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    1
+  );
+
+  return data.filter((d) => {
+    const dt = new Date(d.asOfDate);
+    return dt >= firstDayLastMonth;
+  });
+}
 
   const historyData = useMemo(() => {
 	switch (historyMode) {
@@ -131,7 +145,7 @@ export default function PerformanceSnapshotDashboard(): React.JSX.Element {
 
   const chartOption = useMemo(() => ({
 	tooltip: { trigger: "axis" },
-	legend: { data: ["Net", "Gross"] },
+	legend: { data: ["Net", "Bench"] },
 	xAxis: {
 	  type: "category",
 	  data: currentSnapshot.horizons.map((h) => h.label),
@@ -152,14 +166,14 @@ export default function PerformanceSnapshotDashboard(): React.JSX.Element {
         },
 	  },
 	  {
-		name: "Gross",
+		name: "Bench",
 		type: "bar",
 		data: currentSnapshot.horizons.map((h) =>
-		  typeof h.grossReturn === "number" ? h.grossReturn : null
+		  typeof h.benchReturn === "number" ? h.benchReturn : null
 		),
 		itemStyle: {
           borderRadius: [8, 8, 0, 0],
-          color: "#4B773D",
+          color: "#B2B2B2",
         },
 	  },
 	],
@@ -172,7 +186,7 @@ export default function PerformanceSnapshotDashboard(): React.JSX.Element {
 
 	snapshot.horizons.forEach((h) => {
 	  const n = typeof h.netReturn === "number" ? h.netReturn : 0;
-	  const g = typeof h.grossReturn === "number" ? h.grossReturn : 0;
+	  const g = typeof h.benchReturn === "number" ? h.benchReturn : 0;
 
 	  net[h.key] = n;
 	  gross[h.key] = g;
@@ -181,7 +195,7 @@ export default function PerformanceSnapshotDashboard(): React.JSX.Element {
 
 	return [
 	  { key: "NET", metric: "Net", values: net },
-	  { key: "GROSS", metric: "Gross", values: gross },
+	  { key: "BENCH", metric: "Bench", values: gross },
 	  { key: "SPREAD", metric: "Spread", values: spread },
 	];
   }
@@ -217,18 +231,18 @@ export default function PerformanceSnapshotDashboard(): React.JSX.Element {
 	<div style={{ padding: 24 }}>
 	  <Title level={3}>Performance Snapshot</Title>
 
-	  <Text type="secondary">
-		{currentSnapshot.shareClassKey} — {currentSnapshot.asOfDate}
-	  </Text>
+	  <Title level={4}>
+		{currentSnapshot.portfolioName} — {currentSnapshot.shareClassKey} — {currentSnapshot.asOfDate}
+	  </Title>
 
-	  <Space direction="vertical" style={{ marginTop: 16 }}>
-		<Segmented
+	   <Space direction="vertical" style={{ marginTop: 16 }}>
+		{/* <Segmented
 		  value={selectedShareClass}
 		  onChange={(v) => setSelectedShareClass(String(v))}
 		  options={shareClasses}
-		/>
+		/>  */}
 
-		<Segmented
+		<Segmented className="blue-segmented"
 		  value={historyMode}
 		  onChange={(v) => setHistoryMode(v as HistoryMode)}
 		  options={[
@@ -241,22 +255,27 @@ export default function PerformanceSnapshotDashboard(): React.JSX.Element {
 
 	  <Row gutter={16} style={{ marginTop: 16 }}>
 		{kpis.map((kpi) => (
-		  <Col key={kpi.title} span={6}>
-			<Card>
+		  <Col key={kpi.title} span={4}>
+			<Card size="small" className="pa-card">
 			  <Text>{kpi.title}</Text>
 			  <Title level={4}>{formatPct(kpi.value)}</Title>
 			</Card>
 		  </Col>
 		))}
 	  </Row>
-
-	  <Card title="Returns by Horizon" style={{ marginTop: 24 }}>
-		<ReactECharts option={chartOption} style={{ height: 400 }} />
+	 <Row gutter={16} style={{ marginTop: 16 }}>
+		<Col xs={24} md={16} lg={12}>
+			<Card title="Returns by Horizon" style={{ marginTop: 24 }}>
+			<ReactECharts option={chartOption} style={{ height: 400 }} />
 	  </Card>
-
-	  <Card title="Historical Trend" style={{ marginTop: 24 }}>
+			</Col>
+			<Col xs={24} md={16} lg={12}>
+				  <Card title="Historical Trend" style={{ marginTop: 24 }}>
 		<ReactECharts option={historyChart} style={{ height: 300 }} />
 	  </Card>
+			</Col>
+
+	 </Row>
 
 	  <Card title="Return Matrix" style={{ marginTop: 24 }}>
 		<Table<MatrixRow>

@@ -139,6 +139,8 @@ export default function AnalystPerformance() {
       .finally(() => setIsDataLoading(false));
   }, []); // keep same mount behavior
 
+  const noAnalystsSelected = !isDataLoading && selectedAnalysts.length === 0;
+
   return (
     <div style={{ margin: '24px 3%' }}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
@@ -205,7 +207,14 @@ export default function AnalystPerformance() {
                 <Spin size="large" />
               </div>
             ) : (
-              <AnalystPBChart chartData={dataSource.analystPerformanceDataPoints} dateFormat={dateFormat} />
+              <div className="analystPerformanceChartWrapper">
+                <div className={noAnalystsSelected ? 'analystPerformanceBlurred' : undefined}>
+                  <AnalystPBChart chartData={dataSource.analystPerformanceDataPoints} dateFormat={dateFormat} />
+                </div>
+                {noAnalystsSelected && (
+                  <div className="analystPerformanceOverlayMessage">Please select one or more analysts</div>
+                )}
+              </div>
             )}
 
             <h3 style={{ textAlign: 'start' }}>Excess Returns</h3>
@@ -215,11 +224,13 @@ export default function AnalystPerformance() {
                 <Spin size="large" />
               </div>
             ) : (
-              <AnalystPBChart
-                chartData={dataSource.excessReturnsDataPoints}
-                dateFormat={dateFormat}
-                isAnnualChart
-              />
+              <div className={noAnalystsSelected ? 'analystPerformanceBlurred' : undefined}>
+                <AnalystPBChart
+                  chartData={dataSource.excessReturnsDataPoints}
+                  dateFormat={dateFormat}
+                  isAnnualChart
+                />
+              </div>
             )}
           </div>
         </div>
@@ -251,7 +262,10 @@ export default function AnalystPerformance() {
 
           <div className="componentHighlight analystPerformanceKpisContainer">
             <h3 style={{ fontWeight: 'bold', textAlign: 'left' }}>KPI Comparison</h3>
-            <div style={{ marginTop: 8 }}>
+            <div
+              style={{ marginTop: 8 }}
+              className={noAnalystsSelected ? 'analystPerformanceBlurred' : undefined}
+            >
               <AnalystKPIsTable
                 kpiData={dataSource.kpiDataPoints}
                 selectedRange={selectedPeriodKey}

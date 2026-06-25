@@ -234,8 +234,10 @@ const MaintenanceBrokerGroupGrid = () => {
                   <Popup
                     title={popupTitle}
                     width="30%"
-                    height="30%"
+                    height="20%"
                     showTitle
+                    minHeight='200px' 
+                    minWidth='350px' 
                   />
                   <Form colCount={1} width="95%">
                     <FormItem dataField="active" label={{ text: 'Active' }} editorType="dxCheckBox" />
@@ -336,7 +338,7 @@ const MaintenanceBrokerGroupGrid = () => {
                 <Column type="buttons" width="10%" visible={isAdmin?true:false}>
                   <Button name="delete" />
                 </Column>
-                <Toolbar visible={isAdmin?true:false}>
+                <Toolbar visible={isAdmin} disabled={selectedBrokerGroupId?false:true}>
                   <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
                 </Toolbar>
               </DataGrid>

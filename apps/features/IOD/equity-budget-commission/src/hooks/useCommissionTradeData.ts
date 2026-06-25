@@ -29,11 +29,10 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
   const [batchPopupVisible, setBatchPopupVisible] = useState(false);  
   const [formData, setFormData] = useState<CommissionTradeDetails | undefined>(undefined);  
   const [adminData, setAdminData] = useState<MaintenanceUser[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   const [batchFormData, setBatchFormData] = useState({  
-    reason: '',        
-    creditBroker: '', 
+    reason: null,        
+    creditBroker: null, 
   });  
 
   useEffect(() => {  
@@ -50,7 +49,6 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
         setUniqueCRBrokers(brkData);
         
         setAdminData(adminData)
-        checkAdmin(adminData);
       } catch (error) {  
         console.error('Failed to load reason/broker data:', error);  
       }  
@@ -58,12 +56,9 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
     fetchMasterData();
   }, []);  
 
-  function checkAdmin(admData: MaintenanceUser[]){
-    const u = admData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
-    if(u){
-      setIsAdmin(true);
-    }
-  }
+  const isAdmin = Array.isArray(adminData) && userInfo?.name
+    ? adminData.some(a => `${a.firstName ?? ''} ${a.lastName ?? ''}`.trim() === userInfo.name)
+    : false;
 
   function getUniqueCreditBrokers(data: CRBrokerMapping[]): CRBrokers[] {
     if (!data) return [];
@@ -85,7 +80,6 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
       setIsLoading(true);
       const data = await fetchCommissionTrades(selectedBeginDate, selectedEndDate);  
       setCommissionTradesData(data);  
-      checkAdmin(adminData);
     } catch (error) {  
       console.error('Error fetching trades:', error);  
     }
@@ -128,19 +122,19 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
       // create CommissionTradeDetails from CommissionTrade 
       const childData: CommissionTradeDetails =  {
         orderId: rowData.orderId,  
-        trader: rowData.trader,  
-        ticker: rowData.ticker,  
-        side: rowData.side,  
-        cusip: rowData.cusip,  
-        currency: rowData.currency,  
-        crBroker: rowData.creditBroker,  
-        exBroker: rowData.execBroker,  
+        trader: rowData.trader??'',  
+        ticker: rowData.ticker??'',  
+        side: rowData.side??'',  
+        cusip: rowData.cusip??'',  
+        currency: rowData.currency??'',  
+        crBroker: rowData.creditBroker??'',  
+        exBroker: rowData.execBroker??'',  
         strategy: '',  
-        division: rowData.divisionName,  
+        division: rowData.divisionName??'',  
         shares: rowData.shares,  
         commission: rowData.totalComm,  
         price: rowData.price,  
-        reason: rowData.reason,  
+        reason: rowData.reason??'',  
       }; 
       return childData;
   }
@@ -149,7 +143,7 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
   const handleBatchUpdate = useCallback(() => {  
     if (selectedRowKeys.length > 1) {  
       setBatchPopupVisible(true);  
-    }  
+    }
   }, [selectedRowKeys]);  
 
   const closeBatchUpdatePopup = () => {  
@@ -167,8 +161,8 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissio
       const tradeIds: string[] = selectedRowKeys.map(s=> s);
       const updateDto: CommissionTradeBatchRequestDto = {
         orderId: tradeIds,
-        creditBroker: batchFormData.creditBroker,
-        reason: batchFormData.reason,
+        creditBroker: batchFormData.creditBroker??'',
+        reason: batchFormData.reason??'',
         lastUpdateBy: userInfo.name
       }
       const result = await saveBatchUpdateChanges(updateDto);

@@ -16,12 +16,14 @@
                 "items": {
                     "type": "string"
                 },
-                "type": "array"
+                "type": "array",
+                "category": "View Parameters"
             },
             "selectionMode": {
                 "default": "single",
                 "enum": ["single", "none"],
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             }
         },
         "required": [],

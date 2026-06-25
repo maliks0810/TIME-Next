@@ -15,31 +15,37 @@
                 "description": "Widgets connected to the same channel able to share data between each other",
                 "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
-                "type": "string"
+                "type": "string",
+                "category": "Interactions"
             },
 
             "label": {
                 "title": "Date select label",
                 "type": "string",
-                "default": ""
+                "default": "",
+                "category": "View Parameters"
             },
             "stateKey": {
                 "title": "Custom state key",
                 "description": "Default is common.date",
+                "enum": ["common.date", "asOfDate"],
                 "type": "string",
-                "default": ""
+                "default": "",
+                "category": "Interactions"
             },
             "dateFormat": {
                 "title": "Date Format",
                 "type": "string",
                 "enum": ["YYYY-MM-DD"],
-                "default": "YYYY-MM-DD"
+                "default": "YYYY-MM-DD",
+                "category": "View Parameters"
             },
             "availableDates": {
                 "title": "Available dates",
                 "type": "string",
                 "enum": ["All", "End of Month only"],
-                "default": "All"
+                "default": "All",
+                "category": "View Parameters"
             }
         },
         "required": [],

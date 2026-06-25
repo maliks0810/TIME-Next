@@ -1,0 +1,287 @@
+import { DatePicker, InputNumber, Select, Segmented } from "antd";
+import clsx from "clsx";
+import type { CallableType } from "../types";
+import type { ValidationErrors } from "../../../../../utils/validation";
+import type { Dayjs } from 'dayjs';
+import {
+    ASSUMPTION_CONTROL_WIDTH,
+    collateralTypeOptions,
+    defaultOptions,
+    prepaymentOptions,
+} from "../utils/options";
+import { AssumptionRow } from "./AssumptionRow";
+import { AssumptionSectionHeader } from "./AssumptionSectionHeader";
+import styles from "../AssetStagingWidget.module.scss";
+
+export function InputAssumptionsPanel({
+    price,
+    onPriceChange,
+
+    callable,
+    onCallableChange,
+
+    callDate,
+    onCallDateChange,
+
+    callValue,
+    onCallValueChange,
+    callOptions,
+
+    collateralType,
+    onCollateralTypeChange,
+
+    prepaymentType,
+    onPrepaymentTypeChange,
+    prepaymentValue,
+    onPrepaymentValueChange,
+
+    defaultType,
+    onDefaultTypeChange,
+    defaultValue,
+    onDefaultValueChange,
+
+    severity,
+    onSeverityChange,
+
+    delinquency,
+    onDelinquencyChange,
+
+    validationErrors,
+}: {
+    price: number | null;
+    onPriceChange: (value: number | null) => void;
+
+    callable: CallableType | null;
+    onCallableChange: (value: CallableType) => void;
+
+    callDate: Dayjs | null;
+    onCallDateChange: (value: Dayjs | null) => void;
+
+    callValue: string | undefined;
+    onCallValueChange: (value: string | undefined) => void;
+    callOptions: { label: string; value: string }[];
+
+    collateralType: string | undefined;
+    onCollateralTypeChange: (value: string | undefined) => void;
+
+    prepaymentType: string | undefined;
+    onPrepaymentTypeChange: (value: string | undefined) => void;
+    prepaymentValue: number | null;
+    onPrepaymentValueChange: (value: number | null) => void;
+
+    defaultType: string | undefined;
+    onDefaultTypeChange: (value: string | undefined) => void;
+    defaultValue: number | null;
+    onDefaultValueChange: (value: number | null) => void;
+
+    severity: number | null;
+    onSeverityChange: (value: number | null) => void;
+
+    delinquency: number | null;
+    onDelinquencyChange: (value: number | null) => void;
+
+    validationErrors: ValidationErrors;
+}) {
+    return (
+        <div className={styles.assumptionPanel}>
+            <div className={styles.assumptionPanelBody}>
+                <AssumptionSectionHeader title="Required" variant="required" />
+
+                <AssumptionRow label="Price">
+                    <div className={clsx(price === null && styles.requiredBorder)}>
+                        <InputNumber
+                            className={styles.priceInput}
+                            size="small"
+                            value={price}
+                            onChange={(value) => onPriceChange(typeof value === "number" ? value : null)}
+                            placeholder="100.000"
+                            controls={false}
+                            precision={3}
+                            min={0}
+                            max={200.0}
+                            style={{
+                                width: ASSUMPTION_CONTROL_WIDTH,
+                            }}
+                        />
+                    </div>
+                </AssumptionRow>
+
+                <AssumptionRow label="Collateral Type" error={validationErrors.collateralType}>
+                    <div className={clsx(!validationErrors.collateralType && !collateralType && styles.requiredBorder)}>
+                        <Select
+                            size="small"
+                            value={collateralType}
+                            onChange={onCollateralTypeChange}
+                            placeholder="Select"
+                            options={collateralTypeOptions}
+                            status={validationErrors.collateralType ? "error" : undefined}
+                            style={{
+                                width: ASSUMPTION_CONTROL_WIDTH * 3,
+                                fontSize: 11,
+                            }}
+                        />
+                    </div>
+                </AssumptionRow>
+
+                <AssumptionRow label="Callable">
+                    <div
+                        className={styles.callableSegmentedWrapper}
+                        style={{
+                            width: ASSUMPTION_CONTROL_WIDTH,
+                        }}
+                    >
+                        <Segmented
+                            size="small"
+                            block
+                            value={callable ?? undefined}
+                            onChange={(value) => onCallableChange(value as CallableType)}
+                            options={[
+                                { label: "Y", value: "Y" },
+                                { label: "N", value: "N" },
+                                { label: "C", value: "C" },
+                            ]}
+                            style={{
+                                width: "100%",
+                                background: "transparent",
+                                fontSize: 10,
+                            }}
+                        />
+                    </div>
+                </AssumptionRow>
+
+                <div className={styles.callableDetailRow}>
+                    {callable === "Y" && (
+                        <AssumptionRow label="Call Date" required>
+                            <div className={clsx(!callDate && styles.requiredBorder)}>
+                                <DatePicker
+                                    size="small"
+                                    value={callDate}
+                                    onChange={onCallDateChange}
+                                    placeholder="Date"
+                                    style={{
+                                        width: 120,
+                                        fontSize: 11,
+                                    }}
+                                />
+                            </div>
+                        </AssumptionRow>
+                    )}
+
+                    {callable === "C" && (
+                        <AssumptionRow label="Cleanup" required>
+                            <div className={clsx(!callValue && styles.requiredBorder)}>
+                                <Select
+                                    size="small"
+                                    value={callValue}
+                                    onChange={onCallValueChange}
+                                    placeholder="Select"
+                                    options={callOptions}
+                                    style={{
+                                        width: ASSUMPTION_CONTROL_WIDTH * 4,
+                                        fontSize: 11,
+                                    }}
+                                />
+                            </div>
+                        </AssumptionRow>
+                    )}
+                </div>
+
+                <div className={styles.assumptionSectionDivider} />
+
+                <AssumptionSectionHeader title="Optional" />
+
+                <AssumptionRow label="Prepayment" error={validationErrors.prepayment}>
+                    <div className={styles.assumptionControlGroup}>
+                        <Select
+                            size="small"
+                            allowClear
+                            value={prepaymentType}
+                            onChange={onPrepaymentTypeChange}
+                            placeholder="Type"
+                            options={prepaymentOptions}
+                            style={{
+                                width: 72,
+                                fontSize: 11,
+                            }}
+                        />
+
+                        <InputNumber
+                            className={styles.assumptionNumberInput}
+                            size="small"
+                            value={prepaymentValue}
+                            onChange={(value) => onPrepaymentValueChange(typeof value === "number" ? value : null)}
+                            placeholder="Value"
+                            controls={false}
+                            precision={3}
+                            status={validationErrors.prepayment ? "error" : undefined}
+                            style={{
+                                width: ASSUMPTION_CONTROL_WIDTH,
+                            }}
+                        />
+                    </div>
+                </AssumptionRow>
+
+                <AssumptionRow label="Default" error={validationErrors.default}>
+                    <div className={styles.assumptionControlGroup}>
+                        <Select
+                            size="small"
+                            allowClear
+                            value={defaultType}
+                            onChange={onDefaultTypeChange}
+                            placeholder="Type"
+                            options={defaultOptions}
+                            style={{
+                                width: 72,
+                                fontSize: 11,
+                            }}
+                        />
+
+                        <InputNumber
+                            className={styles.assumptionNumberInput}
+                            size="small"
+                            value={defaultValue}
+                            onChange={(value) => onDefaultValueChange(typeof value === "number" ? value : null)}
+                            placeholder="Value"
+                            controls={false}
+                            precision={3}
+                            status={validationErrors.default ? "error" : undefined}
+                            style={{
+                                width: ASSUMPTION_CONTROL_WIDTH,
+                            }}
+                        />
+                    </div>
+                </AssumptionRow>
+
+                <AssumptionRow label="Severity">
+                    <InputNumber
+                        className={styles.assumptionNumberInput}
+                        size="small"
+                        value={severity}
+                        onChange={(value) => onSeverityChange(typeof value === "number" ? value : null)}
+                        placeholder="Value"
+                        controls={false}
+                        precision={3}
+                        style={{
+                            width: ASSUMPTION_CONTROL_WIDTH,
+                        }}
+                    />
+                </AssumptionRow>
+
+                <AssumptionRow label="Delinquency">
+                    <InputNumber
+                        className={styles.assumptionNumberInput}
+                        size="small"
+                        value={delinquency}
+                        onChange={(value) => onDelinquencyChange(typeof value === "number" ? value : null)}
+                        placeholder="Value"
+                        controls={false}
+                        precision={3}
+                        style={{
+                            width: ASSUMPTION_CONTROL_WIDTH,
+                        }}
+                    />
+                </AssumptionRow>
+            </div>
+        </div>
+    );
+}

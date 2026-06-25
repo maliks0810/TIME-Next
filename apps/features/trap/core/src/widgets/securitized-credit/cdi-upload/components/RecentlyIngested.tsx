@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from 'react';
 import {
     FileZipOutlined,
     CheckCircleFilled,
@@ -6,25 +7,18 @@ import {
     HistoryOutlined,
     FileDoneOutlined,
     DownloadOutlined,
-    CloseOutlined,
+    MoreOutlined,
 } from '@ant-design/icons';
+import { theme, Progress, Button, Tag, Tooltip, Dropdown } from 'antd';
+
 import { MetaRow } from './MetaRow';
-import { theme, Typography, Progress, Button, Tag, Tooltip } from 'antd';
 import { SectionLabel } from './SectionLabel';
 import { DealFromIntex, RecentDeal, UploadState } from '../../types';
 import { WidgetComponentProps } from '../../../../types/widget';
 import styles from './RecentlyIngested.module.scss';
 import { useGetActiveTab } from '../../../../state/Tabs/hooks';
 import { useSetWidgetValue } from '../../../../state/Widgets/hooks';
-import {
-    ANALYSIS_SESSION_ID_KEY,
-    DEAL_ID_KEY,
-    DEAL_NAME_KEY,
-    IS_ASSET_NEW_KEY,
-    TRANCHE_ID_KEY,
-    TRANCHE_NAME_KEY,
-} from '../../../../widgets/constants';
-const { Text } = Typography;
+import { ANALYSIS_SESSION_ID_KEY } from '../../../../widgets/constants';
 
 type RecetlyIngestedProps = {
     uploadState: UploadState;
@@ -35,14 +29,15 @@ type RecetlyIngestedProps = {
     progress: number;
     fromRecent: boolean;
     errorMsg: string;
-    setLoadedDeal: React.Dispatch<React.SetStateAction<RecentDeal | null>>;
-    setFromRecent: React.Dispatch<React.SetStateAction<boolean>>;
+    setLoadedDeal: Dispatch<SetStateAction<RecentDeal | null>>;
+    setFromRecent: Dispatch<SetStateAction<boolean>>;
     reset: () => void;
-    publishDeal: (deal: { dealId: string; dealName: string; sessionId: string }) => void;
+    publishDeal: (deal: { dealName: string; sessionId: string }) => void;
     config: WidgetComponentProps['widgetInstance']['config'];
-    handelDownload: () => void;
+    handelDownload: (dealName: string) => void;
     onFileDelete: (id: string) => void;
 };
+
 export const RecetlyIngested = ({
     fileName,
     fromRecent,
@@ -62,61 +57,66 @@ export const RecetlyIngested = ({
 }: RecetlyIngestedProps) => {
     const { token } = theme.useToken();
 
+    const setWidgetValueToChannel = useSetWidgetValue();
+    const activeTab = useGetActiveTab();
+    const channelId = config?.params?.channel;
+
     const handleLoadRecent = (deal: RecentDeal) => {
         setLoadedDeal(deal);
         setFromRecent(true);
         publishDeal(deal);
     };
 
-    const setWidgetValueToChannel = useSetWidgetValue();
+    const handleDelete = (dealName: string) => {
+        onFileDelete(dealName);
+    };
 
-    const activeTab = useGetActiveTab();
-
-    const handleDelete =
-        (dealName: string) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-            e.stopPropagation();
-            onFileDelete(dealName);
-        };
-    const channelId = config?.params?.channel;
     const handleClearRecent = () => {
         setLoadedDeal(null);
         setFromRecent(false);
-        [
-            DEAL_NAME_KEY,
-            DEAL_ID_KEY,
-            ANALYSIS_SESSION_ID_KEY,
-            TRANCHE_ID_KEY,
-            TRANCHE_NAME_KEY,
-            IS_ASSET_NEW_KEY,
-        ].forEach((key) => setWidgetValueToChannel({ key, value: null, activeTab, channelId }));
+
+        setWidgetValueToChannel({
+            key: ANALYSIS_SESSION_ID_KEY,
+            value: null,
+            activeTab,
+            channelId,
+        });
     };
+
     // Uploading
     if (uploadState === 'uploading') {
         return (
             <div className={styles.uploading}>
                 <SectionLabel>Uploading…</SectionLabel>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <FileZipOutlined style={{ color: token.colorPrimary, fontSize: 15 }} />
-                    <Text
+
+                    <span
+                        className={styles.uploadingFileName}
                         style={{
-                            fontSize: 12,
-                            fontFamily: 'monospace',
                             color: token.colorText,
-                            fontWeight: 500,
                         }}
                     >
                         {fileName}
-                    </Text>
+                    </span>
                 </div>
+
                 <Progress
                     percent={progress}
                     strokeColor={progress >= 60 ? token.colorSuccess : token.colorPrimary}
                     size="small"
                     showInfo
                 />
-                <Text style={{ fontSize: 11, color: token.colorTextSecondary }}>
+
+                <span
+                    className={styles.uploadingStatus}
+                    style={{
+                        color: token.colorTextSecondary,
+                    }}
+                >
                     {progress < 60 ? 'Reading file…' : 'Processing via PRISM → INTEX Service…'}
-                </Text>
+                </span>
             </div>
         );
     }
@@ -144,17 +144,32 @@ export const RecetlyIngested = ({
                         gap: 8,
                     }}
                 >
-                    <Text style={{ fontSize: 12, fontWeight: 700, color: token.colorError }}>
+                    <span
+                        className={styles.errorTitle}
+                        style={{
+                            color: token.colorError,
+                        }}
+                    >
                         Upload failed
-                    </Text>
-                    <Text style={{ fontSize: 11, color: token.colorError }}>{errorMsg}</Text>
+                    </span>
+
+                    <span
+                        className={styles.errorMessage}
+                        style={{
+                            color: token.colorError,
+                        }}
+                    >
+                        {errorMsg}
+                    </span>
                 </div>
+
                 <Button size="small" onClick={reset}>
                     Try again
                 </Button>
             </div>
         );
     }
+
     if (uploadState === 'success' && fromIntex) {
         return (
             <div
@@ -174,8 +189,9 @@ export const RecetlyIngested = ({
                     }}
                 >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Text style={{ fontSize: 12, fontWeight: 700 }}>{fromIntex.dealName}</Text>
+                        <span className={styles.loadedDealName}>{fromIntex.dealName}</span>
                     </div>
+
                     <CloseCircleOutlined
                         onClick={fromRecent ? handleClearRecent : reset}
                         style={{
@@ -185,6 +201,7 @@ export const RecetlyIngested = ({
                         }}
                     />
                 </div>
+
                 <div
                     style={{
                         borderRadius: token.borderRadius,
@@ -206,10 +223,17 @@ export const RecetlyIngested = ({
                         }}
                     >
                         <FileDoneOutlined style={{ fontSize: 13, color: token.colorSuccess }} />
-                        <Text style={{ fontSize: 13, fontWeight: 700, color: token.colorText }}>
+
+                        <span
+                            className={styles.successDealName}
+                            style={{
+                                color: token.colorText,
+                            }}
+                        >
                             {fromIntex.dealName}
-                        </Text>
-                        <DownloadOutlined onClick={handelDownload} />
+                        </span>
+
+                        <DownloadOutlined onClick={() => handelDownload(fromIntex.dealName)} />
                     </div>
 
                     <MetaRow label="Uploaded" value={fromIntex.uploadedAt} />
@@ -219,6 +243,7 @@ export const RecetlyIngested = ({
             </div>
         );
     }
+
     // Success / from recent — loaded deal metadata
     if ((uploadState === 'success' || fromRecent) && loadedDeal) {
         return (
@@ -240,10 +265,17 @@ export const RecetlyIngested = ({
                 >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <CheckCircleFilled style={{ fontSize: 13, color: token.colorSuccess }} />
-                        <Text style={{ fontSize: 12, fontWeight: 700, color: token.colorSuccess }}>
+
+                        <span
+                            className={styles.packageLoadedText}
+                            style={{
+                                color: token.colorSuccess,
+                            }}
+                        >
                             CDI package loaded
-                        </Text>
+                        </span>
                     </div>
+
                     <CloseCircleOutlined
                         onClick={fromRecent ? handleClearRecent : reset}
                         style={{
@@ -253,6 +285,7 @@ export const RecetlyIngested = ({
                         }}
                     />
                 </div>
+
                 <div
                     style={{
                         borderRadius: token.borderRadius,
@@ -274,9 +307,16 @@ export const RecetlyIngested = ({
                         }}
                     >
                         <DatabaseOutlined style={{ fontSize: 13, color: token.colorSuccess }} />
-                        <Text style={{ fontSize: 13, fontWeight: 700, color: token.colorText }}>
+
+                        <span
+                            className={styles.successDealName}
+                            style={{
+                                color: token.colorText,
+                            }}
+                        >
                             {loadedDeal.dealName}
-                        </Text>
+                        </span>
+
                         <Tag
                             style={{
                                 fontSize: 9,
@@ -288,6 +328,7 @@ export const RecetlyIngested = ({
                             .{loadedDeal.sourceType}
                         </Tag>
                     </div>
+
                     <MetaRow label="Package path" value={loadedDeal.packagePath} mono />
                     <MetaRow label="Session ID" value={loadedDeal.sessionId} mono />
                     <MetaRow label="Uploaded" value={loadedDeal.uploadedAt} />
@@ -302,17 +343,16 @@ export const RecetlyIngested = ({
         <div className={styles.wrapper}>
             <div className={styles.items}>
                 <HistoryOutlined style={{ fontSize: 11, color: token.colorTextTertiary }} />
-                <Text
+
+                <span
+                    className={styles.sectionTitle}
                     style={{
-                        fontSize: 10,
-                        fontWeight: 700,
-                        letterSpacing: '0.07em',
-                        textTransform: 'uppercase',
                         color: token.colorTextTertiary,
                     }}
                 >
                     Recently ingested
-                </Text>
+                </span>
+
                 <Tooltip title="Deals previously loaded">
                     <span
                         style={{
@@ -325,10 +365,16 @@ export const RecetlyIngested = ({
                     </span>
                 </Tooltip>
             </div>
+
             {recentDeals.length === 0 ? (
-                <Text style={{ fontSize: 11, color: token.colorTextTertiary }}>
+                <span
+                    className={styles.emptyText}
+                    style={{
+                        color: token.colorTextTertiary,
+                    }}
+                >
                     No recently ingested deals found.
-                </Text>
+                </span>
             ) : (
                 <div
                     style={{
@@ -336,7 +382,8 @@ export const RecetlyIngested = ({
                         border: `1px solid ${token.colorBorderSecondary}`,
                         overflow: 'auto',
                         width: '100%',
-                        maxHeight: 200,
+                        flex: 1,
+                        minHeight: 0,
                     }}
                 >
                     {recentDeals.map((deal, idx) => (
@@ -354,12 +401,12 @@ export const RecetlyIngested = ({
                                 transition: 'background 0.1s',
                             }}
                             onMouseEnter={(e) =>
-                                ((e.currentTarget as HTMLElement).style.background =
-                                    token.colorPrimaryBg)
+                            ((e.currentTarget as HTMLElement).style.background =
+                                token.colorPrimaryBg)
                             }
                             onMouseLeave={(e) =>
-                                ((e.currentTarget as HTMLElement).style.background =
-                                    idx % 2 === 0 ? token.colorBgContainer : token.colorFillAlter)
+                            ((e.currentTarget as HTMLElement).style.background =
+                                idx % 2 === 0 ? token.colorBgContainer : token.colorFillAlter)
                             }
                         >
                             <DatabaseOutlined
@@ -369,19 +416,29 @@ export const RecetlyIngested = ({
                                     flexShrink: 0,
                                 }}
                             />
+
                             <div style={{ flex: 1, minWidth: 0 }}>
-                                <Text
+                                <span
                                     className={styles.name}
                                     style={{
                                         color: token.colorText,
                                     }}
                                 >
                                     {deal.dealName}
-                                </Text>
-                                <Text style={{ fontSize: 10, color: token.colorTextTertiary }}>
-                                    {deal.uploadedAt} · {deal.uploadedBy}
-                                </Text>
+                                </span>
+
+                                <span
+                                    className={styles.recentDealMeta}
+                                    style={{
+                                        color: token.colorTextTertiary,
+                                    }}
+                                >
+                                    {new Date(deal.uploadedAt).toLocaleDateString()} ·{' '}
+                                    {new Date(deal.uploadedAt).toLocaleTimeString()} ·{' '}
+                                    {deal.uploadedBy}
+                                </span>
                             </div>
+
                             <div
                                 style={{
                                     display: 'flex',
@@ -391,13 +448,43 @@ export const RecetlyIngested = ({
                                 }}
                             >
                                 <Tag className={styles.tag}>.{deal.sourceType}</Tag>
-                                <Button
-                                    onClick={handleDelete(deal.dealName)}
-                                    className={styles.delete}
-                                    size="small"
-                                    danger
-                                    icon={<CloseOutlined />}
-                                />
+
+                                <Dropdown
+                                    menu={{
+                                        items: [
+                                            {
+                                                key: 'download',
+                                                label: 'Download',
+                                                icon: <DownloadOutlined style={{ fontSize: 12 }} />,
+                                                onClick: (e) => {
+                                                    e.domEvent.stopPropagation();
+                                                    handelDownload(deal.dealName);
+                                                },
+                                            },
+                                            {
+                                                type: 'divider',
+                                            },
+                                            {
+                                                key: 'delete',
+                                                label: 'Delete',
+                                                icon: <CloseCircleOutlined style={{ fontSize: 12 }} />,
+                                                danger: true,
+                                                onClick: (e) => {
+                                                    e.domEvent.stopPropagation();
+                                                    handleDelete(deal.dealName);
+                                                },
+                                            },
+                                        ],
+                                    }}
+                                    trigger={['click']}
+                                >
+                                    <Button
+                                        onClick={(e) => e.stopPropagation()}
+                                        className={styles.delete}
+                                        size="small"
+                                        icon={<MoreOutlined />}
+                                    />
+                                </Dropdown>
                             </div>
                         </div>
                     ))}

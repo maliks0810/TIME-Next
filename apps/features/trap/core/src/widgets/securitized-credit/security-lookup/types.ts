@@ -17,4 +17,4 @@ export type RecentSearch = {
     collateralType: string;
     context: Record<string, string>;
 };
-export type SearchType = 'CUSIP' | 'ISIN' | 'TICKER' | 'NAME';
+export type SearchType = 'CUSIP' | 'ISIN' | 'TICKER' | 'FIGI';
