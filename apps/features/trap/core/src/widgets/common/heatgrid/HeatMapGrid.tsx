@@ -3,18 +3,20 @@ import { CaretRightOutlined } from '@ant-design/icons';
 import {
     DEFAULT_MISSING_COLOR,
     DEFAULT_OUTLIER_COLOR,
-    buildHeatScales,
-    flattenVisibleRows,
-    heatRgba,
-    readableText,
-    renderColumns,
-    strengthRgba,
     type ColumnDef,
     type ColumnNode,
     type GridRow,
 } from './types';
 import './heatgrid.scss';
 import { buildHeaderModel, fmt } from './utils';
+import {
+    renderColumns,
+    flattenVisibleRows,
+    buildHeatScales,
+    readableText,
+    strengthRgba,
+    heatRgba,
+} from './helpers';
 
 /**
  * Heat Map Grid renderer: virtualized tree rows, N-tier stacked headers,
