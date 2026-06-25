@@ -100,6 +100,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     setUploadingFile,
     setFileUploadError,
     setAttachments,
+    updateIdentifierFields
   } = useSecuritySetupStore();
 
   // Store state via selectors
@@ -148,6 +149,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const getAllWizardData = (): Record<string, unknown> => {
     const s = useSecuritySetupStore.getState();
     return {
+      externalSecuritySetupRequestId: s.externalSecuritySetupRequestId,
       identifierType: s.identifierType,
       identifierValue: s.identifierValue,
       marketSector: s.marketSector,
@@ -245,7 +247,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           !isValidString(callableValue) ||
           !isValidLoanCategory(loanCategoryValue) ||
           !isValidNotes(sectorValue, notes) ||
-          !isValidCallDate(callableValue, callDate) ||
+          !isValidCallDate(sectorValue, callableValue, callDate) ||
           !isRPLStringFieldValid(sectorValue, prepaymentTypeValue) ||
           !isRPLStringFieldValid(sectorValue, defaultTypeValue) ||
           !isRPLNumberFieldValid(sectorValue, prepaymentSpeed) ||
@@ -285,7 +287,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         sectorValue: !isValidString(sectorValue),
         price: !isValidPrice(price),
         callableValue: !isValidString(callableValue),
-        callDate: !isValidCallDate(callableValue, callDate),
+        callDate: !isValidCallDate(sectorValue, callableValue, callDate),
         notes: !isValidNotes(sectorValue, notes),
         loanCategoryValue: !isValidLoanCategory(loanCategoryValue),
         prepaymentTypeValue: !isRPLStringFieldValid(sectorValue, prepaymentTypeValue),
@@ -376,6 +378,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       if (!savedData) return;
 
       if (savedData instanceof Error) {
+        updateIdentifierFields({ isSsapReleasedByDm: false });
         if (savedData instanceof ApiResponseError) {
           setErrorModalBody(savedData.message);
           setShowErrorModal(true);
@@ -599,8 +602,13 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
           <SSAPApprovalPage
             onProceedToReview={handleNext}
             isSaving={saveStatus === "saving" || saveStatus === "saved"}
+            hasSaveError={saveStatus === "error"}
             onBack={() => {
               resetUploadState();
+              const released = useSecuritySetupStore?.getState()?.isSsapReleasedByDm;
+              if (released && saveStatus !== "error") {
+                setReadOnly(true);
+              }
               goToStep("enter-identifier");
             }}
           />
