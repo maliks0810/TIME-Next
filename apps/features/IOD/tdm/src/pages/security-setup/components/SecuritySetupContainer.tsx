@@ -100,6 +100,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     setUploadingFile,
     setFileUploadError,
     setAttachments,
+    updateIdentifierFields
   } = useSecuritySetupStore();
 
   // Store state via selectors
@@ -377,6 +378,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       if (!savedData) return;
 
       if (savedData instanceof Error) {
+        updateIdentifierFields({ isSsapReleasedByDm: false });
         if (savedData instanceof ApiResponseError) {
           setErrorModalBody(savedData.message);
           setShowErrorModal(true);
