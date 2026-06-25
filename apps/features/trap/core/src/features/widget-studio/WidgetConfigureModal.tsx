@@ -40,9 +40,9 @@ export const WidgetConfigureModal = ({
 
     const supportsCusip = (listensToKeys ?? []).includes('security.cusip');
 
-    const [params, setParams] = useState<Record<string, PropertyValue>>(
-        () => instance.config?.params || {}
-    );
+    const [params, setParams] = useState<Record<string, PropertyValue>>(() => {
+        return { ...instance.config?.params };
+    });
     const context = useGetAllContext({
         channelId: config.params?.channel,
     });

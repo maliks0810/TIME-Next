@@ -21,6 +21,7 @@ import {
     safeJsonParse,
     uid,
 } from '../utils/workflowDesigner.utils';
+import { createDefaultConfigFromDefinition } from '../../widget-studio/helpers/helpers';
 
 export function useWorkflowDesigner() {
     const nav = useNavigate();
@@ -180,8 +181,10 @@ export function useWorkflowDesigner() {
         // Logic to change the widget based on category change
         // If previously selected widget is present in changed category, then keep the existing widget selection.
         // If previously selected widget is not present in changed category, then select the first widget. Also clear the variant & params.
-        let isWidgetPresentInCategory = filteredWidgetDefs.some(widget => widget.id === selectedWidgetDefId);
-        if(!isWidgetPresentInCategory) {
+        const isWidgetPresentInCategory = filteredWidgetDefs.some(
+            (widget) => widget.id === selectedWidgetDefId
+        );
+        if (!isWidgetPresentInCategory) {
             setSelectedWidgetDefId(filteredWidgetDefs?.[0]?.id);
             setSelectedWidgetVariantId(undefined);
             setSelectedWidgetParams({});
@@ -322,6 +325,9 @@ export function useWorkflowDesigner() {
 
         const params = getParams();
 
+        const fromDefintionDefault = createDefaultConfigFromDefinition(
+            selectedWidgetDef.configSchema.properties
+        );
         const gridMeta = variant?.grid;
         const w = gridMeta?.defaultW ?? 4;
         const h = gridMeta?.defaultH ?? 3;
@@ -350,7 +356,7 @@ export function useWorkflowDesigner() {
                 widgetDefinitionId: selectedWidgetDef.id,
                 widgetDefinitionVersion: (selectedWidgetDef as any).version ?? 1,
                 variantId: variant?.id,
-                config: { params },
+                config: { params: { ...fromDefintionDefault, ...params } },
             },
         }));
 

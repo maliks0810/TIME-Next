@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { RefObject, useMemo, useRef } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
 import {
     DEFAULT_MISSING_COLOR,
@@ -53,6 +53,7 @@ interface Props {
     showNameHeader?: boolean;
     /** Show the per-cell hover tooltip. Default true. */
     showTooltip?: boolean;
+    widgetRef?: RefObject<HTMLDivElement | null>;
 }
 
 export default function HeatMapGrid({
@@ -69,8 +70,8 @@ export default function HeatMapGrid({
     gridLines = true,
     showNameHeader = true,
     showTooltip = true,
+    widgetRef,
 }: Props) {
-    const tableRef = useRef<HTMLTableElement | null>(null);
     const renderCols = useMemo(() => renderColumns(columns), [columns]);
     const header = useMemo(() => buildHeaderModel(renderCols), [renderCols]);
     const { depth, leaves, boundaries } = header;
@@ -142,10 +143,9 @@ export default function HeatMapGrid({
             parts.push(`<div class="hg-tip-flag">Outlier · excluded from scaling</div>`);
         tip.innerHTML = parts.join('');
 
-        const widgetOffset = tableRef.current?.getBoundingClientRect();
-        tip.style.left = `${e.pageX - (widgetOffset?.x || 0 + 124)}px`;
-        tip.style.top = `${e.pageY - (widgetOffset?.y || 0) + 84}px`;
-
+        const widgetOffset = widgetRef?.current?.getBoundingClientRect() || { left: 0, top: 0 };
+        tip.style.left = `${e.clientX - (widgetOffset?.left || 0 + 124)}px`;
+        tip.style.top = `${e.clientY - (widgetOffset?.top || 0) + 40}px`;
         tip.classList.add('show');
     };
     const onCellLeave = () => tipRef.current?.classList.remove('show');
@@ -234,7 +234,6 @@ export default function HeatMapGrid({
                 style={{ minWidth, '--hdr-h': `${headerH}px` } as React.CSSProperties}
                 onMouseOver={onCellOver}
                 onMouseLeave={onCellLeave}
-                ref={tableRef}
             >
                 <colgroup>
                     {/* The name/tree column flexes to absorb spare width; value columns keep a
