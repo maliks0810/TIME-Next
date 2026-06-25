@@ -156,8 +156,9 @@ export default function HeatGridWidgetBase({
     const toggleDrawer = () => {
         setDrawerOpen((prev) => !prev);
     };
+    console.log('render', widgetRef);
     return (
-        <div className={`widget ${className}`}>
+        <div className={`widget ${className}`} ref={widgetRef}>
             <TitleBar
                 foundation={foundation}
                 exporting={exporting}

@@ -55,13 +55,13 @@
                 "category": "View Parameters"
             },
             "showExpand": {
-                "title": "Open every group",
+                "title": "Show expand all button",
                 "type": "boolean",
                 "default": true,
                 "category": "View Parameters"
             },
             "showCollapse": {
-                "title": "Close every group",
+                "title": "Show collapse all button",
                 "type": "boolean",
                 "default": true,
                 "category": "View Parameters"
