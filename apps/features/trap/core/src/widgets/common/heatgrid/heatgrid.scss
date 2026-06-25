@@ -109,7 +109,7 @@
 
 .hg-table tr.group.depth-0 th,
 .hg-table tr.group.depth-0 td {
-    background-color: var(--depth0-bg);
+    background-color: color-mix(in srgb, var(--ant-color-text) 6%, var(--ant-color-bg-container));
     border-bottom-color: var(--ant-color-border-secondary-strong);
 }
 
