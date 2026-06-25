@@ -17,6 +17,7 @@ import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
 import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
 import '../lib/dashboard.scss';
 import { DataGridRef } from 'devextreme-react/cjs/data-grid';
+import { useReferenceData } from '../../../pages/security-setup/hooks/useReferenceData';
 
 const Dashboard: React.FC = () => {
   const [isRequestDetailsOpen, setIsRequestDetailsOpen] = useState(false);
@@ -33,6 +34,10 @@ const Dashboard: React.FC = () => {
   const isPageVisible = useVisibilityChange();
   const navigate = useNavigate();
   const dashboardGridRef = useRef<DataGridRef<IDashboardSecuritySetupRequest, number>>(null);
+
+  // Server state hooks — stay as hooks, not in Zustand
+  const { data: referenceData } =
+    useReferenceData();
 
   // poll data when page is visible
   useEffect(() => {
@@ -360,6 +365,7 @@ const Dashboard: React.FC = () => {
           <DashboardRequestDetails
             securityRequest={selectedSecurityRequest}
             setIsRequestDetailsOpen={setIsRequestDetailsOpen}
+            referenceData={referenceData}
           />
         </Drawer>
       </>
