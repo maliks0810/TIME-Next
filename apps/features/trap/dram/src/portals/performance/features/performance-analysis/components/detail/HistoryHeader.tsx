@@ -198,7 +198,7 @@ const containerRef = useRef<HTMLDivElement | null>(null);
             onClick={handleSaveClick}
           />
 
-          <Button
+          <Button text="See All Notes"
             icon={showHistoryInline ? "chevronup" : "more"}
             stylingMode="text"
             onClick={handleHistoricalNotes}

@@ -143,16 +143,6 @@ export const DramGridProvider: React.FC<Props> = ({
         ),
       };
 
-      const sameOrder = prev.order.join("|") === nextOrder.join("|");
-      const sameVisibility =
-        JSON.stringify(prev.visibility) === JSON.stringify(nextVisibility);
-      const sameWidths =
-        JSON.stringify(prev.widths) === JSON.stringify(nextWidths);
-
-      if (sameOrder && sameVisibility && sameWidths) {
-        return prev;
-      }
-
       return {
         order: nextOrder,
         visibility: nextVisibility,

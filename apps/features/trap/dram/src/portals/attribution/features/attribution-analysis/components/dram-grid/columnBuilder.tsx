@@ -112,6 +112,7 @@ export const normalizeColumns = (
       width,
       minWidth: getMinWidth(col.format, col.frozen),
       serverIndex: index,
+      metricType: col.metricType ?? ""
     };
   });
 
@@ -200,6 +201,13 @@ const buildGroupBuckets = (
    3. Build AntD Columns
    ========================================================= */
 
+const getQuintile = (text: unknown): number | null => {
+  if (typeof text !== "string") return null;
+
+  const match = text.match(/^Q([1-5]):/i);
+  return match ? Number(match[1]) : null;
+};
+
 export const buildColumns = ({
   columns,
 }: {
@@ -211,9 +219,11 @@ export const buildColumns = ({
   const nonFrozenColumns = visible.filter((c) => !c.frozen);
 
   const isTotalRow = (record: AttributionRow): boolean => {
-    return record.SecurityGroup === "Total";
+    return record.SecurityGroup === "Total" || record.SecurityName === "Total";
   };
-
+  const isQuintile = (record: AttributionRow) : boolean => {
+    return getQuintile(record.SecurityName) === null  ? false : true
+  };
   const buildLeaf = (
     col: NormalizedColumnConfig
   ): ColumnType<AttributionRow> => ({
@@ -228,12 +238,14 @@ export const buildColumns = ({
       record[col.accessor] !== prev[col.accessor],
 
     render: (value: PrimitiveCellValue, record: AttributionRow) => {
-      if (col.accessor === "SecurityGroup") {
+      if (col.accessor === "SecurityGroup" || col.accessor === "SecurityName") {
 
         if (isTotalRow(record)) {
           return <span><strong>{value}</strong></span>;
         }
-
+      if (col.accessor === "SecurityName" && isQuintile(record) === true){
+        return <span><strong>{value}</strong></span>;
+      }
         return (
           <span style={{ paddingLeft: 16 }}>
             {value}
@@ -350,4 +362,53 @@ export const extractAnalysisDatasets = (apiResp: AnalyticsResponse) => {
     main: aggregated?.rows ?? [],
     drilldown: buildRawTree(raw?.rows ?? []),
   };
+};
+
+export const getEffectiveColumns = (
+  config: GridConfigResponse,
+  configured: NormalizedColumnConfig[],
+  breakdown?: string
+): NormalizedColumnConfig[] => {
+  if (!config) return [];
+
+  const baseColumns =
+    configured.length > 0
+      ? configured
+      : normalizeColumns(config, {
+          order: config.columnConfigs.all.map((c) => c.id),
+          widths: {},
+          visibility: {},
+        });
+
+  const useSpecialMode =
+    breakdown === "MktCap" || breakdown === "PEfwd";
+
+  return baseColumns.map((col) => {
+    let next = col;
+
+    //  1. Force SecurityName visible
+    if (useSpecialMode && col.id === "SecurityName") {
+      next = {
+        ...next,
+        visible: true,
+      };
+    }
+  if (useSpecialMode && col.id === "SecurityGroup") {
+      next = {
+        ...next,
+        visible: false,
+      };
+    }
+    //  2. Apply BPS override
+    if (useSpecialMode) {
+      if (col.metricType !== "weight" && col.format === "percent") {
+        next = {
+          ...next,
+          format: "bps",
+        };
+      }
+    }
+
+    return next;
+  });
 };

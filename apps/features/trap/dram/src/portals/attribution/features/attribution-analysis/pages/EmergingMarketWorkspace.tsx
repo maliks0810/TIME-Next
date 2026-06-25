@@ -270,6 +270,7 @@ export default function EmergingMarketWorkspace() {
 		>
 		  <Card title={viewTitle}>
 			<DramDataGrid
+			   allColumns={initialColumns}
 			  config={gridConfig}
 			  rows={gridRows}
 			  height={500} storageKey={getKeyByAssetClass(assetType)}

@@ -267,6 +267,7 @@ export default function EquityResearchWorkspace() {
     >
       <Card title={viewTitle}>
       <DramDataGrid
+			   allColumns={initialColumns}
         config={gridConfig}
         rows={gridRows}
         height={500} storageKey={getKeyByAssetClass(assetType)}
