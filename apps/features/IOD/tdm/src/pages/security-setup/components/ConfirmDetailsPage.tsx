@@ -18,7 +18,6 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ referenc
     euSecuritizationStatus,
     euSecuritizationTipEuId,
     erisaStatus,
-    ssapIdPassword,
     securityDetails,
     esgFields,
     tradeFields,
@@ -97,24 +96,6 @@ export const ConfirmDetailsPage: React.FC<ConfirmDetailsPageProps> = ({ referenc
             />
           </div>
         </div>
-
-        {/* SSAP ID/Password Section */}
-        {ssapIdPassword && (
-          <div className="form-section">
-            <h3 className='section-title'>SSAP Credentials</h3>
-            <div className='form-row single-column'>
-              <div className='form-field'>
-                <label className="field-label">SSAP ID/Password</label>
-                <TextField
-                  fullWidth
-                  value={ssapIdPassword}
-                  disabled
-                  variant='outlined'
-                />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       <Divider flexItem style={{ marginBottom: '18px' }} />

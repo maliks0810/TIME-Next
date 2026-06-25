@@ -33,9 +33,17 @@ export const isValidLoanCategory = (loanCategoryValue: string | null | undefined
 };
 
 export const isValidCallDate = (
+  sectorValue: string | null | undefined,
   callableValue: string | null | undefined,
   dateValue: string | null | undefined,
 ): boolean => {
+  if (sectorValue === "RPL") {
+    if (isValidString(callableValue) && callableValue !== 'N' && callableValue !== 'C') {
+      return isValidString(dateValue);
+    }
+    return true;
+  }
+
   if (callableValue === "Y" && !isValidString(dateValue)) return false;
   return true;
 };

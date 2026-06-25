@@ -8,18 +8,20 @@ interface SSAPApprovalPageProps {
   onProceedToReview: () => void;
   onBack: () => void;
   isSaving?: boolean;
+  hasSaveError?: boolean;
 }
 
 export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
   onProceedToReview,
   onBack,
   isSaving,
+  hasSaveError
 }) => {
   const { isSsapReleasedByDm, isReadOnly } = useSsapFields();
   const { updateIdentifierFields } = useSecuritySetupStore();
   const hasDmRole = useHasDmRole();
 
-  const isSsapApproved = !!isSsapReleasedByDm;
+  const isSsapApproved = !!isSsapReleasedByDm && !hasSaveError;
 
   const handleRequestRelease = () => {
     updateIdentifierFields({ isSsapReleasedByDm: true });
