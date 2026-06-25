@@ -1,6 +1,21 @@
 .antd-dx-container {
     height: 100%;
 
+    .dx-datagrid-export-button .dx-icon-xlsxfile {
+        color: var(--ant-layout-light-trigger-color);
+    }
+    .dx-loadpanel-content {
+        background-color: var(--ant-color-bg-container);
+        border: none;
+        box-shadow: none;
+    }
+    .dx-loadpanel-message {
+        color: var(--ant-layout-light-trigger-color);
+    }
+    .dx-loadpanel-icon .dx-loadindicator-segment {
+        color: var(--ant-layout-light-trigger-color);
+    }
+
     .dx-widget,
     .dx-datagrid {
         /* ── Typography ── */

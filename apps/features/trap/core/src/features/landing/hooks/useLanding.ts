@@ -33,7 +33,6 @@ export function useLanding(props: LandingTabProps) {
     const hasLanding = Boolean(targetTemplateId && targetTemplateVersionId);
     const activeUser = useGetActiveUser();
     const [error, setError] = useState<string | null>(null);
-    console.log(info);
     const initLandingFromActive = (
         templates: TemplateSummary[],
         activeLandingSelection: LandingTabProps['activeLandingSelection']

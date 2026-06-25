@@ -1,0 +1,925 @@
+/* Heat Map Grid — self-contained styles. Scoped under .hg-table / .hg-panel
+   so changes here cannot affect the Performance Grid. */
+
+.hg-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    width: 100%;
+    font-size: 11px;
+}
+
+.hg-table th,
+.hg-table td {
+    padding: 0 12px;
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+    background-color: var(--ant-color-bg-container);
+    font-weight: inherit;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hg-table .num {
+    /* Right — numeric convention (decimals line up); the leaf header matches.
+     Only the spanning group header (.h-group) is centered over its span. */
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.hg-table .group-start {
+    border-left: 1px solid var(--ant-color-border-secondary);
+}
+
+/* header (cell tops/heights are set inline — stacked header is any depth) */
+
+.hg-table thead th {
+    position: sticky;
+    z-index: 5;
+    background-color: var(--ant-color-bg-container);
+}
+
+.hg-table .h-name {
+    top: 0;
+    z-index: 8 !important;
+    left: 0;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ant-color-text-secondary);
+    vertical-align: bottom;
+    padding-bottom: 7px !important;
+}
+
+.hg-table .h-group {
+    text-align: center !important;
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ant-color-text);
+}
+
+.hg-table .h-sub {
+    /* Right — matches the data below it. Only the spanning group header
+     (.h-group) is centered; a leaf header and its column share one alignment. */
+    text-align: right !important;
+    font-size: 9.5px;
+    font-weight: 550;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ant-color-text-tertiary);
+    box-shadow: inset 0 -1px 0 var(--ant-color-border-secondary-strong);
+    vertical-align: bottom;
+    padding-bottom: 6px !important;
+}
+
+/* body rows */
+
+.hg-table tbody th.cell-name {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    font-weight: inherit;
+}
+
+.hg-table .cell-name .label {
+    vertical-align: middle;
+}
+
+.hg-table tr.row {
+    height: 28px;
+}
+
+.hg-table tr.row th,
+.hg-table tr.row td {
+    height: 28px;
+}
+
+.hg-table tr.group {
+    cursor: pointer;
+    user-select: none;
+}
+
+.hg-table tr.group .label {
+    font-weight: 600;
+}
+
+.hg-table tr.group.depth-0 th,
+.hg-table tr.group.depth-0 td {
+    background-color: var(--depth0-bg);
+    border-bottom-color: var(--ant-color-border-secondary-strong);
+}
+
+.hg-table tr.group.depth-0 .label {
+    font-weight: 650;
+    letter-spacing: 0.01em;
+}
+
+.hg-table tr.leaf th,
+.hg-table tr.leaf td {
+    color: var(--ant-color-text-secondary);
+    font-size: 10.5px;
+}
+
+.hg-table tr.vpad td {
+    padding: 0;
+    border-bottom: none;
+}
+
+.hg-table tr.row:hover th,
+.hg-table tr.row:hover td {
+    background-image: linear-gradient(
+        var(--ant-color-fill-quaternary),
+        var(--ant-color-fill-quaternary)
+    );
+}
+
+.hg-table .chev {
+    font-size: 8px;
+    color: var(--ant-color-text-tertiary);
+    margin-right: 9px;
+    transition: transform 0.16s ease;
+    vertical-align: middle;
+}
+
+.hg-table .chev.open {
+    transform: rotate(90deg);
+}
+
+.hg-table tr.group:hover .chev {
+    color: var(--ant-color-primary);
+}
+
+.hg-table .chev-spacer {
+    display: inline-block;
+    width: 18px;
+}
+
+.hg-table .count {
+    margin-left: 8px;
+    font-size: 9px;
+    font-weight: 550;
+    color: var(--ant-color-text-tertiary);
+    background: var(--ant-color-fill-quaternary);
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: 999px;
+    padding: 1px 6px;
+    vertical-align: middle;
+    font-variant-numeric: tabular-nums;
+}
+
+/* total row pinned under the header */
+
+.hg-table tr.row-total th,
+.hg-table tr.row-total td {
+    position: sticky;
+    top: var(--hdr-h, 56px);
+    z-index: 4;
+    background-color: color-mix(in srgb, var(--ant-color-text) 9%, var(--ant-color-bg-container));
+    border-bottom: 1px solid var(--ant-color-border-secondary-strong);
+    font-weight: 650;
+    height: 32px;
+}
+
+.hg-table tr.row-total th.cell-name {
+    z-index: 6;
+    box-shadow: inset 2px 0 0 var(--ant-color-primary);
+}
+
+/* values */
+
+.hg-table .neg-val {
+    color: var(--neg);
+}
+
+.hg-table .row-empty td {
+    text-align: center;
+    color: var(--ant-color-text-tertiary);
+    padding: 48px 0;
+    font-size: 11.5px;
+}
+
+/* ---------- settings panel ---------- */
+
+.hg-panel .sec-title {
+    font-size: 10px;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--ant-color-text-secondary);
+    margin: 26px 0 10px;
+}
+
+.hg-panel .sec-title.first {
+    margin-top: 0;
+}
+
+/* Major drawer block header — a ant-color-border-secondary rule + bolder cap delineates the
+   Rows / Quarter / Columns / Color blocks so the panel reads as sections. */
+.hg-panel .ds-sec {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ant-color-text-secondary);
+    margin: 22px 0 12px;
+    padding-top: 18px;
+    border-top: 1px solid var(--ant-color-border-secondary-strong);
+}
+
+.hg-panel .ds-sec.first {
+    margin-top: 2px;
+    padding-top: 0;
+    border-top: none;
+}
+
+.hg-panel .sec-caption {
+    font-size: 10.5px;
+    color: var(--ant-color-text-tertiary);
+    margin: -4px 0 12px;
+}
+
+.hg-panel .tpl-footer .sec-title {
+    margin: 0 0 8px;
+}
+
+.hg-panel .tpl-footer .sec-caption {
+    margin: 0 0 10px;
+}
+
+.hg-panel .level-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 8px 7px 10px;
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: 8px;
+    background: var(--ant-color-fill-tertiary);
+    margin-bottom: 8px;
+    position: relative;
+    touch-action: none;
+}
+
+.hg-panel .level-item.dragging {
+    z-index: 10;
+    border-color: var(--ant-color-primary);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.hg-panel .level-handle {
+    cursor: grab;
+    color: var(--ant-color-text-tertiary);
+    display: flex;
+    align-items: center;
+}
+
+.hg-panel .level-handle:active {
+    cursor: grabbing;
+}
+
+.hg-panel .level-index {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--ant-color-fill-quaternary);
+    border: 1px solid var(--ant-color-border-secondary);
+    color: var(--ant-color-text-secondary);
+    font-size: 9.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    font-variant-numeric: tabular-nums;
+}
+
+.hg-panel .level-label {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 550;
+}
+
+.hg-panel .level-remove {
+    color: var(--ant-color-text-tertiary) !important;
+}
+
+.hg-panel .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 9px 2px;
+}
+
+.hg-panel .toggle-title {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.hg-panel .toggle-sub {
+    font-size: 10.5px;
+    color: var(--ant-color-text-tertiary);
+    margin-top: 1px;
+}
+
+/* ---------- column tree (consolidated into the display-settings panel) ---------- */
+
+.hg-panel .hg-col-search {
+    margin: 2px 0 8px;
+}
+
+/* Bounded, contained list — groups collapse by default, so this stays compact
+   even with 100 columns, and scrolls inside the box rather than the drawer. */
+.hg-panel .hg-cols-box {
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: 8px;
+    background: var(--ant-color-fill-tertiary);
+    max-height: 264px;
+    overflow-y: auto;
+    padding: 5px 4px;
+}
+
+.hg-panel .hg-col-tree {
+    background: transparent;
+}
+
+/* full-width rounded row hover — we own it, so neutralize antd's label-only one */
+.hg-panel .hg-col-tree .ant-tree-treenode {
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.12s ease;
+}
+
+.hg-panel .hg-col-tree .ant-tree-treenode:hover {
+    background: var(--ant-color-fill-quaternary);
+}
+
+/* dim fully-off rows so on/off reads at a glance */
+.hg-panel
+    .hg-col-tree
+    .ant-tree-treenode:has(
+        .ant-tree-checkbox:not(.ant-tree-checkbox-checked):not(.ant-tree-checkbox-indeterminate)
+    )
+    .ant-tree-title {
+    opacity: 0.45;
+}
+
+.hg-panel .hg-col-tree .ant-tree-node-content-wrapper,
+.hg-panel .hg-col-tree .ant-tree-node-content-wrapper:hover {
+    font-size: 12px;
+    background: transparent;
+}
+
+.hg-panel .hg-col-tree .ant-tree-switcher {
+    color: var(--ant-color-text-tertiary);
+}
+
+.hg-panel .hg-col-tree .ant-tree-switcher:hover {
+    color: var(--ant-color-primary);
+}
+
+/* checkbox — bigger, rounded, strong outline when off (not the stock antd box) */
+.hg-panel .hg-col-tree .ant-tree-checkbox {
+    align-self: center;
+    inset-block-start: 0;
+}
+
+.hg-panel .hg-col-tree .ant-tree-checkbox-inner {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    border: 2px solid var(--ant-color-text-tertiary);
+    background: transparent;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.hg-panel .hg-col-tree .ant-tree-checkbox:hover .ant-tree-checkbox-inner,
+.hg-panel .hg-col-tree .ant-tree-treenode:hover .ant-tree-checkbox-inner {
+    border-color: var(--ant-color-primary);
+}
+
+/* checked → accent fill + a custom bold white check; antd's thin check hidden */
+.hg-panel .hg-col-tree .ant-tree-checkbox-checked .ant-tree-checkbox-inner {
+    background-color: var(--ant-color-primary);
+    border-color: var(--ant-color-primary);
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M5%2013l4%204%2010-11'%20fill='none'%20stroke='%23ffffff'%20stroke-width='3'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 13px;
+}
+
+.hg-panel .hg-col-tree .ant-tree-checkbox-checked .ant-tree-checkbox-inner::after {
+    display: none;
+}
+
+/* partial group → an accent dash, not antd's grey square */
+.hg-panel .hg-col-tree .ant-tree-checkbox-indeterminate .ant-tree-checkbox-inner {
+    border-color: var(--ant-color-primary);
+}
+
+.hg-panel .hg-col-tree .ant-tree-checkbox-indeterminate .ant-tree-checkbox-inner::after {
+    width: 10px;
+    height: 2.5px;
+    border-radius: 2px;
+    background: var(--ant-color-primary);
+}
+
+/* drop antd's check-pulse border effect (reads cheap) */
+.hg-panel .hg-col-tree .ant-tree-checkbox-checked::after {
+    display: none;
+}
+
+.hg-panel .hg-col-row {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding-right: 8px;
+}
+
+.hg-panel .hg-col-grp {
+    font-weight: 650;
+    color: var(--ant-color-text);
+}
+
+.hg-panel .hg-col-leaf {
+    font-weight: 500;
+}
+
+.hg-panel .hg-col-count {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--ant-color-text-tertiary);
+    font-variant-numeric: tabular-nums;
+    background: var(--ant-color-fill-quaternary);
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: 999px;
+    padding: 0 6px;
+    line-height: 15px;
+    flex: none;
+}
+
+.hg-panel .hg-col-count.partial {
+    color: var(--ant-color-primary);
+    border-color: color-mix(in srgb, var(--ant-color-primary) 45%, transparent);
+}
+
+.hg-panel .hg-cols-empty {
+    font-size: 11px;
+    color: var(--ant-color-text-tertiary);
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* self-contained scrollbar for the column box (SPLIT — no shared index.css) */
+.hg-cols-box::-webkit-scrollbar {
+    width: 11px;
+}
+
+.hg-cols-box::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.hg-cols-box::-webkit-scrollbar-thumb {
+    background-color: var(--sb-thumb);
+    border-radius: 8px;
+    background-clip: padding-box;
+    border: 3px solid transparent;
+}
+
+.hg-cols-box::-webkit-scrollbar-thumb:hover {
+    background-color: var(--sb-thumb-hover);
+    border-width: 2px;
+}
+
+/* ---------- templates footer ---------- */
+
+.hg-panel .tpl-list {
+    max-height: 152px;
+    overflow-y: auto;
+    margin-bottom: 4px;
+}
+
+.hg-panel .tpl-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.hg-panel .tpl-apply {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border: 1px solid var(--ant-color-border-secondary);
+    background: var(--ant-color-fill-tertiary);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 550;
+    color: var(--ant-color-text);
+    cursor: pointer;
+    text-align: left;
+    min-width: 0;
+}
+
+.hg-panel .tpl-apply:hover {
+    border-color: var(--ant-color-border-secondary-strong);
+}
+
+.hg-panel .tpl-row.active .tpl-apply {
+    border-color: color-mix(in srgb, var(--ant-color-primary) 55%, transparent);
+    background: color-mix(in srgb, var(--ant-color-primary) 9%, transparent);
+}
+
+.hg-panel .tpl-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hg-panel .tpl-state {
+    font-size: 9.5px;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ant-color-primary);
+    flex: none;
+}
+
+.hg-panel .tpl-state.dirty {
+    color: var(--ant-color-text-tertiary);
+}
+
+.hg-panel .tpl-save {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+/* axisGroup chips — same look & feel as the Performance Grid's period chips. */
+.hg-panel .pg-block {
+    margin-bottom: 12px;
+}
+
+.hg-panel .pg-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--ant-color-text-secondary);
+    margin-bottom: 7px;
+}
+
+.hg-panel .freq-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.hg-panel .freq-chip {
+    height: 28px;
+    border-radius: 7px;
+    border: 1px solid var(--ant-color-border-secondary);
+    background: var(--ant-color-fill-tertiary);
+    color: var(--ant-color-text-secondary);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        border-color 0.12s ease,
+        background 0.12s ease,
+        color 0.12s ease;
+}
+
+.hg-panel .freq-chip:not(.on):hover {
+    border-color: var(--ant-color-border-secondary-strong);
+    color: var(--ant-color-text);
+}
+
+.hg-panel .freq-chip.on {
+    background: color-mix(in srgb, var(--ant-color-primary) 14%, transparent);
+    border-color: color-mix(in srgb, var(--ant-color-primary) 55%, transparent);
+    color: var(--ant-color-text);
+}
+
+.hg-panel .freq-chip:disabled {
+    cursor: default;
+    opacity: 0.85;
+}
+
+/* Foundation → "Grid lines" off: neutralize every ant-color-border-secondary so only the data
+   remains (cell row separators, group-start verticals, header underline,
+   depth-0 dividers, total-row rule). Pin shadows / accent insets are not lines. */
+.hg-table.no-lines th,
+.hg-table.no-lines td {
+    border-bottom-color: transparent;
+}
+
+.hg-table.no-lines .group-start {
+    border-left-color: transparent;
+}
+
+.hg-table.no-lines .h-sub {
+    box-shadow: none;
+}
+
+.hg-table.no-lines tr.group.depth-0 th,
+.hg-table.no-lines tr.group.depth-0 td,
+.hg-table.no-lines tr.row-total th,
+.hg-table.no-lines tr.row-total td {
+    border-bottom-color: transparent;
+}
+
+/* Data-integrity cell states (missing → black, outlier → gray) are colored
+   inline from the heat spec — see HeatMapGrid / DEFAULT_*_COLOR — so the colors
+   stay configurable (source default → user override) rather than hardcoded. */
+
+/* ---------- delegated cell tooltip ---------- */
+
+.hg-tip {
+    position: absolute;
+    z-index: 1000;
+    max-width: 232px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--ant-color-bg-elevated, #1f2430);
+    color: var(--ant-color-text, #e8e8e8);
+    border: 1px solid var(--ant-color-border-secondary);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.28);
+    font-size: 11px;
+    line-height: 1.5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+.hg-tip.show {
+    opacity: 1;
+}
+
+.hg-tip-series {
+    font-weight: 650;
+    font-size: 11.5px;
+}
+
+.hg-tip-period {
+    color: var(--ant-color-text-tertiary);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.hg-tip-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.hg-tip-line span {
+    color: var(--ant-color-text-tertiary);
+}
+
+.hg-tip-note {
+    margin-top: 4px;
+    color: var(--ant-color-text-secondary);
+}
+
+.hg-tip-flag {
+    margin-top: 5px;
+    color: var(--neg);
+    font-weight: 600;
+    font-size: 10px;
+}
+
+/* ---------- spectrum legend ---------- */
+
+.hg-spectrum {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 10px;
+    color: var(--ant-color-text-tertiary);
+    white-space: nowrap;
+}
+
+.hg-spec-label {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.hg-spec-bar {
+    width: 88px;
+    height: 9px;
+    border-radius: 999px;
+    border: 1px solid var(--ant-color-border-secondary);
+}
+
+.hg-spec-sw {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 4px;
+}
+
+.hg-spec-sw i {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    border: 1px solid var(--ant-color-border-secondary);
+}
+
+/* ---------- Color spectrum picker block (display settings) ---------- */
+
+.hg-panel .ds-color {
+    margin-bottom: 2px;
+}
+
+.hg-panel .ds-color-pair {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0 8px;
+    font-size: 11px;
+    color: var(--ant-color-text-tertiary);
+}
+
+.wg-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 40px;
+    padding: 0 8px 0 12px;
+    background: var(--ant-color-bg-container);
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+    flex: none;
+}
+
+.wg-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+/* Dynamic grid title: "{Portfolio} vs {Benchmark}" */
+
+.wg-title-context {
+    min-width: 0;
+    flex: 1;
+}
+
+.wg-title-port {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: none;
+    max-width: 42%;
+}
+
+.wg-title-vs {
+    font-size: 9.5px;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ant-color-text-tertiary);
+    flex: none;
+    padding: 0 1px;
+}
+
+.wg-title-bench {
+    font-weight: 500;
+    color: var(--ant-color-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.brand-mark {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--ant-color-primary) 16%, transparent);
+    color: var(--ant-color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+}
+
+.wg-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wg-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    row-gap: 6px;
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+    background: var(--ant-color-bg-container);
+    flex: none;
+}
+
+.wg-spacer {
+    flex: 1;
+}
+
+.widget {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+    background: var(--ant-color-bg-container);
+    border: 1px solid var(--ant-color-border);
+    border-radius: 10px;
+    overflow: hidden;
+
+    .grid-area {
+        overflow: auto;
+    }
+}
+
+.ws-canvas.designing .widget {
+    border-style: dashed;
+    border-color: color-mix(in srgb, var(--ant-color-primary) 50%, var(--ant-color-border));
+}
+.settings-wrapper {
+    max-height: 80vh;
+    overflow: auto;
+    padding-right: 2px;
+}
+
+.group-path {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    border: none;
+    background: none;
+    padding: 4px 6px;
+    margin-left: -6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+}
+
+.group-path:hover {
+    background: var(--hover);
+}
+
+.path-seg {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.path-sep {
+    color: var(--text-3);
+    margin: 0 4px;
+    font-size: 11px;
+}
+
+.path-chip {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-2);
+    background: var(--panel-2);
+    border: 1px solid var(--hairline);
+    border-radius: 5px;
+    padding: 2px 8px;
+}
+
+.path-chip.muted {
+    color: var(--text-3);
+    font-weight: 500;
+    background: transparent;
+    border-style: dashed;
+}
+
+.path-empty {
+    font-size: 11px;
+    color: var(--text-3);
+    font-style: italic;
+}
