@@ -40,6 +40,7 @@ export interface ApiColumnConfig {
 
   order: number;
   format: ColumnFormat;
+  metricType?: string | null;
 }
 
 export interface MetricConfig {
@@ -148,6 +149,7 @@ export interface NormalizedColumnConfig {
   width: number;
   minWidth: number;
   serverIndex: number;
+  metricType: string;
 }
 
 export interface SinglePeriodAttributionRow {

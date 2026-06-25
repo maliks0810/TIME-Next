@@ -34,8 +34,8 @@ import {
 import {
   DramDataGrid,
   DramGridProvider,
+  getEffectiveColumns,
   GridConfigResponse,
-  normalizeColumns,
   NormalizedColumnConfig,
 } from "../../components/dram-grid";
 import { getKeyByAssetClass } from "../../components/WizardStateStore";
@@ -120,7 +120,7 @@ const toRowId = (
   idx: number,
   row: Record<string, unknown>
 ): string => {
-  const key = String(row["SecurityGroup"] ?? row["id"] ?? idx);
+  const key = String(row["SecurityGroup"] ?? row["SecurityName"] ?? row["id"] ?? idx);
   return `${period}-${key}-${idx}`;
 };
 
@@ -140,36 +140,6 @@ const extractRowsByPeriod = (resp: ResponseWithPeriodGrids): PeriodGridMap => {
   }, {});
 };
 
-const projectRowsToConfiguredColumns = (
-  rows: AnalyticResultRow[],
-  config: GridConfigResponse,
-  configured: NormalizedColumnConfig[]
-): AnalyticResultRow[] => {
-  const activeColumns =
-    configured.length > 0
-      ? configured
-      : normalizeColumns(config, {
-          order: config.columnConfigs.all.map((c) => c.id),
-          widths: {},
-          visibility: {},
-        });
-
-  const visibleColumnIds = activeColumns
-    .filter((c) => c.visible !== false)
-    .map((c) => c.id);
-
-  return rows.map((row, idx) => {
-    const next: Record<string, unknown> = {
-      id: row["id"] ?? idx,
-    };
-
-    for (const key of visibleColumnIds) {
-      next[key] = row[key];
-    }
-
-    return next as AnalyticResultRow;
-  });
-};
 
 function extractMetadata(resp: AnalyticsResponse) {
   const metadata = (resp as ResponseWithPeriodGrids).data?.metadata;
@@ -247,30 +217,32 @@ const [pendingPrint, setPendingPrint] = useState(false);
       setConfigDraftPortfolio(viewPortfolio);
     }
   }, [configOpen, viewPortfolio]);
-  const initialColumns = useMemo(() => {
-    if (!gridConfig) return [];
 
-    if (configuredColumns.length > 0) {
-      return configuredColumns;
-    }
+const effectiveColumns = useMemo(() => {
+  if (!gridConfig) return [];
 
-    return normalizeColumns(gridConfig, {
-      order: gridConfig.columnConfigs.all.map((c) => c.id),
-      widths: {},
-      visibility: {},
-    });
-  }, [gridConfig, configuredColumns]);
+  return getEffectiveColumns(
+    gridConfig,
+    configuredColumns,
+    viewBreakdown
+  );
+}, [gridConfig, configuredColumns, viewBreakdown]);
 
-  const gridRowsByPeriod = useMemo<PeriodGridMap>(() => {
-    if (!gridConfig) return {};
 
-    return Object.fromEntries(
-      Object.entries(rawRowsByPeriod).map(([period, rows]) => [
-        period,
-        projectRowsToConfiguredColumns(rows, gridConfig, configuredColumns),
-      ])
-    );
-  }, [rawRowsByPeriod, gridConfig, configuredColumns]);
+const gridRowsByPeriod = useMemo<PeriodGridMap>(() => {
+  return rawRowsByPeriod;
+}, [rawRowsByPeriod]);
+
+useEffect(() => {
+  console.log(
+    "EFFECTIVE COLUMNS",
+    effectiveColumns.map((c) => ({
+      id: c.id,
+      format: c.format,
+      metricType: c.metricType,
+    }))
+  );
+}, [effectiveColumns]);
 
   const periodKeys = useMemo(
     () => Object.keys(rawRowsByPeriod),
@@ -420,11 +392,13 @@ const compositeViewData = useMemo(() => {
     setRunningAnalysis(true);
 
     try {
-      const resp = (await api.runAnalysis(
+      const inputGrouping = input.breakdownModeId === "Type_2" ? encodeURIComponent("Type 2") : input.breakdownModeId;
+      const resp = input.breakdownModeId === 'MktCap' ? (await api.runMktCapAnalysis()) :
+      input.breakdownModeId === 'PEfwd' ? (await api.runPEfwdAnalysis()): (await api.runAnalysis(
         input.assetClass,
         input.portfolio,
         input.frequencyMode,
-        input.breakdownModeId || "GICS",
+        inputGrouping  || "GICS",
         input.startDate,
         input.endDate
       )) as ResponseWithPeriodGrids;
@@ -433,10 +407,10 @@ const compositeViewData = useMemo(() => {
       setPageTitle(meta.pageTitle);
       setValueDate(meta.valueDate);
 
-      const nextGridConfig = extractGridConfig(resp);
-      if (nextGridConfig) {
-        setGridConfig(nextGridConfig);
-      }
+      // const nextGridConfig = extractGridConfig(resp);
+      // if (nextGridConfig) {
+      //   setGridConfig(nextGridConfig);
+      // }
 
       const rowsByPeriod = extractRowsByPeriod(resp);
       setRawRowsByPeriod(rowsByPeriod);
@@ -814,6 +788,7 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
         >
 
 <AttributionSingleModeChart
+  breakdown={viewBreakdown}
   data={
     (rawRowsByPeriod[selectedPeriod] ?? []).filter(
       (r) =>
@@ -837,7 +812,7 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
         <DramGridProvider
           config={gridConfig}
           storageKey={`${storageKey}-${selectedPeriod}`}
-          allColumns={initialColumns}
+          allColumns={effectiveColumns}
         >
           <Card
             loading={runningAnalysis}
@@ -857,6 +832,7 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
               height={420}
               storageKey={`${storageKey}-${selectedPeriod}`}
               isConfigView={false}
+              allColumns={effectiveColumns}
             />
           </Card>
         </DramGridProvider>

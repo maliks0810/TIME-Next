@@ -11,7 +11,7 @@ import {
 import {
   DownloadOutlined,
 } from "@ant-design/icons";
-import type { GridConfigResponse, PrimitiveCellValue } from "./types";
+import type { GridConfigResponse, NormalizedColumnConfig, PrimitiveCellValue } from "./types";
 import {
   normalizeColumns,
   buildColumns,
@@ -29,6 +29,7 @@ interface DramDataGridProps {
   title?: string;
   storageKey?: string;
   isConfigView: boolean;
+  allColumns: NormalizedColumnConfig[];
 }
 
 const sanitizeFileName = (value: string): string =>
@@ -73,7 +74,7 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
   accessorOverrides,
   height = 600,
   title = "Analytics Grid",
-  // isConfigView,
+  allColumns
 }) => {
   const ctx = useDramGridContext();
 
@@ -83,7 +84,7 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
   );
 
   const columns = useMemo(
-    () => buildColumns({ columns: normalized }),
+    () => buildColumns({ columns: allColumns }),
     [normalized]
   );
 

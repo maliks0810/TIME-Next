@@ -17,6 +17,7 @@ type Props = {
   height?: number;
   selectedGroup?: string | null;
   onSelect?: (group: string) => void;
+  breakdown?: string;
 };
 
 type PairedMetricConfig = {
@@ -135,6 +136,7 @@ export default function AttributionSingleModeChart({
   height = 360,
   selectedGroup,
   onSelect,
+  breakdown,
 }: Props) {
   const [mode, setMode] = useState<ChartMode>("weight");
   const [weightViewMode, setWeightViewMode] = useState<WeightViewMode>("bars");
@@ -418,7 +420,8 @@ export default function AttributionSingleModeChart({
               `<strong>${axisValue}</strong>`,
               ...params.map((param) => {
                 const value = getChartValue(param.value);
-                return `${param.seriesName}: ${fmtPct(value)}`;
+                const finalValue = breakdown === "MktCap" || breakdown === "PEfwd" ? value : fmtPct(value);
+                return `${param.seriesName}: ${finalValue}`;
               }),
             ].join("<br/>");
           },
@@ -443,7 +446,7 @@ export default function AttributionSingleModeChart({
         yAxis: {
           type: "value",
           axisLabel: {
-            formatter: (value: number): string => fmtPct(value),
+            formatter: (value: number): string => breakdown === "MktCap" || breakdown === "PEfwd" ? value.toString() : fmtPct(value),
           },
         },
 
@@ -497,7 +500,8 @@ export default function AttributionSingleModeChart({
             `<strong>${axisValue}</strong>`,
             ...params.map((param) => {
               const value = getChartValue(param.value);
-              return `${param.seriesName}: ${fmtPct(value)}`;
+              const finalValue = breakdown === "MktCap" || breakdown === "PEfwd" ? value : fmtPct(value);
+              return `${param.seriesName}: ${finalValue}`;
             }),
           ].join("<br/>");
         },
@@ -522,7 +526,7 @@ export default function AttributionSingleModeChart({
       yAxis: {
         type: "value",
         axisLabel: {
-          formatter: (value: number): string => fmtPct(value),
+          formatter: (value: number): string => breakdown === "MktCap" || breakdown === "PEfwd" ? value.toString() : fmtPct(value),
         },
       },
 
@@ -597,7 +601,18 @@ export default function AttributionSingleModeChart({
         </Text>
 
         <Space wrap>
-          <Segmented
+          {
+            breakdown === "MktCap" || breakdown === "PEfwd" ? <Segmented
+            value={mode}
+            onChange={(value) => setMode(value as ChartMode)}
+            options={[
+              { label: "Weight", value: "weight" },
+              { label: "Return", value: "return" },
+              { label: "Effects", value: "effects" },
+            ]}
+            size="middle"
+          /> :
+            <Segmented
             value={mode}
             onChange={(value) => setMode(value as ChartMode)}
             options={[
@@ -608,6 +623,7 @@ export default function AttributionSingleModeChart({
             ]}
             size="middle"
           />
+          }
 
           {mode === "weight" ? (
             <Segmented
