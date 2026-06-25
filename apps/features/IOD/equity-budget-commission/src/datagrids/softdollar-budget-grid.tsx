@@ -613,8 +613,8 @@ return (
       title={isAddMode ? 'New Service' : 'Soft Dollar Budget Details'}  
       width={isAddMode ? "30%" : "80%"}  
       minWidth={400}
-      height={isAddMode ? "40%" : "85%"}
-      minHeight={350}
+      height={isAddMode ? "45%" : "90%"}
+      minHeight={400}
       dragEnabled={false}  
       hideOnOutsideClick={true}  
       wrapperAttr={{ class: 'custom-popup-class' }}  
@@ -630,7 +630,7 @@ return (
               setEditingDetailData((prev) => ({ ...prev, [e.dataField as string]: e.value }))  
             }  
           >  
-            <FormItem dataField="year" label={{ text: 'Year' }} editorOptions={{ readOnly: true, width: '40%' }} />  
+            <FormItem dataField="year" label={{ text: 'Year' }} editorOptions={{ readOnly: true, width: '40%' }} cssClass='textInput-popup-num'/>  
             <FormItem dataField="budgetTypeId" label={{ text: 'Soft/Hard Dollar' }} editorType="dxSelectBox"  cssClass='dx-common-selectbox-short60'
               editorOptions={{  
                 dataSource: budgetTypeMap, valueExpr: 'id', displayExpr: 'text' }} />  
@@ -646,7 +646,7 @@ return (
               editorOptions={{  
                 dataSource: services, valueExpr: 'serviceId',  displayExpr: 'ServiceName',
                 searchEnabled: true, searchMode: "contains", placeholder: "Select a service..."  }}  />  
-            <FormItem dataField="ratio" label={{ text: 'Ratio' }} editorType="dxNumberBox" editorOptions={{width: '40%'}} />  
+            <FormItem dataField="ratio" label={{ text: 'Ratio' }} editorType="dxNumberBox" editorOptions={{width: '40%'}} cssClass='textInput-popup-num'/>  
             <FormItem colSpan={1} itemType='empty'/>             
           </Form>
           <div className="popup-footer" style={{textAlign:'center', margin:10}}>
@@ -864,7 +864,7 @@ return (
       title={childAccountIsAddMode ? 'Create New Account' : 'Edit Account'}  
       width="35%"  
       minWidth={400}
-      height="25%"  
+      height="30%"  
       minHeight={250}
       dragEnabled={false}  
       hideOnOutsideClick={true}  
@@ -901,7 +901,7 @@ return (
       title={childUserAllocationIsAddMode ? 'Create New User' : 'Edit User'}  
       width='35%'
       minWidth={400}
-      height='25%'  
+      height='30%'  
       minHeight={280}
       dragEnabled={false}
       hideOnOutsideClick={true}  
