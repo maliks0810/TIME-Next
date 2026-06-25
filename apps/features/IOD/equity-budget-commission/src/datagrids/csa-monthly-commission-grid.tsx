@@ -51,7 +51,7 @@ export const CSAMonthlyCommissionGrid = () => {
                 showClearButton={true}  
                 width={120}
             />
-            <Button text="Refresh" id="btnRefresh" stylingMode="contained" className='popup-button' type="default" icon="refresh" onClick={handleRefresh} />  
+            <Button text="Refresh" id="btnRefresh" stylingMode="contained" width={120} className='popup-button' type="default" icon="refresh" onClick={handleRefresh} />  
       </div>  
         { isLoading ? 
         <div className='div-loader'>  

@@ -252,6 +252,39 @@ export function extractInfoModelFamilyOverrideType(payload: unknown): string {
     return '';
 }
 
+export function extractOriginalAssetSetupId(payload: unknown): string {
+    const tryParse = (s: string): any | null => {
+        try {
+            return JSON.parse(s);
+        } catch {
+            return null;
+        }
+    };
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const secruitySettings = arr.find((x: any) => String(x?.type).toUpperCase() === 'CORRECTION');
+        if (!secruitySettings) return '';
+
+        return secruitySettings?.parameters?.assetAnalyticsSetupId;
+    }
+
+    if (typeof payload === 'string') {
+        const s1 = payload.trim();
+        const obj1 = tryParse(s1);
+        if (obj1) {
+            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
+            return extractOriginalAssetSetupId(obj2);
+        }
+
+        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
 
 export function extractPrepaymentSpeed(payload: unknown): string {
     const tryParse = (s: string): any | null => {

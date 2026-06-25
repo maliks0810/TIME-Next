@@ -9,6 +9,8 @@ import { ToastConfig, ToastType} from '../components/toast-config'
 import { Item as FormItem } from 'devextreme-react/form';
 import { ValidationMessage } from '../components/validations-message';
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 // Exported handlers for isolated testing  
 const onRowDblClickHandler = (e: DataGridTypes.RowDblClickEvent) => {  
@@ -154,7 +156,11 @@ const MaintenanceDivisionGrid: React.FC = () => {
           allowDeleting={isAdmin? true: false}
           useIcons={true}
         >
-          <Popup showTitle={true} title={popupTitle} width="30%" height="25%" wrapperAttr= {{ className:'custom-popup-class' }} />
+          <Popup showTitle={true} title={popupTitle} 
+            width="30%" height="20%" 
+            minHeight='200px' 
+            minWidth='300px' 
+            wrapperAttr= {{ className:'custom-popup-class' }} />
           <Form colCount={1} width="90%">
               <FormItem dataField="active" label={{text:"Active"}} editorType="dxCheckBox" />
               <FormItem name="divisionName" />
@@ -169,7 +175,7 @@ const MaintenanceDivisionGrid: React.FC = () => {
         </Column>
         <Column dataField="status" caption= "Status" width= "10%" allowFiltering={true} allowSorting={true} dataType="string" filterOperations={["startswith","="]} cellRender={renderStatusCellCallback}/>   
         <Column dataField="lastUpdateDate" caption= "Last Update Dt" allowFiltering={false} allowEditing={false} width= "20%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a"/>   
-        <Column dataField="lastUpdateBy" caption= "Last Update By" allowFiltering={true} allowEditing={false} width= "20%" allowSorting={true} dataType="string"/>    
+        <Column dataField="lastUpdateBy" caption= "Last Update By" allowFiltering={true} allowEditing={false} width= "15%" allowSorting={true} dataType="string"/>    
         <Column dataField="active" visible={false} />
         <Column type="buttons" width="5%" visible={isAdmin?true:false}>
               <Button name="edit" visible={false} />

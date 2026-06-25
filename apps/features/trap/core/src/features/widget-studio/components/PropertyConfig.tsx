@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { Typography, Select, Checkbox, Input, ColorPicker } from 'antd';
+import { Typography, Select, Checkbox, Input, ColorPicker, InputNumber } from 'antd';
 import styles from './PropertyConfig.module.scss';
 import { DefaultOptionType } from 'antd/es/select';
 import TextEditor from '../../../components/tiptap/TextEditor';
@@ -12,7 +12,9 @@ export type WidgetConfigProperty = {
     enum?: string[] | number[];
     editor?: boolean;
     context?: Record<string, WidgetValueType>;
+    multiselect?: boolean;
     type: 'string' | 'boolean' | 'number';
+    category?: 'string';
 };
 export const PropertyConfig = ({
     property,
@@ -45,6 +47,24 @@ export const PropertyConfig = ({
         ),
         []
     );
+    const renderMultiselect = useCallback((selectOptions: DefaultOptionType[]) => {
+        return (
+            <>
+                <Typography.Text strong>
+                    {property.title}
+                    {required && '*'}
+                </Typography.Text>
+                <Select
+                    mode="multiple"
+                    allowClear
+                    className={styles.select}
+                    options={selectOptions}
+                    defaultValue={currentValue || property.default}
+                    onChange={(e) => setField(propertyKey, e)}
+                />
+            </>
+        );
+    }, []);
     const renderSelect = useCallback(
         (selectOptions: DefaultOptionType[]) => (
             <>
@@ -72,12 +92,28 @@ export const PropertyConfig = ({
                 <TextEditor
                     mentionEnabled
                     mentionOptions={Object.keys(context || {})}
-                    initial={(currentValue as string) || property.default.toString()}
+                    initial={(currentValue as string) || property.default?.toString()}
                     onChange={(e) => setField(propertyKey, e)}
                 />
             </>
         ),
         [context]
+    );
+    const renderNumberInput = useCallback(
+        () => (
+            <>
+                <Typography.Text strong>
+                    {property.title}
+                    {required && '*'}
+                </Typography.Text>
+                <InputNumber
+                    className={styles.select}
+                    defaultValue={(currentValue as number) || Number(property.default.toString())}
+                    onChange={(e: number | null) => setField(propertyKey, e as number)}
+                />
+            </>
+        ),
+        []
     );
     const renderInput = useCallback(
         () => (
@@ -99,31 +135,23 @@ export const PropertyConfig = ({
         switch (property.type) {
             case 'string': {
                 if (property.editor) return renderEditor();
+
                 if (property.withColorPicker) return renderColorPicker();
                 if (!property.enum) return renderInput();
                 const selectOptions = property.enum.map((el) => ({ label: el, value: el }));
+
+                if (property.multiselect) return renderMultiselect(selectOptions);
                 return renderSelect(selectOptions);
             }
 
             case 'number':
-                return (
-                    <>
-                        <Typography.Text strong>
-                            {property.title}
-                            {required && '*'}
-                        </Typography.Text>
-                        <Input
-                            type="number"
-                            className={styles.select}
-                            defaultValue={(currentValue as number) || property.default.toString()}
-                            onChange={(e) => setField(propertyKey, e.target.value)}
-                        />
-                    </>
-                );
+                return <>{renderNumberInput()}</>;
             case 'boolean':
+                const defaultChecked =
+                    currentValue !== undefined ? (currentValue as boolean) : !!property.default;
                 return (
                     <Checkbox
-                        defaultChecked={(currentValue as boolean) || !!property.default}
+                        defaultChecked={defaultChecked}
                         onChange={(e) => setField(propertyKey, e.target.checked)}
                     >
                         {required && '*'}

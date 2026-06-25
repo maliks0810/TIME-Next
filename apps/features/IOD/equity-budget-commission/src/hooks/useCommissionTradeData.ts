@@ -4,14 +4,15 @@ import { fetchAdminUsers } from '../services/admin-user-service';
 import { CommissionTrade, CommissionTradeDetails, Reason, CRBrokerMapping, CRBrokers, CommissionTradeBatchRequestDto } from '../datatypes/tcw-commission-types';
 import { DateBoxTypes } from 'devextreme-react/date-box';
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info'; 
+import { MaintenanceUser } from '../datatypes/budget-maintenance-types';
 
-interface UseDepartmentsProps {
+interface UseCommissionTradeProps {
     userInfo: UserInfo;
     startDate: Date;
     endDate: Date
 }
 
-export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmentsProps ) {
+export function useCommissionTrade({ userInfo, startDate, endDate}: UseCommissionTradeProps ) {
   const [selectedBeginDate, setSelectedBeginDate] = useState<Date | null>(startDate);
   const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(endDate);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,11 +28,11 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
   const [popupVisible, setPopupVisible] = useState(false);  
   const [batchPopupVisible, setBatchPopupVisible] = useState(false);  
   const [formData, setFormData] = useState<CommissionTradeDetails | undefined>(undefined);  
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminData, setAdminData] = useState<MaintenanceUser[]>([]);
 
   const [batchFormData, setBatchFormData] = useState({  
-    reason: '',        
-    creditBroker: '', 
+    reason: null,        
+    creditBroker: null, 
   });  
 
   useEffect(() => {  
@@ -46,18 +47,18 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
         setBrokersData(brokerList);
         const brkData = getUniqueCreditBrokers(brokerList);
         setUniqueCRBrokers(brkData);
-
-        const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
-        if(u){
-            setIsAdmin(true);
-        } 
-
+        
+        setAdminData(adminData)
       } catch (error) {  
         console.error('Failed to load reason/broker data:', error);  
       }  
     };  
     fetchMasterData();
   }, []);  
+
+  const isAdmin = Array.isArray(adminData) && userInfo?.name
+    ? adminData.some(a => `${a.firstName ?? ''} ${a.lastName ?? ''}`.trim() === userInfo.name)
+    : false;
 
   function getUniqueCreditBrokers(data: CRBrokerMapping[]): CRBrokers[] {
     if (!data) return [];
@@ -121,19 +122,19 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
       // create CommissionTradeDetails from CommissionTrade 
       const childData: CommissionTradeDetails =  {
         orderId: rowData.orderId,  
-        trader: rowData.trader,  
-        ticker: rowData.ticker,  
-        side: rowData.side,  
-        cusip: rowData.cusip,  
-        currency: rowData.currency,  
-        crBroker: rowData.creditBroker,  
-        exBroker: rowData.execBroker,  
+        trader: rowData.trader??'',  
+        ticker: rowData.ticker??'',  
+        side: rowData.side??'',  
+        cusip: rowData.cusip??'',  
+        currency: rowData.currency??'',  
+        crBroker: rowData.creditBroker??'',  
+        exBroker: rowData.execBroker??'',  
         strategy: '',  
-        division: rowData.divisionName,  
+        division: rowData.divisionName??'',  
         shares: rowData.shares,  
         commission: rowData.totalComm,  
         price: rowData.price,  
-        reason: rowData.reason,  
+        reason: rowData.reason??'',  
       }; 
       return childData;
   }
@@ -142,7 +143,7 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
   const handleBatchUpdate = useCallback(() => {  
     if (selectedRowKeys.length > 1) {  
       setBatchPopupVisible(true);  
-    }  
+    }
   }, [selectedRowKeys]);  
 
   const closeBatchUpdatePopup = () => {  
@@ -160,8 +161,8 @@ export function useCommissionTrade({ userInfo, startDate, endDate}: UseDepartmen
       const tradeIds: string[] = selectedRowKeys.map(s=> s);
       const updateDto: CommissionTradeBatchRequestDto = {
         orderId: tradeIds,
-        creditBroker: batchFormData.creditBroker,
-        reason: batchFormData.reason,
+        creditBroker: batchFormData.creditBroker??'',
+        reason: batchFormData.reason??'',
         lastUpdateBy: userInfo.name
       }
       const result = await saveBatchUpdateChanges(updateDto);

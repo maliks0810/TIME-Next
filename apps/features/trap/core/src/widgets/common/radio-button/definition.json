@@ -1,0 +1,78 @@
+{
+    "id": "cwd_radio",
+    "name": "Radio",
+    "version": 1,
+    "description": "A radio control widget",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_radio",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string",
+                "category": "Interactions"
+            },
+            "label": {
+                "title": "Radio label",
+                "type": "string",
+                "default": "",
+                "category": "View Parameters"
+            },
+            "emitKey": {
+                "title": "Radio emit key",
+                "type": "string",
+                "enum": ["portfolio.summary"],
+                "category": "Interactions"
+            },
+            "checked": {
+                "title": "Is checked by default",
+                "type": "boolean",
+                "default": false,
+                "category": "Interactions"
+            },
+            "variant": {
+                "title": "Variant",
+                "type": "string",
+                "enum": ["button", "radio"],
+                "category": "View Parameters"
+            }
+        },
+        "required": ["emitKey", "label"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "small",
+            "label": "Small",
+            "grid": {
+                "defaultW": 1,
+                "defaultH": 60,
+                "minW": 1,
+                "minH": 60,
+                "maxW": null,
+                "maxH": null
+            }
+        },
+        {
+            "id": "medium",
+            "label": "Medium",
+            "grid": {
+                "defaultW": 1,
+                "defaultH": 60,
+                "minW": 1,
+                "minH": 60,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}

@@ -151,15 +151,18 @@ const onBudgetSaveClick = useCallback(async ()=> {
   return (
     <div>
       <div className="div-container-left">
-        <TextBox label="Create Budget for Year" labelMode="outside" width={130}          
-            text={selectedForYear.toString()} value={selectedForYear.toString()} 
-            mask="0000" placeholder="YYYY" maskInvalidMessage="Enter valid 4-digit year."
-            onValueChanged={(e)=> setSelectedForYear(parseInt(e.value))} >
+        <TextBox label="Create Budget for Year" labelMode="outside" width={130} hint="Create Budget for Year"         
+          text={selectedForYear.toString()} value={selectedForYear.toString()} 
+          mask="0000" placeholder="YYYY" maskInvalidMessage="Enter valid 4-digit year."
+          onValueChanged={(e)=> setSelectedForYear(parseInt(e.value))}
+          className='inputText-page' 
+        >
             <RequiredRule message={ValidationMessage.RequiredField} />
             <RangeRule min={1900} max={2099} />       
         </TextBox>
         <SelectBox  
             label="Start From"  
+            hint="Start From"  
             labelMode="outside"  
             dataSource={budgetYears}  
             value={selectedFromYear}  
@@ -169,7 +172,8 @@ const onBudgetSaveClick = useCallback(async ()=> {
             onValueChanged={(e) => setSelectedFromYear(e.value)}  
             placeholder="Start From"  
             showClearButton={true}  
-            width={100}  
+            width={120}
+            className='dx-common-selectbox'
         >
             <RequiredRule message={ValidationMessage.RequiredField} />
         </SelectBox>              
@@ -187,6 +191,7 @@ const onBudgetSaveClick = useCallback(async ()=> {
             placeholder="Division"
             showClearButton={true}
             width={200}
+            className='dx-common-selectbox'
         />
         <SelectBox
             label="Master Broker" labelMode="outside" 
@@ -199,6 +204,7 @@ const onBudgetSaveClick = useCallback(async ()=> {
             placeholder="Master Broker"
             showClearButton={true}
             width={300}
+            className='dx-common-selectbox'
         />
         <InputButton text="Add" id="bthAddNew" hint="Add New Broker" disabled={!isAdmin} className='popup-button' type='default' stylingMode='contained' icon="plus" onClick={onAddNewClick} />
     </div>  

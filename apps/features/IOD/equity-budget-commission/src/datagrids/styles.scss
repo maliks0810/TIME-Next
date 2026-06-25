@@ -30,7 +30,7 @@
 .dx-datagrid-headers .dx-header-row .dx-datagrid-text-content {
   font-weight: bold;
   font-family: Helvetica Neue,Segoe UI,helvetica,verdana,sans-serif;
-  font-size: 12px;
+  font-size: 12px!important;
   color: #f0f0f0;
   text-align: center;
 }
@@ -43,7 +43,7 @@
 {
   font-weight: 400;
   font-family: Helvetica Neue,Segoe UI,helvetica,verdana,sans-serif;
-  font-size: 12px; 
+  font-size: 12px!important; 
 }
 .redHighlight {
     color: red !important;
@@ -81,7 +81,7 @@
 .dx-editor-outlined.dx-texteditor-label-outside .dx-label span
 {
     text-align: left;
-    font-size: 14px;
+    font-size: 12px!important;
     font-family: Roboto, Helvetica, Arial, sans-serif;
     font-weight: 500;
 }
@@ -92,7 +92,7 @@
 .dx-common-selectbox-short60 {
     border: 0;
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;;
     box-sizing: border-box;
     border-radius: 4px;
     letter-spacing: 0.00938em;
@@ -107,7 +107,7 @@
 .dx-common-selectbox-short80 {
     border: 0;
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;;
     box-sizing: border-box;
     border-radius: 4px;
     letter-spacing: 0.00938em;
@@ -122,7 +122,7 @@
 .dx-common-selectbox {
     border: 0;
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;;
     box-sizing: border-box;
     border-radius: 4px;
     letter-spacing: 0.00938em;
@@ -137,7 +137,7 @@
 
 .dx-popup-title.dx-toolbar{
     background-color: #337ab7;
-    font-size: 12px;
+    font-size: 12px!important;
     color: white;
     font-family: Roboto, Helvetica, Arial, sans-serif;
     font-weight: 500;
@@ -154,14 +154,14 @@
 }
 .custom-popup-class .dx-popup-title {
     background-color: #337ab7;
-    font-size: 12px;
+    font-size: 12px!important;
     color: white;
     padding-top: 10px;    
 }
 
 .custom-popup-selectbox {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     font-weight: 500;
     line-height: 1.4375em;
     letter-spacing: 0.00938em;
@@ -180,7 +180,7 @@
 
 .custom-popup-selectbox-long {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     font-weight: 500;
     line-height: 1.4375em;
     letter-spacing: 0.00938em;
@@ -198,7 +198,7 @@
 
 .dx-layout-manager .dx-label-h-align .dx-field-item-label .dx-field-item-label-content .dx-field-item-label-text{
     color: rgba(0, 0, 0, 0.87)!important; /* Example: Dark gray */
-    font-size: 12px;
+    font-size: 12px!important;
     font-weight: bold;
     font-family: Roboto, Helvetica, Arial, sans-serif;
     }
@@ -231,15 +231,15 @@
 .dx-button-content
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 14px;
+    font-size: 14px!important;;
     font-weight: 500;
 }
 
 .textInput-popup-num
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
-    width: 200px;
+    font-size: 12px!important;
+    width: '50%';
     font-weight: 400;
     text-align: left;
     transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -248,14 +248,15 @@
     height: 30px;
     box-sizing: border-box;
     flex-direction: row;
+    margin-top: 5px;
     margin-bottom: 10px;
     //display: flex;
 }
 .textInput-popup-num-wt-margin
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
-    width: 200px;
+    font-size: 12px!important;
+    width: '50%';
     font-weight: 400;
     text-align: left;
     transition: opacity 245ms cubic-bezier(0.4, 0, 0.2, 1), transform 163ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -268,7 +269,7 @@
 .textInput-popup-short
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 200px;
     font-weight: 500;
     text-align: left;
@@ -283,7 +284,7 @@
 .textInput-popup
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 250px;
     font-weight: 500;
     text-align: left;
@@ -297,7 +298,7 @@
 .textInput-popup-date
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 250px;
     font-weight: 500;
     text-align: left;
@@ -313,8 +314,10 @@
 .textInput-popup-long
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
-    width: 300px;
+    font-size: 12px!important;
+    width: '50%';
+    min-width: 200px;
+    max-width: 400px;
     text-align: left;
 }
 
@@ -325,7 +328,7 @@
 .textInput-popup-verylong
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 400px;
     text-align: left;
 }
@@ -333,7 +336,7 @@
 .form-input-short
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 150px;
     font-weight: 500;
     text-align: left;
@@ -348,7 +351,7 @@
 .form-input-long
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 250px;
     font-weight: 500;
     text-align: left;
@@ -374,7 +377,7 @@
 .label-title
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 200px;
     text-align: left;
 }
@@ -392,7 +395,7 @@
 .label-title.row
 {
     font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 12px!important;
     width: 200px;
     text-align: left;
     font-weight: 500;
@@ -455,7 +458,7 @@
     user-select:none;
     vertical-align: middle;
     appearance: none;
-    font-size: 0.875rem;
+    font-size: 0.875rem!important;
     line-height: 1.75;
     letter-spacing: 0.02857em;
     min-width: 60px; 
@@ -479,7 +482,7 @@ $active-bg: #ffffff;
 $border-color: #dee2e6;
 $active-border-color: #0056b3;
 $font-family: Roboto, Helvetica, Arial, sans-serif;
-$font-size: 12px;
+$font-size: 12px!important;
 
 /* Target the main TabPanel container and its inner components */
 .custom-tab-panel {
@@ -631,7 +634,7 @@ $font-size: 12px;
 
 .nested-tab-container .dx-tab {
     background-color: #f0f0f0; /* Example: change background of nested tabs */
-    font-size: 12px; /* Example: change font size */
+    font-size: 12px!important; /* Example: change font size */
     padding: 5px 10px; /* Example: adjust padding */
 }
 
@@ -649,8 +652,8 @@ $font-size: 12px;
 }
 .grid-container-flex {  
   width: var(--container-width, 100%);  
-  margin-bottom: 10px;  
-  padding-right: 30px;  
+  //margin-bottom: 10px;
+  padding-right: 10px;  
   display: flex;  
 }
 .grid-container-detail {  
@@ -682,7 +685,7 @@ $font-size: 12px;
 
 .header-wrap{
   word-wrap: normal;
-  font-size:12px;
+  font-size:12px!important;
   font-family: Roboto, Helvetica, Arial, sans-serif;
   font-weight: bold;
   color:#f0f0f0;
@@ -698,6 +701,7 @@ $font-size: 12px;
   justify-content: left;  
   align-items: center;  
   gap: 10px;
+  margin-top: 2px;
   margin-bottom: 5px;
   padding-left: 2px;
 }
@@ -748,15 +752,24 @@ $font-size: 12px;
   font-family: Roboto, Helvetica, Arial, sans-serif;
   font-size: 14px;
   text-align: center;
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
+  transform: -webkit-translate(-50%, -50%);
   transform: translate(-50%, -50%);
   width: 40px;
   height: 40px;
 }
 
+.dx-toolbar.dx-state-disabled{
+  opacity: 0.5!important;
+}
 
+.dx-checkbox{
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  font-family: Roboto, Helvetica, Arial, sans-serif !important;
+}
 /* Trade Ticket Popup */
 
 .modern-trade-popup {
@@ -767,7 +780,7 @@ $font-size: 12px;
 
   /* Title bar */
   .dx-popup-title {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     padding: 16px 24px;
     border-bottom: 1px solid #e5e7eb;
@@ -776,16 +789,16 @@ $font-size: 12px;
   /* Form layout */
   .modern-popup-form {
     .dx-field-item-label-text {
-      font-size: 12px;
+      font-size: 12px!important;
       font-weight: 500;
       color: #6b7280; // slate-500
     }
 
     .dx-texteditor-input {
-      font-size: 14px;
+      font-size: 12px!important;
     }
   }
-
+ 
   /* Section cards */
   .form-section {
     background: #ffffff;
@@ -817,12 +830,12 @@ $font-size: 12px;
 /* ============================= */
 .modern-budget-popup {
   .dx-popup-content {
-    padding: 20px 22px 12px;
+    padding: 10px 12px 12px;
     background-color: #f9fafb;
   }
 
   .dx-popup-title {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     padding: px 22px;
     border-bottom: 1px solid #e5e7eb;
@@ -838,13 +851,13 @@ $font-size: 12px;
   }
 
   .dx-field-item-label-text {
-    font-size: 14px;
+    font-size: 12px!important;
     font-weight: 600;
     color: #6b7280; // slate-500
   }
 
   .dx-texteditor-input {
-    font-size: 13px;
+    font-size: 12px!important;
     padding: 6px 8px;
   }
 }
@@ -877,7 +890,7 @@ $font-size: 12px;
 .textInput-popup-num .dx-texteditor-input {
   text-align: left;
   font-variant-numeric: tabular-nums;
-  font-size: 12px;
+  font-size: 12px!important;
 }
 
 /* ============================= */
@@ -885,7 +898,7 @@ $font-size: 12px;
 /* ============================= */
 .custom-popup-selectbox {
   .dx-texteditor-input {
-    font-size: 13px;
+    font-size: 12px!important;
   }
 }
 
@@ -905,9 +918,15 @@ $font-size: 12px;
     letter-spacing: 0.2px;
   }
 
+    /* TEXT Inputs */
+  .inputText-page {
+    font-size: 12px!important;
+    padding-bottom: 2px;
+  }
+
   /* Inputs */
   .dx-texteditor-input {
-    font-size: 13px;
+    font-size: 12px!important;
     padding: 7px 10px;
   }
 
@@ -929,7 +948,7 @@ $font-size: 12px;
 
   /* Group title */
   .dx-form-group-caption {
-    font-size: 13px;
+    font-size: 13px!important;
     font-weight: 700;
     color: #111827;
     margin-bottom: 10px;
@@ -950,5 +969,5 @@ $font-size: 12px;
 
 /* Optional: make select boxes feel consistent */
 .modern-detail-form .dx-selectbox .dx-texteditor-input {
-  font-size: 13px;
+  font-size: 12px!important;
 }

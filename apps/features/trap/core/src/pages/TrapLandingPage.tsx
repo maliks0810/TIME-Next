@@ -12,6 +12,7 @@ import { cloneTemplate, getTemplates, openTemplate } from '../api/trap';
 
 import { setDefaultLandingTemplate } from '../utils/userPreferences';
 import { useGetActiveTab, useSetActiveTab } from '../state/Tabs/hooks';
+import { useGetActiveUser } from '../state/User/hooks';
 
 type WorkflowTabModel = {
     key: string;
@@ -55,7 +56,20 @@ export default function TrapLandingPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [workflows, setWorkflows] = React.useState<WorkflowTabModel[]>(loadTabsFromStorage());
     const activeKey = useGetActiveTab();
+    const activeUser = useGetActiveUser();
+
     const setActiveKey = useSetActiveTab();
+    const [isInitialLoading, setIsInitialLoading] = React.useState(true);
+
+    useEffect(() => {
+        const versionId = searchParams.get('version_id');
+        const templateId = searchParams.get('template_id');
+
+        if (versionId && templateId && activeUser) {
+            setIsInitialLoading(false);
+            initWorkflowFromURL(templateId, versionId);
+        }
+    }, [activeUser]);
 
     const [landingSelection, setLandingSelection] = React.useState<
         HudLandingSelection | undefined
@@ -66,7 +80,7 @@ export default function TrapLandingPage() {
     }, [workflows]);
 
     useEffect(() => {
-        if (activeKey === 'landing') {
+        if (activeKey === 'landing' && !isInitialLoading) {
             setSearchParams({}, { replace: true });
         }
 
@@ -265,73 +279,69 @@ export default function TrapLandingPage() {
                 templateVersionStatus: '', //TODO: currently not needed but need to implement
             };
             onLaunchHudWorkflow(selection);
+        } else {
+            setSearchParams({}, { replace: true });
         }
     };
 
-    useEffect(() => {
-        const templateId = searchParams.get('template_id');
-        const versionId = searchParams.get('version_id');
-
-        if (templateId && versionId) initWorkflowFromURL(templateId, versionId);
-    }, []);
-
     return (
-        <Space direction="vertical" size={12} style={{ width: '100%' }}>
+        <Space direction="vertical" size={10} style={{ width: '100%' }}>
             <TrapHud
                 onExport={onExport}
                 onLaunchWorkflow={onLaunchHudWorkflow}
                 onEditWorkflow={onEditHudWorkflow}
                 onActivateLanding={onActivateHudLanding}
             />
+            <Space direction="vertical" size={0} style={{ width: '100%' }}>
+                {showTabs && (
+                    <div style={{ height: TAB_BAR_HEIGHT, overflow: 'hidden' }}>
+                        <Tabs
+                            className="trap-tabs-bar-only"
+                            type="editable-card"
+                            hideAdd
+                            activeKey={activeKey}
+                            onChange={setActiveKey}
+                            onEdit={(targetKey, action) => {
+                                if (action === 'remove') closeWorkflowTab(String(targetKey));
+                            }}
+                            items={items as any}
+                            tabBarStyle={{ margin: 0 }}
+                            animated={false}
+                        />
+                    </div>
+                )}
 
-            {showTabs && (
-                <div style={{ height: TAB_BAR_HEIGHT, overflow: 'hidden' }}>
-                    <Tabs
-                        className="trap-tabs-bar-only"
-                        type="editable-card"
-                        hideAdd
-                        activeKey={activeKey}
-                        onChange={setActiveKey}
-                        onEdit={(targetKey, action) => {
-                            if (action === 'remove') closeWorkflowTab(String(targetKey));
-                        }}
-                        items={items as any}
-                        tabBarStyle={{ margin: 0 }}
-                        animated={false}
-                    />
-                </div>
-            )}
-
-            <div style={{ width: '100%' }}>
-                <div
-                    style={{
-                        display: activeKey === 'landing' ? 'block' : 'none',
-                        width: '100%',
-                    }}
-                >
-                    <LandingTab
-                        onOpenWorkflow={(ws) => addWorkflowTab(ws)}
-                        activeLandingSelection={landingSelection}
-                    />
-                </div>
-
-                {workflows.map((ws) => (
+                <div style={{ width: '100%' }}>
                     <div
-                        key={ws.workflowId}
                         style={{
-                            display: activeKey === ws.workflowId ? 'block' : 'none',
+                            display: activeKey === 'landing' ? 'block' : 'none',
                             width: '100%',
                         }}
                     >
-                        <WorkflowTab
-                            workflowId={ws.workflowId}
-                            templateId={ws.templateId}
-                            templateVersionId={ws.templateVersionId}
-                            onClose={() => closeWorkflowTab(ws.workflowId)}
+                        <LandingTab
+                            onOpenWorkflow={(ws) => addWorkflowTab(ws)}
+                            activeLandingSelection={landingSelection}
                         />
                     </div>
-                ))}
-            </div>
+
+                    {workflows.map((ws) => (
+                        <div
+                            key={ws.workflowId}
+                            style={{
+                                display: activeKey === ws.workflowId ? 'block' : 'none',
+                                width: '100%',
+                            }}
+                        >
+                            <WorkflowTab
+                                workflowId={ws.workflowId}
+                                templateId={ws.templateId}
+                                templateVersionId={ws.templateVersionId}
+                                onClose={() => closeWorkflowTab(ws.workflowId)}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </Space>
         </Space>
     );
 }

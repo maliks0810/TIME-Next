@@ -29,9 +29,8 @@ export default function WorkflowDesignerPage() {
         themeName === 'greenGradient' ||
         themeName === 'blueGradient' ||
         themeName === 'cyberpunk' ||
-        themeName === 'tron' ||
         themeName === 'matrix' ||
-        themeName === 'bladeRunner';
+        themeName === 'dumpsterFire';
 
     const designerHeaderBackground = surfaceMeta.isGradientTheme
         ? surfaceMeta.hudGradient
@@ -82,7 +81,7 @@ export default function WorkflowDesignerPage() {
     }, [layout]);
 
     return (
-        <Space direction="vertical" size={16} style={{ width: '100%' }}>
+        <Space direction="vertical" size={16} style={{ width: '100%', gap: 4 }}>
             <DesignerHeader
                 templateId={templateId}
                 versionId={versionId}
@@ -134,8 +133,6 @@ export default function WorkflowDesignerPage() {
                     isInitialLoading={isInitialLoading}
                     draggableHandle=".widget-drag-handle"
                     draggableCancel=".rgl-no-drag"
-                    compactType="vertical"
-                    preventCollision={false}
                     isDraggable={!isPublished}
                     isResizable={false}
                 >

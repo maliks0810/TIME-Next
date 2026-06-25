@@ -1,0 +1,53 @@
+.pa-card {
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(16, 24, 40, 0.06);
+  border-top-color: #013D7D;
+}
+/* Container */
+.blue-segmented {
+  background-color: #f0f0f0;
+  padding: 2px;
+  border-radius: 6px;
+  color: #013D7D;
+  border-color: #e6f4ff;
+  border-width: 1px;
+}
+
+/* Default item */
+.blue-segmented .ant-segmented-item {
+  transition: all 0.2s ease;
+  border-color: #232b35;
+  border-width: 1px;
+  padding: 2px;
+}
+
+/* Hover (non-selected items only) */
+.blue-segmented .ant-segmented-item:not(.ant-segmented-item-selected):hover {
+  background-color: #e6f4ff; /* light blue hover */
+  color: #1677ff;
+}
+
+/* Active (pressed effect) */
+.blue-segmented .ant-segmented-item:active {
+  transform: scale(0.97);
+}
+
+/* Selected text */
+.blue-segmented .ant-segmented-item-selected {
+  color: #ffffff;
+  font-weight: 500;
+  background-color: #013D7D;
+}
+
+/* Selected background (thumb) */
+.blue-segmented .ant-segmented-thumb {
+  background-color: #013D7D;
+  transition: all 0.2s ease;
+  color: #e6f4ff;
+}
+
+/* Optional: smoother thumb animation */
+.blue-segmented .ant-segmented-thumb-motion-appear,
+.blue-segmented .ant-segmented-thumb-motion-enter {
+  transition: all 0.25s ease;
+}

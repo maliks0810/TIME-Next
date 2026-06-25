@@ -1,6 +1,21 @@
 .antd-dx-container {
     height: 100%;
 
+    .dx-datagrid-export-button .dx-icon-xlsxfile {
+        color: var(--ant-layout-light-trigger-color);
+    }
+    .dx-loadpanel-content {
+        background-color: var(--ant-color-bg-container);
+        border: none;
+        box-shadow: none;
+    }
+    .dx-loadpanel-message {
+        color: var(--ant-layout-light-trigger-color);
+    }
+    .dx-loadpanel-icon .dx-loadindicator-segment {
+        color: var(--ant-layout-light-trigger-color);
+    }
+
     .dx-widget,
     .dx-datagrid {
         /* ── Typography ── */
@@ -28,7 +43,8 @@
     }
 
     .dx-datagrid-headers .dx-datagrid-table .dx-row > td {
-        background-color: var(--ant-color-fill-quaternary, #fafafa);
+        background-color: var(--ant-color-bg-container);
+
         color: var(--ant-color-text-secondary);
     }
 
@@ -135,5 +151,15 @@
 
     colgroup col:not(:last-child) {
         min-width: 40px;
+    }
+
+    &.previewContainer {
+        width: 740px;
+        height: 150px;
+        position: relative;
+        pointer-events: none;
+        overflow: hidden;
+        transform: scale(0.5);
+        transform-origin: top left;
     }
 }

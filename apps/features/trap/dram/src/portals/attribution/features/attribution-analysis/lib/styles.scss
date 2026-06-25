@@ -56,35 +56,38 @@ html, body {
     align-items: center;
 }
 
-.dram-attribiution-dashboard {
+.dram-attribution-dashboard {
     height: 95vh;
+    padding: 8px;
+    overflow-y: "auto" ;
 }
 /* Container */
-.attribiution-dashboard-tabs .dx-tabs {
+.attribution-dashboard-tabs .dx-tabs {
   border-bottom: 1px solid #d9d9d9;
 }
 
 /* Individual tab */
-.attribiution-dashboard-tabs .dx-tab {
+.attribution-dashboard-tabs .dx-tab {
   padding: 8px 16px;
   font-size: 13px;
   color: #666;
   transition: all 0.2s ease;
+  margin: 16px;
 }
 
 /* Hover */
-.attribiution-dashboard-tabs .dx-tab:hover {
+.attribution-dashboard-tabs .dx-tab:hover {
   color: #1677ff;
 }
 
 /* Active tab */
-.attribiution-dashboard-tabs .dx-tab-selected {
+.attribution-dashboard-tabs .dx-tab-selected {
   color: #1677ff;
   font-weight: 600;
 }
 
 /* Underline (VERY IMPORTANT) */
-.attribiution-dashboard-tabs .dx-tab-selected::after {
+.attribution-dashboard-tabs .dx-tab-selected::after {
   content: "";
   position: absolute;
   left: 0;
@@ -96,7 +99,226 @@ html, body {
 }
 
 /* Remove default ugly focus */
-.attribiution-dashboard-tabs .dx-tab:focus {
+.attribution-dashboard-tabs .dx-tab:focus {
+  outline: none;
+}
+.dramContainer {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    gap: 16px;
+    padding: 16px 10px 16px 16px;
+    overflow: hidden;
+    height: 100%;
+    font-family: 'Lato';
+
+    h4 {
+        margin: 0;
+        padding: 2px 0;
+    }
+
+    & .niArcDrawer {
+        padding-top: 20px;
+    }
+
+    [class*='ant-tabs-content-holder'] {
+        height: 100%;
+        overflow: auto;
+    }
+}
+
+.dram-grid {
+  height: 70vh;
+}
+
+/* header */
+.dram-grid .dx-header-row > td {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* zebra */
+.dram-grid .dx-data-row:nth-child(even) > td {
+  background: #fafafa;
+}
+
+/* hover */
+.dram-grid .dx-data-row.dx-state-hover > td {
+  background-color: #e6f0ff !important;
+}
+
+/* selected */
+.dram-grid .dx-selection > td {
+  background-color: #cfe2ff !important;
+}
+
+/* cell spacing */
+.dram-grid .dx-data-row > td {
+  padding: 6px 10px;
+}
+
+/* remove borders */
+.dram-grid .dx-datagrid .dx-row > td {
+  border-right: none;
+}
+
+
+.dram-grid-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  position: relative;
+}
+
+/* Sticky TOTAL row */
+.dram-total-row {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  background: #f8f9fb;
+  font-weight: 600;
+  border-bottom: 2px solid #000;
+}
+
+.dram-total-row .cell {
+  padding: 6px 8px;
+  white-space: nowrap;
+}
+
+.dram-total-row .cell.security {
+  text-align: left;
+}
+
+.subtotal-row td {
+  font-weight: 600;
+  background: #fafafa;
+  border-top: 1px solid #e5e5e5;
+}
+
+.level-1 td:first-child {
+  padding-left: 16px;
+}
+
+.grid-scroll-container {
+  width: 95%;
+  height: 50vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* prevents AntD from stretching content */
+.grid-scroll-container > * {
+  min-width: 1200px;
+}
+
+
+/* header sticks below TOTAL */
+.dram-grid .dx-datagrid-headers {
+  position: sticky;
+  top: 36px;
+  z-index: 20;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+
+.TCW-Text {
+    display: flex;
+    font-size: large;
+    font-weight: bold;
+    text-align: left !important;
+    justify-content: flex-start;
+}
+
+.dram-loading-spin {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    z-index: 1;
+}
+
+.dramPerformanceAnalysisContainer {
+    display: flex;
+    justify-content: space-between;
+    padding: 24px 32px;
+    width: 95%;
+}
+
+.dramPerformanceAnalysisChartContainer {
+    width: 75%;
+    padding: 0 24px;
+    background-color: white;
+}
+
+.dramPerformanceAnalysisRightSideContainer {
+    width: 20%;
+    margin-left: 24px;
+}
+
+.dramPerformanceAnalysisKpisContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 24px;
+    background-color: white;
+}
+
+.dramPerformanceAnalysisSpinContainer {
+    width: 100%;
+    height: 37vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dram-performance-dashboard {
+    height: 95vh;
+}
+/* Container */
+.performance-dashboard-tabs .dx-tabs {
+  border-bottom: 1px solid #d9d9d9;
+}
+
+/* Individual tab */
+.performance-dashboard-tabs .dx-tab {
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+/* Hover */
+.performance-dashboard-tabs .dx-tab:hover {
+  color: #1677ff;
+}
+
+/* Active tab */
+.performance-dashboard-tabs .dx-tab-selected {
+  color: #1677ff;
+  font-weight: 600;
+}
+
+/* Underline (VERY IMPORTANT) */
+.performance-dashboard-tabs .dx-tab-selected::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background: #1677ff;
+  border-radius: 2px;
+}
+
+/* Remove default ugly focus */
+.performance-dashboard-tabs .dx-tab:focus {
   outline: none;
 }
 .dramContainer {
@@ -159,4 +381,9 @@ html, body {
 /* remove borders */
 .dram-grid .dx-datagrid .dx-row > td {
   border-right: none;
+}
+.pa-card {
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(16, 24, 40, 0.06);
+  border-top-color: #013D7D;
 }

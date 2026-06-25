@@ -1,21 +1,36 @@
 .wrapper {
     display: flex;
+    align-items: baseline;
     justify-content: space-between;
     gap: 8px;
     padding: 5px 0;
     min-width: 0;
 }
+
+.wrapperBordered {
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+}
+
 .label {
-    font-size: 11;
+    font-size: 11px;
+    line-height: 16px;
+    color: var(--ant-color-text-secondary);
     flex-shrink: 0;
     white-space: nowrap;
 }
+
 .value {
-    font-size: 11;
+    font-size: 11px;
+    line-height: 16px;
     font-weight: 600;
+    color: var(--ant-color-text);
     text-align: right;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     min-width: 0;
+}
+
+.mono {
+    font-family: monospace;
 }

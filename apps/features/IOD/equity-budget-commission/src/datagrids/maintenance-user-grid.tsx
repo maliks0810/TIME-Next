@@ -200,7 +200,9 @@ const MaintenanceUserGrid: React.FC = () => {
                   showTitle={true}
                   title={popupTitle}
                   width="50%"
-                  height="40%"
+                  height="30%"
+                  minHeight='300px' 
+                  minWidth='450px' 
                   wrapperAttr={{ className: 'custom-popup-class' }}
                 />
                 <Form width="95%">

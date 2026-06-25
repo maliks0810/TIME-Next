@@ -535,7 +535,8 @@ return (
         onValueChanged={(e) => setSelectedYear(e.value)}  
         placeholder="Budget Year"  
         showClearButton={true}  
-        width={150}  
+        width="10%"  
+        className='dx-common-selectbox'
       />  
       <Button text="Add" id="btnNewService" visible={isAdmin?true:false} stylingMode="contained" className='popup-button' type="default" icon="plus" onClick={openAddBudgetPopup} />  
     </div>  
@@ -564,7 +565,7 @@ return (
           allowAdding: false,  
           allowUpdating: false,  
           allowDeleting: isAdmin,  
-          useIcons: true,  
+          useIcons: true,
         }}  
         width="100%"
       >  
@@ -611,7 +612,9 @@ return (
       showTitle={true}  
       title={isAddMode ? 'New Service' : 'Soft Dollar Budget Details'}  
       width={isAddMode ? "30%" : "80%"}  
-      height={isAddMode ? "45%" : "85%"}  
+      minWidth={400}
+      height={isAddMode ? "45%" : "90%"}
+      minHeight={400}
       dragEnabled={false}  
       hideOnOutsideClick={true}  
       wrapperAttr={{ class: 'custom-popup-class' }}  
@@ -619,7 +622,7 @@ return (
       {isAddMode ? (  
         <div>  
           <Form  
-            width="100%" 
+            width="95%" 
             height="100%" 
             formData={editingDetailData}  
             colCount={1}  
@@ -627,7 +630,7 @@ return (
               setEditingDetailData((prev) => ({ ...prev, [e.dataField as string]: e.value }))  
             }  
           >  
-            <FormItem dataField="year" label={{ text: 'Year' }} editorOptions={{ readOnly: true }} cssClass='textInput-popup-num'/>  
+            <FormItem dataField="year" label={{ text: 'Year' }} editorOptions={{ readOnly: true, width: '40%' }} cssClass='textInput-popup-num'/>  
             <FormItem dataField="budgetTypeId" label={{ text: 'Soft/Hard Dollar' }} editorType="dxSelectBox"  cssClass='dx-common-selectbox-short60'
               editorOptions={{  
                 dataSource: budgetTypeMap, valueExpr: 'id', displayExpr: 'text' }} />  
@@ -643,8 +646,8 @@ return (
               editorOptions={{  
                 dataSource: services, valueExpr: 'serviceId',  displayExpr: 'ServiceName',
                 searchEnabled: true, searchMode: "contains", placeholder: "Select a service..."  }}  />  
-            <FormItem dataField="ratio" label={{ text: 'Ratio' }}  editorType="dxNumberBox" cssClass='textInput-popup-num'/>  
-            <FormItem colSpan={1} />             
+            <FormItem dataField="ratio" label={{ text: 'Ratio' }} editorType="dxNumberBox" editorOptions={{width: '40%'}} cssClass='textInput-popup-num'/>  
+            <FormItem colSpan={1} itemType='empty'/>             
           </Form>
           <div className="popup-footer" style={{textAlign:'center', margin:10}}>
             <Button text="Cancel" onClick={onBudgetDetailPopupCancel} className="dxButton" width={100} height={35} style={{margin:10}}/>
@@ -653,7 +656,7 @@ return (
         </div>  
         ) : loadingEditData && softBudgetDetails? (  
           <div className='div-loader'>  
-            <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={40} />  
+            <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={60} />  
             <p>Loading details data...</p>  
           </div>   
         ) : (  
@@ -680,7 +683,8 @@ return (
                   </div>
                 </FormItem>
                 <FormItem colSpan={3}>  
-                  <TextArea value={editingDetailData.serviceDescription} labelMode="outside" label="Service Description" height={70} readOnly={true} />  
+                  <TextArea value={editingDetailData.serviceDescription} labelMode="outside" label="Service Description" readOnly={true} 
+                    style={{ width: '100%', height: 'auto', resize: 'vertical' }}/>  
                 </FormItem>  
               </Form>  
             </div>  
@@ -689,7 +693,7 @@ return (
           <BlockFormContainer title="Accounts" className="form-title">  
             { isAccountDataLoading ? (
               <div className='div-loader'>  
-                <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={40} />  
+                <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={60} />  
                 <p>Loading accounts data...</p>  
               </div> ) : (
             <div>  
@@ -748,7 +752,7 @@ return (
                 <TabItem title="User Allocations" >
                   {isUserLoading ? (  
                     <div className="div-loader">  
-                      <LoadIndicator height={30} width={30} />  
+                      <LoadIndicator height={40} width={60} />  
                       <p>Loading user allocations data...</p>  
                     </div>  
                   ) : (  
@@ -805,7 +809,7 @@ return (
                 <TabItem title="Comments" >
                   { isCommentsLoading && commentsData.length > 0 ? (
                     <div className="div-loader">  
-                      <LoadIndicator height={30} width={30} />  
+                      <LoadIndicator height={40} width={60} />  
                       <p>Loading comments data...</p>  
                     </div> 
                   ) : (
@@ -825,7 +829,7 @@ return (
                 <TabItem title="Change Log" >
                   {isChangeLogLoading && changeLogsData.length > 0 ? (  
                     <div className="div-loader">  
-                      <LoadIndicator height={30} width={30} />  
+                      <LoadIndicator height={40} width={60} />  
                       <p>Loading changelogs data...</p>  
                     </div>  
                   ) : (
@@ -857,16 +861,18 @@ return (
       visible={childAccountPopupVisible}  
       onHiding={onChildAccountPopupCancel}  
       showTitle={true}  
-      title={childAccountIsAddMode ? 'Create a new Account' : 'Edit Account'}  
+      title={childAccountIsAddMode ? 'Create New Account' : 'Edit Account'}  
       width="35%"  
-      height="25%"  
+      minWidth={400}
+      height="30%"  
+      minHeight={250}
       dragEnabled={false}  
       hideOnOutsideClick={true}  
       wrapperAttr={{ class: 'custom-popup-class' }}
     >  
       {childAccountPopupLoading ? ( 
         <div className='div-loader'>  
-         <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={40} />  
+         <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={60} />  
          <p>Loading account details...</p>  
         </div>  
       ) : (  
@@ -875,14 +881,14 @@ return (
           <FormItem dataField="startDate" label={{ text: 'Start Date' }} editorType="dxDateBox" />  
           <FormItem dataField="account" label={{ text: 'Name' }} />  
           <FormItem dataField="endDate" label={{ text: 'End Date' }} editorType="dxDateBox" /> 
-          <FormItem colSpan={2} />  
-          <FormItem colSpan={2} />  
+          <FormItem colSpan={2} itemType='empty'/>  
+          <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} horizontalAlignment="center">  
             <div className="div-container-center">  
               <Button text="Save" onClick={onChildAccountPopupSave} width={100} className="dxButton" />  
               <Button text="Cancel" onClick={onChildAccountPopupCancel} width={100} className="dxButton" />  
             </div>  
-          </FormItem>  
+          </FormItem>
         </Form>  
       )}  
     </Popup>
@@ -892,16 +898,18 @@ return (
       visible={childUserAllocationPopupVisible}
       onHiding={onChildPopupUserAllocationCancel}  
       showTitle={true}  
-      title={childUserAllocationIsAddMode ? 'Create a new User' : 'Edit User'}  
-      width={600}
-      height={250}  
+      title={childUserAllocationIsAddMode ? 'Create New User' : 'Edit User'}  
+      width='35%'
+      minWidth={400}
+      height='30%'  
+      minHeight={280}
       dragEnabled={false}
       hideOnOutsideClick={true}  
       wrapperAttr={{ class: 'custom-popup-class' }} 
     >
       {childAccountUserPopupLoading || userDataSaving? ( 
         <div className='div-loader'>  
-         <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={40} />  
+         <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={60} />  
          <p>Loading User details...</p>  
         </div>  
       ) : (
@@ -921,8 +929,8 @@ return (
               searchEnabled: true, searchMode: "contains", placeholder: "Select a department..."
             }} />
           <FormItem dataField="endDate" label={{ text: 'End Date' }} editorType="dxDateBox" /> 
-          <FormItem colSpan={2} />  
-          <FormItem colSpan={2} />  
+          <FormItem colSpan={2} itemType='empty'/>  
+          <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} horizontalAlignment="center">  
             <div className="div-container-center">  
               <Button text="Save" onClick={onChildPopupUserAllocationSave} width={100} className="dxButton" />  

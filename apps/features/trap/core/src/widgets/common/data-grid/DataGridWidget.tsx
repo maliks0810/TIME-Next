@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import DataGrid, {
     Column,
     Grouping,
@@ -19,9 +19,11 @@ import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingSt
 import styles from './DataGridWidget.module.scss';
 
 import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState';
-import { useSetWidgetValue, useGetWidgetValue } from '../../../state/Widgets/hooks';
+import { useSetWidgetValue, useGetWidgetValueArray } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
 import { COMMON_DATE_GRID_ROW_KEY } from '../../constants';
+import { widgetPreviewResult } from './widgetPreviewResult';
+import clsx from 'clsx';
 
 export default function DataGridWidget({
     widgetInstance: { config = {} },
@@ -29,24 +31,36 @@ export default function DataGridWidget({
     error,
     result,
     execute,
+    mode,
 }: WidgetComponentProps) {
     const activeTab = useGetActiveTab();
     const gridRef = useRef<any>(null);
     const listensToKeys = config?.params?.listensToKeys;
     const selectionMode = config?.params?.selectionMode;
 
-    const subscribedValue = useGetWidgetValue({
+    const context = useGetWidgetValueArray({
         channelId: config.params?.channel,
-        key: listensToKeys,
+        keys: listensToKeys,
     });
 
     const setWidgetValue = useSetWidgetValue();
 
+    const subscribedValues = useMemo(
+        () =>
+            listensToKeys
+                ? listensToKeys.reduce(
+                      (acc: any, cur: string) => ({ ...acc, [cur]: context?.[cur] || null }),
+                      {}
+                  )
+                : {},
+        [context, listensToKeys]
+    );
+
     useEffect(() => {
-        if (subscribedValue && listensToKeys) {
-            execute?.({ [listensToKeys]: subscribedValue });
+        if (subscribedValues && listensToKeys) {
+            execute?.({ ...subscribedValues }, { ...subscribedValues });
         }
-    }, [subscribedValue, listensToKeys]);
+    }, [subscribedValues, listensToKeys]);
 
     const handleSelectRow = (props: any) => {
         const { selectedRowsData } = props;
@@ -78,7 +92,7 @@ export default function DataGridWidget({
         );
     }
 
-    if (!result) {
+    if (!result && mode !== 'preview') {
         return (
             <WidgetCardShell>
                 <div style={{ padding: 12, fontSize: 12 }}>No grid data available.</div>
@@ -86,16 +100,24 @@ export default function DataGridWidget({
         );
     }
 
-    const { columns = [], rows = [], rowKeyField = 'id' } = result;
+    const {
+        columns = [],
+        rows = [],
+        rowKeyField = 'id',
+    } = mode === 'preview' ? widgetPreviewResult : (result as any);
+
     return (
         <>
             <WidgetCardShell>
-                <div className="antd-dx-container">
+                <div
+                    className={clsx('antd-dx-container', {
+                        previewContainer: mode === 'preview',
+                    })}
+                >
                     <DataGrid
                         ref={gridRef}
                         className={styles.grid}
-                        /* TODO: fix rows type */
-                        dataSource={rows as []}
+                        dataSource={mode === 'preview' ? widgetPreviewResult.rows : (rows as [])}
                         allowColumnReordering={false}
                         rowAlternationEnabled
                         showColumnLines={false}

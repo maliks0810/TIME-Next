@@ -1,14 +1,13 @@
 import { WidgetComponentProps } from '../../../types/widget';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import TextEditor, { EditorCommands } from '../../../components/tiptap/TextEditor';
-import { Button, Tooltip } from 'antd';
+import { Button, Modal } from 'antd';
 import styles from './CommentWidget.module.scss';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useUserInfo } from '../../../../../../../../packages/utils/src/hooks/Authentication/user-info-context';
 import { useGetWidgetValue } from '../../../state/Widgets/hooks';
-import { COMMON_DATE_GRID_ROW_KEY } from '../../constants';
-import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState';
+import { COMMON_TREE_KEY } from '../../constants';
 const EMPTY_EDITOR = `<p></p>`;
 
 export type Note = {
@@ -20,22 +19,36 @@ export type Note = {
 export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetComponentProps) => {
     // Widget context
 
-    const selectedEntity = useGetWidgetValue({
+    const [historyModalOpen, setHistoryModalOpen] = useState(false);
+    const selectedEntityId = useGetWidgetValue({
         channelId: widgetInstance?.config?.params?.channel,
-        key: COMMON_DATE_GRID_ROW_KEY,
+        key: COMMON_TREE_KEY,
     });
-    const selectedNoteType = widgetInstance?.config?.params?.noteType;
+    const selectedSchemaKey = useGetWidgetValue({
+        channelId: widgetInstance?.config?.params?.channel,
+        key: 'schemaKey',
+    });
+    const selectedNoteType = useMemo(() => {
+        switch (selectedSchemaKey) {
+            case 'portfolio.gross.history':
+                return 'PAGR';
+            case 'portfolio.net.history':
+                return 'PANET';
+            case 'portfolio.benchmark.history':
+                return 'PABM';
+            default:
+                return '';
+        }
+    }, [selectedSchemaKey]);
+
     useEffect(() => {
-        if (selectedEntity && selectedNoteType) {
+        if (selectedEntityId && selectedNoteType) {
             execute?.(
                 {},
-                {
-                    entityId: (selectedEntity as Record<string, string>).portfolioNumber,
-                    noteType: selectedNoteType as string,
-                }
+                { entityId: selectedEntityId as string, noteType: selectedNoteType as string }
             );
         }
-    }, [selectedEntity, selectedNoteType]);
+    }, [selectedEntityId, selectedNoteType]);
 
     // Widget state
     const [notes, setNotes] = useState<Note[]>(() => {
@@ -43,6 +56,14 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
         if (!result.notes) return [];
         return result.notes as Note[];
     });
+
+    useEffect(() => {
+        console.log(result);
+        if (result?.notes) {
+            setNotes((result?.notes as Note[]) || []);
+        }
+    }, [result]);
+
     const { name } = useUserInfo();
     const editorRef = useRef<EditorCommands | null>(null);
     const [content, setContent] = useState<string>('');
@@ -63,7 +84,7 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
         const newComment = {
             noteText: content,
             createdBy: name || 'unknown',
-            entityId: (selectedEntity as Record<string, string>).portfolioNumber,
+            entityId: selectedEntityId as string,
             entityType: selectedNoteType as string,
         };
         setNotes((prev) => [...prev, newComment]);
@@ -76,24 +97,22 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
     const areButtonsVisible = content.length > EMPTY_EDITOR.length;
 
     const history = useMemo(() => {
-        if (!notes || notes.length === 0) return 'No history available';
+        if (!notes || notes.length === 0)
+            return <div className={styles.note}>No history available</div>;
 
         return notes.map((el, ind) => (
             <div className={styles.note} key={`note-${ind}`}>
-                <div dangerouslySetInnerHTML={{ __html: el.noteText }}></div>
+                <b>{el.createdBy}:</b> <div dangerouslySetInnerHTML={{ __html: el.noteText }}></div>
             </div>
         ));
     }, [notes]);
 
-    if (!selectedEntity) {
-        <WidgetCardShell>
-            <WidgetErrorState message={'Entity not selected'} />
-        </WidgetCardShell>;
-    }
-    if (!selectedNoteType) {
-        <WidgetCardShell>
-            <WidgetErrorState message={'Not type not set'} />
-        </WidgetCardShell>;
+    if (!selectedNoteType || !selectedEntityId) {
+        return (
+            <WidgetCardShell>
+                <div className={styles.error}>To leave notes, please select a portfolio</div>
+            </WidgetCardShell>
+        );
     }
     return (
         <WidgetCardShell>
@@ -115,9 +134,20 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
                         </Button>
                     </div>
                 )}
-                <Tooltip title={history} placement="bottom" color="#ffffff">
-                    <QuestionCircleOutlined />
-                </Tooltip>
+                <Modal
+                    centered
+                    width={'80vh'}
+                    open={historyModalOpen}
+                    onCancel={() => setHistoryModalOpen(false)}
+                    footer={null}
+                    title={'Notes history'}
+                >
+                    <div className={styles.history}>{history}</div>
+                </Modal>
+                <Button
+                    icon={<QuestionCircleOutlined />}
+                    onClick={() => setHistoryModalOpen(true)}
+                />
             </div>
         </WidgetCardShell>
     );

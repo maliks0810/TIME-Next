@@ -1,6 +1,6 @@
 import React from 'react';
-import { Typography } from 'antd';
 import { BankOutlined } from '@ant-design/icons';
+import clsx from 'clsx';
 import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell';
 import type { WidgetComponentProps } from '../../../../types/widget';
 import { MetricCard } from './components/MetricCard';
@@ -10,24 +10,28 @@ import { normaliseDeal } from './utils/helpers';
 import { DEAL_NAME_KEY, ANALYSIS_SESSION_ID_KEY } from '../../../constants';
 import { useGetWidgetValue } from '../../../../state/Widgets/hooks';
 import styles from './DealDetailsWidget.module.scss';
-
-const { Text } = Typography;
+import { widgetPreviewResult } from './widgetPreviewResult';
+import WidgetLoadingState from '../../../../components/widget-shell/WidgetLoadingState';
 
 export function NARMBSDealDetailsWidget({
     result,
     loading,
     execute,
     widgetInstance,
+    mode,
 }: WidgetComponentProps) {
+    const channelId = widgetInstance?.config?.params?.channel;
+
     const sessionId = useGetWidgetValue({
-        channelId: widgetInstance?.config?.params?.channel,
+        channelId,
         key: ANALYSIS_SESSION_ID_KEY,
     });
+
     const dealName = useGetWidgetValue({
-        channelId: widgetInstance?.config?.params?.channel,
+        channelId,
         key: DEAL_NAME_KEY,
     });
-    const data = normaliseDeal(result);
+    const data = mode === 'preview' ? widgetPreviewResult : normaliseDeal(result);
 
     React.useEffect(() => {
         if (dealName) {
@@ -35,17 +39,32 @@ export function NARMBSDealDetailsWidget({
         }
     }, [dealName]);
 
+    if (loading) {
+        return (
+            <WidgetCardShell>
+                <WidgetLoadingState />
+            </WidgetCardShell>
+        );
+    }
+
     return (
         <WidgetCardShell>
-            <div className={styles.dealDetailsContainer}>
+            <div
+                className={clsx(styles.dealDetailsContainer, {
+                    [styles.previewContainer]: mode === 'preview',
+                })}
+            >
                 {/* Header */}
                 <div className={styles.headerContainer}>
                     <div className={styles.headerTitleContainer}>
                         <BankOutlined className={styles.headerTitleIcon} />
-                        <Text className={styles.headerTitleText}>Deal details</Text>
+
+                        <span className={styles.headerTitleText}>Deal details</span>
+
                         {dealName && (
-                            <Text className={styles.headerTitleDealName}>{dealName as string}</Text>
+                            <span className={styles.headerTitleDealName}>{dealName as string}</span>
                         )}
+
                         {data && (
                             <span className={styles.headerTitleCollateralType}>
                                 {data.collateralType}
@@ -56,16 +75,15 @@ export function NARMBSDealDetailsWidget({
 
                 <div style={{ height: 1 }} />
 
-                {/* {loading && Skeleton} */}
-
                 {!loading && !data && (
                     <div className={styles.loadingContainer}>
                         <div className={styles.loadingInnerContainer}>
                             <BankOutlined className={styles.loadingIcon} />
                         </div>
-                        <Text className={styles.loadingText}>
+
+                        <span className={styles.loadingText}>
                             Load a security or upload a CDI file to view deal details
-                        </Text>
+                        </span>
                     </div>
                 )}
 
@@ -179,6 +197,7 @@ export function NARMBSDealDetailsWidget({
                                     <AttrRow label="Dealer" value={data.dealer} />
                                     <AttrRow label="Master servicer" value={data.masterServicer} />
                                 </AttrPanel>
+
                                 <AttrPanel title="Deal traits">
                                     <AttrRow label="Grp 7 structure" value={data.grp7Structure} />
                                     <AttrRow

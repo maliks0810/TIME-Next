@@ -13,7 +13,7 @@ import { createSoftBudget,
     fetchSoftDollarBudgets, 
     generateYears,    
  } from '../services/softdollar-service';
-import { MaintenanceBroker, MaintenanceDepartment, MaintenanceMasterBroker } from '../datatypes/budget-maintenance-types';
+import { MaintenanceBroker, MaintenanceDepartment, MaintenanceMasterBroker, MaintenanceUser } from '../datatypes/budget-maintenance-types';
 
 interface UseSoftDollarBudgetsProps {
     userInfo: UserInfo;
@@ -29,7 +29,11 @@ export function useSoftDollarBudgets({ userInfo, budgetYear }: UseSoftDollarBudg
     const [services, setServices] = useState<BudgetService[]>([]);
     const [budgetYears, setBudgetYears] = useState<BudgetYear[]>();
     const currentYear = new Date().getFullYear();
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [adminData, setAdminData] = useState<MaintenanceUser[]>([]);
+
+    const isAdmin = Array.isArray(adminData) && userInfo?.name
+        ? adminData.some(a => `${a.firstName ?? ''} ${a.lastName ?? ''}`.trim() === userInfo.name)
+        : false;
 
     // Construct the endpoint URL  
     const apiBaseUrl = NoTrailingForwardSlash(import.meta.env.VITE_IOD_CMS_SERVICE_URL);  
@@ -63,7 +67,7 @@ export function useSoftDollarBudgets({ userInfo, budgetYear }: UseSoftDollarBudg
                     ({ ...p, year: budgetYear }))  
                 }
             }); 
-            setDepartments(deptData);
+            setDepartments(deptData?.filter(x=> x.divisionId??0 > 0)??[]);
             setBrokers(brokerData);
             setMstBrokers(mstBrokerData);
             setServices(serviceData);
@@ -81,17 +85,14 @@ export function useSoftDollarBudgets({ userInfo, budgetYear }: UseSoftDollarBudg
     }, [apiEndPoint, budgetYear]);  
 
     // Automatically load data whenever budgetYear changes.  
-    useEffect(() => {  
+      useEffect(() => {
+    // initial load
         const loadAdminData = async() => {
-            const [adminData] = await Promise.all([
-                fetchAdminUsers()
-            ]);
-            const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
-            if(u){
-                setIsAdmin(true);
-            }
-        };        
-        loadAdminData();
+            const adData = await fetchAdminUsers();      
+                setAdminData(adData);
+            };
+
+        loadAdminData();  
         loadSoftDollarBudgetData().catch((err) => {  
             console.error('useSoftDollarBudgets load error:', err);  
         });  

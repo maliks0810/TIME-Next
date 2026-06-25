@@ -1,0 +1,98 @@
+.composite-grid-card {
+  border-radius: 8px;
+}
+
+.composite-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.composite-row-count {
+  padding: 2px 8px;
+  border: 1px solid #91caff;
+  border-radius: 4px;
+  background: #e6f4ff;
+  color: #0958d9;
+  font-size: 12px;
+}
+
+.composite-total-row td {
+  font-weight: 600;
+}
+
+.composite-total-row-text {
+  font-weight: 700;
+}
+
+.composite-standard-row td {
+  background: #ffffff;
+}
+
+.composite-report {
+  padding: 32px 40px;
+  color: #000;
+  background: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.composite-report-title {
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.composite-as-of {
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.composite-report-table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 905px;
+  margin-bottom: 24px;
+  font-size: 16px;
+}
+
+.composite-report-table th {
+  padding: 3px 8px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.composite-report-table td {
+  padding: 3px 8px;
+  border-right: 2px solid #fff;
+}
+
+.composite-label-col {
+  width: 400px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.composite-number-cell {
+  width: 80px;
+  text-align: center;
+}
+
+.composite-emphasis-row .composite-label-col {
+  font-weight: 700;
+}
+
+.composite-shaded-row td {
+  background: #e9e5e5;
+}
+
+.composite-attribution-title {
+  margin: 24px 0 18px;
+  font-weight: 700;
+}
+
+.composite-attribution-table tbody tr:nth-child(even) td {
+  background: #e9e5e5;
+}
+
+.composite-section-row .composite-label-col {
+  font-weight: 700;
+}

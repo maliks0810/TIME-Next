@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Typography } from 'antd';
 import { TableOutlined } from '@ant-design/icons';
+
 import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell';
 import type { WidgetComponentProps } from '../../../../types/widget';
 import { TrancheRow } from './utils/mockData';
@@ -11,22 +11,30 @@ import { DEAL_ID_KEY, DEAL_NAME_KEY, TRANCHE_ID_KEY, TRANCHE_NAME_KEY } from '..
 import { useGetWidgetValue, useSetWidgetValue } from '../../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../../state/Tabs/hooks';
 import styles from './NARMBSTranchesWidget.module.scss';
+import WidgetLoadingState from '../../../../components/widget-shell/WidgetLoadingState';
 
-const { Text } = Typography;
-
-export function NARMBSTranchesWidget({ result, loading, widgetInstance }: WidgetComponentProps) {
+export function NARMBSTranchesWidget({
+    result,
+    loading,
+    widgetInstance,
+    execute,
+}: WidgetComponentProps) {
     const activeTab = useGetActiveTab();
     const setWidgetValueToChannel = useSetWidgetValue();
+    const channelId = widgetInstance?.config?.params?.channel;
+
     const trancheId = useGetWidgetValue({
-        channelId: widgetInstance?.config?.params?.channel,
+        channelId,
         key: TRANCHE_ID_KEY,
     });
+
     const dealId = useGetWidgetValue({
-        channelId: widgetInstance?.config?.params?.channel,
+        channelId,
         key: DEAL_ID_KEY,
     });
+
     const dealName = useGetWidgetValue({
-        channelId: widgetInstance?.config?.params?.channel,
+        channelId,
         key: DEAL_NAME_KEY,
     });
 
@@ -37,7 +45,7 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
     React.useEffect(() => {
         if (trancheId && trancheId !== selectedId) {
             setSelectedId(trancheId as string);
-            // Scroll to make selected row visible
+
             setTimeout(() => {
                 const el = scrollRef.current?.querySelector(`[data-tranche-id="${trancheId}"]`);
                 el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -45,40 +53,56 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
         }
     }, [trancheId]);
 
+    React.useEffect(() => {
+        if (dealName) {
+            execute?.({ dealName });
+        }
+
+        setWidgetValueToChannel({
+            key: TRANCHE_NAME_KEY,
+            channelId,
+            value: null,
+            activeTab,
+        });
+    }, [dealName]);
+
     // Clear on deal change
     React.useEffect(() => {
         setSelectedId(null);
+
         setWidgetValueToChannel({
             key: TRANCHE_ID_KEY,
-            channelId: widgetInstance?.config?.params?.channel,
+            channelId,
             value: null,
             activeTab,
         });
+
         setWidgetValueToChannel({
             key: TRANCHE_NAME_KEY,
-            channelId: widgetInstance?.config?.params?.channel,
+            channelId,
             value: null,
             activeTab,
         });
-    }, [dealId]);
+    }, [dealId, setWidgetValueToChannel, channelId, activeTab]);
 
-    // TODO, add Re-execute when TitleBar publishes workflow.refresh
-
-    // tranches come from the server via the result prop
     const tranches: TrancheRow[] | null =
         result && Array.isArray(result.tranches) ? result.tranches : null;
 
+    const ratingAgency = tranches && tranches.length > 0 ? tranches[0].ratingAgency : 'unknown';
+
     const handleSelect = (trancheRow: TrancheRow) => {
         setSelectedId(trancheRow.id);
+
         setWidgetValueToChannel({
             key: TRANCHE_ID_KEY,
-            channelId: widgetInstance?.config?.params?.channel,
+            channelId,
             value: trancheRow.id,
             activeTab,
         });
+
         setWidgetValueToChannel({
             key: TRANCHE_NAME_KEY,
-            channelId: widgetInstance?.config?.params?.channel,
+            channelId,
             value: trancheRow.name,
             activeTab,
         });
@@ -87,7 +111,39 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
     const fmt = (n: number) =>
         n === 0
             ? '0.00'
-            : n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            : n.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            });
+
+    const renderHeaderLabel = (label: React.ReactNode) => {
+        if (typeof label !== 'string') {
+            return label;
+        }
+
+        const match = label.match(/^(.*?)(\s*\(.+\))$/);
+
+        if (!match) {
+            return label;
+        }
+
+        return (
+            <>
+                <span>{match[1]}</span>
+                <span className={styles.headerColumnSubText}>
+                    {match[2].trim()}
+                </span>
+            </>
+        );
+    };
+
+    if (loading) {
+        return (
+            <WidgetCardShell>
+                <WidgetLoadingState />
+            </WidgetCardShell>
+        );
+    }
 
     return (
         <WidgetCardShell>
@@ -96,22 +152,36 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                 <div className={styles.headerContainer}>
                     <div className={styles.headerTitleContainer}>
                         <TableOutlined className={styles.headerTitleIcon} />
-                        <Text className={styles.headerTitleText}>All tranches</Text>
-                        {tranches && <div className={styles.counterBadge}>{tranches.length}</div>}
-                        {dealName && <Text className={styles.dealName}>{dealName as string}</Text>}
+
+                        <span className={styles.headerTitleText}>
+                            All tranches
+                        </span>
+
+                        {tranches && (
+                            <div className={styles.counterBadge}>
+                                {tranches.length}
+                            </div>
+                        )}
+
+                        {dealName && (
+                            <span className={styles.dealName}>
+                                {dealName as string}
+                            </span>
+                        )}
                     </div>
                 </div>
 
                 <div style={{ height: 1 }} />
-
-                {/* {loading && Skeletor} */}
 
                 {!loading && !tranches && (
                     <div className={styles.loadingContainer}>
                         <div className={styles.loadingInnerContainer}>
                             <TableOutlined className={styles.loadingIcon} />
                         </div>
-                        <Text className={styles.loadingText}>Load a deal to view tranches</Text>
+
+                        <span className={styles.loadingText}>
+                            Load a deal to view tranches
+                        </span>
                     </div>
                 )}
 
@@ -129,7 +199,13 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                         textAlign: column.align,
                                     }}
                                 >
-                                    <Text className={styles.headerColumnText}>{column.label}</Text>
+                                    <span className={styles.headerColumnText}>
+                                        {renderHeaderLabel(
+                                            column.render
+                                                ? column.render?.({ ratingAgency })
+                                                : column.label
+                                        )}
+                                    </span>
                                 </div>
                             ))}
                         </div>
@@ -162,15 +238,16 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <Text
+                                        <span
                                             className={clsx(styles.trancheColumnValue, {
                                                 [styles.trancheColumnValueSelected]:
                                                     tranche.id === selectedId,
                                             })}
                                         >
                                             {tranche.name}
-                                        </Text>
+                                        </span>
                                     </div>
+
                                     {/* CUSIP */}
                                     <div
                                         style={{
@@ -179,10 +256,11 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <Text className={styles.defaultColValue}>
+                                        <span className={styles.defaultColValue}>
                                             {tranche.cusip}
-                                        </Text>
+                                        </span>
                                     </div>
+
                                     {/* Coupon */}
                                     <div
                                         style={{
@@ -192,10 +270,11 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <Text className={styles.couponColValue}>
+                                        <span className={styles.couponColValue}>
                                             {tranche.coupon.toFixed(4)}
-                                        </Text>
+                                        </span>
                                     </div>
+
                                     {/* Type */}
                                     <div
                                         style={{
@@ -204,7 +283,7 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <Text
+                                        <span
                                             className={clsx(styles.typeColValue, {
                                                 [styles.typeColValueMEZ]:
                                                     tranche.type.startsWith('MEZ'),
@@ -213,8 +292,9 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                             })}
                                         >
                                             {tranche.type}
-                                        </Text>
+                                        </span>
                                     </div>
+
                                     {/* Currency */}
                                     <div
                                         style={{
@@ -224,10 +304,11 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <Text className={styles.currencyColValue}>
+                                        <span className={styles.currencyColValue}>
                                             {tranche.currency}
-                                        </Text>
+                                        </span>
                                     </div>
+
                                     {/* Orig balance */}
                                     <div
                                         style={{
@@ -237,10 +318,11 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <Text className={styles.defaultColValue}>
+                                        <span className={styles.defaultColValue}>
                                             {fmt(tranche.origBalance)}
-                                        </Text>
+                                        </span>
                                     </div>
+
                                     {/* Curr balance */}
                                     <div
                                         style={{
@@ -250,15 +332,16 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <Text
+                                        <span
                                             className={clsx(styles.zeroableColValue, {
                                                 [styles.zeroableColValueZero]:
                                                     tranche.currBalance === 0,
                                             })}
                                         >
                                             {fmt(tranche.currBalance)}
-                                        </Text>
+                                        </span>
                                     </div>
+
                                     {/* Factor */}
                                     <div
                                         style={{
@@ -268,14 +351,15 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <Text
+                                        <span
                                             className={clsx(styles.zeroableColValue, {
                                                 [styles.zeroableColValueZero]: tranche.factor === 0,
                                             })}
                                         >
                                             {tranche.factor.toFixed(4)}
-                                        </Text>
+                                        </span>
                                     </div>
+
                                     {/* Orig ratings */}
                                     <div
                                         style={{
@@ -290,18 +374,24 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                                                 styles[getRatingsClassname(tranche.origRatings)]
                                             )}
                                         >
-                                            {tranche.origRatings}
+                                            {tranche.origRatings || 'NA'}
                                         </span>
                                     </div>
+
                                     {/* Curr ratings */}
-                                    <div style={{ width: TRANCHES_COLS[9].width, flexShrink: 0 }}>
+                                    <div
+                                        style={{
+                                            width: TRANCHES_COLS[9].width,
+                                            flexShrink: 0,
+                                        }}
+                                    >
                                         <span
                                             className={clsx(
                                                 styles.ratingsColValue,
                                                 styles[getRatingsClassname(tranche.currRatings)]
                                             )}
                                         >
-                                            {tranche.currRatings}
+                                            {tranche.currRatings || 'NA'}
                                         </span>
                                     </div>
                                 </div>
@@ -311,12 +401,12 @@ export function NARMBSTranchesWidget({ result, loading, widgetInstance }: Widget
                 )}
 
                 {tranches && (
-                    <Text className={styles.tranchesTableSubInfo}>
+                    <span className={styles.tranchesTableSubInfo}>
                         {tranches.length} tranches · scroll to view all ·{' '}
                         {selectedId
                             ? `selected: ${tranches.find((t) => t.id === selectedId)?.name}`
                             : 'no selection'}
-                    </Text>
+                    </span>
                 )}
             </div>
         </WidgetCardShell>

@@ -2,10 +2,23 @@ export type AbandonAssetPayload = {
     assetAnalyticsSetupId: number | null | undefined;
     noteText: string;
 };
+export type AcceptAssetPayload = {
+    assetAnalyticsSetupId: number | null | undefined;
+    noteText: string;
+};
+export type RejectAssetPayload = {
+    assetAnalyticsSetupId: number | null | undefined;
+    noteText: string;
+};
 
 export type FilePreviewRequestCollection = {
     assetAnalyticsSetupId: number;
     aladdinId: string;
+};
+
+export type DownloadBRSRequestCollection = {
+    assetAnalyticsSetupId: number;
+    interface: string;
 };
 
 export type PreviewBondResponseType = {

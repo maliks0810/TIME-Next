@@ -1,13 +1,26 @@
 import { defaultWizardState } from "../lib/defaultData";
 import { WorkflowState } from "../lib/services";
 
-const KEY = "equity-configure-workflow-state";
+export const EQ_KEY = 'equity-configure-workflow-state';
+export const EM_KEY = 'em-configure-workflow-state';
+export const FI_KEY = 'fi-configure-workflow-state';
 
+export function getKeyByAssetClass(assetClass: string){
+  if(assetClass === 'EQ')
+    return EQ_KEY;
+  if(assetClass === 'EM'){
+    return EM_KEY;
+  }
+  if(assetClass === 'FI'){
+    return FI_KEY;
+  }
+  return '';
+}
 /**
  * Load wizard state from localStorage (safe + typed)
  */
-export function getWizardState(): WorkflowState {
-  const raw = localStorage.getItem(KEY);
+export function getWizardState(key: string): WorkflowState {
+  const raw = localStorage.getItem(key);
 
   if (!raw) return defaultWizardState;
 
@@ -33,6 +46,7 @@ export function getWizardState(): WorkflowState {
 /**
  * Save wizard state (strictly typed, no any)
  */
-export function setWizardState(value: WorkflowState): void {
-  localStorage.setItem(KEY, JSON.stringify(value));
+export function setWizardState(value: WorkflowState, key: string): void {
+  console.log(JSON.stringify(value));
+  localStorage.setItem(key, JSON.stringify(value));
 }

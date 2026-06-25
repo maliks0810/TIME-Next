@@ -1,0 +1,105 @@
+.dram-grid-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.dram-grid-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+}
+
+.dram-grid-title {
+  margin: 0 !important;
+}
+
+.dram-grid-table .ant-table-cell-fix-left,
+.dram-grid-table .ant-table-cell-fix-left-last {
+  background: #fff;
+}
+
+.dram-grid-table .ant-table-thead > tr > th {
+  user-select: none;
+  white-space: nowrap;
+}
+
+.dram-grid-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  width: 100%;
+}
+
+.dram-grid-header-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dram-grid-header-draggable {
+  cursor: move;
+}
+
+.dram-grid-header-dragging {
+  opacity: 0.55;
+  background: #fafafa !important;
+}
+
+.dram-grid-header-drop-target {
+  box-shadow: inset 0 -2px 0 #1677ff;
+}
+
+.dram-grid-drag-handle {
+  cursor: move;
+  color: #8c8c8c;
+  font-size: 12px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.dram-grid-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 2;
+}
+
+.react-resizable {
+  position: relative;
+}
+
+.dram-grid-column-dropdown .ant-dropdown-menu {
+  max-height: 420px;
+  overflow: auto;
+  min-width: 280px;
+}
+
+.dram-grid-column-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px;
+}
+
+.dram-grid-column-menu-item {
+  padding: 2px 0;
+}
+
+.ant-table-thead > tr:first-child > th {
+  padding: 0 !important;
+}
+.blue-segmented {
+  background-color: #f0f0f0;
+  padding: 2px;
+  border-radius: 6px;
+  color: #013D7D;
+}

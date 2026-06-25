@@ -50,6 +50,7 @@ export function usePortfolios({ userInfo }: UsePortfoliosProps) {
   const [portfolioGroups, setPortfolioGroups] = useState<MaintenancePortfolioGroup[]>([]);
   const [portfolioGroupXrefs, setPortfolioGroupXrefs] = useState<MaintenancePortfolioGroupXref[]>([]);
   const [isAdmin,setIsAdmin] = useState<boolean>(false);
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState<number>();
 
   // Keep latest state refs to avoid stale closure reads in async calls
   const portfoliosRef = useRef<MaintenancePortfolio[]>([]);
@@ -74,10 +75,10 @@ export function usePortfolios({ userInfo }: UsePortfoliosProps) {
   }, []);
 
   const reloadGroupXref = useCallback(async () => {
-    const xrefData = await fetchPortfolioGroupXrefs();
-    setPortfolioGroupXrefs(xrefData);
-    return xrefData;
-  }, []);
+    const allXrefData = await fetchPortfolioGroupXrefs();
+    const xrefData:MaintenancePortfolioGroupXref[] = allXrefData?.filter(x=> x.portfolioId == selectedPortfolioId);
+    setPortfolioGroupXrefs(xrefData?? []);
+  }, [selectedPortfolioId]);
 
   // Initial load
   useEffect(() => {
@@ -85,12 +86,12 @@ export function usePortfolios({ userInfo }: UsePortfoliosProps) {
 
     const loadData = async () => {
       try {
-        const [portfolioData, divData, deptData, portGrpData, portGrpDataXref, adminData] = await Promise.all([
+        const [portfolioData, divData, deptData, portGrpData, adminData] = await Promise.all([
             fetchPortfolios(),
             fetchDivisions(),
             fetchDepartments(),
             fetchPortfolioGroups(),
-            fetchPortfolioGroupXrefs(),
+            //fetchPortfolioGroupXrefs(),
             fetchAdminUsers(),
           ]);
 
@@ -98,9 +99,9 @@ export function usePortfolios({ userInfo }: UsePortfoliosProps) {
 
           setPortfolios((portfolioData ?? []).map(p => ({ ...p, active: p.status === "Active" || p.status === "A" })));
           setDivisions(divData ?? []);
-          setDepartments(deptData ?? []);
+          setDepartments(deptData?.filter(x=> x.divisionId??0 > 0)??[]);
           setPortfolioGroups(portGrpData ?? []);
-          setPortfolioGroupXrefs(portGrpDataXref ?? []);
+          //setPortfolioGroupXrefs(portGrpDataXref ?? []);
           const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
           if(u){
               setIsAdmin(true);
@@ -181,7 +182,20 @@ export function usePortfolios({ userInfo }: UsePortfoliosProps) {
     setPortfolios(prevList => prevList.filter(item => item.portfolioId !== portfolioId));
   }, []);
 
+  const onSelectionChanged = async (selectedKeys: number[]) => {
+    const key: number = selectedKeys[0];
+    setSelectedPortfolioId(key);
+  }
   // --- Portfolio Group Xref CRUD ---
+  useEffect(() => { 
+    void (async () => {
+      if (selectedPortfolioId) {
+        await reloadGroupXref();
+      } else {
+        setPortfolioGroupXrefs([]);
+      }
+    })();
+  }, [selectedPortfolioId, reloadGroupXref]);
 
   const addPortfolioGroupXref = useCallback(
     async (values: Partial<MaintenancePortfolioGroupXref>) => {
@@ -241,6 +255,8 @@ export function usePortfolios({ userInfo }: UsePortfoliosProps) {
     // ✅ these now update state (required for onSaving)
     reload,
     reloadGroupXref,
+    onSelectionChanged,
+    selectedPortfolioId,
 
     addPortfolio,
     modifyPortfolio,

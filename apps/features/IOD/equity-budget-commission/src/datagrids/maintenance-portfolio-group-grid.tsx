@@ -12,6 +12,8 @@ import TabPanel, { Item as TabItem} from 'devextreme-react/tab-panel';
 import { ValidationMessage } from '../components/validations-message';
 import { Item as FormItem } from 'devextreme-react/form';
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 const onRowDblClickHandler = (e: DataGridTypes.RowDblClickEvent) => {
   e.component.editRow(e.rowIndex);
@@ -230,6 +232,8 @@ return (
                   title={popupTitle}  
                   width="35%" 
                   height="30%"  
+                  minHeight='200px' 
+                  minWidth='350px' 
                   wrapperAttr={{ className: 'custom-popup-class' }}  
                 />  
                 <div className='div-container-center'>
@@ -282,14 +286,20 @@ return (
               <Column dataField="portfolioGroupId" caption="Portfolio Group Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >  
                 <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupName" />  
               </Column>
-              <Column dataField="portfolioGroupId" caption="Portfolio Group Code" width="15%" allowFiltering={false} allowSorting={true} dataType="string" >  
-                <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupCode" />  
+              <Column caption="Portfolio Group Code" width="20%" allowFiltering={false} allowSorting={true} dataType="string" 
+                  calculateCellValue={(rowData) => {
+                    const pg = portfolioGroups.find(pg => pg.portfolioGroupId === rowData.portfolioGroupId);
+                    return pg?.portfolioGroupCode ?? null;
+                  }}>  
               </Column>              
               <Column dataField="portfolioId" caption="Portfolio Code" width="15%" allowEditing={false} allowFiltering={false} allowSorting={true} alignment="left" dataType="string" >
                 <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioCode" />
               </Column>  
-              <Column dataField="portfolioId" caption="Portfolio Name" width="40%" allowFiltering={false} allowEditing={false} allowSorting={true} dataType="string" >
-                <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioName" />
+              <Column caption="Portfolio Name" width="35%" allowFiltering={false} allowEditing={false} allowSorting={true} dataType="string" 
+                  calculateCellValue={(rowData) => {
+                    const p = portfolios.find(p => p.portfolioId === rowData.portfolioId);
+                    return p?.portfolioName ?? null;
+                  }}>
               </Column>
             </DataGrid>
           </div>

@@ -125,6 +125,33 @@
     align-items: center;
 }
 
+.analystPerformanceChartWrapper {
+    position: relative;
+}
+
+.analystPerformanceBlurred {
+    filter: blur(4px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.analystPerformanceOverlayMessage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    padding: 36px 48px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    pointer-events: none;
+}
+
 .equity-dashboard {
     margin: 0 2%;
 }

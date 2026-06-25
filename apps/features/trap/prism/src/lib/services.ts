@@ -96,6 +96,16 @@ const prismEquityListOfActiveAnalysts =
 export const getActiveAnalystsLists = () =>
   serviceRequest(prismEquityListOfActiveAnalysts)().get("");
 
+// -------------------- Weekly Equities (Live Funds) Export --------------------
+const prismLiveFundsBaseUrl = import.meta.env.VITE_R2_TRAP_PRISM_BASE_URL;
+
+// Server-generated weekly equities workbook (binary .xlsx response)
+export const getWeeklyEquitiesExport = () =>
+  serviceRequest(prismLiveFundsBaseUrl, "application/json", 60000)().get(
+    "/iint/api/v1/equity/live-funds/export",
+    { responseType: "blob" }
+  );
+
 // export const getAnalystPerformanceListByDate = (targetDate: {
 //   startDate: string;
 //   endDate: string;

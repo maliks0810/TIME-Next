@@ -1,0 +1,55 @@
+{
+    "id": "cwd_tree",
+    "name": "Tree",
+    "version": 1,
+    "description": "A tree widget",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_tree",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [1, 2, 3, 4],
+                "title": "Communication Channel",
+                "type": "string",
+                "category": "Interactions"
+            },
+
+            "withSearch": {
+                "title": "has search",
+                "type": "boolean",
+                "default": true,
+                "category": "Interactions"
+            },
+            "schemaKey": {
+                "title": "Schema key",
+                "enum": ["dram.portfolios"],
+                "type": "string",
+                "category": "System Parameters"
+            }
+        },
+        "required": ["schemaKey"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "medium",
+            "label": "Medium",
+            "grid": {
+                "defaultW": 2,
+                "defaultH": 900,
+                "minW": 2,
+                "minH": 900,
+                "maxW": null,
+                "maxH": null
+            }
+        }
+    ]
+}

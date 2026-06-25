@@ -1,3 +1,7 @@
+export enum NoteType  {PAGR = 'PAGR',
+  PANET = 'PANET' ,
+  PABM = 'PABM' ,
+  PABM2 = 'PABM2'};
 export interface  PortfolioRow {
   portId: string,
   portfolioName: string,
@@ -47,6 +51,7 @@ export interface PerformanceReturnsResultResponse {
     portfolioGrossRows?: HistoryRow[],
 	  portfolioNetRows?: HistoryRow[],
     benchmarkRows?: HistoryRow[],
+    secondaryBenchmarkRows?: HistoryRow[],
     netFeeRows?: HistoryRow[],
     header?: PortfolioHeader,
     portfolioRow?: PortfolioRow,
@@ -80,4 +85,13 @@ export interface HistorySummaryRow {
 export interface ExclusionAccountRow {
   portfolioNumber?: string,
   portfolioName?: string,
+}
+
+export interface Note {
+  Id: number,
+  EntityType: string,
+  EntityId: string,
+  NoteText: string,
+  CreatedBy?: string,
+  CreatedAt?: string,
 }

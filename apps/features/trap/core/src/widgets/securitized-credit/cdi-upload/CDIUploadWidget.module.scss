@@ -5,17 +5,33 @@
     height: 214px;
     overflow: hidden;
 }
+
 .left {
     display: flex;
     flex-direction: column;
-    gap: 6;
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+    height: 100%;
 }
+
 .right {
     min-width: 0;
     overflow: hidden;
     height: 100%;
 }
+
 .vertical {
-    width: 1;
+    width: 1px;
     align-self: stretch;
+}
+
+.previewContainer {
+    width: 640px;
+    height: 280px;
+    position: relative;
+    pointer-events: none;
+    overflow: hidden;
+    transform: scale(0.35);
+    transform-origin: top left;
 }

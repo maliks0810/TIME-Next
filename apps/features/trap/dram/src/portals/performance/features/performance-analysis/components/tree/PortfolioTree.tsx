@@ -1,108 +1,213 @@
-import React from "react";
-import TreeView, { TreeViewTypes } from "devextreme-react/tree-view";
+import React, { useMemo, useState } from "react";
+import { Input, Tree, Card, Typography } from "antd";
 import { PortfolioRow } from "./../../lib/types";
 import { fetchPortfolioListService } from "../../lib/services";
+import type { DataNode } from "antd/es/tree";
+import { useUserInfo } from "@platform/utils";
+const { Text } = Typography;
+type PortfolioTreeNode = DataNode & {
+    key: string;
+    title: string;
+    children?: PortfolioTreeNode[];
+};
 
-
-function useDebounced<T>(value: T, delayMs: number) {
-  const [debounced, setDebounced] = React.useState(value);
-
-  React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(t);
-  }, [value, delayMs]);
-
-  return debounced;
+function startsWithSearch(value: string, searchText: string): boolean {
+  return value.toLowerCase().startsWith(searchText.toLowerCase());
 }
 
+function nodeMatches(node: PortfolioTreeNode, searchText: string): boolean {
+  if (!searchText.trim()) return true;
+
+  return (
+    startsWithSearch(String(node.key), searchText) ||
+    startsWithSearch(String(node.title), searchText)
+  );
+}
+
+function filterTree(
+  nodes: PortfolioTreeNode[],
+  searchText: string
+): PortfolioTreeNode[] {
+  if (!searchText.trim()) return nodes;
+
+  return nodes
+    .map((node) => {
+      const children = node.children
+        ? filterTree(node.children, searchText)
+        : [];
+
+      const isMatch = nodeMatches(node, searchText);
+
+      if (isMatch || children.length > 0) {
+        return {
+          ...node,
+          children,
+        };
+      }
+
+      return null;
+    })
+    .filter(Boolean) as PortfolioTreeNode[];
+}
+
+function collectKeys(nodes: PortfolioTreeNode[]): React.Key[] {
+  const keys: React.Key[] = [];
+
+  nodes.forEach((node) => {
+    keys.push(node.key);
+
+    if (node.children) {
+      keys.push(...collectKeys(node.children));
+    }
+  });
+
+  return keys;
+}
 export default function PortfolioTree({
   onSelect,
 }: {
   onSelect: (id: string) => void;
 }) {
-  const [search, setSearch] = React.useState("");
   const [portfolioList, setPortfolioList] = React.useState<PortfolioRow[]>([]);
+  const [searchText, setSearchText] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const userInfo = useUserInfo();
+ //  fetch ONCE only
 
-  const debouncedSearch = useDebounced(search, 250);
+React.useEffect(() => {
+  let cancelled = false;
 
-  // ✅ fetch ONCE only
-  React.useEffect(() => {
-    let cancelled = false;
+  (async () => {
 
-    (async () => {
-      const resp = await fetchPortfolioListService();
-      if (!cancelled) {
-        setPortfolioList(resp?.data?.results ?? []);
+    const resp = await fetchPortfolioListService(encodeURIComponent(userInfo?.name ?? ''));
+
+    if (!cancelled) {
+      const sorted = [...(resp?.data?.results ?? [])].sort((a, b) =>
+        a.portId.localeCompare(b.portId)
+      );
+
+      setPortfolioList(sorted);
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+const fullTreeData = useMemo<PortfolioTreeNode[]>(() => {
+  const map = new Map<string, PortfolioTreeNode>();
+
+  portfolioList.forEach((p) => {
+    if (!p.portId.includes("-")) {
+      map.set(p.portId, {
+        key: p.portId,
+        title: `${p.portId} - ${p.portfolioName}`,
+      });
+      return;
+    }
+
+    const parentKey = p.portId.split("-")[0];
+
+    if (!map.has(parentKey)) {
+      map.set(parentKey, {
+        key: parentKey,
+        title: parentKey,
+        children: [],
+      });
+    }
+
+    const parent = map.get(parentKey)!;
+
+    if (!parent.children) parent.children = [];
+
+    parent.children.push({
+      key: p.portId,
+      title: `${p.portId} - ${p.portfolioName}`,
+    });
+  });
+
+  return Array.from(map.values());
+}, [portfolioList]);
+const filteredTreeData = useMemo(() => {
+  return filterTree(fullTreeData, searchText);
+}, [fullTreeData, searchText]);
+
+const displayTreeData = useMemo<PortfolioTreeNode[]>(() => {
+  const flatten = (nodes: PortfolioTreeNode[]): PortfolioTreeNode[] => {
+    return nodes.flatMap((node) => {
+      if (node.children && node.children.length === 1) {
+        // flatten AFTER search
+        return node.children;
       }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // ✅ FAST filtering (in-memory, debounced)
-  const filteredItems = React.useMemo(() => {
-    if (!debouncedSearch) return portfolioList;
-
-    const s = debouncedSearch.toLowerCase();
-
-    return portfolioList.filter(
-      (x) =>
-        x.portId.toLowerCase().includes(s) ||
-        x.portfolioName.toLowerCase().includes(s)
-    );
-  }, [portfolioList, debouncedSearch]);
-
-  // ✅ build tree
-  const treeItems = React.useMemo(() => {
-    return [
-      {
-        id: "root",
-        text: "Portfolios",
-        expanded: true,
-        items: filteredItems.map((r) => ({
-          id: r.portId,
-          text: `${r.portId} - ${r.portfolioName}`,
-          portId: r.portId,
-        })),
-      },
-    ];
-  }, [filteredItems]);
-
-  // ✅ FIXED naming + typing
-  const onItemClick = React.useCallback(
-    (e: TreeViewTypes.ItemClickEvent) => {
-      const item = e.itemData;
-
-      if (!item || item.id === "root") {
-        onSelect("");
-        return;
+      if (node.children) {
+        return [{ ...node, children: flatten(node.children) }];
       }
+      return node;
+    });
+  };
 
-      onSelect(item.portId ?? item.id);
-    },
-    [onSelect]
-  );
+  return flatten(filteredTreeData);
+}, [filteredTreeData]);
+
+
+const autoExpandedKeys = useMemo(() => {
+  if (!searchText.trim()) return [];
+  return collectKeys(filteredTreeData);
+}, [filteredTreeData, searchText]);
+
+const mergedExpandedKeys = searchText
+  ? autoExpandedKeys
+  : expandedKeys;
+
 
   return (
-    <>
-      {/* ✅ simple search UI */}
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search portfolios..."
+    <Card title="Portfolios">
+      <Input.Search
+        placeholder="Search by portfolio key or text..."
+        allowClear
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        style={{ marginBottom: 12 }}
       />
 
-      <TreeView
-        items={treeItems}
-        dataStructure="tree"
-        displayExpr="text"
-        keyExpr="id"
-        expandEvent="click"
-        selectionMode="single"
-        onItemClick={onItemClick}
-      />
-    </>
+      <Text type="secondary">
+        Search matches when key or text starts with the entered value.
+      </Text>
+
+
+<Tree
+  treeData={displayTreeData}
+  selectedKeys={selectedKeys}
+  expandedKeys={mergedExpandedKeys}
+  autoExpandParent
+  onExpand={(keys) => setExpandedKeys(keys)}
+  onSelect={(keys, info) => {
+    setSelectedKeys(keys);
+
+    const key = info.node.key as string;
+    const isLeaf = !info.node.children || info.node.children.length === 0;
+    const isSelectableParent =
+      /^[A-Za-z0-9]+T$/.test(key) && !!info.node.children?.length;
+
+    //  toggle expand manually when parent clicked
+    if (!isLeaf) {
+      const isExpanded = mergedExpandedKeys.includes(key);
+
+      setExpandedKeys((prev) =>
+        isExpanded
+          ? prev.filter((k) => k !== key)
+          : [...prev, key]
+      );
+    }
+
+    if (isLeaf || isSelectableParent) {
+      onSelect(key);
+    }
+  }}
+/>
+
+    </Card>
+
   );
 }

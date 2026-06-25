@@ -22,6 +22,14 @@ import SecurityLookupWidget from '../widgets/securitized-credit/security-lookup/
 import { TextWidget } from '../widgets/common/text/Text';
 import { CommentWidget } from '../widgets/dram/comment/CommentWidget';
 import { DateSelect } from '../widgets/common/date-select/DateSelect';
+import { ButtonWidget } from '../widgets/common/button/Button';
+import { TreeWidget } from '../widgets/common/tree/Tree';
+import { RadioButton } from '../widgets/common/radio-button/RadioButton';
+import { DynamicText } from '../widgets/common/dynamic-text/DynamicText';
+import { TabsControl } from '../widgets/dram/tabs-control/TabsControl';
+import { PortfolioInfo } from '../widgets/dram/info/PortfolioInfo';
+import AssetStagingWidget from '../widgets/securitized-credit/new-asset/asset-staging/AssetStagingWidget';
+import { HeatGridWidget } from '../widgets/common/heatgrid/HeatGridWidget';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -63,6 +71,24 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
             'workflow.refresh',
         ],
         emitsKeys: ['asset.staged.trancheId', 'asset.staged.trancheName', 'asset.isNew'],
+    },
+    cwd_new_asset_staging_01: {
+        id: 'cwd_new_asset_staging_01',
+        component: AssetStagingWidget,
+        category: 'NA-RMBS',
+        visibleIn: ['workflow'],
+        listensToKeys: [
+            'deal.id',
+            'deal.name',
+            'asset.staged.trancheId',
+            'asset.staged.trancheName',
+            'analysis.sessionId',
+            'scenario.selectedResultId',
+            'scenario.selectedSummary',
+            'asset.isNew',
+            'workflow.refresh',
+        ],
+        emitsKeys: [],
     },
     cwd_common_data_grid_01: {
         id: 'cwd_common_data_grid_01',
@@ -206,6 +232,62 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         id: 'cwd_date_select',
         component: DateSelect,
         category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_button: {
+        id: 'cwd_button',
+        component: ButtonWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_tree: {
+        id: 'cwd_tree',
+        component: TreeWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_radio: {
+        id: 'cwd_radio',
+        component: RadioButton,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_dynamic_text: {
+        id: 'cwd_dynamic_text',
+        component: DynamicText,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    wd_tabs_control: {
+        id: 'wd_tabs_control',
+        component: TabsControl,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    wd_portfolio_info: {
+        id: 'wd_portfolio_info',
+        component: PortfolioInfo,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_heatmap: {
+        id: 'cwd_heatmap',
+        component: HeatGridWidget,
+        category: 'View',
         visibleIn: ['workflow'],
         listensToKeys: [],
         emitsKeys: [],

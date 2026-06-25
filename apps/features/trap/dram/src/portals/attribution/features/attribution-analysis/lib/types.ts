@@ -1,8 +1,14 @@
-import { DynamicGridState } from "../components/buildDynamicGrid";
-import { AnalyticsRow } from "./attributionRowModel";
 import { MetricLabel } from "./metrics";
 import { PeriodCode } from "./periods";
 
+export type FrequencyMode = "Monthly" | "Daily";
+export type AssetClass = "EM" | "EQ" | "FI" | "None";
+
+export const ASSET_CLASS_OPTIONS: { label: string; value: AssetClass }[] = [
+  { label: "Fixed Income (FI)", value: "FI" },
+  { label: "Equity (EQ)", value: "EQ" },
+  { label: "Emerging Market Fixed Income (EM)", value: "EM" },
+];
 
 export interface ColumnMeta {
   key: string;
@@ -24,34 +30,14 @@ export interface AnalyticsMetadata {
   metrics: MetricLabel[];
 }
 
-export interface AnalyticsResponse {
-  metadata: AnalyticsMetadata;
-  columns: ColumnMeta[];
-  rows: AnalyticsRow[];
-}
-
 export interface WorkspaceData {
   kpis?: [string, string][];
-}
-
-export
-interface WorkspaceState extends DynamicGridState {
-  frequencyMode: "Monthly" | "Daily";
-
-  asOfDate: string;
-  startDate: string;
-  endDate: string;
-
-  benchmarks: string[];
-
-  periods: PeriodCode[];
-  metrics: MetricLabel[];
 }
 
 export type PortBenchRow = Readonly<{
   PORTFOLIO_KEY: string;
   PORTFOLIO_NAME: string;
-  PORTFOLIO_GROUP_CODE: string | null;
+  PORTFOLIO_GROUP_CODE?: string | null;
 
   PORTFOLIO_BENCHMARK_CODE: string | null;
   PORTFOLIO_BENCHMARK_NAME: string | null;
@@ -65,6 +51,66 @@ export type SelectOption = Readonly<{
   label: string;
   group?: string;
 }>;
-export interface WorkspaceResponse {
-  rows?: AnalyticsRow[];
+
+  export interface WorkspaceState  {
+  frequencyMode: "Monthly" | "Daily";
+  primaryGrouping: string;
+  secondaryGrouping?: string;
+  tertiaryGrouping?: string;
+
+  asOfDate: string;
+  startDate: string;
+  endDate: string;
+  portfolios: string,
+  benchmarks: string;
+
+  periods: PeriodCode[];
+  metrics: MetricLabel[];
+  baseCurrency:string | 'USD',
+  carveOut:string | 'None',
+
+  filters: string[] | ["None"],
+
+  layoutMode: string |  "Grouped Grid",
+  detailPanels: string[] |  ["Notes", "Validation", "Contributors"],
 }
+export type Props = {
+  onComplete?: () => void;
+  onConfigure?: () => void;
+  onCallback?: (info: string, targetView?: string) => void;
+  assetClass?: string;
+  isConfigView?: boolean,
+};
+
+
+export interface DispersionRequest {
+    selectedDate?: string,
+}
+
+export interface DispersionReportResponse {
+    columns?: string,
+    data?: string[]
+}
+
+
+export interface DispersionReportPayloadData {
+  name: string;
+  age: number;
+}
+export type Primitive = string | number | boolean | null;
+export type GridRow = Record<string, Primitive>;
+export type Grid = { title: string; rows?: GridRow[] };
+
+export type AttributionDispersionResponse = {
+  message: string;
+  data: {
+    metadata: {
+      page_title: string;
+      value_date: string;
+      grid_count: number;
+      request_id: string | null;
+      timestamp: string;
+    };
+    grids?: Grid[];
+  }
+};

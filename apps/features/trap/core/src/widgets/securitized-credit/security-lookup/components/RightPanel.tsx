@@ -3,31 +3,36 @@ import {
     CloseCircleOutlined,
     HistoryOutlined,
     ArrowRightOutlined,
+    ClockCircleOutlined,
 } from '@ant-design/icons';
-import { RECENT_SEARCHES } from '../mock';
 import { RecentSearch, SearchResult } from '../types';
 import { assetTypeColor } from '../utils';
 import { FieldRow } from './FieldRow';
-import { Tag, Typography, theme } from 'antd';
-const { Text } = Typography;
+import { Tag, theme } from 'antd';
 import styles from './RightPanel.module.scss';
+
 type RightPanelProps = {
     selected: SearchResult | null;
+    recentSearches: RecentSearch[];
     handleRecentClick: (recent: RecentSearch) => void;
     handleClear: () => void;
 };
-export const RightPanel = ({ selected, handleRecentClick, handleClear }: RightPanelProps) => {
+
+export const RightPanel = ({
+    selected,
+    handleClear,
+}: RightPanelProps) => {
     const { token } = theme.useToken();
+
     if (selected) {
-        const hasTrancheCtx = !!selected.context['tranche.id'];
         return (
             <div className={styles.wrapper}>
                 <div className={styles.security}>
                     <div className={styles.text}>
                         <CheckCircleFilled style={{ fontSize: 13, color: token.colorSuccess }} />
-                        <Text style={{ fontSize: 12, fontWeight: 700, color: token.colorSuccess }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: token.colorSuccess }}>
                             Security loaded
-                        </Text>
+                        </span>
                     </div>
                     <CloseCircleOutlined
                         onClick={handleClear}
@@ -48,7 +53,7 @@ export const RightPanel = ({ selected, handleRecentClick, handleClear }: RightPa
                     }}
                 >
                     <div style={{ marginBottom: 8 }}>
-                        <Text
+                        <span
                             style={{
                                 fontSize: 13,
                                 fontWeight: 700,
@@ -57,7 +62,7 @@ export const RightPanel = ({ selected, handleRecentClick, handleClear }: RightPa
                             }}
                         >
                             {selected.name}
-                        </Text>
+                        </span>
                         <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
                             <Tag
                                 color={assetTypeColor(selected.assetType)}
@@ -65,11 +70,6 @@ export const RightPanel = ({ selected, handleRecentClick, handleClear }: RightPa
                             >
                                 {selected.assetType}
                             </Tag>
-                            {hasTrancheCtx && (
-                                <Tag color="blue" style={{ fontSize: 10, margin: 0 }}>
-                                    Tranche
-                                </Tag>
-                            )}
                         </div>
                     </div>
                     <FieldRow label="CUSIP" value={selected.cusip} mono />
@@ -85,77 +85,98 @@ export const RightPanel = ({ selected, handleRecentClick, handleClear }: RightPa
         <div className={styles.container}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <HistoryOutlined style={{ fontSize: 11, color: token.colorTextTertiary }} />
-                <Text
-                    className={styles.label}
+                <span
                     style={{
+                        fontSize: 10,
+                        lineHeight: '14px',
+                        fontWeight: 700,
+                        letterSpacing: '0.07em',
+                        textTransform: 'uppercase',
                         color: token.colorTextTertiary,
                     }}
                 >
                     Recent searches
-                </Text>
+                </span>
             </div>
-            <div
-                style={{
-                    borderRadius: token.borderRadiusSM,
-                    border: `1px solid ${token.colorBorderSecondary}`,
-                    overflow: 'hidden',
-                    width: '100%',
-                }}
-            >
-                {RECENT_SEARCHES.map((result, idx) => (
-                    <div
-                        key={result.cusip}
-                        onClick={() => handleRecentClick(result)}
-                        className={styles.result}
-                        style={{
-                            background:
-                                idx % 2 === 0 ? token.colorBgContainer : token.colorFillAlter,
-                            borderBottom:
-                                idx < RECENT_SEARCHES.length - 1
-                                    ? `1px solid ${token.colorBorderSecondary}`
-                                    : 'none',
-                            transition: 'background 0.1s',
-                        }}
-                        onMouseEnter={(e) =>
-                            ((e.currentTarget as HTMLElement).style.background =
-                                token.colorPrimaryBg)
-                        }
-                        onMouseLeave={(e) =>
-                            ((e.currentTarget as HTMLElement).style.background =
-                                idx % 2 === 0 ? token.colorBgContainer : token.colorFillAlter)
-                        }
-                    >
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <Text
-                                className={styles.name}
-                                style={{
-                                    color: token.colorText,
-                                }}
-                            >
-                                {result.name}
-                            </Text>
-                            <Text
-                                style={{
-                                    fontSize: 10,
-                                    fontFamily: 'monospace',
-                                    color: token.colorTextTertiary,
-                                }}
-                            >
-                                {result.cusip}
-                            </Text>
-                        </div>
-                        <Tag color="default" className={styles.tag}>
-                            {result.collateralType}
-                        </Tag>
-                        <ArrowRightOutlined
+
+            <div className={styles.recentWrapper}>
+                {/* Blurred placeholder list */}
+                <div className={styles.recentBlurred}>
+                    {[1, 2, 3].map((i) => (
+                        <div
+                            key={i}
+                            className={styles.placeholderRow}
                             style={{
-                                fontSize: 11,
-                                color: token.colorTextQuaternary,
-                                flexShrink: 0,
+                                background:
+                                    i % 2 === 1
+                                        ? token.colorBgContainer
+                                        : token.colorFillAlter,
+                                borderBottom:
+                                    i < 3
+                                        ? `1px solid ${token.colorBorderSecondary}`
+                                        : 'none',
                             }}
-                        />
-                    </div>
-                ))}
+                        >
+                            <div style={{ flex: 1 }}>
+                                <div
+                                    className={styles.shimmer}
+                                    style={{
+                                        width: '70%',
+                                        height: 12,
+                                        borderRadius: 3,
+                                        background: token.colorFillSecondary,
+                                    }}
+                                />
+                                <div
+                                    className={styles.shimmer}
+                                    style={{
+                                        width: '40%',
+                                        height: 10,
+                                        borderRadius: 3,
+                                        marginTop: 6,
+                                        background: token.colorFillSecondary,
+                                    }}
+                                />
+                            </div>
+                            <ArrowRightOutlined
+                                style={{
+                                    fontSize: 11,
+                                    color: token.colorTextQuaternary,
+                                    opacity: 0.4,
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Overlay */}
+                <div className={styles.recentOverlay}>
+                    <ClockCircleOutlined
+                        style={{
+                            fontSize: 18,
+                            color: token.colorTextTertiary,
+                        }}
+                    />
+                    <span
+                        style={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: token.colorText,
+                        }}
+                    >
+                        Coming soon
+                    </span>
+                    <span
+                        style={{
+                            fontSize: 11,
+                            color: token.colorTextTertiary,
+                            textAlign: 'center',
+                            lineHeight: '16px',
+                        }}
+                    >
+                        Search history will appear here once connected to the bond search service.
+                    </span>
+                </div>
             </div>
         </div>
     );

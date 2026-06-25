@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { createDivision, updateDivision, deleteDivision, fetchDivisions } from '../services/division-service';
 import { fetchAdminUsers } from '../services/admin-user-service';
-import { MaintenanceDivision, RequestMaintenanceDivision } from '../datatypes/budget-maintenance-types';
+import { MaintenanceDivision, MaintenanceUser, RequestMaintenanceDivision } from '../datatypes/budget-maintenance-types';
 import { UserInfo } from '../../../../../../packages/utils/src/hooks/Authentication/user-info';
 
 interface UseDivisionsProps {
@@ -10,7 +10,21 @@ interface UseDivisionsProps {
 
 export function useDivisions({ userInfo }: UseDivisionsProps) {
   const [divisions, setDivisions] = useState<MaintenanceDivision[]>([]);
-  const [isAdmin,setIsAdmin] = useState<boolean>(false);
+  const [adminData, setAdminData] = useState<MaintenanceUser[]>([]);
+      
+  useEffect(() => {
+    // initial load
+    const loadAdminData = async() => {
+      const adData = await fetchAdminUsers();      
+      setAdminData(adData);
+    };
+
+    loadAdminData();
+  }, []);
+
+  const isAdmin = Array.isArray(adminData) && userInfo?.name
+      ? adminData.some(a => `${a.firstName ?? ''} ${a.lastName ?? ''}`.trim() === userInfo.name)
+      : false;
 
   const normalize = useCallback((items: MaintenanceDivision[]) => {
     return (items ?? []).map(d => ({
@@ -21,21 +35,11 @@ export function useDivisions({ userInfo }: UseDivisionsProps) {
 
   const reload = useCallback(async () => {
     const data = await fetchDivisions();
-    setDivisions(normalize(data));
+    setDivisions(normalize(data));      
   }, [normalize]);
 
-  useEffect(() => {
-    // initial load
-    const loadAdminData = async() => {
-      const [adminData] = await Promise.all([
-        fetchAdminUsers()
-      ]);
-      const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
-      if(u){
-        setIsAdmin(true);
-      }
-    };
-    loadAdminData();
+
+  useEffect(() => {    
     void reload();
   }, [reload]);
 

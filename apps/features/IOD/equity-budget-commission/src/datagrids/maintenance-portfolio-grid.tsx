@@ -11,6 +11,8 @@ import TabPanel, { Item as TabItem} from 'devextreme-react/tab-panel';
 import { ValidationMessage } from '../components/validations-message';
 import { Item as FormItem } from 'devextreme-react/form';
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 const onRowDblClickHandler = (e: DataGridTypes.RowDblClickEvent) => {
   e.component.editRow(e.rowIndex);
@@ -60,10 +62,13 @@ const MaintenancePortfolioGrid: React.FC = () => {
     portfolioGroups,
     portfolioGroupXrefs,
     reload,
+    onSelectionChanged,
+    selectedPortfolioId,
+
     addPortfolio,  
     modifyPortfolio,  
     removePortfolio,
-    reloadGroupXref,
+    //reloadGroupXref,
     addPortfolioGroupXref,
     modifyPortfolioGroupXref,
     removePortfolioGroupXref,
@@ -71,8 +76,6 @@ const MaintenancePortfolioGrid: React.FC = () => {
   } = usePortfolios({ userInfo: userData });  
 
   const [popupTitle, setPopupTitle] = useState('');  
-  const [portfolioGroupFilterXrefs,setPortfolioGroupFilterXrefs] = useState<MaintenancePortfolioGroupXref[]>([])
-  const [selectedPortfolioId,setSelectedPortfolioId] = useState<number>()
 
   const [toastConfig, setToastConfig] = useState<ToastConfig>({  
     visible: false,  
@@ -163,12 +166,7 @@ const MaintenancePortfolioGrid: React.FC = () => {
 
           // refresh from server/state source
           await reload();
-
-          // if portfolio list changed, refresh xref filter (optional)
-          if (selectedPortfolioId) {
-            const filterGrpXref = portfolioGroupXrefs.filter(x => x.portfolioId === selectedPortfolioId);
-            setPortfolioGroupFilterXrefs(filterGrpXref);
-          }
+          
         } catch (err) {
           showToast(`Save error: ${(err as Error).message}`, 'error');
           throw err;
@@ -182,7 +180,7 @@ const MaintenancePortfolioGrid: React.FC = () => {
       reload,
       showToast,
       portfolios,
-      portfolioGroupXrefs,
+      //reloadGroupXref,
       selectedPortfolioId,
       isAdmin
     ]
@@ -225,13 +223,7 @@ const MaintenancePortfolioGrid: React.FC = () => {
 
           e.component.cancelEditData();
 
-          await reloadGroupXref();
-
-          // re-apply filter after reload (so the tab stays in sync)
-          if (selectedPortfolioId) {
-            const filterGrpXref = portfolioGroupXrefs.filter(x => x.portfolioId === selectedPortfolioId);
-            setPortfolioGroupFilterXrefs(filterGrpXref);
-          }
+          //await reloadGroupXref();          
         } catch (err) {
           showToast(`Save error: ${(err as Error).message}`, 'error');
           throw err;
@@ -242,7 +234,7 @@ const MaintenancePortfolioGrid: React.FC = () => {
       addPortfolioGroupXref,
       modifyPortfolioGroupXref,
       removePortfolioGroupXref,
-      reloadGroupXref,
+      //reloadGroupXref,
       showToast,
       selectedPortfolioId,
       portfolioGroupXrefs,
@@ -251,15 +243,6 @@ const MaintenancePortfolioGrid: React.FC = () => {
   );
 
   
-  // selection  
-  const onSelectionChanged = async (selectedKeys: number[]) => {
-      const key: number = selectedKeys[0];
-      setSelectedPortfolioId(key);
-
-      const filterGrpXref: MaintenancePortfolioGroupXref[] = portfolioGroupXrefs.filter(x=> x.portfolioId == key);
-      setPortfolioGroupFilterXrefs(filterGrpXref);
-  }; 
-
   /** Portfolio Group XRef */
   const handleXRefEditingStart = () => {  
     setPopupTitle('Edit Portfolio Group XRef');  
@@ -313,7 +296,9 @@ return (
                   showTitle={true}  
                   title={popupTitle}  
                   width="30%"  
-                  height="35%" 
+                  height="30%" 
+                  minHeight='250px' 
+                  minWidth='400px' 
                   wrapperAttr={{ className: 'custom-popup-class' }}  
                 />  
                 <div className='div-container-center'>
@@ -361,7 +346,7 @@ return (
         <TabItem title="Portfolio Group xRef">
           <div className="grid-container-small">
             <DataGrid 
-              dataSource={portfolioGroupFilterXrefs}
+              dataSource={portfolioGroupXrefs}
               keyExpr="portfolioGroupXrefId"  
               allowColumnResizing={true}  
               allowColumnReordering={true}  
@@ -388,47 +373,55 @@ return (
                   data-testid="popup"  
                   showTitle={true}  
                   title={popupTitle}  
-                  width="35%"  
-                  height="30%" 
+                  width="30%"  
+                  height="25%" 
+                  minHeight='200px' 
+                  minWidth='400px' 
                   wrapperAttr={{ className: 'custom-popup-class' }}  
                 />  
                 <div className='div-container-center'>
-                  <Form colCount={1} width="90%">
+                  <Form colCount={1} width="95%">
                     <FormItem dataField="portfolioId" label={{text:"Portfolio"}} editorType="dxSelectBox" 
                       editorOptions={{
                         dataSource: portfolios, displayExpr:"portfolioName", valueExpr:"portfolioId",
                         searchEnabled:true, searchMode: "contains"
                       }}
-                      cssClass="dx-common-selectbox-short80" />
+                      cssClass="dx-common-selectbox" />
                     <FormItem dataField="portfolioGroupId" label={{text:"Portfolio Group"}} editorType="dxSelectBox"
                       editorOptions={{
                         dataSource: portfolioGroups, displayExpr:"portfolioGroupName", valueExpr:"portfolioGroupId",
                         searchEnabled:true, searchMode: "contains"
                       }} 
-                      cssClass="dx-common-selectbox-short80" />   
+                      cssClass="dx-common-selectbox" />   
                   </Form>  
                 </div>
               </Editing>  
-
-              <Column dataField="portfolioGroupId" caption="Portfolio Group Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >  
+              <Column dataField="portfolioGroupXrefId" visible={false} />
+              <Column dataField="portfolioGroupId" caption="Portfolio Group Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >                  
                 <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupName" />
                 <RequiredRule message={ValidationMessage.RequiredField} />
               </Column>
-              <Column dataField="portfolioGroupId" caption="Portfolio Group Code" width="20%" allowFiltering={false} allowSorting={true} dataType="string" >  
-                <Lookup dataSource={portfolioGroups} valueExpr="portfolioGroupId" displayExpr="portfolioGroupCode" />  
+              <Column caption="Portfolio Group Code" width="20%" allowFiltering={false} allowSorting={true} dataType="string"
+                  calculateCellValue={(rowData) => {
+                    const pg = portfolioGroups.find(pg => pg.portfolioGroupId === rowData.portfolioGroupId);
+                    return pg?.portfolioGroupCode ?? null;
+                  }}>
               </Column>              
               <Column dataField="portfolioId" caption="Portfolio Code" width="15%" allowFiltering={false} allowSorting={true} alignment="left" dataType="string" >
                 <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioCode" />
                 <RequiredRule message={ValidationMessage.RequiredField} />
               </Column>  
-              <Column dataField="portfolioId" caption="Portfolio Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" >
-                <Lookup dataSource={portfolios} valueExpr="portfolioId" displayExpr="portfolioName" />
+              <Column caption="Portfolio Name" width="30%" allowFiltering={false} allowSorting={true} dataType="string" 
+                  calculateCellValue={(rowData) => {
+                    const p = portfolios.find(p => p.portfolioId === rowData.portfolioId);
+                    return p?.portfolioName ?? null;
+                  }}>
               </Column>
               <Column type="buttons" width="5%" visible={isAdmin? true: false}>  
                 <Button name="edit" visible={false} />  
                 <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Portfolio" visible={true} />  
               </Column>  
-              <Toolbar visible={isAdmin? true: false}>  
+              <Toolbar visible={isAdmin? true: false}  disabled={selectedPortfolioId?false:true}>  
                 <Item name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>  
               </Toolbar>
             </DataGrid>

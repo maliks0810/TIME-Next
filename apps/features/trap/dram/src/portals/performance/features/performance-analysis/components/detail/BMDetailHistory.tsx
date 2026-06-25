@@ -2,29 +2,49 @@ import React, { useState } from 'react';
 import { ToolbarPreparingEvent } from "devextreme/ui/data_grid";
 import DataGrid, { Column, ColumnFixing, Paging, Scrolling, SearchPanel } from 'devextreme-react/data-grid';
 import HistoryHeader from './HistoryHeader';
-import { HistoryRow } from '../../lib/types';
-import { saveNotesService } from '../../lib/services';
+import { HistoryRow, Note, NoteType } from '../../lib/types';
+import { fetchPerformanceNotesService, saveNotesService } from '../../lib/services';
 import { useUserInfo } from '@platform/utils';
 
 
-export default function BMDetailHistory({portfolioId, rows, onToolbarPreparing }: { portfolioId: string, rows: HistoryRow[], onToolbarPreparing: (id: ToolbarPreparingEvent) => void}) {
+export default function BMDetailHistory({portfolioId,isSecondary, rows, onToolbarPreparing }:
+  { portfolioId: string,isSecondary: boolean, rows: HistoryRow[], onToolbarPreparing: (id: ToolbarPreparingEvent) => void}) {
   const [notes, setNotes] = useState('');
+  const [historicalNotes, setHistoricalNotes] = useState<Note[]>([]);
   const onDetailToolbarPreparing = React.useCallback((e: ToolbarPreparingEvent) => {
     onToolbarPreparing(e);
   }, [onToolbarPreparing]);
   const user = useUserInfo();
   const handleSave = async (value: string) => {
       try {
-        await saveNotesService(value,"PABM",portfolioId, user.email);
-
+        if(isSecondary === true)
+          await saveNotesService(value,NoteType.PABM2.toString(),portfolioId, user.email);
+        else {
+           await saveNotesService(value,NoteType.PABM.toString(),portfolioId, user.email);
+        }
       } catch {
       }
     };
+  const handleLoadHistoryNotes = async() => {
+    try {
+      const noteType = isSecondary === true ? NoteType.PABM2.toString() :NoteType.PABM.toString();
+      const resp =  await fetchPerformanceNotesService(noteType ,portfolioId);
+      const newRows = resp?.data ?? [];
+      setHistoricalNotes(newRows);
+      console.log(newRows);
+      } catch {
+
+      }
+  };
+      React.useEffect(() => {
+           handleLoadHistoryNotes();
+      }, []);
   return (
     <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
       <div style={{height: '80px', width:"95%"}}>
         <HistoryHeader
           notes={notes} onNotesChange={setNotes} onSave={handleSave} portfolioId={portfolioId}
+          historicalNotes={historicalNotes} onRefresh={handleLoadHistoryNotes}
         />
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>

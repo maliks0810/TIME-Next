@@ -65,7 +65,7 @@ export const generateMonthRange = (
   const startDate = new Date(startYear, startMonth - 1);
   const now = new Date();
 
-  // ✅ current month - 1
+  //  current month - 1
   const endDate = new Date(now.getFullYear(), now.getMonth() - 1);
 
   const months: string[] = [];

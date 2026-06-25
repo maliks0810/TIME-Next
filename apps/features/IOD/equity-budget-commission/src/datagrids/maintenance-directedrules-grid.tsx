@@ -29,6 +29,8 @@ import { ToastConfig, ToastType } from '../components/toast-config';
 import { useDirectedRules  } from '../hooks/useDirectedRules';
 import { ValidationMessage } from '../components/validations-message';
 import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 import { MaintenanceBroker, MaintenanceDirectedRules, MaintenanceDirectedRulesXref } from '../datatypes/budget-maintenance-types';
 import { LoadIndicator } from 'devextreme-react';
@@ -325,10 +327,12 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                     title={popupTitle}
                     width="40%"
                     height="30%"
+                    minHeight='250px' 
+                    minWidth='400px' 
                     wrapperAttr={{ className: 'custom-popup-class' }}
                   />
                   <div className="div-container-center">
-                    <Form colCount={2} width="90%">
+                    <Form colCount={2} width="95%">
                       <FormItem colSpan={1} dataField="active" label={{ text: 'Active' }} editorType="dxCheckBox"/>
                       <FormItem colSpan={1} dataField="directedRulesCode" editorType="dxTextBox"  cssClass="textInput-popup-short"/>
                       <FormItem colSpan={1} dataField="budgetPercent" editorType="dxNumberBox" cssClass="textInput-popup-num"/>
@@ -414,6 +418,8 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                       title={popupTitle}
                       width="30%"
                       height="30%"
+                      minHeight='250px' 
+                      minWidth='400px' 
                       wrapperAttr={{ className: 'custom-popup-class' }}
                     />
                     <div className="div-container-center">
@@ -427,7 +433,7 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                         editorOptions={{
                           searchEnabled: true, searchMode: "contains" 
                         }}                      
-                        cssClass="dx-common-selectbox-short60"
+                        cssClass="dx-common-selectbox-short80"
                       />
                       <FormItem
                         dataField="brokerCode" editorType="dxSelectBox" label={{text:"Broker"}} 
@@ -447,7 +453,7 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                           dataSource:directedRules, valueExpr:"directedRulesId", displayExpr:"directedRulesName",
                           searchEnabled: true, searchMode: "contains"
                         }}
-                        cssClass="dx-common-selectbox-short80"
+                        cssClass="dx-common-selectbox"
                       />                      
                     </Form>
                   </div>
@@ -478,7 +484,7 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                     <Button name="delete" cssClass="dx-datagrid-delete-button" text="Delete Directed Rules Xref" visible={true}/>
                   </Column>
 
-                <Toolbar visible={isAdmin ?true:false} >
+                <Toolbar visible={isAdmin ?true:false} disabled={selectedDirectedRuleId?false:true}>
                   <ToolbarItem name="addRowButton" location="before" showText="always" options={{icon:'plus', text:'Add'}}/>
                 </Toolbar>
               </DataGrid>

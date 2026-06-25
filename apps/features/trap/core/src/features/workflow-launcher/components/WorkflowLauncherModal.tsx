@@ -120,10 +120,9 @@ export default function WorkflowLauncherModal(props: Props) {
 
     const isMyDepartment = (item: WorkflowLauncherItem) => {
         const { claims } = user;
-        if (!item.scopeKey) return false;
+        if (!claims || !item.scopeKey) return false;
         // If first level is not matching do not return
         if (item.scopeKey['OrgLevel1'] !== claims['OrgLevel1']) return false;
-
         if (item.scopeKey['OrgLevel2'] !== claims['OrgLevel2']) return false;
 
         return true;
