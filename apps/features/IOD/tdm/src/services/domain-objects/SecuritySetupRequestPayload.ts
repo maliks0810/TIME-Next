@@ -20,6 +20,7 @@ export type WizardStep =
  */
 export interface ISecuritySetupRequestPresentation {
     securitySetupRequestId: number | null;
+    externalSecuritySetupRequestId: number | null;
     isNewIssue: boolean | null;
     isCdiFileUploadedToAnswer: boolean | null;
     aladdinCdiId: string | null;
@@ -96,6 +97,7 @@ export interface ISecuritySetupRequestAttachment {
  */
 export interface ISecuritySetupRequestDomain {
     SecuritySetupRequestId?: number | null;
+    ExternalSecuritySetupRequestId?: number | null;
     IsNewIssue?: boolean | null;
     IsCdiFileUploadedToAnswer?: boolean | null;
     AladdinCdiId?: string;
@@ -170,6 +172,7 @@ export interface ISecuritySetupRequestDomain {
  */
 export interface ISecuritySetupWizardPayload {
     securitySetupRequestId?: number | null;
+    externalSecuritySetupRequestId?: number | null;
     currentStep: WizardStep;
     currentStepNumber: number;
     savedAt: string; // ISO 8601 format
