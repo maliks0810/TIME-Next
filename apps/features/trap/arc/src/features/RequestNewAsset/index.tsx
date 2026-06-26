@@ -1,17 +1,20 @@
-import { Form, InputNumber, message, Modal, Select, Input, FormInstance } from 'antd';
+import { Form, InputNumber, message, Modal, Select, Input, Switch } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { useUserInfo } from '@platform/utils';
-import { requestNewAsset } from '../../lib/services';
+import { getMetaData, requestNewAsset } from '../../lib/services';
 import { hasValue, TRAPDatePicker } from '../../lib/helpers';
-import { PayloadItem, RequestedNewAsset, RequestNewAssetPayload } from '../../lib/types';
+import { MetaDataResponse, PayloadItem, RequestedNewAsset, RequestNewAssetPayload } from '../../lib/types';
 import { CALLABLE_OPTIONS, PREPAYMENT_TYPE_OPTIONS_ALL, PREPAYMENT_TYPE_OPTIONS_CMBS } from '../../shared/constants';
+import { useEffect, useState } from 'react';
+import AssetTypeselect from './AssetTypeselect';
 
 const initialFormValues = {
     assetClass: 'DEBT-FI',
     instrumentType: 'SD',
     assetType: 'NARMBS',
     interestRateScenario: 'Forward',
-    modelFamilyOverride: 'BRS v6.5'
+    modelFamilyOverride: 'BRS v6.5',
+    modelFamilyOverrideForAnalytics: 'BRS v6.5'
 };
 
 export const RequestNewAsset = ({
@@ -27,15 +30,14 @@ export const RequestNewAsset = ({
     const [, setSearchParams] = useSearchParams();
 
     const price = Form.useWatch('priceInputNA', form);
-    //const callDate = Form.useWatch('callDateInputNA', form);
     const aladdinId = Form.useWatch('aladdinId', form);
-
     const analysisDate = Form.useWatch('analysisDate', form);
     const collateralType = Form.useWatch('collateralType', form);
     const callable = Form.useWatch('callableInput', form);
     const callDate = Form.useWatch('callDateInputNA', form);
     const interestRateScenario = Form.useWatch('interestRateScenario', form);
     const modelFamilyOverride = Form.useWatch('modelFamilyOverride', form);
+    const modelFamilyOverrideForAnalytics = Form.useWatch('modelFamilyOverrideForAnalytics', form);
     const prepayTypeOptions = modelFamilyOverride === 'BRS v2.2'
         ? PREPAYMENT_TYPE_OPTIONS_CMBS
         : PREPAYMENT_TYPE_OPTIONS_ALL;
@@ -43,13 +45,24 @@ export const RequestNewAsset = ({
     const defaultSpeedInput = Form.useWatch('defaultSpeedInput', form);
     const prepaymentTypeInput = Form.useWatch('prepaymentTypeInput', form);
     const prepaymanetSpeedInput = Form.useWatch('prepaymanetSpeedInput', form);
-
+    const severityInputFormValue = Form.useWatch('severityInput', form);
+    const delinquencyInputFormValue = Form.useWatch('delinquencyInput', form);
+    const acceptModelOutputsFormValue = Form.useWatch('acceptModelOutputs', form);
+    const assetTypeFormValue = Form.useWatch('assetType', form);
+    const assetSubTypeFormValue = Form.useWatch('assetSubType', form);
+    const assetClassFormValue = Form.useWatch('assetClass', form);
+    const instrumentTypeFormValue = Form.useWatch('instrumentType', form);
+    const [metaData, setMetaData] = useState<MetaDataResponse | null>(null);
+    const [selectedAssetTypeValue, setSelectedAssetTypeValue] = useState<string | null>(null);
+    const [selectedAssetSubTypeValue, setSelectedAssetSubTypeValue] = useState<string | null>(null);
+    const [selectedCollateralTypeValue, setSelectedCollateralTypeValue] = useState<string | null>(null);
 
     const handleResetForm = () => {
         form.resetFields([
             'aladdinId',
             'priceInputNA',
             'assetType',
+            'assetSubType',
             'assetClass',
             'instrumentType',
             'collateralType',
@@ -63,9 +76,17 @@ export const RequestNewAsset = ({
             'severityInput',
             'delinquencyInput',
             'interestRateScenario',
-            'modelFamilyOverride'
+            'modelFamilyOverride',
+            'modelFamilyOverrideForAnalytics'
         ]);
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            form.resetFields();
+            setSelectedAssetTypeValue('NARMBS');
+        }
+    }, [isOpen, form]);
 
     const handleSelectAsset = (assetAnalyticsSetupId: number) => {
         const params = new URLSearchParams();
@@ -74,27 +95,28 @@ export const RequestNewAsset = ({
     };
 
     const buildNewAssetRequest = (
-        formInstance: FormInstance,
+        //formInstance: FormInstance,
         currentUser: { email: string }
     ): RequestNewAssetPayload => {
         // pull raw values once (use your *actual* Form.Item names)
-        const callableValue = formInstance.getFieldValue('callableInput'); // Y | N | C
-        const collateralTypeValue = formInstance.getFieldValue('collateralType');
-
-        const prepaymentTypeValue = formInstance.getFieldValue('prepaymentTypeInput');
-        const prepaymentSpeedValue = formInstance.getFieldValue('prepaymanetSpeedInput');
-        const defaultTypeValue = formInstance.getFieldValue('defaultTypeInput');
-        const defaultSpeedValue = formInstance.getFieldValue('defaultSpeedInput');
-        const severityValue = formInstance.getFieldValue('severityInput');
-        const delinquencyValue = formInstance.getFieldValue('delinquencyInput');
-        const interestRateScenarioValue = formInstance.getFieldValue('interestRateScenario');
-        const modelFamilyOverrideValue = formInstance.getFieldValue('modelFamilyOverride');
+        const callableValue = callable; // Y | N | C
+        const collateralTypeValue = collateralType;
+        const prepaymentTypeValue = prepaymentTypeInput;
+        const prepaymentSpeedValue = prepaymanetSpeedInput;
+        const defaultTypeValue = defaultTypeInput;
+        const defaultSpeedValue = defaultSpeedInput;
+        const severityValue = severityInputFormValue;
+        const delinquencyValue = delinquencyInputFormValue;
+        const interestRateScenarioValue = interestRateScenario;
+        const modelFamilyOverrideValue = modelFamilyOverride;
+        const modelFamilyOverrideForAnalyticsValue = modelFamilyOverrideForAnalytics;
+        const acceptModelOutputsValue = acceptModelOutputsFormValue;
 
         const payload: PayloadItem[] = [];
 
         // CALL_DATE (only if provided)
         if (isCallDateValid) {
-            const callDateValue = formInstance.getFieldValue('callDateInputNA');
+            const callDateValue = callDate;
             payload.push({
                 type: 'CALL_DATE',
                 parameters: { callDate: callDateValue },
@@ -118,10 +140,10 @@ export const RequestNewAsset = ({
         }
 
         // SECURITY_SETTINGS (only if provided)
-        if (hasValue(interestRateScenarioValue) || hasValue(modelFamilyOverrideValue)) {
+        if (hasValue(interestRateScenarioValue) || hasValue(modelFamilyOverrideValue) || hasValue(modelFamilyOverrideForAnalyticsValue)) {
             payload.push({
                 type: 'SECURITY_SETTINGS',
-                parameters: { interestRateScenario: interestRateScenarioValue, modelFamilyOverride: modelFamilyOverrideValue },
+                parameters: { interestRateScenario: interestRateScenarioValue, modelFamilyOverride: modelFamilyOverrideValue, modelFamilyOverrideForAnalytics: modelFamilyOverrideForAnalyticsValue, acceptModelOutputs: acceptModelOutputsValue },
             });
         }
 
@@ -145,14 +167,15 @@ export const RequestNewAsset = ({
         }
 
         const asset: RequestedNewAsset = {
-            aladdinId: formInstance.getFieldValue('aladdinId'),
-            price: Number(formInstance.getFieldValue('priceInputNA')),
-            assetType: formInstance.getFieldValue('assetType'),
+            aladdinId: aladdinId,
+            price: Number(price),
+            assetType: assetTypeFormValue,
+            assetSubType: assetSubTypeFormValue,
             requestedBy: currentUser.email,
             cdiCduBlob: '',
-            assetClass: formInstance.getFieldValue('assetClass'),
-            instrumentType: formInstance.getFieldValue('instrumentType'),
-            analysisDate: formInstance.getFieldValue('analysisDate'),
+            assetClass: assetClassFormValue,
+            instrumentType: instrumentTypeFormValue,
+            analysisDate: analysisDate,
             ...(payload.length > 0 ? { payload } : {}),
         };
 
@@ -163,7 +186,7 @@ export const RequestNewAsset = ({
         if (!price) return;
 
         try {
-            const requestBody = buildNewAssetRequest(form, user);
+            const requestBody = buildNewAssetRequest(user);
 
             const {
                 data: { response },
@@ -179,17 +202,74 @@ export const RequestNewAsset = ({
         }
     };
 
+    useEffect(() => {
+
+        const fetch = async () => {
+            try {
+                const reponse = await getMetaData();
+                setMetaData(reponse.data);
+
+                const firstAssetType = reponse.data.assetTypes.find(at => at);
+                if (firstAssetType) {
+                    setSelectedAssetTypeValue(firstAssetType.assetTypeValue);
+                    const firstSubType = firstAssetType.assetSubTypes.find(ast => ast);
+                    if (firstSubType) {
+                        setSelectedAssetSubTypeValue(firstSubType.assetSubTypeValue);
+                    }
+                }
+            } catch (e) {
+                console.error('Unable to fetch meta data', e);
+            }
+        };
+
+        fetch();
+    }, []);
+
+
     const handleCancel = () => {
         onClose();
         handleResetForm();
     };
 
+    // Get filtered lists based on selections 
+    const assetTypes = metaData?.assetTypes || [];
+    const assetSubTypes =
+        assetTypes?.find(at => at.assetTypeValue === assetTypeFormValue)?.assetSubTypes || [];
+    const collateralTypes =
+        assetSubTypes?.find(ast => ast.assetSubTypeValue === assetSubTypeFormValue)?.collateralTypes || [];
+
+    // Handlers for cascading selects  
+    const onAssetTypeChange = (value: string) => {
+        setSelectedAssetTypeValue(value);
+        setSelectedAssetSubTypeValue(null);
+        setSelectedCollateralTypeValue(null);
+
+        form.resetFields([
+            'assetSubType',
+            'collateralType',
+        ]);
+    };
+
+    const onAssetSubTypeChange = (value: string) => {
+        setSelectedAssetSubTypeValue(value);
+        setSelectedCollateralTypeValue(null);
+
+        form.resetFields([
+            'collateralType',
+        ]);
+    };
+
+    const onCollateralTypeChange = (value: string) => {
+        setSelectedCollateralTypeValue(value);
+    };
+
+    // If callable is C or Y then call date needs to be valid value. If the callable is N then assume callDate is valid
     const isCallDateValid = (callable === 'Y' || callable === 'C') ? hasValue(callDate) : true;
 
     // Call date is optional (per your requirement). Require only aladdinId + price.
     const okDisabled = !(hasValue(aladdinId) && hasValue(price) && hasValue(collateralType) && hasValue(analysisDate)
-        && hasValue(callable) && isCallDateValid && hasValue(interestRateScenario) && hasValue(modelFamilyOverride)
-        && ((hasValue(defaultTypeInput) && hasValue(defaultSpeedInput)) || !hasValue(defaultTypeInput) )
+        && hasValue(callable) && isCallDateValid && hasValue(interestRateScenario) && hasValue(modelFamilyOverride) && hasValue(modelFamilyOverrideForAnalytics)
+        && ((hasValue(defaultTypeInput) && hasValue(defaultSpeedInput)) || !hasValue(defaultTypeInput))
         && ((hasValue(prepaymentTypeInput) && hasValue(prepaymanetSpeedInput)) || !hasValue(prepaymentTypeInput)));
 
     return (
@@ -222,10 +302,10 @@ export const RequestNewAsset = ({
                     }}
                     style={{
                         display: 'grid',
-                        gridTemplateColumns: '120px 1fr',
-                        gap: 14,
+                        gridTemplateColumns: '220px 1fr',
+                        gap: 20,
                         alignItems: 'center',
-                        padding: '12px 0px 0px 24px',
+                        padding: '7px 0px 0px 24px',
                     }}
                 >
                     <label htmlFor="assetclass">
@@ -263,54 +343,44 @@ export const RequestNewAsset = ({
                         />
                     </Form.Item>
 
-                    <label htmlFor="assetType">
-                        <strong>Asset Type</strong>
-                    </label>
-                    <Form.Item name="assetType" noStyle>
-                        <Select
-                            defaultValue="NARMBS"
-                            style={{
-                                width: '180px',
-                                padding: '4px',
-                                borderRadius: '6px',
-                                border: '1px solid lightgray',
-                                backgroundColor: 'white',
-                            }}
-                            options={[{ label: 'Non Agency RMBS', value: 'NARMBS' }]}
-                        />
-                    </Form.Item>
+                    <AssetTypeselect
+                        label="Asset Type"
+                        name="assetType"
+                        value={selectedAssetTypeValue}
+                        onChange={onAssetTypeChange}
+                        defaultValue="NARMBS"
+                        options={assetTypes.map(at => ({
+                            label: at.assetTypeDescription || at.assetTypeValue,
+                            value: at.assetTypeValue,
+                        }))}
+                    />
 
-                    <label htmlFor="collateralType">
-                        <strong>Collateral Type*</strong>
-                    </label>
-                    <Form.Item name="collateralType" required={true} noStyle>
-                        <Select
-                            placeholder="Select Collateral Type"
+                    <AssetTypeselect
+                        label="Asset Sub Type"
+                        name="assetSubType"
+                        value={selectedAssetSubTypeValue}
+                        onChange={onAssetSubTypeChange}
+                        placeholder="Select Asset Sub Type"
+                        options={assetSubTypes.map(at => ({
+                            label: at.assetSubTypeDescription || at.assetSubTypeValue,
+                            value: at.assetSubTypeValue,
+                        })) || []}
+                        allowClear
+                    />
 
-                            style={{
-                                width: '260px',
-                                padding: '4px',
-                                borderRadius: '6px',
-                                border: '1px solid lightgray',
-                                backgroundColor: 'white',
-                            }}
-                            options={[
-                                { label: 'Closed-End Second (CES)', value: 'CES' },
-                                { label: 'Non-Qualified Mortgage (NQM)', value: 'NQM' },
-                                { label: 'Prime Jumbo (PJ)', value: 'PJ' },
-                                { label: 'Non-Performing Loan (NPL)', value: 'NPL' },
-                                { label: 'Home Equity Line of Credit (HELOC)', value: 'HELOC' },
-                                { label: 'Re-Performing Loan (RPL)', value: 'RPL' },
-                                { label: 'Single Family Rental (SFR)', value: 'SFR' },
-                                { label: 'Agency Investor (AGI)', value: 'AGI' },
-                                { label: 'Residential Transition Loans (RTL)', value: 'RTL' },
-                                { label: 'Legacy (LEG)', value: 'LEG' },
-                                { label: 'Credit Risk Transfer (CRT)', value: 'CRT' },
-                                { label: 'Manufactured Housing (MH)', value: 'MH' },
-                                { label: 'Other (OTH)', value: 'OTH' },
-                            ]}
-                        />
-                    </Form.Item>
+                    <AssetTypeselect
+                        label="Collateral Type"
+                        name="collateralType"
+                        value={selectedCollateralTypeValue}
+                        onChange={onCollateralTypeChange}
+                        placeholder="Select Collateral Type"
+                        options={collateralTypes.map(at => ({
+                            label: at.collateralTypeDescription || at.collateralTypeValue,
+                            value: at.collateralTypeValue,
+                        })) || []}
+                        allowClear
+                        required
+                    />
 
                     <label htmlFor="aladdinId">
                         <strong>Aladdin Id*</strong>
@@ -357,7 +427,6 @@ export const RequestNewAsset = ({
                     </label>
                     <Form.Item noStyle name="interestRateScenario">
                         <Select
-                            // id="interestRateScenario"
                             defaultValue="Forward"
                             style={{ width: '120px' }}
                             options={[
@@ -368,11 +437,10 @@ export const RequestNewAsset = ({
                     </Form.Item>
 
                     <label htmlFor="modelFamilyOverride">
-                        <strong>Model Family Override</strong>
+                        <strong>Model Family Override For Scenario</strong>
                     </label>
                     <Form.Item noStyle name="modelFamilyOverride">
                         <Select
-                            // id="modelFamilyOverride"
                             defaultValue="BRS v6.5"
                             style={{ width: '120px' }}
                             options={[
@@ -384,7 +452,32 @@ export const RequestNewAsset = ({
                             ]}
                         />
                     </Form.Item>
-
+                    <label htmlFor="modelFamilyOverrideForAnalytics">
+                        <strong>Model Family Override For Analytics</strong>
+                    </label>
+                    <Form.Item noStyle name="modelFamilyOverrideForAnalytics">
+                        <Select
+                            defaultValue="BRS v6.5"
+                            style={{ width: '120px' }}
+                            options={[
+                                { label: 'BRS v6.5', value: 'BRS v6.5' },
+                                { label: 'BRS v6.4', value: 'BRS v6.4' },
+                                { label: 'BRS v2.2', value: 'BRS v2.2' },
+                                { label: 'BRCLO v2.01', value: 'BRCLO v2.01' },
+                                { label: 'STATIC', value: 'STATIC' }
+                            ]}
+                        />
+                    </Form.Item>
+                    <label htmlFor="acceptModelOutputs">
+                        <strong>Use SAC API</strong>
+                    </label>
+                    <Form.Item name="acceptModelOutputs" noStyle valuePropName="checked">
+                        <Switch
+                            style={{
+                                width: '20px',
+                            }}
+                        />
+                    </Form.Item>
                     <label htmlFor="callableInput">
                         <strong>Callable*</strong>
                     </label>

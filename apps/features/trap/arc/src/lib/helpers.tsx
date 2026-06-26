@@ -5,6 +5,14 @@ import { DatePicker } from 'antd';
 import dayjs from 'dayjs';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+const tryParse = (s: string): any | null => {
+    try {
+        return JSON.parse(s);
+    } catch {
+        return null;
+    }
+};
+
 export function extractCallDate(payload: unknown): string {
     // Must return YYYY-MM-DD or ''
     const coerceToYMD = (v: unknown): string => {
@@ -20,14 +28,6 @@ export function extractCallDate(payload: unknown): string {
         return '';
     };
 
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
-
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
 
@@ -39,14 +39,14 @@ export function extractCallDate(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractCallDate(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractCallDate(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 
@@ -54,13 +54,6 @@ export function extractCallDate(payload: unknown): string {
 }
 
 export function extractCallDateText(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
 
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
@@ -73,11 +66,11 @@ export function extractCallDateText(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractCallDateText(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractCallDateText(serializedPayload);
         }
     }
 
@@ -85,13 +78,6 @@ export function extractCallDateText(payload: unknown): string {
 }
 
 export function extractCollateralType(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
 
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
@@ -104,14 +90,14 @@ export function extractCollateralType(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractCollateralType(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractCollateralType(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 
@@ -119,13 +105,7 @@ export function extractCollateralType(payload: unknown): string {
 }
 
 export function extractCallable(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
+
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
 
@@ -137,14 +117,14 @@ export function extractCallable(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractCallable(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractCallable(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 
@@ -152,13 +132,6 @@ export function extractCallable(payload: unknown): string {
 }
 
 export function extractPrepaymentType(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
 
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
@@ -171,14 +144,14 @@ export function extractPrepaymentType(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractPrepaymentType(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractPrepaymentType(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 
@@ -186,13 +159,6 @@ export function extractPrepaymentType(payload: unknown): string {
 }
 
 export function extractInfoInterestRateScenarioType(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
 
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
@@ -205,27 +171,20 @@ export function extractInfoInterestRateScenarioType(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractInfoInterestRateScenarioType(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractInfoInterestRateScenarioType(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 
     return '';
 }
-export function extractInfoModelFamilyOverrideType(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
+export function extractInfoModelFamilyOverrideForInputsType(payload: unknown): string {
 
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
@@ -238,14 +197,122 @@ export function extractInfoModelFamilyOverrideType(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractInfoModelFamilyOverrideType(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractInfoModelFamilyOverrideForInputsType(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+
+export function extractInfoModelFamilyOverrideType(payload: unknown): string {
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const secruitySettings = arr.find((x: any) => String(x?.type).toUpperCase() === 'SECURITY_SETTINGS');
+        if (!secruitySettings) return '';
+
+        return secruitySettings?.parameters?.modelFamilyOverride;
+    }
+
+    if (typeof payload === 'string') {
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractInfoModelFamilyOverrideType(serializedPayload);
+        }
+
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+
+export function extractInfoApplyMultiplierEnabledType(payload: unknown): boolean {
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const secruitySettings = arr.find((x: any) => String(x?.type).toUpperCase() === 'OAD_OAC_MULTIPLIER');
+        if (!secruitySettings) return false;
+
+        return secruitySettings?.parameters?.applyMultiplier;
+    }
+
+    if (typeof payload === 'string') {
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return Boolean(extractInfoApplyMultiplierEnabledType(serializedPayload));
+        }
+
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
+        return Boolean(match?.[0]);
+    }
+
+    return false;
+}
+export function extractInfoAcceptModelOutputsType(payload: unknown): boolean {
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const secruitySettings = arr.find((x: any) => String(x?.type).toUpperCase() === 'SECURITY_SETTINGS');
+        if (!secruitySettings) return false;
+
+        return secruitySettings?.parameters?.acceptModelOutputs;
+    }
+
+    if (typeof payload === 'string') {
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            // Assuming extractInfoModelFamilyOverrideType returns a boolean or something truthy/falsy  
+            return Boolean(extractInfoAcceptModelOutputsType(serializedPayload));
+        }
+
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
+        return Boolean(match?.[0]);
+    }
+
+    return false;
+}
+
+export function extractInfoModelFamilyOverrideForAnalyticsInputsType(payload: unknown): string {
+
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const secruitySettings = arr.find((x: any) => String(x?.type).toUpperCase() === 'SECURITY_SETTINGS');
+        if (!secruitySettings) return '';
+
+        return secruitySettings?.parameters?.modelFamilyOverrideForAnalytics;
+    }
+
+    if (typeof payload === 'string') {
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractInfoModelFamilyOverrideForAnalyticsInputsType(serializedPayload);
+        }
+
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 
@@ -253,13 +320,6 @@ export function extractInfoModelFamilyOverrideType(payload: unknown): string {
 }
 
 export function extractOriginalAssetSetupId(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
 
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
@@ -272,14 +332,14 @@ export function extractOriginalAssetSetupId(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractOriginalAssetSetupId(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractOriginalAssetSetupId(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 
@@ -287,14 +347,7 @@ export function extractOriginalAssetSetupId(payload: unknown): string {
 }
 
 export function extractPrepaymentSpeed(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
-
+ 
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
 
@@ -306,14 +359,14 @@ export function extractPrepaymentSpeed(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractPrepaymentSpeed(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractPrepaymentSpeed(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 
@@ -321,14 +374,7 @@ export function extractPrepaymentSpeed(payload: unknown): string {
 }
 
 export function extractDefaultType(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
-
+ 
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
 
@@ -340,14 +386,14 @@ export function extractDefaultType(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractDefaultType(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractDefaultType(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 
@@ -355,14 +401,7 @@ export function extractDefaultType(payload: unknown): string {
 }
 
 export function extractDefaultSpeed(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
-
+ 
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
 
@@ -374,14 +413,14 @@ export function extractDefaultSpeed(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractDefaultSpeed(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractDefaultSpeed(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 
@@ -389,14 +428,7 @@ export function extractDefaultSpeed(payload: unknown): string {
 }
 
 export function extractSeverity(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
-
+ 
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
 
@@ -408,14 +440,14 @@ export function extractSeverity(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractSeverity(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractSeverity(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 
@@ -423,14 +455,7 @@ export function extractSeverity(payload: unknown): string {
 }
 
 export function extractDelinquency(payload: unknown): string {
-    const tryParse = (s: string): any | null => {
-        try {
-            return JSON.parse(s);
-        } catch {
-            return null;
-        }
-    };
-
+  
     if (payload && typeof payload === 'object') {
         const obj: any = payload;
 
@@ -442,14 +467,41 @@ export function extractDelinquency(payload: unknown): string {
     }
 
     if (typeof payload === 'string') {
-        const s1 = payload.trim();
-        const obj1 = tryParse(s1);
-        if (obj1) {
-            const obj2 = typeof obj1 === 'string' ? tryParse(obj1) : obj1;
-            return extractDelinquency(obj2);
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractDelinquency(serializedPayload);
         }
 
-        const match = s1.match(/\d{4}-\d{2}-\d{2}/);
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
+        return match?.[0] ?? '';
+    }
+
+    return '';
+}
+
+export function extractMultiplierValue(payload: unknown): string {
+ 
+    if (payload && typeof payload === 'object') {
+        const obj: any = payload;
+
+        const arr = Array.isArray(obj?.payload) ? obj.payload : [];
+        const speed = arr.find((x: any) => String(x?.type).toUpperCase() === 'OAD_OAC_MULTIPLIER');
+        if (!speed) return '';
+
+        return speed?.parameters?.multiplierValue;
+    }
+
+    if (typeof payload === 'string') {
+        const payloadAsString = payload.trim();
+        const payloadAsJsonObject = tryParse(payloadAsString);
+        if (payloadAsJsonObject) {
+            const serializedPayload = typeof payloadAsJsonObject === 'string' ? tryParse(payloadAsJsonObject) : payloadAsJsonObject;
+            return extractMultiplierValue(serializedPayload);
+        }
+
+        const match = payloadAsString.match(/\d{4}-\d{2}-\d{2}/);
         return match?.[0] ?? '';
     }
 

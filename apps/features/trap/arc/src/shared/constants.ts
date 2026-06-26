@@ -60,7 +60,7 @@ export const RUN_ANALYTICS_BUTTON_HELPTEXT =
     'Enabled for no override required bonds rightaway, for other bonds only when Status is ANALYTICS INPUT SENT TO ALADDIN, MANUAL, ANALYTICS INPUT PENDING REVIEW or INVALID REQUEST.';
 export const ABANDON_BUTTON_HELPTEXT =
     'Enabled only when status is neither ANALYTICS VERIFIED IN ALADDIN nor ABANDONED.';
-export const PREVIEW_BOND_BUTTON_TEXT = 'Enabled only when collateral type is CES, NPL or NQM';
+export const PREVIEW_BOND_BUTTON_TEXT = 'Enabled only when you have a multiplier to override';
 export const PREVIEW_ANALYTICS_BUTTON_TEXT = 'Enabled only when analytics are available.';
 export const PREVIEW_STATIC_BUTTON_TEXT = 'Enabled only when an asset has call/speed overrides.';
 export const MANUAL_BUTTON_HELP_TEXT = 'Click this button to switch to manual mode.';
