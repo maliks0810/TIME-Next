@@ -724,6 +724,25 @@
     appearance: auto;
   }
 
+    #rwm-app-root .rwm-page-title {
+    font-size: 13px !important;
+  }
+
+  #rwm-app-root .rwm-rules-reference-header--rule-style {
+    min-height: 36px;
+    border-bottom: 1px solid var(--tcw-grey-200);
+    background-color: var(--tcw-grey-100);
+    padding: 8px 12px;
+  }
+
+  #rwm-app-root .rwm-rules-reference-title--rule-style {
+    color: var(--tcw-grey-700);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
   @media (max-width: 1100px) {
     #rwm-app-root .waterfall-rules-layout,
     #rwm-app-root .rwm-candidate-layout,

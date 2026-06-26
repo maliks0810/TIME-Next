@@ -3,13 +3,13 @@ import type { JSX } from 'react';
 import { useEffect } from 'react';
 import { useTreasuryInstruments } from '../../api';
 import { cn } from '../../ui/utils';
-import { useWaterfallManagerStore } from './store/waterfallManagerStore';
 import type { WaterfallManagerTab } from './model/waterfallTypes';
+import { useWaterfallManagerStore } from './store/waterfallManagerStore';
+import { WaterfallHistoryTab } from './tabs/WaterfallHistoryTab';
+import { WaterfallPreviewTab } from './tabs/WaterfallPreviewTab';
+import { WaterfallRulesTab } from './tabs/WaterfallRulesTab';
 import { WaterfallSetupTab } from './tabs/WaterfallSetupTab';
 import { WaterfallTenorInstrumentsTab } from './tabs/WaterfallTenorInstrumentsTab';
-import { WaterfallRulesTab } from './tabs/WaterfallRulesTab';
-import { WaterfallPreviewTab } from './tabs/WaterfallPreviewTab';
-import { WaterfallHistoryTab } from './tabs/WaterfallHistoryTab';
 import './waterfall-overrides.css';
 
 const TABS: Array<{ id: WaterfallManagerTab; label: string }> = [
@@ -17,7 +17,7 @@ const TABS: Array<{ id: WaterfallManagerTab; label: string }> = [
   { id: 'tenorInstruments', label: 'Tenor Instruments' },
   { id: 'rules', label: 'Rules' },
   { id: 'preview', label: 'Preview' },
-  { id: 'history', label: 'History' },
+  { id: 'history', label: 'Change History' },
 ];
 
 function renderSelectedTab(tab: WaterfallManagerTab): JSX.Element {

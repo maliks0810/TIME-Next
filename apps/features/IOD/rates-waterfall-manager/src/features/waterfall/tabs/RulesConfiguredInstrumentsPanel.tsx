@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import { useTreasuryInstruments, type RwmTreasuryInstrument } from '../../../api';
 import { cn } from '../../../ui/utils';
 import { sortWaterfallBuckets } from '../model/waterfallClientResolver';
-import { getWaterfallRuleSetKey, useWaterfallManagerStore } from '../store/waterfallManagerStore';
 import type {
   WaterfallBucket,
   WaterfallInstrumentType,
@@ -11,6 +10,7 @@ import type {
   WaterfallSide,
   WaterfallStepInstrumentType,
 } from '../model/waterfallTypes';
+import { getWaterfallRuleSetKey, useWaterfallManagerStore } from '../store/waterfallManagerStore';
 
 type ConfiguredInstrument = {
   securityId: string;
@@ -41,7 +41,9 @@ export function RulesConfiguredInstrumentsPanel(): JSX.Element {
   const buckets = useWaterfallManagerStore((state) => state.graph.buckets);
   const ruleSets = useWaterfallManagerStore((state) => state.graph.ruleSets);
   const selectedRuleSetKey = useWaterfallManagerStore((state) => state.selectedRuleSetKey);
-  const tenorInstrumentBuckets = useWaterfallManagerStore((state) => state.graph.tenorInstrumentBuckets) as TenorInstrumentBucket[];
+  const tenorInstrumentBuckets = useWaterfallManagerStore(
+    (state) => state.graph.tenorInstrumentBuckets,
+  ) as TenorInstrumentBucket[];
   const treasuryInstrumentsQuery = useTreasuryInstruments();
 
   const orderedBuckets = sortWaterfallBuckets(buckets);
@@ -55,11 +57,8 @@ export function RulesConfiguredInstrumentsPanel(): JSX.Element {
 
   return (
     <section className="rwm-rules-reference-panel" aria-label="Configured instruments reference">
-      <div className="rwm-rules-reference-header">
-        <div>
-          <div className="rwm-rules-reference-title">Configured Instruments</div>
-          <div className="rwm-rules-reference-subtitle">Read-only · Live from current rule and Tenor Instruments setup</div>
-        </div>
+      <div className="rwm-rules-reference-header rwm-rules-reference-header--rule-style">
+        <div className="rwm-rules-reference-title rwm-rules-reference-title--rule-style">Configured Instruments</div>
       </div>
 
       <div className="rwm-rules-reference-scroll">
@@ -111,6 +110,7 @@ function InstrumentSide({
             tenorInstrumentBuckets,
             selectedRuleSet,
           });
+
           return (
             <InstrumentBucket
               key={`${side}-${bucket.bucketId}`}
@@ -218,6 +218,7 @@ function getInstrumentDuration(instrument: ConfiguredInstrument, treasuryDuratio
   for (const key of [instrument.securityId, instrument.securityKey, instrument.cusip]) {
     const normalized = normalizeKey(key);
     if (!normalized) continue;
+
     const duration = treasuryDurationBySecurity.get(normalized);
     if (duration !== undefined) return duration;
   }
@@ -227,6 +228,7 @@ function getInstrumentDuration(instrument: ConfiguredInstrument, treasuryDuratio
 
 function buildTreasuryDurationMap(rows: RwmTreasuryInstrument[]): Map<string, number> {
   const map = new Map<string, number>();
+
   for (const row of rows) {
     const duration = toNumberOrNull(row.duration ?? row.effectiveDuration);
     if (duration === null) continue;
@@ -236,6 +238,7 @@ function buildTreasuryDurationMap(rows: RwmTreasuryInstrument[]): Map<string, nu
       if (normalized) map.set(normalized, duration);
     }
   }
+
   return map;
 }
 

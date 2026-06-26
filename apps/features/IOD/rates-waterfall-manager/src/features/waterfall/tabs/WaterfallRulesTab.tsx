@@ -4,7 +4,12 @@ import { useState } from 'react';
 import { useRwmRhsGroups } from '../../../api';
 import { cn } from '../../../ui/utils';
 import { sortWaterfallBuckets } from '../model/waterfallClientResolver';
-import type { WaterfallBucket, WaterfallRuleSet, WaterfallSide, WaterfallStepInstrumentType } from '../model/waterfallTypes';
+import type {
+  WaterfallBucket,
+  WaterfallRuleSet,
+  WaterfallSide,
+  WaterfallStepInstrumentType,
+} from '../model/waterfallTypes';
 import { getWaterfallRuleSetKey, useWaterfallManagerStore } from '../store/waterfallManagerStore';
 import { RulesConfiguredInstrumentsPanel } from './RulesConfiguredInstrumentsPanel';
 
@@ -39,7 +44,11 @@ export function WaterfallRulesTab(): JSX.Element {
   const handleCreateRhsRule = () => {
     if (!rhsForCreate) return;
 
-    const key = createRuleSet({ name: newRuleName, matchType: 'RHS_GROUP', rhsGroupCode: rhsForCreate });
+    const key = createRuleSet({
+      name: newRuleName,
+      matchType: 'RHS_GROUP',
+      rhsGroupCode: rhsForCreate,
+    });
     setSelectedRuleSetKey(key);
     setNewRuleName('');
     setSelectedRhs('');
@@ -47,7 +56,11 @@ export function WaterfallRulesTab(): JSX.Element {
   };
 
   const handleCreateCatchAllRule = () => {
-    const key = createRuleSet({ name: 'Catch-All Rule', matchType: 'CATCH_ALL', rhsGroupCode: null });
+    const key = createRuleSet({
+      name: 'Catch-All Rule',
+      matchType: 'CATCH_ALL',
+      rhsGroupCode: null,
+    });
     setSelectedRuleSetKey(key);
   };
 
@@ -120,10 +133,7 @@ export function WaterfallRulesTab(): JSX.Element {
                 onClick={() => setSelectedRuleSetKey(key)}
                 className={cn('waterfall-rule-set-card', active && 'waterfall-rule-set-card-active')}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="truncate font-medium text-[12px]">{ruleSet.name}</span>
-                  <span className="text-[10px]">{ruleSet.rules.reduce((sum, row) => sum + row.steps.length, 0)}</span>
-                </div>
+                <div className="truncate font-medium text-[12px]">{ruleSet.name}</div>
                 <div className="truncate text-[10.5px]">
                   {ruleSet.matchType === 'CATCH_ALL' ? 'Catch-All' : `RHS · ${ruleSet.rhsGroupCode}`}
                 </div>
@@ -143,7 +153,9 @@ export function WaterfallRulesTab(): JSX.Element {
             />
             <select
               value={selectedRuleSet.matchType}
-              onChange={(event) => updateRuleSet(selectedKey, { matchType: event.target.value as 'RHS_GROUP' | 'CATCH_ALL' })}
+              onChange={(event) =>
+                updateRuleSet(selectedKey, { matchType: event.target.value as 'RHS_GROUP' | 'CATCH_ALL' })
+              }
               className="waterfall-rules-select rwm-rule-set-match-select"
             >
               <option value="RHS_GROUP">RHS Group</option>
@@ -181,7 +193,9 @@ function RuleSetEditor({ ruleSetKey, buckets }: { ruleSetKey: string; buckets: W
     state.graph.ruleSets.find((candidate) => getWaterfallRuleSetKey(candidate) === ruleSetKey),
   );
 
-  if (!ruleSet) return <div className="p-4 text-[12px] text-grey-600">Rule set is no longer available.</div>;
+  if (!ruleSet) {
+    return <div className="p-4 text-[12px] text-grey-600">Rule set is no longer available.</div>;
+  }
 
   return (
     <div className="rwm-rule-editor-area">
@@ -261,7 +275,9 @@ function RuleRowEditor({
               <select
                 value={step.tenorBucketId}
                 onChange={(event) =>
-                  updateRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder, { tenorBucketId: Number(event.target.value) })
+                  updateRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder, {
+                    tenorBucketId: Number(event.target.value),
+                  })
                 }
                 className="waterfall-rules-select rwm-rule-step-select"
               >
@@ -275,7 +291,11 @@ function RuleRowEditor({
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => updateRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder, { instrumentType: option.value })}
+                  onClick={() =>
+                    updateRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder, {
+                      instrumentType: option.value,
+                    })
+                  }
                   aria-pressed={step.instrumentType === option.value}
                   className={cn('waterfall-rule-type-button', step.instrumentType === option.value && 'waterfall-rule-type-button-active')}
                 >
