@@ -36,7 +36,7 @@ export type TableRow<T = any> = {
     createdDate?: string;
     raw: T;
 };
-
+export type ActiveView = 'assets' | 'configs';
 export type DealDetail = {
     message: string;
     operation: string; // potentially could be a separate type
@@ -91,6 +91,29 @@ export type NewAssetAnalyticsRepsonse = {
     notes: { response: NoteType[] };
     response: NewAsset;
 };
+
+export type CollateralType = {
+    collateralTypeId: number;
+    collateralTypeValue: string;
+    collateralTypeDescription: string;
+}
+export type AssetSubType = {
+    assetSubTypeId: number;
+    assetSubTypeValue: string;
+    assetSubTypeDescription: string;
+    collateralTypes: CollateralType[];
+}
+
+export type AssetType = {
+    assetTypeId: number;
+    assetTypeValue: string;
+    assetTypeDescription: string;
+    assetSubTypes: AssetSubType[];
+}
+
+export type MetaDataResponse = {
+    assetTypes: AssetType[];
+}
 
 export type NewAssetAnalytics = {
     // Identifiers
@@ -289,40 +312,82 @@ export type FilePreviewRequestCollection = {
 };
 
 export type PayloadItem =
-  | { type: 'CALL_DATE'; parameters: { callDate: string } }
-  | { type: 'CALLABLE'; parameters: { callable: string } }
-  | { type: 'COLLATERAL_TYPE'; parameters: { collateralType: string } }
-  | { type: 'SECURITY_SETTINGS'; parameters: { interestRateScenario: string,modelFamilyOverride:string } }
-  | { type: 'CORRECTION'; parameters: { assetAnalyticsSetupId: string } }
-  | {
-      type: 'SPEED_OVERRIDES';
-      parameters: {
-        prepaymentType?: string;
-        prepaymentSpeed?: number;
-        defaultType?: string;
-        defaultSpeed?: number;
-        severity?: number;
-        delinquency?: number;
-      };
+    | { type: 'CALL_DATE'; parameters: { callDate: string } }
+    | { type: 'CALLABLE'; parameters: { callable: string } }
+    | { type: 'COLLATERAL_TYPE'; parameters: { collateralType: string } }
+    | { type: 'SECURITY_SETTINGS'; parameters: { interestRateScenario: string, modelFamilyOverride: string, modelFamilyOverrideForAnalytics: string, acceptModelOutputs: boolean } }
+    | { type: 'CORRECTION'; parameters: { assetAnalyticsSetupId: string } }
+    | { type: 'OAD_OAC_MULTIPLIER'; parameters: { applyMultiplier: boolean, multiplierValue: number } }
+    | {
+        type: 'SPEED_OVERRIDES';
+        parameters: {
+            prepaymentType?: string;
+            prepaymentSpeed?: number;
+            defaultType?: string;
+            defaultSpeed?: number;
+            severity?: number;
+            delinquency?: number;
+        };
     };
 
+export type Callable = 'Y' | 'N' | 'C';
+
+export type ReviewType =
+    | 'Full Automation'
+    | 'Inputs Review'
+    | 'Analytics Review'
+    | 'Full Review';
+
+
+export type WorkflowRule = {
+    callable: Callable;
+    speedOverridesExist: boolean;
+    reviewType: ReviewType;
+};
+
+export type WorkflowRuleConfig = {
+    rules: WorkflowRule[],
+    defaultRule: ReviewType;
+};
+
+export type WorkflowConfig = {
+    configurationId: number;
+    workflowId: string;
+    assetType: string;
+    assetSubType?: string;
+    collateralType?: string;
+    isActive: boolean;
+    defaultOverrides: PayloadItem[];
+    defaultOverridesJson: string;
+    workflowRules: WorkflowRuleConfig;
+    workflowConfigurationJson: string;
+    lastModifiedBy: string;
+    lastModifiedAt: string;
+};
+
+export type WorkflowConfigRequest = Omit<
+    WorkflowConfig,
+    'configurationId' | 'modifiedBy' | 'modifiedAt'
+>;
+
 export type RequestedNewAsset = {
-  newAssetRequestId?: string;
-  aladdinId: string;
-  price: number;
-  assetType: string;
-  requestedBy: string;
-  cdiCduBlob: string;
+    newAssetRequestId?: string;
+    aladdinId: string;
+    price: number;
+    assetType: string;
+    assetSubType: string;
+    requestedBy: string;
+    cdiCduBlob: string;
 
-  assetClass: string;
-  instrumentType: string;
-  analysisDate: string;
+    assetClass: string;
+    instrumentType: string;
+    analysisDate: string;
 
-  payload?: PayloadItem[];
+    payload?: PayloadItem[];
 };
 
 export type RequestNewAssetPayload = {
-  assets: Array<RequestedNewAsset>;
+    assets: Array<RequestedNewAsset>;
 };
 
 export type AbandonAssetPayload = {
@@ -343,7 +408,6 @@ export type TRAPDatePickerProps = {
     onChange?: (valueString: string, valueDayjs: Dayjs | null) => void;
 };
 
-// Claim Asset Payload
 export type AnchorType = 'NAAID';
 
 export type Claim = {

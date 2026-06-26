@@ -3,20 +3,21 @@ import { Form, Select } from 'antd';
 export const AssetInfoModelFamilyOverrideType = ({
     value,
     title,
+    name
 }: {
     value?: string;
     title: string;
+    name: string;
 }) => {
     return (
         <div style={{ marginBottom: 8 }}>
             <div style={{ minHeight: 20, fontSize: 13 }}>
                 <Form.Item
-                    name="modelFamilyOverrideType"
+                    name={name}
                     rules={[{ required: false, message: 'Please select Model Family Override type!' }]}
                     noStyle
                 >
                     <Select
-                        id="modelFamilyOverrideType"
                         style={{ width: '120px' }}
                         value={value}
                         options={[
