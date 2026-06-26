@@ -33,6 +33,8 @@
     "postinstall": "npm run deps:check"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "4.2.4",
+    "@tailwindcss/vite": "4.2.4",
     "@types/node": "24.10.1",
     "@typescript-eslint/eslint-plugin": "8.50.0",
     "@typescript-eslint/parser": "8.50.0",
@@ -44,6 +46,7 @@
     "lint-staged": "16.2.7",
     "plop": "4.0.4",
     "syncpack": "13.0.4",
+    "tailwindcss": "4.2.4",
     "turbo": "2.7.1",
     "typescript": "5.9.3"
   },

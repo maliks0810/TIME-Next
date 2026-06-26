@@ -1,0 +1,15 @@
+@import "./tailwind.css";
+@import "./base.css";
+@import "./devextreme-overrides.css";
+@import "../features/waterfall/waterfall-overrides.css";
+@import "../features/waterfall/rules-instruments-panel.css";
+@import "../features/waterfall/waterfall-history.css";
+
+@layer components {
+  #rwm-app-root .adjustment-left-tree ul,
+  #rwm-app-root .adjustment-left-tree li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
