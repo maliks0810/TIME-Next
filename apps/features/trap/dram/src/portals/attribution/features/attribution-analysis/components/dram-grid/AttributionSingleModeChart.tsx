@@ -582,7 +582,7 @@ export default function AttributionSingleModeChart({
   }
 
   return (
-    <Space direction="vertical" size={12} style={{ width: "100%" }}>
+    <Space direction="vertical" size={12} style={{ width: "95%" }}>
       <div
         style={{
           display: "flex",
