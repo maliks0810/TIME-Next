@@ -233,17 +233,6 @@ const gridRowsByPeriod = useMemo<PeriodGridMap>(() => {
   return rawRowsByPeriod;
 }, [rawRowsByPeriod]);
 
-useEffect(() => {
-  console.log(
-    "EFFECTIVE COLUMNS",
-    effectiveColumns.map((c) => ({
-      id: c.id,
-      format: c.format,
-      metricType: c.metricType,
-    }))
-  );
-}, [effectiveColumns]);
-
   const periodKeys = useMemo(
     () => Object.keys(rawRowsByPeriod),
     [rawRowsByPeriod]
@@ -406,11 +395,6 @@ const compositeViewData = useMemo(() => {
       const meta = extractMetadata(resp);
       setPageTitle(meta.pageTitle);
       setValueDate(meta.valueDate);
-
-      // const nextGridConfig = extractGridConfig(resp);
-      // if (nextGridConfig) {
-      //   setGridConfig(nextGridConfig);
-      // }
 
       const rowsByPeriod = extractRowsByPeriod(resp);
       setRawRowsByPeriod(rowsByPeriod);
@@ -774,6 +758,35 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
     /*  SINGLE VIEW (UNCHANGED) */
     <Row gutter={[16, 16]}>
       <Col span={24}>
+        <DramGridProvider
+          config={gridConfig}
+          storageKey={`${storageKey}-${selectedPeriod}`}
+          allColumns={effectiveColumns}
+        >
+          <Card
+            loading={runningAnalysis}
+          >
+            <DramDataGrid
+              rows={
+                selectedSecurityGroup
+                  ? (gridRowsByPeriod[selectedPeriod] ?? []).filter(
+                      (r) =>
+                        String(r["SecurityGroup"] ?? "") ===
+                          selectedSecurityGroup ||
+                        String(r["SecurityGroup"] ?? "") === "Total"
+                    )
+                  : gridRowsByPeriod[selectedPeriod] ?? []
+              }
+              config={gridConfig}
+              height={420}
+              storageKey={`${storageKey}-${selectedPeriod}`}
+              isConfigView={false}
+              allColumns={effectiveColumns}
+            />
+          </Card>
+        </DramGridProvider>
+      </Col>
+      <Col span={24}>
         <Card
           title={
             <Row justify="space-between" align="middle">
@@ -808,35 +821,7 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
         </Card>
       </Col>
 
-      <Col span={24}>
-        <DramGridProvider
-          config={gridConfig}
-          storageKey={`${storageKey}-${selectedPeriod}`}
-          allColumns={effectiveColumns}
-        >
-          <Card
-            loading={runningAnalysis}
-          >
-            <DramDataGrid
-              rows={
-                selectedSecurityGroup
-                  ? (gridRowsByPeriod[selectedPeriod] ?? []).filter(
-                      (r) =>
-                        String(r["SecurityGroup"] ?? "") ===
-                          selectedSecurityGroup ||
-                        String(r["SecurityGroup"] ?? "") === "Total"
-                    )
-                  : gridRowsByPeriod[selectedPeriod] ?? []
-              }
-              config={gridConfig}
-              height={420}
-              storageKey={`${storageKey}-${selectedPeriod}`}
-              isConfigView={false}
-              allColumns={effectiveColumns}
-            />
-          </Card>
-        </DramGridProvider>
-      </Col>
+
     </Row>
   )}
 

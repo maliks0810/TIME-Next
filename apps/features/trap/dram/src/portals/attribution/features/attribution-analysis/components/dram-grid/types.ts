@@ -1,6 +1,6 @@
 import { FrequencyModeId } from "../attrib-analysis-config/types";
 
-export type ColumnFormat = "text" | "percent" | "bps";
+export type ColumnFormat = "text" | "percent" | "bps" | "percentage" | "currency" | "money" ;
 
 export interface ApiColumnConfig {
   id: string;
