@@ -2,156 +2,116 @@
     "id": "cwd_heatmap",
     "name": "Heatmap",
     "version": 1,
-    "description": "A heatmap widget",
+    "description": "Reusable heat map grid widget for domain driven tabular data with color-coded cells.",
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_heatmap",
     "listensToKeys": null,
-    "emitsKeys": [],
+    "emitsKeys": null,
     "configSchema": {
         "properties": {
+            "schemaKey": {
+                "description": "Logical heatmap schema resolved by GraphQL",
+                "enum": ["econ.indicators.heatmap"],
+                "default": "econ.indicators.heatmap",
+                "title": "Schema Key",
+                "type": "string",
+                "category": "System Parameters"
+            },
+            "title": {
+                "default": "",
+                "title": "Title",
+                "type": "string",
+                "category": "View Parameters"
+            },
+            "showTitle": {
+                "default": true,
+                "title": "Widget name in the header",
+                "type": "boolean",
+                "category": "View Parameters"
+            },
+            "showGrouping": {
+                "default": true,
+                "title": "Breadcrumb of active row groups",
+                "type": "boolean",
+                "category": "View Parameters"
+            },
+            "showLegend": {
+                "default": true,
+                "title": "Color legend",
+                "type": "boolean",
+                "category": "View Parameters"
+            },
+            "showTooltip": {
+                "default": true,
+                "title": "Hover a cell for detail",
+                "type": "boolean",
+                "category": "View Parameters"
+            },
+            "showExport": {
+                "default": true,
+                "title": "Excel download button",
+                "type": "boolean",
+                "category": "View Parameters"
+            },
+            "showExpand": {
+                "default": true,
+                "title": "Open every group",
+                "type": "boolean",
+                "category": "View Parameters"
+            },
+            "showCollapse": {
+                "default": true,
+                "title": "Close every group",
+                "type": "boolean",
+                "category": "View Parameters"
+            },
+            "settingsView": {
+                "default": "drawer",
+                "enum": ["drawer", "modal"],
+                "title": "Settings Panel View",
+                "type": "string",
+                "category": "View Parameters"
+            },
             "channel": {
                 "default": 1,
-                "description": "Widgets connected to the same channel able to share data between each other",
+                "description": "Widgets connected to the same channel are able to share data between each other",
                 "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
                 "type": "string",
                 "category": "Interactions"
             },
-            "showTitle": {
-                "title": "Widget name in the header",
-                "type": "boolean",
-                "default": true,
-                "category": "View Parameters"
-            },
-            "showGrouping": {
-                "title": "Breadcrumb of active row groups",
-                "type": "boolean",
-                "default": true,
-                "category": "View Parameters"
-            },
-            "showSearch": {
-                "title": "Filter box",
-                "type": "boolean",
-                "default": true,
-                "category": "View Parameters"
-            },
-            "showLegend": {
-                "title": "Heat-scale key",
-                "type": "boolean",
-                "default": true,
-                "category": "View Parameters"
-            },
-            "showTooltip": {
-                "title": "Hover a cell for detail",
-                "type": "boolean",
-                "default": true,
-                "category": "View Parameters"
-            },
-            "showExport": {
-                "title": "Excel download button",
-                "type": "boolean",
-                "default": true,
-                "category": "View Parameters"
-            },
-            "showExpand": {
-                "title": "Open every group",
-                "type": "boolean",
-                "default": true,
-                "category": "View Parameters"
-            },
-            "showCollapse": {
-                "title": "Close every group",
-                "type": "boolean",
-                "default": true,
-                "category": "View Parameters"
-            },
-            "showGridLines": {
-                "title": "Cell borders",
-                "type": "boolean",
-                "default": true,
-                "category": "View Parameters"
-            },
-            "title": {
-                "title": "Title",
+            "listensToKeys": {
+                "enum": ["asOfDate", "schemaKey", "common.tree.item"],
+                "title": "Listens to keys",
+                "multiselect": true,
                 "type": "string",
-                "default": "",
-                "category": "View Parameters"
-            },
-            "leafLabel": {
-                "title": "Leaf Label",
-                "type": "string",
-                "default": "",
-                "category": "View Parameters"
-            },
-            "settingsStorageKey": {
-                "title": "Settings Storage Key",
-                "type": "string",
-                "enum": ["aqi-grid.settings.v3"],
-                "category": "Storage"
-            },
-            "templatesStorageKey": {
-                "title": "Templates Storage Key",
-                "type": "string",
-                "enum": ["aqi-grid.template.v1"],
-                "category": "Storage"
-            },
-            "activeTemplateStorageKey": {
-                "title": "Active Template Storage Key",
-                "type": "string",
-                "enum": ["aqi-grid.activeTemplate.v1"],
-                "category": "Storage"
-            },
-            "exportFileNameTitle": {
-                "title": "Exported Excel File Title",
-                "type": "string",
-                "category": "Export",
-                "default": ""
-            },
-            "exportFileName": {
-                "title": "Exported Excel File Name",
-                "type": "string",
-                "category": "Export",
-                "default": ""
-            },
-            "settingsView": {
-                "title": "Widget Settings View",
-                "type": "string",
-                "category": "View Parameters",
-                "enum": ["drawer", "modal"],
-                "default": "modal"
+                "category": "Interactions"
             }
         },
-        "required": ["activeTemplateStorageKey", "settingsStorageKey", "templatesStorageKey"],
+        "required": ["schemaKey"],
         "type": "object"
     },
     "uiHints": {
-        "category": "Common"
+        "category": "Common",
+        "library": "Custom",
+        "visibleIn": ["workflow", "landing"]
     },
     "variants": [
         {
-            "id": "large",
-            "label": "Large",
-            "grid": {
-                "defaultW": 12,
-                "defaultH": 900,
-                "minW": 12,
-                "minH": 900,
-                "maxW": null,
-                "maxH": null
-            }
+            "id": "medium",
+            "label": "Medium",
+            "grid": { "defaultW": 6, "defaultH": 360, "minW": 4, "minH": 280, "maxW": 8, "maxH": 520 }
         },
         {
-            "id": "small",
-            "label": "Small",
-            "grid": {
-                "defaultW": 6,
-                "defaultH": 900,
-                "minW": 6,
-                "minH": 900,
-                "maxW": null,
-                "maxH": null
-            }
+            "id": "large",
+            "label": "Large",
+            "grid": { "defaultW": 10, "defaultH": 900, "minW": 8, "minH": 320, "maxW": 12, "maxH": 1200 }
+        },
+        {
+            "id": "full-width",
+            "label": "Full Width",
+            "grid": { "defaultW": 12, "defaultH": 1000, "minW": 12, "minH": 320, "maxW": 12, "maxH": 1200 }
         }
     ]
 }
