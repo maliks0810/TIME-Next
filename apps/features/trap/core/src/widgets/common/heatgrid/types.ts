@@ -603,6 +603,20 @@ export function dimensionMapOf(dims: DimensionDef[]): Record<string, DimensionDe
     return Object.fromEntries(dims.map((d) => [d.key, d]));
 }
 
+/**
+ * Per-widget display settings persisted in localStorage. These are the user's
+ * ephemeral choices layered on top of the column catalog the widget builds.
+ *
+ * `selectedAxisMembers` is the GENERIC field for "which axis-group chips are
+ * currently active" — e.g., for AQI it carries quarter ids like ['q1','q2',
+ * 'q3','q4']; for econ heatmap it carries year ids like ['2024','2025',
+ * '2026']. Each widget owns the semantics of what the strings mean; the grid
+ * just toggles columns based on which members are selected.
+ *
+ * (Renamed from `quarters` — that name leaked AQI domain vocabulary into the
+ * shared contract. Update widgets that previously read settings.quarters to
+ * use settings.selectedAxisMembers; everything else stays the same.)
+ */
 export interface HeatmapSettings {
     groupBy: string[];
     hiddenColumns: string[];
@@ -610,9 +624,10 @@ export interface HeatmapSettings {
     blankGroupRows: boolean;
     showTotal: boolean;
     showNameHeader: boolean;
-    quarters: string[];
+    selectedAxisMembers: string[];
     heatConfig: Record<string, HeatScaleConfig>;
 }
+
 export interface FoundationConfig {
     showTitle: boolean;
     showGrouping: boolean;
