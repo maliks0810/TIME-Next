@@ -647,10 +647,12 @@
 /* ---------- delegated cell tooltip ---------- */
 
 .hg-tip {
-    // Fixed (viewport-anchored) so it tracks the hovered cell and never drifts
-    // as the grid scrolls — see the cell-anchored positioning in HeatMapGrid.
+    // Fixed + portaled to <body> (HeatMapGrid) so it's anchored to the VIEWPORT,
+    // never an ancestor transform — dashboard tiles translate() their widgets,
+    // which would otherwise re-anchor `fixed` to the tile and make the tip ride
+    // the grid's inner scrollbar. Positioned at the cursor via clientX/clientY.
     position: fixed;
-    z-index: 1000;
+    z-index: 1100;
     max-width: 232px;
     padding: 8px 10px;
     border-radius: 8px;

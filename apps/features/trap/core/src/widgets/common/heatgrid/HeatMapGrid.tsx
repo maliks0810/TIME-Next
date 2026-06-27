@@ -1,4 +1,5 @@
 import { useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { CaretRightOutlined } from '@ant-design/icons';
 import {
     DEFAULT_MISSING_COLOR,
@@ -402,7 +403,17 @@ export default function HeatMapGrid({
                     )}
                 </tbody>
             </table>
-            <div className="hg-tip" ref={tipRef} role="tooltip" aria-hidden="true" />
+            {/* Portal the tip to <body> so no ANCESTOR transform can capture its
+               position:fixed. Dashboard tiles (react-grid-layout & co.) position
+               each widget with transform: translate(), which would otherwise make
+               `fixed` anchor to the tile and ride the grid's inner scrollbar
+               instead of the viewport. At body level, clientX/clientY map straight
+               to the viewport and the tip tracks the cursor exactly. */}
+            {typeof document !== 'undefined' &&
+                createPortal(
+                    <div className="hg-tip" ref={tipRef} role="tooltip" aria-hidden="true" />,
+                    document.body
+                )}
         </>
     );
 }
