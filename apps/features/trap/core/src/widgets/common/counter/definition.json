@@ -59,7 +59,7 @@
                 "category": "View Parameters"
             },
             "filter": {
-                "description": "Which status value to filter by",
+                "description": "Which value the selected Schema Key should resolve. Valid options are scoped to the chosen Schema Key (arc.status.query -> ARC status values; econ.indicators.heatmap -> indicator metrics).",
                 "enum": [
                     "ANALYTICS REQUESTED",
                     "ANALYTICS INPUT PENDING REVIEW",
@@ -72,7 +72,11 @@
                     "MANUAL",
                     "ABANDONED",
                     "INVALID REQUEST",
-                    "TOTAL"
+                    "TOTAL",
+                    "Total Indicators",
+                    "Latest Period",
+                    "Improving Count",
+                    "Deteriorating Count"
                 ],
                 "title": "Filter",
                 "type": "string",
@@ -92,8 +96,8 @@
                 "category": "View Parameters"
             },
             "schemaKey": {
-                "description": "Logical counter scenario resolved by GraphQL.",
-                "enum": ["arc.status.query"],
+                "description": "Logical counter scenario resolved by GraphQL. Each scenario owns its own set of valid Filter values.",
+                "enum": ["arc.status.query", "econ.indicators.heatmap"],
                 "title": "Schema Key",
                 "type": "string",
                 "category": "System Parameters"
@@ -155,6 +159,18 @@
                 "minH": 140,
                 "maxW": 160,
                 "maxH": 140
+            }
+        },
+        {
+            "id": "quarter",
+            "label": "Quarter",
+            "grid": {
+                "defaultW": 3,
+                "defaultH": 160,
+                "minW": 190,
+                "minH": 160,
+                "maxW": 190,
+                "maxH": 160
             }
         },
         {
