@@ -35,7 +35,9 @@ export default function DataGridWidget({
 }: WidgetComponentProps) {
     const activeTab = useGetActiveTab();
     const gridRef = useRef<any>(null);
-    const listensToKeys = config?.params?.listensToKeys;
+    const listensToKeys = Array.isArray(config?.params?.listensToKeys)
+        ? config?.params?.listensToKeys
+        : [config?.params?.listensToKeys];
     const selectionMode = config?.params?.selectionMode;
 
     const context = useGetWidgetValueArray({

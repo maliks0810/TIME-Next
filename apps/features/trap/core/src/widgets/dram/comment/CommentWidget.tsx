@@ -123,6 +123,7 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
                     initial={content}
                     mentionEnabled={false}
                     className={styles.editor}
+                    showMenu={false}
                 />
                 {areButtonsVisible && (
                     <div className={styles.actions}>
