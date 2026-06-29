@@ -11,6 +11,7 @@ import { Color, TextStyle, BackgroundColor, FontSize } from '@tiptap/extension-t
 import suggestion from './Suggestion';
 import { Ref, useImperativeHandle } from 'react';
 import { MenuBar } from './MenuBar';
+import { BubbleMenu } from './BubbleMenu';
 export type EditorCommands = {
     clear: () => void;
 };
@@ -22,7 +23,9 @@ export const TextEditor = ({
     mentionEnabled = false,
     className,
     ref,
+    showMenu = true,
 }: {
+    showMenu?: boolean;
     ref?: EditorRef;
     onChange: (key: string) => void;
     initial: string;
@@ -63,7 +66,9 @@ export const TextEditor = ({
     }));
     return (
         <div className={styles.container}>
-            <MenuBar editor={editor} />
+            {showMenu && <MenuBar editor={editor} />}
+
+            {showMenu && <BubbleMenu editor={editor} />}
             <div
                 className={styles.editoContainer}
                 onClick={() => {

@@ -3,23 +3,6 @@ import { useEditorState } from '@tiptap/react';
 import styles from './MenuBar.module.scss';
 import type { EditorStateSnapshot } from '@tiptap/react';
 import clsx from 'clsx';
-import { debounce } from 'lodash';
-import { InputNumber } from 'antd';
-import { useEffect, useState } from 'react';
-
-const getFontSize = (value: number | null) => {
-    const fontSize = Number(value);
-
-    switch (true) {
-        case fontSize > 72:
-            return 72;
-        case fontSize < 1:
-            return 1;
-        default:
-            return fontSize;
-    }
-};
-
 /**
  * State selector for the MenuBar component.
  * Extracts the relevant editor state for rendering menu buttons.
@@ -69,7 +52,6 @@ export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
 export type MenuBarState = ReturnType<typeof menuBarStateSelector>;
 
 export const MenuBar = ({ editor }: { editor: Editor }) => {
-    const [fontSize, setFontSize] = useState<number>(14);
     const editorState = useEditorState({
         editor,
         selector: menuBarStateSelector,
@@ -78,10 +60,6 @@ export const MenuBar = ({ editor }: { editor: Editor }) => {
     if (!editor) {
         return null;
     }
-    const onFontSizeChange = debounce((value) => {
-        editor.chain().focus().setFontSize(`${value}px`).run();
-    }, 500);
-    useEffect(() => onFontSizeChange(fontSize), [fontSize]);
 
     return (
         <div className="control-group">
@@ -112,58 +90,8 @@ export const MenuBar = ({ editor }: { editor: Editor }) => {
                         }
                         data-testid="setColor"
                     />{' '}
-                    Font size:{' '}
-                    <InputNumber
-                        className={styles.fontSize}
-                        type="number"
-                        controls={false}
-                        onChange={(value) => setFontSize(getFontSize(value))}
-                        value={fontSize}
-                    />
                 </div>
                 <div className={styles.group}>
-                    <button
-                        onClick={() => editor.chain().focus().toggleBold().run()}
-                        disabled={!editorState.canBold}
-                        className={
-                            editorState.isBold
-                                ? clsx(styles.button, styles.isActive)
-                                : styles.button
-                        }
-                    >
-                        <b>B</b>
-                    </button>
-                    <button
-                        onClick={() => editor.chain().focus().toggleItalic().run()}
-                        disabled={!editorState.canItalic}
-                        className={
-                            editorState.isItalic
-                                ? clsx(styles.button, styles.isActive)
-                                : styles.button
-                        }
-                    >
-                        <i>I</i>
-                    </button>
-                    <button
-                        onClick={() => editor.chain().focus().toggleUnderline().run()}
-                        disabled={!editorState.canUnderline}
-                        className={clsx(styles.button, {
-                            [styles.isActive]: editorState.isUnderline,
-                        })}
-                    >
-                        <u>U</u>
-                    </button>
-                    {/* <button
-                        onClick={() => editor.chain().focus().toggleCode().run()}
-                        disabled={!editorState.canCode}
-                        className={
-                            editorState.isCode
-                                ? clsx(styles.button, styles.isActive)
-                                : styles.button
-                        }
-                    >
-                        Code
-                    </button> */}
                     <button
                         onClick={() => editor.chain().focus().toggleBulletList().run()}
                         className={
@@ -184,7 +112,7 @@ export const MenuBar = ({ editor }: { editor: Editor }) => {
                     >
                         Ordered list
                     </button>
-                    {/* <button
+                    <button
                         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
                         className={
                             editorState.isCodeBlock
@@ -193,7 +121,7 @@ export const MenuBar = ({ editor }: { editor: Editor }) => {
                         }
                     >
                         Code block
-                    </button> */}
+                    </button>
                     <button
                         onClick={() => editor.chain().focus().toggleBlockquote().run()}
                         className={
