@@ -5,7 +5,8 @@ import WidgetHost from '../../../components/widget-runtime/WidgetHost';
 import { WidgetDefinition } from '../../../state/types';
 import styles from './SimplifiedWidgetView.module.scss';
 import CanvasContainer from '../../../components/layout/CanvasContainer';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { AUTO_SCROLL_CONFIG } from '../utils/constants';
 
 type SimplifiedWidgetViewProps = {
     filteredWidgetDefs: any[];
@@ -26,6 +27,8 @@ export const SimplifiedWidgetView = ({
     selectedParams,
     selectedWidgetVariantId,
 }: SimplifiedWidgetViewProps) => {
+    const selectedItemRef = useRef<HTMLDivElement | null>(null);
+
     const computedLayout = useMemo(() => {
         const selectedVariant = selectedWidgetVariantId
             ? selectedWidgetVariantId
@@ -46,6 +49,12 @@ export const SimplifiedWidgetView = ({
             },
         ];
     }, [selectedWidgetDef, selectedWidgetVariantId]);
+
+    useEffect(() => {
+        if (selectedItemRef.current && filteredWidgetDefs.findIndex(widgetDef => widgetDef.id === selectedWidgetDefId)) {
+            selectedItemRef.current.scrollIntoView(AUTO_SCROLL_CONFIG);
+        }
+    }, [selectedWidgetDefId, filteredWidgetDefs]);
 
     return (
         <>
@@ -100,6 +109,7 @@ export const SimplifiedWidgetView = ({
                         return (
                             <div
                                 key={d.id}
+                                ref={selectedWidgetDefId === d.id ? selectedItemRef : null}
                                 onClick={() => {
                                     onSelectWidget(d.id);
                                     // params cleanup on selected widget change
