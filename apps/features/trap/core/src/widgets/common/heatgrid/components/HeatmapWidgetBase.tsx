@@ -85,7 +85,6 @@ export default function HeatGridWidgetBase({
     exportMeta,
     view,
 }: Props) {
-    const widgetRef = useRef<HTMLDivElement | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [expandedOverride, setExpandedOverride] = useState<Set<string> | null>(null);
     const [viewport, setViewport] = useState({ top: 0, height: 400 });
@@ -156,9 +155,8 @@ export default function HeatGridWidgetBase({
     const toggleDrawer = () => {
         setDrawerOpen((prev) => !prev);
     };
-    console.log('render', widgetRef);
     return (
-        <div className={`widget ${className}`} ref={widgetRef}>
+        <div className={`widget ${className}`}>
             <TitleBar
                 foundation={foundation}
                 exporting={exporting}
@@ -202,7 +200,6 @@ export default function HeatGridWidgetBase({
                     </div>
                 ) : (
                     <HeatMapGrid
-                        widgetRef={widgetRef}
                         nameHeader={nameHeader}
                         columns={columns}
                         roots={roots}

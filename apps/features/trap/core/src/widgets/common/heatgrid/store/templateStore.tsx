@@ -1,18 +1,13 @@
-import { TemplateStore, SettingsTemplate } from '../HeatGridWidget';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { SettingsTemplate } from '../HeatGridWidget';
 import { activeGrouping, heatScales, columnAxisGroups, hiddenFields } from '../helpers';
-import { AQI_DIMENSIONS } from '../mock';
 import { HeatmapSettings, ColumnDef, HeatScaleConfig } from '../types';
-export const DEFAULTS: HeatmapSettings = {
-    groupBy: ['continent'],
-    hiddenColumns: [],
-    showLeaves: true,
-    blankGroupRows: false,
-    showTotal: true,
-    showNameHeader: true,
-    quarters: ['q1', 'q2', 'q3', 'q4'],
-    heatConfig: {},
-};
-
+export interface TemplateStore<T> {
+    loadTemplates(): SettingsTemplate<T>[];
+    persistTemplates(list: SettingsTemplate<T>[]): void;
+    loadActiveId(): string | null;
+    persistActiveId(id: string | null): void;
+}
 export function createTemplateStore<T>(listKey: string, activeKey: string): TemplateStore<T> {
     return {
         loadTemplates() {
@@ -31,7 +26,7 @@ export function createTemplateStore<T>(listKey: string, activeKey: string): Temp
             try {
                 localStorage.setItem(listKey, JSON.stringify(list));
             } catch {
-                // persistence unavailable
+                /* persistence unavailable */
             }
         },
         loadActiveId() {
@@ -46,14 +41,17 @@ export function createTemplateStore<T>(listKey: string, activeKey: string): Temp
                 if (id == null) localStorage.removeItem(activeKey);
                 else localStorage.setItem(activeKey, id);
             } catch {
-                // persistence unavailable
+                /* persistence unavailable */
             }
         },
     };
 }
 
+// Reverse projection: catalog (post user edits in the drawer) → settings.
+// Used by HeatGridWidgetBase's onColumnsChange to round-trip drawer changes
+// back into persisted settings.
 export function catalogToSettings(next: ColumnDef[], prev: HeatmapSettings): HeatmapSettings {
-    const groupBy = activeGrouping(next).map((d) => d.key);
+    const groupBy = activeGrouping(next).map((group: any) => group.key);
     const heatConfig: Record<string, HeatScaleConfig> = { ...prev.heatConfig };
     for (const scale of heatScales(next))
         heatConfig[scale.scale] = {
@@ -61,29 +59,48 @@ export function catalogToSettings(next: ColumnDef[], prev: HeatmapSettings): Hea
             outlierColor: scale.outlierColor,
             missingColor: scale.missingColor,
         };
-    const axis = columnAxisGroups(next)[0];
-    const quarters = (axis?.children ?? [])
-        .filter((m) => m.role === 'group' && m.selectable && m.selected)
-        .map((m) => m.key);
-    return { ...prev, groupBy, hiddenColumns: [...hiddenFields(next)], heatConfig, quarters };
+    // Collect the selected axis-group members across ALL axisGroups (server may
+    // emit more than one — e.g., year + region — though current consumers
+    // typically use one). Domain-agnostic: we just gather selected ids.
+    const selectedAxisMembers: string[] = [];
+    for (const axis of columnAxisGroups(next)) {
+        for (const m of axis.children ?? []) {
+            if (m.role === 'group' && m.selectable && m.selected) {
+                selectedAxisMembers.push(m.key);
+            }
+        }
+    }
+    return {
+        ...prev,
+        groupBy,
+        hiddenColumns: [...hiddenFields(next)],
+        heatConfig,
+        selectedAxisMembers,
+    };
 }
 
-export function loadSettings(storageKey: string): HeatmapSettings {
+export function loadSettings(storageKey: string, defaults: HeatmapSettings): HeatmapSettings {
+    // No dimension whitelist validation here — the catalog the server returns
+    // is the authority on which dimension keys exist. Unknown keys in
+    // settings.groupBy are filtered out gracefully by setGrouping at catalog
+    // projection time (indexOf === -1 → groupIndex undefined → ignored).
     try {
         const raw = localStorage.getItem(storageKey);
-        if (!raw) return structuredClone(DEFAULTS);
+        if (!raw) return structuredClone(defaults);
         const parsed = JSON.parse(raw) as Partial<HeatmapSettings>;
-        const validDims = new Set(AQI_DIMENSIONS.map((d) => d.key));
         return {
-            ...structuredClone(DEFAULTS),
+            ...structuredClone(defaults),
             ...parsed,
-            groupBy: (parsed.groupBy ?? DEFAULTS.groupBy).filter((k) => validDims.has(k)),
+            groupBy: Array.isArray(parsed.groupBy) ? parsed.groupBy.map(String) : defaults.groupBy,
             hiddenColumns: Array.isArray(parsed.hiddenColumns)
                 ? parsed.hiddenColumns.filter((k) => typeof k === 'string')
                 : [],
-            heatConfig: { ...DEFAULTS.heatConfig, ...parsed.heatConfig },
+            selectedAxisMembers: Array.isArray(parsed.selectedAxisMembers)
+                ? parsed.selectedAxisMembers.filter((k) => typeof k === 'string')
+                : [],
+            heatConfig: { ...defaults.heatConfig, ...parsed.heatConfig },
         };
     } catch {
-        return structuredClone(DEFAULTS);
+        return structuredClone(defaults);
     }
 }
