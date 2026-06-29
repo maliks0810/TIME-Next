@@ -149,7 +149,7 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
       await reloadGroupMemberGroup();
       return newMember;
     },
-    [userInfo.name, reloadGroupMemberGroup]
+    [userInfo.name, reloadGroupMemberGroup, brokerGroupMembers]
   );
 
   const modifyBrokerGroupMember = useCallback(
@@ -165,7 +165,7 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
 
       return await updateBrokerGroupMember(brokerGroupMemberId, req);
     },
-    [userInfo.name]
+    [userInfo.name, reloadGroupMemberGroup, brokerGroupMembers]
   );
 
   const removeBrokerGroupMember = useCallback(async (brokerGroupMemberId: number) => {

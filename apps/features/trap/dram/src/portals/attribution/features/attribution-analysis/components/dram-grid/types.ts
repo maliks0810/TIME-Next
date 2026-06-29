@@ -1,6 +1,6 @@
-import { BackendFrequencyMode, FrequencyModeId } from "../wizard-config/wizardConfigTypes";
+import { FrequencyModeId } from "../attrib-analysis-config/types";
 
-export type ColumnFormat = "text" | "percent" | "bps";
+export type ColumnFormat = "text" | "percent" | "bps" | "percentage" | "currency" | "money" ;
 
 export interface ApiColumnConfig {
   id: string;
@@ -40,6 +40,7 @@ export interface ApiColumnConfig {
 
   order: number;
   format: ColumnFormat;
+  metricType?: string | null;
 }
 
 export interface MetricConfig {
@@ -66,8 +67,13 @@ export interface BreakdownMode {
   label: string;
   group: string;
 }
-
+export interface BackendFrequencyMode {
+  id: FrequencyModeId;
+  label: string;
+  group: string;
+}
 export interface GridConfigResponse {
+  holidays: unknown;
   columnConfigs: {
     all: ApiColumnConfig[];
   };
@@ -143,4 +149,25 @@ export interface NormalizedColumnConfig {
   width: number;
   minWidth: number;
   serverIndex: number;
+  metricType: string;
+}
+
+export interface SinglePeriodAttributionRow {
+  key: string;
+  securityGroup: string;
+  level?: number;
+
+  portfolioAvgWeight: number | null;
+  portfolioTotalReturn: number | null;
+  portfolioContributionTotalReturn: number | null;
+
+  benchmarkAvgWeight: number | null;
+  benchmarkTotalReturn: number | null;
+  benchmarkContributionTotalReturn: number | null;
+
+  allocationEffect: number | null;
+  selectionEffect: number | null;
+  interactionEffect: number | null;
+
+  children?: SinglePeriodAttributionRow[];
 }

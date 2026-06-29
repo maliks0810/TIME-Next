@@ -150,13 +150,15 @@ return (
             showTitle={true}  
             title={popupTitle}  
             width="30%"  
-            height="30%" 
+            height="25%"
+            minHeight='200px' 
+            minWidth='350px' 
             wrapperAttr={{ className: 'custom-popup-class' }}  
           />  
           <Form width="90%" colCount={1}>  
             <FormItem dataField="active" label={{text:"Active"}} editorType="dxCheckBox" />
             <FormItem name="departmentName" editorType="dxTextBox" />  
-            <FormItem name="divisionId" cssClass="dx-common-selectbox-short80" editorType="dxSelectBox" />  
+            <FormItem name="divisionId" cssClass="dx-common-selectbox" editorType="dxSelectBox" />  
           </Form>  
         </Editing>  
 

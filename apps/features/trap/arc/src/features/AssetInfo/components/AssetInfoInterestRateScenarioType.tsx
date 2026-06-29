@@ -2,10 +2,8 @@ import { Form, Select } from 'antd';
 
 export const AssetInfoInterestRateScenarioType = ({
     value,
-    title,
 }: {
     value?: string;
-    title: string;
 }) => {
     return (
         <div style={{ marginBottom: 8 }}>
@@ -26,7 +24,7 @@ export const AssetInfoInterestRateScenarioType = ({
                     />
                 </Form.Item>
             </div>
-            <div style={{ fontSize: 9 }}>{title}</div>
+            <div style={{ fontSize: 9 }}> Interest Rate Scenario</div>
         </div>
     );
 };

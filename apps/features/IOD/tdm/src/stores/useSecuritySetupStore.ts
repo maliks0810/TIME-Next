@@ -6,6 +6,7 @@ import { IESGFields, ISecurityDetails, ISpeedOverrides, ITradeFields, SecuritySe
 
 const INITIAL_STATE: SecuritySetupState = {
   securitySetupRequestId: null,
+  externalSecuritySetupRequestId: null,
   createdBy: null,
   createdDate: null,
   updatedBy: null,
@@ -106,6 +107,7 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
       const completedSteps = computeCompletedSteps(initialData);
       set({
         ...INITIAL_STATE,
+        externalSecuritySetupRequestId: initialData.externalSecuritySetupRequestId ?? undefined,
         // identifier fields
         newIssue: initialData.newIssue ?? undefined,
         cdiFileUploadedToAnser: initialData.cdiFileUploadedToAnser ?? undefined,
@@ -141,7 +143,8 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
 
     mergeSavedResponse: (savedData: Partial<ISecuritySetupWizardPayload>) => {
       set((prev: SecuritySetupStore) => ({
-         newIssue: savedData.newIssue ?? prev.newIssue,
+        externalSecuritySetupRequestId: savedData.externalSecuritySetupRequestId ?? prev.externalSecuritySetupRequestId,
+        newIssue: savedData.newIssue ?? prev.newIssue,
         cdiFileUploadedToAnser: savedData.cdiFileUploadedToAnser ?? prev.cdiFileUploadedToAnser,
         aladdinCdiId: savedData.aladdinCdiId ?? prev.aladdinCdiId,
         isPrivateDeal: savedData.isPrivateDeal ?? prev.isPrivateDeal,

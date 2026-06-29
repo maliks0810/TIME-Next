@@ -42,7 +42,7 @@ export const transformDashboardDeleteSecuritySetupRequest = (apiData: DeleteSecu
       euSecuritizationTipEuId: apiData.securitySetupRequest.euSecuritizationTipEuId,
       callDate: getDateFromString(apiData.securitySetupRequest.callDate),
       price: apiData.securitySetupRequest.price ? apiData.securitySetupRequest.price.toFixed(2) : '',
-      callableValue: apiData.securitySetupRequest.callableValue?.toLowerCase() === "y" ? "Yes" : apiData.securitySetupRequest.callableValue?.toLowerCase() === "n" ? "No" : "",
+      callableValue: apiData.securitySetupRequest.callableValue,
     },
     securityRequestEsgFields: {
       tcwEsg: apiData.securitySetupRequest.tcwEsg,
@@ -108,7 +108,7 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
       euSecuritizationTipEuId: apiData.euSecuritizationTipEuId,
       callDate: getDateFromString(apiData.callDate),
       price: apiData.price ? apiData.price.toFixed(2) : '',
-      callableValue: apiData.callableValue?.toLowerCase() === "y" ? "Yes" : apiData.callableValue?.toLowerCase() === "n" ? "No" : "",
+      callableValue: apiData.callableValue,
     },
     securityRequestEsgFields: {
       tcwEsg: apiData.tcwEsg,

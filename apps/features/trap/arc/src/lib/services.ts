@@ -14,6 +14,7 @@ import {
     NoteType,
     FilePreviewRequestCollection,
     AbandonAssetPayload,
+    MetaDataResponse,
 } from './types';
 
 import { serviceRequest } from './serviceUtils';
@@ -65,6 +66,7 @@ const getAnalyticsByIdUrl =
     import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/get-analytics-by-request-id';
 
 const getNotesUrl = import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/get-notes';
+const getMetaDataUrl = import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/reference-data/metaData';
 const publishAnalyticsUrl =
     import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/publish-analytics';
 
@@ -164,3 +166,9 @@ export const getNotes = (
     assetAnalyticsSetupId: number
 ): Promise<{ data: { response: NoteType[] } }> =>
     serviceRequest(getNotesUrl)().post('', { assetAnalyticsSetupId });
+
+    
+export const getMetaData= (
+): Promise<{ data: MetaDataResponse }> =>
+    serviceRequest(getMetaDataUrl)().post('');
+

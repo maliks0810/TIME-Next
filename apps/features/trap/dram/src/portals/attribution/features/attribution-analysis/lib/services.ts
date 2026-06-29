@@ -22,9 +22,20 @@ const BASE_DRAM_2_PATH: string = resolveUri(
   BASE_DRAM_2_SERVICE_PATH,
   "./api/attribution/"
 );
+const BASE_WITHOUT_ATTRIB_PATH : string = resolveUri(
+  BASE_DRAM_2_SERVICE_PATH,
+  "./api/"
+);
 
 export const buildDram2Url = (path: string): string =>
   resolveUri(BASE_DRAM_2_PATH, path);
+
+export const buildDram2UrlNonAttribution= (path: string): string =>
+  resolveUri(BASE_WITHOUT_ATTRIB_PATH, path);
+
+const BASE_RTN_ATTR_SERVICE_PATH = import.meta.env.VITE_R2_TRAP_DRAM_1_SERVICE;
+const BASE_RTN_ATTR_PATH = resolveUri(BASE_RTN_ATTR_SERVICE_PATH, './rtn-attribution/api/v2/');
+export const buildDram1Url = (path: string) => resolveUri(BASE_RTN_ATTR_PATH, path);
 
 /* ---------------------------------- */
 /*  Generic Request Wrapper */
@@ -35,6 +46,25 @@ async function req<TResponse>(
   init?: RequestInit
 ): Promise<TResponse> {
   const res = await fetch(buildDram2Url(path), {
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+    ...init,
+  });
+
+  if (!res.ok) {
+    throw new Error(`API error ${res.status}`);
+  }
+
+  return (await res.json()) as TResponse;
+}
+
+async function reqMain<TResponse>(
+  path: string,
+  init?: RequestInit
+): Promise<TResponse> {
+  const res = await fetch(buildDram2UrlNonAttribution(path), {
     headers: {
       "Content-Type": "application/json",
       ...(init?.headers ?? {}),
@@ -93,6 +123,8 @@ export type OptionsResponse = {
 
   export interface AnalyticResultRow {
     SecurityName: string;
+    SecurityGroup: string;
+    Level: number;
     PFAvgWeight: number;
     PFTotalRet: number;
     PFContToRet: number;
@@ -109,10 +141,15 @@ export type OptionsResponse = {
   rows: AnalyticResultRow[];
 }
 
+export type Metadata = {
+  page_title?: string;
+  value_date?: string;
+}
+
 export interface AnalyticsResponse {
   message: string;
   data: {
-    metadata: unknown;
+    metadata: Metadata;
     grids: AnalyticsApiGrid[];
   };
 }
@@ -143,16 +180,12 @@ export const api = {
       method: "POST",
       body: JSON.stringify(state),
     }),
-  // getAlphaRankings: (as_of_date: string, top_n: number) : Promise<DashboardPayload> =>
-  //   req<DashboardPayload>(`/api/performance/pa/alpha-rankings/?as_of_date=${as_of_date}&top_n=${top_n}`),
-
-  runMonthlyAssetAnalyis: (asset_class: string, port: string, as_of_date: string) : Promise<AnalyticsResponse> =>
-      req<AnalyticsResponse>
-  (`/api/attr-monthly/${asset_class}/?port=${port}&inputDate=${as_of_date}`),
-
-  runAnalysis: (port: string, breakdown: string, startDate: string, endDate: string): Promise<AnalyticsResponse> =>
+  runAnalysis: (asset_class: string,port: string,period: string, breakdown: string, startDate: string, endDate: string): Promise<AnalyticsResponse> =>
     req<AnalyticsResponse>
-  (`/api/att-eq-mtd/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}`),
+  (`/api/attribution/${asset_class}/${period}/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}`),
+  runTestAnalysis: (asset_class: string,port: string,period: string, breakdown: string, startDate: string): Promise<AnalyticsResponse> =>
+    req<AnalyticsResponse>
+  (`/api/attribution/${asset_class}/${period}/?port=${port}&grouping=${breakdown}&start_date=${startDate}`),
 
   requestByDateAborvsIborReportService:(as_of_date: string):  Promise<AttributionDispersionResponse> =>
 	  req<AttributionDispersionResponse>
@@ -167,4 +200,10 @@ export const api = {
   requestCorePlusAttributionDispersonReportService: ():  Promise<AttributionDispersionResponse> =>
 	  req<AttributionDispersionResponse>
     (`/api/attr-dispersion/`),
+  runPEfwdAnalysis: (): Promise<AnalyticsResponse> =>
+    reqMain<AnalyticsResponse>
+  ('/api/att-eq-mtd/?port=6614T&grouping=PEfwd&asset_class=EQ'),
+    runMktCapAnalysis: (): Promise<AnalyticsResponse> =>
+    reqMain<AnalyticsResponse>
+  (`/api/att-eq-mtd/?port=6614T&period&grouping=MktCap&asset_class=EQ`),
 };

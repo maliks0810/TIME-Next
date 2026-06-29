@@ -27,8 +27,8 @@ import {
 import { PortBenchRow } from "../lib/types";
 import { default_em_port } from "../lib/constants";
 import { DramDataGrid, DramGridProvider, GridConfigResponse, normalizeColumns } from "../components/dram-grid";
-import { extractAnalysisRows, toGridRows } from "../components/wizard-config/wizardConfigUtils";
 import { getKeyByAssetClass } from "../components/WizardStateStore";
+import { extractAnalysisRows, toGridRows } from "../components/attrib-analysis-config/attribConfigUtils";
 
 const extractPortBenchRows = (apiResp: OptionsResponse): PortBenchRow[] => {
   const allRows = Array.isArray(apiResp.data?.grids)
@@ -234,11 +234,11 @@ export default function EmergingMarketWorkspace() {
 		disabled={!canRun}
 		onClick={async () => {
 		try {
-		  const resp = (await api.runMonthlyAssetAnalyis(
-		  assetType,
-		  viewPortfolios ?? default_em_port,
-		  viewAsOfDate
-		  )) as AnalyticsResponse;
+          const resp = (await api.runAnalysis(
+          assetType,
+          viewPortfolios ?? default_em_port,"monthly","GICS","",
+          viewAsOfDate
+          )) as AnalyticsResponse;
 
 		  const nextConfig = extractGridConfig(resp);
 		  if (nextConfig) {
@@ -267,6 +267,7 @@ export default function EmergingMarketWorkspace() {
 	>
 	  <Card title={viewTitle}>
 	  <DramDataGrid
+			   allColumns={initialColumns}
 		config={gridConfig}
 		rows={gridRows}
 		height={500} storageKey={getKeyByAssetClass(assetType)}

@@ -239,7 +239,11 @@ const MaintenanceMasterBrokerGrid: React.FC = () => {
             allowDeleting={isAdmin? true: false}
             useIcons={true}
           >
-            <Popup showTitle={true} title={popupTitle} width="30%" height="35%" wrapperAttr= {{ className:'custom-popup-class' }} />
+            <Popup showTitle={true} title={popupTitle} 
+              width="30%" height="35%" 
+              minHeight='250px' 
+              minWidth='350px' 
+              wrapperAttr= {{ className:'custom-popup-class' }} />
               <div className='div-container-center'>
                 <Form colCount={1} width="90%">
                   <FormItem dataField="active" label={{text:"Active"}} editorType="dxCheckBox"  />

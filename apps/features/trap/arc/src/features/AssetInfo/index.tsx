@@ -9,8 +9,8 @@ import { ClaimAssetPayload } from '../../lib/types';
 import { claimAsset } from '../../lib/services';
 import { useUserInfo } from '@platform/utils';
 import { updateAnalyticsInputOverrides } from '../../lib/services';
-import { PayloadItem} from '../../lib/types';
-import { extractCallable, extractCallDate, extractCollateralType, extractDefaultSpeed, extractDefaultType, extractDelinquency, extractPrepaymentSpeed, extractPrepaymentType, extractSeverity, hasValue, extractCallDateText, extractInfoInterestRateScenarioType, extractInfoModelFamilyOverrideType, extractOriginalAssetSetupId } from '../../lib/helpers';
+import { PayloadItem } from '../../lib/types';
+import { extractCallable, extractCallDate, extractCollateralType, extractDefaultSpeed, extractDefaultType, extractDelinquency, extractPrepaymentSpeed, extractPrepaymentType, extractSeverity, hasValue, extractCallDateText, extractInfoInterestRateScenarioType, extractInfoModelFamilyOverrideType, extractOriginalAssetSetupId, extractInfoModelFamilyOverrideForAnalyticsInputsType, extractInfoAcceptModelOutputsType } from '../../lib/helpers';
 import { AssetInfoInput } from './components/AssetInfoInput';
 import { AssetInfoSelectCollateralType } from './components/AssetInfoSelectCollateralType';
 import { AssetInfoDatePicker } from './components/AssetInfoDatePicker';
@@ -21,12 +21,12 @@ import { AssetInfoDefaultType } from './components/AssetInfoDefaultType';
 import { AssetInfoInterestRateScenarioType } from './components/AssetInfoInterestRateScenarioType';
 import { AssetInfoModelFamilyOverrideType } from './components/AssetInfoModelFamilyOverrideType';
 import { PREPAYMENT_TYPE_OPTIONS_ALL, PREPAYMENT_TYPE_OPTIONS_CMBS } from '../../shared/constants';
+import { AssetInfoSwitchAcceptModelOutputs } from './components/AssetInfoSwitchAcceptModelOutputs';
+import { useLocation } from 'react-router-dom';
 
 export const AssetInfo = ({
-    selectedAssetId,
     latestUpdateTimestamp,
 }: {
-    selectedAssetId?: number | null;
     latestUpdateTimestamp: number;
 }) => {
     const [assetInfo, setAssetInfo] = useState<NewAssetType | null>(null);
@@ -42,16 +42,37 @@ export const AssetInfo = ({
     const analysisDateVal = Form.useWatch('analysisDateInput', form);
     const collateralTypeVal = Form.useWatch('collateralType', form);
     const overrideNotesVal = Form.useWatch('noteTextArea', form);
-    const prepaymentType= Form.useWatch('prepaymentType', form);
+    const prepaymentType = Form.useWatch('prepaymentType', form);
     const defaultType = Form.useWatch('defaultType', form);
+    const applyMultiplierVal = Form.useWatch('applyMultiplierEnabled', form);
+    const multiplierInputValue = Form.useWatch('multiplierValue', form);
     const modelFamilyOverride = Form.useWatch('modelFamilyOverrideType', form);
     const prepayTypeOptions = modelFamilyOverride === 'BRS v2.2'
-                ? PREPAYMENT_TYPE_OPTIONS_CMBS
-                : PREPAYMENT_TYPE_OPTIONS_ALL;
+        ? PREPAYMENT_TYPE_OPTIONS_CMBS
+        : PREPAYMENT_TYPE_OPTIONS_ALL;
+    const interestRateScenarioValue = Form.useWatch('interestRateScenarioType', form);
+    const modelFamilyOverrideForAnalyticsInputsValue = Form.useWatch('modelFamilyOverrideForAnalyticsType', form);
+    const acceptModelOutputsValue = Form.useWatch('acceptModelOutputs', form);
+
+    const prepaymentTypeValue = Form.useWatch('prepaymentType', form);
+    const prepaymentSpeedValue = Form.useWatch('prepaymentSpeedInput', form);
+    const defaultTypeValue = Form.useWatch('defaultType', form);
+    const defaultSpeedValue = Form.useWatch('defaultSpeedInput', form);
+    const severityValue = Form.useWatch('severityInput', form);
+    const delinquencyValue = Form.useWatch('delinquencyInput', form);
+    const originalAssetSetupIdValue = Form.useWatch('originalAssetSetupIdInput', form);
+
+
 
     const isCallDateValid = (callableVal === 'Y' || callableVal === 'C') ? hasValue(callDateVal) : true;
     const canSave = hasValue(callableVal) && isCallDateValid && hasValue(priceVal) && hasValue(analysisDateVal) && hasValue(collateralTypeVal) && hasValue(overrideNotesVal);
 
+    const useQuery = () => {
+        return new URLSearchParams(useLocation().search);
+    }
+    const query = useQuery();
+    const selectedAssetIdParam = query.get('assetId');
+    const selectedAssetId = selectedAssetIdParam ? Number(selectedAssetIdParam) : null;
     useEffect(() => {
         if (selectedAssetId) {
             getModelInputById(selectedAssetId).then(({ data }) => {
@@ -96,6 +117,8 @@ export const AssetInfo = ({
         form.setFieldValue('noteTextArea', note?.noteText);
         form.setFieldValue('interestRateScenarioType', extractInfoInterestRateScenarioType(assetInfo?.payload));
         form.setFieldValue('modelFamilyOverrideType', extractInfoModelFamilyOverrideType(assetInfo?.payload));
+        form.setFieldValue('modelFamilyOverrideForAnalyticsType', extractInfoModelFamilyOverrideForAnalyticsInputsType(assetInfo?.payload));
+        form.setFieldValue('acceptModelOutputs', extractInfoAcceptModelOutputsType(assetInfo?.payload));
     }, [assetInfo]);
 
     useEffect(() => {
@@ -108,94 +131,88 @@ export const AssetInfo = ({
     const saveInputOverrides = async () => {
         setIsLoading(true);
         try {
-            const payloadObj: PayloadItem[] = [];
-            // helpers
-            const hasValue = (v: string) => v !== null && v !== undefined && v !== '';
+            let payloadObj: PayloadItem[] = [];
 
-            
-            // read values once
-            const collateralTypeValue = form.getFieldValue('collateralType');
-            const callableValue = form.getFieldValue('callable');
-            const callDateValue = form.getFieldValue('callDateInput');
+            if (assetInfo?.payload != undefined) {
+                try {
+                    payloadObj = JSON.parse(assetInfo?.payload)?.payload;
+                    if (!Array.isArray(payloadObj)) {
+                        // If parsed result is not an array, fallback to empty array  
+                        payloadObj = [];
+                    }
+                } catch {
+                    // If JSON parsing fails, fallback to empty array  
+                    payloadObj = [];
+                }
+            }
+            // Helper function to update or add a payload node by type  
+            /* eslint-disable @typescript-eslint/no-explicit-any */
+            const updateOrAddPayloadNode = (type: any, newParams: Record<string, any>) => {
+                const index = payloadObj.findIndex((item) => item.type === type);
+                if (index !== -1) {
+                    // Merge new parameters into existing parameters  
+                    payloadObj[index].parameters = {
+                        ...payloadObj[index].parameters,
+                        ...newParams,
+                    };
+                } else {
+                    // Add new node if it doesn't exist  
+                    payloadObj.push({
+                        type,
+                        parameters: newParams,
+                    });
+                }
+            };
 
-            const interestRateScenarioValue = form.getFieldValue('interestRateScenarioType');
-            const modelFamilyOverrideValue = form.getFieldValue('modelFamilyOverrideType');
+            // Update or add nodes accordingly  
+            if (hasValue(collateralTypeVal)) {
+                updateOrAddPayloadNode('COLLATERAL_TYPE', { collateralType: collateralTypeVal });
+            }
 
-            const prepaymentTypeValue = form.getFieldValue('prepaymentType');
-            const prepaymentSpeedValue = form.getFieldValue('prepaymentSpeedInput');
-            const defaultTypeValue = form.getFieldValue('defaultType');
-            const defaultSpeedValue = form.getFieldValue('defaultSpeedInput');
-            const severityValue = form.getFieldValue('severityInput');
-            const delinquencyValue = form.getFieldValue('delinquencyInput');
-            const originalAssetSetupIdValue = form.getFieldValue('originalAssetSetupIdInput');
+            if (hasValue(callableVal)) {
+                updateOrAddPayloadNode('CALLABLE', { callable: callableVal });
+            }
 
-            // COLLATERAL_TYPE
-            if (hasValue(collateralTypeValue)) {
-                payloadObj.push({
-                    type: 'COLLATERAL_TYPE',
-                    parameters: {
-                        collateralType: collateralTypeValue,
-                    },
+            if ((callableVal === 'Y' || callableVal === 'C') && hasValue(callDateVal)) {
+                updateOrAddPayloadNode('CALL_DATE', { callDate: callDateVal });
+            }
+
+            if (hasValue(applyMultiplierVal) || hasValue(multiplierInputValue)) {
+                updateOrAddPayloadNode('OAD_OAC_MULTIPLIER', { applyMultiplier: applyMultiplierVal, multiplierValue: multiplierInputValue });
+            }
+
+            if (
+                hasValue(interestRateScenarioValue) ||
+                hasValue(modelFamilyOverride) ||
+                hasValue(modelFamilyOverrideForAnalyticsInputsValue) ||
+                hasValue(acceptModelOutputsValue)
+            ) {
+                updateOrAddPayloadNode('SECURITY_SETTINGS', {
+                    interestRateScenario: interestRateScenarioValue,
+                    modelFamilyOverride: modelFamilyOverride,
+                    modelFamilyOverrideForAnalytics: modelFamilyOverrideForAnalyticsInputsValue,
+                    acceptModelOutputs: acceptModelOutputsValue,
                 });
             }
 
-            // CALLABLE
-            if (hasValue(callableValue)) {
-                payloadObj.push({
-                    type: 'CALLABLE',
-                    parameters: {
-                        callable: callableValue,
-                    },
-                });
-            }
-
-            // CALL_DATE (only if callable + valid call date)
-            if ((callableValue === 'Y' || callableValue === 'C') && hasValue(callDateValue)) {
-                payloadObj.push({
-                    type: 'CALL_DATE',
-                    parameters: {
-                        callDate: callDateValue,
-                    },
-                });
-            }
-
-            // SECURITY_SETTINGS
-            if (hasValue(interestRateScenarioValue) || hasValue(modelFamilyOverrideValue)) {
-                payloadObj.push({
-                    type: 'SECURITY_SETTINGS',
-                    parameters: { interestRateScenario: interestRateScenarioValue, modelFamilyOverride:modelFamilyOverrideValue },
-                });
-            }
-
-            // CORRECTION
             if (hasValue(originalAssetSetupIdValue)) {
-                payloadObj.push({
-                    type: 'CORRECTION',
-                    parameters: { assetAnalyticsSetupId: originalAssetSetupIdValue},
-                });
+                updateOrAddPayloadNode('CORRECTION', { assetAnalyticsSetupId: originalAssetSetupIdValue });
             }
 
-            // SPEED_OVERRIDES (only if at least one field exists)
             const speedOverridesParams = {
                 ...(hasValue(prepaymentTypeValue) ? { prepaymentType: prepaymentTypeValue } : {}),
-                ...(hasValue(prepaymentSpeedValue)
-                    ? { prepaymentSpeed: Number(prepaymentSpeedValue) }
-                    : {}),
+                ...(hasValue(prepaymentSpeedValue) ? { prepaymentSpeed: Number(prepaymentSpeedValue) } : {}),
                 ...(hasValue(defaultTypeValue) ? { defaultType: defaultTypeValue } : {}),
-                ...(hasValue(defaultSpeedValue)
-                    ? { defaultSpeed: Number(defaultSpeedValue) }
-                    : {}),
+                ...(hasValue(defaultSpeedValue) ? { defaultSpeed: Number(defaultSpeedValue) } : {}),
                 ...(hasValue(severityValue) ? { severity: Number(severityValue) } : {}),
                 ...(hasValue(delinquencyValue) ? { delinquency: Number(delinquencyValue) } : {}),
             };
 
             if (Object.keys(speedOverridesParams).length > 0) {
-                payloadObj.push({
-                    type: 'SPEED_OVERRIDES',
-                    parameters: speedOverridesParams,
-                });
+                updateOrAddPayloadNode('SPEED_OVERRIDES', speedOverridesParams);
             }
 
+            // Now payloadObj is updated with new values without deleting existing nodes  
             const requestPayload = {
                 assets: [
                     {
@@ -205,17 +222,16 @@ export const AssetInfo = ({
                         newAssetRequestId: assetInfo?.newAssetRequestId,
                         aladdinId: assetInfo?.aladdinId,
                         assetType: assetInfo?.assetType,
-                        analysisDate: form.getFieldValue('analysisDateInput'),
-                        price: form.getFieldValue('priceInput'),
+                        assetSubType: assetInfo?.assetSubType,
+                        analysisDate: analysisDateVal,
+                        price: priceVal,
                         payload: payloadObj,
                         cdiCduBlob: assetInfo?.cdiCduBlob,
-                        assetSubType: null,
                         noteType: 'AIOR',
-                        noteText: form.getFieldValue('noteTextArea'),
+                        noteText: overrideNotesVal,
                     },
                 ],
-            };
-            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+            }
             const response = await updateAnalyticsInputOverrides(requestPayload as any);
             const callDate = extractCallDate(response.data.response[0].payload);
             form.setFieldValue('callDateInput', callDate);
@@ -231,8 +247,9 @@ export const AssetInfo = ({
             form.setFieldValue('delinquency', extractDelinquency(assetInfo?.payload));
             form.setFieldValue('interestRateScenarioType', extractInfoInterestRateScenarioType(assetInfo?.payload));
             form.setFieldValue('modelFamilyOverrideType', extractInfoModelFamilyOverrideType(assetInfo?.payload));
+            form.setFieldValue('modelFamilyOverrideForAnalyticsType', extractInfoModelFamilyOverrideForAnalyticsInputsType(assetInfo?.payload));
+            form.setFieldValue('acceptModelOutputs', extractInfoAcceptModelOutputsType(assetInfo?.payload));
 
-            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         } catch (err: any) {
             messageApi.error(
                 err?.response?.data?.message ?? 'Failed to override Model Inputs. Please try again.'
@@ -263,15 +280,16 @@ export const AssetInfo = ({
                         value={assetInfo?.assetAnalyticsSetupId}
                     />
                     {assetInfo?.status == 'CORRECTION' ? (
-                       <AssetInfoInput
-                        title="Original Asset ID"
-                        value={extractOriginalAssetSetupId(assetInfo?.payload)}
-                        formItemName="originalAssetSetupIdInput"
-                        inputType="number"
-                        controls={false}
-                    />
+                        <AssetInfoInput
+                            title="Original Asset ID"
+                            value={extractOriginalAssetSetupId(assetInfo?.payload)}
+                            formItemName="originalAssetSetupIdInput"
+                            inputType="number"
+                            controls={false}
+                        />
                     ) : null}
                     <AssetInfoItem title="Asset Type" value={assetInfo?.assetType} />
+                    <AssetInfoItem title="Asset Sub Type" value={assetInfo?.assetSubType} />
                     <AssetInfoSelectCollateralType
                         title="Collateral Type"
                         value={extractCollateralType(assetInfo?.payload)}
@@ -288,16 +306,21 @@ export const AssetInfo = ({
                         required={true}
                         controls={false}
                     />
-                     <AssetInfoInterestRateScenarioType
-                        title="Interest Rate Scenario"
+                    <AssetInfoInterestRateScenarioType
                         value={extractInfoInterestRateScenarioType(assetInfo?.payload)}
                     />
                     <AssetInfoModelFamilyOverrideType
-                        title="Model Family Override"
+                        name="modelFamilyOverrideType"
+                        title="Model Family Override For Scenario"
                         value={extractInfoModelFamilyOverrideType(assetInfo?.payload)}
                     />
-                    <AssetInfoItem title="Overnight Risk" value='Enabled' />
-                    <AssetInfoItem title="OAD/OAC Multiplier" value='Enabled' />
+                    <AssetInfoModelFamilyOverrideType
+                        name="modelFamilyOverrideForAnalyticsType"
+                        title="Model Family Override For Analytics"
+                        value={extractInfoModelFamilyOverrideForAnalyticsInputsType(assetInfo?.payload)}
+                    />
+
+                    <AssetInfoSwitchAcceptModelOutputs value={extractInfoAcceptModelOutputsType(assetInfo?.payload)} />
                 </div>
                 <Divider type="vertical" style={{ height: '100%', padding: 0 }} />
                 <div style={{ flex: 0.7 }}>
@@ -341,7 +364,7 @@ export const AssetInfo = ({
                                     formItemName="callDateInput"
                                     inputType="input"
                                     required={true}
-                                    style={{width: 142}}
+                                    style={{ width: 142 }}
                                 />
                         )
                     }
@@ -360,7 +383,7 @@ export const AssetInfo = ({
                         formItemName="prepaymentSpeedInput"
                         inputType="number"
                         required={
-                            hasValue(prepaymentType)?true:false
+                            hasValue(prepaymentType) ? true : false
                         }
                         controls={false}
                     />
@@ -374,13 +397,10 @@ export const AssetInfo = ({
                         formItemName="defaultSpeedInput"
                         inputType="number"
                         required={
-                            hasValue(defaultType)?true:false
+                            hasValue(defaultType)
                         }
                         controls={false}
-                    />                    
-                </div>
-                <Divider type="vertical" style={{ height: '100%', padding: 0 }} />
-                <div style={{ flex: 0.7 }}>
+                    />
                     <AssetInfoInput
                         title="Severity"
                         value={extractSeverity(assetInfo?.payload)}
@@ -388,6 +408,10 @@ export const AssetInfo = ({
                         inputType="number"
                         controls={false}
                     />
+                </div>
+                <Divider type="vertical" style={{ height: '100%', padding: 0 }} />
+                <div style={{ flex: 0.7 }}>
+
                     <AssetInfoInput
                         title="Delinquency"
                         value={extractDelinquency(assetInfo?.payload)}
@@ -395,6 +419,8 @@ export const AssetInfo = ({
                         inputType="number"
                         controls={false}
                     />
+                    <AssetInfoItem title="Overnight Risk" value='Enabled' />
+                    <AssetInfoItem title="OAD/OAC Multiplier" value='Enabled' />
                     <AssetInfoItem title="Claimed By" value={assetInfo?.claimedBy} />
                     <AssetInfoItem
                         title="Claimed At"
@@ -420,7 +446,7 @@ export const AssetInfo = ({
                         value={assetInfo?.price}
                         inputType="textArea"
                         formItemName="noteTextArea"
-                        style={{ minHeight: 160, width: '90%' }}
+                        style={{ minHeight: 210, width: '90%' }}
                         required={true}
                     />
                     <Form.Item noStyle>

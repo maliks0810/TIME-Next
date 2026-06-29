@@ -1,4 +1,5 @@
-import { RefObject, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { CaretRightOutlined } from '@ant-design/icons';
 import {
     DEFAULT_MISSING_COLOR,
@@ -53,7 +54,8 @@ interface Props {
     showNameHeader?: boolean;
     /** Show the per-cell hover tooltip. Default true. */
     showTooltip?: boolean;
-    widgetRef?: RefObject<HTMLDivElement | null>;
+    /** Fresh data is loading — render a skeleton body (real header stays). */
+    loading?: boolean;
 }
 
 export default function HeatMapGrid({
@@ -70,7 +72,7 @@ export default function HeatMapGrid({
     gridLines = true,
     showNameHeader = true,
     showTooltip = true,
-    widgetRef,
+    loading = false,
 }: Props) {
     const renderCols = useMemo(() => renderColumns(columns), [columns]);
     const header = useMemo(() => buildHeaderModel(renderCols), [renderCols]);
@@ -105,6 +107,22 @@ export default function HeatMapGrid({
 
     const esc = (s: string) =>
         s.replace(/[&<>]/g, (ch) => (ch === '&' ? '&amp;' : ch === '<' ? '&lt;' : '&gt;'));
+
+    // Place the fixed tooltip next to the cursor, flipping left/up near the viewport
+    // edges so it never spills off-screen. Used on cell enter AND on move so the tip
+    // tracks the pointer.
+    const positionTip = (tip: HTMLDivElement, cx: number, cy: number) => {
+        const TW = 232; // keep in sync with .hg-tip max-width
+        const GAP = 14;
+        const th = tip.offsetHeight || 96;
+        let left = cx + GAP;
+        let top = cy + GAP;
+        if (left + TW + 8 > window.innerWidth) left = cx - TW - GAP;
+        if (top + th + 8 > window.innerHeight) top = cy - th - GAP;
+        tip.style.left = `${Math.max(8, left)}px`;
+        tip.style.top = `${Math.max(8, top)}px`;
+        tip.style.bottom = '';
+    };
 
     const onCellOver = (e: React.MouseEvent) => {
         const tip = tipRef.current;
@@ -143,12 +161,18 @@ export default function HeatMapGrid({
             parts.push(`<div class="hg-tip-flag">Outlier · excluded from scaling</div>`);
         tip.innerHTML = parts.join('');
 
-        const widgetOffset = widgetRef?.current?.getBoundingClientRect() || { left: 0, top: 0 };
-        tip.style.left = `${e.clientX - (widgetOffset?.left || 0 + 124)}px`;
-        tip.style.top = `${e.clientY - (widgetOffset?.top || 0) + 40}px`;
+        // Position near the CURSOR (viewport coords; the tip is position: fixed),
+        // so it sits next to the pointer AND is immune to grid scroll. onCellMove
+        // keeps it tracking as the mouse moves within the grid.
+        positionTip(tip, e.clientX, e.clientY);
         tip.classList.add('show');
     };
     const onCellLeave = () => tipRef.current?.classList.remove('show');
+    // Reposition only (no content rebuild) so the tip follows the cursor smoothly.
+    const onCellMove = (e: React.MouseEvent) => {
+        const tip = tipRef.current;
+        if (tip && tip.classList.contains('show')) positionTip(tip, e.clientX, e.clientY);
+    };
 
     // The name column earns width from what is actually visible.
     const nameWidth = useMemo(() => {
@@ -231,8 +255,13 @@ export default function HeatMapGrid({
         <>
             <table
                 className={`hg-table${gridLines ? '' : ' no-lines'}`}
-                style={{ minWidth, '--hdr-h': `${headerH}px` } as React.CSSProperties}
+                /* Size to CONTENT width (not 100%) so a few columns sit left-aligned
+                   with empty space to the right, instead of the name column
+                   stretching and shoving the value columns to the far right. Wider
+                   than the viewport → the grid-area scrolls as before. */
+                style={{ width: minWidth, '--hdr-h': `${headerH}px` } as React.CSSProperties}
                 onMouseOver={onCellOver}
+                onMouseMove={onCellMove}
                 onMouseLeave={onCellLeave}
             >
                 <colgroup>
@@ -278,71 +307,118 @@ export default function HeatMapGrid({
                     ))}
                 </thead>
                 <tbody>
-                    {totalRow && (
-                        <tr className="row-total">
-                            <th className="cell-name" scope="row">
-                                <span className="chev-spacer" />
-                                <span className="label" title={totalRow.label}>
-                                    {totalRow.label}
-                                </span>
-                            </th>
-                            {numericCells(totalRow, true)}
-                        </tr>
-                    )}
-                    {rows.length === 0 ? (
-                        <tr className="row-empty">
-                            <td colSpan={1 + numCols}>No rows match the current filter.</td>
-                        </tr>
+                    {loading ? (
+                        // Fresh data loading — a clean skeleton body under the real
+                        // header (the top progress bar lives in the widget chrome).
+                        // Falls back to 6 placeholder columns before the server
+                        // catalog arrives so the cells still read as "loading".
+                        Array.from({ length: 14 }, (_, r) => (
+                            <tr className="row skel-row" key={`skel-${r}`}>
+                                <th
+                                    className="cell-name"
+                                    scope="row"
+                                    style={{ paddingLeft: 14 + (r % 3) * 18 }}
+                                >
+                                    <span className="chev-spacer" />
+                                    <span
+                                        className="hg-skel"
+                                        style={{ width: `${42 + ((r * 23) % 44)}%` }}
+                                    />
+                                </th>
+                                {Array.from({ length: numCols > 0 ? numCols : 6 }, (_, i) => (
+                                    <td key={i}>
+                                        <span
+                                            className="hg-skel"
+                                            style={{ width: `${48 + (((r + i) * 13) % 26)}%` }}
+                                        />
+                                    </td>
+                                ))}
+                            </tr>
+                        ))
                     ) : (
                         <>
-                            {topPad > 0 && (
-                                <tr className="vpad" aria-hidden="true">
-                                    <td colSpan={1 + numCols} style={{ height: topPad }} />
+                            {totalRow && (
+                                <tr className="row-total">
+                                    <th className="cell-name" scope="row">
+                                        <span className="chev-spacer" />
+                                        <span className="label" title={totalRow.label}>
+                                            {totalRow.label}
+                                        </span>
+                                    </th>
+                                    {numericCells(totalRow, true)}
                                 </tr>
                             )}
-                            {slice.map((row) => {
-                                const isOpen = expanded.has(row.key);
-                                return (
-                                    <tr
-                                        key={row.key}
-                                        className={`row depth-${Math.min(row.depth, 3)} ${row.isLeaf ? 'leaf' : 'group'}`}
-                                        onClick={row.isLeaf ? undefined : () => onToggle(row.key)}
-                                    >
-                                        <th
-                                            className="cell-name"
-                                            scope="row"
-                                            style={{ paddingLeft: 14 + row.depth * 18 }}
-                                        >
-                                            {row.isLeaf ? (
-                                                <span className="chev-spacer" />
-                                            ) : (
-                                                <CaretRightOutlined
-                                                    className={`chev${isOpen ? ' open' : ''}`}
-                                                />
-                                            )}
-                                            <span className="label" title={row.label}>
-                                                {row.label}
-                                            </span>
-                                            {!row.isLeaf && (
-                                                <span className="count">
-                                                    {row.leafCount.toLocaleString()}
-                                                </span>
-                                            )}
-                                        </th>
-                                        {numericCells(row)}
-                                    </tr>
-                                );
-                            })}
-                            {bottomPad > 0 && (
-                                <tr className="vpad" aria-hidden="true">
-                                    <td colSpan={1 + numCols} style={{ height: bottomPad }} />
+                            {rows.length === 0 ? (
+                                <tr className="row-empty">
+                                    <td colSpan={1 + numCols}>No rows match the current filter.</td>
                                 </tr>
+                            ) : (
+                                <>
+                                    {topPad > 0 && (
+                                        <tr className="vpad" aria-hidden="true">
+                                            <td colSpan={1 + numCols} style={{ height: topPad }} />
+                                        </tr>
+                                    )}
+                                    {slice.map((row) => {
+                                        const isOpen = expanded.has(row.key);
+                                        return (
+                                            <tr
+                                                key={row.key}
+                                                className={`row depth-${Math.min(row.depth, 3)} ${row.isLeaf ? 'leaf' : 'group'}`}
+                                                onClick={
+                                                    row.isLeaf ? undefined : () => onToggle(row.key)
+                                                }
+                                            >
+                                                <th
+                                                    className="cell-name"
+                                                    scope="row"
+                                                    style={{ paddingLeft: 14 + row.depth * 18 }}
+                                                >
+                                                    {row.isLeaf ? (
+                                                        <span className="chev-spacer" />
+                                                    ) : (
+                                                        <CaretRightOutlined
+                                                            className={`chev${isOpen ? ' open' : ''}`}
+                                                        />
+                                                    )}
+                                                    <span className="label" title={row.label}>
+                                                        {row.label}
+                                                    </span>
+                                                    {!row.isLeaf && (
+                                                        <span className="count">
+                                                            {row.leafCount.toLocaleString()}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                {numericCells(row)}
+                                            </tr>
+                                        );
+                                    })}
+                                    {bottomPad > 0 && (
+                                        <tr className="vpad" aria-hidden="true">
+                                            <td
+                                                colSpan={1 + numCols}
+                                                style={{ height: bottomPad }}
+                                            />
+                                        </tr>
+                                    )}
+                                </>
                             )}
                         </>
                     )}
                 </tbody>
             </table>
-            <div className="hg-tip" ref={tipRef} role="tooltip" aria-hidden="true" />
+            {/* Portal the tip to <body> so no ANCESTOR transform can capture its
+               position:fixed. Dashboard tiles (react-grid-layout & co.) position
+               each widget with transform: translate(), which would otherwise make
+               `fixed` anchor to the tile and ride the grid's inner scrollbar
+               instead of the viewport. At body level, clientX/clientY map straight
+               to the viewport and the tip tracks the cursor exactly. */}
+            {typeof document !== 'undefined' &&
+                createPortal(
+                    <div className="hg-tip" ref={tipRef} role="tooltip" aria-hidden="true" />,
+                    document.body
+                )}
         </>
     );
 }

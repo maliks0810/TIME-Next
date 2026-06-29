@@ -1,4 +1,3 @@
-import React from "react";
 import type { ColumnsType, ColumnType } from "antd/es/table";
 import type {
   AttributionRow,
@@ -11,12 +10,15 @@ import type {
 
 import { formatValue, getDefaultWidth, getMinWidth } from "./formatters";
 import { GroupHeader } from "./GroupHeader";
+import { AnalyticResultRow, AnalyticsResponse } from "../../lib/services";
 
 /* =========================================================
    Constants
    ========================================================= */
 
 const DEFAULT_GROUP_ORDER = Number.MAX_SAFE_INTEGER;
+const INDENT_SIZE = 15;
+const EXPAND_ICON_OFFSET = 18;
 
 /* =========================================================
    Resolvers (support camelCase + snake_case)
@@ -112,6 +114,7 @@ export const normalizeColumns = (
       width,
       minWidth: getMinWidth(col.format, col.frozen),
       serverIndex: index,
+      metricType: col.metricType ?? ""
     };
   });
 
@@ -200,6 +203,13 @@ const buildGroupBuckets = (
    3. Build AntD Columns
    ========================================================= */
 
+const getQuintile = (text: unknown): number | null => {
+  if (typeof text !== "string") return null;
+
+  const match = text.match(/^Q([1-5]):/i);
+  return match ? Number(match[1]) : null;
+};
+
 export const buildColumns = ({
   columns,
 }: {
@@ -209,6 +219,18 @@ export const buildColumns = ({
 
   const frozenColumns = visible.filter((c) => c.frozen);
   const nonFrozenColumns = visible.filter((c) => !c.frozen);
+
+  const isTotalRow = (record: AttributionRow): boolean => {
+    return record.SecurityGroup === "Total" || record.SecurityName === "Total";
+  };
+  const isQuintile = (record: AttributionRow) : boolean => {
+    return getQuintile(record.SecurityName) === null  ? false : true
+  };
+
+const level = (record: AttributionRow): number => {
+  const val = Number(record.Level);
+  return Number.isFinite(val) ? val : 1;
+};
 
   const buildLeaf = (
     col: NormalizedColumnConfig
@@ -222,8 +244,33 @@ export const buildColumns = ({
     align: col.format === "text" ? "left" : "right",
     shouldCellUpdate: (record, prev) =>
       record[col.accessor] !== prev[col.accessor],
-    render: (value: PrimitiveCellValue) =>
-      formatValue(value, col.format),
+
+    render: (value: PrimitiveCellValue, record: AttributionRow) => {
+      if (col.accessor === "SecurityGroup" || col.accessor === "SecurityName") {
+
+        if (isTotalRow(record)) {
+          return <span><strong>{value}</strong></span>;
+        }
+
+        if (col.accessor === "SecurityName" && isQuintile(record)) {
+          return <span><strong>{value}</strong></span>;
+        }
+
+        const paddingLeft =
+              EXPAND_ICON_OFFSET + INDENT_SIZE * (level(record) - 1);
+
+
+        return (
+          <span style={{ paddingLeft }}>
+            {value}
+          </span>
+        );
+      }
+
+  return formatValue(value, col.format);
+}
+,
+
   });
 
   const result: ColumnsType<AttributionRow> = frozenColumns.map(buildLeaf);
@@ -275,3 +322,108 @@ export const mapRowsToTableRows = (
     key: String(idx),
     ...row,
   }));
+
+export const buildRawTree = (rows: AnalyticResultRow[]): DrilldownGroupRow[] => {
+  const map = new Map<string, AnalyticResultRow[]>();
+
+  for (const row of rows) {
+    const date = String(row["ASOfDate"] ?? "Unknown");
+
+    if (!map.has(date)) {
+      map.set(date, []);
+    }
+
+    map.get(date)!.push(row);
+  }
+
+  return Array.from(map.entries()).map(([date, items], i) => ({
+    key: `group-${date}`,
+    __rowType: "group",
+    ASOfDate: date,
+    SecurityGroup: date,
+    children: items.map((r, j) => ({
+      ...r,
+      key: `detail-${i}-${j}`,
+      __rowType: "detail" as const,
+    })),
+  }));
+};
+
+
+export type DrilldownDetailRow = AnalyticResultRow & {
+  key: string;
+  __rowType: "detail";
+};
+
+export type DrilldownGroupRow = {
+  key: string;
+  __rowType: "group";
+  ASOfDate: string;
+  SecurityGroup: string;
+  children: DrilldownDetailRow[];
+};
+
+export type DrilldownRow = DrilldownGroupRow | DrilldownDetailRow;
+
+export const extractAnalysisDatasets = (apiResp: AnalyticsResponse) => {
+  const grids = Array.isArray(apiResp.data?.grids)
+    ? apiResp.data.grids
+    : [];
+
+  const aggregated = grids.find((g) => g.title === "ytd");
+  const raw = grids.find((g) => g.title === "all_data");
+
+  return {
+    main: aggregated?.rows ?? [],
+    drilldown: buildRawTree(raw?.rows ?? []),
+  };
+};
+
+export const getEffectiveColumns = (
+  config: GridConfigResponse,
+  configured: NormalizedColumnConfig[],
+  breakdown?: string
+): NormalizedColumnConfig[] => {
+  if (!config) return [];
+
+  const baseColumns =
+    configured.length > 0
+      ? configured
+      : normalizeColumns(config, {
+          order: config.columnConfigs.all.map((c) => c.id),
+          widths: {},
+          visibility: {},
+        });
+
+  const useSpecialMode =
+    breakdown === "MktCap" || breakdown === "PEfwd";
+
+  return baseColumns.map((col) => {
+    let next = col;
+
+    //  1. Force SecurityName visible
+    if (useSpecialMode && col.id === "SecurityName") {
+      next = {
+        ...next,
+        visible: true,
+      };
+    }
+  if (useSpecialMode && col.id === "SecurityGroup") {
+      next = {
+        ...next,
+        visible: false,
+      };
+    }
+    //  2. Apply BPS override
+    if (useSpecialMode) {
+      if (col.metricType !== "weight" && col.format === "percent") {
+        next = {
+          ...next,
+          format: "bps",
+        };
+      }
+    }
+
+    return next;
+  });
+};

@@ -2,7 +2,7 @@ import { MetricLabel } from "./metrics";
 import { PeriodCode } from "./periods";
 
 export type FrequencyMode = "Monthly" | "Daily";
-export type AssetClass = "EM" | "EQ" | "FI";
+export type AssetClass = "EM" | "EQ" | "FI" | "None";
 
 export const ASSET_CLASS_OPTIONS: { label: string; value: AssetClass }[] = [
   { label: "Fixed Income (FI)", value: "FI" },

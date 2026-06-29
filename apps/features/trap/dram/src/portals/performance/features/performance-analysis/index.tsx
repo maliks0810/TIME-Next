@@ -14,9 +14,10 @@ import {
   PerformanceReturnsResultResponse,
   PortfolioRow,
 } from "./lib/types";
-
+import { useUserInfo } from '@platform/utils';
 import {
   fetchExclusionAccountsService,
+  fetchOfficalPerformanceReturnsExcelService,
   fetchOfficalPerformanceReturnsService,
   fetchPortfolioListService,
   fetchPortfolioSummaryService,
@@ -77,6 +78,7 @@ async function fetchPortfolioHistory(data: PerformanceReturnsResultResponse | un
 }
 
 export default function PerformanceAnalysisContent() {
+  const userInfo = useUserInfo();
   // LEFT state
   const [portfolioList, setPortfolioList] = React.useState<PortfolioRow[]>([]);
   const [portfolioSummaryList, setPortfolioSummaryList] = React.useState<HistorySummaryRow[]>([]);
@@ -116,7 +118,8 @@ export default function PerformanceAnalysisContent() {
     (async () => {
       try {
         // Load list once
-        const resp = await fetchPortfolioListService();
+        const resp = await fetchPortfolioListService(encodeURIComponent(
+				userInfo?.name ?? ''));
           const list = resp?.data?.results ?? [];
           if (!cancelled) {
             setPortfolioList(list);
@@ -264,34 +267,44 @@ React.useEffect(() => {
   }, [openPortfolio]);
 
   // Toolbar export for detail grid
-  const onDetailToolbarPreparing = (e: ToolbarPreparingEvent) => {
-    const exportButton = {
-      widget: "dxButton",
-      location: "after",
-      options: {
-        icon: "export",
-        text: "Export",
-        onClick: () => {
-          const now = new Date();
-          const workbook = new ExcelJS.Workbook();
-          const worksheet = workbook.addWorksheet(`${tabKey}`);
+ const onDetailToolbarPreparing = (e: ToolbarPreparingEvent) => {
+  const exportButton = {
+    widget: "dxButton",
+    location: "after",
+    options: {
+      icon: "export",
+      text: "Export",
+      onClick: async () => {
+        try {
+          if (selectedPortId == null) return;
 
-          exportDataGrid({
-            component: e.component,
-            worksheet,
-            autoFilterEnabled: true,
-            topLeftCell: { row: 1, column: 1 },
-          }).then(() => {
-            workbook.xlsx.writeBuffer().then((buffer) => {
-              const fileName = `${tabKey}_${now.toISOString()}.xlsx`;
-              saveAs(new Blob([buffer], { type: "application/octet-stream" }), fileName);
-            });
+          const response = await fetchOfficalPerformanceReturnsExcelService(selectedPortId);
+
+          const blob = new Blob([response.data], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
           });
-        },
+
+          const url = window.URL.createObjectURL(blob);
+
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `${selectedPortId}_perf_${new Date().toISOString()}.xlsx`;
+
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+
+          window.URL.revokeObjectURL(url);
+
+        } catch (error: unknown) {
+          console.error(`[${new Date().toISOString()}] [ERROR]`, error);
+        }
       },
-    };
-    e.toolbarOptions.items?.unshift(exportButton);
+    },
   };
+
+  e.toolbarOptions.items?.unshift(exportButton);
+};
 
   // Toolbar export for summary grid
   const onSummaryToolbarPreparing = (e: ToolbarPreparingEvent) => {
@@ -469,9 +482,11 @@ React.useEffect(() => {
                   <div style={styles.headerLabel}>Perf Start Dt</div>
                   <div style={styles.headerValue}>{formatMMDDYYYY(detailHeader?.perfStartDate)}</div>
                 </div>
-                <div style={styles.headerField}>
-                  <div style={{width:"650px"}} >All returns for periods of one year or longer are <b>annualized</b> unless otherwise stated.</div>
+                <div style={styles.bmHeaderField}>
+                  <div style={styles.headerLabel}>Benchmark</div>
+                  <div style={styles.bmheaderValue}><b>{detailHeader?.benchmark}</b> All returns for periods of one year or longer are <b>annualized</b> unless otherwise stated.</div>
                 </div>
+
               </div>
 
               <div style={styles.tabsRow}>
@@ -639,4 +654,10 @@ const styles: Record<string, React.CSSProperties> = {
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
+  bmheaderValue: {
+    fontSize: 12,
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+  },
+  bmHeaderField: { display: "flex", flexDirection: "column", minWidth: 450 },
 };
