@@ -1,10 +1,13 @@
 import RatesWaterfallManagerPage from './pages/RatesWaterfallManagerPage';
+import { RatesWaterfallAccessGate } from './features/auth/RatesWaterfallAccessGate';
 import { Providers } from './providers';
 
 export default function App() {
   return (
     <Providers>
-      <RatesWaterfallManagerPage />
+      <RatesWaterfallAccessGate>
+        <RatesWaterfallManagerPage />
+      </RatesWaterfallAccessGate>
     </Providers>
   );
 }
