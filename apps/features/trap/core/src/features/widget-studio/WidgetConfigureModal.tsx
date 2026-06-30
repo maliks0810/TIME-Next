@@ -79,6 +79,23 @@ export const WidgetConfigureModal = ({
                         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                             {fields?.map((field: any) => {
                                 const key = field.key;
+                                let options;
+
+                                // If the property has options field then it depends on another field.
+                                if (field.options) {
+                                    const selectedOption = field.options.find((option: any) => {
+                                        return (
+                                            params[option.condition.key] === option.condition.value
+                                        );
+                                    });
+
+                                    if (selectedOption)
+                                        options = selectedOption.options.map((el: string) => ({
+                                            value: el,
+                                            label: el,
+                                        }));
+                                }
+
                                 return (
                                     <PropertyConfig
                                         property={field}
@@ -88,6 +105,7 @@ export const WidgetConfigureModal = ({
                                         required={required.includes(key)}
                                         currentValue={params[key]}
                                         context={context}
+                                        options={options}
                                     />
                                 );
                             })}
