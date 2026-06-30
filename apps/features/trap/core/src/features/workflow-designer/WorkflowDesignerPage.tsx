@@ -72,6 +72,7 @@ export default function WorkflowDesignerPage() {
         saveDraft,
         publish,
         updateWidgetConfig,
+        contextHolder
     } = useWorkflowDesigner();
 
     useEffect(() => {
@@ -82,6 +83,7 @@ export default function WorkflowDesignerPage() {
 
     return (
         <Space direction="vertical" size={16} style={{ width: '100%', gap: 4 }}>
+            {contextHolder}
             <DesignerHeader
                 templateId={templateId}
                 versionId={versionId}
@@ -184,6 +186,7 @@ export default function WorkflowDesignerPage() {
                 }}
                 onSelectVariant={setSelectedWidgetVariantId}
                 onAddWidget={addWidget}
+                loading={loading}
             />
         </Space>
     );

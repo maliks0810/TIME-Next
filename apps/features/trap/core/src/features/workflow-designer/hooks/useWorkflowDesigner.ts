@@ -23,6 +23,11 @@ import {
 } from '../utils/workflowDesigner.utils';
 import { createDefaultConfigFromDefinition } from '../../widget-studio/helpers/helpers';
 
+export type AddWidgetOptions = {
+    keepPickerOpen?: boolean;
+}
+
+
 export function useWorkflowDesigner() {
     const nav = useNavigate();
     const location = useLocation();
@@ -59,6 +64,8 @@ export function useWorkflowDesigner() {
 
     const [templateId, setTemplateId] = React.useState(routeTemplateId);
     const [versionId, setVersionId] = React.useState(routeVersionId);
+
+    const [messageApi, contextHolder] = message.useMessage();
 
     React.useEffect(() => {
         if (!isDraftSaved) {
@@ -313,7 +320,7 @@ export function useWorkflowDesigner() {
         }
     }, [selectedWidgetParams, selectedWidgetDef]);
 
-    const addWidget = React.useCallback(async () => {
+    const addWidget = React.useCallback(async ({keepPickerOpen = false}: AddWidgetOptions = {}) => {
         if (!selectedWidgetDef) {
             message.error('Pick a widget definition first');
             return;
@@ -361,7 +368,8 @@ export function useWorkflowDesigner() {
         }));
 
         setIsDraftSaved(false);
-        setWidgetPickerOpen(false);
+        setWidgetPickerOpen(keepPickerOpen);
+        messageApi.success('Widget added successfully.');
     }, [layout, selectedWidgetDef, selectedWidgetVariantId, selectedWidgetParams]);
 
     const removeWidget = React.useCallback((instanceId: string) => {
@@ -559,5 +567,7 @@ export function useWorkflowDesigner() {
         publish,
 
         updateWidgetConfig,
+
+        contextHolder
     };
 }
