@@ -24,6 +24,7 @@ export const TextEditor = ({
     className,
     ref,
     showMenu = true,
+    minHeight = 0,
 }: {
     showMenu?: boolean;
     ref?: EditorRef;
@@ -32,6 +33,7 @@ export const TextEditor = ({
     className?: string;
     mentionOptions?: string[];
     mentionEnabled: boolean;
+    minHeight?: number;
 }) => {
     const extensions: Extensions = [
         StarterKit,
@@ -71,6 +73,7 @@ export const TextEditor = ({
             {showMenu && <BubbleMenu editor={editor} />}
             <div
                 className={styles.editoContainer}
+                style={{ minHeight: `${minHeight}px` }}
                 onClick={() => {
                     editor.chain().focus();
                 }}

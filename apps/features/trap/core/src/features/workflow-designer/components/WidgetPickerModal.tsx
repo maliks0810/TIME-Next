@@ -87,6 +87,17 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
     const addWidgetDisabled =
         !props.selectedWidgetDef || props.isPublished || !props.templateId || !hasAllRequiredParams;
 
+    const getOptions = (field: any) => {
+        // If the property has options field then it depends on another field.
+        if (field.options) {
+            const selectedOption = field.options.find((option: any) => {
+                return props.selectedParams[option.condition.key] === option.condition.value;
+            });
+
+            if (selectedOption) return selectedOption.options;
+        }
+        return undefined;
+    };
     return (
         <Modal
             title={null}
@@ -208,6 +219,14 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                           ) {
                                               const selectValue =
                                                   props.selectedParams[requiredField];
+                                              const selectOptions =
+                                                  (getOptions(
+                                                      props.selectedWidgetDef.configSchema
+                                                          .properties[requiredField]
+                                                  ) ||
+                                                      props.selectedWidgetDef.configSchema
+                                                          .properties[requiredField]?.enum) ??
+                                                  [];
                                               inputComponent = (
                                                   <Select
                                                       value={selectValue}
@@ -226,13 +245,12 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                                               .properties[requiredField]?.title
                                                       }
                                                       style={{ width: '100%', marginTop: 8 }}
-                                                      options={(
-                                                          props.selectedWidgetDef.configSchema
-                                                              .properties[requiredField]?.enum ?? []
-                                                      ).map((fieldName: string) => ({
-                                                          value: fieldName,
-                                                          label: fieldName,
-                                                      }))}
+                                                      options={selectOptions.map(
+                                                          (fieldName: string) => ({
+                                                              value: fieldName,
+                                                              label: fieldName,
+                                                          })
+                                                      )}
                                                   />
                                               );
                                           } else {

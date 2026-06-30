@@ -60,6 +60,41 @@
             },
             "filter": {
                 "description": "Which value the selected Schema Key should resolve. Valid options are scoped to the chosen Schema Key (arc.status.query -> ARC status values; econ.indicators.heatmap -> indicator metrics).",
+                "options": [
+                    {
+                        "condition": {
+                            "key": "schemaKey",
+                            "value": "arc.status.query"
+                        },
+                        "options": [
+                            "ANALYTICS REQUESTED",
+                            "ANALYTICS INPUT PENDING REVIEW",
+                            "ANALYTICS INPUT SENT TO ALADDIN",
+                            "ANALYTICS INPUT VERIFIED IN ALADDIN",
+                            "ANALYTICS CALCULATION IN PROGRESS",
+                            "ANALYTICS PENDING REVIEW",
+                            "ANALYTICS SENT TO ALADDIN",
+                            "ANALYTICS VERIFIED IN ALADDIN",
+                            "MANUAL",
+                            "ABANDONED",
+                            "INVALID REQUEST",
+                            "TOTAL"
+                        ]
+                    },
+                    {
+                        "condition": {
+                            "key": "schemaKey",
+                            "value": "econ.indicators.heatmap"
+                        },
+
+                        "options": [
+                            "Total Indicators",
+                            "Latest Period",
+                            "Improving Count",
+                            "Deteriorating Count"
+                        ]
+                    }
+                ],
                 "enum": [
                     "ANALYTICS REQUESTED",
                     "ANALYTICS INPUT PENDING REVIEW",
