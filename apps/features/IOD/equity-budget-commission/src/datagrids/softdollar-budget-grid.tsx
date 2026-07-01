@@ -19,16 +19,16 @@ import { LoadIndicator, TextArea } from 'devextreme-react';
 import { useUserInfo } from '@platform/utils';
 import { RequestSoftDollarBudget, SoftDollarBudget, SoftDollarBudgetAccount, SoftDollarBudgetAccountUser, SoftDollarBudgetChangeLog, SoftDollarBudgetComment, SoftDollarBudgetDetail } from '../datatypes/research-budget-types';
 
-import './styles.scss';
-import 'devextreme/dist/css/dx.light.css';
-import 'devextreme/dist/css/dx.light.compact.css';
-
 import { ToastConfig, ToastType} from '../components/toast-config';
 import { BlockContainer, BlockFormContainer } from '../components/block-container';
-
+import { custom } from 'devextreme/ui/dialog';
 // import the custom hook
 import { useSoftDollarBudgets } from '../hooks/useSoftDollarBudget';
 import { useSoftDollarBudgetDetails } from '../hooks/useSoftDollarBudgetWithDetails';
+
+import './styles.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
 
 export type BudgetYear = {
 value: number;
@@ -95,7 +95,7 @@ const hideToast = () => {
 // Hook that returns a DevExtreme store + data array  
 const { departments, brokers, mstBrokers, services, softBudgetData, budgetYears, 
   loading,
-  //loadSoftDollarBudgetData, 
+  loadSoftDollarBudgetData, 
   insertSoftDollarBudget, 
   updateSoftDollarBudget, 
   removeSoftDollarBudget,
@@ -261,6 +261,7 @@ const onAddBudgetDetailPopupSave = async () => {
       
     setPopupVisible(false);  
     showToast('Saved successfully', 'success');  
+    await loadSoftDollarBudgetData();
   } catch (error) {  
     if (error instanceof Error) {  
       showToast('Save failed while Adding: ' + error.message, 'error');  
@@ -392,9 +393,21 @@ const onChildAccountDelete = async (softDollarBudgetAccountId: number) => {
   if(allocationData.length > 0){  
     showToast('This Account can not be deleted as it has User Allocations associated.', 'error');  
     return;
-  }
+  }  
+ 
+  const dialog = custom({
+    title: 'Confirm Delete',
+    messageHtml: '<div class="confirm-text">Are you sure you want to delete this account?</div>',
+    buttons: [
+      { text: 'Yes', onClick: () => true, type: 'default', stylingMode: 'contained' },
+      { text: 'No', onClick: () => false, type: 'default', stylingMode: 'contained' }
+    ]
+  });
 
-  if (!window.confirm('Are you sure you want to delete this account?')) return;  
+  const result = await dialog.show();
+
+  if (!result) return;
+ 
   try {  
     await removeSoftdollarBudgetAccount(softDollarBudgetAccountId);  
     //setAccountsData((prev) => prev.filter((item) => item.softDollarBudgetAccountId !== softDollarBudgetAccountId));  
@@ -442,8 +455,21 @@ const openEditPopupChildAccountUser = async (accountUserData: SoftDollarBudgetAc
   }  
 };  
 
-const onChildAccountUserDelete = async (userAllocationId: number) => { 
-  if (!window.confirm('Are you sure you want to delete this User?')) return;  
+const onChildAccountUserDelete = async (userAllocationId: number) => {     
+  
+  const dialog = custom({
+    title: 'Confirm Delete',
+    messageHtml: '<div class="confirm-text">Are you sure you want to delete this user?</div>',
+    buttons: [
+      { text: 'Yes', onClick: () => true, type: 'default', stylingMode: 'contained' },
+      { text: 'No', onClick: () => false, type: 'default', stylingMode: 'contained' }
+    ]
+  });
+
+  const result = await dialog.show();
+
+  if (!result) return; 
+
   try {  
     await removeSoftAccountUserAllocation(userAllocationId);  
     showToast('User deleted successfully', 'success');  
@@ -784,7 +810,7 @@ return (
                         <Column dataField="startDate" caption="Start Date" dataType='date' format="yyyy-MM-dd"  width="10%"/>  
                         <Column dataField="endDate" caption="End Date" dataType='date' format="yyyy-MM-dd"  width="10%"/>  
                         <Column type="buttons" width="5%" visible={isAdmin}>  
-                          <GridButton name="edit" visible={false}
+                          <GridButton name="edit" visible={false} cssClass="dx-datagrid-delete-button"
                             onClick={(e) => {  
                               e.event?.stopPropagation();  
                               if (e.row?.data) {  
@@ -792,7 +818,7 @@ return (
                               }  
                             }}  
                           />  
-                          <GridButton name="delete" visible={true}
+                          <GridButton name="delete" visible={true} cssClass="dx-datagrid-delete-button"
                             onClick={async (e) => {  
                               e.event?.stopPropagation();  
                               if (e.row?.data?.userAllocationId != null) {  
@@ -859,7 +885,8 @@ return (
     {/* Child Popup for Accounts */}  
     <Popup  
       visible={childAccountPopupVisible}  
-      onHiding={onChildAccountPopupCancel}  
+      onHiding={onChildAccountPopupCancel} 
+      key={childAccountIsAddMode ? 'Create New Account' : 'Edit Account'} 
       showTitle={true}  
       title={childAccountIsAddMode ? 'Create New Account' : 'Edit Account'}  
       width="35%"  
@@ -898,6 +925,7 @@ return (
       visible={childUserAllocationPopupVisible}
       onHiding={onChildPopupUserAllocationCancel}  
       showTitle={true}  
+      key={childUserAllocationIsAddMode ? 'Create New User' : 'Edit User'}  
       title={childUserAllocationIsAddMode ? 'Create New User' : 'Edit User'}  
       width='35%'
       minWidth={400}
