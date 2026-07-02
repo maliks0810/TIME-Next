@@ -13,8 +13,14 @@ import CheckBox from 'devextreme-react/check-box';
 import { Toast } from 'devextreme-react/toast';
 import Popup from 'devextreme-react/popup';
 import Form, { Item as FormItem } from 'devextreme-react/form';
+import dxForm from 'devextreme/ui/form';
+
 import TabPanel, { Item as TabItem } from 'devextreme-react/tab-panel';
 import { LoadIndicator, TextArea } from 'devextreme-react';
+
+import {
+  RequiredRule,
+} from 'devextreme-react/validator';
 
 import { useUserInfo } from '@platform/utils';
 import { RequestSoftDollarBudget, SoftDollarBudget, SoftDollarBudgetAccount, SoftDollarBudgetAccountUser, SoftDollarBudgetChangeLog, SoftDollarBudgetComment, SoftDollarBudgetDetail } from '../datatypes/research-budget-types';
@@ -25,6 +31,7 @@ import { custom } from 'devextreme/ui/dialog';
 // import the custom hook
 import { useSoftDollarBudgets } from '../hooks/useSoftDollarBudget';
 import { useSoftDollarBudgetDetails } from '../hooks/useSoftDollarBudgetWithDetails';
+import { ValidationMessage } from '../components/validations-message';
 
 import './styles.scss';
 import 'devextreme/dist/css/dx.light.css';
@@ -34,6 +41,8 @@ export type BudgetYear = {
 value: number;
 text: string;
 };
+
+
 
 const handleRowDeleted = (
   showToast: (message: string, type: ToastType) => void
@@ -78,6 +87,9 @@ const [childAccountUserPopupLoading, setChildAccountUserPopupLoading] = useState
 const [childAccountUserEditingData, setChildAccountUserEditingData] = useState<Partial<SoftDollarBudgetAccountUser>>();  
 const [budgetDataSaving, setBudgetDataSaving] = useState(false);
 const [userDataSaving, setUserDataSaving] = useState(false);
+const budgetFormRef = useRef<dxForm>(null)
+const childAccountFormRef = useRef<dxForm>(null)
+const childUserFormRef = useRef<dxForm>(null)
 
 // Toast handling  
 const [toastConfig, setToastConfig] = useState<ToastConfig>({  
@@ -254,7 +266,15 @@ const openEditBudgetPopup = async (key: number, data: SoftDollarBudget) => {
 };  
 
 const onAddBudgetDetailPopupSave = async () => {    
-  try {      
+  try {
+    
+  const validationResult =
+    budgetFormRef.current?.instance().validate();
+
+    if (!validationResult?.isValid) {
+        return;
+    }
+
     setBudgetDataSaving(true);
     // Insert new  
     await insertSoftDollarBudget(editingDetailData);  
@@ -330,7 +350,7 @@ const openAddAccountChildPopup = () => {
   setChildAccountPopupVisible(true);  
 };  
 
-const openEditChildAccountPopup = async (accountData: SoftDollarBudgetAccount) => {  
+const openEditChildAccountPopup = async (accountData: SoftDollarBudgetAccount) => { 
   setChildAccountIsAddMode(false);  
   setChildAccountPopupLoading(true);  
   setChildAccountPopupVisible(true);  
@@ -349,6 +369,13 @@ const openEditChildAccountPopup = async (accountData: SoftDollarBudgetAccount) =
 
 const onChildAccountPopupSave = async () => { 
   try {  
+    const validationResult =
+      childAccountFormRef.current?.instance().validate();
+
+      if (!validationResult?.isValid) {
+          return;
+      }
+
     if (childAccountIsAddMode) {  
       if (!childAccountEditingData) return;  
 
@@ -482,6 +509,12 @@ const onChildAccountUserDelete = async (userAllocationId: number) => {
 
 const onChildPopupUserAllocationSave = async () => {  
   try {  
+    const validationResult =
+      childUserFormRef.current?.instance().validate();
+
+      if (!validationResult?.isValid) {
+          return;
+      }
     setUserDataSaving(true);
     if (childUserAllocationIsAddMode) {  
       if (!childAccountUserEditingData) return;    
@@ -648,6 +681,7 @@ return (
       {isAddMode ? (  
         <div>  
           <Form  
+            ref={budgetFormRef}
             width="95%" 
             height="100%" 
             formData={editingDetailData}  
@@ -656,23 +690,31 @@ return (
               setEditingDetailData((prev) => ({ ...prev, [e.dataField as string]: e.value }))  
             }  
           >  
-            <FormItem dataField="year" label={{ text: 'Year' }} editorOptions={{ readOnly: true, width: '40%' }} cssClass='textInput-popup-num'/>  
-            <FormItem dataField="budgetTypeId" label={{ text: 'Soft/Hard Dollar' }} editorType="dxSelectBox"  cssClass='dx-common-selectbox-short60'
+            <FormItem dataField="year" label={{ text: 'Year' }} editorOptions={{ readOnly: true, width: '40%' }} />  
+            <FormItem dataField="budgetTypeId" isRequired label={{ text: 'Soft/Hard Dollar' }} editorType="dxSelectBox"  cssClass='dx-common-selectbox-short60'
               editorOptions={{  
-                dataSource: budgetTypeMap, valueExpr: 'id', displayExpr: 'text' }} />  
-            <FormItem dataField="departmentId" label={{ text: 'Department' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
+                dataSource: budgetTypeMap, valueExpr: 'id', displayExpr: 'text' }}>
+                <RequiredRule message={ValidationMessage.RequiredField} />
+            </FormItem> 
+            <FormItem dataField="departmentId" isRequired label={{ text: 'Department' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
               editorOptions={{
                   dataSource: departments, valueExpr: 'departmentId', displayExpr: 'departmentName',
-                  searchEnabled: true, searchMode: "contains", placeholder: "Select a department..." }} />  
-            <FormItem dataField="brokerId" label={{ text: 'Broker' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
+                  searchEnabled: true, searchMode: "contains", placeholder: "Select a department..." }} >
+                <RequiredRule message={ValidationMessage.RequiredField} />
+            </FormItem>  
+            <FormItem dataField="brokerId" isRequired label={{ text: 'Broker' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
               editorOptions={{  
                 dataSource: brokers, valueExpr: 'brokerId', displayExpr: 'brokerName',
-                searchEnabled: true, searchMode: "contains", placeholder: "Select a broker..." }} />  
-            <FormItem dataField="serviceId" label={{ text: 'Service' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
+                searchEnabled: true, searchMode: "contains", placeholder: "Select a broker..." }}>
+                <RequiredRule message={ValidationMessage.RequiredField} /> 
+            </FormItem>  
+            <FormItem dataField="serviceId" isRequired label={{ text: 'Service' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
               editorOptions={{  
                 dataSource: services, valueExpr: 'serviceId',  displayExpr: 'ServiceName',
-                searchEnabled: true, searchMode: "contains", placeholder: "Select a service..."  }}  />  
-            <FormItem dataField="ratio" label={{ text: 'Ratio' }} editorType="dxNumberBox" editorOptions={{width: '40%'}} cssClass='textInput-popup-num'/>  
+                searchEnabled: true, searchMode: "contains", placeholder: "Select a service..."  }}>
+                <RequiredRule message={ValidationMessage.RequiredField} />
+            </FormItem>
+            <FormItem dataField="ratio" label={{ text: 'Ratio' }} editorType="dxNumberBox" editorOptions={{width: '40%'}} />  
             <FormItem colSpan={1} itemType='empty'/>             
           </Form>
           <div className="popup-footer" style={{textAlign:'center', margin:10}}>
@@ -742,7 +784,7 @@ return (
                   useIcons: true,  
                 }}
               >  
-                <Column dataField="account" caption="Account Name"  width="25%"/>  
+                <Column dataField="account" caption="Account Name"  width="25%"/>                
                 <Column dataField="status" caption="Status"  width="10%"/>  
                 <Column dataField="cost" caption="Hard Dollar"  width="15%" format= {{ type: 'currency', precision: 2 }}/>  
                 <Column dataField="softDollar" caption="Soft Dollar"  width="15%" format= {{ type: 'currency', precision: 2 }}/>  
@@ -903,10 +945,14 @@ return (
          <p>Loading account details...</p>  
         </div>  
       ) : (  
-        <Form colCount={2} width="95%" formData={childAccountEditingData}>  
+        <Form colCount={2} width="95%" 
+          ref={childAccountFormRef}
+          formData={childAccountEditingData}>  
           <FormItem dataField="serviceName" label={{ text: 'Service' }} editorOptions={{ readOnly: true }} />  
           <FormItem dataField="startDate" label={{ text: 'Start Date' }} editorType="dxDateBox" />  
-          <FormItem dataField="account" label={{ text: 'Name' }} />  
+          <FormItem dataField="account" isRequired label={{ text: 'Name' }} >
+              <RequiredRule message={ValidationMessage.RequiredField} />
+          </FormItem>
           <FormItem dataField="endDate" label={{ text: 'End Date' }} editorType="dxDateBox" /> 
           <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} itemType='empty'/>  
@@ -941,21 +987,27 @@ return (
          <p>Loading User details...</p>  
         </div>  
       ) : (
-        <Form colCount={2} formData={childAccountUserEditingData}>
+        <Form colCount={2} 
+          ref={childUserFormRef}
+          formData={childAccountUserEditingData}> 
           <FormItem dataField="account" label={{ text: 'Account' }} editorOptions={{ readOnly: true }} />  
           <FormItem dataField="totalCost" label={{ text: 'Hard Dollar' }} editorType="dxNumberBox" />  
-          <FormItem dataField="userId" label={{text: 'User'}} visible={childUserAllocationIsAddMode}
+          <FormItem dataField="userId" isRequired label={{text: 'User'}} visible={childUserAllocationIsAddMode}
             editorType="dxSelectBox"
             editorOptions={{
               dataSource: users, valueExpr: 'userId', displayExpr: 'userName',
               searchEnabled: true, searchMode: "contains", placeholder: "Select a user..."
-            }}/>
+            }}>
+              <RequiredRule message={ValidationMessage.RequiredField} />
+          </FormItem>
           <FormItem dataField="startDate" label={{ text: 'Start Date' }} editorType="dxDateBox" />  
-          <FormItem dataField="departmentId" label={{text: 'Department'}} visible={childUserAllocationIsAddMode} editorType="dxSelectBox" 
+          <FormItem dataField="departmentId" isRequired label={{text: 'Department'}} visible={childUserAllocationIsAddMode} editorType="dxSelectBox" 
             editorOptions={{
               dataSource: departments, valueExpr: 'departmentId', displayExpr: 'departmentName',
               searchEnabled: true, searchMode: "contains", placeholder: "Select a department..."
-            }} />
+            }}>
+              <RequiredRule message={ValidationMessage.RequiredField} />
+          </FormItem>
           <FormItem dataField="endDate" label={{ text: 'End Date' }} editorType="dxDateBox" /> 
           <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} itemType='empty'/>  
