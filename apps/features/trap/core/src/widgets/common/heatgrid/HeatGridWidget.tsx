@@ -413,14 +413,20 @@ export const HeatGridWidget = ({
     const nameHeader = groupingLabels.join(' / ');
 
     // -------- Color legend (spectrum + outlier + no-data) --------
-    // Built automatically from the catalog's first heat scale so it always matches
-    // the cells; the chrome gates it on foundation.showLegend.
+    // Built automatically from the catalog's first heat scale so it always
+    // matches the cells; the chrome gates it on foundation.showLegend.
+    //
+    // Endpoint labels are DATA-DRIVEN — the executor declares them per
+    // schemaKey via HeatSpec.lowLabel / highLabel (econ → "Deteriorating"/
+    // "Improving"; spreads → "Tightening"/"Widening"). Fall back to plain
+    // "Low"/"High" when a scale doesn't declare them, so generic heatmaps
+    // still render a sensible legend.
     const heatScaleList = heatScales(columns);
     const legend = heatScaleList.length ? (
         <SpectrumLegend
             ramp={heatScaleList[0].ramp}
-            lowLabel="Low"
-            highLabel="High"
+            lowLabel={heatScaleList[0].lowLabel ?? 'Low'}
+            highLabel={heatScaleList[0].highLabel ?? 'High'}
             showOutlier
             showNoData
             outlierColor={heatScaleList[0].outlierColor}
