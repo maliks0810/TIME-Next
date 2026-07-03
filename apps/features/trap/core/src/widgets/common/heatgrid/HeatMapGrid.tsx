@@ -24,9 +24,15 @@ import { buildHeaderModel, fmt } from './utils';
  * that's the Performance Grid's domain (src/perfgrid).
  */
 
-/** Floor width per value column — below this we allow horizontal scroll rather
- *  than squishing cells to nothing. Above this, cells share available space. */
+/** Floor width per value column — sized for the widest expected value
+ *  ("224,250.00" measured at ~80.58px including 12px padding each side).
+ *  Below this we allow horizontal scroll rather than truncating numbers. */
 const MIN_CELL_WIDTH = 80;
+/** Ceiling width per value column — prevents a small handful of columns from
+ *  stretching across the whole grid when the container is wide. Extra space
+ *  becomes whitespace to the right of the last column instead of stretching
+ *  cells into oversized bars. */
+const MAX_CELL_WIDTH = 100;
 /** Placeholder column count for the pre-data skeleton — used when the server
  *  catalog hasn't arrived yet, so the loading grid still reads as grid-shaped
  *  instead of a tiny stub. Roughly a year of monthly data. */
@@ -188,17 +194,27 @@ export default function HeatMapGrid({
         return Math.round(Math.max(230, Math.min(430, max)));
     }, [rows, totalRow]);
 
-    // Fit-to-screen: value columns share the remaining container width equally
-    // via table-layout: fixed + empty <col> widths (see <colgroup> below). The
-    // minWidth is the FLOOR — if the container is narrower than this, the
-    // grid-area scrolls horizontally rather than squishing cells to nothing.
+    // Value columns share the container width equally via table-layout: fixed
+    // + empty <col> widths (see <colgroup> below). Sizing behavior:
+    //
+    //   preferredWidth  = the "look nice" total   (nameWidth + N × MAX_CELL_WIDTH)
+    //   minWidth        = the floor before scroll (nameWidth + N × MIN_CELL_WIDTH)
+    //
+    // The table's `width` is set to `min(100%, preferredWidth)`:
+    //   - Container wider than preferredWidth  → table stays at preferredWidth,
+    //     leaving whitespace to the right (prevents 1-2 columns stretching into
+    //     oversized bars across the whole grid).
+    //   - Container narrower than preferredWidth → table fills 100% and columns
+    //     share the space equally, floored at minWidth (grid-area scrolls
+    //     horizontally if container < minWidth).
     //
     // Pre-data skeleton case: server hasn't responded yet so numCols === 0.
-    // Fall back to a sensible placeholder count so the skeleton fills the grid
-    // width instead of rendering as a tiny stub in the corner.
+    // Fall back to a sensible placeholder count so the skeleton reads as
+    // grid-shaped instead of a tiny stub in the corner.
     const isSkeletonPlaceholder = loading && numCols === 0;
     const effectiveNumCols = isSkeletonPlaceholder ? SKELETON_COL_COUNT : numCols;
     const minWidth = nameWidth + effectiveNumCols * MIN_CELL_WIDTH;
+    const preferredWidth = nameWidth + effectiveNumCols * MAX_CELL_WIDTH;
 
     // Windowed rendering: only rows near the viewport hit the DOM.
     const first = Math.max(0, Math.floor((viewportTop - fixedTop) / ROW_H) - OVERSCAN_ROWS);
@@ -276,7 +292,11 @@ export default function HeatMapGrid({
                    floor — narrower container → grid-area scrolls horizontally
                    rather than squishing cells to nothing. */
                 style={{
-                    width: '100%',
+                    // See sizing note above: min(100%, preferredWidth) caps the
+                    // table at its "look nice" width so a few columns don't
+                    // stretch into oversized bars, while allowing it to fill
+                    // narrower containers down to the minWidth floor.
+                    width: `min(100%, ${preferredWidth}px)`,
                     minWidth,
                     '--hdr-h': `${headerH}px`,
                 } as React.CSSProperties}
