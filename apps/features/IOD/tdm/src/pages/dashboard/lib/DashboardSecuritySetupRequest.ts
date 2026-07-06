@@ -1,3 +1,19 @@
+export interface ISecuritySetupDashboardResponse {
+    dashboardStats: IDashboardStats;
+    securityRequests: IDashboardSecuritySetupRequest[]
+}
+export interface IDashboardStats {
+    totalRequests: number;
+    averageSetupTime: number;
+    securitySetupStatusData: IChartData[]
+    riskAnalyticsStatusData: IChartData[]
+}
+
+export interface IChartData {
+    name: string;
+    value: number;
+}
+
 export interface IDashboardSecuritySetupRequest {
     id: number;
     description: string;
