@@ -72,7 +72,7 @@ export default function CanvasContainer({
                         cancel: draggableCancel,
                         enabled: isDraggable,
                     }}
-                    resizeConfig={{ enabled: isResizable }}
+                    resizeConfig={{ enabled: isResizable, handles: ['se'] }}
                 >
                     {children}
                 </GridLayout>

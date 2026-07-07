@@ -382,13 +382,10 @@ export async function listWidgetDefinitions(): Promise<any[]> {
         variants {
           id
           label
-          grid {
-            defaultW
-            defaultH
-            minW
-            minH
-            maxW
-            maxH
+          sizing {
+            resizable
+            width { default min max step }
+            height { default min max step }
           }
         }
       }

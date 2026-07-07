@@ -13,12 +13,16 @@
             "channel": {
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [1, 2, 3, 4],
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
                 "title": "Communication Channel",
                 "type": "string",
                 "category": "Interactions"
             },
-
             "label": {
                 "title": "Date select label",
                 "type": "string",
@@ -28,7 +32,10 @@
             "stateKey": {
                 "title": "Custom state key",
                 "description": "Default is common.date",
-                "enum": ["common.date", "asOfDate"],
+                "enum": [
+                    "common.date",
+                    "asOfDate"
+                ],
                 "type": "string",
                 "default": "",
                 "category": "Interactions"
@@ -36,14 +43,19 @@
             "dateFormat": {
                 "title": "Date Format",
                 "type": "string",
-                "enum": ["YYYY-MM-DD"],
+                "enum": [
+                    "YYYY-MM-DD"
+                ],
                 "default": "YYYY-MM-DD",
                 "category": "View Parameters"
             },
             "availableDates": {
                 "title": "Available dates",
                 "type": "string",
-                "enum": ["All", "End of Month only"],
+                "enum": [
+                    "All",
+                    "End of Month only"
+                ],
                 "default": "All",
                 "category": "View Parameters"
             }
@@ -56,15 +68,21 @@
     },
     "variants": [
         {
-            "id": "small",
-            "label": "Small",
-            "grid": {
-                "defaultW": 2,
-                "defaultH": 60,
-                "minW": 2,
-                "minH": 60,
-                "maxW": null,
-                "maxH": null
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 2,
+                    "min": 1,
+                    "max": 12
+                },
+                "height": {
+                    "default": 60,
+                    "min": 30,
+                    "max": 100,
+                    "step": 10
+                }
             }
         }
     ]

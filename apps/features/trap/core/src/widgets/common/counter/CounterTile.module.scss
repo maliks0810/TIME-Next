@@ -1,4 +1,5 @@
 .container {
+
     h1,
     h2,
     h3,
@@ -13,32 +14,65 @@
     flex-direction: column;
     height: 100%;
     cursor: pointer;
+    container-type: size;
 }
+
 .cardTitle {
     color: var(--ant-color-text-secondary);
 }
+
 .activeTile {
     border-bottom: 2px solid var(--ant-color-primary);
 }
+
 .top {
     order: 0;
 }
+
 .bottom {
     order: 1;
     margin-top: auto !important;
 }
+
 .content {
     display: flex;
     align-items: flex-end;
     color: var(--ant-color-text);
+    min-width: 0;
 }
+
 .prefix {
-    flex: 0;
+    flex: 0 0 auto;
 }
+
 .suffix {
-    flex: 0;
+    flex: 0 0 auto;
 }
+
 .value {
     flex: 1;
-    font-size: 1.5rem;
+    min-width: 0;
+}
+
+.container {
+    .cardTitle {
+        font-size: clamp(0.85rem, 11cqmin, 1.75rem);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .value {
+        font-size: clamp(1.5rem, 45cqmin, 10rem);
+        line-height: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .prefix,
+    .suffix {
+        font-size: clamp(1rem, 24cqmin, 5rem);
+    }
 }

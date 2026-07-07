@@ -33,19 +33,22 @@ export const SimplifiedWidgetView = ({
         const selectedVariant = selectedWidgetVariantId
             ? selectedWidgetVariantId
             : selectedWidgetDef?.variants[0].id;
-        const selectedVariantConfig = selectedWidgetDef?.variants.find(
-            ({ id }: { id: string; grid: any }) => id === selectedVariant
-        )?.grid;
+        const variant = selectedWidgetDef?.variants.find(
+            ({ id }: { id: string }) => id === selectedVariant
+        ) as any;
+        const sizing = variant?.sizing;
+        const w = sizing?.width?.default;
+        const h = sizing?.height?.default;
 
         return [
             {
                 i: 'widget_picker_preview_item',
-                x: (12 - (selectedVariantConfig?.defaultW || 0)) / 2,
+                x: (12 - (w || 0)) / 2,
                 y: 0,
-                w: selectedVariantConfig?.defaultW,
-                h: selectedVariantConfig?.defaultH,
-                minW: selectedVariantConfig?.minW,
-                minH: selectedVariantConfig?.minH,
+                w,
+                h,
+                minW: sizing?.width?.min,
+                minH: sizing?.height?.min,
             },
         ];
     }, [selectedWidgetDef, selectedWidgetVariantId]);
