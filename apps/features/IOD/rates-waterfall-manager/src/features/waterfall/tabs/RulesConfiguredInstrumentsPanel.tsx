@@ -1,7 +1,6 @@
 import type { JSX } from 'react';
 import { useMemo } from 'react';
 import { useTreasuryInstruments, type RwmTreasuryInstrument } from '../../../api';
-import { cn } from '../../../ui/utils';
 import { sortWaterfallBuckets } from '../model/waterfallClientResolver';
 import type {
   WaterfallBucket,
@@ -49,18 +48,19 @@ export function RulesConfiguredInstrumentsPanel(): JSX.Element {
   const orderedBuckets = sortWaterfallBuckets(buckets);
   const selectedRuleSet =
     ruleSets.find((ruleSet) => getWaterfallRuleSetKey(ruleSet) === selectedRuleSetKey) ?? ruleSets[0] ?? null;
-
   const treasuryDurationBySecurity = useMemo(
     () => buildTreasuryDurationMap(treasuryInstrumentsQuery.data ?? []),
     [treasuryInstrumentsQuery.data],
   );
 
   return (
-    <section className="rwm-rules-reference-panel" aria-label="Configured instruments reference">
+    <section className="rwm-rules-reference-panel">
       <div className="rwm-rules-reference-header rwm-rules-reference-header--rule-style">
         <div className="rwm-rules-reference-title rwm-rules-reference-title--rule-style">Configured Instruments</div>
+        <div className="rwm-rules-reference-subtitle">
+          Instruments are shown in the execution order resolved by the selected rule set.
+        </div>
       </div>
-
       <div className="rwm-rules-reference-scroll">
         {SIDES.map((side) => (
           <InstrumentSide
@@ -92,15 +92,7 @@ function InstrumentSide({
 }): JSX.Element {
   return (
     <div className="rwm-rules-reference-side">
-      <div
-        className={cn(
-          'rwm-rules-reference-side-title',
-          side === 'BUY' ? 'rwm-rules-reference-side-title--buy' : 'rwm-rules-reference-side-title--sell',
-        )}
-      >
-        {side}
-      </div>
-
+      <div className={`rwm-rules-reference-side-title rwm-rules-reference-side-title--${side.toLowerCase()}`}>{side}</div>
       <div className="rwm-rules-reference-bucket-grid">
         {buckets.map((bucket) => {
           const instruments = resolveInstrumentsForRuleBucket({
@@ -127,7 +119,6 @@ function InstrumentSide({
 }
 
 function InstrumentBucket({
-  side,
   bucket,
   instruments,
   treasuryDurationBySecurity,
@@ -139,22 +130,21 @@ function InstrumentBucket({
 }): JSX.Element {
   return (
     <div className="rwm-rules-reference-bucket">
-      <div className="rwm-rules-reference-bucket-header">
-        <span className={side === 'BUY' ? 'text-tcw-green' : 'text-tcw-plum'}>{bucket.code}</span>
-      </div>
-
+      <div className="rwm-rules-reference-bucket-header">{bucket.code}</div>
       {instruments.length === 0 ? (
         <div className="rwm-rules-reference-empty">No instruments</div>
       ) : (
-        <div className="rwm-rules-reference-row-list">
+        <div>
           {instruments.map((instrument) => (
             <div key={`${instrument.resolvedOrder}-${instrument.securityId}-${instrument.ruleStepOrder}`} className="rwm-rules-reference-row">
               <span className="rwm-rules-reference-order">{instrument.resolvedOrder}</span>
-              <span className="truncate font-medium text-grey-900" title={instrument.description ?? instrument.securityId}>
+              <span className="truncate" title={instrument.securityId}>
                 {instrument.securityId}
               </span>
-              <span className={instrument.instrumentType === 'FUTURES' ? 'text-tcw-green' : 'text-tcw-blue'}>{instrument.instrumentType}</span>
-              <span className="text-right text-grey-600">{formatDuration(getInstrumentDuration(instrument, treasuryDurationBySecurity))}</span>
+              <span className="truncate" title={instrument.description ?? ''}>
+                {instrument.description || '-'}
+              </span>
+              <span className="text-right tabular-nums">Dur {formatDuration(getInstrumentDuration(instrument, treasuryDurationBySecurity))}</span>
             </div>
           ))}
         </div>
@@ -252,8 +242,8 @@ function toNumberOrNull(value: unknown): number | null {
 }
 
 function formatDuration(value: number | null | undefined): string {
-  if (value == null) return '—';
-  return Number.isFinite(value) ? value.toFixed(3) : '—';
+  if (value == null) return '-';
+  return Number.isFinite(value) ? value.toFixed(3) : '-';
 }
 
 export default RulesConfiguredInstrumentsPanel;

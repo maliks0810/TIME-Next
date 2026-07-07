@@ -30,7 +30,6 @@ export function WaterfallPreviewTab(): JSX.Element {
     () => buildTreasuryDurationMap(treasuryInstrumentsQuery.data ?? []),
     [treasuryInstrumentsQuery.data],
   );
-
   const selected = options.find((option) => option.portfolioKey === key) ?? null;
   const rhsGroups = useMemo(
     () =>
@@ -49,44 +48,49 @@ export function WaterfallPreviewTab(): JSX.Element {
   const sell = resolveWaterfall({ graph, portfolioDuration: duration, rhsGroupCode: rhsCode, side: 'SELL' });
 
   return (
-    <div className="grid gap-3">
-      <div className="rwm-preview-top">
-        <section className="rwm-card overflow-visible">
-          <div className="flex h-9 items-center gap-3 border-b border-grey-200 px-3">
-            <h2 className="font-tcw-bold text-sm text-grey-900">Preview Input</h2>
-            <span className="text-[11px] text-grey-600">
-              {duration === null ? 'Duration —' : `Duration ${duration.toFixed(3)}`}
-            </span>
+    <div className="space-y-3">
+      <section className="waterfall-card">
+        <div className="rwm-section-title-bar border-b border-grey-200">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="font-tcw-bold text-sm text-grey-900">Preview Input</div>
+              <div className="mt-1 text-[11px] text-grey-600">Validate waterfall resolution by portfolio or manual RHS/duration.</div>
+            </div>
+            <div className="rwm-status-badge rwm-status-badge--saved">
+              {duration === null ? 'Duration -' : `Duration ${duration.toFixed(3)}`}
+            </div>
           </div>
+        </div>
 
-          <div className="rwm-preview-input-grid">
-            <Field label="Mode">
+        <div className="rwm-preview-input-grid">
+          <Field label="Mode">
+            <select
+              value={mode}
+              onChange={(event) => setMode(event.target.value as 'rhsGroup' | 'portfolio')}
+              className="h-8 rounded-md border border-grey-300 bg-tcw-white px-2 text-[12px]"
+            >
+              <option value="rhsGroup">RHS Group</option>
+              <option value="portfolio">Portfolio</option>
+            </select>
+          </Field>
+
+          {mode === 'rhsGroup' ? (
+            <Field label="RHS Group">
               <select
-                value={mode}
-                onChange={(event) => setMode(event.target.value as 'rhsGroup' | 'portfolio')}
-                className="h-8 rounded-md border border-grey-300 bg-tcw-white px-2 text-[12px]"
+                value={rhs ?? ''}
+                onChange={(event) => setRhs(event.target.value || null)}
+                className="h-8 w-full rounded-md border border-grey-300 bg-tcw-white px-2 text-[12px]"
               >
-                <option value="rhsGroup">RHS Group</option>
-                <option value="portfolio">Portfolio</option>
+                <option value="">Select RHS...</option>
+                {rhsGroups.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
               </select>
             </Field>
-
-            {mode === 'rhsGroup' ? (
-              <Field label="RHS Group">
-                <select
-                  value={rhs ?? ''}
-                  onChange={(event) => setRhs(event.target.value || null)}
-                  className="h-8 w-full rounded-md border border-grey-300 bg-tcw-white px-2 text-[12px]"
-                >
-                  <option value="">Select RHS...</option>
-                  {rhsGroups.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-            ) : (
+          ) : (
+            <Field label="Portfolio">
               <Picker
                 options={options}
                 selectedPortfolioKey={key}
@@ -94,34 +98,32 @@ export function WaterfallPreviewTab(): JSX.Element {
                 onSearchTextChange={setSearch}
                 onSelectPortfolio={setKey}
               />
-            )}
-
-            <Field label="Duration">
-              <input
-                value={manual}
-                onChange={(event) => setManual(event.target.value)}
-                placeholder="8.25"
-                className="h-8 w-full rounded-md border border-grey-300 px-2 text-[12px]"
-              />
             </Field>
-          </div>
-        </section>
+          )}
 
-        <section className="rwm-card overflow-hidden">
-          <div className="flex h-9 items-center justify-between border-b border-grey-200 px-3">
-            <h2 className="font-tcw-bold text-sm text-grey-900">Configured Buckets</h2>
-            <span className="text-[11px] text-grey-600">{buy.durationBucket?.code ?? 'No duration bucket'}</span>
-          </div>
+          <Field label="Duration">
+            <input
+              value={manual}
+              onChange={(event) => setManual(event.target.value)}
+              placeholder="8.25"
+              className="h-8 w-full rounded-md border border-grey-300 px-2 text-[12px]"
+            />
+          </Field>
+        </div>
+      </section>
 
-          <div className="rwm-bucket-grid">
-            {sortWaterfallBuckets(graph.buckets).map((bucket) => (
-              <BucketPill key={bucket.bucketId} bucket={bucket} active={bucket.bucketId === buy.durationBucket?.bucketId} />
-            ))}
-          </div>
-        </section>
-      </div>
+      <section className="waterfall-card">
+        <div className="rwm-section-title-bar border-b border-grey-200">
+          <div className="font-tcw-bold text-sm text-grey-900">Configured Buckets</div>
+        </div>
+        <div className="rwm-bucket-grid">
+          {sortWaterfallBuckets(graph.buckets).map((bucket) => (
+            <BucketPill key={bucket.bucketId} bucket={bucket} active={bucket.bucketId === buy.durationBucket?.bucketId} />
+          ))}
+        </div>
+      </section>
 
-      <div className="grid gap-3 xl:grid-cols-2">
+      <div className="rwm-preview-top">
         <Resolved
           side="BUY"
           bucket={buy.durationBucket ?? null}
@@ -150,8 +152,8 @@ function parseManualDuration(value: string): number | null {
 
 function Field({ label, children }: { label: string; children: ReactNode }): JSX.Element {
   return (
-    <label className="block space-y-1">
-      <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-grey-600">{label}</span>
+    <label className="block min-w-0">
+      <span className="mb-2 block text-[10px] font-medium uppercase tracking-[0.12em] text-grey-600">{label}</span>
       {children}
     </label>
   );
@@ -160,7 +162,7 @@ function Field({ label, children }: { label: string; children: ReactNode }): JSX
 function BucketPill({ bucket, active }: { bucket: WaterfallBucket; active: boolean }): JSX.Element {
   return (
     <div className={active ? 'rwm-bucket-pill rwm-bucket-pill--active' : 'rwm-bucket-pill'}>
-      <span className="font-medium">{bucket.code}</span> · {formatWaterfallBucketRange(bucket)}
+      {bucket.code} - {formatWaterfallBucketRange(bucket)}
     </div>
   );
 }
@@ -181,41 +183,42 @@ function Resolved({
   treasuryDurationBySecurity: Map<string, number>;
 }): JSX.Element {
   return (
-    <section className="rwm-card overflow-hidden">
-      <div className="flex h-9 items-center justify-between border-b border-grey-200 px-3">
-        <h2 className={side === 'BUY' ? 'font-tcw-bold text-sm text-tcw-green' : 'font-tcw-bold text-sm text-tcw-plum'}>
-          {side} Waterfall
-        </h2>
-        <span className="text-[11px] text-grey-600">{bucket?.code ?? '—'}</span>
-      </div>
-
-      <div className="p-3">
-        <div className="mb-2 text-[12px] text-grey-600">
-          {status === 'RESOLVED' ? `${instruments.length} instruments` : reason}
+    <section className="waterfall-card overflow-hidden">
+      <div className="rwm-section-title-bar border-b border-grey-200">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="font-tcw-bold text-sm text-grey-900">{side} Waterfall</div>
+            <div className="mt-1 text-[11px] text-grey-600">Bucket {bucket?.code ?? '-'}</div>
+          </div>
+          <div className="rwm-status-badge rwm-status-badge--saved">
+            {status === 'RESOLVED' ? `${instruments.length} instruments` : reason}
+          </div>
         </div>
-
-        {instruments.length === 0 ? (
-          <div className="rounded-md border border-dashed border-grey-300 bg-grey-100 px-3 py-2 text-[11px] italic text-grey-600">
-            No resolved instruments.
-          </div>
-        ) : (
-          <div className="space-y-1">
-            {instruments.map((instrument, index) => (
-              <div
-                key={`${instrument.securityId}-${index}`}
-                className="grid grid-cols-[32px_minmax(0,1fr)_72px_80px] gap-2 rounded-md border border-grey-200 px-3 py-2 text-[12px]"
-              >
-                <span className="text-grey-500">{index + 1}</span>
-                <span className="truncate font-medium text-grey-900">{instrument.securityId}</span>
-                <span className="text-right text-grey-600">
-                  {formatDuration(getInstrumentDuration(instrument, treasuryDurationBySecurity))}
-                </span>
-                <span className="text-right text-grey-600">{instrument.instrumentType}</span>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
+
+      {instruments.length === 0 ? (
+        <div className="p-4 text-[12px] italic text-grey-600">No resolved instruments.</div>
+      ) : (
+        <div className="divide-y divide-grey-200">
+          {instruments.map((instrument, index) => (
+            <div
+              key={`${side}-${index}-${instrument.securityId}`}
+              className="grid items-center gap-2 px-3 py-2 text-[11px]"
+              style={{ gridTemplateColumns: '32px 92px minmax(0, 1fr) 72px 80px' }}
+            >
+              <span className="text-right text-grey-500">{index + 1}</span>
+              <span className="truncate font-medium text-grey-900" title={instrument.securityId}>
+                {instrument.securityId}
+              </span>
+              <span className="truncate text-grey-600" title={instrument.description ?? ''}>
+                {instrument.description || '-'}
+              </span>
+              <span className="text-right text-grey-700">Dur {formatDuration(getInstrumentDuration(instrument, treasuryDurationBySecurity))}</span>
+              <span className="truncate text-grey-500">{instrument.instrumentType}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -237,26 +240,22 @@ function Picker({
   const filtered = options.filter((option) => option.searchText.includes(searchText.trim().toLowerCase())).slice(0, 20);
 
   return (
-    <div className="rwm-typeahead-container space-y-2">
-      <Field label="Portfolio">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-grey-500" />
-          <input
-            value={selected ? selected.portfolioKey : searchText}
-            onChange={(event) => {
-              onSearchTextChange(event.target.value);
-              if (selectedPortfolioKey) onSelectPortfolio(null);
-            }}
-            placeholder="Type portfolio key or RHS group..."
-            className="h-8 w-full rounded-md border border-grey-300 bg-tcw-white pl-8 pr-2 text-[12px]"
-          />
-        </div>
-      </Field>
+    <div className="rwm-typeahead-container">
+      <Search className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-grey-500" />
+      <input
+        value={selected ? selected.portfolioKey : searchText}
+        onChange={(event) => {
+          onSearchTextChange(event.target.value);
+          if (selectedPortfolioKey) onSelectPortfolio(null);
+        }}
+        placeholder="Type portfolio key or RHS group..."
+        className="h-8 w-full rounded-md border border-grey-300 bg-tcw-white pl-8 pr-2 text-[12px]"
+      />
 
       {searchText && !selected && (
         <div className="rwm-typeahead-menu">
           {filtered.length === 0 ? (
-            <div className="px-3 py-2 text-grey-600">No matching portfolios.</div>
+            <div className="px-3 py-2 text-[11px] italic text-grey-600">No matching portfolios.</div>
           ) : (
             filtered.map((option) => (
               <button
@@ -268,8 +267,8 @@ function Picker({
                 }}
                 className="block w-full px-3 py-2 text-left hover:bg-tcw-blue-100"
               >
-                <div className="font-medium text-grey-900">{option.portfolioKey}</div>
-                <div className="text-[11px] text-grey-600">RHS {option.rhsGroupCode || '—'}</div>
+                <div className="text-[12px] font-medium text-grey-900">{option.portfolioKey}</div>
+                <div className="text-[10.5px] text-grey-600">RHS {option.rhsGroupCode || '-'}</div>
               </button>
             ))
           )}
@@ -305,7 +304,6 @@ function getInstrumentDuration(
     securityKey?: string | null;
     cusip?: string | null;
   };
-
   const direct = toNumberOrNull(anyInstrument.duration ?? anyInstrument.effectiveDuration);
   if (direct !== null) return direct;
 
@@ -330,7 +328,7 @@ function toNumberOrNull(value: unknown): number | null {
 }
 
 function formatDuration(value: number | null | undefined): string {
-  return value == null ? '—' : Number.isFinite(value) ? value.toFixed(3) : '—';
+  return value == null ? '-' : Number.isFinite(value) ? value.toFixed(3) : '-';
 }
 
 export default WaterfallPreviewTab;

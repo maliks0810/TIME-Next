@@ -13,12 +13,32 @@ type CandidateInstrument = RwmTreasuryInstrument & {
   cusip?: string | null;
   description: string | null;
   duration: number | null;
+  effectiveDuration?: number | null;
   instrumentType: WaterfallInstrumentType;
 };
 
+type ConfiguredInstrument = {
+  securityId: string;
+  cusip?: string | null;
+  description?: string | null;
+  duration?: number | null;
+  effectiveDuration?: number | null;
+  securityKey?: string | null;
+  instrumentType: WaterfallInstrumentType;
+  displayOrder?: number | null;
+};
+
+type TenorInstrumentBucket = {
+  side: WaterfallSide;
+  bucketId: number;
+  instruments: ConfiguredInstrument[];
+};
+
+const SIDES: WaterfallSide[] = ['BUY', 'SELL'];
+
 export function WaterfallTenorInstrumentsTab(): JSX.Element {
   const buckets = useWaterfallManagerStore((state) => state.graph.buckets);
-  const instrumentBuckets = useWaterfallManagerStore((state) => state.graph.tenorInstrumentBuckets);
+  const instrumentBuckets = useWaterfallManagerStore((state) => state.graph.tenorInstrumentBuckets) as TenorInstrumentBucket[];
   const selectedSide = useWaterfallManagerStore((state) => state.selectedSide);
   const setSelectedSide = useWaterfallManagerStore((state) => state.setSelectedSide);
   const addInstrumentFromTreasury = useWaterfallManagerStore((state) => state.addInstrumentFromTreasury);
@@ -28,8 +48,14 @@ export function WaterfallTenorInstrumentsTab(): JSX.Element {
   const [query, setQuery] = useState('');
   const treasuryInstrumentsQuery = useTreasuryInstruments();
 
+  const orderedBuckets = sortWaterfallBuckets(buckets);
+  const treasuryDurationBySecurity = useMemo(
+    () => buildTreasuryDurationMap(treasuryInstrumentsQuery.data ?? []),
+    [treasuryInstrumentsQuery.data],
+  );
   const candidateInstruments = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
+
     return (treasuryInstrumentsQuery.data ?? [])
       .map(mapTreasuryInstrument)
       .filter((instrument): instrument is CandidateInstrument => Boolean(instrument))
@@ -42,71 +68,129 @@ export function WaterfallTenorInstrumentsTab(): JSX.Element {
 
   return (
     <div className="rwm-candidate-layout">
-      <aside className="rwm-card rwm-candidate-card">
-        <div className="shrink-0 border-b border-grey-200 px-4 py-3">
-          <h2 className="font-tcw-bold text-sm text-grey-900">Candidate Instruments</h2>
-          <div className="mt-2 flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-grey-500" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search instruments..."
-                className="h-8 w-full rounded-md border border-grey-300 bg-tcw-white pl-8 pr-2 text-[12px] outline-none focus:border-tcw-blue"
-              />
+      <section className="waterfall-card rwm-candidate-card">
+        <div className="rwm-section-title-bar border-b border-grey-200">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="font-tcw-bold text-sm text-grey-900">Candidate Instruments</div>
+              <div className="mt-1 text-[11px] text-grey-600">Search treasury instruments and add them to the selected side.</div>
             </div>
+            <SideSwitch selectedSide={selectedSide} onChange={setSelectedSide} />
           </div>
-          <SideSwitch selectedSide={selectedSide} onChange={setSelectedSide} />
+          <div className="rwm-typeahead-container mt-2">
+            <Search className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-grey-500" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search instruments..."
+              className="h-8 w-full rounded-md border border-grey-300 bg-tcw-white pl-8 pr-2 text-[12px] outline-none focus:border-tcw-blue"
+            />
+          </div>
         </div>
 
         <div className="rwm-candidate-list">
           {candidateInstruments.map((instrument) => {
             const bucket = deriveTenorBucketFromInstrumentDuration(instrument.duration, buckets);
+            const disabled = !bucket;
+
             return (
               <button
-                key={`${instrument.securityId}-${instrument.instrumentType}`}
+                key={`${instrument.securityId}-${instrument.cusip ?? ''}`}
                 type="button"
-                disabled={!bucket}
+                disabled={disabled}
                 onClick={() => addInstrumentFromTreasury(selectedSide, instrument)}
                 className="rwm-candidate-row disabled:cursor-not-allowed disabled:opacity-45"
               >
-                <div className="flex items-center justify-between gap-2 leading-tight">
-                  <span className="truncate font-medium text-grey-900">{instrument.securityId}</span>
-                  <span className={cn('shrink-0 text-[10px]', instrument.instrumentType === 'FUTURES' ? 'text-tcw-green' : 'text-tcw-blue')}>
-                    {instrument.instrumentType}
-                  </span>
+                <div className="grid grid-cols-[72px_minmax(0,1fr)_72px] items-center gap-2">
+                  <span className="truncate text-[12px] font-medium text-grey-900">{instrument.securityId}</span>
+                  <span className="truncate text-[11px] text-grey-600">{instrument.description || '-'}</span>
+                  <span className="text-right text-[11px] text-grey-700">Dur {formatDuration(instrument.duration)}</span>
                 </div>
-                <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2 text-[10.5px] leading-tight">
-                  <span className="truncate text-grey-600">{instrument.description}</span>
-                  <span className="shrink-0 text-grey-500">
-                    Dur {instrument.duration?.toFixed?.(3) ?? '—'} · {bucket?.code ?? 'No match'}
-                  </span>
+                <div className="mt-0.5 flex items-center justify-between gap-2 text-[10.5px] text-grey-500">
+                  <span>{instrument.cusip || '-'}</span>
+                  <span>{bucket ? `${selectedSide} ${bucket.code}` : 'No bucket'}</span>
                 </div>
               </button>
             );
           })}
         </div>
-      </aside>
+      </section>
 
-      <section className="rwm-card min-h-0 overflow-hidden">
-        <div className="rwm-section-title-bar">
-          <h2 className="font-tcw-bold text-sm text-grey-900">Instrument Buckets</h2>
+      <section className="waterfall-card rwm-candidate-card">
+        <div className="rwm-section-title-bar border-b border-grey-200">
+          <div className="font-tcw-bold text-sm text-grey-900">Instrument Buckets</div>
+          <div className="mt-1 text-[11px] text-grey-600">Configured {selectedSide} instruments by tenor bucket.</div>
         </div>
-        <div className="grid min-h-0 gap-4 overflow-auto p-4 xl:grid-cols-2">
-          <SideBucketColumn
-            side="BUY"
-            buckets={sortWaterfallBuckets(buckets)}
-            instrumentBuckets={instrumentBuckets}
-            onRemove={removeInstrument}
-            onMove={moveInstrument}
-          />
-          <SideBucketColumn
-            side="SELL"
-            buckets={sortWaterfallBuckets(buckets)}
-            instrumentBuckets={instrumentBuckets}
-            onRemove={removeInstrument}
-            onMove={moveInstrument}
-          />
+
+        <div className="overflow-auto p-3">
+          <div className="grid gap-3 xl:grid-cols-2">
+            {orderedBuckets.map((bucket) => {
+              const configuredBucket = instrumentBuckets.find((candidate) => candidate.side === selectedSide && candidate.bucketId === bucket.bucketId);
+              const instruments = [...(configuredBucket?.instruments ?? [])].sort(
+                (a, b) => Number(a.displayOrder ?? 0) - Number(b.displayOrder ?? 0),
+              );
+
+              return (
+                <div key={`${selectedSide}-${bucket.bucketId}`} className="overflow-hidden rounded-lg border border-grey-200 bg-tcw-white">
+                  <div className="rwm-instrument-bucket-header">
+                    <div className="min-w-0">
+                      <div className="truncate text-[11px] font-medium text-grey-900">{bucket.code}</div>
+                      <div className="text-[10.5px] text-grey-600">{formatWaterfallBucketRange(bucket)}</div>
+                    </div>
+                  </div>
+
+                  {instruments.length === 0 ? (
+                    <div className="p-3 text-[11px] italic text-grey-600">No instruments configured.</div>
+                  ) : (
+                    <div className="divide-y divide-grey-200">
+                      {instruments.map((instrument, index) => (
+                        <div key={`${instrument.securityId}-${index}`} className="rwm-bucket-instrument-row">
+                          <span className="text-right text-[10.5px] text-grey-500">{index + 1}</span>
+                          <span className="truncate font-medium text-grey-900" title={instrument.securityId}>
+                            {instrument.securityId}
+                          </span>
+                          <span className="truncate text-grey-600" title={instrument.description ?? ''}>
+                            {instrument.description || '-'}
+                          </span>
+                          <span className="text-right text-grey-700">
+                            Dur {formatDuration(getInstrumentDuration(instrument, treasuryDurationBySecurity))}
+                          </span>
+                          <span className="flex items-center justify-end gap-1">
+                            <button
+                              type="button"
+                              title="Move up"
+                              className="rwm-bucket-order-button"
+                              disabled={index === 0}
+                              onClick={() => moveInstrument(selectedSide, bucket.bucketId, instrument.securityId, 'up')}
+                            >
+                              ^
+                            </button>
+                            <button
+                              type="button"
+                              title="Move down"
+                              className="rwm-bucket-order-button"
+                              disabled={index === instruments.length - 1}
+                              onClick={() => moveInstrument(selectedSide, bucket.bucketId, instrument.securityId, 'down')}
+                            >
+                              v
+                            </button>
+                            <button
+                              type="button"
+                              title="Remove instrument"
+                              className="rwm-bucket-order-button"
+                              onClick={() => removeInstrument(selectedSide, bucket.bucketId, instrument.securityId)}
+                            >
+                              x
+                            </button>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
     </div>
@@ -115,123 +199,98 @@ export function WaterfallTenorInstrumentsTab(): JSX.Element {
 
 function SideSwitch({ selectedSide, onChange }: { selectedSide: WaterfallSide; onChange: (side: WaterfallSide) => void }): JSX.Element {
   return (
-    <div className="rwm-side-switch rwm-side-switch-strong mt-2" aria-label="Candidate instrument side">
-      {(['BUY', 'SELL'] as WaterfallSide[]).map((side) => {
-        const active = selectedSide === side;
-        return (
-          <button
-            key={side}
-            type="button"
-            onClick={() => onChange(side)}
-            aria-pressed={active}
-            className={cn(
-              'rwm-side-switch-button',
-              active && side === 'BUY' && 'rwm-side-switch-button--buy-active',
-              active && side === 'SELL' && 'rwm-side-switch-button--sell-active',
-            )}
-          >
-            {side}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function SideBucketColumn({
-  side,
-  buckets,
-  instrumentBuckets,
-  onRemove,
-  onMove,
-}: {
-  side: WaterfallSide;
-  buckets: WaterfallBucket[];
-  instrumentBuckets: Array<{
-    side: WaterfallSide;
-    bucketId: number;
-    instruments: Array<{
-      securityId: string;
-      description?: string | null;
-      instrumentType: WaterfallInstrumentType;
-      displayOrder: number;
-    }>;
-  }>;
-  onRemove: (side: WaterfallSide, bucketId: number, securityId: string) => void;
-  onMove: (side: WaterfallSide, bucketId: number, securityId: string, direction: 'up' | 'down') => void;
-}): JSX.Element {
-  return (
-    <div className="space-y-3">
-      {buckets.map((bucket) => {
-        const instruments = instrumentBuckets.find((item) => item.side === side && item.bucketId === bucket.bucketId)?.instruments ?? [];
-
-        return (
-          <section key={`${side}-${bucket.bucketId}`} className="overflow-hidden rounded-lg border border-grey-300 bg-tcw-white">
-            <div className="rwm-instrument-bucket-header">
-              <span className={cn('font-tcw-bold text-[12px]', side === 'BUY' ? 'text-tcw-green' : 'text-tcw-plum')}>{bucket.code}</span>
-              <span className="truncate text-[10.5px] text-grey-600">{formatWaterfallBucketRange(bucket)}</span>
-            </div>
-            <div className="divide-y divide-grey-200">
-              {instruments.length === 0 && <div className="px-3 py-2 text-[11px] italic text-grey-600">No instruments.</div>}
-              {instruments.map((instrument) => (
-                <div key={instrument.securityId} className="rwm-bucket-instrument-row">
-                  <span className="text-grey-500">{instrument.displayOrder}</span>
-                  <span className="truncate font-medium text-grey-900" title={instrument.description ?? instrument.securityId}>
-                    {instrument.securityId}
-                  </span>
-                  <span className="truncate text-grey-600">{instrument.description}</span>
-                  <span className="text-grey-600">{instrument.instrumentType}</span>
-                  <div className="flex justify-end gap-1">
-                    <button
-                      type="button"
-                      title="Move up"
-                      onClick={() => onMove(side, bucket.bucketId, instrument.securityId, 'up')}
-                      className="text-grey-500 hover:text-tcw-blue"
-                    >
-                      ↑
-                    </button>
-                    <button
-                      type="button"
-                      title="Move down"
-                      onClick={() => onMove(side, bucket.bucketId, instrument.securityId, 'down')}
-                      className="text-grey-500 hover:text-tcw-blue"
-                    >
-                      ↓
-                    </button>
-                    <button
-                      type="button"
-                      title="Remove"
-                      onClick={() => onRemove(side, bucket.bucketId, instrument.securityId)}
-                      className="text-grey-500 hover:text-tcw-plum"
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-      })}
+    <div className="rwm-side-switch rwm-side-switch-strong">
+      {SIDES.map((side) => (
+        <button
+          key={side}
+          type="button"
+          onClick={() => onChange(side)}
+          className={cn(
+            'rwm-side-switch-button',
+            selectedSide === side && side === 'BUY' && 'rwm-side-switch-button--buy-active',
+            selectedSide === side && side === 'SELL' && 'rwm-side-switch-button--sell-active',
+          )}
+        >
+          {side}
+        </button>
+      ))}
     </div>
   );
 }
 
 function mapTreasuryInstrument(row: RwmTreasuryInstrument): CandidateInstrument | null {
-  const securityId = String(row.securityKey ?? row.securityId ?? row.cusip ?? '').trim();
+  const source = row as RwmTreasuryInstrument & {
+    assetType?: unknown;
+    securityDescription?: unknown;
+    securityType?: unknown;
+  };
+  const securityId = normalizeText(source.securityId ?? source.securityKey);
   if (!securityId) return null;
 
-  const rawType = String(row.assetType ?? row.instrumentType ?? '').trim().toUpperCase();
-  const duration = Number(row.duration ?? row.effectiveDuration ?? Number.NaN);
+  const duration = toNumberOrNull(source.duration ?? source.effectiveDuration);
+  const instrumentType = normalizeInstrumentType(source.instrumentType ?? source.assetType ?? source.securityType);
 
   return {
     ...row,
     securityId,
-    cusip: row.cusip as string | null | undefined,
-    description: String(row.securityDescription ?? row.description ?? ''),
-    duration: Number.isFinite(duration) ? duration : null,
-    instrumentType: rawType === 'FUT' || rawType === 'FUTURES' ? 'FUTURES' : 'BOND',
+    cusip: normalizeText(source.cusip),
+    description: normalizeText(source.description ?? source.securityDescription),
+    duration,
+    instrumentType,
   };
+}
+
+function normalizeInstrumentType(value: unknown): WaterfallInstrumentType {
+  const normalized = String(value ?? '').trim().toUpperCase();
+  return normalized.includes('FUT') ? 'FUTURES' : 'BOND';
+}
+
+function getInstrumentDuration(instrument: ConfiguredInstrument, treasuryDurationBySecurity: Map<string, number>): number | null {
+  const directDuration = toNumberOrNull(instrument.duration ?? instrument.effectiveDuration);
+  if (directDuration !== null) return directDuration;
+
+  for (const key of [instrument.securityId, instrument.securityKey, instrument.cusip]) {
+    const normalized = normalizeKey(key);
+    if (!normalized) continue;
+
+    const duration = treasuryDurationBySecurity.get(normalized);
+    if (duration !== undefined) return duration;
+  }
+
+  return null;
+}
+
+function buildTreasuryDurationMap(rows: RwmTreasuryInstrument[]): Map<string, number> {
+  const map = new Map<string, number>();
+
+  for (const row of rows) {
+    const duration = toNumberOrNull(row.duration ?? row.effectiveDuration);
+    if (duration === null) continue;
+
+    for (const key of [row.securityKey, row.securityId, row.cusip]) {
+      const normalized = normalizeKey(key);
+      if (normalized) map.set(normalized, duration);
+    }
+  }
+
+  return map;
+}
+
+function normalizeKey(value: unknown): string {
+  return String(value ?? '').trim().toUpperCase();
+}
+
+function normalizeText(value: unknown): string {
+  return String(value ?? '').trim();
+}
+
+function toNumberOrNull(value: unknown): number | null {
+  const parsed = Number(value ?? Number.NaN);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function formatDuration(value: number | null | undefined): string {
+  return value == null ? '-' : Number.isFinite(value) ? value.toFixed(3) : '-';
 }
 
 export default WaterfallTenorInstrumentsTab;

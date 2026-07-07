@@ -13,3 +13,75 @@
     list-style: none;
   }
 }
+
+@layer components {
+  #rwm-app-root .rwm-rule-set-title-line--locked .rwm-rule-set-name-input,
+  #rwm-app-root .rwm-rule-set-title-line--locked .rwm-rule-set-rhs-input,
+  #rwm-app-root .rwm-rule-set-title-line--locked .rwm-rule-set-match-select {
+    cursor: default;
+    color: var(--tcw-grey-700);
+    background-color: var(--tcw-grey-100);
+    border-color: var(--tcw-grey-200);
+  }
+
+  #rwm-app-root .rwm-rule-set-title-line--locked .rwm-rule-set-name-input:focus,
+  #rwm-app-root .rwm-rule-set-title-line--locked .rwm-rule-set-rhs-input:focus {
+    border-color: var(--tcw-grey-200);
+    box-shadow: none;
+  }
+
+  #rwm-app-root .rwm-rules-reference-row {
+    grid-template-columns: 22px 72px minmax(0, 1fr) 72px;
+  }
+
+  #rwm-app-root .rwm-confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 13, 13, 0.24);
+  }
+
+  #rwm-app-root .rwm-confirm-dialog {
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    padding: 14px;
+    border: 1px solid var(--tcw-grey-300);
+    border-radius: var(--tcw-radius-lg);
+    background: var(--tcw-white);
+    box-shadow: 0 12px 32px rgba(13, 13, 13, 0.18);
+  }
+
+  #rwm-app-root .rwm-confirm-title {
+    color: var(--tcw-grey-900);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  #rwm-app-root .rwm-confirm-message {
+    margin-top: 6px;
+    color: var(--tcw-grey-700);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  #rwm-app-root .rwm-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  #rwm-app-root button.rwm-confirm-danger-button {
+    border-color: var(--tcw-plum) !important;
+    background-color: var(--tcw-plum) !important;
+    color: var(--tcw-white) !important;
+  }
+
+  #rwm-app-root button.rwm-confirm-danger-button:hover:not(:disabled) {
+    border-color: var(--tcw-plum-1000) !important;
+    background-color: var(--tcw-plum-1000) !important;
+  }
+}
