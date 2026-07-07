@@ -129,7 +129,8 @@ export function useSoftDollarBudgetDetails({ userData, softdollarBudgetId, softd
             };  
 
             const updatedSoftAccount:SoftDollarBudgetAccount = await updateSoftdollarBudgetAccount(softdollarBudgetAccountId, updateReq);  
-            setSoftBudgetAccounts((prev) => [...prev, updatedSoftAccount]);  
+            //setSoftBudgetAccounts((prev) => [...prev, updatedSoftAccount]);  
+            setSoftBudgetAccounts((prev) =>  prev.map((item) => (item.softDollarBudgetAccountId === updatedSoftAccount.softDollarBudgetAccountId ? updatedSoftAccount : item)));  
             return updatedSoftAccount;  
         } catch (error) {  
             throw error;

@@ -87,6 +87,7 @@ const [childAccountUserPopupLoading, setChildAccountUserPopupLoading] = useState
 const [childAccountUserEditingData, setChildAccountUserEditingData] = useState<Partial<SoftDollarBudgetAccountUser>>();  
 const [budgetDataSaving, setBudgetDataSaving] = useState(false);
 const [userDataSaving, setUserDataSaving] = useState(false);
+const [accountDataSaving, setAccountDataSaving] = useState(false);
 const budgetFormRef = useRef<dxForm>(null)
 const childAccountFormRef = useRef<dxForm>(null)
 const childUserFormRef = useRef<dxForm>(null)
@@ -356,7 +357,11 @@ const openEditChildAccountPopup = async (accountData: SoftDollarBudgetAccount) =
   setChildAccountPopupVisible(true);  
   try {  
     // If needed, re-fetch the full account detail here. For now, we use the in-memory data:  
-    setChildAccountEditingData(accountData);  
+    setChildAccountEditingData(accountData);    
+    setSelectedSoftBudgetAcct(
+        accountData.softDollarBudgetAccountId
+      );
+
   } catch (error) {  
     if (error instanceof Error) {  
       showToast(error.message || 'Failed to load account details', 'error');  
@@ -369,12 +374,13 @@ const openEditChildAccountPopup = async (accountData: SoftDollarBudgetAccount) =
 
 const onChildAccountPopupSave = async () => { 
   try {  
-    const validationResult =
-      childAccountFormRef.current?.instance().validate();
+    const validationResult =  childAccountFormRef.current?.instance().validate();
 
       if (!validationResult?.isValid) {
           return;
       }
+
+    setAccountDataSaving(true);
 
     if (childAccountIsAddMode) {  
       if (!childAccountEditingData) return;  
@@ -397,7 +403,7 @@ const onChildAccountPopupSave = async () => {
       await modifySoftdollarBudgetAccount(selectedSoftBudgetAcct, childAccountEditingData);  
       //setAccountsData((prev) =>     prev.map((item) => (item.softDollarBudgetAccountId === updated.softDollarBudgetAccountId ? updated : item)));  
     }    
-
+        
     setChildAccountPopupVisible(false);  
     showToast('Sofdollar Budget Account saved successfully', 'success');    
   } catch (error) {  
@@ -409,6 +415,7 @@ const onChildAccountPopupSave = async () => {
       setIsCommentsLoading(false);
       setIsChangeLogLoading(false);
       setIsAccountDataLoading(false);
+      setAccountDataSaving(false);
   }
 };  
 
@@ -958,7 +965,7 @@ return (
           <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} horizontalAlignment="center">  
             <div className="div-container-center">  
-              <Button text="Save" onClick={onChildAccountPopupSave} width={100} className="dxButton" />  
+              <Button text={accountDataSaving?"Saving..":"Save"} disabled={accountDataSaving} onClick={onChildAccountPopupSave} width={100} className="dxButton" />  
               <Button text="Cancel" onClick={onChildAccountPopupCancel} width={100} className="dxButton" />  
             </div>  
           </FormItem>
@@ -981,7 +988,7 @@ return (
       hideOnOutsideClick={true}  
       wrapperAttr={{ class: 'custom-popup-class' }} 
     >
-      {childAccountUserPopupLoading || userDataSaving? ( 
+      {childAccountUserPopupLoading? ( 
         <div className='div-loader'>  
          <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={60} />  
          <p>Loading User details...</p>  
@@ -1013,7 +1020,7 @@ return (
           <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} horizontalAlignment="center">  
             <div className="div-container-center">  
-              <Button text="Save" onClick={onChildPopupUserAllocationSave} width={100} className="dxButton" />  
+              <Button text={userDataSaving?"Saving..":"Save"} disabled={userDataSaving} onClick={onChildPopupUserAllocationSave} width={100} className="dxButton" />  
               <Button text="Cancel" onClick={onChildPopupUserAllocationCancel} width={100} className="dxButton" />  
             </div>  
           </FormItem>  
