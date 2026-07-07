@@ -134,6 +134,14 @@ export interface HeatSpec {
     outlierColor?: string;
     /** Missing / no-data cell color. Default DEFAULT_MISSING_COLOR. */
     missingColor?: string;
+    /**
+     * Legend endpoint labels — data-driven per heat scale. Each dataset declares
+     * its own semantics at the source (econ → "Deteriorating"/"Improving";
+     * spreads → "Tightening"/"Widening"). The widget falls back to "Low"/"High"
+     * when a scale doesn't set them.
+     */
+    lowLabel?: string;
+    highLabel?: string;
 }
 
 /** Per-scale heat appearance a data source persists (user overrides of the
