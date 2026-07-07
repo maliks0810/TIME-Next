@@ -285,7 +285,7 @@ const Dashboard: React.FC = () => {
                       <Grid container height={'100%'} alignContent={'center'} justifyContent={'center'}>
                         <Grid>
                           <Typography variant='h2'>
-                            <b>{dashboardStats?.averageSetupTime}</b>
+                            <b>{dashboardStats?.averageSetupTime ?? 0}</b>
                           </Typography>
                         </Grid>
                         <Grid>
