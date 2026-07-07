@@ -64,13 +64,10 @@ export type WidgetDefinitionLike = {
     variants?: Array<{
         id: string;
         label: string;
-        grid?: {
-            defaultW?: number;
-            defaultH?: number;
-            minW?: number;
-            minH?: number;
-            maxW?: number;
-            maxH?: number;
+        sizing?: {
+            resizable?: boolean;
+            width?: { default: number; min?: number; max?: number; step?: number };
+            height?: { default: number; min?: number; max?: number; step?: number };
         };
     }>;
     uiHints?: Record<string, any>;

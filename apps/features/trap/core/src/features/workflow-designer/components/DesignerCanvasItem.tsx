@@ -32,6 +32,7 @@ type DesignerCanvasItemProps = {
     onTouchEnd?: React.TouchEventHandler<HTMLDivElement>;
 
     onConfigUpdate?: (widget: DesignerWidgetInstance) => void;
+    children?: React.ReactNode;
 };
 
 const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemProps>(
@@ -52,6 +53,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
             onMouseUp,
             onTouchEnd,
             onConfigUpdate,
+            children,
         },
         ref
     ) => {
@@ -164,6 +166,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                         />
                     </div>
                 </div>
+                {children}
             </div>
         );
     }

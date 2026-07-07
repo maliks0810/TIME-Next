@@ -47,62 +47,58 @@
             },
             "selectionMode": {
                 "default": "single",
-                "enum": ["none", "single", "multiple"],
+                "enum": [
+                    "none",
+                    "single",
+                    "multiple"
+                ],
                 "title": "Selection Mode",
                 "type": "string",
                 "category": "Interactions"
             },
             "listensToKeys": {
-                "enum": ["asOfDate", "common.data.grid.row", "schemaKey", "common.tree.item"],
+                "enum": [
+                    "asOfDate",
+                    "common.data.grid.row",
+                    "schemaKey",
+                    "common.tree.item"
+                ],
                 "title": "Listens to keys",
                 "multiselect": true,
                 "type": "string",
                 "category": "Interactions"
             }
         },
-        "required": ["schemaKey"],
+        "required": [
+            "schemaKey"
+        ],
         "type": "object"
     },
     "uiHints": {
         "category": "Common",
         "library": "DevExtreme",
-        "visibleIn": ["workflow", "landing"]
+        "visibleIn": [
+            "workflow",
+            "landing"
+        ]
     },
     "variants": [
         {
-            "id": "medium",
-            "label": "Medium",
-            "grid": {
-                "defaultW": 6,
-                "defaultH": 360,
-                "minW": 4,
-                "minH": 280,
-                "maxW": 8,
-                "maxH": 520
-            }
-        },
-        {
-            "id": "large",
-            "label": "Large",
-            "grid": {
-                "defaultW": 10,
-                "defaultH": 900,
-                "minW": 8,
-                "minH": 320,
-                "maxW": 12,
-                "maxH": 1200
-            }
-        },
-        {
-            "id": "full-width",
-            "label": "Full Width",
-            "grid": {
-                "defaultW": 12,
-                "defaultH": 1000,
-                "minW": 12,
-                "minH": 320,
-                "maxW": 12,
-                "maxH": 1200
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 6,
+                    "min": 1,
+                    "max": 12
+                },
+                "height": {
+                    "default": 360,
+                    "min": 360,
+                    "max": 1000,
+                    "step": 10
+                }
             }
         }
     ]

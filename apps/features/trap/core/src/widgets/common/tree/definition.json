@@ -13,12 +13,16 @@
             "channel": {
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [1, 2, 3, 4],
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
                 "title": "Communication Channel",
                 "type": "string",
                 "category": "Interactions"
             },
-
             "withSearch": {
                 "title": "has search",
                 "type": "boolean",
@@ -27,12 +31,16 @@
             },
             "schemaKey": {
                 "title": "Schema key",
-                "enum": ["dram.portfolios"],
+                "enum": [
+                    "dram.portfolios"
+                ],
                 "type": "string",
                 "category": "System Parameters"
             }
         },
-        "required": ["schemaKey"],
+        "required": [
+            "schemaKey"
+        ],
         "type": "object"
     },
     "uiHints": {
@@ -40,15 +48,21 @@
     },
     "variants": [
         {
-            "id": "medium",
-            "label": "Medium",
-            "grid": {
-                "defaultW": 2,
-                "defaultH": 900,
-                "minW": 2,
-                "minH": 900,
-                "maxW": null,
-                "maxH": null
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 2,
+                    "min": 1,
+                    "max": 12
+                },
+                "height": {
+                    "default": 900,
+                    "min": 540,
+                    "max": 1440,
+                    "step": 10
+                }
             }
         }
     ]
