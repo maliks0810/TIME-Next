@@ -13,27 +13,36 @@ import CheckBox from 'devextreme-react/check-box';
 import { Toast } from 'devextreme-react/toast';
 import Popup from 'devextreme-react/popup';
 import Form, { Item as FormItem } from 'devextreme-react/form';
+import dxForm from 'devextreme/ui/form';
+
 import TabPanel, { Item as TabItem } from 'devextreme-react/tab-panel';
 import { LoadIndicator, TextArea } from 'devextreme-react';
 
+import {
+  RequiredRule,
+} from 'devextreme-react/validator';
+
 import { useUserInfo } from '@platform/utils';
 import { RequestSoftDollarBudget, SoftDollarBudget, SoftDollarBudgetAccount, SoftDollarBudgetAccountUser, SoftDollarBudgetChangeLog, SoftDollarBudgetComment, SoftDollarBudgetDetail } from '../datatypes/research-budget-types';
+
+import { ToastConfig, ToastType} from '../components/toast-config';
+import { BlockContainer, BlockFormContainer } from '../components/block-container';
+import { custom } from 'devextreme/ui/dialog';
+// import the custom hook
+import { useSoftDollarBudgets } from '../hooks/useSoftDollarBudget';
+import { useSoftDollarBudgetDetails } from '../hooks/useSoftDollarBudgetWithDetails';
+import { ValidationMessage } from '../components/validations-message';
 
 import './styles.scss';
 import 'devextreme/dist/css/dx.light.css';
 import 'devextreme/dist/css/dx.light.compact.css';
 
-import { ToastConfig, ToastType} from '../components/toast-config';
-import { BlockContainer, BlockFormContainer } from '../components/block-container';
-
-// import the custom hook
-import { useSoftDollarBudgets } from '../hooks/useSoftDollarBudget';
-import { useSoftDollarBudgetDetails } from '../hooks/useSoftDollarBudgetWithDetails';
-
 export type BudgetYear = {
 value: number;
 text: string;
 };
+
+
 
 const handleRowDeleted = (
   showToast: (message: string, type: ToastType) => void
@@ -78,6 +87,10 @@ const [childAccountUserPopupLoading, setChildAccountUserPopupLoading] = useState
 const [childAccountUserEditingData, setChildAccountUserEditingData] = useState<Partial<SoftDollarBudgetAccountUser>>();  
 const [budgetDataSaving, setBudgetDataSaving] = useState(false);
 const [userDataSaving, setUserDataSaving] = useState(false);
+const [accountDataSaving, setAccountDataSaving] = useState(false);
+const budgetFormRef = useRef<dxForm>(null)
+const childAccountFormRef = useRef<dxForm>(null)
+const childUserFormRef = useRef<dxForm>(null)
 
 // Toast handling  
 const [toastConfig, setToastConfig] = useState<ToastConfig>({  
@@ -95,7 +108,7 @@ const hideToast = () => {
 // Hook that returns a DevExtreme store + data array  
 const { departments, brokers, mstBrokers, services, softBudgetData, budgetYears, 
   loading,
-  //loadSoftDollarBudgetData, 
+  loadSoftDollarBudgetData, 
   insertSoftDollarBudget, 
   updateSoftDollarBudget, 
   removeSoftDollarBudget,
@@ -254,13 +267,22 @@ const openEditBudgetPopup = async (key: number, data: SoftDollarBudget) => {
 };  
 
 const onAddBudgetDetailPopupSave = async () => {    
-  try {      
+  try {
+    
+  const validationResult =
+    budgetFormRef.current?.instance().validate();
+
+    if (!validationResult?.isValid) {
+        return;
+    }
+
     setBudgetDataSaving(true);
     // Insert new  
     await insertSoftDollarBudget(editingDetailData);  
       
     setPopupVisible(false);  
     showToast('Saved successfully', 'success');  
+    await loadSoftDollarBudgetData();
   } catch (error) {  
     if (error instanceof Error) {  
       showToast('Save failed while Adding: ' + error.message, 'error');  
@@ -329,13 +351,17 @@ const openAddAccountChildPopup = () => {
   setChildAccountPopupVisible(true);  
 };  
 
-const openEditChildAccountPopup = async (accountData: SoftDollarBudgetAccount) => {  
+const openEditChildAccountPopup = async (accountData: SoftDollarBudgetAccount) => { 
   setChildAccountIsAddMode(false);  
   setChildAccountPopupLoading(true);  
   setChildAccountPopupVisible(true);  
   try {  
     // If needed, re-fetch the full account detail here. For now, we use the in-memory data:  
-    setChildAccountEditingData(accountData);  
+    setChildAccountEditingData(accountData);    
+    setSelectedSoftBudgetAcct(
+        accountData.softDollarBudgetAccountId
+      );
+
   } catch (error) {  
     if (error instanceof Error) {  
       showToast(error.message || 'Failed to load account details', 'error');  
@@ -348,6 +374,14 @@ const openEditChildAccountPopup = async (accountData: SoftDollarBudgetAccount) =
 
 const onChildAccountPopupSave = async () => { 
   try {  
+    const validationResult =  childAccountFormRef.current?.instance().validate();
+
+      if (!validationResult?.isValid) {
+          return;
+      }
+
+    setAccountDataSaving(true);
+
     if (childAccountIsAddMode) {  
       if (!childAccountEditingData) return;  
 
@@ -369,7 +403,7 @@ const onChildAccountPopupSave = async () => {
       await modifySoftdollarBudgetAccount(selectedSoftBudgetAcct, childAccountEditingData);  
       //setAccountsData((prev) =>     prev.map((item) => (item.softDollarBudgetAccountId === updated.softDollarBudgetAccountId ? updated : item)));  
     }    
-
+        
     setChildAccountPopupVisible(false);  
     showToast('Sofdollar Budget Account saved successfully', 'success');    
   } catch (error) {  
@@ -381,6 +415,7 @@ const onChildAccountPopupSave = async () => {
       setIsCommentsLoading(false);
       setIsChangeLogLoading(false);
       setIsAccountDataLoading(false);
+      setAccountDataSaving(false);
   }
 };  
 
@@ -392,9 +427,21 @@ const onChildAccountDelete = async (softDollarBudgetAccountId: number) => {
   if(allocationData.length > 0){  
     showToast('This Account can not be deleted as it has User Allocations associated.', 'error');  
     return;
-  }
+  }  
+ 
+  const dialog = custom({
+    title: 'Confirm Delete',
+    messageHtml: '<div class="confirm-text">Are you sure you want to delete this account?</div>',
+    buttons: [
+      { text: 'Yes', onClick: () => true, type: 'default', stylingMode: 'contained' },
+      { text: 'No', onClick: () => false, type: 'default', stylingMode: 'contained' }
+    ]
+  });
 
-  if (!window.confirm('Are you sure you want to delete this account?')) return;  
+  const result = await dialog.show();
+
+  if (!result) return;
+ 
   try {  
     await removeSoftdollarBudgetAccount(softDollarBudgetAccountId);  
     //setAccountsData((prev) => prev.filter((item) => item.softDollarBudgetAccountId !== softDollarBudgetAccountId));  
@@ -442,8 +489,21 @@ const openEditPopupChildAccountUser = async (accountUserData: SoftDollarBudgetAc
   }  
 };  
 
-const onChildAccountUserDelete = async (userAllocationId: number) => { 
-  if (!window.confirm('Are you sure you want to delete this User?')) return;  
+const onChildAccountUserDelete = async (userAllocationId: number) => {     
+  
+  const dialog = custom({
+    title: 'Confirm Delete',
+    messageHtml: '<div class="confirm-text">Are you sure you want to delete this user?</div>',
+    buttons: [
+      { text: 'Yes', onClick: () => true, type: 'default', stylingMode: 'contained' },
+      { text: 'No', onClick: () => false, type: 'default', stylingMode: 'contained' }
+    ]
+  });
+
+  const result = await dialog.show();
+
+  if (!result) return; 
+
   try {  
     await removeSoftAccountUserAllocation(userAllocationId);  
     showToast('User deleted successfully', 'success');  
@@ -456,6 +516,12 @@ const onChildAccountUserDelete = async (userAllocationId: number) => {
 
 const onChildPopupUserAllocationSave = async () => {  
   try {  
+    const validationResult =
+      childUserFormRef.current?.instance().validate();
+
+      if (!validationResult?.isValid) {
+          return;
+      }
     setUserDataSaving(true);
     if (childUserAllocationIsAddMode) {  
       if (!childAccountUserEditingData) return;    
@@ -622,6 +688,7 @@ return (
       {isAddMode ? (  
         <div>  
           <Form  
+            ref={budgetFormRef}
             width="95%" 
             height="100%" 
             formData={editingDetailData}  
@@ -630,23 +697,31 @@ return (
               setEditingDetailData((prev) => ({ ...prev, [e.dataField as string]: e.value }))  
             }  
           >  
-            <FormItem dataField="year" label={{ text: 'Year' }} editorOptions={{ readOnly: true, width: '40%' }} cssClass='textInput-popup-num'/>  
-            <FormItem dataField="budgetTypeId" label={{ text: 'Soft/Hard Dollar' }} editorType="dxSelectBox"  cssClass='dx-common-selectbox-short60'
+            <FormItem dataField="year" label={{ text: 'Year' }} editorOptions={{ readOnly: true, width: '40%' }} />  
+            <FormItem dataField="budgetTypeId" isRequired label={{ text: 'Soft/Hard Dollar' }} editorType="dxSelectBox"  cssClass='dx-common-selectbox-short60'
               editorOptions={{  
-                dataSource: budgetTypeMap, valueExpr: 'id', displayExpr: 'text' }} />  
-            <FormItem dataField="departmentId" label={{ text: 'Department' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
+                dataSource: budgetTypeMap, valueExpr: 'id', displayExpr: 'text' }}>
+                <RequiredRule message={ValidationMessage.RequiredField} />
+            </FormItem> 
+            <FormItem dataField="departmentId" isRequired label={{ text: 'Department' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
               editorOptions={{
                   dataSource: departments, valueExpr: 'departmentId', displayExpr: 'departmentName',
-                  searchEnabled: true, searchMode: "contains", placeholder: "Select a department..." }} />  
-            <FormItem dataField="brokerId" label={{ text: 'Broker' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
+                  searchEnabled: true, searchMode: "contains", placeholder: "Select a department..." }} >
+                <RequiredRule message={ValidationMessage.RequiredField} />
+            </FormItem>  
+            <FormItem dataField="brokerId" isRequired label={{ text: 'Broker' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
               editorOptions={{  
                 dataSource: brokers, valueExpr: 'brokerId', displayExpr: 'brokerName',
-                searchEnabled: true, searchMode: "contains", placeholder: "Select a broker..." }} />  
-            <FormItem dataField="serviceId" label={{ text: 'Service' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
+                searchEnabled: true, searchMode: "contains", placeholder: "Select a broker..." }}>
+                <RequiredRule message={ValidationMessage.RequiredField} /> 
+            </FormItem>  
+            <FormItem dataField="serviceId" isRequired label={{ text: 'Service' }} editorType="dxSelectBox" cssClass='dx-common-selectbox-short80'
               editorOptions={{  
                 dataSource: services, valueExpr: 'serviceId',  displayExpr: 'ServiceName',
-                searchEnabled: true, searchMode: "contains", placeholder: "Select a service..."  }}  />  
-            <FormItem dataField="ratio" label={{ text: 'Ratio' }} editorType="dxNumberBox" editorOptions={{width: '40%'}} cssClass='textInput-popup-num'/>  
+                searchEnabled: true, searchMode: "contains", placeholder: "Select a service..."  }}>
+                <RequiredRule message={ValidationMessage.RequiredField} />
+            </FormItem>
+            <FormItem dataField="ratio" label={{ text: 'Ratio' }} editorType="dxNumberBox" editorOptions={{width: '40%'}} />  
             <FormItem colSpan={1} itemType='empty'/>             
           </Form>
           <div className="popup-footer" style={{textAlign:'center', margin:10}}>
@@ -716,7 +791,7 @@ return (
                   useIcons: true,  
                 }}
               >  
-                <Column dataField="account" caption="Account Name"  width="25%"/>  
+                <Column dataField="account" caption="Account Name"  width="25%"/>                
                 <Column dataField="status" caption="Status"  width="10%"/>  
                 <Column dataField="cost" caption="Hard Dollar"  width="15%" format= {{ type: 'currency', precision: 2 }}/>  
                 <Column dataField="softDollar" caption="Soft Dollar"  width="15%" format= {{ type: 'currency', precision: 2 }}/>  
@@ -784,7 +859,7 @@ return (
                         <Column dataField="startDate" caption="Start Date" dataType='date' format="yyyy-MM-dd"  width="10%"/>  
                         <Column dataField="endDate" caption="End Date" dataType='date' format="yyyy-MM-dd"  width="10%"/>  
                         <Column type="buttons" width="5%" visible={isAdmin}>  
-                          <GridButton name="edit" visible={false}
+                          <GridButton name="edit" visible={false} cssClass="dx-datagrid-delete-button"
                             onClick={(e) => {  
                               e.event?.stopPropagation();  
                               if (e.row?.data) {  
@@ -792,7 +867,7 @@ return (
                               }  
                             }}  
                           />  
-                          <GridButton name="delete" visible={true}
+                          <GridButton name="delete" visible={true} cssClass="dx-datagrid-delete-button"
                             onClick={async (e) => {  
                               e.event?.stopPropagation();  
                               if (e.row?.data?.userAllocationId != null) {  
@@ -859,7 +934,8 @@ return (
     {/* Child Popup for Accounts */}  
     <Popup  
       visible={childAccountPopupVisible}  
-      onHiding={onChildAccountPopupCancel}  
+      onHiding={onChildAccountPopupCancel} 
+      key={childAccountIsAddMode ? 'Create New Account' : 'Edit Account'} 
       showTitle={true}  
       title={childAccountIsAddMode ? 'Create New Account' : 'Edit Account'}  
       width="35%"  
@@ -876,16 +952,20 @@ return (
          <p>Loading account details...</p>  
         </div>  
       ) : (  
-        <Form colCount={2} width="95%" formData={childAccountEditingData}>  
+        <Form colCount={2} width="95%" 
+          ref={childAccountFormRef}
+          formData={childAccountEditingData}>  
           <FormItem dataField="serviceName" label={{ text: 'Service' }} editorOptions={{ readOnly: true }} />  
           <FormItem dataField="startDate" label={{ text: 'Start Date' }} editorType="dxDateBox" />  
-          <FormItem dataField="account" label={{ text: 'Name' }} />  
+          <FormItem dataField="account" isRequired label={{ text: 'Name' }} >
+              <RequiredRule message={ValidationMessage.RequiredField} />
+          </FormItem>
           <FormItem dataField="endDate" label={{ text: 'End Date' }} editorType="dxDateBox" /> 
           <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} horizontalAlignment="center">  
             <div className="div-container-center">  
-              <Button text="Save" onClick={onChildAccountPopupSave} width={100} className="dxButton" />  
+              <Button text={accountDataSaving?"Saving..":"Save"} disabled={accountDataSaving} onClick={onChildAccountPopupSave} width={100} className="dxButton" />  
               <Button text="Cancel" onClick={onChildAccountPopupCancel} width={100} className="dxButton" />  
             </div>  
           </FormItem>
@@ -898,6 +978,7 @@ return (
       visible={childUserAllocationPopupVisible}
       onHiding={onChildPopupUserAllocationCancel}  
       showTitle={true}  
+      key={childUserAllocationIsAddMode ? 'Create New User' : 'Edit User'}  
       title={childUserAllocationIsAddMode ? 'Create New User' : 'Edit User'}  
       width='35%'
       minWidth={400}
@@ -907,33 +988,39 @@ return (
       hideOnOutsideClick={true}  
       wrapperAttr={{ class: 'custom-popup-class' }} 
     >
-      {childAccountUserPopupLoading || userDataSaving? ( 
+      {childAccountUserPopupLoading? ( 
         <div className='div-loader'>  
          <LoadIndicator id="largeIndicator" className='dxLoader' height={40} width={60} />  
          <p>Loading User details...</p>  
         </div>  
       ) : (
-        <Form colCount={2} formData={childAccountUserEditingData}>
+        <Form colCount={2} 
+          ref={childUserFormRef}
+          formData={childAccountUserEditingData}> 
           <FormItem dataField="account" label={{ text: 'Account' }} editorOptions={{ readOnly: true }} />  
           <FormItem dataField="totalCost" label={{ text: 'Hard Dollar' }} editorType="dxNumberBox" />  
-          <FormItem dataField="userId" label={{text: 'User'}} visible={childUserAllocationIsAddMode}
+          <FormItem dataField="userId" isRequired label={{text: 'User'}} visible={childUserAllocationIsAddMode}
             editorType="dxSelectBox"
             editorOptions={{
               dataSource: users, valueExpr: 'userId', displayExpr: 'userName',
               searchEnabled: true, searchMode: "contains", placeholder: "Select a user..."
-            }}/>
+            }}>
+              <RequiredRule message={ValidationMessage.RequiredField} />
+          </FormItem>
           <FormItem dataField="startDate" label={{ text: 'Start Date' }} editorType="dxDateBox" />  
-          <FormItem dataField="departmentId" label={{text: 'Department'}} visible={childUserAllocationIsAddMode} editorType="dxSelectBox" 
+          <FormItem dataField="departmentId" isRequired label={{text: 'Department'}} visible={childUserAllocationIsAddMode} editorType="dxSelectBox" 
             editorOptions={{
               dataSource: departments, valueExpr: 'departmentId', displayExpr: 'departmentName',
               searchEnabled: true, searchMode: "contains", placeholder: "Select a department..."
-            }} />
+            }}>
+              <RequiredRule message={ValidationMessage.RequiredField} />
+          </FormItem>
           <FormItem dataField="endDate" label={{ text: 'End Date' }} editorType="dxDateBox" /> 
           <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} itemType='empty'/>  
           <FormItem colSpan={2} horizontalAlignment="center">  
             <div className="div-container-center">  
-              <Button text="Save" onClick={onChildPopupUserAllocationSave} width={100} className="dxButton" />  
+              <Button text={userDataSaving?"Saving..":"Save"} disabled={userDataSaving} onClick={onChildPopupUserAllocationSave} width={100} className="dxButton" />  
               <Button text="Cancel" onClick={onChildPopupUserAllocationCancel} width={100} className="dxButton" />  
             </div>  
           </FormItem>  

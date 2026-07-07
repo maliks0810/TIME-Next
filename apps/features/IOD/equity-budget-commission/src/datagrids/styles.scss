@@ -971,3 +971,16 @@ $font-size: 12px!important;
 .modern-detail-form .dx-selectbox .dx-texteditor-input {
   font-size: 12px!important;
 }
+/** Confirmation Dialog */
+.dx-dialog {
+  width: 500px !important;   // ✅ set width
+}
+
+.dx-dialog .dx-popup-content {
+  min-height: 120px;        // ✅ control height
+}
+
+.confirm-text {
+  font-size: 14px !important;
+  padding: 10px;
+}
