@@ -5,7 +5,7 @@ import { useTreasuryInstruments, type RwmTreasuryInstrument } from '../../../api
 import { cn } from '../../../ui/utils';
 import { deriveTenorBucketFromInstrumentDuration, sortWaterfallBuckets } from '../model/waterfallClientResolver';
 import { formatWaterfallBucketRange } from '../model/waterfallFormat';
-import type { WaterfallBucket, WaterfallInstrumentType, WaterfallSide } from '../model/waterfallTypes';
+import type { WaterfallInstrumentType, WaterfallSide } from '../model/waterfallTypes';
 import { useWaterfallManagerStore } from '../store/waterfallManagerStore';
 
 type CandidateInstrument = RwmTreasuryInstrument & {

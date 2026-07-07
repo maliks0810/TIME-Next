@@ -210,7 +210,7 @@ export function WaterfallRulesTab(): JSX.Element {
               Delete rule set?
             </div>
             <div className="rwm-confirm-message">
-              This will delete "{deleteCandidate.name}" and remove its configured BUY and SELL waterfall rules. This action cannot be undone.
+              This will delete {deleteCandidate.name} and remove its configured BUY and SELL waterfall rules.
             </div>
             <div className="rwm-confirm-actions">
               <button type="button" className="waterfall-rule-secondary-button" onClick={() => setDeleteCandidate(null)}>
