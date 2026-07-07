@@ -555,6 +555,9 @@ export default function AssetStagingWidget({
 
             // Success
             setStageSuccess(true);
+            if( staged.securitySetupUrl) {
+                window.open(staged.securitySetupUrl as string, "_blank", "noopener,noreferrer");
+            }
 
             if (staged?.omUploaded === false && staged?.omError) {
                 message.success("Asset staged successfully");
