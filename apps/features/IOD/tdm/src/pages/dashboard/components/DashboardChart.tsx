@@ -51,7 +51,7 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ chartData }) => {
   return (
     <ReactECharts
       style={{
-        height: '150px'
+        height: '180px'
       }}
       option={chartOption}
 
