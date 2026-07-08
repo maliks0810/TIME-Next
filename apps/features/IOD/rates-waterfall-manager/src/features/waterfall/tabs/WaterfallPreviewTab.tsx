@@ -53,7 +53,7 @@ export function WaterfallPreviewTab(): JSX.Element {
         <div className="rwm-section-title-bar border-b border-grey-200">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="font-tcw-bold text-sm text-grey-900">Preview Input</div>
+              <div className="font-tcw-bold text-sm text-grey-900">Input</div>
               <div className="mt-1 text-[11px] text-grey-600">Validate waterfall resolution by portfolio or manual RHS/duration.</div>
             </div>
             <div className="rwm-status-badge rwm-status-badge--saved">
@@ -114,7 +114,7 @@ export function WaterfallPreviewTab(): JSX.Element {
 
       <section className="waterfall-card">
         <div className="rwm-section-title-bar border-b border-grey-200">
-          <div className="font-tcw-bold text-sm text-grey-900">Configured Buckets</div>
+          <div className="font-tcw-bold text-sm text-grey-900">Buckets</div>
         </div>
         <div className="rwm-bucket-grid">
           {sortWaterfallBuckets(graph.buckets).map((bucket) => (

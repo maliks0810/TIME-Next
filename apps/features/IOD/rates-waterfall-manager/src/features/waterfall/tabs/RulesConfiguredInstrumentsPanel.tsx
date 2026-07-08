@@ -56,10 +56,7 @@ export function RulesConfiguredInstrumentsPanel(): JSX.Element {
   return (
     <section className="rwm-rules-reference-panel">
       <div className="rwm-rules-reference-header rwm-rules-reference-header--rule-style">
-        <div className="rwm-rules-reference-title rwm-rules-reference-title--rule-style">Configured Instruments</div>
-        <div className="rwm-rules-reference-subtitle">
-          Instruments are shown in the execution order resolved by the selected rule set.
-        </div>
+        <div className="rwm-rules-reference-title rwm-rules-reference-title--rule-style">Review Configured Instruments</div>
       </div>
       <div className="rwm-rules-reference-scroll">
         {SIDES.map((side) => (
@@ -144,7 +141,7 @@ function InstrumentBucket({
               <span className="truncate" title={instrument.description ?? ''}>
                 {instrument.description || '-'}
               </span>
-              <span className="text-right tabular-nums">Dur {formatDuration(getInstrumentDuration(instrument, treasuryDurationBySecurity))}</span>
+              <span className="text-right tabular-nums">Dur: {formatDuration(getInstrumentDuration(instrument, treasuryDurationBySecurity))}</span>
             </div>
           ))}
         </div>

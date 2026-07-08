@@ -72,8 +72,7 @@ export function WaterfallTenorInstrumentsTab(): JSX.Element {
         <div className="rwm-section-title-bar border-b border-grey-200">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="font-tcw-bold text-sm text-grey-900">Candidate Instruments</div>
-              <div className="mt-1 text-[11px] text-grey-600">Search treasury instruments and add them to the selected side.</div>
+              <div className="font-tcw-bold text-sm text-grey-900">Candidates</div>
             </div>
             <SideSwitch selectedSide={selectedSide} onChange={setSelectedSide} />
           </div>
@@ -104,7 +103,7 @@ export function WaterfallTenorInstrumentsTab(): JSX.Element {
                 <div className="grid grid-cols-[72px_minmax(0,1fr)_72px] items-center gap-2">
                   <span className="truncate text-[12px] font-medium text-grey-900">{instrument.securityId}</span>
                   <span className="truncate text-[11px] text-grey-600">{instrument.description || '-'}</span>
-                  <span className="text-right text-[11px] text-grey-700">Dur {formatDuration(instrument.duration)}</span>
+                  <span className="text-right text-[11px] text-grey-700">Dur: {formatDuration(instrument.duration)}</span>
                 </div>
                 <div className="mt-0.5 flex items-center justify-between gap-2 text-[10.5px] text-grey-500">
                   <span>{instrument.cusip || '-'}</span>
@@ -119,7 +118,6 @@ export function WaterfallTenorInstrumentsTab(): JSX.Element {
       <section className="waterfall-card rwm-candidate-card">
         <div className="rwm-section-title-bar border-b border-grey-200">
           <div className="font-tcw-bold text-sm text-grey-900">Instrument Buckets</div>
-          <div className="mt-1 text-[11px] text-grey-600">Configured {selectedSide} instruments by tenor bucket.</div>
         </div>
 
         <div className="overflow-auto p-3">
@@ -153,7 +151,7 @@ export function WaterfallTenorInstrumentsTab(): JSX.Element {
                             {instrument.description || '-'}
                           </span>
                           <span className="text-right text-grey-700">
-                            Dur {formatDuration(getInstrumentDuration(instrument, treasuryDurationBySecurity))}
+                            Dur: {formatDuration(getInstrumentDuration(instrument, treasuryDurationBySecurity))}
                           </span>
                           <span className="flex items-center justify-end gap-1">
                             <button
