@@ -1,0 +1,909 @@
+@layer components {
+    #pfa-app-root .portfolio-analysis-page {
+        --pa-grid-border: var(--tcw-grey-300);
+        --pa-grid-border-strong: var(--tcw-grey-400);
+        --pa-header-l1-bg: var(--tcw-blue);
+        --pa-header-l1-fg: var(--tcw-white);
+        --pa-header-l1-border: var(--tcw-blue-800);
+        --pa-header-l2-bg: var(--tcw-blue-800);
+        --pa-header-l2-fg: var(--tcw-white);
+        --pa-header-l2-border: var(--tcw-blue-600);
+        --pa-body-row-height: 24px;
+        --pa-body-alt-bg: color-mix(in srgb, var(--tcw-blue) 3%, var(--tcw-white));
+        --pa-body-hover-bg: var(--tcw-green-100);
+        height: 100%;
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
+        font-family: var(--tcw-font-sans);
+        color: var(--tcw-grey-800);
+    }
+    #pfa-app-root .portfolio-analysis-page-header {
+        height: 40px !important;
+        flex: 0 0 auto !important;
+        width: 100%;
+        min-width: 0;
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-shell {
+        height: 36px !important;
+        flex: 0 0 auto !important;
+        width: 100%;
+        min-width: 0;
+    }
+    #pfa-app-root .portfolio-analysis-summary-shell,
+    #pfa-app-root .portfolio-analysis-summary-strip {
+        min-width: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #pfa-app-root .portfolio-analysis-summary-strip {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        column-gap: 14px;
+        align-items: center;
+    }
+    #pfa-app-root .portfolio-analysis-summary-title-zone {
+        min-width: 0;
+        justify-self: start;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+    #pfa-app-root .portfolio-analysis-summary-title {
+        min-width: 0;
+        font-family: var(--tcw-font-sans);
+        font-size: 13px;
+        line-height: 1;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        color: var(--tcw-grey-900);
+    }
+    #pfa-app-root .portfolio-analysis-summary-context-strip {
+        min-width: 0;
+        max-width: 100%;
+        justify-self: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        overflow: hidden;
+    }
+    #pfa-app-root .portfolio-analysis-summary-context-badge {
+        display: inline-flex;
+        height: 18px;
+        min-width: 0;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 4px;
+        padding: 0 6px;
+        font-family: var(--tcw-font-sans);
+        font-size: 9px;
+        line-height: 1;
+        font-weight: 600;
+        letter-spacing: 0.035em;
+        white-space: nowrap;
+        box-shadow: none;
+    }
+    #pfa-app-root .portfolio-analysis-summary-context-badge--primary {
+        background: var(--tcw-blue);
+        color: var(--tcw-white);
+    }
+    #pfa-app-root .portfolio-analysis-summary-context-badge--portfolio-name {
+        max-width: 640px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        background: color-mix(in srgb, var(--tcw-blue) 6%, var(--tcw-white));
+        color: var(--tcw-grey-900);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.095em;
+        border-radius: 5px;
+        padding: 0 8px;
+    }
+    #pfa-app-root .portfolio-analysis-summary-meta {
+        min-width: 0;
+        justify-self: end;
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        white-space: nowrap;
+        font-family: var(--tcw-font-sans);
+        line-height: 1;
+        text-transform: uppercase;
+        text-align: right;
+        margin-right: 20px;
+    }
+    #pfa-app-root .portfolio-analysis-summary-meta--info {
+        height: 18px;
+        border-radius: 4px;
+        background: var(--tcw-blue-100);
+        padding: 0 7px;
+        color: var(--tcw-blue);
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+    }
+    #pfa-app-root [data-portfolio-analysis-toolbar-root].portfolio-analysis-toolbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        column-gap: 8px;
+        width: 100%;
+        min-width: 0;
+        height: 100%;
+        align-items: center;
+        overflow: hidden;
+        font-family: var(--tcw-font-sans);
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-left,
+    #pfa-app-root .portfolio-analysis-toolbar-center,
+    #pfa-app-root .portfolio-analysis-toolbar-right,
+    #pfa-app-root .portfolio-analysis-toolbar-section {
+        display: inline-flex;
+        min-width: 0;
+        height: 100%;
+        align-items: center;
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-left {
+        justify-content: flex-start;
+        justify-self: stretch;
+        gap: 6px;
+        overflow: hidden;
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-center {
+        justify-content: center;
+        justify-self: center;
+        flex-shrink: 0;
+        overflow: visible;
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-right {
+        justify-content: flex-end;
+        justify-self: stretch;
+        overflow: hidden;
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-back-button,
+    #pfa-app-root .portfolio-analysis-toolbar-label,
+    #pfa-app-root .portfolio-analysis-search-input {
+        font-family: var(--tcw-font-sans);
+        font-size: 9.5px;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        line-height: 1;
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-back-button {
+        display: inline-flex;
+        height: 24px;
+        min-width: 0;
+        align-items: center;
+        gap: 4px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        padding: 0 2px;
+        color: var(--tcw-grey-800);
+        letter-spacing: 0.22em;
+        box-shadow: none;
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-back-button:hover {
+        background: color-mix(in srgb, var(--tcw-blue) 6%, transparent);
+        color: var(--tcw-blue);
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-label {
+        color: var(--tcw-grey-600);
+        white-space: nowrap;
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-divider {
+        display: inline-block;
+        width: 1px;
+        min-width: 1px;
+        flex: 0 0 1px;
+        height: 18px;
+        margin: 0 2px;
+        background-color: var(--tcw-grey-300);
+        opacity: 1;
+    }
+    #pfa-app-root .portfolio-analysis-search {
+        display: inline-flex;
+        width: 190px;
+        min-width: 190px;
+        height: 24px;
+        align-items: center;
+        gap: 5px;
+        border: 1px solid var(--tcw-grey-300);
+        border-radius: 6px;
+        background: var(--tcw-white);
+        padding: 0 6px;
+        color: var(--tcw-grey-600);
+        box-shadow: none;
+    }
+    #pfa-app-root .portfolio-analysis-search:focus-within {
+        border-color: var(--tcw-blue);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--tcw-blue) 18%, transparent);
+    }
+    #pfa-app-root .portfolio-analysis-search-icon {
+        flex: 0 0 auto;
+        color: var(--tcw-grey-500);
+    }
+    #pfa-app-root .portfolio-analysis-search-input {
+        min-width: 0;
+        flex: 1 1 auto;
+        height: 100%;
+        border: 0;
+        outline: none;
+        background: transparent;
+        padding: 0;
+        color: var(--tcw-grey-800);
+        letter-spacing: 0.06em;
+        text-transform: none;
+    }
+    #pfa-app-root .portfolio-analysis-search-input::placeholder {
+        color: var(--tcw-grey-500);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+    }
+    #pfa-app-root .portfolio-analysis-search-clear {
+        display: inline-flex;
+        width: 14px;
+        min-width: 14px;
+        height: 18px;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        color: var(--tcw-grey-500);
+    }
+    #pfa-app-root .portfolio-analysis-search-clear:hover {
+        color: var(--tcw-blue);
+    }
+    #pfa-app-root .portfolio-analysis-content,
+    #pfa-app-root .portfolio-analysis-main {
+        min-height: 0;
+        min-width: 0;
+        width: 100%;
+        height: 100%;
+        flex: 1 1 auto;
+        overflow: hidden;
+    }
+    #pfa-app-root .portfolio-analysis-main {
+        border-top: 1px solid var(--pa-grid-border);
+        background: var(--tcw-white);
+        box-shadow: none;
+    }
+    #pfa-app-root .portfolio-analysis-grid-scroll {
+        position: relative;
+        height: 100%;
+        max-height: 100%;
+        min-height: 0;
+        width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        overflow-y: auto;
+        background: var(--tcw-white);
+        font-family: var(--tcw-font-sans);
+        color: var(--tcw-grey-800);
+        font-feature-settings:
+            'tnum' 1,
+            'liga' 0;
+        overscroll-behavior: contain;
+    }
+    #pfa-app-root .portfolio-analysis-grid-inner {
+        min-width: 100%;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        height: 48px;
+        background: var(--pa-header-l1-bg) !important;
+        color: var(--pa-header-l1-fg) !important;
+        font-family: var(--tcw-font-sans);
+        font-size: 10.5px;
+        line-height: 1.15;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-shadow: none;
+        filter: none;
+        opacity: 1;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header-row,
+    #pfa-app-root .portfolio-analysis-grid-row {
+        display: flex;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header-row {
+        height: 24px;
+        border-bottom: 1px solid var(--pa-grid-border);
+    }
+    #pfa-app-root .portfolio-analysis-grid-header-cell {
+        display: flex;
+        height: 24px;
+        min-height: 24px;
+        align-items: center;
+        justify-content: center;
+        border-right: 1px solid var(--pa-header-l1-border) !important;
+        border-bottom: 1px solid var(--pa-header-l1-border) !important;
+        background: var(--pa-header-l1-bg) !important;
+        color: var(--pa-header-l1-fg) !important;
+        padding: 0 6px;
+        font-family: var(--tcw-font-sans);
+        font-size: 10.5px;
+        line-height: 1.15;
+        font-weight: 500 !important;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-shadow: none;
+        filter: none;
+        opacity: 1;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header-root-cell,
+    #pfa-app-root .portfolio-analysis-grid-header-group-sticky-1,
+    #pfa-app-root .portfolio-analysis-grid-header-group-sticky-2 {
+        background: var(--pa-header-l1-bg) !important;
+        color: var(--pa-header-l1-fg) !important;
+        border-right-color: var(--pa-header-l1-border) !important;
+        border-bottom-color: var(--pa-header-l1-border) !important;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header-child-cell,
+    #pfa-app-root .portfolio-analysis-grid-header .portfolio-analysis-grid-sticky-1,
+    #pfa-app-root .portfolio-analysis-grid-header .portfolio-analysis-grid-sticky-2 {
+        background: var(--pa-header-l2-bg) !important;
+        color: var(--pa-header-l2-fg) !important;
+        border-right-color: var(--pa-header-l2-border) !important;
+        border-bottom-color: var(--pa-header-l2-border) !important;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header-leaf {
+        justify-content: flex-end;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header-sortable {
+        cursor: pointer;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header-sortable:hover,
+    #pfa-app-root .portfolio-analysis-grid-header-sorted {
+        background: var(--tcw-blue-700) !important;
+        color: var(--tcw-white) !important;
+        font-weight: 500 !important;
+    }
+    #pfa-app-root .portfolio-analysis-grid-body {
+        position: relative;
+        min-height: 0;
+    }
+    #pfa-app-root .portfolio-analysis-grid-row {
+        position: absolute;
+        left: 0;
+        height: var(--pa-body-row-height);
+        border-bottom: 1px solid var(--pa-grid-border);
+        font-family: var(--tcw-font-sans);
+        font-size: 11px;
+        line-height: 1.18;
+        letter-spacing: 0.006em;
+        cursor: default;
+        pointer-events: auto;
+    }
+    #pfa-app-root .portfolio-analysis-grid-row-even {
+        background: var(--tcw-white);
+    }
+    #pfa-app-root .portfolio-analysis-grid-row-odd {
+        background: var(--pa-body-alt-bg);
+    }
+    #pfa-app-root .portfolio-analysis-grid-row:hover {
+        background: var(--pa-body-hover-bg);
+    }
+    #pfa-app-root .portfolio-analysis-grid-row-selected {
+        background: color-mix(in srgb, var(--tcw-blue) 9%, var(--tcw-white)) !important;
+    }
+    #pfa-app-root .portfolio-analysis-grid-row-search-match {
+        background: color-mix(in srgb, var(--tcw-gold) 14%, var(--tcw-white)) !important;
+    }
+    #pfa-app-root .portfolio-analysis-grid-cell {
+        display: flex;
+        height: var(--pa-body-row-height);
+        align-items: center;
+        border-right: 1px solid var(--pa-grid-border);
+        border-bottom: 1px solid var(--pa-grid-border);
+        background: inherit;
+        padding: 0 4px;
+        overflow: hidden;
+        font-family: var(--tcw-font-sans);
+        font-size: 11px;
+        line-height: 1.18;
+        font-variant-numeric: tabular-nums;
+        font-feature-settings:
+            'tnum' 1,
+            'liga' 0;
+    }
+    #pfa-app-root .portfolio-analysis-grid-cell-right {
+        justify-content: flex-end;
+        text-align: right;
+    }
+    #pfa-app-root .portfolio-analysis-grid-cell-left {
+        justify-content: flex-start;
+        text-align: left;
+    }
+    #pfa-app-root .portfolio-analysis-grid-group-start {
+        border-left: 2px solid var(--tcw-blue-300) !important;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header .portfolio-analysis-grid-group-start {
+        border-left: 2px solid var(--tcw-blue-600) !important;
+    }
+    #pfa-app-root .portfolio-analysis-grid-sticky-1,
+    #pfa-app-root .portfolio-analysis-grid-sticky-2 {
+        position: sticky;
+        z-index: 20;
+        background: inherit;
+    }
+    #pfa-app-root .portfolio-analysis-grid-sticky-1 {
+        left: 0;
+        border-right: 1px solid var(--pa-grid-border);
+    }
+    #pfa-app-root .portfolio-analysis-grid-sticky-2 {
+        left: 360px;
+        border-right: 2px solid var(--pa-grid-border-strong);
+    }
+    #pfa-app-root .portfolio-analysis-grid-header .portfolio-analysis-grid-sticky-1,
+    #pfa-app-root .portfolio-analysis-grid-header .portfolio-analysis-grid-sticky-2 {
+        z-index: 140;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header-group-sticky-1,
+    #pfa-app-root .portfolio-analysis-grid-header-group-sticky-2 {
+        position: sticky;
+        z-index: 150;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header-group-sticky-1 {
+        left: 0;
+    }
+    #pfa-app-root .portfolio-analysis-grid-header-group-sticky-2 {
+        left: 360px;
+    }
+    #pfa-app-root .portfolio-analysis-grid-label-wrap {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: 4px;
+    }
+    #pfa-app-root .portfolio-analysis-grid-caret {
+        display: inline-flex;
+        width: 18px;
+        min-width: 18px;
+        height: 18px;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        padding: 0;
+        color: var(--tcw-grey-800);
+        line-height: 1;
+        cursor: pointer;
+    }
+    #pfa-app-root .portfolio-analysis-grid-caret:hover {
+        background: color-mix(in srgb, var(--tcw-blue) 8%, transparent);
+        color: var(--tcw-blue);
+    }
+    #pfa-app-root .portfolio-analysis-grid-caret-placeholder {
+        cursor: default;
+        pointer-events: none;
+    }
+    #pfa-app-root .portfolio-analysis-grid-bucket-label {
+        font-weight: 500;
+        color: var(--tcw-grey-900);
+    }
+    #pfa-app-root .portfolio-analysis-grid-position-label {
+        color: var(--tcw-grey-800);
+    }
+    #pfa-app-root .portfolio-analysis-grid-truncate {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    #pfa-app-root .portfolio-analysis-grid-loading-state,
+    #pfa-app-root .portfolio-analysis-grid-message {
+        display: flex;
+        height: 100%;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        background: var(--tcw-grey-100);
+        font-family: var(--tcw-font-sans);
+    }
+    #pfa-app-root .portfolio-analysis-grid-loading-card {
+        border: 1px solid var(--tcw-grey-300);
+        border-radius: 8px;
+        background: var(--tcw-white);
+        padding: 16px 20px;
+        box-shadow: 0 1px 2px rgba(13, 13, 13, 0.04);
+    }
+    #pfa-app-root .portfolio-analysis-grid-loading-title {
+        font-size: 14px;
+        line-height: 1.15;
+        font-weight: 700;
+        color: var(--tcw-grey-900);
+    }
+    #pfa-app-root .portfolio-analysis-grid-loading-subtitle {
+        margin-top: 4px;
+        font-size: 11px;
+        line-height: 1.25;
+        color: var(--tcw-grey-600);
+    }
+    .portfolio-analysis-context-menu {
+        position: fixed !important;
+        z-index: 2147483647 !important;
+        display: block !important;
+        visibility: visible !important;
+        min-width: 230px;
+        overflow: hidden;
+        border: 1px solid var(--tcw-grey-300);
+        border-radius: 6px;
+        background: var(--tcw-white);
+        padding: 4px 0;
+        font-family: var(--tcw-font-sans);
+        font-size: 12px;
+        line-height: 1.25;
+        color: var(--tcw-grey-800);
+        box-shadow: 0 8px 24px rgba(13, 13, 13, 0.18);
+        pointer-events: auto !important;
+    }
+
+    .portfolio-analysis-context-menu-title {
+        padding: 6px 12px 4px;
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--tcw-grey-500);
+    }
+
+    .portfolio-analysis-context-menu-divider {
+        margin: 4px 0;
+        border-top: 1px solid var(--tcw-grey-200);
+    }
+
+    .portfolio-analysis-context-menu-button {
+        display: block;
+        width: 100%;
+        border: 0;
+        background: transparent;
+        padding: 6px 12px;
+        text-align: left;
+        font-family: var(--tcw-font-sans);
+        font-size: 12px;
+        color: var(--tcw-grey-800);
+        cursor: pointer;
+    }
+
+    .portfolio-analysis-context-menu-button:hover {
+        background: var(--tcw-grey-100);
+    }
+
+    .portfolio-analysis-context-menu-button-muted {
+        color: var(--tcw-grey-600);
+    }
+}
+
+
+@layer components {
+    #pfa-app-root .portfolio-analysis-decimal-group {
+        display: inline-flex;
+        height: 24px;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+    #pfa-app-root .portfolio-analysis-decimal-input {
+        display: inline-flex;
+        height: 24px;
+        align-items: center;
+        gap: 3px;
+        font-family: var(--tcw-font-sans);
+        font-size: 9.5px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--tcw-grey-600);
+        line-height: 1;
+    }
+    #pfa-app-root .portfolio-analysis-decimal-input input {
+        width: 34px;
+        height: 20px;
+        min-height: 20px;
+        border: 1px solid var(--tcw-grey-300);
+        border-radius: 5px;
+        background: var(--tcw-white);
+        padding: 0 3px;
+        text-align: center;
+        font-family: var(--tcw-font-sans);
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--tcw-grey-900);
+        outline: none;
+    }
+    #pfa-app-root .portfolio-analysis-decimal-input input:focus {
+        border-color: var(--tcw-blue);
+    }
+    #pfa-app-root .portfolio-analysis-mode-switch {
+        display: inline-grid;
+        grid-template-columns: repeat(2, minmax(64px, auto));
+        align-items: center;
+        height: 24px;
+        min-height: 24px;
+        padding: 2px;
+        border: 1px solid var(--tcw-grey-300);
+        border-radius: 7px;
+        background: var(--tcw-white);
+        gap: 2px;
+    }
+    #pfa-app-root .portfolio-analysis-mode-switch-option {
+        height: 18px;
+        min-height: 18px;
+        border: 0;
+        border-radius: 5px;
+        background: transparent;
+        padding: 0 8px;
+        color: var(--tcw-grey-600);
+        box-shadow: none;
+        font-family: var(--tcw-font-sans);
+        font-size: 9.5px;
+        line-height: 1;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+    #pfa-app-root .portfolio-analysis-mode-switch-option[data-active='true'] {
+        background: var(--tcw-blue-100);
+        color: var(--tcw-blue);
+    }
+    #pfa-app-root .portfolio-analysis-mode-switch-option[data-active='false']:hover {
+        color: var(--tcw-blue);
+        background: color-mix(in srgb, var(--tcw-blue) 6%, var(--tcw-white));
+    }
+    #pfa-app-root .portfolio-analysis-summary-meta--info {
+        gap: 10px;
+    }
+}
+
+
+@layer components {
+    #pfa-app-root .portfolio-analysis-summary-title {
+        font-size: 13px !important;
+        line-height: 1 !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.22em !important;
+        text-transform: uppercase !important;
+        color: var(--tcw-grey-900) !important;
+        margin-left: 20px;
+    }
+    #pfa-app-root .portfolio-analysis-summary-context-badge--portfolio-name {
+        max-width: 680px !important;
+        height: 22px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.065em !important;
+        background: transparent !important;
+        color: var(--tcw-grey-900) !important;
+        padding: 0 6px !important;
+    }
+    #pfa-app-root .portfolio-analysis-summary-context-badge--drift {
+        height: 20px !important;
+        border: 1px solid var(--tcw-blue) !important;
+        border-radius: 5px !important;
+        background: var(--tcw-white) !important;
+        color: var(--tcw-blue) !important;
+        padding: 0 7px !important;
+        font-size: 9px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.12em !important;
+        text-transform: uppercase !important;
+    }
+    #pfa-app-root .portfolio-analysis-summary-meta--info {
+        gap: 10px !important;
+        height: 20px !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        padding: 0 !important;
+        color: var(--tcw-grey-600) !important;
+        font-size: 9px !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.16em !important;
+    }
+    #pfa-app-root .portfolio-analysis-summary-metric {
+        display: inline-flex !important;
+        align-items: baseline !important;
+        gap: 4px !important;
+        white-space: nowrap !important;
+        font-family: var(--tcw-font-sans) !important;
+        line-height: 1 !important;
+    }
+    #pfa-app-root .portfolio-analysis-summary-metric-label {
+        font-size: 9px !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.16em !important;
+        text-transform: uppercase !important;
+        color: var(--tcw-grey-600) !important;
+    }
+    #pfa-app-root .portfolio-analysis-summary-metric-value {
+        font-size: 9px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.035em !important;
+        color: var(--tcw-grey-900) !important;
+    }
+
+    #pfa-app-root .portfolio-analysis-toolbar-button,
+    #pfa-app-root .portfolio-analysis-group-pill,
+    #pfa-app-root .portfolio-analysis-toolbar-segment-option {
+        font-family: var(--tcw-font-sans) !important;
+        font-size: 9.5px !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.16em !important;
+        text-transform: uppercase !important;
+        line-height: 1 !important;
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-button {
+        display: inline-flex !important;
+        height: 24px !important;
+        min-height: 24px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 5px !important;
+        border: 1px solid var(--tcw-grey-300) !important;
+        border-radius: 6px !important;
+        background: var(--tcw-white) !important;
+        padding: 0 8px !important;
+        color: var(--tcw-grey-700) !important;
+        box-shadow: none !important;
+        white-space: nowrap !important;
+    }
+    #pfa-app-root .portfolio-analysis-toolbar-button:hover,
+    #pfa-app-root .portfolio-analysis-toolbar-button[aria-expanded='true'] {
+        border-color: var(--tcw-blue) !important;
+        color: var(--tcw-blue) !important;
+        background: var(--tcw-white) !important;
+    }
+    #pfa-app-root .portfolio-analysis-column-groups {
+        display: inline-flex !important;
+        height: 24px !important;
+        align-items: center !important;
+        gap: 4px !important;
+        white-space: nowrap !important;
+    }
+    #pfa-app-root .portfolio-analysis-group-pill {
+        display: inline-flex !important;
+        height: 20px !important;
+        min-height: 20px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: 1px solid var(--tcw-grey-300) !important;
+        border-radius: 6px !important;
+        background: var(--tcw-white) !important;
+        padding: 0 7px !important;
+        color: var(--tcw-grey-500) !important;
+        box-shadow: none !important;
+    }
+    #pfa-app-root .portfolio-analysis-group-pill[data-active='true'] {
+        border-color: var(--tcw-blue) !important;
+        background: var(--tcw-blue-100) !important;
+        color: var(--tcw-blue) !important;
+    }
+    #pfa-app-root .portfolio-analysis-group-pill[data-active='false']:hover {
+        border-color: var(--tcw-blue) !important;
+        color: var(--tcw-blue) !important;
+    }
+
+    #pfa-app-root .portfolio-analysis-decimal-trigger {
+        min-width: 146px !important;
+        justify-content: space-between !important;
+    }
+}
+
+@layer components {
+    .pfa-toolbar-menu.portfolio-analysis-decimal-menu {
+        position: fixed !important;
+        z-index: 9999 !important;
+        display: block !important;
+        box-sizing: border-box !important;
+        min-width: 292px !important;
+        padding: 10px 12px !important;
+        border: 1px solid var(--tcw-grey-300) !important;
+        border-radius: 8px !important;
+        background: var(--tcw-white) !important;
+        color: var(--tcw-grey-800) !important;
+        box-shadow: 0 10px 24px rgba(13, 13, 13, 0.12), 0 2px 6px rgba(13, 13, 13, 0.08) !important;
+        font-family: var(--tcw-font-sans) !important;
+        font-size: 9.5px !important;
+        line-height: 1.2 !important;
+        opacity: 1 !important;
+    }
+    .pfa-toolbar-menu.portfolio-analysis-decimal-menu,
+    .pfa-toolbar-menu.portfolio-analysis-decimal-menu * {
+        box-sizing: border-box !important;
+        font-family: var(--tcw-font-sans) !important;
+    }
+    .portfolio-analysis-decimal-menu-title {
+        margin-bottom: 8px !important;
+        color: var(--tcw-grey-600) !important;
+        font-size: 9.5px !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.16em !important;
+        text-transform: uppercase !important;
+    }
+    .portfolio-analysis-decimal-menu-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+    .portfolio-analysis-decimal-menu-row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 48px !important;
+        align-items: center !important;
+        gap: 6px !important;
+        min-width: 0 !important;
+    }
+    .portfolio-analysis-decimal-menu-label {
+        color: var(--tcw-grey-600) !important;
+        font-size: 9.5px !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.12em !important;
+        text-transform: uppercase !important;
+    }
+    .portfolio-analysis-decimal-menu-row input {
+        height: 24px !important;
+        min-height: 24px !important;
+        width: 48px !important;
+        border: 1px solid var(--tcw-grey-300) !important;
+        border-radius: 6px !important;
+        background: var(--tcw-white) !important;
+        color: var(--tcw-grey-800) !important;
+        padding: 0 4px !important;
+        text-align: center !important;
+        font-size: 10px !important;
+        line-height: 1 !important;
+        outline: none !important;
+    }
+    .portfolio-analysis-decimal-menu-row input:focus {
+        border-color: var(--tcw-blue) !important;
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--tcw-blue) 24%, transparent) !important;
+    }
+    .portfolio-analysis-decimal-menu-divider {
+        height: 1px !important;
+        margin: 10px 0 !important;
+        background: var(--tcw-grey-200) !important;
+    }
+    .portfolio-analysis-toolbar-segment {
+        display: inline-grid !important;
+        grid-template-columns: repeat(2, minmax(74px, auto)) !important;
+        height: 24px !important;
+        min-height: 24px !important;
+        align-items: center !important;
+        gap: 2px !important;
+        border: 1px solid var(--tcw-grey-300) !important;
+        border-radius: 7px !important;
+        background: var(--tcw-white) !important;
+        padding: 2px !important;
+        box-shadow: none !important;
+    }
+    .portfolio-analysis-toolbar-segment-option {
+        height: 18px !important;
+        min-height: 18px !important;
+        border: 0 !important;
+        border-radius: 5px !important;
+        background: transparent !important;
+        padding: 0 8px !important;
+        color: var(--tcw-grey-600) !important;
+        box-shadow: none !important;
+    }
+    .portfolio-analysis-toolbar-segment-option[data-active='true'] {
+        background: var(--tcw-blue) !important;
+        color: var(--tcw-white) !important;
+    }
+    .portfolio-analysis-toolbar-segment-option[data-active='false']:hover {
+        color: var(--tcw-blue) !important;
+        background: var(--tcw-blue-100) !important;
+    }
+    .portfolio-analysis-decimal-mode-segment {
+        width: 100% !important;
+    }
+}

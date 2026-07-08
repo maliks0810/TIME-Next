@@ -241,6 +241,20 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         team: 'IOD',                  
         env: HighestEnv.prod,            
         component: lazy(() => import('@iod/equity-budget-commission/src/pages/report-dashboard'))       
-    }
+    },
+    {
+        type: 'internal',
+        header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.IM_Rates,
+        id: 'pfa',
+        name: 'pfa',
+        title: 'Drift Report',
+        env: HighestEnv.prod,
+        path: '/IOD/pfa/',
+        team: 'IOD',
+        component: lazy(() => import('@IOD/pfa/src/App')),
+        description: '',
+        hideFooter: true
+    },
     // PLOP_INJECT_APP
 ]
