@@ -550,7 +550,7 @@ const onChildPopupUserAllocationSave = async () => {
     await loadSoftdollarBudgetAccounts(selectedSoftBudgetId);
 
     const detail = await loadSoftDollarBudgetDetails(selectedSoftBudgetId);
-    const detailData = (softBudgetDetails? softBudgetDetails : detail) as SoftDollarBudgetDetail; 
+    const detailData = (detail?  detail: softBudgetDetails) as SoftDollarBudgetDetail;  
     if(editingData){
       detailData.softDollarBudgetId = editingData.softDollarBudgetId;
       detailData.year = editingData.year;
