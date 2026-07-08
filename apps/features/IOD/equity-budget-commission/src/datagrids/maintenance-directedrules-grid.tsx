@@ -124,8 +124,9 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
     setPopupTitle('Edit Directed Rule');
   }, []);
 
-  const handleInitNewRow = useCallback(() => {
+  const handleInitNewRow = useCallback((e: DataGridTypes.InitNewRowEvent<MaintenanceDirectedRules>) => {
     setPopupTitle('New Directed Rule');
+    e.data.active = true;        
   }, []);
 
   const handleRowDeleted = useCallback(() => {
@@ -356,12 +357,15 @@ const MaintenanceDirectedRulesGrid: React.FC = () => {
                 <Column dataField="directedRulesName" caption="Name" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="40%" allowSorting={true} dataType="string" >
                   <RequiredRule message={ValidationMessage.RequiredField} />                  
                 </Column>                
-                <Column dataField="comment" caption="Comments" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="20%" allowSorting={true} dataType="string" />
+                <Column dataField="status" caption="Status" width="15%" allowFiltering formItem={{ visible: true }}
+                  cellRender={renderStatusCell} />
                 <Column dataField="budgetPercent" caption="Budget (%)" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="15%" allowSorting={true} dataType="number" alignment='left'>
                   <NumericRule ignoreEmptyValue={true} type="numeric" />
                 </Column>
+                <Column dataField="comment" caption="Comments" formItem={{ visible: true }} allowEditing={true} allowFiltering={true} width="20%" allowSorting={true} dataType="string" />
                 <Column dataField="lastUpdateDt" caption="Last Update Dt" formItem={{ visible: false }} allowEditing={false} allowFiltering={false} width="25%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a" />     
                 <Column dataField="lastUpdateBy"caption="Last Update By" formItem={{ visible: false }} allowEditing={false} allowFiltering={true} width="20%" allowSorting={true} dataType="string"/>
+                <Column dataField="active" visible={false} />
 
                 <Column type="buttons" width="5%" visible={isAdmin ?true:false} >
                   <Button name="edit" visible={false} />

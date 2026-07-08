@@ -26,8 +26,8 @@ describe('DirectedRulesService', () => {
     describe('load method', () => {  
       it('fetches brokergroups data', async () => {  
         const mockData: MaintenanceDirectedRules[] = [  
-          { directedRulesId: 1, directedRulesName: 'Direct Rule 1', directedRulesCode: 'DR001', comment: 'ABD', budgetPercent: 10, lastUpdateDt: new Date(), lastUpdateBy: 'User1' },  
-          { directedRulesId: 2, directedRulesName: 'Direct Rule 2', directedRulesCode: 'DR002', comment: 'ABD', budgetPercent: 12, lastUpdateDt: new Date(), lastUpdateBy: 'User1' }  
+          { directedRulesId: 1, directedRulesName: 'Direct Rule 1', directedRulesCode: 'DR001', comment: 'ABD', budgetPercent: 10, status:'Active', active:true, lastUpdateDt: new Date(), lastUpdateBy: 'User1' },  
+          { directedRulesId: 2, directedRulesName: 'Direct Rule 2', directedRulesCode: 'DR002', comment: 'ABD', budgetPercent: 12, status:'Active', active:true, lastUpdateDt: new Date(), lastUpdateBy: 'User1' }  
         ];
     
         vi.spyOn(window, 'fetch').mockResolvedValueOnce({  
@@ -60,7 +60,7 @@ describe('DirectedRulesService', () => {
     });
 
     describe('insert method', () => {  
-      const newItem: RequestMaintenanceDirectedRules = { directedRulesName: 'New Direct Rule', directedRulesCode: 'ND001', comment: 'ABD1', budgetPercent:5, lastUpdateBy: mockUserInfo.name??"User1" };  
+      const newItem: RequestMaintenanceDirectedRules = { directedRulesName: 'New Direct Rule', directedRulesCode: 'ND001', comment: 'ABD1', budgetPercent:5, status:'Active', active:true, lastUpdateBy: mockUserInfo.name??"User1" };  
 
       it('post data and returns inserted item', async () => {  
         const returnedItem: MaintenanceDirectedRules = { directedRulesId: 2, ...newItem, lastUpdateDt: new Date()  };  
@@ -79,7 +79,9 @@ describe('DirectedRulesService', () => {
             directedRulesName: newItem.directedRulesName,  
             directedRulesCode: newItem.directedRulesCode,  
             comment: newItem.comment,
-            budgetPercent: newItem.budgetPercent,  
+            budgetPercent: newItem.budgetPercent,
+            status: newItem.status,
+            active: newItem.active,              
             lastUpdateBy: mockUserInfo.name,  
           }),  
         }));
@@ -124,6 +126,9 @@ describe('DirectedRulesService', () => {
           directedRulesCode: 'UD001',  
           comment: 'ABD',
           budgetPercent: 10,
+          status:'Active', 
+          active:true,         
+          
           lastUpdateBy: mockUserInfo.name??""
         };  
 
@@ -156,7 +161,9 @@ describe('DirectedRulesService', () => {
               directedRulesName: updateItem.directedRulesName,  
               directedRulesCode: updateItem.directedRulesCode,  
               comment: updateItem.comment,
-              budgetPercent: updateItem.budgetPercent,  
+              budgetPercent: updateItem.budgetPercent,
+              status: updateItem.status,  
+              active: updateItem.active,
               lastUpdateBy: mockUserInfo.name,  
             }),  
           })  

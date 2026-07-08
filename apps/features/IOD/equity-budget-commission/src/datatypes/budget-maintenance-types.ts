@@ -64,6 +64,7 @@ export type MaintenanceBroker = {
     brokerId: number,
     brokerName?: string,
     brokerCode?: string,
+    brokerType?: string,
     masterBrokerId?: string,
     status?: string,
     aladdinBrokerCode: string,
@@ -268,18 +269,22 @@ export type MaintenanceDirectedRules = {
     directedRulesId: number,
     directedRulesCode: string,
     directedRulesName: string,
+    status: string,
     comment: string,
     budgetPercent: number,
     lastUpdateDt: Date,
     lastUpdateBy: string
+    active?:boolean
 }
 
 export type RequestMaintenanceDirectedRules = {
     directedRulesCode: string,
     directedRulesName: string,
+    status: string,
     comment: string,
     budgetPercent: number,
     lastUpdateBy: string
+    active?:boolean
 }
 
 export type MaintenanceDirectedRulesXref = {
