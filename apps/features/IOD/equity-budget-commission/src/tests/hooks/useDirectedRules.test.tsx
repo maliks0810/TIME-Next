@@ -43,8 +43,8 @@ vi.mock('../../services/admin-user-service', () => ({
 const userInfo: UserInfo = { id:'test1', name: 'Test User', email:'Test@test.com', isAdmin:false };  
 
 const mockDirectedRulesData: MaintenanceDirectedRules[] = [  
-    { directedRulesId: 1, directedRulesName: 'Direct Rule 1', directedRulesCode: 'DR001', comment: 'ABD', budgetPercent: 10, lastUpdateDt: new Date(), lastUpdateBy: 'User1' },  
-    { directedRulesId: 2, directedRulesName: 'Direct Rule 2', directedRulesCode: 'DR002', comment: 'ABD', budgetPercent: 12, lastUpdateDt: new Date(), lastUpdateBy: 'User1' }  
+    { directedRulesId: 1, directedRulesName: 'Direct Rule 1', directedRulesCode: 'DR001', comment: 'ABD', budgetPercent: 10, lastUpdateDt: new Date(), lastUpdateBy: 'User1', status:'Active', active:true },  
+    { directedRulesId: 2, directedRulesName: 'Direct Rule 2', directedRulesCode: 'DR002', comment: 'ABD', budgetPercent: 12, lastUpdateDt: new Date(), lastUpdateBy: 'User1', status:'Active', active:true }  
 ];
 
 const mockDirectedRulesXrefData: MaintenanceDirectedRulesXref[] = [  
@@ -201,7 +201,7 @@ describe('useDirectedRules hook', () => {
     
     it('insert directed rules data successfully', async () => {  
         vi.fn(fetchDirectedRules).mockResolvedValueOnce([]);  
-        const newItem: RequestMaintenanceDirectedRules = { directedRulesName: "New Rule", directedRulesCode:"NR003", comment:"test", budgetPercent:10, lastUpdateBy: "User1", };  
+        const newItem: RequestMaintenanceDirectedRules = { directedRulesName: "New Rule", directedRulesCode:"NR003", comment:"test", status:'Active', active:true, budgetPercent:10, lastUpdateBy: "User1", };  
 
         const resultItem: MaintenanceDirectedRules = { directedRulesId: 3, ...newItem, lastUpdateDt: new Date()}
         vi.fn(createDirectedRule).mockResolvedValueOnce(resultItem);     
@@ -221,7 +221,7 @@ describe('useDirectedRules hook', () => {
 
     it('create directed rules throws error on insert fail', async () => {  
         vi.fn(createDirectedRule).mockRejectedValueOnce(new Error('Insert failed'));  
-        const newItem: RequestMaintenanceDirectedRules = { directedRulesName: "New Rule", directedRulesCode:"NR003", comment:"test", budgetPercent:10, lastUpdateBy: "User1", };  
+        const newItem: RequestMaintenanceDirectedRules = { directedRulesName: "New Rule", directedRulesCode:"NR003", comment:"test", status:'Active', active:true, budgetPercent:10, lastUpdateBy: "User1", };  
 
         const { result } = renderHook(() =>  
             useDirectedRules({ userInfo })  
@@ -240,7 +240,7 @@ describe('useDirectedRules hook', () => {
     it('update directed rules data successfully', async () => { 
         const directedRulesId:number =  1 
         vi.fn(fetchDirectedRules).mockResolvedValueOnce([]);  
-        const updateItem: RequestMaintenanceDirectedRules = { directedRulesName: "Updated Rule", directedRulesCode:"UR003", comment:"test", budgetPercent:10, lastUpdateBy: "User1", };  
+        const updateItem: RequestMaintenanceDirectedRules = { directedRulesName: "Updated Rule", directedRulesCode:"UR003", comment:"test", status:'Active', active:true, budgetPercent:10, lastUpdateBy: "User1", };  
 
         const resultItem: MaintenanceDirectedRules = { directedRulesId: 1, ...updateItem, lastUpdateDt: new Date()}
         vi.fn(updateDirectedRule).mockResolvedValueOnce(resultItem);     
@@ -263,7 +263,7 @@ describe('useDirectedRules hook', () => {
     it('update directed rules throws error on update fail', async () => {  
         const directedRulesId:number =  1 
         vi.fn(updateDirectedRule).mockRejectedValueOnce(new Error('Update failed'));  
-        const updateItem: RequestMaintenanceDirectedRules = { directedRulesName: "Updated Rule", directedRulesCode:"UR003", comment:"test", budgetPercent:10, lastUpdateBy: "User1", };  
+        const updateItem: RequestMaintenanceDirectedRules = { directedRulesName: "Updated Rule", directedRulesCode:"UR003", comment:"test", status:'Active', active:true, budgetPercent:10, lastUpdateBy: "User1", };  
 
         const { result } = renderHook(() =>  
             useDirectedRules({ userInfo })  

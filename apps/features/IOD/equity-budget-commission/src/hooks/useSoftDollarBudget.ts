@@ -67,8 +67,8 @@ export function useSoftDollarBudgets({ userInfo, budgetYear }: UseSoftDollarBudg
                     ({ ...p, year: budgetYear }))  
                 }
             }); 
-            setDepartments(deptData?.filter(x=> x.divisionId??0 > 0)??[]);
-            setBrokers(brokerData);
+            setDepartments(deptData?.filter(x=> x.divisionId??0 > 0) ?? []);
+            setBrokers(brokerData?.filter(b => b.brokerType !== 'LEGACY') ?? []);
             setMstBrokers(mstBrokerData);
             setServices(serviceData);
             setBudgetYears(bYears);
