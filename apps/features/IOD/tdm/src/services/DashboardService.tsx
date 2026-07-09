@@ -1,5 +1,5 @@
 import axios from "axios"
-import { IDashboardDeleteSecuritySetupRequest, IDashboardSecuritySetupRequest, IDashboardSecuritySetupRequestAttachment } from "../pages/dashboard/lib/DashboardSecuritySetupRequest";
+import { IDashboardDeleteSecuritySetupRequest, IDashboardSecuritySetupRequest, IDashboardSecuritySetupRequestAttachment, ISecuritySetupDashboardResponse, IDashboardStats } from "../pages/dashboard/lib/DashboardSecuritySetupRequest";
 import { IDashboardDetailsDeleteParameters, IDashboardSearchParameters, IDuplicateSecuritySetupRequestParameters } from "../pages/dashboard/lib/DashboardSearchParameters";
 import { DeleteSecuritySetupRequest, SecuritySetupRequest, SecuritySetupRequestAttachment } from './domain-objects/DashboardApiResponse';
 import { API_BASE_URL } from "../constants/environmentConstants";
@@ -147,8 +147,14 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
 
 export const getSecurityRequestsDashboard = async (
   parameters: IDashboardSearchParameters
-): Promise<IDashboardSecuritySetupRequest[]> => {
-  let securityRequests: IDashboardSecuritySetupRequest[] = []
+): Promise<ISecuritySetupDashboardResponse> => {
+  let securityRequests: IDashboardSecuritySetupRequest[] = [];
+  let dashboardStats: IDashboardStats = {
+    totalRequests: 0,
+    averageSetupTime: 0,
+    securitySetupStatusData: [],
+    riskAnalyticsStatusData: []
+  };
 
   try {
     const baseUrl = API_BASE_URL;
@@ -174,13 +180,19 @@ export const getSecurityRequestsDashboard = async (
     const securitySetupRequests: SecuritySetupRequest[] = data.dashboard.securitySetupRequestCollection;
     const mappedSecuritySetupRequests = securitySetupRequests.map(transformDashboardSecuritySetupRequest);
 
+    const { dashboardStats: responseStats } = data.dashboard;
+    dashboardStats = responseStats;
+
     securityRequests = mappedSecuritySetupRequests;
   }
   catch {
 
   }
   finally {
-    return securityRequests;
+    return {
+      dashboardStats,
+      securityRequests
+    };
   }
 };
 
