@@ -53,8 +53,8 @@ export function WaterfallPreviewTab(): JSX.Element {
         <div className="rwm-section-title-bar border-b border-grey-200">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="font-tcw-bold text-sm text-grey-900">Input</div>
-              <div className="mt-1 text-[11px] text-grey-600">Validate waterfall resolution by portfolio or manual RHS/duration.</div>
+              <div className="rwm-section-heading">INPUT</div>
+              <div className="rwm-section-subtitle rwm-section-subtitle--wide mt-1">Validate waterfall resolution by portfolio or manual RHS/duration.</div>
             </div>
             <div className="rwm-status-badge rwm-status-badge--saved">
               {duration === null ? 'Duration -' : `Duration ${duration.toFixed(3)}`}
@@ -114,7 +114,7 @@ export function WaterfallPreviewTab(): JSX.Element {
 
       <section className="waterfall-card">
         <div className="rwm-section-title-bar border-b border-grey-200">
-          <div className="font-tcw-bold text-sm text-grey-900">Buckets</div>
+          <div className="rwm-section-heading">BUCKETS</div>
         </div>
         <div className="rwm-bucket-grid">
           {sortWaterfallBuckets(graph.buckets).map((bucket) => (
@@ -187,8 +187,10 @@ function Resolved({
       <div className="rwm-section-title-bar border-b border-grey-200">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="font-tcw-bold text-sm text-grey-900">{side} Waterfall</div>
-            <div className="mt-1 text-[11px] text-grey-600">Bucket {bucket?.code ?? '-'}</div>
+            <div className={side === 'BUY' ? 'rwm-section-heading rwm-rules-reference-side-title--buy' : 'rwm-section-heading rwm-rules-reference-side-title--sell'}>
+              {side} WATERFALL
+            </div>
+            <div className="rwm-section-subtitle rwm-section-subtitle--wide mt-1">Bucket {bucket?.code ?? '-'}</div>
           </div>
           <div className="rwm-status-badge rwm-status-badge--saved">
             {status === 'RESOLVED' ? `${instruments.length} instruments` : reason}

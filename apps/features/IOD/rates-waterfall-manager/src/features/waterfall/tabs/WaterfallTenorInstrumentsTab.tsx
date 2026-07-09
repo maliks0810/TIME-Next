@@ -72,7 +72,7 @@ export function WaterfallTenorInstrumentsTab(): JSX.Element {
         <div className="rwm-section-title-bar border-b border-grey-200">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="font-tcw-bold text-sm text-grey-900">Candidates</div>
+              <div className="rwm-section-heading">CANDIDATES</div>
             </div>
             <SideSwitch selectedSide={selectedSide} onChange={setSelectedSide} />
           </div>
@@ -100,14 +100,17 @@ export function WaterfallTenorInstrumentsTab(): JSX.Element {
                 onClick={() => addInstrumentFromTreasury(selectedSide, instrument)}
                 className="rwm-candidate-row disabled:cursor-not-allowed disabled:opacity-45"
               >
-                <div className="grid grid-cols-[72px_minmax(0,1fr)_72px] items-center gap-2">
-                  <span className="truncate text-[12px] font-medium text-grey-900">{instrument.securityId}</span>
-                  <span className="truncate text-[11px] text-grey-600">{instrument.description || '-'}</span>
-                  <span className="text-right text-[11px] text-grey-700">Dur: {formatDuration(instrument.duration)}</span>
+                <div className="rwm-candidate-row-main">
+                  <span className="rwm-candidate-security-key" title={instrument.securityId}>
+                    {instrument.securityId}
+                  </span>
+                  <span className="rwm-candidate-duration">Dur {formatDuration(instrument.duration)}</span>
                 </div>
-                <div className="mt-0.5 flex items-center justify-between gap-2 text-[10.5px] text-grey-500">
-                  <span>{instrument.cusip || '-'}</span>
-                  <span>{bucket ? `${selectedSide} ${bucket.code}` : 'No bucket'}</span>
+                <div className="rwm-candidate-row-sub">
+                  <span className="rwm-candidate-description" title={instrument.description ?? ''}>
+                    {instrument.description || '-'}
+                  </span>
+                  <span className="rwm-candidate-bucket">{bucket ? bucket.code : 'No bucket'}</span>
                 </div>
               </button>
             );
@@ -117,7 +120,12 @@ export function WaterfallTenorInstrumentsTab(): JSX.Element {
 
       <section className="waterfall-card rwm-candidate-card">
         <div className="rwm-section-title-bar border-b border-grey-200">
-          <div className="font-tcw-bold text-sm text-grey-900">Instrument Buckets</div>
+          <div className="rwm-section-title-with-tag">
+            <span className="rwm-section-heading">INSTRUMENT BUCKETS</span>
+            <span className={cn('rwm-side-title-tag', selectedSide === 'BUY' ? 'rwm-side-title-tag--buy' : 'rwm-side-title-tag--sell')}>
+              {selectedSide}
+            </span>
+          </div>
         </div>
 
         <div className="overflow-auto p-3">
@@ -131,9 +139,9 @@ export function WaterfallTenorInstrumentsTab(): JSX.Element {
               return (
                 <div key={`${selectedSide}-${bucket.bucketId}`} className="overflow-hidden rounded-lg border border-grey-200 bg-tcw-white">
                   <div className="rwm-instrument-bucket-header">
-                    <div className="min-w-0">
-                      <div className="truncate text-[11px] font-medium text-grey-900">{bucket.code}</div>
-                      <div className="text-[10.5px] text-grey-600">{formatWaterfallBucketRange(bucket)}</div>
+                    <div className="rwm-instrument-bucket-title-line">
+                      <span className="truncate text-[11px] font-medium text-grey-900">{bucket.code}</span>
+                      <span className="truncate text-[10.5px] text-grey-600">{formatWaterfallBucketRange(bucket)}</span>
                     </div>
                   </div>
 

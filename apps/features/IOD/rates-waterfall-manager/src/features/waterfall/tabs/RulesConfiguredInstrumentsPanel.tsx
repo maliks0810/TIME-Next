@@ -56,7 +56,7 @@ export function RulesConfiguredInstrumentsPanel(): JSX.Element {
   return (
     <section className="rwm-rules-reference-panel">
       <div className="rwm-rules-reference-header rwm-rules-reference-header--rule-style">
-        <div className="rwm-rules-reference-title rwm-rules-reference-title--rule-style">Review Configured Instruments</div>
+        <div className="rwm-rules-reference-title rwm-rules-reference-title--rule-style">REVIEW</div>
       </div>
       <div className="rwm-rules-reference-scroll">
         {SIDES.map((side) => (

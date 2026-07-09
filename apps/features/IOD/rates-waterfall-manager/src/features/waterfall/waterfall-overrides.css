@@ -758,4 +758,301 @@
       grid-template-columns: 48px minmax(90px, 1fr) minmax(120px, 1fr) 80px 80px minmax(140px, 1fr) !important;
     }
   }
+
+  /* RWM UI polish pass 2026-07-08 */
+  #rwm-app-root .rwm-section-heading {
+    margin: 0;
+    color: var(--tcw-grey-900);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  #rwm-app-root .rwm-section-heading--small {
+    font-size: 10px;
+  }
+
+  #rwm-app-root .rwm-section-subtitle {
+    color: var(--tcw-grey-600);
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+
+  #rwm-app-root .rwm-section-subtitle--wide {
+    letter-spacing: 0.15em;
+  }
+
+  #rwm-app-root .rwm-section-header-compact {
+    padding: 20px 16px 18px;
+  }
+
+  /* Bucket Setup: read-only compact grid with exactly aligned header/value columns. */
+  #rwm-app-root .rwm-bucket-setup-card--readonly {
+    display: inline-block;
+    width: auto;
+    max-width: min(100%, 980px);
+    overflow: hidden;
+  }
+
+  #rwm-app-root .rwm-bucket-table-compact {
+    width: min(100%, 940px);
+  }
+
+  #rwm-app-root .rwm-bucket-grid-header--readonly,
+  #rwm-app-root .rwm-bucket-row--readonly {
+    display: grid;
+    grid-template-columns: 52px 104px 180px 72px 72px minmax(190px, 1fr) !important;
+    gap: 10px;
+    align-items: center;
+  }
+
+  #rwm-app-root .rwm-bucket-grid-header--readonly {
+    border-top: 1px solid var(--tcw-grey-200);
+    border-bottom: 1px solid var(--tcw-grey-200);
+    background-color: var(--tcw-grey-100);
+    color: var(--tcw-grey-600);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    padding: 8px 12px;
+    text-transform: uppercase;
+  }
+
+  #rwm-app-root .rwm-bucket-row-list--readonly {
+    display: grid;
+    gap: 8px;
+    padding: 8px 12px 12px;
+  }
+
+  #rwm-app-root .rwm-bucket-row--readonly {
+    border: 1px solid var(--tcw-grey-200);
+    border-radius: var(--tcw-radius-md);
+    background-color: var(--tcw-white);
+    padding: 6px 0;
+  }
+
+  #rwm-app-root .rwm-bucket-readonly-order {
+    color: var(--tcw-grey-600);
+    font-size: 11px;
+    text-align: right;
+  }
+
+  #rwm-app-root .rwm-bucket-input--readonly {
+    width: 100%;
+    height: 26px;
+    min-width: 0;
+    cursor: default;
+    border-color: var(--tcw-grey-200);
+    background-color: var(--tcw-grey-100);
+    color: var(--tcw-grey-700);
+    font-size: 12px;
+  }
+
+  #rwm-app-root .rwm-bucket-input--readonly:focus {
+    border-color: var(--tcw-grey-200);
+    box-shadow: none;
+  }
+
+  #rwm-app-root .rwm-bucket-range-value {
+    overflow: hidden;
+    color: var(--tcw-grey-600);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Tenor Instruments: slimmer 2-row candidates and aligned bucket headers/actions. */
+  #rwm-app-root button.rwm-candidate-row {
+    margin-bottom: 4px !important;
+    padding: 5px 8px !important;
+  }
+
+  #rwm-app-root .rwm-candidate-row-main,
+  #rwm-app-root .rwm-candidate-row-sub {
+    display: grid;
+    grid-template-columns: minmax(124px, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  #rwm-app-root .rwm-candidate-row-sub {
+    margin-top: 2px;
+  }
+
+  #rwm-app-root .rwm-candidate-security-key {
+    overflow: hidden;
+    color: var(--tcw-grey-900);
+    font-size: 12px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #rwm-app-root .rwm-candidate-description {
+    overflow: hidden;
+    color: var(--tcw-grey-600);
+    font-size: 10.5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #rwm-app-root .rwm-candidate-duration,
+  #rwm-app-root .rwm-candidate-bucket {
+    color: var(--tcw-grey-700);
+    font-size: 10.5px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  #rwm-app-root .rwm-candidate-bucket {
+    color: var(--tcw-blue);
+    font-weight: 600;
+  }
+
+  #rwm-app-root .rwm-section-title-with-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #rwm-app-root .rwm-side-title-tag {
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    border-radius: var(--tcw-radius-sm);
+    padding: 0 6px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+
+  #rwm-app-root .rwm-side-title-tag--buy {
+    background-color: var(--tcw-green-100);
+    color: var(--tcw-green);
+  }
+
+  #rwm-app-root .rwm-side-title-tag--sell {
+    background-color: var(--tcw-plum-100);
+    color: var(--tcw-plum);
+  }
+
+  #rwm-app-root .rwm-instrument-bucket-title-line {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+  }
+
+  #rwm-app-root .rwm-instrument-bucket-title-line > span:last-child {
+    text-align: right;
+  }
+
+  #rwm-app-root .rwm-bucket-instrument-row {
+    grid-template-columns: 24px minmax(104px, 130px) minmax(0, 1fr) 74px 92px;
+  }
+
+  #rwm-app-root .rwm-bucket-instrument-row .rwm-bucket-order-button {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+  }
+
+  #rwm-app-root .rwm-side-switch-strong {
+    max-width: 138px;
+  }
+
+  #rwm-app-root .rwm-side-switch-strong button.rwm-side-switch-button {
+    height: 24px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+  }
+
+  #rwm-app-root .rwm-side-switch-strong button.rwm-side-switch-button--buy-active {
+    border-color: var(--tcw-green) !important;
+    background-color: var(--tcw-green) !important;
+    color: var(--tcw-white) !important;
+  }
+
+  #rwm-app-root .rwm-side-switch-strong button.rwm-side-switch-button--sell-active {
+    border-color: var(--tcw-plum) !important;
+    background-color: var(--tcw-plum) !important;
+    color: var(--tcw-white) !important;
+  }
+
+  #rwm-app-root .rwm-side-rule-heading {
+    color: inherit;
+  }
+
+  @media (max-width: 1100px) {
+    #rwm-app-root .rwm-bucket-grid-header--readonly,
+    #rwm-app-root .rwm-bucket-row--readonly {
+      grid-template-columns: 44px 88px minmax(120px, 1fr) 64px 64px minmax(150px, 1fr) !important;
+    }
+  }
+
+
+  /* Rules tab: keep + Add step compact and on the same row as configured steps. */
+  #rwm-app-root .rwm-rule-row-editor {
+    grid-template-columns: 56px minmax(0, 1fr);
+    align-items: center;
+    padding: 6px 10px;
+  }
+
+  #rwm-app-root .rwm-rule-step-line {
+    display: flex;
+    min-width: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
+  }
+
+  #rwm-app-root .rwm-rule-empty-step {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    color: var(--tcw-grey-600);
+    font-size: 10.5px;
+    font-style: italic;
+  }
+
+  #rwm-app-root .rwm-rule-step-chip {
+    height: 24px;
+    font-size: 9.75px;
+  }
+
+  #rwm-app-root .rwm-rule-step-order {
+    padding: 0 6px;
+    font-size: 10px;
+  }
+
+  #rwm-app-root .rwm-rule-step-select {
+    max-width: 86px;
+    font-size: 10px !important;
+    padding: 0 5px;
+  }
+
+  #rwm-app-root .rwm-rule-step-chip button.waterfall-rule-type-button,
+  #rwm-app-root .rwm-rule-step-chip button.waterfall-rule-step-arrow-button,
+  #rwm-app-root .rwm-rule-step-chip button.waterfall-rule-step-remove-button {
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 5px !important;
+    font-size: 9.75px !important;
+  }
+
+  #rwm-app-root button.rwm-rule-add-step-button {
+    flex: 0 0 auto;
+    height: 22px !important;
+    min-height: 22px !important;
+    margin-top: 0 !important;
+    padding: 0 7px !important;
+    border-style: dashed !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+  }
+
 }

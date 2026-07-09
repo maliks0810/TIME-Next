@@ -1,111 +1,73 @@
-import type { JSX } from 'react';
+import type { CSSProperties, JSX } from 'react';
 import { sortWaterfallBuckets } from '../model/waterfallClientResolver';
 import { formatWaterfallBucketRange } from '../model/waterfallFormat';
 import type { WaterfallBucket } from '../model/waterfallTypes';
 import { useWaterfallManagerStore } from '../store/waterfallManagerStore';
 
+const BUCKET_GRID_TEMPLATE = '52px 104px 180px 72px 72px minmax(190px, 1fr)';
+const bucketGridStyle: CSSProperties = { gridTemplateColumns: BUCKET_GRID_TEMPLATE };
+const orderHeaderStyle: CSSProperties = { textAlign: 'right' };
+const inputHeaderStyle: CSSProperties = { paddingLeft: 8 };
+
 export function WaterfallSetupTab(): JSX.Element {
   const buckets = useWaterfallManagerStore((state) => state.graph.buckets);
-  const updateBucket = useWaterfallManagerStore((state) => state.updateBucket);
-  const moveBucket = useWaterfallManagerStore((state) => state.moveBucket);
-
   const orderedBuckets = sortWaterfallBuckets(buckets);
 
   return (
-    <section className="waterfall-card rwm-bucket-setup-card">
-      <div className="rwm-bucket-setup-header">
+    <section className="waterfall-card rwm-bucket-setup-card rwm-bucket-setup-card--readonly">
+      <div className="rwm-bucket-setup-header rwm-section-header-compact">
         <div>
-          <h2 className="font-tcw-bold text-sm text-grey-900">Duration Bucket Setup</h2>
-          <p className="mt-2 text-[11px] text-grey-600">
+          <h2 className="rwm-section-heading">DURATION BUCKET SETUP</h2>
+          <p className="rwm-section-subtitle rwm-section-subtitle--wide">
             Defines duration ranges used for both portfolio duration bucket, order duration bucket and instrument tenor bucket.
           </p>
         </div>
       </div>
 
-      <div className="rwm-bucket-grid-header rwm-bucket-grid-header--no-delete">
-        <span>Order</span>
-        <span>Code</span>
-        <span>Label</span>
-        <span>Min</span>
-        <span>Max</span>
-        <span>Range</span>
-      </div>
+      <div className="rwm-bucket-table-compact" aria-label="Read-only duration buckets">
+        <div className="rwm-bucket-grid-header rwm-bucket-grid-header--readonly" style={bucketGridStyle}>
+          <span style={orderHeaderStyle}>Order</span>
+          <span style={inputHeaderStyle}>Code</span>
+          <span style={inputHeaderStyle}>Label</span>
+          <span style={inputHeaderStyle}>Min</span>
+          <span style={inputHeaderStyle}>Max</span>
+          <span>Range</span>
+        </div>
 
-      <div className="rwm-bucket-row-list">
-        {orderedBuckets.map((bucket, index) => (
-          <BucketRow
-            key={bucket.bucketId}
-            bucket={bucket}
-            isFirst={index === 0}
-            isLast={index === orderedBuckets.length - 1}
-            onMove={moveBucket}
-            onUpdate={updateBucket}
-          />
-        ))}
+        <div className="rwm-bucket-row-list rwm-bucket-row-list--readonly">
+          {orderedBuckets.map((bucket, index) => (
+            <BucketRow key={bucket.bucketId} bucket={bucket} index={index} />
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-function BucketRow({
-  bucket,
-  isFirst,
-  isLast,
-  onMove,
-  onUpdate,
-}: {
-  bucket: WaterfallBucket;
-  isFirst: boolean;
-  isLast: boolean;
-  onMove: (bucketId: number, direction: 'up' | 'down') => void;
-  onUpdate: (bucketId: number, patch: Partial<WaterfallBucket>) => void;
-}): JSX.Element {
+function BucketRow({ bucket, index }: { bucket: WaterfallBucket; index: number }): JSX.Element {
   return (
-    <div className="rwm-bucket-row rwm-bucket-row--no-delete">
-      <div className="flex items-center gap-2 text-grey-500">
-        <button type="button" disabled={isFirst} onClick={() => onMove(bucket.bucketId, 'up')} className="rwm-bucket-order-button" title="Move up">
-          ↑
-        </button>
-        <button type="button" disabled={isLast} onClick={() => onMove(bucket.bucketId, 'down')} className="rwm-bucket-order-button" title="Move down">
-          ↓
-        </button>
-      </div>
-
-      <input
-        value={bucket.code}
-        onChange={(event) => onUpdate(bucket.bucketId, { code: event.target.value.toUpperCase() })}
-        className="rwm-bucket-input"
-      />
-      <input
-        value={bucket.label}
-        onChange={(event) => onUpdate(bucket.bucketId, { label: event.target.value })}
-        className="rwm-bucket-input"
-      />
+    <div className="rwm-bucket-row rwm-bucket-row--readonly" style={bucketGridStyle}>
+      <span className="rwm-bucket-readonly-order">{index + 1}</span>
+      <input value={bucket.code} readOnly aria-readonly="true" className="rwm-bucket-input rwm-bucket-input--readonly" />
+      <input value={bucket.label} readOnly aria-readonly="true" className="rwm-bucket-input rwm-bucket-input--readonly" />
       <input
         type="number"
-        step="0.1"
         value={bucket.minDuration ?? ''}
-        onChange={(event) => onUpdate(bucket.bucketId, { minDuration: parseNullableNumber(event.target.value) })}
-        className="rwm-bucket-input"
+        readOnly
+        aria-readonly="true"
+        className="rwm-bucket-input rwm-bucket-input--readonly"
       />
       <input
         type="number"
-        step="0.1"
         value={bucket.maxDuration ?? ''}
-        onChange={(event) => onUpdate(bucket.bucketId, { maxDuration: parseNullableNumber(event.target.value) })}
+        readOnly
+        aria-readonly="true"
         placeholder="Open"
-        className="rwm-bucket-input"
+        className="rwm-bucket-input rwm-bucket-input--readonly"
       />
-
-      <span className="truncate text-[12px] text-grey-600">{formatWaterfallBucketRange(bucket)}</span>
+      <span className="rwm-bucket-range-value">{formatWaterfallBucketRange(bucket)}</span>
     </div>
   );
-}
-
-function parseNullableNumber(value: string): number | null {
-  if (value.trim() === '') return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
 }
 
 export default WaterfallSetupTab;

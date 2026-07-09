@@ -16,6 +16,12 @@ import { RulesConfiguredInstrumentsPanel } from './RulesConfiguredInstrumentsPan
 const SIDES: WaterfallSide[] = ['BUY', 'SELL'];
 const CUSTOM_RHS = '__CUSTOM_RHS__';
 
+function formatRuleSetListSubtitle(ruleSet: WaterfallRuleSet): string {
+  if (ruleSet.matchType === 'CATCH_ALL') return 'Catch-All';
+  const code = (ruleSet.rhsGroupCode ?? '').trim();
+  return code.toUpperCase().startsWith('RHS-') ? code : `RHS - ${code}`;
+}
+
 const INSTRUMENT_TYPE_OPTIONS: Array<{ value: WaterfallStepInstrumentType; label: string }> = [
   { value: 'BOND', label: 'CASH' },
   { value: 'FUTURES', label: 'FUTURES' },
@@ -78,14 +84,14 @@ export function WaterfallRulesTab(): JSX.Element {
       <div className="waterfall-rules-layout">
         <aside className="waterfall-card rwm-rules-sidebar">
           <div className="border-b border-grey-200 p-3">
-            <div className="font-tcw-bold text-sm text-grey-900">RHS Rule Sets</div>
-            <p className="mt-1 text-[11px] text-grey-600">
+            <div className="rwm-section-heading">RHS RULE SETS</div>
+            <p className="rwm-section-subtitle rwm-section-subtitle--wide mt-1">
               Specific RHS rule wins first. Catch-all is used only when no RHS rule matches.
             </p>
           </div>
 
           <div className="space-y-2 border-b border-grey-200 bg-grey-100 p-3">
-            <div className="text-[10px] font-medium uppercase tracking-[0.12em] text-grey-600">Create RHS Rule</div>
+            <div className="rwm-section-heading rwm-section-heading--small">CREATE RHS RULE</div>
             <select
               value={selectedRhs}
               onChange={(event) => setSelectedRhs(event.target.value)}
@@ -146,7 +152,7 @@ export function WaterfallRulesTab(): JSX.Element {
                 >
                   <div className="truncate font-medium text-[12px]">{ruleSet.name}</div>
                   <div className="truncate text-[10.5px]">
-                    {ruleSet.matchType === 'CATCH_ALL' ? 'Catch-All' : `RHS - ${ruleSet.rhsGroupCode}`}
+                    {formatRuleSetListSubtitle(ruleSet)}
                   </div>
                 </button>
               );
@@ -158,15 +164,6 @@ export function WaterfallRulesTab(): JSX.Element {
           <section className="waterfall-card rwm-rules-editor-shell">
             <div className="rwm-rule-set-title-line rwm-rule-set-title-line--locked">
               <input value={selectedRuleSet.name} readOnly aria-readonly="true" className="rwm-rule-set-name-input" />
-              <select
-                value={selectedRuleSet.matchType}
-                disabled
-                aria-label="Rule match type locked"
-                className="waterfall-rules-select rwm-rule-set-match-select"
-              >
-                <option value="RHS_GROUP">RHS Group</option>
-                <option value="CATCH_ALL">Catch-All</option>
-              </select>
               {selectedRuleSet.matchType === 'RHS_GROUP' && (
                 <input
                   value={selectedRuleSet.rhsGroupCode ?? ''}
@@ -190,7 +187,7 @@ export function WaterfallRulesTab(): JSX.Element {
         ) : (
           <section className="waterfall-card flex min-h-[220px] min-w-0 items-center justify-center p-6 text-center">
             <div>
-              <div className="font-tcw-bold text-sm text-grey-900">No Rule Set Selected</div>
+              <div className="rwm-section-heading">NO RULE SET SELECTED</div>
               <p className="mt-1 text-[11px] text-grey-600">Create an RHS rule or catch-all rule to configure waterfall steps.</p>
             </div>
           </section>
@@ -261,7 +258,7 @@ function SideRuleGroup({
   return (
     <section className="overflow-hidden rounded-lg border border-grey-300 bg-tcw-white">
       <div className="border-b border-grey-200 bg-grey-100 px-3 py-2">
-        <div className={cn('text-[11px] font-medium uppercase tracking-[0.16em]', side === 'BUY' ? 'text-tcw-green' : 'text-tcw-plum')}>
+        <div className={cn('rwm-section-heading rwm-side-rule-heading', side === 'BUY' ? 'text-tcw-green' : 'text-tcw-plum')}>
           {side} Rules
         </div>
       </div>
@@ -306,72 +303,69 @@ function RuleRowEditor({
   return (
     <div className="rwm-rule-row-editor">
       <span className="rwm-rule-duration-badge">{bucket.code}</span>
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {steps.length === 0 && <span className="text-[11px] italic text-grey-600">No steps.</span>}
-          {steps.map((step) => (
-            <div key={step.stepOrder} className="rwm-rule-step-chip">
-              <span className="rwm-rule-step-order">{step.stepOrder}</span>
-              <select
-                value={step.tenorBucketId}
-                onChange={(event) =>
+      <div className="rwm-rule-step-line">
+        {steps.length === 0 && <span className="rwm-rule-empty-step">No steps.</span>}
+        {steps.map((step) => (
+          <div key={step.stepOrder} className="rwm-rule-step-chip">
+            <span className="rwm-rule-step-order">{step.stepOrder}</span>
+            <select
+              value={step.tenorBucketId}
+              onChange={(event) =>
+                updateRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder, {
+                  tenorBucketId: Number(event.target.value),
+                })
+              }
+              className="waterfall-rules-select rwm-rule-step-select"
+            >
+              {buckets.map((tenor) => (
+                <option key={tenor.bucketId} value={tenor.bucketId}>
+                  {side} {tenor.code}
+                </option>
+              ))}
+            </select>
+
+            {INSTRUMENT_TYPE_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() =>
                   updateRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder, {
-                    tenorBucketId: Number(event.target.value),
+                    instrumentType: option.value,
                   })
                 }
-                className="waterfall-rules-select rwm-rule-step-select"
+                aria-pressed={step.instrumentType === option.value}
+                className={cn('waterfall-rule-type-button', step.instrumentType === option.value && 'waterfall-rule-type-button-active')}
               >
-                {buckets.map((tenor) => (
-                  <option key={tenor.bucketId} value={tenor.bucketId}>
-                    {side} {tenor.code}
-                  </option>
-                ))}
-              </select>
-
-              {INSTRUMENT_TYPE_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() =>
-                    updateRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder, {
-                      instrumentType: option.value,
-                    })
-                  }
-                  aria-pressed={step.instrumentType === option.value}
-                  className={cn('waterfall-rule-type-button', step.instrumentType === option.value && 'waterfall-rule-type-button-active')}
-                >
-                  {option.label}
-                </button>
-              ))}
-
-              <button
-                type="button"
-                title="Move step left"
-                onClick={() => moveRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder, 'left')}
-                className="waterfall-rule-step-arrow-button"
-              >
-                {'<'}
+                {option.label}
               </button>
-              <button
-                type="button"
-                title="Move step right"
-                onClick={() => moveRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder, 'right')}
-                className="waterfall-rule-step-arrow-button"
-              >
-                {'>'}
-              </button>
-              <button
-                type="button"
-                title="Remove step"
-                onClick={() => removeRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder)}
-                className="waterfall-rule-step-remove-button"
-              >
-                x
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
 
+            <button
+              type="button"
+              title="Move step left"
+              onClick={() => moveRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder, 'left')}
+              className="waterfall-rule-step-arrow-button"
+            >
+              {'<'}
+            </button>
+            <button
+              type="button"
+              title="Move step right"
+              onClick={() => moveRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder, 'right')}
+              className="waterfall-rule-step-arrow-button"
+            >
+              {'>'}
+            </button>
+            <button
+              type="button"
+              title="Remove step"
+              onClick={() => removeRuleStep(ruleSetKey, side, bucket.bucketId, step.stepOrder)}
+              className="waterfall-rule-step-remove-button"
+            >
+              x
+            </button>
+          </div>
+        ))}
         <button
           type="button"
           disabled={steps.length >= 3}
