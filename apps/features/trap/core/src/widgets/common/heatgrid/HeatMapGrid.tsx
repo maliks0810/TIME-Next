@@ -4,18 +4,20 @@ import { CaretRightOutlined } from '@ant-design/icons';
 import {
     DEFAULT_MISSING_COLOR,
     DEFAULT_OUTLIER_COLOR,
-    buildHeatScales,
-    flattenVisibleRows,
-    heatRgba,
-    readableText,
-    renderColumns,
-    strengthRgba,
     type ColumnDef,
     type ColumnNode,
     type GridRow,
 } from './types';
 import './heatgrid.scss';
 import { buildHeaderModel, fmt } from './utils';
+import {
+    renderColumns,
+    flattenVisibleRows,
+    buildHeatScales,
+    readableText,
+    strengthRgba,
+    heatRgba,
+} from './helpers';
 
 /**
  * Heat Map Grid renderer: virtualized tree rows, N-tier stacked headers,
@@ -84,7 +86,6 @@ export default function HeatMapGrid({
     showTooltip = true,
     loading = false,
 }: Props) {
-    const tableRef = useRef<HTMLTableElement | null>(null);
     const renderCols = useMemo(() => renderColumns(columns), [columns]);
     const header = useMemo(() => buildHeaderModel(renderCols), [renderCols]);
     const { depth, leaves, boundaries } = header;
@@ -158,10 +159,10 @@ export default function HeatMapGrid({
             hd?.kind === 'blank'
                 ? 'No data'
                 : fmt(
-                    row.values[col.key] ?? null,
-                    row.decimals ?? col.decimals ?? 1,
-                    col.thousands ?? false
-                );
+                      row.values[col.key] ?? null,
+                      row.decimals ?? col.decimals ?? 1,
+                      col.thousands ?? false
+                  );
         const parts = [
             `<div class="hg-tip-series">${esc(row.label)}</div>`,
             `<div class="hg-tip-period">${esc(col.label)}</div>`,
@@ -291,19 +292,20 @@ export default function HeatMapGrid({
                    empty <col> widths (see <colgroup> below). minWidth is the
                    floor — narrower container → grid-area scrolls horizontally
                    rather than squishing cells to nothing. */
-                style={{
-                    // See sizing note above: min(100%, preferredWidth) caps the
-                    // table at its "look nice" width so a few columns don't
-                    // stretch into oversized bars, while allowing it to fill
-                    // narrower containers down to the minWidth floor.
-                    width: `min(100%, ${preferredWidth}px)`,
-                    minWidth,
-                    '--hdr-h': `${headerH}px`,
-                } as React.CSSProperties}
+                style={
+                    {
+                        // See sizing note above: min(100%, preferredWidth) caps the
+                        // table at its "look nice" width so a few columns don't
+                        // stretch into oversized bars, while allowing it to fill
+                        // narrower containers down to the minWidth floor.
+                        width: `min(100%, ${preferredWidth}px)`,
+                        minWidth,
+                        '--hdr-h': `${headerH}px`,
+                    } as React.CSSProperties
+                }
                 onMouseOver={onCellOver}
                 onMouseMove={onCellMove}
                 onMouseLeave={onCellLeave}
-                ref={tableRef}
             >
                 <colgroup>
                     {/* Name/tree column: fixed width so it doesn't stretch. Value
@@ -332,8 +334,9 @@ export default function HeatMapGrid({
                             {cells.map((c) => (
                                 <th
                                     key={c.node.key}
-                                    className={`${c.isGroup ? 'h-group' : 'h-sub'}${boundaries.has(c.startLeaf) ? ' group-start' : ''
-                                        }`}
+                                    className={`${c.isGroup ? 'h-group' : 'h-sub'}${
+                                        boundaries.has(c.startLeaf) ? ' group-start' : ''
+                                    }`}
                                     colSpan={c.colSpan > 1 ? c.colSpan : undefined}
                                     rowSpan={c.rowSpan > 1 ? c.rowSpan : undefined}
                                     title={c.node.tooltip}
@@ -408,7 +411,9 @@ export default function HeatMapGrid({
                                             <tr
                                                 key={row.key}
                                                 className={`row depth-${Math.min(row.depth, 3)} ${row.isLeaf ? 'leaf' : 'group'}`}
-                                                onClick={row.isLeaf ? undefined : () => onToggle(row.key)}
+                                                onClick={
+                                                    row.isLeaf ? undefined : () => onToggle(row.key)
+                                                }
                                             >
                                                 <th
                                                     className="cell-name"
@@ -437,7 +442,10 @@ export default function HeatMapGrid({
                                     })}
                                     {bottomPad > 0 && (
                                         <tr className="vpad" aria-hidden="true">
-                                            <td colSpan={1 + numCols} style={{ height: bottomPad }} />
+                                            <td
+                                                colSpan={1 + numCols}
+                                                style={{ height: bottomPad }}
+                                            />
                                         </tr>
                                     )}
                                 </>
@@ -455,7 +463,7 @@ export default function HeatMapGrid({
             {typeof document !== 'undefined' &&
                 createPortal(
                     <div className="hg-tip" ref={tipRef} role="tooltip" aria-hidden="true" />,
-                    document.body
+                    document.getElementById("canvasWrapper") || document.body
                 )}
         </>
     );

@@ -21,6 +21,11 @@ import {
     safeJsonParse,
     uid,
 } from '../utils/workflowDesigner.utils';
+import { createDefaultConfigFromDefinition } from '../../widget-studio/helpers/helpers';
+
+export type AddWidgetOptions = {
+    keepPickerOpen?: boolean;
+};
 
 export function useWorkflowDesigner() {
     const nav = useNavigate();
@@ -58,6 +63,8 @@ export function useWorkflowDesigner() {
 
     const [templateId, setTemplateId] = React.useState(routeTemplateId);
     const [versionId, setVersionId] = React.useState(routeVersionId);
+
+    const [messageApi, contextHolder] = message.useMessage();
 
     React.useEffect(() => {
         if (!isDraftSaved) {
@@ -119,6 +126,7 @@ export function useWorkflowDesigner() {
     }, [widgetDefs, loaded]);
 
     const widgetDefById = React.useMemo(() => {
+        console.log(designerWidgetDefs);
         const m: Record<string, any> = {};
         for (const d of designerWidgetDefs as any[]) m[String(d.id)] = d;
         return m;
@@ -180,8 +188,10 @@ export function useWorkflowDesigner() {
         // Logic to change the widget based on category change
         // If previously selected widget is present in changed category, then keep the existing widget selection.
         // If previously selected widget is not present in changed category, then select the first widget. Also clear the variant & params.
-        let isWidgetPresentInCategory = filteredWidgetDefs.some(widget => widget.id === selectedWidgetDefId);
-        if(!isWidgetPresentInCategory) {
+        const isWidgetPresentInCategory = filteredWidgetDefs.some(
+            (widget) => widget.id === selectedWidgetDefId
+        );
+        if (!isWidgetPresentInCategory) {
             setSelectedWidgetDefId(filteredWidgetDefs?.[0]?.id);
             setSelectedWidgetVariantId(undefined);
             setSelectedWidgetParams({});
@@ -310,53 +320,62 @@ export function useWorkflowDesigner() {
         }
     }, [selectedWidgetParams, selectedWidgetDef]);
 
-    const addWidget = React.useCallback(async () => {
-        if (!selectedWidgetDef) {
-            message.error('Pick a widget definition first');
-            return;
-        }
+    const addWidget = React.useCallback(
+        async ({ keepPickerOpen = false }: AddWidgetOptions = {}) => {
+            if (!selectedWidgetDef) {
+                message.error('Pick a widget definition first');
+                return;
+            }
 
-        const variant =
-            (selectedWidgetDef.variants ?? []).find((v: any) => v.id === selectedWidgetVariantId) ??
-            selectedWidgetDef.variants?.[0];
+            const variant =
+                (selectedWidgetDef.variants ?? []).find(
+                    (v: any) => v.id === selectedWidgetVariantId
+                ) ?? selectedWidgetDef.variants?.[0];
 
-        const params = getParams();
+            const params = getParams();
 
-        const gridMeta = variant?.grid;
-        const w = gridMeta?.defaultW ?? 4;
-        const h = gridMeta?.defaultH ?? 3;
-        const instanceId = uid('wi');
-        const nextY =
-            (layout.reduce((m, it) => Math.max(m, (it.y ?? 0) + (it.h ?? 1)), 0) ?? 0) + 1;
+            // Initial footprint comes from the selected variant's `sizing`.
+            const fromDefintionDefault = createDefaultConfigFromDefinition(
+                selectedWidgetDef.configSchema.properties
+            );
+            const sizing = (variant as any)?.sizing;
+            const w = sizing?.width?.default ?? 4;
+            const h = sizing?.height?.default ?? 3;
+            const instanceId = uid('wi');
+            const nextY =
+                (layout.reduce((m, it) => Math.max(m, (it.y ?? 0) + (it.h ?? 1)), 0) ?? 0) + 1;
 
-        const item: WidgetLayout = {
-            i: instanceId,
-            x: 0,
-            y: nextY,
-            w,
-            h,
-            minW: gridMeta?.minW,
-            minH: gridMeta?.minH,
-            maxW: gridMeta?.maxW,
-            maxH: gridMeta?.maxH,
-        };
+            const item: WidgetLayout = {
+                i: instanceId,
+                x: 0,
+                y: nextY,
+                w,
+                h,
+                minW: sizing?.width?.min,
+                minH: sizing?.height?.min,
+                maxW: sizing?.width?.max,
+                maxH: sizing?.height?.max,
+            };
 
-        setLayout((prev) => [...prev, item]);
+            setLayout((prev) => [...prev, item]);
 
-        setWidgetsById((prev) => ({
-            ...prev,
-            [instanceId]: {
-                instanceId,
-                widgetDefinitionId: selectedWidgetDef.id,
-                widgetDefinitionVersion: (selectedWidgetDef as any).version ?? 1,
-                variantId: variant?.id,
-                config: { params },
-            },
-        }));
+            setWidgetsById((prev) => ({
+                ...prev,
+                [instanceId]: {
+                    instanceId,
+                    widgetDefinitionId: selectedWidgetDef.id,
+                    widgetDefinitionVersion: (selectedWidgetDef as any).version ?? 1,
+                    variantId: variant?.id,
+                    config: { params: { ...fromDefintionDefault, ...params } },
+                },
+            }));
 
-        setIsDraftSaved(false);
-        setWidgetPickerOpen(false);
-    }, [layout, selectedWidgetDef, selectedWidgetVariantId, selectedWidgetParams]);
+            setIsDraftSaved(false);
+            setWidgetPickerOpen(keepPickerOpen);
+            messageApi.success('Widget added successfully.');
+        },
+        [layout, selectedWidgetDef, selectedWidgetVariantId, selectedWidgetParams]
+    );
 
     const removeWidget = React.useCallback((instanceId: string) => {
         removingIdsRef.current.add(instanceId);
@@ -553,5 +572,7 @@ export function useWorkflowDesigner() {
         publish,
 
         updateWidgetConfig,
+
+        contextHolder,
     };
 }

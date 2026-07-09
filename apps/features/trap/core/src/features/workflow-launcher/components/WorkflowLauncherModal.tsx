@@ -248,11 +248,7 @@ export default function WorkflowLauncherModal(props: Props) {
                 class3,
             });
 
-            console.log('created template', tpl);
-
             const tv: any = await createDraftVersion(tpl.id);
-
-            console.log('created draft version', tv);
 
             if (!tpl?.id) {
                 throw new Error('Template create returned no template id');

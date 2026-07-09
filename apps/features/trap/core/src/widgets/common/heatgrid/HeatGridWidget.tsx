@@ -10,29 +10,25 @@ import {
 import HeatMapGrid from './HeatMapGrid';
 import HeatSettingsPanel, { type TemplatesSection } from './HeatSettingsPanel';
 import { SpectrumLegend } from './SpectrumLegend';
+import { type ColumnDef, type FoundationConfig, type GridRow, type HeatmapSettings } from './types';
 import {
     activeGrouping,
     collectGroupKeys,
     columnAxisGroups,
     flattenVisibleRows,
     heatScales,
-    hiddenFields,
     renderColumns,
     setHeatMissingColor,
     setHeatOutlierColor,
     setHeatRamp,
     setHiddenLeaves,
     setMemberSelected,
-    type ColumnDef,
-    type FoundationConfig,
-    type GridRow,
-    type HeatmapSettings,
-    type HeatScaleConfig,
-} from './types';
+} from './helpers';
 import { WidgetComponentProps } from '../../../types/widget';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import WidgetErrorState from '../../../components/widget-shell/WidgetErrorState';
 import './heatgrid.scss';
+import { catalogToSettings, createTemplateStore, loadSettings } from './store/templateStore';
 
 /**
  * Generic Heat Map Grid widget — the production consumer of every cwd_heatmap
@@ -117,52 +113,6 @@ export interface SettingsTemplate<T> {
     settings: T;
 }
 
-export interface TemplateStore<T> {
-    loadTemplates(): SettingsTemplate<T>[];
-    persistTemplates(list: SettingsTemplate<T>[]): void;
-    loadActiveId(): string | null;
-    persistActiveId(id: string | null): void;
-}
-
-export function createTemplateStore<T>(listKey: string, activeKey: string): TemplateStore<T> {
-    return {
-        loadTemplates() {
-            try {
-                const raw = localStorage.getItem(listKey);
-                if (!raw) return [];
-                const parsed = JSON.parse(raw) as SettingsTemplate<T>[];
-                return Array.isArray(parsed)
-                    ? parsed.filter((t) => t && t.id && t.name && t.settings)
-                    : [];
-            } catch {
-                return [];
-            }
-        },
-        persistTemplates(list) {
-            try {
-                localStorage.setItem(listKey, JSON.stringify(list));
-            } catch {
-                /* persistence unavailable */
-            }
-        },
-        loadActiveId() {
-            try {
-                return localStorage.getItem(activeKey);
-            } catch {
-                return null;
-            }
-        },
-        persistActiveId(id) {
-            try {
-                if (id == null) localStorage.removeItem(activeKey);
-                else localStorage.setItem(activeKey, id);
-            } catch {
-                /* persistence unavailable */
-            }
-        },
-    };
-}
-
 // ---------------------------------------------------------------------------
 // Settings defaults + load/save
 // ---------------------------------------------------------------------------
@@ -184,64 +134,6 @@ function makeDefaults(defaultGroupBy: string[]): HeatmapSettings {
     return { ...structuredClone(BASE_DEFAULTS), groupBy: defaultGroupBy };
 }
 
-function loadSettings(storageKey: string, defaults: HeatmapSettings): HeatmapSettings {
-    // No dimension whitelist validation here — the catalog the server returns
-    // is the authority on which dimension keys exist. Unknown keys in
-    // settings.groupBy are filtered out gracefully by setGrouping at catalog
-    // projection time (indexOf === -1 → groupIndex undefined → ignored).
-    try {
-        const raw = localStorage.getItem(storageKey);
-        if (!raw) return structuredClone(defaults);
-        const parsed = JSON.parse(raw) as Partial<HeatmapSettings>;
-        return {
-            ...structuredClone(defaults),
-            ...parsed,
-            groupBy: Array.isArray(parsed.groupBy) ? parsed.groupBy.map(String) : defaults.groupBy,
-            hiddenColumns: Array.isArray(parsed.hiddenColumns)
-                ? parsed.hiddenColumns.filter((k) => typeof k === 'string')
-                : [],
-            selectedAxisMembers: Array.isArray(parsed.selectedAxisMembers)
-                ? parsed.selectedAxisMembers.filter((k) => typeof k === 'string')
-                : [],
-            heatConfig: { ...defaults.heatConfig, ...parsed.heatConfig },
-        };
-    } catch {
-        return structuredClone(defaults);
-    }
-}
-
-// Reverse projection: catalog (post user edits in the drawer) → settings.
-// Used by HeatGridWidgetBase's onColumnsChange to round-trip drawer changes
-// back into persisted settings.
-function catalogToSettings(next: ColumnDef[], prev: HeatmapSettings): HeatmapSettings {
-    const groupBy = activeGrouping(next).map((d) => d.key);
-    const heatConfig: Record<string, HeatScaleConfig> = { ...prev.heatConfig };
-    for (const scale of heatScales(next))
-        heatConfig[scale.scale] = {
-            ramp: scale.ramp,
-            outlierColor: scale.outlierColor,
-            missingColor: scale.missingColor,
-        };
-    // Collect the selected axis-group members across ALL axisGroups (server may
-    // emit more than one — e.g., year + region — though current consumers
-    // typically use one). Domain-agnostic: we just gather selected ids.
-    const selectedAxisMembers: string[] = [];
-    for (const axis of columnAxisGroups(next)) {
-        for (const m of axis.children ?? []) {
-            if (m.role === 'group' && m.selectable && m.selected) {
-                selectedAxisMembers.push(m.key);
-            }
-        }
-    }
-    return {
-        ...prev,
-        groupBy,
-        hiddenColumns: [...hiddenFields(next)],
-        heatConfig,
-        selectedAxisMembers,
-    };
-}
-
 // ---------------------------------------------------------------------------
 // Apply user display state on top of the server catalog.
 //
@@ -255,7 +147,7 @@ function catalogToSettings(next: ColumnDef[], prev: HeatmapSettings): HeatmapSet
 // ---------------------------------------------------------------------------
 function applySettingsToCatalog(
     serverColumns: ColumnDef[],
-    settings: HeatmapSettings,
+    settings: HeatmapSettings
 ): ColumnDef[] {
     let c = serverColumns;
 
@@ -274,11 +166,7 @@ function applySettingsToCatalog(
         for (const axis of columnAxisGroups(c)) {
             for (const m of axis.children ?? []) {
                 if (m.role === 'group' && m.selectable) {
-                    c = setMemberSelected(
-                        c,
-                        m.key,
-                        settings.selectedAxisMembers.includes(m.key),
-                    );
+                    c = setMemberSelected(c, m.key, settings.selectedAxisMembers.includes(m.key));
                 }
             }
         }
@@ -314,10 +202,11 @@ export const HeatGridWidget = ({
             widgetInstance.instanceId ??
             widgetInstance.composedWidgetId ??
             widgetInstance.widgetDefinitionId ??
-            'cwd_heatmap',
+            'cwd_heatmap'
     );
     const settingsStorageKey = params.settingsStorageKey || `cwd_heatmap:${instanceKey}:settings`;
-    const templatesStorageKey = params.templatesStorageKey || `cwd_heatmap:${instanceKey}:templates`;
+    const templatesStorageKey =
+        params.templatesStorageKey || `cwd_heatmap:${instanceKey}:templates`;
     const activeTemplateStorageKey =
         params.activeTemplateStorageKey || `cwd_heatmap:${instanceKey}:activeTemplate`;
     const title = params.title || '';
@@ -351,18 +240,14 @@ export const HeatGridWidget = ({
 
     // -------- Templates store (localStorage) --------
     const storedTemplates = useMemo(
-        () =>
-            createTemplateStore<HeatmapSettings>(
-                templatesStorageKey,
-                activeTemplateStorageKey,
-            ),
-        [templatesStorageKey, activeTemplateStorageKey],
+        () => createTemplateStore<HeatmapSettings>(templatesStorageKey, activeTemplateStorageKey),
+        [templatesStorageKey, activeTemplateStorageKey]
     );
 
     // -------- Settings state (localStorage-backed) --------
     const defaults = useMemo(() => makeDefaults(defaultGroupBy), [defaultGroupBy]);
     const [settings, setSettingsState] = useState<HeatmapSettings>(() =>
-        loadSettings(settingsStorageKey, defaults),
+        loadSettings(settingsStorageKey, defaults)
     );
     const setSettings = (next: HeatmapSettings) => {
         setSettingsState(next);
@@ -379,11 +264,11 @@ export const HeatGridWidget = ({
     // gateway guarantees the shape for cwd_heatmap; we narrow at the boundary.
     const serverColumns: ColumnDef[] = useMemo(
         () => (Array.isArray(result?.columns) ? (result!.columns as ColumnDef[]) : []),
-        [result],
+        [result]
     );
     const roots: GridRow[] = useMemo(
         () => (Array.isArray(result?.roots) ? (result!.roots as GridRow[]) : []),
-        [result],
+        [result]
     );
     const total: GridRow | null = useMemo(() => {
         const t = (result?.total ?? null) as GridRow | null;
@@ -393,7 +278,7 @@ export const HeatGridWidget = ({
     // -------- Apply settings projections to the server catalog --------
     const columns = useMemo(
         () => applySettingsToCatalog(serverColumns, settings),
-        [serverColumns, settings],
+        [serverColumns, settings]
     );
 
     // -------- Grouping path crumb labels (driven by the server catalog) --------
@@ -444,10 +329,10 @@ export const HeatGridWidget = ({
 
     // -------- Templates: load/save/update/delete --------
     const [activeTemplateId, setActiveTemplateId] = useState<string | null>(
-        storedTemplates.loadActiveId,
+        storedTemplates.loadActiveId
     );
     const [templates, setTemplates] = useState<SettingsTemplate<HeatmapSettings>[]>(
-        storedTemplates.loadTemplates,
+        storedTemplates.loadTemplates
     );
 
     const activeTemplate = templates.find((t) => t.id === activeTemplateId) ?? null;
@@ -482,9 +367,7 @@ export const HeatGridWidget = ({
     const updateTemplate = () => {
         if (!activeTemplateId) return;
         const next = templates.map((t) =>
-            t.id === activeTemplateId
-                ? { ...t, settings: structuredClone(settings) }
-                : t,
+            t.id === activeTemplateId ? { ...t, settings: structuredClone(settings) } : t
         );
         setTemplates(next);
         storedTemplates.persistTemplates(next);
@@ -614,7 +497,7 @@ export default function HeatGridWidgetBase({
     const [exporting, setExporting] = useState(false);
 
     const groupingSig = activeGrouping(columns)
-        .map((d) => d.key)
+        .map((group: any) => group.key)
         .join('|');
     useEffect(() => {
         setExpandedOverride(null);
@@ -622,7 +505,7 @@ export default function HeatGridWidgetBase({
 
     const defaultExpanded = useMemo(
         () => new Set(roots.filter((n) => !n.isLeaf).map((n) => n.key)),
-        [roots],
+        [roots]
     );
     const expanded = expandedOverride ?? defaultExpanded;
     const toggle = (key: string) => {
@@ -713,61 +596,61 @@ export default function HeatGridWidgetBase({
                 (foundation.showSearch && search != null) ||
                 (foundation.showLegend && legend != null) ||
                 toolbarExtras != null) && (
-                    <div className="wg-controls">
-                        {foundation.showGrouping && (
-                            <button
-                                className="group-path"
-                                onClick={() => setDrawerOpen(true)}
-                                title="Edit grouping"
-                            >
-                                {groupingLabels.length === 0 ? (
-                                    <span className="path-empty">No grouping</span>
-                                ) : (
-                                    groupingLabels.map((label, i) => (
-                                        <span key={`${label}-${i}`} className="path-seg">
-                                            {i > 0 && <span className="path-sep">›</span>}
-                                            <span className="path-chip">{label}</span>
-                                        </span>
-                                    ))
-                                )}
-                                {showLeaves && groupingLabels.length > 0 && leafLabel && (
-                                    <span className="path-seg">
-                                        <span className="path-sep">›</span>
-                                        <span className="path-chip muted">{leafLabel}</span>
+                <div className="wg-controls">
+                    {foundation.showGrouping && (
+                        <button
+                            className="group-path"
+                            onClick={() => setDrawerOpen(true)}
+                            title="Edit grouping"
+                        >
+                            {groupingLabels.length === 0 ? (
+                                <span className="path-empty">No grouping</span>
+                            ) : (
+                                groupingLabels.map((label, i) => (
+                                    <span key={`${label}-${i}`} className="path-seg">
+                                        {i > 0 && <span className="path-sep">›</span>}
+                                        <span className="path-chip">{label}</span>
                                     </span>
-                                )}
-                            </button>
-                        )}
-                        <div className="wg-spacer" />
-                        {toolbarExtras}
-                        {foundation.showSearch && search}
-                        {foundation.showLegend && legend}
-                        {foundation.showExpand && (
-                            <Tooltip title="Expand all" placement="bottom">
-                                <Button
-                                    size="small"
-                                    type="text"
-                                    icon={<ColumnHeightOutlined />}
-                                    onClick={() =>
-                                        setExpandedOverride(new Set(collectGroupKeys(roots)))
-                                    }
-                                    aria-label="Expand all"
-                                />
-                            </Tooltip>
-                        )}
-                        {foundation.showCollapse && (
-                            <Tooltip title="Collapse all" placement="bottom">
-                                <Button
-                                    size="small"
-                                    type="text"
-                                    icon={<VerticalAlignMiddleOutlined />}
-                                    onClick={() => setExpandedOverride(new Set())}
-                                    aria-label="Collapse all"
-                                />
-                            </Tooltip>
-                        )}
-                    </div>
-                )}
+                                ))
+                            )}
+                            {showLeaves && groupingLabels.length > 0 && leafLabel && (
+                                <span className="path-seg">
+                                    <span className="path-sep">›</span>
+                                    <span className="path-chip muted">{leafLabel}</span>
+                                </span>
+                            )}
+                        </button>
+                    )}
+                    <div className="wg-spacer" />
+                    {toolbarExtras}
+                    {foundation.showSearch && search}
+                    {foundation.showLegend && legend}
+                    {foundation.showExpand && (
+                        <Tooltip title="Expand all" placement="bottom">
+                            <Button
+                                size="small"
+                                type="text"
+                                icon={<ColumnHeightOutlined />}
+                                onClick={() =>
+                                    setExpandedOverride(new Set(collectGroupKeys(roots)))
+                                }
+                                aria-label="Expand all"
+                            />
+                        </Tooltip>
+                    )}
+                    {foundation.showCollapse && (
+                        <Tooltip title="Collapse all" placement="bottom">
+                            <Button
+                                size="small"
+                                type="text"
+                                icon={<VerticalAlignMiddleOutlined />}
+                                onClick={() => setExpandedOverride(new Set())}
+                                aria-label="Collapse all"
+                            />
+                        </Tooltip>
+                    )}
+                </div>
+            )}
 
             {loading && (
                 <div className="wg-progress">
@@ -789,9 +672,7 @@ export default function HeatGridWidgetBase({
                         requestAnimationFrame(() => {
                             scrollTicking.current = false;
                             setViewport((prev) =>
-                                prev.top === el.scrollTop
-                                    ? prev
-                                    : { ...prev, top: el.scrollTop },
+                                prev.top === el.scrollTop ? prev : { ...prev, top: el.scrollTop }
                             );
                         });
                     }

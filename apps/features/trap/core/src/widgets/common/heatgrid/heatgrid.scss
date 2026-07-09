@@ -947,8 +947,12 @@
 }
 
 @keyframes wg-indeterminate {
-    0% { left: -40%; }
-    100% { left: 100%; }
+    0% {
+        left: -40%;
+    }
+    100% {
+        left: 100%;
+    }
 }
 
 .hg-table tr.skel-row:hover th,
@@ -972,8 +976,12 @@
 }
 
 @keyframes hg-shimmer {
-    0% { background-position: 100% 0; }
-    100% { background-position: -100% 0; }
+    0% {
+        background-position: 100% 0;
+    }
+    100% {
+        background-position: -100% 0;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

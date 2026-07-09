@@ -7,7 +7,6 @@ import {
     createDraftVersion,
     deleteTemplate,
     listTemplates,
-    listTemplateVersions,
     publishTemplateVersion,
     updateTemplate,
 } from '../../../api/trap';
@@ -16,11 +15,9 @@ import { useUserInfo } from '@platform/utils';
 import type {
     MineFilter,
     TemplateRecord,
-    TemplateVersionLite,
     WorkflowLauncherItem,
     WorkflowLaunchSelection,
 } from '../types/workflowLauncher.types';
-import { sortVersionsDesc } from '../utils/workflowLauncher.utils';
 
 type Args = {
     mineFilter: MineFilter;
@@ -73,51 +70,12 @@ export function useWorkflowLauncherData(args: Args) {
     const refreshLauncherData = React.useCallback(async () => {
         setLoading(true);
         try {
-            const templates = (await listTemplates()) as TemplateRecord[];
-            const versionPairs = await Promise.all(
-                templates.map(async (tpl): Promise<[string, TemplateVersionLite[]]> => {
-                    try {
-                        const versions = (await listTemplateVersions(
-                            tpl.id
-                        )) as TemplateVersionLite[];
-                        return [tpl.id, sortVersionsDesc(versions)];
-                    } catch {
-                        return [tpl.id, [] as TemplateVersionLite[]];
-                    }
-                })
-            );
-
-            const byTemplateId = new Map<string, TemplateVersionLite[]>(versionPairs);
-
-            const nextItems = templates
-                .map((tpl): WorkflowLauncherItem => {
-                    const versions = byTemplateId.get(tpl.id) ?? [];
-                    const latestDraft = versions.find((v) => v.status === 'DRAFT');
-                    const latestPublished = versions.find((v) => v.status === 'PUBLISHED');
-
-                    return {
-                        templateId: tpl.id,
-                        templateName: tpl.name,
-                        kind: tpl.kind,
-                        visibility: tpl.visibility,
-                        ownerUserId: tpl.ownerUserId,
-                        sourceTemplateId: tpl.sourceTemplateId,
-                        class1: normalizeClassValue(tpl.class1),
-                        class2: normalizeClassValue(tpl.class2),
-                        class3: normalizeClassValue(tpl.class3),
-                        scopeType: tpl.scopeType,
-                        scopeKey: tpl.scopeKey,
-                        isSystem: tpl.isSystem,
-                        latestDraft,
-                        latestPublished,
-                    };
-                })
-                .filter(
-                    (item) =>
-                        item.ownerUserId === currentUser || item.latestDraft || item.latestPublished
-                );
-
-            setItems(nextItems);
+            const templates = ((await listTemplates()) as TemplateRecord[]);
+            setItems(templates.map(template => ({
+                ...template,
+                templateId: template.id,
+                templateName: template.name
+            } as WorkflowLauncherItem)));
         } catch (err: any) {
             message.error(extractErrorMessage(err, 'Failed to load workflows'));
         } finally {
