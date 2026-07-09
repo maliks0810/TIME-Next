@@ -7,8 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Button, Card, CardContent, CardMedia, Drawer, Grid, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import { Clear, Search } from '@mui/icons-material';
 import { DateRangeBox } from 'devextreme-react/date-range-box'
-import { setupStatusData, riskManagementStatusData } from '../lib/ChartData';
-import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
+import { IDashboardSecuritySetupRequest, IDashboardStats } from '../lib/DashboardSecuritySetupRequest'
 import { getDefaultDashboardSearchParameters, IDashboardSearchParameters, updateDashboardSearchParameter } from '../lib/DashboardSearchParameters';
 import { getSecurityRequestsDashboard } from '../../../services/DashboardService';
 import { useVisibilityChange } from '../../../hooks/useVisibilityChange';
@@ -28,6 +27,7 @@ const Dashboard: React.FC = () => {
   const [endDate, setEndDate] = useState<Date | null | undefined>(new Date());
   const [searchParameters, setSearchParameters] = useState<IDashboardSearchParameters>(getDefaultDashboardSearchParameters);
   const [securityRequestsData, setSecurityRequestsData] = useState<IDashboardSecuritySetupRequest[]>();
+  const [dashboardStats, setDashboardStats] = useState<IDashboardStats>();
   const [pollingInterval, setPollingInterval] = useState<number | null>(DASHBOARD_POLLING_INTERVAL)
   const [lastRefreshed, setLastRefreshed] = useState<string>("");
   const [isPolling, setIsPolling] = useState<boolean>(false);
@@ -67,7 +67,9 @@ const Dashboard: React.FC = () => {
     try {
       setIsPolling(true);
       const data = await getSecurityRequestsDashboard(parameters);
-      setSecurityRequestsData(data);
+      setSecurityRequestsData(data.securityRequests);
+      setDashboardStats(data.dashboardStats)
+
       const currentTime = getCurrentLocalTime();
       setLastRefreshed(currentTime);
     }
@@ -264,7 +266,7 @@ const Dashboard: React.FC = () => {
                       </Typography>
                       <Grid container display={'flex'} height={'100%'} alignContent={'center'}>
                         <Typography variant="h2" width={'100%'}>
-                          <b>16</b>
+                          <b>{dashboardStats?.totalRequests}</b>
                         </Typography>
                       </Grid>
                     </CardContent>
@@ -283,7 +285,7 @@ const Dashboard: React.FC = () => {
                       <Grid container height={'100%'} alignContent={'center'} justifyContent={'center'}>
                         <Grid>
                           <Typography variant='h2'>
-                            <b>20</b>
+                            <b>{dashboardStats?.averageSetupTime ?? 0}</b>
                           </Typography>
                         </Grid>
                         <Grid>
@@ -307,7 +309,7 @@ const Dashboard: React.FC = () => {
                           Setup Status
                         </Typography>
                         <DashboardChart
-                          chartData={setupStatusData}
+                          chartData={dashboardStats?.securitySetupStatusData}
                         />
                       </Grid>
                     </CardContent>
@@ -325,7 +327,7 @@ const Dashboard: React.FC = () => {
                           Risk Management Status
                         </Typography>
                         <DashboardChart
-                          chartData={riskManagementStatusData}
+                          chartData={dashboardStats?.riskAnalyticsStatusData}
                         />
                       </Grid>
                     </CardContent>
