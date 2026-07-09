@@ -1,20 +1,23 @@
 import { useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { CaretRightOutlined } from '@ant-design/icons';
 import {
     DEFAULT_MISSING_COLOR,
     DEFAULT_OUTLIER_COLOR,
-    buildHeatScales,
-    flattenVisibleRows,
-    heatRgba,
-    readableText,
-    renderColumns,
-    strengthRgba,
     type ColumnDef,
     type ColumnNode,
     type GridRow,
 } from './types';
 import './heatgrid.scss';
 import { buildHeaderModel, fmt } from './utils';
+import {
+    renderColumns,
+    flattenVisibleRows,
+    buildHeatScales,
+    readableText,
+    strengthRgba,
+    heatRgba,
+} from './helpers';
 
 /**
  * Heat Map Grid renderer: virtualized tree rows, N-tier stacked headers,
@@ -23,7 +26,19 @@ import { buildHeaderModel, fmt } from './utils';
  * that's the Performance Grid's domain (src/perfgrid).
  */
 
-const NUM_COL_WIDTH = 88;
+/** Floor width per value column — sized for the widest expected value
+ *  ("224,250.00" measured at ~80.58px including 12px padding each side).
+ *  Below this we allow horizontal scroll rather than truncating numbers. */
+const MIN_CELL_WIDTH = 80;
+/** Ceiling width per value column — prevents a small handful of columns from
+ *  stretching across the whole grid when the container is wide. Extra space
+ *  becomes whitespace to the right of the last column instead of stretching
+ *  cells into oversized bars. */
+const MAX_CELL_WIDTH = 100;
+/** Placeholder column count for the pre-data skeleton — used when the server
+ *  catalog hasn't arrived yet, so the loading grid still reads as grid-shaped
+ *  instead of a tiny stub. Roughly a year of monthly data. */
+const SKELETON_COL_COUNT = 12;
 /** Uniform body-row height — required for windowed rendering math. */
 const ROW_H = 28;
 const HEADER_ROW_H = 28;
@@ -51,6 +66,8 @@ interface Props {
     showNameHeader?: boolean;
     /** Show the per-cell hover tooltip. Default true. */
     showTooltip?: boolean;
+    /** Fresh data is loading — render a skeleton body (real header stays). */
+    loading?: boolean;
 }
 
 export default function HeatMapGrid({
@@ -67,8 +84,8 @@ export default function HeatMapGrid({
     gridLines = true,
     showNameHeader = true,
     showTooltip = true,
+    loading = false,
 }: Props) {
-    const tableRef = useRef<HTMLTableElement | null>(null);
     const renderCols = useMemo(() => renderColumns(columns), [columns]);
     const header = useMemo(() => buildHeaderModel(renderCols), [renderCols]);
     const { depth, leaves, boundaries } = header;
@@ -102,6 +119,22 @@ export default function HeatMapGrid({
 
     const esc = (s: string) =>
         s.replace(/[&<>]/g, (ch) => (ch === '&' ? '&amp;' : ch === '<' ? '&lt;' : '&gt;'));
+
+    // Place the fixed tooltip next to the cursor, flipping left/up near the viewport
+    // edges so it never spills off-screen. Used on cell enter AND on move so the tip
+    // tracks the pointer.
+    const positionTip = (tip: HTMLDivElement, cx: number, cy: number) => {
+        const TW = 232; // keep in sync with .hg-tip max-width
+        const GAP = 14;
+        const th = tip.offsetHeight || 96;
+        let left = cx + GAP;
+        let top = cy + GAP;
+        if (left + TW + 8 > window.innerWidth) left = cx - TW - GAP;
+        if (top + th + 8 > window.innerHeight) top = cy - th - GAP;
+        tip.style.left = `${Math.max(8, left)}px`;
+        tip.style.top = `${Math.max(8, top)}px`;
+        tip.style.bottom = '';
+    };
 
     const onCellOver = (e: React.MouseEvent) => {
         const tip = tipRef.current;
@@ -140,13 +173,18 @@ export default function HeatMapGrid({
             parts.push(`<div class="hg-tip-flag">Outlier · excluded from scaling</div>`);
         tip.innerHTML = parts.join('');
 
-        const widgetOffset = tableRef.current?.getBoundingClientRect();
-        tip.style.left = `${e.pageX - (widgetOffset?.x || 0 + 124)}px`;
-        tip.style.top = `${e.pageY - (widgetOffset?.y || 0) + 84}px`;
-
+        // Position near the CURSOR (viewport coords; the tip is position: fixed),
+        // so it sits next to the pointer AND is immune to grid scroll. onCellMove
+        // keeps it tracking as the mouse moves within the grid.
+        positionTip(tip, e.clientX, e.clientY);
         tip.classList.add('show');
     };
     const onCellLeave = () => tipRef.current?.classList.remove('show');
+    // Reposition only (no content rebuild) so the tip follows the cursor smoothly.
+    const onCellMove = (e: React.MouseEvent) => {
+        const tip = tipRef.current;
+        if (tip && tip.classList.contains('show')) positionTip(tip, e.clientX, e.clientY);
+    };
 
     // The name column earns width from what is actually visible.
     const nameWidth = useMemo(() => {
@@ -157,7 +195,27 @@ export default function HeatMapGrid({
         return Math.round(Math.max(230, Math.min(430, max)));
     }, [rows, totalRow]);
 
-    const minWidth = nameWidth + numCols * NUM_COL_WIDTH;
+    // Value columns share the container width equally via table-layout: fixed
+    // + empty <col> widths (see <colgroup> below). Sizing behavior:
+    //
+    //   preferredWidth  = the "look nice" total   (nameWidth + N × MAX_CELL_WIDTH)
+    //   minWidth        = the floor before scroll (nameWidth + N × MIN_CELL_WIDTH)
+    //
+    // The table's `width` is set to `min(100%, preferredWidth)`:
+    //   - Container wider than preferredWidth  → table stays at preferredWidth,
+    //     leaving whitespace to the right (prevents 1-2 columns stretching into
+    //     oversized bars across the whole grid).
+    //   - Container narrower than preferredWidth → table fills 100% and columns
+    //     share the space equally, floored at minWidth (grid-area scrolls
+    //     horizontally if container < minWidth).
+    //
+    // Pre-data skeleton case: server hasn't responded yet so numCols === 0.
+    // Fall back to a sensible placeholder count so the skeleton reads as
+    // grid-shaped instead of a tiny stub in the corner.
+    const isSkeletonPlaceholder = loading && numCols === 0;
+    const effectiveNumCols = isSkeletonPlaceholder ? SKELETON_COL_COUNT : numCols;
+    const minWidth = nameWidth + effectiveNumCols * MIN_CELL_WIDTH;
+    const preferredWidth = nameWidth + effectiveNumCols * MAX_CELL_WIDTH;
 
     // Windowed rendering: only rows near the viewport hit the DOM.
     const first = Math.max(0, Math.floor((viewportTop - fixedTop) / ROW_H) - OVERSCAN_ROWS);
@@ -229,19 +287,36 @@ export default function HeatMapGrid({
         <>
             <table
                 className={`hg-table${gridLines ? '' : ' no-lines'}`}
-                style={{ minWidth, '--hdr-h': `${headerH}px` } as React.CSSProperties}
+                /* Fit-to-screen: table fills the container width; value columns
+                   share the remaining space equally via table-layout: fixed +
+                   empty <col> widths (see <colgroup> below). minWidth is the
+                   floor — narrower container → grid-area scrolls horizontally
+                   rather than squishing cells to nothing. */
+                style={
+                    {
+                        // See sizing note above: min(100%, preferredWidth) caps the
+                        // table at its "look nice" width so a few columns don't
+                        // stretch into oversized bars, while allowing it to fill
+                        // narrower containers down to the minWidth floor.
+                        width: `min(100%, ${preferredWidth}px)`,
+                        minWidth,
+                        '--hdr-h': `${headerH}px`,
+                    } as React.CSSProperties
+                }
                 onMouseOver={onCellOver}
+                onMouseMove={onCellMove}
                 onMouseLeave={onCellLeave}
-                ref={tableRef}
             >
                 <colgroup>
-                    {/* The name/tree column flexes to absorb spare width; value columns keep a
-            fixed width so they never stretch and group headers stay centered over
-            them (AG-Grid-style). The table's minWidth floors the name col at
-            nameWidth, so it never collapses below its content. */}
-                    <col />
-                    {Array.from({ length: numCols }, (_, i) => (
-                        <col key={i} style={{ width: NUM_COL_WIDTH }} />
+                    {/* Name/tree column: fixed width so it doesn't stretch. Value
+                        columns: no explicit width → table-layout: fixed
+                        distributes remaining space to them equally, so the grid
+                        fits the screen with no horizontal scroll (until minWidth
+                        floor kicks in). Uses effectiveNumCols so the pre-data
+                        skeleton still spans the grid instead of a tiny stub. */}
+                    <col style={{ width: nameWidth }} />
+                    {Array.from({ length: effectiveNumCols }, (_, i) => (
+                        <col key={i} />
                     ))}
                 </colgroup>
                 <thead>
@@ -277,71 +352,119 @@ export default function HeatMapGrid({
                     ))}
                 </thead>
                 <tbody>
-                    {totalRow && (
-                        <tr className="row-total">
-                            <th className="cell-name" scope="row">
-                                <span className="chev-spacer" />
-                                <span className="label" title={totalRow.label}>
-                                    {totalRow.label}
-                                </span>
-                            </th>
-                            {numericCells(totalRow, true)}
-                        </tr>
-                    )}
-                    {rows.length === 0 ? (
-                        <tr className="row-empty">
-                            <td colSpan={1 + numCols}>No rows match the current filter.</td>
-                        </tr>
+                    {loading ? (
+                        // Fresh data loading — clean skeleton body under the real
+                        // header (the top progress bar lives in the widget chrome).
+                        // Uses effectiveNumCols (SKELETON_COL_COUNT when the
+                        // server catalog hasn't arrived yet) so the skeleton
+                        // ALWAYS spans the full grid width — not a tiny stub.
+                        Array.from({ length: 14 }, (_, r) => (
+                            <tr className="row skel-row" key={`skel-${r}`}>
+                                <th
+                                    className="cell-name"
+                                    scope="row"
+                                    style={{ paddingLeft: 14 + (r % 3) * 18 }}
+                                >
+                                    <span className="chev-spacer" />
+                                    <span
+                                        className="hg-skel"
+                                        style={{ width: `${42 + ((r * 23) % 44)}%` }}
+                                    />
+                                </th>
+                                {Array.from({ length: effectiveNumCols }, (_, i) => (
+                                    <td key={i}>
+                                        <span
+                                            className="hg-skel"
+                                            style={{ width: `${48 + (((r + i) * 13) % 26)}%` }}
+                                        />
+                                    </td>
+                                ))}
+                            </tr>
+                        ))
                     ) : (
                         <>
-                            {topPad > 0 && (
-                                <tr className="vpad" aria-hidden="true">
-                                    <td colSpan={1 + numCols} style={{ height: topPad }} />
+                            {totalRow && (
+                                <tr className="row-total">
+                                    <th className="cell-name" scope="row">
+                                        <span className="chev-spacer" />
+                                        <span className="label" title={totalRow.label}>
+                                            {totalRow.label}
+                                        </span>
+                                    </th>
+                                    {numericCells(totalRow, true)}
                                 </tr>
                             )}
-                            {slice.map((row) => {
-                                const isOpen = expanded.has(row.key);
-                                return (
-                                    <tr
-                                        key={row.key}
-                                        className={`row depth-${Math.min(row.depth, 3)} ${row.isLeaf ? 'leaf' : 'group'}`}
-                                        onClick={row.isLeaf ? undefined : () => onToggle(row.key)}
-                                    >
-                                        <th
-                                            className="cell-name"
-                                            scope="row"
-                                            style={{ paddingLeft: 14 + row.depth * 18 }}
-                                        >
-                                            {row.isLeaf ? (
-                                                <span className="chev-spacer" />
-                                            ) : (
-                                                <CaretRightOutlined
-                                                    className={`chev${isOpen ? ' open' : ''}`}
-                                                />
-                                            )}
-                                            <span className="label" title={row.label}>
-                                                {row.label}
-                                            </span>
-                                            {!row.isLeaf && (
-                                                <span className="count">
-                                                    {row.leafCount.toLocaleString()}
-                                                </span>
-                                            )}
-                                        </th>
-                                        {numericCells(row)}
-                                    </tr>
-                                );
-                            })}
-                            {bottomPad > 0 && (
-                                <tr className="vpad" aria-hidden="true">
-                                    <td colSpan={1 + numCols} style={{ height: bottomPad }} />
+                            {rows.length === 0 ? (
+                                <tr className="row-empty">
+                                    <td colSpan={1 + numCols}>No rows match the current filter.</td>
                                 </tr>
+                            ) : (
+                                <>
+                                    {topPad > 0 && (
+                                        <tr className="vpad" aria-hidden="true">
+                                            <td colSpan={1 + numCols} style={{ height: topPad }} />
+                                        </tr>
+                                    )}
+                                    {slice.map((row) => {
+                                        const isOpen = expanded.has(row.key);
+                                        return (
+                                            <tr
+                                                key={row.key}
+                                                className={`row depth-${Math.min(row.depth, 3)} ${row.isLeaf ? 'leaf' : 'group'}`}
+                                                onClick={
+                                                    row.isLeaf ? undefined : () => onToggle(row.key)
+                                                }
+                                            >
+                                                <th
+                                                    className="cell-name"
+                                                    scope="row"
+                                                    style={{ paddingLeft: 14 + row.depth * 18 }}
+                                                >
+                                                    {row.isLeaf ? (
+                                                        <span className="chev-spacer" />
+                                                    ) : (
+                                                        <CaretRightOutlined
+                                                            className={`chev${isOpen ? ' open' : ''}`}
+                                                        />
+                                                    )}
+                                                    <span className="label" title={row.label}>
+                                                        {row.label}
+                                                    </span>
+                                                    {!row.isLeaf && (
+                                                        <span className="count">
+                                                            {row.leafCount.toLocaleString()}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                {numericCells(row)}
+                                            </tr>
+                                        );
+                                    })}
+                                    {bottomPad > 0 && (
+                                        <tr className="vpad" aria-hidden="true">
+                                            <td
+                                                colSpan={1 + numCols}
+                                                style={{ height: bottomPad }}
+                                            />
+                                        </tr>
+                                    )}
+                                </>
                             )}
                         </>
                     )}
                 </tbody>
             </table>
-            <div className="hg-tip" ref={tipRef} role="tooltip" aria-hidden="true" />
+            {/* Portal the tip to <body> so no ANCESTOR transform can capture its
+               position:fixed. Dashboard tiles (react-grid-layout & co.) position
+               each widget with transform: translate(), which would otherwise make
+               `fixed` anchor to the tile and ride the grid's inner scrollbar
+               instead of the viewport. At body level, clientX/clientY map straight
+               to the viewport and the tip tracks the cursor exactly. */}
+            {typeof document !== 'undefined' &&
+                createPortal(
+                    <div className="hg-tip" ref={tipRef} role="tooltip" aria-hidden="true" />,
+                    document.getElementById("canvasWrapper") || document.body
+                )}
         </>
     );
 }

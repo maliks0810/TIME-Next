@@ -6,12 +6,26 @@
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_na_rmbs_tranches_01",
-    "listensToKeys": ["deal.id", "analysis.sessionId", "workflow.refresh"],
-    "emitsKeys": ["tranche.id", "tranche.name"],
+    "listensToKeys": [
+        "deal.id",
+        "analysis.sessionId",
+        "workflow.refresh"
+    ],
+    "emitsKeys": [
+        "tranche.id",
+        "tranche.name"
+    ],
     "configSchema": {
         "properties": {
             "columns": {
-                "default": ["name", "rating", "balance", "coupon", "wal", "maturity"],
+                "default": [
+                    "name",
+                    "rating",
+                    "balance",
+                    "coupon",
+                    "wal",
+                    "maturity"
+                ],
                 "description": "Ordered list of visible column keys",
                 "items": {
                     "type": "string"
@@ -21,7 +35,10 @@
             },
             "selectionMode": {
                 "default": "single",
-                "enum": ["single", "none"],
+                "enum": [
+                    "single",
+                    "none"
+                ],
                 "type": "string",
                 "category": "Interactions"
             }
@@ -36,13 +53,19 @@
         {
             "id": "default",
             "label": "Default",
-            "grid": {
-                "defaultW": 8,
-                "defaultH": 482,
-                "minW": 4,
-                "minH": 300,
-                "maxW": null,
-                "maxH": null
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 8,
+                    "min": 1,
+                    "max": 12
+                },
+                "height": {
+                    "default": 482,
+                    "min": 280,
+                    "max": 780,
+                    "step": 10
+                }
             }
         }
     ]

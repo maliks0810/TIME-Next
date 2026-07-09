@@ -17,6 +17,8 @@ import { AnalyticResultRow, AnalyticsResponse } from "../../lib/services";
    ========================================================= */
 
 const DEFAULT_GROUP_ORDER = Number.MAX_SAFE_INTEGER;
+const INDENT_SIZE = 15;
+const EXPAND_ICON_OFFSET = 18;
 
 /* =========================================================
    Resolvers (support camelCase + snake_case)
@@ -224,6 +226,12 @@ export const buildColumns = ({
   const isQuintile = (record: AttributionRow) : boolean => {
     return getQuintile(record.SecurityName) === null  ? false : true
   };
+
+const level = (record: AttributionRow): number => {
+  const val = Number(record.Level);
+  return Number.isFinite(val) ? val : 1;
+};
+
   const buildLeaf = (
     col: NormalizedColumnConfig
   ): ColumnType<AttributionRow> => ({
@@ -243,18 +251,25 @@ export const buildColumns = ({
         if (isTotalRow(record)) {
           return <span><strong>{value}</strong></span>;
         }
-      if (col.accessor === "SecurityName" && isQuintile(record) === true){
-        return <span><strong>{value}</strong></span>;
-      }
+
+        if (col.accessor === "SecurityName" && isQuintile(record)) {
+          return <span><strong>{value}</strong></span>;
+        }
+
+        const paddingLeft =
+              EXPAND_ICON_OFFSET + INDENT_SIZE * (level(record) - 1);
+
+
         return (
-          <span style={{ paddingLeft: 16 }}>
+          <span style={{ paddingLeft }}>
             {value}
           </span>
         );
       }
 
-      return formatValue(value, col.format);
-    },
+  return formatValue(value, col.format);
+}
+,
 
   });
 

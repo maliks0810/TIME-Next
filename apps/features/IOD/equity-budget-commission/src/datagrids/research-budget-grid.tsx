@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
-import DataGrid, { Column, Editing, FilterRow, Button, Popup, Lookup, Form as GridForm, type DataGridRef, DataGridTypes, } from 'devextreme-react/data-grid';
+import DataGrid, { Column, Editing, FilterRow, Button, Popup, Lookup, Form as GridForm, type DataGridRef, DataGridTypes, RequiredRule } from 'devextreme-react/data-grid';
 import SelectBox from 'devextreme-react/select-box';
 import { Item as FormItem } from 'devextreme-react/form';
 import { Button as FormButton } from 'devextreme-react/button';
@@ -11,6 +11,7 @@ import { researchBudgetDataService } from '../services/research-budget-service'
 import { Toast } from 'devextreme-react/toast';
 import { ToastConfig, ToastType} from '../components/toast-config'
 import LoadIndicator from 'devextreme-react/load-indicator';
+import { ValidationMessage } from '../components/validations-message';
 
 import './styles.scss';
 import 'devextreme/dist/css/dx.light.css';
@@ -228,6 +229,7 @@ const ResearchBudgetGrid: React.FC = () => {
               showTitle={true}
               title={popupTitle}
               width="30%"
+              minWidth="350px"
               height="auto"
               showCloseButton={true}
               dragEnabled={false}
@@ -236,13 +238,17 @@ const ResearchBudgetGrid: React.FC = () => {
 
             <GridForm
               colCount={1}
-              labelMode="outside"       
+              labelMode="outside" 
+              width="98%"   
             >
               {/* Budget year */}
               <FormItem
                 dataField="budgetYear"                
                 label={{ text: "Budget Year" }} cssClass='textInput-popup-num'
-              />
+                editorType='dxNumberBox' editorOptions={{width:'200px', minWidth:"150px"}}
+              >
+                <RequiredRule message={ValidationMessage.RequiredField} />
+              </FormItem>
 
               {/* Organization */}
               <FormItem
@@ -301,9 +307,11 @@ const ResearchBudgetGrid: React.FC = () => {
           
           <Column dataField="divisionId" caption="Division" width="15%" allowSorting={true}>
             <Lookup dataSource={masterDivisions} valueExpr="divisionId" displayExpr="divisionName" />
+            <RequiredRule message={ValidationMessage.RequiredField} />
           </Column>
           <Column dataField="masterBrokerId" caption="Master Broker" allowSorting={true} width="25%">
             <Lookup dataSource={masterBrokers} valueExpr="masterBrokerId" displayExpr="masterBrokerName" />
+            <RequiredRule message={ValidationMessage.RequiredField} />
           </Column>
           <Column dataField="mBkrCode" caption="Master Broker Code" allowSorting={true} width="10%" formItem={{ visible: false }} />
           <Column dataField="budgetYear" caption="Budget Year" dataType="number" visible={false} />

@@ -31,6 +31,7 @@ export default function CanvasContainer({
 }: CanvasContainerProps) {
     return (
         <div
+            id="canvasWrapper"
             style={{
                 maxWidth: CANVAS_SHELL_WIDTH,
                 width: '100%',
@@ -72,7 +73,7 @@ export default function CanvasContainer({
                         cancel: draggableCancel,
                         enabled: isDraggable,
                     }}
-                    resizeConfig={{ enabled: isResizable }}
+                    resizeConfig={{ enabled: isResizable, handles: ['se'] }}
                 >
                     {children}
                 </GridLayout>

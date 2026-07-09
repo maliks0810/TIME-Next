@@ -13,7 +13,12 @@
             "channel": {
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [1, 2, 3, 4],
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
                 "title": "Communication Channel",
                 "type": "string",
                 "category": "Interactions"
@@ -22,7 +27,10 @@
                 "title": "Layout variant",
                 "description": "Choose control layout option",
                 "type": "string",
-                "enum": ["vertical", "horizontal"],
+                "enum": [
+                    "vertical",
+                    "horizontal"
+                ],
                 "category": "View Parameters"
             }
         },
@@ -34,27 +42,21 @@
     },
     "variants": [
         {
-            "id": "small-vertical",
-            "label": "Small Vertical",
-            "grid": {
-                "defaultW": 1,
-                "defaultH": 200,
-                "minW": 1,
-                "minH": 200,
-                "maxW": null,
-                "maxH": null
-            }
-        },
-        {
-            "id": "small-horizontal",
-            "label": "Small Horizontal",
-            "grid": {
-                "defaultW": 3,
-                "defaultH": 60,
-                "minW": 3,
-                "minH": 60,
-                "maxW": null,
-                "maxH": null
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 1,
+                    "min": 1,
+                    "max": 12
+                },
+                "height": {
+                    "default": 200,
+                    "min": 60,
+                    "max": 200,
+                    "step": 10
+                }
             }
         }
     ]

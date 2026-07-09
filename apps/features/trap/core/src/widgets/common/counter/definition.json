@@ -6,14 +6,24 @@
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_common_counter_tile_01",
-    "listensToKeys": ["portfolio.id", "security.ticker", "security.cusip"],
+    "listensToKeys": [
+        "portfolio.id",
+        "security.ticker",
+        "security.cusip"
+    ],
     "emitsKeys": null,
     "configSchema": {
         "properties": {
             "channel": {
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [1, 2, 3, 4, 5],
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ],
                 "title": "Communication Channel",
                 "type": "string",
                 "category": "Interactions"
@@ -59,7 +69,42 @@
                 "category": "View Parameters"
             },
             "filter": {
-                "description": "Which status value to filter by",
+                "description": "Which value the selected Schema Key should resolve. Valid options are scoped to the chosen Schema Key (arc.status.query -> ARC status values; econ.indicators.heatmap -> indicator metrics).",
+                "options": [
+                    {
+                        "condition": {
+                            "key": "schemaKey",
+                            "value": "arc.status.query"
+                        },
+                        "options": [
+                            "ANALYTICS REQUESTED",
+                            "ANALYTICS INPUT PENDING REVIEW",
+                            "ANALYTICS INPUT SENT TO ALADDIN",
+                            "ANALYTICS INPUT VERIFIED IN ALADDIN",
+                            "ANALYTICS CALCULATION IN PROGRESS",
+                            "ANALYTICS PENDING REVIEW",
+                            "ANALYTICS SENT TO ALADDIN",
+                            "ANALYTICS VERIFIED IN ALADDIN",
+                            "MANUAL",
+                            "ABANDONED",
+                            "INVALID REQUEST",
+                            "TOTAL"
+                        ]
+                    },
+                    {
+                        "condition": {
+                            "key": "schemaKey",
+                            "value": "econ.indicators.heatmap"
+                        },
+
+                        "options": [
+                            "Total Indicators",
+                            "Latest Period",
+                            "Improving Count",
+                            "Deteriorating Count"
+                        ]
+                    }
+                ],
                 "enum": [
                     "ANALYTICS REQUESTED",
                     "ANALYTICS INPUT PENDING REVIEW",
@@ -72,7 +117,11 @@
                     "MANUAL",
                     "ABANDONED",
                     "INVALID REQUEST",
-                    "TOTAL"
+                    "TOTAL",
+                    "Total Indicators",
+                    "Latest Period",
+                    "Improving Count",
+                    "Deteriorating Count"
                 ],
                 "title": "Filter",
                 "type": "string",
@@ -80,7 +129,12 @@
             },
             "numberFormat": {
                 "default": "integer",
-                "enum": ["integer", "decimal", "currency", "percent"],
+                "enum": [
+                    "integer",
+                    "decimal",
+                    "currency",
+                    "percent"
+                ],
                 "title": "Number Format",
                 "type": "string",
                 "category": "View Parameters"
@@ -92,8 +146,11 @@
                 "category": "View Parameters"
             },
             "schemaKey": {
-                "description": "Logical counter scenario resolved by GraphQL.",
-                "enum": ["arc.status.query"],
+                "description": "Logical counter scenario resolved by GraphQL. Each scenario owns its own set of valid Filter values.",
+                "enum": [
+                    "arc.status.query",
+                    "econ.indicators.heatmap"
+                ],
                 "title": "Schema Key",
                 "type": "string",
                 "category": "System Parameters"
@@ -106,14 +163,21 @@
             },
             "themeMode": {
                 "default": "theme",
-                "enum": ["theme", "customSolid", "customGradient"],
+                "enum": [
+                    "theme",
+                    "customSolid",
+                    "customGradient"
+                ],
                 "title": "Color Mode",
                 "type": "string",
                 "category": "Colors"
             },
             "titlePosition": {
                 "default": "top",
-                "enum": ["top", "bottom"],
+                "enum": [
+                    "top",
+                    "bottom"
+                ],
                 "title": "Title Position",
                 "type": "string",
                 "category": "View Parameters"
@@ -125,48 +189,36 @@
                 "category": "View Parameters"
             }
         },
-        "required": ["schemaKey", "filter"],
+        "required": [
+            "schemaKey",
+            "filter"
+        ],
         "type": "object"
     },
     "uiHints": {
         "category": "Common",
-        "visibleIn": ["workflow", "landing"]
+        "visibleIn": [
+            "workflow",
+            "landing"
+        ]
     },
     "variants": [
         {
-            "id": "small",
-            "label": "Small",
-            "grid": {
-                "defaultW": 1,
-                "defaultH": 110,
-                "minW": 130,
-                "minH": 110,
-                "maxW": 130,
-                "maxH": 110
-            }
-        },
-        {
-            "id": "medium",
-            "label": "Medium",
-            "grid": {
-                "defaultW": 2,
-                "defaultH": 140,
-                "minW": 160,
-                "minH": 140,
-                "maxW": 160,
-                "maxH": 140
-            }
-        },
-        {
-            "id": "large",
-            "label": "Large",
-            "grid": {
-                "defaultW": 4,
-                "defaultH": 180,
-                "minW": 220,
-                "minH": 180,
-                "maxW": 220,
-                "maxH": 180
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 3,
+                    "min": 1,
+                    "max": 6
+                },
+                "height": {
+                    "default": 120,
+                    "min": 90,
+                    "max": 240,
+                    "step": 10
+                }
             }
         }
     ]

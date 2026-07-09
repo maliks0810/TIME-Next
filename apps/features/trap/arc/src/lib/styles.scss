@@ -384,3 +384,40 @@
         opacity: 0.9 !important;
     }
 }
+
+.workflowConfigPanel {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+}
+
+.configListContainer {
+    width: 50%;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.configDetailsContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.ruleCardContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.ruleCard {
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 12px;
+    background: #fafafa;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}

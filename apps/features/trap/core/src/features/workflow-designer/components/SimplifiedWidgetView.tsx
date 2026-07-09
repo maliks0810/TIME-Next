@@ -5,7 +5,8 @@ import WidgetHost from '../../../components/widget-runtime/WidgetHost';
 import { WidgetDefinition } from '../../../state/types';
 import styles from './SimplifiedWidgetView.module.scss';
 import CanvasContainer from '../../../components/layout/CanvasContainer';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { AUTO_SCROLL_CONFIG } from '../utils/constants';
 
 type SimplifiedWidgetViewProps = {
     filteredWidgetDefs: any[];
@@ -26,26 +27,37 @@ export const SimplifiedWidgetView = ({
     selectedParams,
     selectedWidgetVariantId,
 }: SimplifiedWidgetViewProps) => {
+    const selectedItemRef = useRef<HTMLDivElement | null>(null);
+
     const computedLayout = useMemo(() => {
         const selectedVariant = selectedWidgetVariantId
             ? selectedWidgetVariantId
             : selectedWidgetDef?.variants[0].id;
-        const selectedVariantConfig = selectedWidgetDef?.variants.find(
-            ({ id }: { id: string; grid: any }) => id === selectedVariant
-        )?.grid;
+        const variant = selectedWidgetDef?.variants.find(
+            ({ id }: { id: string }) => id === selectedVariant
+        ) as any;
+        const sizing = variant?.sizing;
+        const w = sizing?.width?.default;
+        const h = sizing?.height?.default;
 
         return [
             {
                 i: 'widget_picker_preview_item',
-                x: (12 - (selectedVariantConfig?.defaultW || 0)) / 2,
+                x: (12 - (w || 0)) / 2,
                 y: 0,
-                w: selectedVariantConfig?.defaultW,
-                h: selectedVariantConfig?.defaultH,
-                minW: selectedVariantConfig?.minW,
-                minH: selectedVariantConfig?.minH,
+                w,
+                h,
+                minW: sizing?.width?.min,
+                minH: sizing?.height?.min,
             },
         ];
     }, [selectedWidgetDef, selectedWidgetVariantId]);
+
+    useEffect(() => {
+        if (selectedItemRef.current && filteredWidgetDefs.findIndex(widgetDef => widgetDef.id === selectedWidgetDefId)) {
+            selectedItemRef.current.scrollIntoView(AUTO_SCROLL_CONFIG);
+        }
+    }, [selectedWidgetDefId, filteredWidgetDefs]);
 
     return (
         <>
@@ -100,6 +112,7 @@ export const SimplifiedWidgetView = ({
                         return (
                             <div
                                 key={d.id}
+                                ref={selectedWidgetDefId === d.id ? selectedItemRef : null}
                                 onClick={() => {
                                     onSelectWidget(d.id);
                                     // params cleanup on selected widget change

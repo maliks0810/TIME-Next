@@ -47,12 +47,18 @@ export function useDirectedRules({ userInfo }: UseDirectedRulesProps) {
     directedRulesXrefRef.current = directedRulesXref;
   }, [directedRulesXref]);
 
+  const normalize = useCallback((items: MaintenanceDirectedRules[]) => {
+    return (items ?? []).map(d => ({
+      ...d,
+      active: d.status === 'Active',
+    }));
+  }, []);
   /**
    * These are required for DataGrid onSaving to refresh the recordset.
    */
   const reloadDirectRules = useCallback(async () => {
     const data = await fetchDirectedRules();
-    setDirectedRules(data ?? []);
+    setDirectedRules(normalize(data));
     return data ?? [];
   }, []);
 
@@ -90,7 +96,7 @@ export function useDirectedRules({ userInfo }: UseDirectedRulesProps) {
 
         if (!alive) return;
 
-        setDirectedRules(rules ?? []);
+        setDirectedRules(normalize(rules));
         setDirectedRulesXref(xrefs ?? []);
         setPortfolios(portfolioData ?? []);
         setBrokers(brokerData ?? []);
@@ -117,6 +123,7 @@ export function useDirectedRules({ userInfo }: UseDirectedRulesProps) {
       const newReq: RequestMaintenanceDirectedRules = {
         directedRulesCode: values.directedRulesCode ?? '',
         directedRulesName: values.directedRulesName ?? '',
+        status: values.active ? 'Active' : 'Inactive',
         comment: values.comment ?? '',
         budgetPercent: values.budgetPercent ?? 0,
         lastUpdateBy: userInfo.name ?? '',
@@ -139,6 +146,10 @@ export function useDirectedRules({ userInfo }: UseDirectedRulesProps) {
         directedRulesName: values.directedRulesName ?? prev.directedRulesName ?? '',
         directedRulesCode: values.directedRulesCode ?? prev.directedRulesCode ?? '',
         budgetPercent: values.budgetPercent ?? prev.budgetPercent ?? 0,
+        status:
+          values.active !== undefined
+            ? values.active ? 'Active' : 'Inactive'
+            : (prev.status ?? 'Active'),
         comment: values.comment ?? prev.comment ?? '',
         lastUpdateBy: userInfo.name ?? '',
       };

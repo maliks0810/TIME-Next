@@ -5,6 +5,7 @@ import { DefaultOptionType } from 'antd/es/select';
 import TextEditor from '../../../components/tiptap/TextEditor';
 import { WidgetValueType } from '../../../state/Widgets/types';
 type PropertyValue = string | number | boolean;
+type Option = { label: string; options?: Option[] };
 export type WidgetConfigProperty = {
     default: PropertyValue;
     withColorPicker?: boolean;
@@ -15,6 +16,7 @@ export type WidgetConfigProperty = {
     multiselect?: boolean;
     type: 'string' | 'boolean' | 'number';
     category?: 'string';
+    options?: Option[];
 };
 export const PropertyConfig = ({
     property,
@@ -23,12 +25,14 @@ export const PropertyConfig = ({
     required,
     currentValue,
     context,
+    options,
 }: {
     currentValue: PropertyValue;
     required: boolean;
     propertyKey: string;
     property: WidgetConfigProperty;
     context?: Record<string, WidgetValueType>;
+    options?: DefaultOptionType[];
     setField: (key: string, value: PropertyValue) => void;
 }) => {
     const renderColorPicker = useCallback(
@@ -94,6 +98,7 @@ export const PropertyConfig = ({
                     mentionOptions={Object.keys(context || {})}
                     initial={(currentValue as string) || property.default?.toString()}
                     onChange={(e) => setField(propertyKey, e)}
+                    minHeight={200}
                 />
             </>
         ),
@@ -115,6 +120,23 @@ export const PropertyConfig = ({
         ),
         []
     );
+    const renderDropdown = useCallback(
+        () => (
+            <>
+                <Typography.Text strong>
+                    {property.title}
+                    {required && '*'}
+                </Typography.Text>
+                <Select
+                    className={styles.select}
+                    options={options}
+                    defaultValue={currentValue || property.default}
+                    onChange={(e) => setField(propertyKey, e)}
+                />
+            </>
+        ),
+        [options]
+    );
     const renderInput = useCallback(
         () => (
             <>
@@ -131,15 +153,18 @@ export const PropertyConfig = ({
         ),
         []
     );
-    const options = useMemo(() => {
+    const field = useMemo(() => {
         switch (property.type) {
             case 'string': {
                 if (property.editor) return renderEditor();
 
                 if (property.withColorPicker) return renderColorPicker();
                 if (!property.enum) return renderInput();
-                const selectOptions = property.enum.map((el) => ({ label: el, value: el }));
 
+                if (property.options) {
+                    return renderDropdown();
+                }
+                const selectOptions = property.enum.map((el) => ({ label: el, value: el }));
                 if (property.multiselect) return renderMultiselect(selectOptions);
                 return renderSelect(selectOptions);
             }
@@ -161,6 +186,6 @@ export const PropertyConfig = ({
             default:
                 return null;
         }
-    }, [currentValue, setField, property]);
-    return <div className={styles.container}>{options}</div>;
+    }, [currentValue, setField, property, options]);
+    return <div className={styles.container}>{field}</div>;
 };
