@@ -181,7 +181,7 @@ const MaintenanceBrokerGrid: React.FC = () => {
         <Selection mode="single" selectByClick={true} />
 
         <Column  dataField="brokerId" caption= "Id" allowEditing={false} visible={false} allowSorting={true} alignment="left" dataType="number"/> 
-        <Column  dataField="brokerName" caption= "Broker Name"  width= "25%" allowFiltering={true} allowSorting={true} dataType="string">
+        <Column  dataField="brokerName" caption= "Broker Name"  width= "20%" allowFiltering={true} allowSorting={true} dataType="string">
             <RequiredRule message={ValidationMessage.RequiredField} />
         </Column>   
         <Column  dataField="brokerCode" caption= "Broker Code" allowFiltering={true}  width= "10%" allowSorting={true} dataType="string"/>   
@@ -189,8 +189,9 @@ const MaintenanceBrokerGrid: React.FC = () => {
             <Lookup dataSource={masterBrokers} valueExpr="masterBrokerId" displayExpr="masterBrokerName" />
             <RequiredRule message={ValidationMessage.RequiredField} />
         </Column>   
+        <Column  dataField="brokerType" caption= "Broker Type" width= "10%" allowFiltering={true} allowSorting={true} dataType="string" filterOperations={["startswith","="]} />   
         <Column  dataField="status" caption= "Status" width= "10%" allowFiltering={true} allowSorting={true} dataType="string" filterOperations={["startswith","="]} cellRender={renderStatusCellCallback}/>   
-        <Column  dataField="lastUpdateDate" caption= "Last Update Dt" allowEditing={false} allowFiltering={false} width= "15%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a"/>   
+        <Column  dataField="lastUpdateDate" caption= "Last Update Dt" allowEditing={false} allowFiltering={false} width= "10%" allowSorting={true} dataType="date" format="MM/dd/yyyy hh:mm a"/>   
         <Column  dataField="lastUpdateBy" caption= "Last Update By" allowEditing={false} allowFiltering={true} width= "10%" allowSorting={true} dataType="string"/>    
         <Column dataField="active" visible={false} />
         <Column type="buttons" width="5%" visible={isAdmin? true: false} >
