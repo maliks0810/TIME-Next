@@ -4,3 +4,12 @@ export function ensureConfigShape(config: any): any {
     c.params = c.params && typeof c.params === 'object' ? { ...c.params } : {};
     return c;
 }
+
+export const createDefaultConfigFromDefinition = (properties: Record<string, any>) => {
+    if (!properties) return {};
+    return Object.keys(properties).reduce((acc, cur) => {
+        if (properties[cur] && 'default' in properties[cur]) {
+            return { ...acc, [cur]: properties[cur].default };
+        } else return acc;
+    }, {});
+};

@@ -95,7 +95,7 @@ function NewAssetsContent({
         <div style={{ width: '75vw', display: 'flex', gap: '4px', flexDirection: 'column' }}>
             {contextHolder}
             <AssetInfo
-                selectedAssetId={selectedRowRequestId}
+                //selectedAssetId={selectedRowRequestId}
                 latestUpdateTimestamp={latestUpdateTimestamp}
             />
             {/* <SecuritySettings

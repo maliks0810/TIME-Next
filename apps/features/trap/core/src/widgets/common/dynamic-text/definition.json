@@ -13,7 +13,12 @@
             "channel": {
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [1, 2, 3, 4],
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
                 "title": "Communication Channel",
                 "type": "string",
                 "category": "Interactions"
@@ -55,21 +60,29 @@
             "schemaKey": {
                 "title": "Schema key",
                 "type": "string",
-                "enum": ["example.calculation"],
+                "enum": [
+                    "example.calculation"
+                ],
                 "category": "System Parameters"
             },
             "listensToKeys": {
                 "default": null,
                 "title": "Listens to key",
                 "type": "string",
-                "enum": ["example.input", "common.date"],
-
+                "enum": [
+                    "example.input",
+                    "common.date"
+                ],
                 "multiselect": true,
                 "category": "Interactions"
             },
             "themeMode": {
                 "default": "theme",
-                "enum": ["theme", "customSolid", "customGradient"],
+                "enum": [
+                    "theme",
+                    "customSolid",
+                    "customGradient"
+                ],
                 "title": "Color Mode",
                 "type": "string",
                 "category": "Colors"
@@ -83,51 +96,21 @@
     },
     "variants": [
         {
-            "id": "small-vertical",
-            "label": "Small Vertical",
-            "grid": {
-                "defaultW": 1,
-                "defaultH": 120,
-                "minW": 1,
-                "minH": 120,
-                "maxW": null,
-                "maxH": null
-            }
-        },
-        {
-            "id": "small-horizontal",
-            "label": "Small Horizontal",
-            "grid": {
-                "defaultW": 2,
-                "defaultH": 60,
-                "minW": 2,
-                "minH": 60,
-                "maxW": null,
-                "maxH": null
-            }
-        },
-        {
-            "id": "medium-vertical",
-            "label": "Medium Vertical",
-            "grid": {
-                "defaultW": 2,
-                "defaultH": 240,
-                "minW": 2,
-                "minH": 240,
-                "maxW": null,
-                "maxH": null
-            }
-        },
-        {
-            "id": "medium-horizontal",
-            "label": "Medium Horizontal",
-            "grid": {
-                "defaultW": 4,
-                "defaultH": 120,
-                "minW": 4,
-                "minH": 120,
-                "maxW": null,
-                "maxH": null
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 1,
+                    "min": 1,
+                    "max": 12
+                },
+                "height": {
+                    "default": 120,
+                    "min": 60,
+                    "max": 240,
+                    "step": 10
+                }
             }
         }
     ]

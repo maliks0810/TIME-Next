@@ -94,6 +94,8 @@ export type TemplateSummary = {
     class1?: string;
     class2?: string;
     class3?: string;
+    latestDraft: any;
+    latestPublished: any;
 };
 
 export async function listTemplates(): Promise<TemplateSummary[]> {
@@ -114,6 +116,20 @@ export async function listTemplates(): Promise<TemplateSummary[]> {
         scopeType
         scopeKey
         isSystem
+        latestDraft {
+            id
+            templateId
+            version
+            status
+            defaultContext
+        }
+        latestPublished {
+            id
+            templateId
+            version
+            status
+            defaultContext
+        }
       }
     }`
     );
@@ -366,13 +382,10 @@ export async function listWidgetDefinitions(): Promise<any[]> {
         variants {
           id
           label
-          grid {
-            defaultW
-            defaultH
-            minW
-            minH
-            maxW
-            maxH
+          sizing {
+            resizable
+            width { default min max step }
+            height { default min max step }
           }
         }
       }

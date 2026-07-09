@@ -14,7 +14,11 @@
         "analysis.sessionId",
         "workflow.refresh"
     ],
-    "emitsKeys": ["asset.staged.trancheId", "asset.staged.trancheName", "asset.isNew"],
+    "emitsKeys": [
+        "asset.staged.trancheId",
+        "asset.staged.trancheName",
+        "asset.isNew"
+    ],
     "configSchema": {
         "properties": {
             "showScenarioAction": {
@@ -42,13 +46,18 @@
         {
             "id": "default",
             "label": "Default",
-            "grid": {
-                "defaultW": 8,
-                "defaultH": 750,
-                "minW": 4,
-                "minH": 500,
-                "maxW": null,
-                "maxH": null
+            "sizing": {
+                "resizable": false,
+                "width": {
+                    "default": 8,
+                    "min": 8,
+                    "max": 8
+                },
+                "height": {
+                    "default": 750,
+                    "min": 750,
+                    "max": 750
+                }
             }
         }
     ]

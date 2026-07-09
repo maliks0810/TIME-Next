@@ -101,3 +101,20 @@ body {
 .trap-tabs-bar-only .ant-tabs-nav {
   margin: 0 !important;
 }
+
+.react-grid-item > .react-resizable-handle {
+  opacity: 0.55;
+  z-index: 10;
+}
+
+.react-grid-item:hover > .react-resizable-handle {
+  opacity: 1;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  right: 4px;
+  bottom: 4px;
+  width: 9px;
+  border-right: 2px solid rgba(0,0,0,0.55);
+  border-bottom: 2px solid rgba(0,0,0,0.55);
+}

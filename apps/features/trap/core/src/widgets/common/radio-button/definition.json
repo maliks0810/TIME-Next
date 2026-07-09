@@ -13,7 +13,12 @@
             "channel": {
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [1, 2, 3, 4],
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
                 "title": "Communication Channel",
                 "type": "string",
                 "category": "Interactions"
@@ -27,7 +32,9 @@
             "emitKey": {
                 "title": "Radio emit key",
                 "type": "string",
-                "enum": ["portfolio.summary"],
+                "enum": [
+                    "portfolio.summary"
+                ],
                 "category": "Interactions"
             },
             "checked": {
@@ -39,11 +46,17 @@
             "variant": {
                 "title": "Variant",
                 "type": "string",
-                "enum": ["button", "radio"],
+                "enum": [
+                    "button",
+                    "radio"
+                ],
                 "category": "View Parameters"
             }
         },
-        "required": ["emitKey", "label"],
+        "required": [
+            "emitKey",
+            "label"
+        ],
         "type": "object"
     },
     "uiHints": {
@@ -51,27 +64,21 @@
     },
     "variants": [
         {
-            "id": "small",
-            "label": "Small",
-            "grid": {
-                "defaultW": 1,
-                "defaultH": 60,
-                "minW": 1,
-                "minH": 60,
-                "maxW": null,
-                "maxH": null
-            }
-        },
-        {
-            "id": "medium",
-            "label": "Medium",
-            "grid": {
-                "defaultW": 1,
-                "defaultH": 60,
-                "minW": 1,
-                "minH": 60,
-                "maxW": null,
-                "maxH": null
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 1,
+                    "min": 1,
+                    "max": 12
+                },
+                "height": {
+                    "default": 60,
+                    "min": 30,
+                    "max": 100,
+                    "step": 10
+                }
             }
         }
     ]

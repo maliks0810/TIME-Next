@@ -13,16 +13,23 @@
             "channel": {
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [1, 2, 3, 4],
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
                 "title": "Communication Channel",
                 "type": "string",
                 "category": "Interactions"
             },
-
             "variant": {
                 "title": "Variant",
                 "type": "string",
-                "enum": ["button", "radio"],
+                "enum": [
+                    "button",
+                    "radio"
+                ],
                 "category": "View Parameters"
             }
         },
@@ -34,15 +41,21 @@
     },
     "variants": [
         {
-            "id": "small",
-            "label": "Small",
-            "grid": {
-                "defaultW": 10,
-                "defaultH": 60,
-                "minW": 10,
-                "minH": 60,
-                "maxW": null,
-                "maxH": null
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 10,
+                    "min": 1,
+                    "max": 12
+                },
+                "height": {
+                    "default": 60,
+                    "min": 30,
+                    "max": 100,
+                    "step": 10
+                }
             }
         }
     ]
