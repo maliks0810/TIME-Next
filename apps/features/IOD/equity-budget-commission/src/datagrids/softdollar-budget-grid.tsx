@@ -317,6 +317,7 @@ const onBudgetDetailPopupSave = async () => {
     }  
     setPopupVisible(false);  
     showToast('Saved successfully', 'success');  
+    await loadSoftDollarBudgetData();
   } catch (error) {  
     if (error instanceof Error) {  
       showToast('Save failed while Adding: ' + error.message, 'error');  
@@ -324,9 +325,10 @@ const onBudgetDetailPopupSave = async () => {
   }  
 }; 
 
-const onBudgetDetailPopupCancel = () => {  
+const onBudgetDetailPopupCancel = async () => {  
   setPopupVisible(false);  
   clearSoftAccountUserAllocationData();
+  await loadSoftDollarBudgetData();
 };  
 
 const onBudgetRowClick = useCallback(async(acctKey: number) => {
