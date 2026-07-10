@@ -1,6 +1,7 @@
-import React, { Dispatch, SetStateAction, useCallback } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
-import { Box, Grid } from '@mui/material';
+import { Box, Grid, Menu, MenuItem } from '@mui/material';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { DataGrid } from 'devextreme-react';
 import { Column, DataGridRef, DataGridTypes, HeaderFilter, Pager, Paging, Scrolling, Selection, StateStoring } from 'devextreme-react/data-grid';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
@@ -11,17 +12,65 @@ import {
   EuSecuritizationStatusesRecord,
   ErisaStatusesRecord
 } from '../lib/DashboardSecuritySetupRequestStatuses';
+import { MOCK_DM_ANALYST_OPTIONS } from '../lib/DmAnalystData';
+import { useDashboardStore } from '../../../stores/useDashboardStore';
 import '../lib/dashboard.scss';
 
 type DataGridColumnState = { visibleIndex?: number } & Record<string, unknown>;
 
 type DataGridState = { columns?: DataGridColumnState[] } & Record<string, unknown>;
 
+type DMAnalystMenuState = { requestId: number; position: { top: number; left: number } };
+
 type DashboardGridProps = {
   dashboardGridRef: React.Ref<DataGridRef<IDashboardSecuritySetupRequest, number>>;
   securityRequestsData: IDashboardSecuritySetupRequest[] | undefined;
   setSelectedSecurityRequest: Dispatch<SetStateAction<IDashboardSecuritySetupRequest | undefined>>;
   setIsRequestDetailsOpen: Dispatch<SetStateAction<boolean>>;
+}
+
+const DmAnalystCell: React.FC<{
+  requestId: number,
+  onOpen: (requestId: number, position: { top: number; left: number }) => void;
+}> = ({ requestId, onOpen }) => {
+
+  // selector scoped to this row's assignment so ONLY THIS cell re-renders on change
+  const selectedEmail = useDashboardStore(s => s.dmAnalystAssignments[requestId]);
+  const selectedAnalyst = MOCK_DM_ANALYST_OPTIONS.find((a) => a.fieldDropdownValue === selectedEmail);
+
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+
+    // attach dropdown to bottom of clicked element
+    const rect = e.currentTarget.getBoundingClientRect();
+    onOpen(requestId, { top: rect.bottom, left: rect.left });
+  };
+
+  return (
+    <Box
+      onClick={handleClick}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        cursor: 'pointer',
+        width: '100%'
+      }}
+    >
+      <Box
+        component='span'
+        sx={{
+          flex: 1,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}
+      >
+        {selectedAnalyst?.fieldDropdownDescription || ''}
+      </Box>
+      <ArrowDropDownIcon />
+    </Box>
+  )
 }
 
 const DashboardGrid: React.FC<DashboardGridProps> = ({
@@ -32,6 +81,29 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 }) => {
 
   const navigate = useNavigate();
+
+  const [dmAnalystMenuState, setDmAnalystMenuState] = useState<DMAnalystMenuState | null>(null)
+
+  const dmAnalystAssignments = useDashboardStore((s) => s.dmAnalystAssignments);
+  const setDmAnalyst = useDashboardStore((s) => s.setDmAnalyst);
+  const setDmAnalystDropdownOpen = useDashboardStore((s) => s.setDmAnalystDropdownOpen);
+
+  const openDmAnalystMenu = useCallback((requestId: number, position: { top: number, left: number }) => {
+    setDmAnalystMenuState({ requestId, position });
+    setDmAnalystDropdownOpen(true);
+  }, [setDmAnalystDropdownOpen])
+
+  const closeDmAnalystMenu = useCallback(() => {
+    setDmAnalystMenuState(null);
+    setDmAnalystDropdownOpen(false);
+  }, [setDmAnalystDropdownOpen])
+
+  const handleDmAnalystSelect = useCallback((email: string) => {
+    if (dmAnalystMenuState) {
+      setDmAnalyst(dmAnalystMenuState.requestId, email)
+    }
+    closeDmAnalystMenu();
+  }, [dmAnalystMenuState, setDmAnalyst, closeDmAnalystMenu])
 
   const cellRenderSetupStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
     const status = data.value;
@@ -188,6 +260,10 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 
   }, [setSelectedSecurityRequest, setIsRequestDetailsOpen]);
 
+  const cellRenderDmAnalyst = useCallback((data: DataGridTypes.ColumnCellTemplateData) => {
+    return <DmAnalystCell requestId={data.data.id} onOpen={openDmAnalystMenu} />
+  }, [openDmAnalystMenu])
+
   const handleRowDbleClick = (e: DataGridTypes.RowDblClickEvent) => {
 
     // Clear timer so the single click action doesn't fire
@@ -196,6 +272,10 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
     const rowId = e?.data?.id;
     navigate(`/iod/tdm/security-setup?id=${rowId}`)
   }
+
+  const currentSelectedEmail = dmAnalystMenuState
+    ? dmAnalystAssignments[dmAnalystMenuState.requestId]
+    : undefined;
 
   if (!securityRequestsData) {
     return <></>
@@ -261,6 +341,13 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           minWidth={175}
         />
         <Column
+          dataField='dmAnalyst'
+          caption='DM Analyst'
+          alignment='center'
+          minWidth={175}
+          cellRender={cellRenderDmAnalyst}
+        />
+        <Column
           dataField='setupStatus'
           caption='Setup Status'
           alignment='center'
@@ -305,8 +392,24 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           showPageSizeSelector={true}
           allowedPageSizes={[10, 20, 30]}
         />
-
       </DataGrid>
+      <Menu
+        anchorReference="anchorPosition"
+        anchorPosition={dmAnalystMenuState?.position}
+        open={Boolean(dmAnalystMenuState)}
+        onClose={closeDmAnalystMenu}
+        sx={{ zIndex: 9999 }}
+      >
+        {MOCK_DM_ANALYST_OPTIONS.map((analyst) => (
+          <MenuItem
+            key={analyst.fieldDropdownValue}
+            selected={analyst.fieldDropdownValue === currentSelectedEmail}
+            onClick={() => handleDmAnalystSelect(analyst.fieldDropdownValue)}
+          >
+            {analyst.fieldDropdownDescription}
+          </MenuItem>
+        ))}
+      </Menu>
     </>
   )
 }
