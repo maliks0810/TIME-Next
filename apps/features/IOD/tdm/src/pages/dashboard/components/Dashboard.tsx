@@ -10,6 +10,7 @@ import { DateRangeBox } from 'devextreme-react/date-range-box'
 import { IDashboardSecuritySetupRequest, IDashboardStats } from '../lib/DashboardSecuritySetupRequest'
 import { getDefaultDashboardSearchParameters, IDashboardSearchParameters, updateDashboardSearchParameter } from '../lib/DashboardSearchParameters';
 import { getSecurityRequestsDashboard } from '../../../services/DashboardService';
+import { useDashboardStore } from '../../../stores/useDashboardStore';
 import { useVisibilityChange } from '../../../hooks/useVisibilityChange';
 import { useInterval } from '../../../hooks/useInterval';
 import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
@@ -32,6 +33,7 @@ const Dashboard: React.FC = () => {
   const [lastRefreshed, setLastRefreshed] = useState<string>("");
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const isPageVisible = useVisibilityChange();
+  const isDmAnalystDropdownOpen = useDashboardStore(s => s.isDmAnalystDropdownOpen);
   const navigate = useNavigate();
   const dashboardGridRef = useRef<DataGridRef<IDashboardSecuritySetupRequest, number>>(null);
 
@@ -41,13 +43,14 @@ const Dashboard: React.FC = () => {
 
   // poll data when page is visible
   useEffect(() => {
-    if (isPageVisible) {
+    // pause polling when user had DM Analyst dropdown open
+    if (isPageVisible && !isDmAnalystDropdownOpen) {
       setPollingInterval(DASHBOARD_POLLING_INTERVAL);
     }
     else {
       setPollingInterval(null);
     }
-  }, [isPageVisible]);
+  }, [isPageVisible, isDmAnalystDropdownOpen]);
 
   // poll data in intervals
   useInterval(() => {

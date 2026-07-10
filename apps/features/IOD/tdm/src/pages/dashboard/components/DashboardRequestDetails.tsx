@@ -136,13 +136,13 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
 
   const lookupReferenceDataDescription = (key: string, value: string) => {
     let description: string | undefined = value;
-    
+
     const data = referenceData?.byKey[key];
 
-    if (data){
-      if (data.fieldDropdownValues){
+    if (data) {
+      if (data.fieldDropdownValues) {
         const fieldDropdown = data.fieldDropdownValues.find(field => field.fieldDropdownValue === value);
-        if (fieldDropdown){
+        if (fieldDropdown) {
           description = fieldDropdown.fieldDropdownDescription;
         }
       }
@@ -344,6 +344,9 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
                   Callable
                 </Typography>
                 <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
+                  <pre>
+                    {JSON.stringify(securityRequest.securityRequestDetails.callableValue, null, 2)}
+                  </pre>
                   {lookupReferenceDataDescription(ReferenceDataFieldKey.Callable, securityRequest.securityRequestDetails.callableValue)}
                 </Typography>
               </Grid>
