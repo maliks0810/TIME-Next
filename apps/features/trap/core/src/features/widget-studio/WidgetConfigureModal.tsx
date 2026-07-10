@@ -18,7 +18,6 @@ type WidgetConfigureModalProps = {
     isOpen: boolean;
     onClose: () => void;
     templateId: string;
-    versionId: string;
     onSave: (widget: WidgetInstanceLike) => void;
     data: {
         instance: DesignerWidgetInstance;
@@ -31,7 +30,6 @@ export const WidgetConfigureModal = ({
     data,
     onClose,
     templateId,
-    versionId,
     onSave,
 }: WidgetConfigureModalProps) => {
     const { definition = {}, instance } = data;
@@ -119,7 +117,7 @@ export const WidgetConfigureModal = ({
 
     const save = async () => {
         setIsLoading(true);
-        const templateVersion = await getTemplateVersion(templateId, versionId);
+        const templateVersion = await getTemplateVersion(templateId);
         if (!templateVersion || !instance || !definition) return;
 
         try {
@@ -154,7 +152,7 @@ export const WidgetConfigureModal = ({
                 layoutVariants: templateVersion.layoutVariants ?? [],
                 widgets: nextWidgets,
             };
-            await updateDraftVersion(templateId, versionId, payload);
+            await updateDraftVersion(templateId, payload);
             onClose();
 
             if (changedWidget) onSave(changedWidget);

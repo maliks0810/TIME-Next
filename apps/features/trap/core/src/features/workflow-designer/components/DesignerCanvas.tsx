@@ -12,7 +12,6 @@ type DesignerCanvasProps = {
     widgetsById: Record<string, DesignerWidgetInstance>;
     widgetDefById: Record<string, any>;
     templateId: string;
-    versionId: string;
     isPublished: boolean;
     isDraft: boolean;
     isDraftSaved: boolean;
@@ -27,7 +26,6 @@ export default function DesignerCanvas({
     widgetsById,
     widgetDefById,
     templateId,
-    versionId,
     isPublished,
     isDraft,
     isDraftSaved,
@@ -71,7 +69,6 @@ export default function DesignerCanvas({
                             widget={widget}
                             widgetDefinition={widgetDefinition}
                             templateId={templateId}
-                            versionId={versionId}
                             isPublished={isPublished}
                             isDraft={isDraft}
                             isDraftSaved={isDraftSaved}

@@ -24,7 +24,6 @@ export type WorkflowTabModel = {
     workflowId: string;
     title: string;
     templateId: string;
-    templateVersionId: string;
     templateVersionStatus: string;
     initialContext?: WorkflowContext;
 };
@@ -34,13 +33,11 @@ export type RecentWorkflowItem = {
     label: string;
     description?: string;
     templateId?: string;
-    versionId?: string;
 };
 
 export type LandingTabProps = {
     onOpenWorkflow: (ws: WorkflowTabModel) => void;
     activeLandingSelection?: {
         templateId: string;
-        templateVersionId: string;
     };
 };

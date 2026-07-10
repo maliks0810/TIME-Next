@@ -70,12 +70,17 @@ export function useWorkflowLauncherData(args: Args) {
     const refreshLauncherData = React.useCallback(async () => {
         setLoading(true);
         try {
-            const templates = ((await listTemplates()) as TemplateRecord[]);
-            setItems(templates.map(template => ({
-                ...template,
-                templateId: template.id,
-                templateName: template.name
-            } as WorkflowLauncherItem)));
+            const templates = (await listTemplates()) as TemplateRecord[];
+            setItems(
+                templates.map(
+                    (template) =>
+                        ({
+                            ...template,
+                            templateId: template.id,
+                            templateName: template.name,
+                        }) as WorkflowLauncherItem
+                )
+            );
         } catch (err: any) {
             message.error(extractErrorMessage(err, 'Failed to load workflows'));
         } finally {
@@ -223,7 +228,6 @@ export function useWorkflowLauncherData(args: Args) {
 
             await onLaunchWorkflow?.({
                 templateId: item.templateId,
-                templateVersionId: version.id,
                 templateName: item.templateName,
                 templateVersionStatus: version.status,
                 initialContext: version.defaultContext ?? {},
@@ -255,7 +259,6 @@ export function useWorkflowLauncherData(args: Args) {
 
                 onEditWorkflow?.({
                     templateId: item.templateId,
-                    templateVersionId: version.id,
                     templateName: item.templateName,
                     templateVersionStatus: version.status,
                     initialContext: version.defaultContext ?? {},
@@ -282,7 +285,6 @@ export function useWorkflowLauncherData(args: Args) {
                 if (nextTemplate?.id && nextVersion?.id) {
                     onEditWorkflow?.({
                         templateId: nextTemplate.id,
-                        templateVersionId: nextVersion.id,
                         templateName: nextTemplate.name ?? cloneName,
                         templateVersionStatus: nextVersion.status ?? 'DRAFT',
                         initialContext: nextVersion.defaultContext ?? {},
