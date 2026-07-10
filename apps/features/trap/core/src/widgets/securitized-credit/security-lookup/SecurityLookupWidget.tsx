@@ -26,7 +26,7 @@ export default function SecurityLookupWidget({
 }: WidgetComponentProps) {
     const { token } = theme.useToken();
 
-    const [searchType, setSearchType] = React.useState<SearchType>('CUSIP');
+    const [searchType, setSearchType] = React.useState<SearchType>('TICKER');
     const [query, setQuery] = React.useState('');
     const [selected, setSelected] = React.useState<SearchResult | null>(null);
 
