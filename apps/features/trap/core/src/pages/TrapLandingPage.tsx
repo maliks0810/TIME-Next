@@ -8,7 +8,7 @@ import LandingTab from '../features/landing/LandingTab';
 import WorkflowTab from '../features/workflow-runtime/WorkflowTab';
 import TrapHud from '../components/common/TrapHud';
 
-import { cloneTemplate, getTemplates, openTemplate } from '../api/trap';
+import { cloneTemplate, getTemplates } from '../api/trap';
 
 import { setDefaultLandingTemplate } from '../utils/userPreferences';
 import { useGetActiveTab, useSetActiveTab } from '../state/Tabs/hooks';
@@ -19,7 +19,6 @@ type WorkflowTabModel = {
     workflowId: string;
     title: string;
     templateId: string;
-    templateVersionId: string;
     templateVersionStatus: string;
 };
 
@@ -27,14 +26,12 @@ type OpenWorkflowRequest = Omit<WorkflowTabModel, 'bus'>;
 
 type HudWorkflowSelection = {
     templateId: string;
-    templateVersionId: string;
     templateName: string;
     templateVersionStatus: string;
 };
 
 type HudLandingSelection = {
     templateId: string;
-    templateVersionId: string;
 };
 
 const TAB_BAR_HEIGHT = 48;
@@ -62,12 +59,11 @@ export default function TrapLandingPage() {
     const [isInitialLoading, setIsInitialLoading] = React.useState(true);
 
     useEffect(() => {
-        const versionId = searchParams.get('version_id');
         const templateId = searchParams.get('template_id');
 
-        if (versionId && templateId && activeUser) {
+        if (templateId && activeUser) {
             setIsInitialLoading(false);
-            initWorkflowFromURL(templateId, versionId);
+            initWorkflowFromURL(templateId);
         }
     }, [activeUser]);
 
@@ -88,7 +84,6 @@ export default function TrapLandingPage() {
         if (activeWf) {
             const newParams = new URLSearchParams();
             newParams.set('template_id', activeWf.templateId);
-            newParams.set('version_id', activeWf.templateVersionId);
             setSearchParams(newParams, { replace: true });
         }
     }, [activeKey]);
@@ -133,11 +128,7 @@ export default function TrapLandingPage() {
     const showTabs = workflows.length > 0;
 
     const onEditTemplate = (ws: WorkflowTabModel) => {
-        nav(
-            `designer?templateId=${encodeURIComponent(ws.templateId)}&versionId=${encodeURIComponent(
-                ws.templateVersionId
-            )}`
-        );
+        nav(`designer?templateId=${ws.templateId}`);
     };
 
     const onCloneTemplate = async (ws: WorkflowTabModel) => {
@@ -148,11 +139,7 @@ export default function TrapLandingPage() {
             const nextTemplate = result?.template;
             const nextVersion = result?.version;
             if (nextTemplate && nextVersion) {
-                nav(
-                    `designer?templateId=${encodeURIComponent(nextTemplate.id)}&versionId=${encodeURIComponent(
-                        nextVersion.id
-                    )}`
-                );
+                nav(`designer?templateId=${nextTemplate.id}`);
             }
         } catch (e: any) {
             message.error(e?.message ?? 'Failed to clone template');
@@ -166,20 +153,16 @@ export default function TrapLandingPage() {
     const onLaunchHudWorkflow = React.useCallback(
         async (selection: HudWorkflowSelection) => {
             try {
-                const opened = await openTemplate(selection.templateVersionId, {});
-
                 addWorkflowTab({
-                    key: opened.workflowId,
-                    workflowId: opened.workflowId,
+                    key: selection.templateId,
+                    workflowId: selection.templateId,
                     title: selection.templateName,
                     templateId: selection.templateId,
-                    templateVersionId: selection.templateVersionId,
                     templateVersionStatus: selection.templateVersionStatus,
                 });
 
                 const newParams = new URLSearchParams();
                 newParams.set('template_id', selection.templateId);
-                newParams.set('version_id', selection.templateVersionId);
                 setSearchParams(newParams);
             } catch (e: any) {
                 message.error(e?.message ?? 'Failed to launch workflow');
@@ -190,21 +173,16 @@ export default function TrapLandingPage() {
 
     const onEditHudWorkflow = React.useCallback(
         (selection: HudWorkflowSelection) => {
-            nav(
-                `designer?templateId=${encodeURIComponent(
-                    selection.templateId
-                )}&versionId=${encodeURIComponent(selection.templateVersionId)}`
-            );
+            nav(`designer?templateId=${selection.templateId}`);
         },
         [nav]
     );
 
     const onActivateHudLanding = React.useCallback((selection: HudLandingSelection) => {
-        setDefaultLandingTemplate(selection.templateId, selection.templateVersionId);
+        setDefaultLandingTemplate(selection.templateId);
 
         setLandingSelection({
             templateId: selection.templateId,
-            templateVersionId: selection.templateVersionId,
         });
 
         setActiveKey('landing');
@@ -268,13 +246,12 @@ export default function TrapLandingPage() {
         })),
     ];
 
-    const initWorkflowFromURL = async (templateId: string, versionId: string) => {
+    const initWorkflowFromURL = async (templateId: string) => {
         const templates = await getTemplates();
         const template = templates.find((el) => el.id === templateId);
         if (template) {
             const selection: HudWorkflowSelection = {
                 templateId: templateId,
-                templateVersionId: versionId,
                 templateName: template.name,
                 templateVersionStatus: '', //TODO: currently not needed but need to implement
             };
@@ -335,7 +312,6 @@ export default function TrapLandingPage() {
                             <WorkflowTab
                                 workflowId={ws.workflowId}
                                 templateId={ws.templateId}
-                                templateVersionId={ws.templateVersionId}
                                 onClose={() => closeWorkflowTab(ws.workflowId)}
                             />
                         </div>

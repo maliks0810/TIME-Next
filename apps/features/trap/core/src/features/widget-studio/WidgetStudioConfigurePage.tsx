@@ -69,267 +69,9 @@ function isBooleanField(spec: any) {
     return spec?.type === 'boolean';
 }
 
-function renderPreview(widgetId: string, previewOut: any, token: any) {
+function renderPreview(_widgetId: string, previewOut: any, token: any) {
     const raw = previewOut?.result ?? previewOut?.data ?? previewOut;
     const data = raw?.result ?? raw;
-
-    if (widgetId === 'cwd_capital_structure') {
-        const liveTranches = Array.isArray(data?.tranches) ? data.tranches : [];
-        const mockRows = Array.isArray(data?.rows) ? data.rows : [];
-
-        const tranches =
-            liveTranches.length > 0
-                ? liveTranches.map((t: any) => ({
-                      name: String(t?.name ?? '-'),
-                      rating: String(t?.rating ?? '-'),
-                      size: String(t?.size ?? '-'),
-                      spread: String(t?.spread ?? '-'),
-                      price: String(t?.price ?? '-'),
-                  }))
-                : mockRows.map((r: any) => ({
-                      name: ['AAA', 'AA', 'A', 'BBB', 'BB'].includes(String(r?.tranche ?? ''))
-                          ? `Class ${String(r?.tranche ?? '')}`
-                          : String(r?.tranche ?? '-'),
-                      rating: String(r?.tranche ?? '-'),
-                      size:
-                          typeof r?.amount === 'number'
-                              ? `${(r.amount / 1000000).toFixed(0)}mm`
-                              : '-',
-                      spread: typeof r?.spread === 'number' ? `SOFR + ${r.spread}` : '-',
-                      price: '-',
-                  }));
-
-        const totalSize = tranches.reduce((sum: number, tranche: any) => {
-            const numeric = Number.parseFloat(String(tranche.size ?? '').replace(/[^\d.]/g, ''));
-            return sum + (Number.isFinite(numeric) ? numeric : 0);
-        }, 0);
-
-        return (
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 12,
-                    padding: 8,
-                    border: `1px solid ${token.colorBorderSecondary}`,
-                    borderRadius: 6,
-                    background: `linear-gradient(180deg, ${token.colorFillAlter} 0%, ${token.colorBgContainer} 100%)`,
-                }}
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        justifyContent: 'space-between',
-                        gap: 12,
-                        borderBottom: `1px solid ${token.colorBorderSecondary}`,
-                        paddingBottom: 10,
-                    }}
-                >
-                    <div>
-                        <div
-                            style={{
-                                fontSize: 11,
-                                fontWeight: 700,
-                                letterSpacing: 0.8,
-                                textTransform: 'uppercase',
-                                color: token.colorTextSecondary,
-                                marginBottom: 4,
-                            }}
-                        >
-                            Capital Stack Preview
-                        </div>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: token.colorText }}>
-                            {String(
-                                data?.dealName ??
-                                    `${String(data?.assetClass ?? 'Structured Credit')} Capital Structure`
-                            )}
-                        </div>
-                        <div
-                            style={{ fontSize: 12, color: token.colorTextSecondary, marginTop: 2 }}
-                        >
-                            {String(data?.currency ?? 'USD')} • {tranches.length} tranches
-                        </div>
-                    </div>
-
-                    <div
-                        style={{
-                            minWidth: 110,
-                            textAlign: 'right',
-                            padding: '8px 10px',
-                            border: `1px solid ${token.colorBorderSecondary}`,
-                            borderRadius: 8,
-                            background: token.colorBgElevated,
-                        }}
-                    >
-                        <div
-                            style={{
-                                fontSize: 10,
-                                textTransform: 'uppercase',
-                                color: token.colorTextTertiary,
-                                fontWeight: 700,
-                            }}
-                        >
-                            Total Issuance
-                        </div>
-                        <div
-                            style={{
-                                fontSize: 18,
-                                fontWeight: 700,
-                                lineHeight: 1.2,
-                                color: token.colorText,
-                            }}
-                        >
-                            {totalSize.toFixed(0)}mm
-                        </div>
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {tranches.map((tranche: any) => {
-                        const trancheSize = Number.parseFloat(
-                            String(tranche.size ?? '').replace(/[^\d.]/g, '')
-                        );
-                        const widthPercent =
-                            totalSize > 0 && Number.isFinite(trancheSize)
-                                ? (trancheSize / totalSize) * 100
-                                : 0;
-
-                        return (
-                            <div
-                                key={`${tranche.name}-${tranche.rating}`}
-                                style={{
-                                    border: `1px solid ${token.colorBorderSecondary}`,
-                                    borderRadius: 8,
-                                    background: token.colorBgElevated,
-                                    overflow: 'hidden',
-                                    boxShadow: token.boxShadowSecondary,
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        display: 'grid',
-                                        gridTemplateColumns:
-                                            '120px 72px minmax(0, 1fr) 90px 120px 72px',
-                                        alignItems: 'center',
-                                        gap: 8,
-                                        padding: '10px 12px',
-                                    }}
-                                >
-                                    <div>
-                                        <div
-                                            style={{
-                                                fontSize: 13,
-                                                fontWeight: 700,
-                                                color: token.colorText,
-                                            }}
-                                        >
-                                            {tranche.name}
-                                        </div>
-                                        <div
-                                            style={{
-                                                fontSize: 11,
-                                                color: token.colorTextSecondary,
-                                                marginTop: 2,
-                                            }}
-                                        >
-                                            Seniority band
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <span
-                                            style={{
-                                                display: 'inline-block',
-                                                minWidth: 42,
-                                                textAlign: 'center',
-                                                padding: '4px 8px',
-                                                borderRadius: 999,
-                                                border: `1px solid ${token.colorBorder}`,
-                                                fontSize: 11,
-                                                fontWeight: 700,
-                                                letterSpacing: 0.3,
-                                                background: token.colorFillTertiary,
-                                                color: token.colorText,
-                                            }}
-                                        >
-                                            {tranche.rating}
-                                        </span>
-                                    </div>
-
-                                    <div>
-                                        <div
-                                            style={{
-                                                position: 'relative',
-                                                height: 12,
-                                                borderRadius: 999,
-                                                background: token.colorFillSecondary,
-                                                overflow: 'hidden',
-                                            }}
-                                        >
-                                            <div
-                                                style={{
-                                                    width: `${Math.max(widthPercent, 6)}%`,
-                                                    height: '100%',
-                                                    borderRadius: 999,
-                                                    background: `linear-gradient(90deg, ${token.colorPrimary} 0%, ${token.colorPrimaryHover} 100%)`,
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        style={{
-                                            fontSize: 12,
-                                            fontWeight: 700,
-                                            textAlign: 'right',
-                                            color: token.colorText,
-                                        }}
-                                    >
-                                        {tranche.size}
-                                    </div>
-
-                                    <div style={{ fontSize: 12, color: token.colorText }}>
-                                        <div style={{ fontWeight: 600 }}>{tranche.spread}</div>
-                                        <div
-                                            style={{
-                                                fontSize: 11,
-                                                color: token.colorTextTertiary,
-                                                marginTop: 2,
-                                            }}
-                                        >
-                                            Coupon / spread
-                                        </div>
-                                    </div>
-
-                                    <div style={{ textAlign: 'right' }}>
-                                        <div
-                                            style={{
-                                                fontSize: 12,
-                                                fontWeight: 700,
-                                                color: token.colorText,
-                                            }}
-                                        >
-                                            {tranche.price}
-                                        </div>
-                                        <div
-                                            style={{
-                                                fontSize: 11,
-                                                color: token.colorTextTertiary,
-                                                marginTop: 2,
-                                            }}
-                                        >
-                                            Px
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-        );
-    }
 
     const rows = data?.rows;
     if (Array.isArray(rows) && rows.length > 0) {
@@ -376,11 +118,9 @@ export default function WidgetStudioConfigurePage() {
     const bus = React.useMemo(() => createContextBus(), []);
 
     const templateId = q.get('templateId') ?? '';
-    const versionId = q.get('versionId') ?? '';
     const instanceId = q.get('instanceId') ?? '';
     const returnTo =
-        q.get('returnTo') ??
-        `/trap/designer?templateId=${encodeURIComponent(templateId)}&versionId=${encodeURIComponent(versionId)}`;
+        q.get('returnTo') ?? `/trap/designer?templateId=${encodeURIComponent(templateId)}`;
 
     const [loading, setLoading] = React.useState(false);
     const [tv, setTv] = React.useState<any>(null);
@@ -410,10 +150,10 @@ export default function WidgetStudioConfigurePage() {
     const defaultDatasetId = widgetDef?.preview?.defaultDatasetId ?? widgetDef?.datasetId ?? '';
 
     const load = React.useCallback(async () => {
-        if (!templateId || !versionId || !instanceId) return;
+        if (!templateId || !instanceId) return;
         setLoading(true);
         try {
-            const t = await getTemplateVersion(templateId, versionId);
+            const t = await getTemplateVersion(templateId);
             setTv(t);
 
             const wi = findInstance(t, instanceId);
@@ -458,7 +198,7 @@ export default function WidgetStudioConfigurePage() {
         } finally {
             setLoading(false);
         }
-    }, [templateId, versionId, instanceId]);
+    }, [templateId, instanceId]);
 
     React.useEffect(() => {
         void load();
@@ -570,7 +310,7 @@ export default function WidgetStudioConfigurePage() {
                 widgets: nextWidgets,
             };
 
-            await updateDraftVersion(templateId, versionId, payload);
+            await updateDraftVersion(templateId, payload);
 
             message.success('Saved configuration');
             nav(returnTo);

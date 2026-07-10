@@ -42,7 +42,6 @@ export default function WorkflowDesignerPage() {
         loading,
         loaded,
         templateId,
-        versionId,
         widgetSearch,
         selectedCategory,
         selectedWidgetDefId,
@@ -98,7 +97,6 @@ export default function WorkflowDesignerPage() {
             {contextHolder}
             <DesignerHeader
                 templateId={templateId}
-                versionId={versionId}
                 loaded={loaded}
                 loading={loading}
                 isPublished={isPublished}
@@ -132,9 +130,9 @@ export default function WorkflowDesignerPage() {
                 onBack={() => nav('/trap')}
             />
 
-            {!templateId || !versionId || layout.length === 0 ? (
+            {!templateId || layout.length === 0 ? (
                 <EmptyDesignerState
-                    hasRoute={!!templateId && !!versionId}
+                    hasRoute={!!templateId}
                     hasWidgets={layout.length > 0}
                     isPublished={isPublished}
                     onBack={() => nav('/trap')}
@@ -165,7 +163,6 @@ export default function WorkflowDesignerPage() {
                                     widget={widget}
                                     widgetDefinition={widgetDefinition}
                                     templateId={templateId}
-                                    versionId={versionId}
                                     isPublished={isPublished}
                                     isDraft={isDraft}
                                     isDraftSaved={isDraftSaved}

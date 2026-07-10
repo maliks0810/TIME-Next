@@ -8,6 +8,8 @@ type WorkflowTargetWidgetProps = {
     templates: Template[];
     versions: TemplateVersion[];
     targetTemplateId?: string;
+
+    // TODO review this widget
     targetTemplateVersionId?: string;
     onChangeTemplate: (value: string) => void;
     onChangeVersion: (value: string) => void;

@@ -49,7 +49,6 @@ export type WorkflowLauncherItem = {
 
 export type WorkflowLaunchSelection = {
     templateId: string;
-    templateVersionId: string;
     templateName: string;
     templateVersionStatus: string;
     initialContext?: Record<string, any>;

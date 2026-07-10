@@ -8,15 +8,13 @@ export function getDefaultLandingTemplate() {
 
     return {
         templateId: localStorage.getItem(LANDING_TEMPLATE_KEY),
-        versionId: localStorage.getItem(LANDING_VERSION_KEY),
     };
 }
 
-export function setDefaultLandingTemplate(templateId: string, versionId: string) {
+export function setDefaultLandingTemplate(templateId: string) {
     if (typeof window === 'undefined') return;
 
     localStorage.setItem(LANDING_TEMPLATE_KEY, templateId);
-    localStorage.setItem(LANDING_VERSION_KEY, versionId);
 }
 
 export function clearDefaultLandingTemplate() {
