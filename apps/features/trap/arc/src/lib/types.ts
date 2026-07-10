@@ -430,3 +430,21 @@ export type NoteType = {
     lastModifiedBy: string;
     lastModifiedDate: string;
 };
+
+export type WorkflowException = {
+    anchorType: string;
+    anchorId: number;
+    workflowId: number;
+    exceptionType: string;
+    exceptionMessage: string;
+    isResolved: boolean;
+    createdBy: string;
+    createdDate: string;
+    lastModifiedBy: string;
+    lastModifiedDate: string;
+    workflowExceptionId: number;
+}
+
+export type WorkflowExceptionResponseCollection = {
+    response: WorkflowException[];
+};
