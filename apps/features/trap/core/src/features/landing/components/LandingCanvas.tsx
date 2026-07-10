@@ -10,7 +10,6 @@ type LandingCanvasProps = {
     onOpenWorkflowFromRecent: (input: {
         target?: {
             templateId?: string;
-            templateVersionId?: string;
             title?: string;
             templateVersionStatus?: string;
         };

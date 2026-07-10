@@ -5,7 +5,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
     getTemplateVersion,
-    listTemplateVersions,
     listTemplates,
     listWidgetDefinitions,
     publishTemplateVersion,
@@ -59,10 +58,8 @@ export function useWorkflowDesigner() {
 
     const params = React.useMemo(() => new URLSearchParams(location.search), [location.search]);
     const routeTemplateId = params.get('templateId') ?? '';
-    const routeVersionId = params.get('versionId') ?? '';
 
     const [templateId, setTemplateId] = React.useState(routeTemplateId);
-    const [versionId, setVersionId] = React.useState(routeVersionId);
 
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -74,8 +71,7 @@ export function useWorkflowDesigner() {
 
     React.useEffect(() => {
         setTemplateId(routeTemplateId);
-        setVersionId(routeVersionId);
-    }, [routeTemplateId, routeVersionId]);
+    }, [routeTemplateId]);
 
     const loadTemplateMeta = React.useCallback(async (tid: string) => {
         const templates = await listTemplates();
@@ -87,27 +83,25 @@ export function useWorkflowDesigner() {
     const isDraft = loadedStatus === 'DRAFT';
     const hasWidgets = layout.length > 0 && Object.keys(widgetsById ?? {}).length > 0;
 
-    const saveDisabledReason =
-        !templateId || !versionId
-            ? 'Create or load a draft first'
-            : isPublished
-              ? 'Published versions are immutable'
-              : !hasWidgets
-                ? 'Add at least one widget before saving'
-                : undefined;
+    const saveDisabledReason = !templateId
+        ? 'Create or load a draft first'
+        : isPublished
+          ? 'Published versions are immutable'
+          : !hasWidgets
+            ? 'Add at least one widget before saving'
+            : undefined;
 
-    const publishDisabledReason =
-        !templateId || !versionId
-            ? 'Create or load a draft first'
-            : isPublished
-              ? 'This version is already published'
-              : !isDraft
-                ? 'Only draft versions can be published'
-                : !hasWidgets
-                  ? 'Add at least one widget before publishing'
-                  : !isDraftSaved
-                    ? 'Save draft before publishing'
-                    : undefined;
+    const publishDisabledReason = !templateId
+        ? 'Create or load a draft first'
+        : isPublished
+          ? 'This version is already published'
+          : !isDraft
+            ? 'Only draft versions can be published'
+            : !hasWidgets
+              ? 'Add at least one widget before publishing'
+              : !isDraftSaved
+                ? 'Save draft before publishing'
+                : undefined;
 
     const designerWidgetDefs = React.useMemo(() => {
         const kind = String(loaded?.kind ?? '').toLowerCase();
@@ -239,17 +233,17 @@ export function useWorkflowDesigner() {
     }, []);
 
     React.useEffect(() => {
-        if (!templateId || !versionId) return;
+        if (!templateId) return;
 
         (async () => {
             try {
-                const tv = await getTemplateVersion(templateId, versionId);
+                const tv = await getTemplateVersion(templateId);
                 const templateMeta = await loadTemplateMeta(templateId);
 
                 const enriched = {
                     ...tv,
-                    name: templateMeta?.name ?? tv?.name,
-                    kind: templateMeta?.kind ?? tv?.kind,
+                    name: templateMeta?.name,
+                    kind: templateMeta?.kind,
                     templateName: templateMeta?.name,
                     templateKind: templateMeta?.kind,
                 };
@@ -258,25 +252,9 @@ export function useWorkflowDesigner() {
                 hydrateFromTemplateVersion(enriched);
             } catch {
                 try {
-                    const versions = await listTemplateVersions(templateId);
-                    const sorted = [...versions].sort(
-                        (a, b) => Number(b.version ?? 0) - Number(a.version ?? 0)
-                    );
-                    const fallback =
-                        sorted.find((v) => v.id === versionId) ??
-                        sorted.find((v) => v.status === 'DRAFT') ??
-                        sorted.find((v) => v.status === 'PUBLISHED') ??
-                        sorted[0];
+                    nav(`designer?templateId=${templateId}`, { replace: true });
 
-                    if (!fallback?.id) return;
-
-                    setVersionId(fallback.id);
-                    nav(
-                        `designer?templateId=${encodeURIComponent(templateId)}&versionId=${encodeURIComponent(fallback.id)}`,
-                        { replace: true }
-                    );
-
-                    const tv = await getTemplateVersion(templateId, fallback.id);
+                    const tv = await getTemplateVersion(templateId);
                     const templateMeta = await loadTemplateMeta(templateId);
 
                     const enriched = {
@@ -294,7 +272,7 @@ export function useWorkflowDesigner() {
                 }
             }
         })();
-    }, [templateId, versionId, nav, hydrateFromTemplateVersion, loadTemplateMeta]);
+    }, [templateId, nav, hydrateFromTemplateVersion, loadTemplateMeta]);
 
     const getParams = React.useCallback(() => {
         switch (true) {
@@ -399,8 +377,8 @@ export function useWorkflowDesigner() {
     }, []);
 
     const saveDraft = React.useCallback(async () => {
-        if (!templateId || !versionId) {
-            message.error('templateId and versionId are required');
+        if (!templateId) {
+            message.error('templateId is required');
             return;
         }
 
@@ -431,15 +409,16 @@ export function useWorkflowDesigner() {
 
             const widgetsCore = Object.values(widgetsById ?? {}).map(designerWidgetToCore);
 
+            //TODO Remove 'mockVersionId' from publishTemplateVersion
             const payload = {
-                id: versionId,
+                id: 'mockVersionId',
                 templateId,
                 defaultContext,
                 layout: cleanLayout,
                 widgets: widgetsCore,
             };
 
-            const updated = await updateDraftVersion(templateId, versionId, payload);
+            const updated = await updateDraftVersion(templateId, payload);
             const templateMeta = await loadTemplateMeta(templateId);
 
             const enriched = {
@@ -450,15 +429,11 @@ export function useWorkflowDesigner() {
                 templateKind: templateMeta?.kind,
             };
 
-            setVersionId(updated.id);
             setLoaded(enriched);
             hydrateFromTemplateVersion(enriched);
             setIsDraftSaved(true);
 
-            nav(
-                `?templateId=${encodeURIComponent(templateId)}&versionId=${encodeURIComponent(updated.id)}`,
-                { replace: true }
-            );
+            nav(`?templateId=${templateId}`, { replace: true });
 
             message.success('Draft saved');
         } catch (e: any) {
@@ -468,7 +443,6 @@ export function useWorkflowDesigner() {
         }
     }, [
         templateId,
-        versionId,
         saveDisabledReason,
         defaultContextJson,
         layout,
@@ -479,8 +453,8 @@ export function useWorkflowDesigner() {
     ]);
 
     const publish = React.useCallback(async () => {
-        if (!templateId || !versionId) {
-            message.error('templateId and versionId are required');
+        if (!templateId) {
+            message.error('templateId is required');
             return;
         }
 
@@ -491,7 +465,7 @@ export function useWorkflowDesigner() {
 
         setLoading(true);
         try {
-            const published = await publishTemplateVersion(templateId, versionId);
+            const published = await publishTemplateVersion(templateId);
             const templateMeta = await loadTemplateMeta(templateId);
 
             const enriched = {
@@ -502,24 +476,16 @@ export function useWorkflowDesigner() {
                 templateKind: templateMeta?.kind,
             };
 
-            setVersionId(published.id);
             setLoaded(enriched);
             hydrateFromTemplateVersion(enriched);
             message.success('Published');
-            nav(`/trap?template_id=${templateId}&version_id=${versionId}`);
+            nav(`/trap?template_id=${templateId}`);
         } catch (e: any) {
             message.error(e?.message ?? String(e));
         } finally {
             setLoading(false);
         }
-    }, [
-        templateId,
-        versionId,
-        publishDisabledReason,
-        nav,
-        hydrateFromTemplateVersion,
-        loadTemplateMeta,
-    ]);
+    }, [templateId, publishDisabledReason, nav, hydrateFromTemplateVersion, loadTemplateMeta]);
 
     return {
         nav,
@@ -528,7 +494,6 @@ export function useWorkflowDesigner() {
         loaded,
 
         templateId,
-        versionId,
 
         widgetSearch,
         selectedCategory,

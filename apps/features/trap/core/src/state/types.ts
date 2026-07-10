@@ -34,7 +34,6 @@ export type WidgetInstance = {
 
 export type CompiledWorkflowView = {
     workflowId: string;
-    templateVersionId: string;
     activeVariantId: string;
     theme?: Record<string, any>;
     defaultContext?: Record<string, any>;

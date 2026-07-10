@@ -5,7 +5,6 @@ import JsonInfoModal from '../../../components/common/JsonInfoModal';
 
 type DesignerHeaderProps = {
     templateId: string;
-    versionId: string;
     loaded: any;
     loading: boolean;
     isPublished: boolean;
@@ -31,7 +30,7 @@ export default function DesignerHeader(props: DesignerHeaderProps) {
     const loadedStatus = String(props.loaded?.status ?? '').toUpperCase();
 
     const statusTag = (() => {
-        if (!props.templateId || !props.versionId) return <Tag>NEW</Tag>;
+        if (!props.templateId) return <Tag>NEW</Tag>;
         if (props.isPublished) return <Tag>PUBLISHED</Tag>;
         if (props.isDraft) return <Tag>DRAFT</Tag>;
         return <Tag>{loadedStatus || 'UNKNOWN'}</Tag>;
@@ -223,7 +222,7 @@ export default function DesignerHeader(props: DesignerHeaderProps) {
                 </Col>
 
                 <Col>
-                    {!props.templateId || !props.versionId ? (
+                    {!props.templateId ? (
                         <Space wrap>
                             <Button
                                 onClick={props.onBack}
