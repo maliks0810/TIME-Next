@@ -1,6 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { executeWidget } from '../../api/trap';
+import { subscribeWidget } from '../../api/realtime';
 import WidgetRenderer from '../../components/widget-runtime/WidgetRenderer';
 import type { WidgetRenderMode } from '../../types/widget';
 import { WidgetValueType } from '../../state/Widgets/types';
@@ -159,6 +160,26 @@ export default function WidgetHost(props: {
             setAbortController(undefined);
         }
     };
+
+    const subscribe = () => {
+        if (props.mode === 'designer') {
+            return;
+        }
+        const dispose = subscribeWidget(
+            {
+                widgetDefinitionId,
+                variantId,
+                params: { ...params },
+                context: {},
+                mode: 'LIVE',
+            },
+            (frame) => {
+                setResult(frame?.result);
+            }
+        );
+
+        return dispose;
+    };
     return (
         <WidgetRenderer
             widgetInstance={props.widgetInstance}
@@ -169,6 +190,7 @@ export default function WidgetHost(props: {
             mode={props.mode}
             uiActions={props.uiActions}
             execute={execute}
+            subscribe={subscribe}
         />
     );
 }

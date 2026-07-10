@@ -23,6 +23,7 @@ export default function ArcDashboardWidget({
     widgetInstance,
     error,
     loading,
+    // subscribe,
     mode,
 }: WidgetComponentProps) {
     const [messageApi, contextHolder] = message.useMessage();
@@ -35,12 +36,19 @@ export default function ArcDashboardWidget({
         aladdinId: null,
         assetId: null,
     });
- 
+
     const counterTileValue = useGetWidgetValue({
         channelId: widgetInstance?.config?.params?.channel,
         key: COUNTER_TILE_STORE_KEY,
     });
     const [dataSource, setDataSource] = useState<any[]>(result?.rows as any[]);
+
+    // Subscription example, full integration requires work from Domain API, comment out after API done
+    // useEffect(() => {
+    //     const dispose = subscribe?.();
+
+    //     return dispose;
+    // }, []);
 
     useEffect(() => {
         if (result?.rows) {
