@@ -26,7 +26,7 @@ type TrapHudProps = {
     onExport: () => void;
     onLaunchWorkflow?: (selection: WorkflowLaunchSelection) => Promise<void> | void;
     onEditWorkflow?: (selection: WorkflowLaunchSelection) => void;
-    onActivateLanding?: (selection: { templateId: string }) => void;
+    onActivateLanding?: (selection: { templateId: string; ownerUserId: string }) => void;
 };
 
 export default function TrapHud({

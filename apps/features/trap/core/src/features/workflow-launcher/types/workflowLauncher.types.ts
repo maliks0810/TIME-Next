@@ -52,4 +52,5 @@ export type WorkflowLaunchSelection = {
     templateName: string;
     templateVersionStatus: string;
     initialContext?: Record<string, any>;
+    ownerUserId: string
 };

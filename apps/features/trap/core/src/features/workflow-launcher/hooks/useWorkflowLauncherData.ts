@@ -231,6 +231,7 @@ export function useWorkflowLauncherData(args: Args) {
                 templateName: item.templateName,
                 templateVersionStatus: version.status,
                 initialContext: version.defaultContext ?? {},
+                ownerUserId: item.ownerUserId!
             });
 
             closeModal();
@@ -262,6 +263,7 @@ export function useWorkflowLauncherData(args: Args) {
                     templateName: item.templateName,
                     templateVersionStatus: version.status,
                     initialContext: version.defaultContext ?? {},
+                    ownerUserId: item.ownerUserId!
                 });
 
                 closeModal();
@@ -288,6 +290,7 @@ export function useWorkflowLauncherData(args: Args) {
                         templateName: nextTemplate.name ?? cloneName,
                         templateVersionStatus: nextVersion.status ?? 'DRAFT',
                         initialContext: nextVersion.defaultContext ?? {},
+                        ownerUserId: item.ownerUserId!
                     });
                     closeModal();
                     return;
