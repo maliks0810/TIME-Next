@@ -4,11 +4,13 @@ import { Tabs, Space, Dropdown, Button, message, Tooltip } from 'antd';
 import { EllipsisOutlined, HomeOutlined } from '@ant-design/icons';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
+import { useUserInfo } from '@platform/utils';
+
 import LandingTab from '../features/landing/LandingTab';
 import WorkflowTab from '../features/workflow-runtime/WorkflowTab';
 import TrapHud from '../components/common/TrapHud';
 
-import { cloneTemplate, getTemplates } from '../api/trap';
+import { cloneTemplate, createDraftVersion, getTemplates } from '../api/trap';
 
 import { setDefaultLandingTemplate } from '../utils/userPreferences';
 import { useGetActiveTab, useSetActiveTab } from '../state/Tabs/hooks';
@@ -20,6 +22,7 @@ type WorkflowTabModel = {
     title: string;
     templateId: string;
     templateVersionStatus: string;
+    ownerUserId: string;
 };
 
 type OpenWorkflowRequest = Omit<WorkflowTabModel, 'bus'>;
@@ -28,10 +31,12 @@ type HudWorkflowSelection = {
     templateId: string;
     templateName: string;
     templateVersionStatus: string;
+    ownerUserId: string;
 };
 
 type HudLandingSelection = {
     templateId: string;
+    ownerUserId: string;
 };
 
 const TAB_BAR_HEIGHT = 48;
@@ -54,6 +59,9 @@ export default function TrapLandingPage() {
     const [workflows, setWorkflows] = React.useState<WorkflowTabModel[]>(loadTabsFromStorage());
     const activeKey = useGetActiveTab();
     const activeUser = useGetActiveUser();
+
+    const { login } = useUserInfo();
+    const currentUser = localStorage.getItem('debug-user') || login;
 
     const setActiveKey = useSetActiveTab();
     const [isInitialLoading, setIsInitialLoading] = React.useState(true);
@@ -94,8 +102,15 @@ export default function TrapLandingPage() {
             if (existing) {
                 setActiveKey(existing.workflowId);
             } else {
-                setWorkflows((prev) => [...prev, ws]);
-                setActiveKey(ws.workflowId);
+                setWorkflows((prev) => {
+                    const existingWorkflow = prev.find((p) => p.title === ws.title);
+                    if (existingWorkflow) {
+                        setActiveKey(existingWorkflow.workflowId);
+                        return [...prev];
+                    }
+                    setActiveKey(ws.workflowId);
+                    return [...prev, ws];
+                });
             }
         },
         [workflows]
@@ -127,7 +142,13 @@ export default function TrapLandingPage() {
 
     const showTabs = workflows.length > 0;
 
-    const onEditTemplate = (ws: WorkflowTabModel) => {
+    const onEditTemplate = async (ws: WorkflowTabModel) => {
+        if (ws.templateVersionStatus === 'PUBLISHED' || ws.templateVersionStatus === '') {
+            await createDraftVersion(ws.templateId);
+            nav(`designer?templateId=${ws.templateId}`);
+
+            return;
+        }
         nav(`designer?templateId=${ws.templateId}`);
     };
 
@@ -159,6 +180,7 @@ export default function TrapLandingPage() {
                     title: selection.templateName,
                     templateId: selection.templateId,
                     templateVersionStatus: selection.templateVersionStatus,
+                    ownerUserId: selection.ownerUserId,
                 });
 
                 const newParams = new URLSearchParams();
@@ -183,6 +205,7 @@ export default function TrapLandingPage() {
 
         setLandingSelection({
             templateId: selection.templateId,
+            ownerUserId: selection.ownerUserId,
         });
 
         setActiveKey('landing');
@@ -194,11 +217,11 @@ export default function TrapLandingPage() {
         const menuItems = [
             {
                 key: 'edit',
-                label: isPublished ? 'Edit (disabled on Published)' : 'Edit Template',
-                disabled: isPublished,
+                label: 'Edit Template',
+                disabled: ws.ownerUserId !== currentUser,
                 onClick: (e: any) => {
                     e?.domEvent?.stopPropagation?.();
-                    if (!isPublished) onEditTemplate(ws);
+                    onEditTemplate(ws);
                 },
             },
             {
@@ -254,6 +277,7 @@ export default function TrapLandingPage() {
                 templateId: templateId,
                 templateName: template.name,
                 templateVersionStatus: '', //TODO: currently not needed but need to implement
+                ownerUserId: template.ownerUserId!,
             };
             onLaunchHudWorkflow(selection);
         } else {
