@@ -1,0 +1,63 @@
+.wrapper {
+    font-size: 12px;
+    height: 100%;
+    overflow-x: auto;
+}
+.td {
+    padding: 3px 10px;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--ant-color-text);
+    background-color: var(--ant-color-bg-container);
+}
+
+.th {
+    padding: 6px 10px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: var(--ant-color-bg-container);
+}
+.table {
+    border-collapse: collapse;
+
+    width: 100%;
+}
+.headerRow {
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+}
+.thLabel {
+    padding: 6px 10px;
+    text-align: left;
+    border-right: 1px solid var(--ant-color-border-secondary);
+    min-width: 200px;
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background-color: var(--ant-color-bg-container);
+}
+.tdLabel {
+    padding: 3px 10px;
+    text-align: left;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    border-right: 1px solid var(--ant-color-border-secondary);
+}
+.spacer {
+    height: 12px;
+}
+.bordered {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    background-color: color-mix(
+        in srgb,
+        var(--ant-color-bg-container) 96%,
+        var(--ant-color-text) 4%
+    );
+}
+
+.sectionHeader {
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+}
