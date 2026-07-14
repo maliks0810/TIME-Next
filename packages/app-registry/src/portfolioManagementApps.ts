@@ -256,5 +256,19 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         description: '',
         hideFooter: true
     },
+    {
+        type: 'internal',
+        header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.IM_Rates,
+        id: 'pfa',
+        name: 'pfa',
+        title: 'Drift',
+        env: HighestEnv.prod,
+        path: '/IOD/pfa/',
+        team: 'IOD',
+        component: lazy(() => import('@IOD/pfa/src/App')),
+        description: '',
+        hideFooter: true
+    },
     // PLOP_INJECT_APP
 ]
