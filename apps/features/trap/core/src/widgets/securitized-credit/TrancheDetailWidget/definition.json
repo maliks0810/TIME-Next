@@ -1,11 +1,11 @@
 {
-    "id": "cwd_na_rmbs_tranche_detail_01",
+    "id": "cwd_sc_tranche_detail_01",
     "name": "Tranche Detail",
-    "version": 1,
-    "description": "Selected Tranche Terms and Conditions.",
+    "version": 2,
+    "description": "Selected tranche terms and conditions.",
     "tags": null,
     "category": "widgetDefinition",
-    "datasetId": "ds_na_rmbs_tranche_detail_01",
+    "datasetId": "ds_sc_tranche_detail_01",
     "listensToKeys": [
         "deal.id",
         "deal.name",

@@ -2,18 +2,18 @@ import React from 'react';
 import clsx from 'clsx';
 import { TableOutlined } from '@ant-design/icons';
 
-import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell';
-import type { WidgetComponentProps } from '../../../../types/widget';
+import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
+import type { WidgetComponentProps } from '../../../types/widget';
 import { TrancheRow } from './utils/mockData';
 import { getRatingsClassname } from './utils/helpers';
 import { ROW_HEIGHT_PX, TRANCHES_COLS, VISIBLE_ROWS } from './utils/constants';
-import { DEAL_ID_KEY, DEAL_NAME_KEY, TRANCHE_ID_KEY, TRANCHE_NAME_KEY } from '../../../constants';
-import { useGetWidgetValue, useSetWidgetValue } from '../../../../state/Widgets/hooks';
-import { useGetActiveTab } from '../../../../state/Tabs/hooks';
-import styles from './NARMBSTranchesWidget.module.scss';
-import WidgetLoadingState from '../../../../components/widget-shell/WidgetLoadingState';
+import { DEAL_ID_KEY, DEAL_NAME_KEY, TRANCHE_ID_KEY, TRANCHE_NAME_KEY } from '../../constants';
+import { useGetWidgetValue, useSetWidgetValue } from '../../../state/Widgets/hooks';
+import { useGetActiveTab } from '../../../state/Tabs/hooks';
+import styles from './TranchesWidget.module.scss';
+import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingState';
 
-export function NARMBSTranchesWidget({
+export function ScTranchesWidget({
     result,
     loading,
     widgetInstance,

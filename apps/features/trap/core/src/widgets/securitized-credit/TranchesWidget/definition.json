@@ -1,11 +1,11 @@
 {
-    "id": "cwd_na_rmbs_tranches_01",
+    "id": "cwd_sc_tranches_01",
     "name": "Tranches",
-    "version": 1,
-    "description": "Tranche table for an NA-RMBS deal.",
+    "version": 2,
+    "description": "Tranche table for a securitized deal.",
     "tags": null,
     "category": "widgetDefinition",
-    "datasetId": "ds_na_rmbs_tranches_01",
+    "datasetId": "ds_sc_tranches_01",
     "listensToKeys": [
         "deal.id",
         "analysis.sessionId",

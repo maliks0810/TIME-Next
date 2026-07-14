@@ -1,7 +1,7 @@
 import clsx from 'clsx';
-import styles from './TrancheDetailsComponents.module.scss';
+import styles from './DealDetailsComponents.module.scss';
 
-export function DetailRow({
+export function AttrRow({
     label,
     value,
     mono,
@@ -13,15 +13,15 @@ export function DetailRow({
     accent?: boolean;
 }) {
     return (
-        <div className={styles.detailRowContainer}>
-            <span className={styles.detailRowLabel}>
+        <div className={styles.attrRowContainer}>
+            <span className={styles.attrRowLabel}>
                 {label}
             </span>
 
             <span
-                className={clsx(styles.detailRowValue, {
+                className={clsx(styles.attrRowValue, {
                     [styles.fontFamilyMono]: mono,
-                    [styles.detailRowValueAccent]: accent,
+                    [styles.attrRowValueAccent]: accent,
                 })}
             >
                 {value ?? '—'}

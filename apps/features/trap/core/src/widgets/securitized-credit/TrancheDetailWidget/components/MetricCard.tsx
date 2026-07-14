@@ -1,20 +1,18 @@
 import clsx from 'clsx';
 
-import { useTheme, getThemeSurfaceMeta } from '../../../../../theme/ThemeContext';
-import styles from './DealDetailsComponents.module.scss';
+import { useTheme, getThemeSurfaceMeta } from '../../../../theme/ThemeContext';
+import styles from './TrancheDetailsComponents.module.scss';
 
 export function MetricCard({
     label,
     value,
     sub,
     accent,
-    highlight,
 }: {
     label: string;
-    value: string | null;
+    value: string | null | undefined;
     sub?: string;
     accent?: boolean;
-    highlight?: boolean;
 }) {
     const { themeName } = useTheme();
     const surfaceMeta = getThemeSurfaceMeta(themeName);
@@ -39,7 +37,6 @@ export function MetricCard({
             <span
                 className={clsx(styles.metricCardValue, {
                     [styles.metricCardValueAccent]: accent,
-                    [styles.metricCardValueHighlight]: highlight,
                 })}
             >
                 {value ?? '—'}
