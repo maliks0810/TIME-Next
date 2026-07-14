@@ -5,6 +5,8 @@ import { subscribeWidget } from '../../api/realtime';
 import WidgetRenderer from '../../components/widget-runtime/WidgetRenderer';
 import type { WidgetRenderMode } from '../../types/widget';
 import { WidgetValueType } from '../../state/Widgets/types';
+import { useDebounced } from '../../utils/useDebounced';
+import { DEBOUNCED_WIDGET_PARAM_KEYS } from "../../utils/constants";
 
 function stableStringify(value: unknown): string {
     try {
@@ -57,6 +59,14 @@ export default function WidgetHost(props: {
             : {};
     }, [props.widgetInstance?.config?.params]);
 
+    const debouncedParams = useDebounced(params, 500);
+
+    const shouldDebounce = React.useMemo(() => {
+        return DEBOUNCED_WIDGET_PARAM_KEYS.some(key => key in params)
+    }, [params]);
+
+    const paramsToExecute = shouldDebounce ? debouncedParams : params;
+
     // TODO implement configuration based listensToKeys handlers
     // const registryEntry = React.useMemo(() => {
     //     return widgetRegistry[widgetDefinitionId];
@@ -85,7 +95,7 @@ export default function WidgetHost(props: {
             props.mode === 'designer' ? 'MOCK' : 'LIVE',
             stableStringify(params),
         ].join('::');
-    }, [widgetDefinitionId, variantId, props.mode, params]);
+    }, [widgetDefinitionId, variantId, props.mode, debouncedParams]);
 
     React.useEffect(() => {
         if (!widgetDefinitionId || isIdentity || props.mode === 'preview') return;
@@ -102,7 +112,7 @@ export default function WidgetHost(props: {
                 const out = await executeWidget({
                     widgetDefinitionId,
                     variantId,
-                    params,
+                    params: paramsToExecute,
                     mode: props.mode === 'designer' ? 'MOCK' : 'LIVE',
                 });
 
@@ -123,7 +133,7 @@ export default function WidgetHost(props: {
         return () => {
             cancelled = true;
         };
-    }, [requestKey, widgetDefinitionId, variantId, params, props.mode, isIdentity]);
+    }, [requestKey, widgetDefinitionId, variantId, paramsToExecute, props.mode, isIdentity]);
 
     const execute = async (
         variables?: Record<string, WidgetValueType>,
