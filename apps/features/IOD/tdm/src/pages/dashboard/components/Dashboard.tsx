@@ -11,13 +11,14 @@ import { IDashboardSecuritySetupRequest, IDashboardStats } from '../lib/Dashboar
 import { getDefaultDashboardSearchParameters, IDashboardSearchParameters, updateDashboardSearchParameter } from '../lib/DashboardSearchParameters';
 import { getSecurityRequestsDashboard } from '../../../services/DashboardService';
 import { useDashboardStore } from '../../../stores/useDashboardStore';
+import { useReferenceData } from '../../../hooks/useReferenceData';
+import { ReferenceDataFieldKey } from '../../security-setup/lib/types/referenceDataTypes';
 import { useVisibilityChange } from '../../../hooks/useVisibilityChange';
 import { useInterval } from '../../../hooks/useInterval';
 import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
 import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
 import '../lib/dashboard.scss';
 import { DataGridRef } from 'devextreme-react/cjs/data-grid';
-import { useReferenceData } from '../../../pages/security-setup/hooks/useReferenceData';
 
 const Dashboard: React.FC = () => {
   const [isRequestDetailsOpen, setIsRequestDetailsOpen] = useState(false);
@@ -40,6 +41,7 @@ const Dashboard: React.FC = () => {
   // Server state hooks — stay as hooks, not in Zustand
   const { data: referenceData } =
     useReferenceData();
+  const dmAnalystOptions = referenceData?.byKey[ReferenceDataFieldKey.DmAnalyst]?.fieldDropdownValues ?? [];
 
   // poll data when page is visible
   useEffect(() => {
@@ -346,6 +348,7 @@ const Dashboard: React.FC = () => {
                 securityRequestsData={securityRequestsData}
                 setSelectedSecurityRequest={setSelectedSecurityRequest}
                 setIsRequestDetailsOpen={setIsRequestDetailsOpen}
+                dmAnalystOptions={dmAnalystOptions}
               />
             </Grid>
           </Grid>

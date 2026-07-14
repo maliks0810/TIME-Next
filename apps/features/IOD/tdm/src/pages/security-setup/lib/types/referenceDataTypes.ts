@@ -66,5 +66,5 @@ export enum ReferenceDataFieldKey {
     DefaultType = 'Default Type',
     EuSecuritizationStatus = 'EU Securitization Status',
     ErisaStatus = 'ERISA Status',
-    DmAnalyst = 'DmAnalyst'
+    DmAnalyst = 'DM Analyst'
 }

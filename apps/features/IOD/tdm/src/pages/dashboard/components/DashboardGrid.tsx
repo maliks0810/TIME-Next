@@ -12,7 +12,7 @@ import {
   EuSecuritizationStatusesRecord,
   ErisaStatusesRecord
 } from '../lib/DashboardSecuritySetupRequestStatuses';
-import { MOCK_DM_ANALYST_OPTIONS } from '../lib/DmAnalystData';
+import { IReferenceDataKeyValue } from '../../security-setup/lib/types/referenceDataTypes';
 import { useDashboardStore } from '../../../stores/useDashboardStore';
 import '../lib/dashboard.scss';
 
@@ -27,16 +27,18 @@ type DashboardGridProps = {
   securityRequestsData: IDashboardSecuritySetupRequest[] | undefined;
   setSelectedSecurityRequest: Dispatch<SetStateAction<IDashboardSecuritySetupRequest | undefined>>;
   setIsRequestDetailsOpen: Dispatch<SetStateAction<boolean>>;
+  dmAnalystOptions: IReferenceDataKeyValue[];
 }
 
 const DmAnalystCell: React.FC<{
-  requestId: number,
+  requestId: number;
+  options: IReferenceDataKeyValue[];
   onOpen: (requestId: number, position: { top: number; left: number }) => void;
-}> = ({ requestId, onOpen }) => {
+}> = ({ requestId, options, onOpen }) => {
 
   // selector scoped to this row's assignment so ONLY THIS cell re-renders on change
   const selectedEmail = useDashboardStore(s => s.dmAnalystAssignments[requestId]);
-  const selectedAnalyst = MOCK_DM_ANALYST_OPTIONS.find((a) => a.fieldDropdownValue === selectedEmail);
+  const selectedAnalyst = options.find((a) => a.fieldDropdownValue === selectedEmail);
 
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
@@ -78,6 +80,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   securityRequestsData,
   setSelectedSecurityRequest,
   setIsRequestDetailsOpen,
+  dmAnalystOptions
 }) => {
 
   const navigate = useNavigate();
@@ -261,8 +264,8 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   }, [setSelectedSecurityRequest, setIsRequestDetailsOpen]);
 
   const cellRenderDmAnalyst = useCallback((data: DataGridTypes.ColumnCellTemplateData) => {
-    return <DmAnalystCell requestId={data.data.id} onOpen={openDmAnalystMenu} />
-  }, [openDmAnalystMenu])
+    return <DmAnalystCell requestId={data.data.id} options={dmAnalystOptions} onOpen={openDmAnalystMenu} />
+  }, [dmAnalystOptions, openDmAnalystMenu])
 
   const handleRowDbleClick = (e: DataGridTypes.RowDblClickEvent) => {
 
@@ -400,15 +403,17 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
         onClose={closeDmAnalystMenu}
         sx={{ zIndex: 9999 }}
       >
-        {MOCK_DM_ANALYST_OPTIONS.map((analyst) => (
-          <MenuItem
-            key={analyst.fieldDropdownValue}
-            selected={analyst.fieldDropdownValue === currentSelectedEmail}
-            onClick={() => handleDmAnalystSelect(analyst.fieldDropdownValue)}
-          >
-            {analyst.fieldDropdownDescription}
-          </MenuItem>
-        ))}
+        {dmAnalystOptions.length === 0
+          ? <MenuItem disabled>No analysts available</MenuItem>
+          : dmAnalystOptions.map((analyst) => (
+            <MenuItem
+              key={analyst.fieldDropdownValue}
+              selected={analyst.fieldDropdownValue === currentSelectedEmail}
+              onClick={() => handleDmAnalystSelect(analyst.fieldDropdownValue)}
+            >
+              {analyst.fieldDropdownDescription}
+            </MenuItem>
+          ))}
       </Menu>
     </>
   )
