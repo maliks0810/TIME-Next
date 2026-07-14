@@ -87,6 +87,11 @@ export type SaveWaterfallGraphRequest = {
   graph: WaterfallGraph;
 };
 
+export type SaveWaterfallGraphResult = {
+  changed: boolean;
+  graph: WaterfallGraph;
+};
+
 export type WaterfallAuditEvent = {
   auditEventId: number;
   entityType: string;
@@ -112,8 +117,10 @@ export async function getWaterfallGraph(): Promise<WaterfallGraph> {
   return fetchJson<WaterfallGraph>(waterfallGraphUrl());
 }
 
-export async function saveWaterfallGraph(request: SaveWaterfallGraphRequest): Promise<void> {
-  return sendJson<void>(waterfallGraphUrl(), {
+export async function saveWaterfallGraph(
+  request: SaveWaterfallGraphRequest,
+): Promise<SaveWaterfallGraphResult> {
+  return sendJson<SaveWaterfallGraphResult>(waterfallGraphUrl(), {
     method: 'PUT',
     body: JSON.stringify(request),
   });

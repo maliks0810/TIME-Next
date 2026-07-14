@@ -7,7 +7,7 @@ import type {
   WaterfallTenorInstrumentBucket,
 } from '../../model/waterfallTypes';
 
-export type WaterfallAuditChangeKind = 'added' | 'removed' | 'modified';
+export type WaterfallAuditChangeKind = 'added' | 'removed' | 'modified' | 'moved';
 export type WaterfallAuditChangeArea = 'Buckets' | 'Tenor Instruments' | 'Rule Sets' | 'Rule Steps';
 
 export type WaterfallAuditChange = {
@@ -72,8 +72,8 @@ function parseGraph(value?: string | null): { graph: WaterfallGraph | null; erro
 }
 
 function diffBuckets(before: WaterfallBucket[], after: WaterfallBucket[]): WaterfallAuditChange[] {
-  const beforeMap = new Map(before.map((bucket) => [norm(bucket.code), bucket]));
-  const afterMap = new Map(after.map((bucket) => [norm(bucket.code), bucket]));
+  const beforeMap = new Map(before.map((bucket) => [bucketKey(bucket), bucket]));
+  const afterMap = new Map(after.map((bucket) => [bucketKey(bucket), bucket]));
   const changes: WaterfallAuditChange[] = [];
 
   for (const [key, bucket] of afterMap) {
@@ -83,6 +83,7 @@ function diffBuckets(before: WaterfallBucket[], after: WaterfallBucket[]): Water
       continue;
     }
     const fields = changedFields([
+      ['code', previous.code, bucket.code],
       ['label', previous.label, bucket.label],
       ['displayOrder', previous.displayOrder, bucket.displayOrder],
       ['minDuration', previous.minDuration, bucket.minDuration],
@@ -182,7 +183,7 @@ function flattenInstruments(buckets: WaterfallTenorInstrumentBucket[]) {
   const map = new Map<string, { side: string; bucketCode: string; instrument: WaterfallTenorInstrument }>();
   for (const bucket of buckets) {
     for (const instrument of bucket.instruments ?? []) {
-      map.set(`${norm(bucket.side)}|${norm(bucket.bucketCode)}|${norm(instrument.securityId)}`, {
+      map.set(instrumentKey(bucket, instrument), {
         side: bucket.side,
         bucketCode: bucket.bucketCode,
         instrument,
@@ -199,11 +200,26 @@ function flattenSteps(ruleSets: WaterfallRuleSet[]) {
     for (const row of ruleSet.rules ?? []) {
       for (const step of row.steps ?? []) {
         const title = `${ruleSetLabel(ruleSet)} · ${row.side} ${row.durationBucketCode} · Step ${step.stepOrder}`;
-        map.set(`${rsKey}|${norm(row.side)}|${norm(row.durationBucketCode)}|${step.stepOrder}`, { title, step });
+        map.set(stepKey(rsKey, row.durationBucketId, row.side, step), { title, step });
       }
     }
   }
   return map;
+}
+
+
+function bucketKey(bucket: WaterfallBucket): string {
+  return bucket.bucketId > 0 ? `id:${bucket.bucketId}` : `new:${norm(bucket.code)}`;
+}
+function instrumentKey(bucket: WaterfallTenorInstrumentBucket, instrument: WaterfallTenorInstrument): string {
+  return instrument.tenorInstrumentId != null
+    ? `id:${instrument.tenorInstrumentId}`
+    : `new:${norm(bucket.side)}|${bucket.bucketId}|${norm(instrument.securityId)}`;
+}
+function stepKey(ruleSetKeyValue: string, durationBucketId: number, side: string, step: WaterfallRuleStep): string {
+  return step.ruleStepId != null
+    ? `id:${step.ruleStepId}`
+    : `new:${ruleSetKeyValue}|${norm(side)}|${durationBucketId}|${step.stepOrder}`;
 }
 
 function changedFields(rows: Array<[string, unknown, unknown]>) {
