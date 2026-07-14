@@ -37,10 +37,6 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
     const [isPreviewModeEnabled, setIsPreviewModeEnabled] = useState(false);
     const [paramToUpdate, setParamToUpdate] = useState({ requiredField: '', value: '' });
 
-    // This does not work, comment out for now.
-    // const debouncedParams = useDebounced(paramToUpdate);
-
-    // TODO: add debounce
     useEffect(() => {
         props.onSelectParams((params: { [key: string]: string }) => ({
             ...params,
