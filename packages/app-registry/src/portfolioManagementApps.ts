@@ -241,6 +241,20 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         team: 'IOD',                  
         env: HighestEnv.prod,            
         component: lazy(() => import('@iod/equity-budget-commission/src/pages/report-dashboard'))       
-    }
+    },
+    {
+        type: 'internal',
+        header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.IM_Rates,
+        id: 'rates-waterfall-manager',
+        name: 'rates-waterfall-manager',
+        title: 'Waterfall Manager',
+        env: HighestEnv.prod,
+        path: '/iod/rwm/',
+        team: 'IOD',
+        component: lazy(() => import('@IOD/rates-waterfall-manager/src/App')),
+        description: '',
+        hideFooter: true
+    },
     // PLOP_INJECT_APP
 ]

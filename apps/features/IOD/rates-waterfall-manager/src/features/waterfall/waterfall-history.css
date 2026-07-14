@@ -1,0 +1,250 @@
+@layer components {
+  #rwm-app-root .rwm-history-tab {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 16px;
+    height: calc(100vh - 190px);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #rwm-app-root .rwm-history-list-card,
+  #rwm-app-root .rwm-history-detail-card {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #rwm-app-root .rwm-history-toolbar,
+  #rwm-app-root .rwm-history-detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--tcw-grey-200);
+    padding: 12px;
+  }
+
+  #rwm-app-root .rwm-history-title {
+    color: var(--tcw-grey-900);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  #rwm-app-root .rwm-history-subtitle {
+    margin-top: 2px;
+    color: var(--tcw-grey-600);
+    font-size: 11px;
+  }
+
+  #rwm-app-root .rwm-history-event-list,
+  #rwm-app-root .rwm-history-detail {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
+  }
+
+  #rwm-app-root .rwm-history-event-row {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: 0;
+    border-bottom: 1px solid var(--tcw-grey-200);
+    background-color: var(--tcw-white);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #rwm-app-root .rwm-history-event-row:hover {
+    background-color: var(--tcw-grey-100);
+  }
+
+  #rwm-app-root .rwm-history-event-row--active {
+    background-color: var(--tcw-blue-100) !important;
+    box-shadow: inset 3px 0 0 var(--tcw-blue);
+  }
+
+  #rwm-app-root .rwm-history-chip,
+  #rwm-app-root .rwm-history-kind {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    border-radius: var(--tcw-radius-sm);
+    padding: 0 6px;
+    font-size: 10px;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  #rwm-app-root .rwm-history-chip {
+    background-color: var(--tcw-grey-100);
+    color: var(--tcw-grey-700);
+  }
+
+  #rwm-app-root .rwm-history-reason {
+    margin: 12px;
+    border: 1px solid var(--tcw-grey-200);
+    border-radius: var(--tcw-radius-md);
+    background-color: var(--tcw-grey-100);
+    color: var(--tcw-grey-700);
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  #rwm-app-root .rwm-history-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    padding: 0 12px 12px;
+  }
+
+  #rwm-app-root .rwm-history-summary-card {
+    border: 1px solid var(--tcw-grey-200);
+    border-radius: var(--tcw-radius-md);
+    background-color: var(--tcw-white);
+    padding: 8px;
+  }
+
+  #rwm-app-root .rwm-history-parse-error {
+    margin: 0 12px 12px;
+    border: 1px solid var(--tcw-plum);
+    border-radius: var(--tcw-radius-md);
+    background-color: var(--tcw-plum-100);
+    color: var(--tcw-plum);
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  #rwm-app-root .rwm-history-change-sections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding: 0 12px 12px;
+  }
+
+  #rwm-app-root .rwm-history-change-section {
+    min-width: 0;
+    border: 1px solid var(--tcw-grey-200);
+    border-radius: var(--tcw-radius-lg);
+    background-color: var(--tcw-white);
+    padding: 10px;
+  }
+
+  #rwm-app-root .rwm-history-change-section-title {
+    margin-bottom: 8px;
+    color: var(--tcw-grey-900);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  #rwm-app-root .rwm-history-empty-change {
+    border: 1px dashed var(--tcw-grey-300);
+    border-radius: var(--tcw-radius-md);
+    color: var(--tcw-grey-500);
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  #rwm-app-root .rwm-history-change-row {
+    border: 1px solid var(--tcw-grey-200);
+    border-radius: var(--tcw-radius-md);
+    background-color: var(--tcw-grey-100);
+    padding: 8px;
+  }
+
+  #rwm-app-root .rwm-history-kind--added {
+    background-color: var(--tcw-green-100);
+    color: var(--tcw-green);
+  }
+
+  #rwm-app-root .rwm-history-kind--removed {
+    background-color: var(--tcw-plum-100);
+    color: var(--tcw-plum);
+  }
+
+  #rwm-app-root .rwm-history-kind--modified {
+    background-color: var(--tcw-blue-100);
+    color: var(--tcw-blue);
+  }
+
+  #rwm-app-root .rwm-history-field-row {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    color: var(--tcw-grey-700);
+    font-size: 11px;
+  }
+
+  #rwm-app-root .rwm-history-json-details {
+    margin: 0 12px 12px;
+    border: 1px solid var(--tcw-grey-200);
+    border-radius: var(--tcw-radius-lg);
+    background-color: var(--tcw-white);
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  #rwm-app-root .rwm-history-json-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  #rwm-app-root .rwm-history-json-grid pre {
+    max-height: 320px;
+    overflow: auto;
+    border-radius: var(--tcw-radius-md);
+    background-color: var(--tcw-grey-100);
+    padding: 8px;
+    font-size: 10.5px;
+  }
+
+    #rwm-app-root .rwm-history-toolbar--compact {
+    align-items: center;
+    padding: 10px 12px;
+  }
+
+  #rwm-app-root .rwm-history-title-line {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  #rwm-app-root .rwm-history-title-line .rwm-history-title {
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  #rwm-app-root .rwm-history-subtitle-inline {
+    color: var(--tcw-grey-600);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  #rwm-app-root .rwm-history-event-row--two-line {
+    padding: 8px 12px;
+  }
+
+  #rwm-app-root .rwm-history-event-line {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+  }
+
+  #rwm-app-root .rwm-history-event-row--two-line .rwm-history-chip {
+    height: 18px;
+    padding: 0 5px;
+  }
+
+  @media (max-width: 1200px) {
+    #rwm-app-root .rwm-history-tab,
+    #rwm-app-root .rwm-history-change-sections,
+    #rwm-app-root .rwm-history-json-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}
