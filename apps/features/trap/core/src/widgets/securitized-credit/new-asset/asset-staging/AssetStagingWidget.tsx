@@ -273,12 +273,12 @@ export default function AssetStagingWidget({
         if (cusipOverride.trim()) {
             identifierTypeValue = "CUSIP";
             identifierValue = cusipOverride.trim();
-        } else if (snapshotIsin) {
-            identifierTypeValue = "ISIN";
-            identifierValue = snapshotIsin;
         } else if (snapshotCusip) {
             identifierTypeValue = "CUSIP";
             identifierValue = snapshotCusip;
+        } else if (snapshotIsin) {
+            identifierTypeValue = "ISIN";
+            identifierValue = snapshotIsin;
         }
 
         const merged: Record<string, unknown> = {
@@ -555,6 +555,9 @@ export default function AssetStagingWidget({
 
             // Success
             setStageSuccess(true);
+            if( staged.securitySetupUrl) {
+                window.open(staged.securitySetupUrl as string, "_blank", "noopener,noreferrer");
+            }
 
             if (staged?.omUploaded === false && staged?.omError) {
                 message.success("Asset staged successfully");

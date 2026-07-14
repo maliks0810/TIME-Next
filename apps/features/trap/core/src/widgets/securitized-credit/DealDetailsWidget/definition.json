@@ -1,0 +1,44 @@
+{
+    "id": "cwd_sc_deal_details_01",
+    "name": "Deal Details",
+    "version": 2,
+    "description": "Displays deal-level terms and conditions.",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_sc_deal_details_01",
+    "listensToKeys": [
+        "deal.id",
+        "deal.name",
+        "analysis.sessionId",
+        "workflow.refresh"
+    ],
+    "emitsKeys": null,
+    "configSchema": {
+        "properties": {},
+        "required": [],
+        "title": "Deal Details",
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Securitized Credit"
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": false,
+                "width": {
+                    "default": 8,
+                    "min": 8,
+                    "max": 8
+                },
+                "height": {
+                    "default": 650,
+                    "min": 650,
+                    "max": 650
+                }
+            }
+        }
+    ]
+}

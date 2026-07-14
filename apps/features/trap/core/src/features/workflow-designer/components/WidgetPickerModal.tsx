@@ -5,6 +5,7 @@ import { useTheme, getThemeSurfaceMeta } from '../../../theme/ThemeContext';
 import styles from './WidgetPickerModal.module.scss';
 import { SimplifiedWidgetView } from './SimplifiedWidgetView';
 import { PreviewWidgetsContainer } from './PreviewWidgetsContainer';
+import { AddWidgetOptions } from '../hooks/useWorkflowDesigner';
 
 type WidgetPickerModalProps = {
     open: boolean;
@@ -18,13 +19,14 @@ type WidgetPickerModalProps = {
     selectedWidgetVariantId?: string;
     selectedWidgetDef?: any;
     selectedParams: { [key: string]: string | number };
+    loading: boolean;
     onClose: () => void;
     onSearchChange: (value: string) => void;
     onCategoryChange: (value: string) => void;
     onSelectWidget: (widgetId: string) => void;
     onSelectVariant: (variantId?: string) => void;
     onSelectParams: (params?: any) => void;
-    onAddWidget: () => void;
+    onAddWidget: (options: AddWidgetOptions) => void;
 };
 
 export default function WidgetPickerModal(props: WidgetPickerModalProps) {
@@ -87,6 +89,17 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
     const addWidgetDisabled =
         !props.selectedWidgetDef || props.isPublished || !props.templateId || !hasAllRequiredParams;
 
+    const getOptions = (field: any) => {
+        // If the property has options field then it depends on another field.
+        if (field.options) {
+            const selectedOption = field.options.find((option: any) => {
+                return props.selectedParams[option.condition.key] === option.condition.value;
+            });
+
+            if (selectedOption) return selectedOption.options;
+        }
+        return undefined;
+    };
     return (
         <Modal
             title={null}
@@ -102,7 +115,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                     background: surfaceMeta.isGradientTheme ? 'rgba(0,0,0,0.32)' : undefined,
                 },
                 content: {
-                    padding: 0,
+                    padding: 0, 
                     overflow: 'hidden',
                     borderRadius: 20,
                     background: modalPanelBackground,
@@ -208,6 +221,14 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                           ) {
                                               const selectValue =
                                                   props.selectedParams[requiredField];
+                                              const selectOptions =
+                                                  (getOptions(
+                                                      props.selectedWidgetDef.configSchema
+                                                          .properties[requiredField]
+                                                  ) ||
+                                                      props.selectedWidgetDef.configSchema
+                                                          .properties[requiredField]?.enum) ??
+                                                  [];
                                               inputComponent = (
                                                   <Select
                                                       value={selectValue}
@@ -226,13 +247,12 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                                               .properties[requiredField]?.title
                                                       }
                                                       style={{ width: '100%', marginTop: 8 }}
-                                                      options={(
-                                                          props.selectedWidgetDef.configSchema
-                                                              .properties[requiredField]?.enum ?? []
-                                                      ).map((fieldName: string) => ({
-                                                          value: fieldName,
-                                                          label: fieldName,
-                                                      }))}
+                                                      options={selectOptions.map(
+                                                          (fieldName: string) => ({
+                                                              value: fieldName,
+                                                              label: fieldName,
+                                                          })
+                                                      )}
                                                   />
                                               );
                                           } else {
@@ -298,10 +318,18 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
 
                                 <Button
                                     type="primary"
-                                    onClick={props.onAddWidget}
+                                    onClick={() => props.onAddWidget({keepPickerOpen: true})}
+                                    disabled={addWidgetDisabled}
+                                    loading={props.loading}
+                                >
+                                    Add
+                                </Button>
+                                <Button
+                                    type="primary"
+                                    onClick={() => props.onAddWidget({keepPickerOpen: false})}
                                     disabled={addWidgetDisabled}
                                 >
-                                    Add Widget to Canvas
+                                    Add & Close
                                 </Button>
                             </Space>
                         ) : (

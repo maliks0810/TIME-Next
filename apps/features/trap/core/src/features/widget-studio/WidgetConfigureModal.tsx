@@ -18,7 +18,6 @@ type WidgetConfigureModalProps = {
     isOpen: boolean;
     onClose: () => void;
     templateId: string;
-    versionId: string;
     onSave: (widget: WidgetInstanceLike) => void;
     data: {
         instance: DesignerWidgetInstance;
@@ -31,7 +30,6 @@ export const WidgetConfigureModal = ({
     data,
     onClose,
     templateId,
-    versionId,
     onSave,
 }: WidgetConfigureModalProps) => {
     const { definition = {}, instance } = data;
@@ -40,9 +38,9 @@ export const WidgetConfigureModal = ({
 
     const supportsCusip = (listensToKeys ?? []).includes('security.cusip');
 
-    const [params, setParams] = useState<Record<string, PropertyValue>>(
-        () => instance.config?.params || {}
-    );
+    const [params, setParams] = useState<Record<string, PropertyValue>>(() => {
+        return { ...instance.config?.params };
+    });
     const context = useGetAllContext({
         channelId: config.params?.channel,
     });
@@ -79,6 +77,23 @@ export const WidgetConfigureModal = ({
                         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                             {fields?.map((field: any) => {
                                 const key = field.key;
+                                let options;
+
+                                // If the property has options field then it depends on another field.
+                                if (field.options) {
+                                    const selectedOption = field.options.find((option: any) => {
+                                        return (
+                                            params[option.condition.key] === option.condition.value
+                                        );
+                                    });
+
+                                    if (selectedOption)
+                                        options = selectedOption.options.map((el: string) => ({
+                                            value: el,
+                                            label: el,
+                                        }));
+                                }
+
                                 return (
                                     <PropertyConfig
                                         property={field}
@@ -88,6 +103,7 @@ export const WidgetConfigureModal = ({
                                         required={required.includes(key)}
                                         currentValue={params[key]}
                                         context={context}
+                                        options={options}
                                     />
                                 );
                             })}
@@ -101,7 +117,7 @@ export const WidgetConfigureModal = ({
 
     const save = async () => {
         setIsLoading(true);
-        const templateVersion = await getTemplateVersion(templateId, versionId);
+        const templateVersion = await getTemplateVersion(templateId);
         if (!templateVersion || !instance || !definition) return;
 
         try {
@@ -136,7 +152,7 @@ export const WidgetConfigureModal = ({
                 layoutVariants: templateVersion.layoutVariants ?? [],
                 widgets: nextWidgets,
             };
-            await updateDraftVersion(templateId, versionId, payload);
+            await updateDraftVersion(templateId, payload);
             onClose();
 
             if (changedWidget) onSave(changedWidget);

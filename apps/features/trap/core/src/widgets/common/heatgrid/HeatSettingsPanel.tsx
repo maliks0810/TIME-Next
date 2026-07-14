@@ -38,22 +38,24 @@ import {
     DEFAULT_MISSING_COLOR,
     DEFAULT_OUTLIER_COLOR,
     HEAT_RAMPS,
-    activeGrouping,
-    columnAxisGroups,
-    groupingDims,
-    heatScales,
     isRampSpec,
-    rampRgb,
-    setGrouping,
-    setHeatMissingColor,
-    setHeatOutlierColor,
-    setHeatRamp,
-    setMemberSelected,
     type ColumnDef,
     type RampPreset,
     type RampSpec,
 } from './types';
 import './heatgrid.scss';
+import {
+    activeGrouping,
+    groupingDims,
+    columnAxisGroups,
+    heatScales,
+    setGrouping,
+    setMemberSelected,
+    rampRgb,
+    setHeatRamp,
+    setHeatOutlierColor,
+    setHeatMissingColor,
+} from './helpers';
 
 const rgbToHex = ([r, g, b]: [number, number, number]) =>
     '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('');

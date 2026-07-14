@@ -1,0 +1,72 @@
+{
+    "id": "cwd_sc_tranches_01",
+    "name": "Tranches",
+    "version": 2,
+    "description": "Tranche table for a securitized deal.",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_sc_tranches_01",
+    "listensToKeys": [
+        "deal.id",
+        "analysis.sessionId",
+        "workflow.refresh"
+    ],
+    "emitsKeys": [
+        "tranche.id",
+        "tranche.name"
+    ],
+    "configSchema": {
+        "properties": {
+            "columns": {
+                "default": [
+                    "name",
+                    "rating",
+                    "balance",
+                    "coupon",
+                    "wal",
+                    "maturity"
+                ],
+                "description": "Ordered list of visible column keys",
+                "items": {
+                    "type": "string"
+                },
+                "type": "array",
+                "category": "View Parameters"
+            },
+            "selectionMode": {
+                "default": "single",
+                "enum": [
+                    "single",
+                    "none"
+                ],
+                "type": "string",
+                "category": "Interactions"
+            }
+        },
+        "required": [],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Securitized Credit"
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 8,
+                    "min": 1,
+                    "max": 12
+                },
+                "height": {
+                    "default": 482,
+                    "min": 280,
+                    "max": 780,
+                    "step": 10
+                }
+            }
+        }
+    ]
+}

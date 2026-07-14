@@ -1,6 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import React, { useMemo, useState } from 'react';
 import { Button, Tooltip } from 'antd';
+import clsx from 'clsx';
 
 import WidgetHost from '../../../components/widget-runtime/WidgetHost';
 
@@ -10,12 +11,13 @@ import { hasConfigurableSchema } from '../utils/workflowDesigner.utils';
 import { WidgetConfigureModal } from '../../widget-studio/WidgetConfigureModal';
 import { WidgetDefinitionLike } from '../../../types/widget';
 
+import styles from './DesignerCanvasItem.module.scss';
+
 type DesignerCanvasItemProps = {
     item: WidgetLayout;
     widget: DesignerWidgetInstance;
     widgetDefinition: any;
     templateId: string;
-    versionId: string;
     isPublished: boolean;
     isDraft: boolean;
     isDraftSaved: boolean;
@@ -29,6 +31,7 @@ type DesignerCanvasItemProps = {
     onTouchEnd?: React.TouchEventHandler<HTMLDivElement>;
 
     onConfigUpdate?: (widget: DesignerWidgetInstance) => void;
+    children?: React.ReactNode;
 };
 
 const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemProps>(
@@ -38,7 +41,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
             widget,
             widgetDefinition,
             templateId,
-            versionId,
             isPublished,
             isDraft,
             isDraftSaved,
@@ -49,6 +51,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
             onMouseUp,
             onTouchEnd,
             onConfigUpdate,
+            children,
         },
         ref
     ) => {
@@ -74,92 +77,30 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                 onMouseUp={onMouseUp}
                 onTouchEnd={onTouchEnd}
             >
-                <div
-                    style={{
-                        position: 'relative',
-                        height: '100%',
-                        boxSizing: 'border-box',
-                        overflow: 'visible',
-                    }}
-                >
-                    <div
-                        style={{
-                            position: 'absolute',
-                            top: -14,
-                            left: 8,
-                            right: 8,
-                            zIndex: 3,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 4,
-                        }}
-                    >
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 8,
-                                minWidth: 0,
-                            }}
-                        >
-                            <div
-                                style={{
-                                    alignItems: 'center',
-                                    background: 'rgba(255,255,255,0.96)',
-                                    border: '1px solid rgba(0,0,0,0.08)',
-                                    borderRadius: 6,
-                                    padding: '2px 4px',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                                    fontWeight: 600,
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    height: 24,
-                                    textOverflow: 'ellipsis',
-                                    maxWidth: 150,
-                                }}
-                                title={widgetTitle}
-                            >
+                <div className={styles.container}>
+                    <div className={styles.header}>
+                        <div className={styles.headerTitle}>
+                            <div className={styles.headerTitleInner} title={widgetTitle}>
                                 {widgetTitle}
                             </div>
                         </div>
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                pointerEvents: 'auto',
-                                marginLeft: 'auto',
-                            }}
-                        >
+                        <div className={styles.moveWidgetSection}>
                             <Button
-                                className="widget-drag-handle"
                                 size="small"
                                 disabled={isPublished}
-                                style={{
-                                    cursor: isPublished ? 'default' : 'grab',
-                                    width: 24,
-                                    minWidth: 24,
-                                    height: 24,
-                                    padding: 0,
-                                    justifyContent: 'center',
-                                }}
+                                className={clsx(
+                                    'widget-drag-handle',
+                                    styles.headerBtn,
+                                    isPublished ? styles.defaultCursor : styles.grabCursor
+                                )}
                                 title="Move widget"
                             >
                                 ⋮⋮
                             </Button>
                         </div>
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 6,
-                                justifyContent: 'flex-end',
-                                justifySelf: 'end',
-                                pointerEvents: 'auto',
-                            }}
-                        >
+                        <div className={styles.btnSection}>
                             <WidgetConfigureModal
                                 templateId={templateId}
-                                versionId={versionId}
                                 isOpen={isConfigOpen}
                                 onSave={(widget) => {
                                     onConfigUpdate?.(widget as DesignerWidgetInstance);
@@ -173,7 +114,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                             <Tooltip title={configureDisabledReason ?? 'Configure widget'}>
                                 <span>
                                     <Button
-                                        className="rgl-no-drag"
+                                        className={clsx('rgl-no-drag', styles.headerBtn)}
                                         size="small"
                                         disabled={!!configureDisabledReason}
                                         onMouseDown={(e) => e.stopPropagation()}
@@ -183,15 +124,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                             if (configureDisabledReason) return;
                                             setIsConfigOpen(true);
                                         }}
-                                        style={{
-                                            width: 24,
-                                            minWidth: 24,
-                                            height: 24,
-                                            padding: 0,
-                                            justifyContent: 'center',
-
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                                        }}
                                         title="Configure"
                                     >
                                         ⚙
@@ -199,7 +131,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                 </span>
                             </Tooltip>
                             <Button
-                                className="rgl-no-drag"
+                                className={clsx('rgl-no-drag', styles.headerBtn)}
                                 size="small"
                                 danger
                                 disabled={isPublished}
@@ -208,15 +140,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onRemove(item.i);
-                                }}
-                                style={{
-                                    width: 24,
-                                    minWidth: 24,
-                                    height: 24,
-                                    padding: 0,
-                                    justifyContent: 'center',
-
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                                 }}
                                 title="Remove"
                             >
@@ -241,6 +164,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                         />
                     </div>
                 </div>
+                {children}
             </div>
         );
     }

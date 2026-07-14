@@ -4,6 +4,8 @@ import JsonInfoModal from '../../../components/common/JsonInfoModal';
 import WidgetHost from '../../../components/widget-runtime/WidgetHost';
 import styles from './PreviewWidgetsContainer.module.scss';
 import { WidgetDefinition } from '../../../state/types';
+import { useEffect, useRef } from 'react';
+import { AUTO_SCROLL_CONFIG } from '../utils/constants';
 
 type PreviewWidgetsContainerProps = {
     filteredWidgetDefs: WidgetDefinition[];
@@ -18,6 +20,14 @@ export const PreviewWidgetsContainer = ({
     onSelectParams,
     onSelectWidget,
 }: PreviewWidgetsContainerProps) => {
+    const selectedItemRef = useRef<HTMLButtonElement | null>(null);
+
+    useEffect(() => {
+        if (selectedItemRef.current && filteredWidgetDefs.findIndex(widgetDef => widgetDef.id === selectedWidgetDefId)) {
+            selectedItemRef.current.scrollIntoView(AUTO_SCROLL_CONFIG);
+        }
+    }, [selectedWidgetDefId, filteredWidgetDefs]);
+
     return (
         <div
             style={{
@@ -37,6 +47,7 @@ export const PreviewWidgetsContainer = ({
                     return (
                         <button
                             key={d.id}
+                            ref={selectedWidgetDefId === d.id ? selectedItemRef : null}
                             type="button"
                             onClick={() => {
                                 onSelectWidget(d.id);

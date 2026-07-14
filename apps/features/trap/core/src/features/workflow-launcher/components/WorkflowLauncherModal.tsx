@@ -34,7 +34,7 @@ type Props = {
     hudBackground: string;
     onLaunchWorkflow?: (selection: WorkflowLaunchSelection) => Promise<void> | void;
     onEditWorkflow?: (selection: WorkflowLaunchSelection) => void;
-    onActivateLanding?: (selection: { templateId: string; templateVersionId: string }) => void;
+    onActivateLanding?: (selection: { templateId: string }) => void;
 };
 
 export default function WorkflowLauncherModal(props: Props) {
@@ -248,11 +248,7 @@ export default function WorkflowLauncherModal(props: Props) {
                 class3,
             });
 
-            console.log('created template', tpl);
-
             const tv: any = await createDraftVersion(tpl.id);
-
-            console.log('created draft version', tv);
 
             if (!tpl?.id) {
                 throw new Error('Template create returned no template id');
@@ -263,9 +259,7 @@ export default function WorkflowLauncherModal(props: Props) {
             }
 
             onClose();
-            nav(
-                `designer?templateId=${encodeURIComponent(String(tpl.id))}&versionId=${encodeURIComponent(String(tv.id))}`
-            );
+            nav(`designer?templateId=${tpl.id}`);
         } catch (err: any) {
             const raw = err?.message || err?.response?.body?.error || 'Failed to create workspace';
 
@@ -446,14 +440,10 @@ export default function WorkflowLauncherModal(props: Props) {
                                         onLaunch={() => {
                                             if (!onActivateLanding) return;
 
-                                            const versionId =
-                                                item.latestPublished?.id ?? item.latestDraft?.id;
-
-                                            if (!item.templateId || !versionId) return;
+                                            if (!item.templateId) return;
 
                                             onActivateLanding({
                                                 templateId: item.templateId,
-                                                templateVersionId: versionId,
                                             });
 
                                             onClose();
@@ -478,16 +468,12 @@ export default function WorkflowLauncherModal(props: Props) {
                                     onLaunch={() => {
                                         if (!onActivateLanding) return;
 
-                                        const versionId =
-                                            item.latestPublished?.id ?? item.latestDraft?.id;
-
-                                        if (!item.templateId || !versionId) {
+                                        if (!item.templateId) {
                                             return;
                                         }
 
                                         onActivateLanding({
                                             templateId: item.templateId,
-                                            templateVersionId: versionId,
                                         });
 
                                         onClose();

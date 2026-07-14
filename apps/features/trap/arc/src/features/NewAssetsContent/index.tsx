@@ -7,6 +7,7 @@ import { UtilityBar } from '../UtilityBar';
 import { RowDataType } from '../AnalyticsTable/lib/types';
 import { AnalyticsRequest } from '../../lib/types';
 import { updateAnalyticsOverrides } from '../../lib/services';
+import WorkflowExceptionTable from '../Workflowexception/Index';
 
 const getValueToPublish = (row: RowDataType) => {
     switch (true) {
@@ -53,6 +54,9 @@ function NewAssetsContent({
         }, {});
 
         if (!selectedRowRequestId) return;
+        
+        valuesToPublish["AssetAnalyticsSetupId"] = selectedRowRequestId;
+
         setIsAnalitycsSavePending(true);
         try {
             await updateAnalyticsOverrides({
@@ -129,6 +133,11 @@ function NewAssetsContent({
                     latestUpdateTimestamp={latestUpdateTimestamp}
                     form={form}
                     isActionInprogress={isActionInprogress}
+                />
+                <WorkflowExceptionTable
+                    selectedAssetId={selectedRowRequestId}
+                    selectedStatus={selectedStatus}
+                    form={form}
                 />
             </Form>
         </div>

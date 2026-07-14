@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { message } from 'antd';
 
-import { getCompiledWorkflowView, listWidgetDefinitions } from '../../../api/trap';
+import { listWidgetDefinitions, getTemplateVersion } from '../../../api/trap';
 
 import type { WorkflowTabProps } from '../types/workflowRuntime.types';
 import {
@@ -33,8 +33,8 @@ export function useWorkflowRuntime(props: WorkflowTabProps) {
     const getCompiledWorkflow = async () => {
         setLoadingWorkflow(true);
         try {
-            const resp = await getCompiledWorkflowView(props.workflowId);
-            const view = resp?.view ?? resp;
+            const resp = await getTemplateVersion(props.templateId);
+            const view = resp?.templateVersion ?? resp;
             const parsed = safeParseJson(view) ?? view;
             setCompiled(parsed);
         } catch (e: any) {

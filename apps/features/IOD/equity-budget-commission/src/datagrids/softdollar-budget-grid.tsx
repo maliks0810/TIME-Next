@@ -317,6 +317,7 @@ const onBudgetDetailPopupSave = async () => {
     }  
     setPopupVisible(false);  
     showToast('Saved successfully', 'success');  
+    await loadSoftDollarBudgetData();
   } catch (error) {  
     if (error instanceof Error) {  
       showToast('Save failed while Adding: ' + error.message, 'error');  
@@ -324,9 +325,10 @@ const onBudgetDetailPopupSave = async () => {
   }  
 }; 
 
-const onBudgetDetailPopupCancel = () => {  
+const onBudgetDetailPopupCancel = async () => {  
   setPopupVisible(false);  
   clearSoftAccountUserAllocationData();
+  await loadSoftDollarBudgetData();
 };  
 
 const onBudgetRowClick = useCallback(async(acctKey: number) => {
@@ -506,7 +508,14 @@ const onChildAccountUserDelete = async (userAllocationId: number) => {
 
   try {  
     await removeSoftAccountUserAllocation(userAllocationId);  
+
     showToast('User deleted successfully', 'success');  
+
+    await loadSoftdollarBudgetAccounts(selectedSoftBudgetId);
+
+    const detail: SoftDollarBudgetDetail = await loadSoftDollarBudgetDetails(selectedSoftBudgetId);
+
+    rePopulateBudgetDetails(detail);
   } catch (error) {  
     if (error instanceof Error) {  
       showToast('Delete failed: ' + error.message, 'error');  
@@ -549,7 +558,25 @@ const onChildPopupUserAllocationSave = async () => {
 
     await loadSoftdollarBudgetAccounts(selectedSoftBudgetId);
 
-    const detail = await loadSoftDollarBudgetDetails(selectedSoftBudgetId);
+    const detail: SoftDollarBudgetDetail = await loadSoftDollarBudgetDetails(selectedSoftBudgetId);
+
+    rePopulateBudgetDetails(detail);
+    
+    setUserDataSaving(false);
+  } catch (error) {  
+    if (error instanceof Error) {  
+      showToast('Save failed: ' + error.message, 'error');  
+    }  
+  } 
+  finally{
+    setIsCommentsLoading(false);
+    setIsChangeLogLoading(false);
+    setIsAccountDataLoading(false);
+    setUserDataSaving(false);
+  }
+};
+
+function rePopulateBudgetDetails(detail: SoftDollarBudgetDetail){
     const detailData = (detail?  detail: softBudgetDetails) as SoftDollarBudgetDetail;  
     if(editingData){
       detailData.softDollarBudgetId = editingData.softDollarBudgetId;
@@ -573,19 +600,7 @@ const onChildPopupUserAllocationSave = async () => {
       setIsCommentsLoading(true);
       setCommentsData(comments);
     }
-    setUserDataSaving(false);
-  } catch (error) {  
-    if (error instanceof Error) {  
-      showToast('Save failed: ' + error.message, 'error');  
-    }  
-  } 
-  finally{
-    setIsCommentsLoading(false);
-    setIsChangeLogLoading(false);
-    setIsAccountDataLoading(false);
-    setUserDataSaving(false);
-  }
-};
+}
 
 return (  
   <div>  

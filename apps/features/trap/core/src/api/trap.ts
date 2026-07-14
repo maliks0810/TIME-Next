@@ -94,6 +94,8 @@ export type TemplateSummary = {
     class1?: string;
     class2?: string;
     class3?: string;
+    latestDraft: any;
+    latestPublished: any;
 };
 
 export async function listTemplates(): Promise<TemplateSummary[]> {
@@ -114,6 +116,20 @@ export async function listTemplates(): Promise<TemplateSummary[]> {
         scopeType
         scopeKey
         isSystem
+        latestDraft {
+            id
+            templateId
+            version
+            status
+            defaultContext
+        }
+        latestPublished {
+            id
+            templateId
+            version
+            status
+            defaultContext
+        }
       }
     }`
     );
@@ -240,7 +256,10 @@ export async function createDraftVersion(templateId: string, baseVersionId?: str
     return data.createDraftVersion;
 }
 
-export async function getTemplateVersion(templateId: string, versionId: string): Promise<any> {
+export async function getTemplateVersion(
+    templateId: string,
+    versionId = 'mockVersionId'
+): Promise<any> {
     const data = await gql<{ templateVersion: any }>(
         `query TemplateVersion($templateId: String!, $versionId: String!) {
       templateVersion(templateId: $templateId, versionId: $versionId) {
@@ -263,11 +282,7 @@ export async function getTemplateVersion(templateId: string, versionId: string):
     return data.templateVersion;
 }
 
-export async function updateDraftVersion(
-    templateId: string,
-    versionId: string,
-    payload: any
-): Promise<any> {
+export async function updateDraftVersion(templateId: string, payload: any): Promise<any> {
     const data = await gql<{ updateDraftVersion: any }>(
         `mutation UpdateDraftVersion($input: UpdateDraftVersionInput!) {
       updateDraftVersion(input: $input) {
@@ -285,12 +300,15 @@ export async function updateDraftVersion(
         updatedAt
       }
     }`,
-        { input: { templateId, versionId, payload } }
+        { input: { templateId, versionId: 'mockVersionId', payload } }
     );
     return data.updateDraftVersion;
 }
 
-export async function publishTemplateVersion(templateId: string, versionId: string): Promise<any> {
+export async function publishTemplateVersion(
+    templateId: string,
+    versionId = 'mockVersionId'
+): Promise<any> {
     const data = await gql<{ publishTemplateVersion: any }>(
         `mutation PublishTemplateVersion($input: PublishVersionInput!) {
       publishTemplateVersion(input: $input) {
@@ -313,19 +331,6 @@ export async function publishTemplateVersion(templateId: string, versionId: stri
     return data.publishTemplateVersion;
 }
 
-export async function openTemplate(
-    templateVersionId: string,
-    context: Record<string, any> = {}
-): Promise<{ workflowId: string }> {
-    const data = await gql<{ openTemplate: { workflowId: string } }>(
-        `mutation OpenTemplate($input: OpenTemplateInput!) {
-      openTemplate(input: $input) { workflowId }
-    }`,
-        { input: { templateVersionId, context } }
-    );
-    return data.openTemplate;
-}
-
 export async function deleteTemplate(templateId: string): Promise<any> {
     const data = await gql<{ deleteTemplate: any }>(
         `mutation DeleteTemplate($input: DeleteTemplateInput!) {
@@ -335,18 +340,6 @@ export async function deleteTemplate(templateId: string): Promise<any> {
     );
     return data.deleteTemplate;
 }
-
-export async function compiledWorkflowView(workflowId: string): Promise<any> {
-    const data = await gql<{ compiledWorkflowView: { view: any } }>(
-        `query CompiledWorkflowView($workflowId: String!) {
-      compiledWorkflowView(workflowId: $workflowId) { view }
-    }`,
-        { workflowId }
-    );
-    return data.compiledWorkflowView;
-}
-
-export const getCompiledWorkflowView = compiledWorkflowView;
 
 export async function listWidgetDefinitions(): Promise<any[]> {
     const data = await gql<{ widgetDefinitions: any[] }>(
@@ -366,13 +359,10 @@ export async function listWidgetDefinitions(): Promise<any[]> {
         variants {
           id
           label
-          grid {
-            defaultW
-            defaultH
-            minW
-            minH
-            maxW
-            maxH
+          sizing {
+            resizable
+            width { default min max step }
+            height { default min max step }
           }
         }
       }

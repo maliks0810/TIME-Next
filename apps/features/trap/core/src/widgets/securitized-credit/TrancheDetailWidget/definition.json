@@ -1,0 +1,64 @@
+{
+    "id": "cwd_sc_tranche_detail_01",
+    "name": "Tranche Detail",
+    "version": 2,
+    "description": "Selected tranche terms and conditions.",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_sc_tranche_detail_01",
+    "listensToKeys": [
+        "deal.id",
+        "deal.name",
+        "tranche.id",
+        "tranche.name",
+        "analysis.sessionId",
+        "workflow.refresh"
+    ],
+    "emitsKeys": [
+        "asset.staged.trancheId",
+        "asset.staged.trancheName",
+        "asset.isNew"
+    ],
+    "configSchema": {
+        "properties": {
+            "showScenarioAction": {
+                "default": true,
+                "description": "Show Run Scenario Analysis button in header",
+                "title": "Show Scenario Action",
+                "type": "boolean",
+                "category": "View Parameters"
+            },
+            "showStagingAction": {
+                "default": true,
+                "description": "Show Add to Staging button in header",
+                "title": "Show Staging Action",
+                "type": "boolean",
+                "category": "View Parameters"
+            }
+        },
+        "required": [],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Securitized Credit"
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": false,
+                "width": {
+                    "default": 8,
+                    "min": 8,
+                    "max": 8
+                },
+                "height": {
+                    "default": 750,
+                    "min": 750,
+                    "max": 750
+                }
+            }
+        }
+    ]
+}

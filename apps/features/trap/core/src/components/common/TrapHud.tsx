@@ -26,7 +26,7 @@ type TrapHudProps = {
     onExport: () => void;
     onLaunchWorkflow?: (selection: WorkflowLaunchSelection) => Promise<void> | void;
     onEditWorkflow?: (selection: WorkflowLaunchSelection) => void;
-    onActivateLanding?: (selection: { templateId: string; templateVersionId: string }) => void;
+    onActivateLanding?: (selection: { templateId: string }) => void;
 };
 
 export default function TrapHud({
@@ -61,14 +61,7 @@ export default function TrapHud({
         themeName === 'matrix';
 
     const LIGHT_THEME_OPTIONS = THEME_OPTIONS.filter((opt) =>
-        [
-            'default',
-            'holiday',
-            'ocean',
-            'sunset',
-            'forest',
-            'solarizedLight',
-        ].includes(opt.value)
+        ['default', 'holiday', 'ocean', 'sunset', 'forest', 'solarizedLight'].includes(opt.value)
     );
 
     const DARK_THEME_OPTIONS = THEME_OPTIONS.filter((opt) =>
@@ -83,9 +76,7 @@ export default function TrapHud({
         ['cyberpunk', 'dreamy', 'ink', 'dumpsterFire'].includes(opt.value)
     );
 
-    const MOVIE_THEME_OPTIONS = THEME_OPTIONS.filter((opt) =>
-        ['matrix'].includes(opt.value)
-    );
+    const MOVIE_THEME_OPTIONS = THEME_OPTIONS.filter((opt) => ['matrix'].includes(opt.value));
 
     const makeThemeChildren = (options: Array<{ value: ThemeName; label: string }>) =>
         options.map((opt) => ({
@@ -162,78 +153,78 @@ export default function TrapHud({
     const getProtectedSettings = () =>
         !IS_PROD || ALLOWED_USERS_LIST.includes(email)
             ? [
-                { type: 'divider' as const },
-                {
-                    key: 'admin-panel',
-                    label: (
-                        <Space
-                            size={8}
-                            style={{ width: '100%', justifyContent: 'space-between' }}
-                        >
-                            <span>Admin Panel</span>
-                            <ArrowRightOutlined />
-                        </Space>
-                    ),
-                },
-                { type: 'divider' as const },
-                { key: 'debug-user-header', label: 'Debug User', disabled: true },
-                ...renderCurrentUserOption(),
-                {
-                    key: 'debug-user-jane',
-                    label: (
-                        <Space
-                            size={8}
-                            style={{ width: '100%', justifyContent: 'space-between' }}
-                        >
-                            <span>Jane</span>
-                            {currentDebugUser === 'jane' ? (
-                                <CheckOutlined />
-                            ) : (
-                                <span style={{ width: 14 }} />
-                            )}
-                        </Space>
-                    ),
-                },
-                {
-                    key: 'debug-user-john',
-                    label: (
-                        <Space
-                            size={8}
-                            style={{ width: '100%', justifyContent: 'space-between' }}
-                        >
-                            <span>John</span>
-                            {currentDebugUser === 'john' ? (
-                                <CheckOutlined />
-                            ) : (
-                                <span style={{ width: 14 }} />
-                            )}
-                        </Space>
-                    ),
-                },
-                {
-                    key: 'debug-user-clear',
-                    label: (
-                        <Space
-                            size={8}
-                            style={{ width: '100%', justifyContent: 'space-between' }}
-                        >
-                            <span>Clear</span>
-                        </Space>
-                    ),
-                },
-                { type: 'divider' as const },
-                {
-                    key: 'debug-user-configure',
-                    label: (
-                        <Space
-                            size={8}
-                            style={{ width: '100%', justifyContent: 'space-between' }}
-                        >
-                            <span>Configure User</span>
-                        </Space>
-                    ),
-                },
-            ]
+                  { type: 'divider' as const },
+                  {
+                      key: 'admin-panel',
+                      label: (
+                          <Space
+                              size={8}
+                              style={{ width: '100%', justifyContent: 'space-between' }}
+                          >
+                              <span>Admin Panel</span>
+                              <ArrowRightOutlined />
+                          </Space>
+                      ),
+                  },
+                  { type: 'divider' as const },
+                  { key: 'debug-user-header', label: 'Debug User', disabled: true },
+                  ...renderCurrentUserOption(),
+                  {
+                      key: 'debug-user-jane',
+                      label: (
+                          <Space
+                              size={8}
+                              style={{ width: '100%', justifyContent: 'space-between' }}
+                          >
+                              <span>Jane</span>
+                              {currentDebugUser === 'jane' ? (
+                                  <CheckOutlined />
+                              ) : (
+                                  <span style={{ width: 14 }} />
+                              )}
+                          </Space>
+                      ),
+                  },
+                  {
+                      key: 'debug-user-john',
+                      label: (
+                          <Space
+                              size={8}
+                              style={{ width: '100%', justifyContent: 'space-between' }}
+                          >
+                              <span>John</span>
+                              {currentDebugUser === 'john' ? (
+                                  <CheckOutlined />
+                              ) : (
+                                  <span style={{ width: 14 }} />
+                              )}
+                          </Space>
+                      ),
+                  },
+                  {
+                      key: 'debug-user-clear',
+                      label: (
+                          <Space
+                              size={8}
+                              style={{ width: '100%', justifyContent: 'space-between' }}
+                          >
+                              <span>Clear</span>
+                          </Space>
+                      ),
+                  },
+                  { type: 'divider' as const },
+                  {
+                      key: 'debug-user-configure',
+                      label: (
+                          <Space
+                              size={8}
+                              style={{ width: '100%', justifyContent: 'space-between' }}
+                          >
+                              <span>Configure User</span>
+                          </Space>
+                      ),
+                  },
+              ]
             : [];
     const settingsMenu = {
         items: [
@@ -268,9 +259,7 @@ export default function TrapHud({
             },
         ],
     };
-    const subtleText = isDarkHud
-        ? 'rgba(255,255,255,0.70)'
-        : 'rgba(15,23,42,0.58)';
+    const subtleText = isDarkHud ? 'rgba(255,255,255,0.70)' : 'rgba(15,23,42,0.58)';
 
     const strongText = isDarkHud ? '#ffffff' : 'rgba(15,23,42,0.96)';
 
@@ -279,28 +268,28 @@ export default function TrapHud({
             ? 'rgba(255,255,255,0.035)'
             : 'rgba(255,255,255,0.34)'
         : isDarkHud
-            ? 'rgba(255,255,255,0.025)'
-            : 'rgba(255,255,255,0.28)';
+          ? 'rgba(255,255,255,0.025)'
+          : 'rgba(255,255,255,0.28)';
 
     const hudBorder = meta.isGradientTheme
         ? isDarkHud
             ? 'rgba(255,255,255,0.055)'
             : 'rgba(15,23,42,0.075)'
         : isDarkHud
-            ? 'rgba(255,255,255,0.055)'
-            : 'rgba(15,23,42,0.045)';
+          ? 'rgba(255,255,255,0.055)'
+          : 'rgba(15,23,42,0.045)';
 
     const hudAccentGradient = meta.isGradientTheme
         ? meta.accentGradient
         : isDarkHud
-            ? 'linear-gradient(90deg, rgba(59,130,246,0.14), rgba(168,85,247,0.10), rgba(255,255,255,0.02))'
-            : 'linear-gradient(90deg, rgba(59,130,246,0.09), rgba(109,94,252,0.08), rgba(255,255,255,0.14))';
+          ? 'linear-gradient(90deg, rgba(59,130,246,0.14), rgba(168,85,247,0.10), rgba(255,255,255,0.02))'
+          : 'linear-gradient(90deg, rgba(59,130,246,0.09), rgba(109,94,252,0.08), rgba(255,255,255,0.14))';
 
     const hudSoftOverlay = meta.isGradientTheme
         ? `linear-gradient(135deg, ${meta.hudGlow || 'rgba(255,255,255,0.05)'} 0%, rgba(255,255,255,0.00) 58%)`
         : isDarkHud
-            ? 'radial-gradient(circle at 20% 0%, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.00) 46%), radial-gradient(circle at 82% 0%, rgba(168,85,247,0.05) 0%, rgba(168,85,247,0.00) 48%)'
-            : 'radial-gradient(circle at 20% 0%, rgba(59,130,246,0.07) 0%, rgba(59,130,246,0.00) 46%), radial-gradient(circle at 82% 0%, rgba(109,94,252,0.06) 0%, rgba(109,94,252,0.00) 48%)';
+          ? 'radial-gradient(circle at 20% 0%, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.00) 46%), radial-gradient(circle at 82% 0%, rgba(168,85,247,0.05) 0%, rgba(168,85,247,0.00) 48%)'
+          : 'radial-gradient(circle at 20% 0%, rgba(59,130,246,0.07) 0%, rgba(59,130,246,0.00) 46%), radial-gradient(circle at 82% 0%, rgba(109,94,252,0.06) 0%, rgba(109,94,252,0.00) 48%)';
 
     const ghostButtonStyle: React.CSSProperties = {
         height: 28,
@@ -315,12 +304,9 @@ export default function TrapHud({
 
     const primaryButtonStyle: React.CSSProperties = {
         ...ghostButtonStyle,
-        background: isDarkHud
-            ? 'rgba(255,255,255,0.10)'
-            : 'rgba(15,23,42,0.07)',
+        background: isDarkHud ? 'rgba(255,255,255,0.10)' : 'rgba(15,23,42,0.07)',
         color: strongText,
     };
-
 
     const iconButtonStyle: React.CSSProperties = {
         ...ghostButtonStyle,
@@ -338,9 +324,7 @@ export default function TrapHud({
         fontSize: 11,
         fontWeight: 600,
         color: strongText,
-        background: isDarkHud
-            ? 'rgba(255,255,255,0.08)'
-            : 'rgba(255,255,255,0.55)',
+        background: isDarkHud ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.55)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
     };
@@ -479,7 +463,6 @@ export default function TrapHud({
                         >
                             TCW Risk Analytics Portal
                         </span>
-
                     </div>
                 </div>
 
@@ -517,7 +500,7 @@ export default function TrapHud({
                         menu={{
                             ...settingsMenu,
                             onClick: handleSettingsMenuClick,
-                            subMenuCloseDelay: 0.80,
+                            subMenuCloseDelay: 0.8,
                         }}
                     >
                         <Button icon={<SettingOutlined />} style={iconButtonStyle} />

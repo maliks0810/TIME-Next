@@ -3,13 +3,14 @@ import { Space, theme } from 'antd';
 import { useTheme, getThemeSurfaceMeta } from '../../theme/ThemeContext';
 
 import CanvasContainer from '../../components/layout/CanvasContainer';
+import { applySizing, toPersistedLayout } from '../../components/layout/sizing';
 
 import DesignerHeader from './components/DesignerHeader';
 import WidgetPickerModal from './components/WidgetPickerModal';
 import EmptyDesignerState from './components/EmptyDesignerState';
 import DesignerCanvasItem from './components/DesignerCanvasItem';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useWorkflowDesigner } from './hooks/useWorkflowDesigner';
 
 export default function WorkflowDesignerPage() {
@@ -41,7 +42,6 @@ export default function WorkflowDesignerPage() {
         loading,
         loaded,
         templateId,
-        versionId,
         widgetSearch,
         selectedCategory,
         selectedWidgetDefId,
@@ -72,6 +72,7 @@ export default function WorkflowDesignerPage() {
         saveDraft,
         publish,
         updateWidgetConfig,
+        contextHolder
     } = useWorkflowDesigner();
 
     useEffect(() => {
@@ -80,11 +81,22 @@ export default function WorkflowDesignerPage() {
         }
     }, [layout]);
 
+    // Decorate the layout with per-item resize policy derived from each
+    // widget's `uiHints.sizing`. Opted-in widgets (e.g. the counter tile)
+    // become drag-resizable with min/max + 10px height snap; every other item
+    // is explicitly locked, so enabling grid-level resize never leaks to
+    // widgets that haven't opted in. Decoration is render-only and stripped
+    // via toPersistedLayout before persisting.
+    const decoratedLayout = useMemo(
+        () => applySizing(layout, widgetsById, widgetDefById),
+        [layout, widgetsById, widgetDefById]
+    );
+
     return (
         <Space direction="vertical" size={16} style={{ width: '100%', gap: 4 }}>
+            {contextHolder}
             <DesignerHeader
                 templateId={templateId}
-                versionId={versionId}
                 loaded={loaded}
                 loading={loading}
                 isPublished={isPublished}
@@ -118,9 +130,9 @@ export default function WorkflowDesignerPage() {
                 onBack={() => nav('/trap')}
             />
 
-            {!templateId || !versionId || layout.length === 0 ? (
+            {!templateId || layout.length === 0 ? (
                 <EmptyDesignerState
-                    hasRoute={!!templateId && !!versionId}
+                    hasRoute={!!templateId}
                     hasWidgets={layout.length > 0}
                     isPublished={isPublished}
                     onBack={() => nav('/trap')}
@@ -128,15 +140,17 @@ export default function WorkflowDesignerPage() {
                 />
             ) : (
                 <CanvasContainer
-                    layout={layout as any}
-                    onLayoutChange={onLayoutChange}
+                    layout={decoratedLayout as any}
+                    onLayoutChange={(current) =>
+                        onLayoutChange((current as any[]).map(toPersistedLayout) as any)
+                    }
                     isInitialLoading={isInitialLoading}
                     draggableHandle=".widget-drag-handle"
                     draggableCancel=".rgl-no-drag"
                     isDraggable={!isPublished}
-                    isResizable={false}
+                    isResizable={!isPublished}
                 >
-                    {layout
+                    {decoratedLayout
                         .filter((it) => !!widgetsById[it.i])
                         .map((it) => {
                             const widget = widgetsById[it.i];
@@ -149,7 +163,6 @@ export default function WorkflowDesignerPage() {
                                     widget={widget}
                                     widgetDefinition={widgetDefinition}
                                     templateId={templateId}
-                                    versionId={versionId}
                                     isPublished={isPublished}
                                     isDraft={isDraft}
                                     isDraftSaved={isDraftSaved}
@@ -184,6 +197,7 @@ export default function WorkflowDesignerPage() {
                 }}
                 onSelectVariant={setSelectedWidgetVariantId}
                 onAddWidget={addWidget}
+                loading={loading}
             />
         </Space>
     );
