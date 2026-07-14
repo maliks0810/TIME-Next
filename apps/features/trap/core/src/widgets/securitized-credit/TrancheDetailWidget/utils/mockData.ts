@@ -2,6 +2,7 @@ export interface TrancheRow {
     id: string; // internal key
     name: string; // e.g. "7A2"
     cusip: string; // e.g. "007036QT6"
+    isin: string | null; // e.g. "US007036QT62" (from TR_ISIN_LIST[0]; null if none)
     coupon: number;
     type: string; // e.g. "SEN_SPR_FLT"
     currency: string;

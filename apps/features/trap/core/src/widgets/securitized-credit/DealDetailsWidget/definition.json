@@ -1,11 +1,11 @@
 {
-    "id": "cwd_na_rmbs_deal_details_01",
+    "id": "cwd_sc_deal_details_01",
     "name": "Deal Details",
-    "version": 1,
-    "description": "Displays Deal Level Terms and Conditions.",
+    "version": 2,
+    "description": "Displays deal-level terms and conditions.",
     "tags": null,
     "category": "widgetDefinition",
-    "datasetId": "ds_na_rmbs_deal_details_01",
+    "datasetId": "ds_sc_deal_details_01",
     "listensToKeys": [
         "deal.id",
         "deal.name",

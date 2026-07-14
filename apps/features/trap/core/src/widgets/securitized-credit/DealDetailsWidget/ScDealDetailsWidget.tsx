@@ -1,19 +1,19 @@
 import React from 'react';
 import { BankOutlined } from '@ant-design/icons';
 import clsx from 'clsx';
-import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell';
-import type { WidgetComponentProps } from '../../../../types/widget';
+import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
+import type { WidgetComponentProps } from '../../../types/widget';
 import { MetricCard } from './components/MetricCard';
 import { AttrPanel } from './components/AttrPanel';
 import { AttrRow } from './components/AttrRow';
 import { normaliseDeal } from './utils/helpers';
-import { DEAL_NAME_KEY, ANALYSIS_SESSION_ID_KEY } from '../../../constants';
-import { useGetWidgetValue } from '../../../../state/Widgets/hooks';
+import { DEAL_NAME_KEY, ANALYSIS_SESSION_ID_KEY } from '../../constants';
+import { useGetWidgetValue } from '../../../state/Widgets/hooks';
 import styles from './DealDetailsWidget.module.scss';
 import { widgetPreviewResult } from './widgetPreviewResult';
-import WidgetLoadingState from '../../../../components/widget-shell/WidgetLoadingState';
+import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingState';
 
-export function NARMBSDealDetailsWidget({
+export function ScDealDetailsWidget({
     result,
     loading,
     execute,
@@ -31,6 +31,7 @@ export function NARMBSDealDetailsWidget({
         channelId,
         key: DEAL_NAME_KEY,
     });
+
     const data = mode === 'preview' ? widgetPreviewResult : normaliseDeal(result);
 
     React.useEffect(() => {
@@ -46,6 +47,8 @@ export function NARMBSDealDetailsWidget({
             </WidgetCardShell>
         );
     }
+
+    const structure = data?.structure ?? null;
 
     return (
         <WidgetCardShell>
@@ -128,15 +131,15 @@ export function NARMBSDealDetailsWidget({
                                 sub="Net coupon"
                             />
                             <MetricCard
-                                label="Curr WAS"
-                                value={data.currWAS}
-                                sub="Wt avg spread"
-                                highlight
+                                label="Curr WAM"
+                                value={data.currWAM ? `${data.currWAM} mo` : null}
+                                sub="Wt avg maturity"
                             />
                             <MetricCard
-                                label="Curr WAM"
-                                value={`${data.currWAM} mo`}
-                                sub="Wt avg maturity"
+                                label="Curr WALA"
+                                value={data.currWALA ? `${data.currWALA} mo` : null}
+                                sub="Wt avg loan age"
+                                highlight
                             />
                         </div>
 
@@ -167,59 +170,55 @@ export function NARMBSDealDetailsWidget({
 
                         {/* ── Three-column attribute panels ── */}
                         <div className={styles.dealDetailsAttributePanels}>
-                            {/* Identity */}
-                            <AttrPanel title="Identity">
-                                <AttrRow label="Intex deal name" value={data.intexDealName} mono />
-                                <AttrRow label="Bloomberg name" value={data.bloombergDealName} />
-                                <AttrRow label="Deal type" value={data.dealType} />
-                                <AttrRow label="Collateral type" value={data.collateralType} />
-                                <AttrRow label="Country" value={data.country} />
-                                <AttrRow label="Currency" value={data.dealCurrency} />
-                                <AttrRow label="Business center" value={data.businessCenter} />
-                            </AttrPanel>
+                            {/* Col 1: Identity + Relevant parties stacked */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                <AttrPanel title="Identity">
+                                    <AttrRow label="Intex deal name" value={data.intexDealName} mono />
+                                    <AttrRow label="Bloomberg name" value={data.bloombergDealName} />
+                                    <AttrRow label="Deal type" value={data.dealType} />
+                                    <AttrRow label="Collateral type" value={data.collateralType} />
+                                    <AttrRow label="Country" value={data.country} />
+                                    <AttrRow label="Currency" value={data.currency} />
+                                </AttrPanel>
 
-                            {/* Dates */}
+                                <AttrPanel title="Relevant parties">
+                                    <AttrRow label="Issuer" value={data.issuerName} />
+                                    <AttrRow label="Trustee" value={data.trustee} />
+                                    <AttrRow label="Dealer" value={data.dealerName} />
+                                    <AttrRow label="Master servicer" value={data.masterServicer} />
+                                </AttrPanel>
+                            </div>
+
+                            {/* Col 2: Dates */}
                             <AttrPanel title="Dates">
                                 <AttrRow label="Settle date" value={data.settleDate} />
                                 <AttrRow label="Closing date" value={data.closingDate} />
                                 <AttrRow label="First pay date" value={data.firstPayDate} />
-                                <AttrRow label="Stepdown date req" value={data.stepdownDateReq} />
                                 <AttrRow label="Latest update" value={data.latestUpdate} />
-                                <AttrRow label="Model timestamp" value={data.dealModelTimestamp} />
+                                <AttrRow label="Model timestamp" value={data.modelTimestamp} />
                                 <AttrRow label="Next pay day" value={data.nextPayDay} />
                             </AttrPanel>
 
-                            {/* Counterparties & traits */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                                <AttrPanel title="Relevant parties">
-                                    <AttrRow label="Issuer" value={data.issuer} />
-                                    <AttrRow label="Trustee" value={data.trustee} />
-                                    <AttrRow label="Dealer" value={data.dealer} />
-                                    <AttrRow label="Master servicer" value={data.masterServicer} />
-                                </AttrPanel>
-
-                                <AttrPanel title="Deal traits">
-                                    <AttrRow label="Grp 7 structure" value={data.grp7Structure} />
-                                    <AttrRow
-                                        label="Grp CROSS structure"
-                                        value={data.grpCROSSStructure}
-                                    />
-                                    <AttrRow
-                                        label="Grp 72 pricing spd"
-                                        value={data.grp72PricingSpeed}
-                                    />
-                                    <AttrRow
-                                        label="Forbearance adj WAC"
-                                        value={data.currForbAdjWAC}
-                                        accent
-                                    />
-                                    <AttrRow
-                                        label="Forb adj net WAC"
-                                        value={data.currForbAdjNetWAC}
-                                        accent
-                                    />
-                                </AttrPanel>
-                            </div>
+                            {/* Col 3: Structure (replaces Deal traits) */}
+                            <AttrPanel title="Structure">
+                                <AttrRow label="Classes" value={structure?.classes} />
+                                <AttrRow label="Triggers" value={structure?.triggerNames} />
+                                <AttrRow
+                                    label="Credit enhancement"
+                                    value={structure?.creditEnhancementNames}
+                                />
+                                <AttrRow label="Calls" value={structure?.callNames} />
+                                <AttrRow
+                                    label="Expenses"
+                                    value={
+                                        structure?.nExpenses != null
+                                            ? String(structure.nExpenses)
+                                            : null
+                                    }
+                                />
+                                <AttrRow label="Settlement" value={structure?.settlementType} />
+                                <AttrRow label="Payrule script" value={structure?.hasPayruleScript} />
+                            </AttrPanel>
                         </div>
 
                         {/* Session footer */}

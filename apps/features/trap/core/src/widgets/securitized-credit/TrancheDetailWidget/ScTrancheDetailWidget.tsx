@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Button, Space, theme } from 'antd';
 import { ApartmentOutlined, CheckOutlined } from '@ant-design/icons';
 
-import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell';
-import type { WidgetComponentProps } from '../../../../types/widget';
+import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
+import type { WidgetComponentProps } from '../../../types/widget';
 import { TrancheDetail } from './utils/mockData';
 import { MetricCard } from './components/MetricCard';
 import { DetailRow } from './components/DetailRow';
@@ -15,13 +15,13 @@ import {
     TRANCHE_ID_KEY,
     TRANCHE_NAME_KEY,
     DEAL_NAME_KEY,
-} from '../../../constants';
-import { useGetWidgetValue, useSetWidgetValue } from '../../../../state/Widgets/hooks';
-import { useGetActiveTab } from '../../../../state/Tabs/hooks';
+} from '../../constants';
+import { useGetWidgetValue, useSetWidgetValue } from '../../../state/Widgets/hooks';
+import { useGetActiveTab } from '../../../state/Tabs/hooks';
 import styles from './TrancheDetailsWidget.module.scss';
-import WidgetLoadingState from '../../../../components/widget-shell/WidgetLoadingState';
+import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingState';
 
-export function NARMBSTrancheDetailWidget({
+export function ScTrancheDetailWidget({
     result,
     loading,
     widgetInstance,
@@ -210,7 +210,7 @@ export function NARMBSTrancheDetailWidget({
                             <MetricCard
                                 label="Coupon"
                                 value={data.coupon?.toFixed(4) + '%'}
-                                sub={'Reported: ' + data.reportedCoupon}
+                                sub={data.reportedCoupon ? 'Reported: ' + data.reportedCoupon : 'Reported: —'}
                             />
 
                             <MetricCard
@@ -226,11 +226,13 @@ export function NARMBSTrancheDetailWidget({
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                                 <DetailPanel title="Tranche info">
                                     <DetailRow label="Tranche" value={data.name} />
-                                    <DetailRow label="CUSIP" value={data.cusip} mono />
-                                    <DetailRow label="FIGI" value={data.figi} mono />
+                                    <DetailRow label="CUSIP" value={data.cusip} mono copyable />
+                                    <DetailRow label="ISIN" value={data.isin} mono copyable />
+                                    <DetailRow label="FIGI" value={data.figi} mono copyable />
                                     <DetailRow
                                         label="Bloomberg ticker"
                                         value={data.bloombergTicker}
+                                        copyable
                                     />
                                     <DetailRow label="Type" value={data.type} mono />
                                     <DetailRow label="Group" value={data.group} />
@@ -309,7 +311,7 @@ export function NARMBSTrancheDetailWidget({
                                     />
                                     <DetailRow
                                         label="Target enhancement"
-                                        value={`${data.targetEnhancement}%`}
+                                        value={data.targetEnhancement != null ? `${data.targetEnhancement}%` : null}
                                         accent
                                     />
                                     <DetailRow
