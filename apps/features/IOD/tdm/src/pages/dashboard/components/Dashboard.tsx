@@ -19,6 +19,7 @@ import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
 import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
 import '../lib/dashboard.scss';
 import { DataGridRef } from 'devextreme-react/cjs/data-grid';
+import { useUserInfo } from '@platform/utils';
 
 const Dashboard: React.FC = () => {
   const [isRequestDetailsOpen, setIsRequestDetailsOpen] = useState(false);
@@ -35,7 +36,9 @@ const Dashboard: React.FC = () => {
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const isPageVisible = useVisibilityChange();
   const isDmAnalystDropdownOpen = useDashboardStore(s => s.isDmAnalystDropdownOpen);
+  const seedDmAnalystAssignments = useDashboardStore(s => s.seedDmAnalystAssignments)
   const navigate = useNavigate();
+  const { name: currentUser } = useUserInfo();
   const dashboardGridRef = useRef<DataGridRef<IDashboardSecuritySetupRequest, number>>(null);
 
   // Server state hooks — stay as hooks, not in Zustand
@@ -74,6 +77,9 @@ const Dashboard: React.FC = () => {
       const data = await getSecurityRequestsDashboard(parameters);
       setSecurityRequestsData(data.securityRequests);
       setDashboardStats(data.dashboardStats)
+      seedDmAnalystAssignments(
+        (data.securityRequests ?? []).map(r => ({ id: r.id, email: r.dmAnalystEmail })),
+      )
 
       const currentTime = getCurrentLocalTime();
       setLastRefreshed(currentTime);
@@ -84,7 +90,7 @@ const Dashboard: React.FC = () => {
     finally {
       setIsPolling(false);
     }
-  }, [searchParameters, setSecurityRequestsData, setLastRefreshed, setIsPolling]);
+  }, [searchParameters, setSecurityRequestsData, setLastRefreshed, setIsPolling, seedDmAnalystAssignments]);
 
   const handleClearGridFilters = () => {
     if (dashboardGridRef.current) {
@@ -349,6 +355,7 @@ const Dashboard: React.FC = () => {
                 setSelectedSecurityRequest={setSelectedSecurityRequest}
                 setIsRequestDetailsOpen={setIsRequestDetailsOpen}
                 dmAnalystOptions={dmAnalystOptions}
+                currentUser={currentUser || ''}
               />
             </Grid>
           </Grid>

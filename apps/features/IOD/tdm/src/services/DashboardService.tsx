@@ -5,6 +5,17 @@ import { DeleteSecuritySetupRequest, SecuritySetupRequest, SecuritySetupRequestA
 import { API_BASE_URL } from "../constants/environmentConstants";
 import { getDateFromString, getLocalDateTimeOffsetIsoString } from "../utils/DateTimeHelper";
 
+interface IDmAssignmentPayload {
+  securitySetupRequestId: number;
+  name: string;
+  email: string;
+  updatedBy: string;
+}
+
+interface IDmAssignmentResponse {
+  isDmAssignmentUpdated: boolean;
+}
+
 export const transformDashboardSecuritySetupRequestDocument = (apiData: SecuritySetupRequestAttachment): IDashboardSecuritySetupRequestAttachment => {
   return {
     id: apiData.attachmentId,
@@ -92,6 +103,8 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
     euSecuritizationStatus: apiData.euSecuritizationStatus,
     erisaStatus: apiData.erisaStatus,
     processTime: Number(apiData.processTime),
+    dmAnalystName: apiData.dmAnalystName,
+    dmAnalystEmail: apiData.dmAnalystEmail,
     securityRequestDetails: {
       identifierType: apiData.identifierType,
       identifierValue: apiData.identifierValue,
@@ -251,4 +264,9 @@ export const duplicateSecuritySetupRequest = async (
   catch {
 
   }
+}
+
+export const setDmAssignment = async (payload: IDmAssignmentPayload): Promise<IDmAssignmentResponse> => {
+  const response = await axios.post(`${API_BASE_URL}securitysetuprequests/dmassignment`, payload);
+  return response.data;
 }
