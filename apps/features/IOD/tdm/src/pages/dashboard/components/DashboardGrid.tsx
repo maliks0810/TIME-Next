@@ -14,6 +14,7 @@ import {
 } from '../lib/DashboardSecuritySetupRequestStatuses';
 import { IReferenceDataKeyValue } from '../../security-setup/lib/types/referenceDataTypes';
 import { useDashboardStore } from '../../../stores/useDashboardStore';
+import { setDmAssignment } from '../../../services/DashboardService';
 import '../lib/dashboard.scss';
 
 type DataGridColumnState = { visibleIndex?: number } & Record<string, unknown>;
@@ -28,6 +29,7 @@ type DashboardGridProps = {
   setSelectedSecurityRequest: Dispatch<SetStateAction<IDashboardSecuritySetupRequest | undefined>>;
   setIsRequestDetailsOpen: Dispatch<SetStateAction<boolean>>;
   dmAnalystOptions: IReferenceDataKeyValue[];
+  currentUser: string;
 }
 
 const DmAnalystCell: React.FC<{
@@ -80,9 +82,9 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   securityRequestsData,
   setSelectedSecurityRequest,
   setIsRequestDetailsOpen,
-  dmAnalystOptions
+  dmAnalystOptions,
+  currentUser
 }) => {
-
   const navigate = useNavigate();
 
   const [dmAnalystMenuState, setDmAnalystMenuState] = useState<DMAnalystMenuState | null>(null)
@@ -101,12 +103,37 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
     setDmAnalystDropdownOpen(false);
   }, [setDmAnalystDropdownOpen])
 
-  const handleDmAnalystSelect = useCallback((email: string) => {
-    if (dmAnalystMenuState) {
-      setDmAnalyst(dmAnalystMenuState.requestId, email)
+  const handleDmAnalystSelect = useCallback(async (email: string) => {
+    if (!dmAnalystMenuState) {
+      closeDmAnalystMenu();
+      return;
     }
+
+    const { requestId } = dmAnalystMenuState;
+    const analyst = dmAnalystOptions.find((a) => a.fieldDropdownValue === email);
+
+    const previousEmail = dmAnalystAssignments[requestId];
+    setDmAnalyst(requestId, email);
     closeDmAnalystMenu();
-  }, [dmAnalystMenuState, setDmAnalyst, closeDmAnalystMenu])
+
+    try {
+      const { isDmAssignmentUpdated } = await setDmAssignment({
+        securitySetupRequestId: requestId,
+        name: analyst?.fieldDropdownDescription ?? '',
+        email,
+        updatedBy: currentUser
+      });
+
+      // service returns isDmAssignmentUpdated false
+      if (!isDmAssignmentUpdated) {
+        setDmAnalyst(requestId, previousEmail);
+      }
+    } catch (err) {
+      setDmAnalyst(requestId, previousEmail);
+      console.error('Failed to save DM analyst assignment:', err)
+    }
+
+  }, [dmAnalystMenuState, dmAnalystOptions, setDmAnalyst, closeDmAnalystMenu, currentUser])
 
   const cellRenderSetupStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
     const status = data.value;
