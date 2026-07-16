@@ -4,4 +4,4 @@ export const ALLOWED_USERS_LIST = [
     'Anton.Gatsko@tcw.com',
     'Mark.Chahal@tcw.com',
 ];
-export const DEBOUNCED_WIDGET_PARAM_KEYS = ["label", "url", "content"];
+export const DEBOUNCED_WIDGET_PARAM_KEYS = ["label", "url", "content", "value"];
