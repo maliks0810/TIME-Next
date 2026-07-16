@@ -72,6 +72,38 @@ export interface BackendFrequencyMode {
   label: string;
   group: string;
 }
+export type FilterOption = { label: string; value: string };
+
+export interface FilterOptionsCatalog {
+  currency?: FilterOption[];
+  country?: FilterOption[];
+  sector?: FilterOption[];
+  rating?: FilterOption[];
+}
+
+export type ResolvedFilterOptionsCatalog = Required<FilterOptionsCatalog>;
+
+
+const EMPTY_FILTER_CATALOG: ResolvedFilterOptionsCatalog = {
+  currency: [],
+  country: [],
+  sector: [],
+  rating: [],
+};
+
+export function buildFilterOptions(
+  config: GridConfigResponse | null,
+): ResolvedFilterOptionsCatalog {
+  if (!config?.filterOptions) return EMPTY_FILTER_CATALOG;
+  return {
+    currency: config.filterOptions.currency ?? [],
+    country: config.filterOptions.country ?? [],
+    sector: config.filterOptions.sector ?? [],
+    rating: config.filterOptions.rating ?? [],
+  };
+}
+
+
 export interface GridConfigResponse {
   holidays: unknown;
   columnConfigs: {
@@ -81,6 +113,9 @@ export interface GridConfigResponse {
   periods: PeriodConfig[][];
   breakdownMode: BreakdownMode[];
   frequencyMode: BackendFrequencyMode[];
+
+  filterOptions?: FilterOptionsCatalog;
+
 }
 
 export interface GridMetadata {

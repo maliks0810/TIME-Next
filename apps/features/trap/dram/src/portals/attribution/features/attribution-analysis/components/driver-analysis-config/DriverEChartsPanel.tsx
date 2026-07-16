@@ -106,15 +106,20 @@ const formatTooltipValue = (value: number, format: string): string => {
 const topRowsByPeriod = (rows: DriverRow[], period: string, limit: number) =>
   rows
     .filter((row) => row.period === period)
-    .sort((a, b) => a.rank - b.rank)
+    .sort((a, b) => a.portfolioId.localeCompare(b.portfolioId) || a.rank - b.rank)
     .slice(0, limit);
+
+const getCategoryLabel = (result: DriverAnalysisResult, row: DriverRow) =>
+  result.portfolioIds.length > 1
+    ? `${row.period} ${row.portfolioId} ${row.driverName}`
+    : `${row.period} ${row.driverName}`;
 
 const buildTopBottomOption = (result: DriverAnalysisResult): ECOption => {
   const format = result.metric.format;
   const periods = result.periods;
   const categories = periods.flatMap((period) => {
-    const top = topRowsByPeriod(result.topDrivers, period, 3).map((row) => `${period} ${row.driverName}`);
-    const bottom = topRowsByPeriod(result.bottomDrivers, period, 3).map((row) => `${period} ${row.driverName}`);
+    const top = topRowsByPeriod(result.topDrivers, period, 3).map((row) => getCategoryLabel(result, row));
+    const bottom = topRowsByPeriod(result.bottomDrivers, period, 3).map((row) => getCategoryLabel(result, row));
     return [...top, ...bottom];
   });
 
@@ -123,10 +128,10 @@ const buildTopBottomOption = (result: DriverAnalysisResult): ECOption => {
 
   periods.forEach((period) => {
     topRowsByPeriod(result.topDrivers, period, 3).forEach((row) => {
-      topValuesByCategory.set(`${period} ${row.driverName}`, getChartValue(row, format));
+      topValuesByCategory.set(getCategoryLabel(result, row), getChartValue(row, format));
     });
     topRowsByPeriod(result.bottomDrivers, period, 3).forEach((row) => {
-      bottomValuesByCategory.set(`${period} ${row.driverName}`, getChartValue(row, format));
+      bottomValuesByCategory.set(getCategoryLabel(result, row), getChartValue(row, format));
     });
   });
 
@@ -257,14 +262,7 @@ const buildPeriodTrendOption = (result: DriverAnalysisResult): ECOption => {
   };
 };
 
-export function DriverEChartsPanel({ result }: DriverEChartsPanelProps) {
-  const [mode, setMode] = React.useState<DriverChartMode>("topBottom");
-
-  const option = React.useMemo(() => {
-    if (!result) return undefined;
-    return mode === "topBottom" ? buildTopBottomOption(result) : buildPeriodTrendOption(result);
-  }, [mode, result]);
-  function EChart({ option }: { option: ECOption }) {
+ function EChart({ option }: { option: ECOption }) {
     const ref = useEChart(option);
 
     return (
@@ -275,6 +273,15 @@ export function DriverEChartsPanel({ result }: DriverEChartsPanelProps) {
       />
     );
   }
+
+export function DriverEChartsPanel({ result }: DriverEChartsPanelProps) {
+  const [mode, setMode] = React.useState<DriverChartMode>("topBottom");
+
+  const option = React.useMemo(() => {
+    if (!result) return undefined;
+    return mode === "topBottom" ? buildTopBottomOption(result) : buildPeriodTrendOption(result);
+  }, [mode, result]);
+
   return (
     <Card
       size="small"
@@ -301,11 +308,7 @@ export function DriverEChartsPanel({ result }: DriverEChartsPanelProps) {
         <Empty description="Run analysis to view driver charts." image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
         <>
-
-          <div style={{ height: 300 }}>
-            <EChart option={option} />
-          </div>
-
+          <EChart option={option} />
           <Text type="secondary" style={{ fontSize: 12 }}>
             {mode === "topBottom"
               ? "Top three and bottom three drivers by selected period."
