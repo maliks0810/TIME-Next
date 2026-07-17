@@ -323,9 +323,10 @@ const effectiveColumns = useMemo(() => {
   return getEffectiveColumns(
     gridConfig,
     configuredColumns,
-    viewBreakdown
+    viewBreakdown,
+    viewFrequencyMode
   );
-}, [gridConfig, configuredColumns, viewBreakdown]);
+}, [gridConfig, configuredColumns, viewBreakdown, viewFrequencyMode]);
 
 
 const gridRowsByPeriod = useMemo<PeriodGridMap>(() => {
@@ -613,21 +614,25 @@ const executeAttribAnalysis = async (
     setRunningAnalysis(true);
 
     try {
-      const inputGrouping = input.breakdownModeId === "Type_2" ? encodeURIComponent("Type 2") : encodeURIComponent(input.breakdownModeId);
+      const inputGrouping = input.breakdownModeId === "Type_2" ? encodeURIComponent("Type 2") : input.breakdownModeId === "GICS" ? "GICS1"
+       : encodeURIComponent(input.breakdownModeId);
       const resp = input.breakdownModeId === 'MktCap' ? (await api.runMktCapAnalysis()) :
       input.breakdownModeId === 'PEfwd' ? (await api.runPEfwdAnalysis()):
-      input.frequencyMode === "daily" || input.assetClass === "EQ" ? (await api.runSecurityGrainAnalysis(
-        input.assetClass,
+      input.frequencyMode === "daily" && input.assetClass === "EQ" ? (await api.runDailySecurityGrainAnalysis(
         input.portfolio,
-        input.frequencyMode,
-        inputGrouping  || "GICS",
+        inputGrouping  || "GICS1",
         input.startDate,
         input.endDate
-      )) : (await api.runBreakdownGrainAnalysis(
+      )) : input.frequencyMode === "monthly" && input.assetClass === "EQ" ? (await api.runSecurityGrainAnalysis(input.assetClass,
+        input.portfolio,input.frequencyMode,
+        inputGrouping  || "GICS1",
+        input.startDate,
+        input.endDate
+      )) :  (await api.runBreakdownGrainAnalysis(
         input.assetClass,
         input.portfolio,
         input.frequencyMode,
-        inputGrouping  || "GICS",
+        inputGrouping  || "GICS1",
         input.startDate,
         input.endDate
       )) as ResponseWithPeriodGrids;

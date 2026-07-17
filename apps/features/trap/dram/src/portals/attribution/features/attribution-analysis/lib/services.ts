@@ -208,4 +208,8 @@ export const api = {
     runMktCapAnalysis: (): Promise<AnalyticsResponse> =>
     reqMain<AnalyticsResponse>
   (`/api/att-eq-mtd/?port=6614T&period&grouping=MktCap&asset_class=EQ`),
+  runDailySecurityGrainAnalysis: (port: string, breakdown: string, startDate: string, endDate: string): Promise<AnalyticsResponse> =>
+    req<AnalyticsResponse>
+  (`/api/att-eq-mtd/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}`),
+
 };
