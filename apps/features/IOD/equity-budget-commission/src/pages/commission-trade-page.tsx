@@ -3,6 +3,10 @@ import TabPanel, { Item } from 'devextreme-react/tab-panel';
 import { CommissionTradeGrid } from '../datagrids/commission-trade-grid'
 import { CommissionReconGrid } from '../datagrids/commission-recon-grid';
 
+import './style.scss';
+import 'devextreme/dist/css/dx.light.css';
+import 'devextreme/dist/css/dx.light.compact.css';
+
 export default function CommissionTradePage () {
     return (
         <BlockContainer title="Trades">
