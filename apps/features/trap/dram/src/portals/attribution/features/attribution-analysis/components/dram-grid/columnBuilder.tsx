@@ -382,7 +382,8 @@ export const extractAnalysisDatasets = (apiResp: AnalyticsResponse) => {
 export const getEffectiveColumns = (
   config: GridConfigResponse,
   configured: NormalizedColumnConfig[],
-  breakdown?: string
+  breakdown?: string,
+  frequencyMode?: string,
 ): NormalizedColumnConfig[] => {
   if (!config) return [];
 
@@ -396,13 +397,13 @@ export const getEffectiveColumns = (
         });
 
   const useSpecialMode =
-    breakdown === "MktCap" || breakdown === "PEfwd";
+    breakdown === "MktCap" || breakdown === "PEfwd" || frequencyMode === "daily";
 
   return baseColumns.map((col) => {
     let next = col;
 
     //  1. Force SecurityName visible
-    if (useSpecialMode && col.id === "SecurityName") {
+    if (useSpecialMode && col.id === "SecurityName" ) {
       next = {
         ...next,
         visible: true,
