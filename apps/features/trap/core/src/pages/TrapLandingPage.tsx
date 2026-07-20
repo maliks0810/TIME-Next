@@ -10,11 +10,12 @@ import LandingTab from '../features/landing/LandingTab';
 import WorkflowTab from '../features/workflow-runtime/WorkflowTab';
 import TrapHud from '../components/common/TrapHud';
 
-import { cloneTemplate, createDraftVersion, getTemplates } from '../api/trap';
+import { cloneTemplate, createDraftVersion, getTemplates, TemplateSummary } from '../api/trap';
 
 import { setDefaultLandingTemplate } from '../utils/userPreferences';
 import { useGetActiveTab, useSetActiveTab } from '../state/Tabs/hooks';
 import { useGetActiveUser } from '../state/User/hooks';
+import { TemplateVersionLite } from '../features/workflow-launcher/types/workflowLauncher.types';
 
 type WorkflowTabModel = {
     key: string;
@@ -23,6 +24,7 @@ type WorkflowTabModel = {
     templateId: string;
     templateVersionStatus: string;
     ownerUserId: string;
+    latestPublished?: TemplateVersionLite;
 };
 
 type OpenWorkflowRequest = Omit<WorkflowTabModel, 'bus'>;
@@ -32,6 +34,7 @@ type HudWorkflowSelection = {
     templateName: string;
     templateVersionStatus: string;
     ownerUserId: string;
+    latestPublished?: TemplateVersionLite;
 };
 
 type HudLandingSelection = {
@@ -57,6 +60,7 @@ export default function TrapLandingPage() {
     const nav = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [workflows, setWorkflows] = React.useState<WorkflowTabModel[]>(loadTabsFromStorage());
+    const [allTemplates, setAllTemplates] = React.useState<TemplateSummary[]>([]);
     const activeKey = useGetActiveTab();
     const activeUser = useGetActiveUser();
 
@@ -143,8 +147,10 @@ export default function TrapLandingPage() {
     const showTabs = workflows.length > 0;
 
     const onEditTemplate = async (ws: WorkflowTabModel) => {
-        if (ws.templateVersionStatus === 'PUBLISHED' || ws.templateVersionStatus === '') {
-            await createDraftVersion(ws.templateId);
+        const latestTemplate = allTemplates.find((el) => el.id === ws.templateId);
+
+        if (ws.templateVersionStatus === 'PUBLISHED') {
+            await createDraftVersion(ws.templateId, latestTemplate?.latestPublished?.id);
             nav(`designer?templateId=${ws.templateId}`);
 
             return;
@@ -181,6 +187,7 @@ export default function TrapLandingPage() {
                     templateId: selection.templateId,
                     templateVersionStatus: selection.templateVersionStatus,
                     ownerUserId: selection.ownerUserId,
+                    latestPublished: selection.latestPublished
                 });
 
                 const newParams = new URLSearchParams();
@@ -212,7 +219,7 @@ export default function TrapLandingPage() {
     }, []);
 
     const tabLabel = (ws: WorkflowTabModel) => {
-        const isPublished = String(ws.templateVersionStatus ?? '').toUpperCase() === 'PUBLISHED';
+        const isPublished = String(ws.templateVersionStatus ?? '').toUpperCase() === 'PUBLISHED' || allTemplates.find((el) => el.id === ws.templateId)?.latestPublished?.status === 'PUBLISHED';
 
         const menuItems = [
             {
@@ -271,13 +278,15 @@ export default function TrapLandingPage() {
 
     const initWorkflowFromURL = async (templateId: string) => {
         const templates = await getTemplates();
+        setAllTemplates(templates);
         const template = templates.find((el) => el.id === templateId);
         if (template) {
             const selection: HudWorkflowSelection = {
                 templateId: templateId,
                 templateName: template.name,
-                templateVersionStatus: '', //TODO: currently not needed but need to implement
+                templateVersionStatus: template.latestPublished.status,
                 ownerUserId: template.ownerUserId!,
+                latestPublished: template.latestPublished
             };
             onLaunchHudWorkflow(selection);
         } else {
