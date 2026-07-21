@@ -189,13 +189,13 @@ export const api = {
 
   requestByDateAborvsIborReportService:(as_of_date: string):  Promise<AttributionDispersionResponse> =>
 	  req<AttributionDispersionResponse>
-  (`/api/abor-ibor/?date=${as_of_date}`),
+  (`/api/abor-ibor/?input_date=${as_of_date}`),
   requestAborvsIborReportService:():  Promise<AttributionDispersionResponse> =>
 	  req<AttributionDispersionResponse>
   (`/api/abor-ibor/`),
   requestByDateCorePlusAttributionDispersonReportService: (as_of_date: string):  Promise<AttributionDispersionResponse> =>
 	      req<AttributionDispersionResponse>
-  (`/api/attr-dispersion/?date==${as_of_date}`),
+  (`/api/attr-dispersion/?input_date==${as_of_date}`),
   requestFIReportLatestSummaryService: ():  Promise<FiReportSummaryResponse> =>
 	      req<FiReportSummaryResponse>
   (`/api/performance/fi-report-latest-summary/`),

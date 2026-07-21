@@ -267,7 +267,7 @@ const [pendingPrint, setPendingPrint] = useState(false);
 
   const [pageTitle, setPageTitle] = useState<string>("Attribution Analysis");
   const [valueDate, setValueDate] = useState<string>("");
-
+  const [viewPeriodIds, setViewPeriodIds] = useState<string[]>(["MTD"]);
   const [viewPortfolio, setViewPortfolio] = useState<string>("");
   const [viewBenchmarks, setViewBenchmarks] = useState<string>("");
   const [viewAsOfDate, setViewAsOfDate] = useState<string>(getLastMonthEnd());
@@ -489,7 +489,7 @@ const buildCurrentAttribState = (): AttribAnalysisSelectionState => ({
   endDate: viewEndDate,
   breakdownModeId: viewBreakdown,
   breakdownChain: viewBreakdownChain,
-  periodIds: [],
+  periodIds: viewPeriodIds,
   selectedColumnIds: configuredColumns.map((c) => c.id ?? c.id).filter(Boolean),
   filters: viewFilters,
 });
@@ -536,6 +536,7 @@ const applyStateToWorkspace = (state: AttribAnalysisSelectionState): void => {
   setViewEndDate(state.endDate);
   setViewBreakdown(state.breakdownModeId);
   setViewBreakdownChain(state.breakdownChain ?? EMPTY_BREAKDOWN_CHAIN);
+  setViewPeriodIds(state.periodIds ?? []);
   setViewFilters(state.filters);
 };
 
@@ -717,6 +718,7 @@ const applySelectionToView = (payload: AttribAnalysisApplyPayload): void => {
   setViewEndDate(payload.endDate);
   setViewBreakdown(payload.breakdownModeId);
   setViewBreakdownChain(payload.breakdownChain ?? EMPTY_BREAKDOWN_CHAIN);
+  setViewPeriodIds(payload.periodIds ?? []);
   setConfiguredColumns(payload.configuredColumns);
   setViewFilters(payload.filters);
 };
@@ -846,6 +848,7 @@ const activeOrderedIds = layoutOrder.filter(
               endDate: viewEndDate,
               breakdownModeId: viewBreakdown,
               filters: viewFilters,
+              periodIds: viewPeriodIds,
             }}
             onAssetClassChange={(asset) => {
               const nextAsset = asset as AssetClass;
