@@ -145,8 +145,6 @@ export default function TrapLandingPage() {
         });
     }, []);
 
-    const showTabs = workflows.length > 0;
-
     const onEditTemplate = async (ws: WorkflowTabModel) => {
         const latestTemplate = allTemplates.find((el) => el.id === ws.templateId);
 
@@ -297,32 +295,30 @@ export default function TrapLandingPage() {
     return (
         <Space direction="vertical" size={10} style={{ width: '100%' }}>
             <Space direction="vertical" size={0} style={{ width: '100%' }}>
-                {showTabs && (
-                    <div style={{ height: TAB_BAR_HEIGHT, overflow: 'hidden', display: 'flex' }}>
-                        <Tabs
-                            className="trap-tabs-bar-only"
-                            type="editable-card"
-                            hideAdd
-                            activeKey={activeKey}
-                            onChange={setActiveKey}
-                            onEdit={(targetKey, action) => {
-                                if (action === 'remove') closeWorkflowTab(String(targetKey));
-                            }}
-                            items={items as any}
-                            tabBarStyle={{ margin: 0 }}
-                            animated={false}
+                <div style={{ height: TAB_BAR_HEIGHT, overflow: 'hidden', display: 'flex' }}>
+                    <Tabs
+                        className="trap-tabs-bar-only"
+                        type="editable-card"
+                        hideAdd
+                        activeKey={activeKey}
+                        onChange={setActiveKey}
+                        onEdit={(targetKey, action) => {
+                            if (action === 'remove') closeWorkflowTab(String(targetKey));
+                        }}
+                        items={items as any}
+                        tabBarStyle={{ margin: 0 }}
+                        animated={false}
+                    />
+                    <Tooltip title="Manage — Workspaces · Widgets · Themes" placement="left">
+                        <Button
+                            style={{ marginLeft: 'auto' }}
+                            size="small"
+                            type={drawerOpen ? 'primary' : 'text'}
+                            icon={<LayoutOutlined />}
+                            onClick={() => setDrawerOpen((open) => !open)}
                         />
-                        <Tooltip title="Manage — Workspaces · Widgets · Themes" placement="left">
-                            <Button
-                                style={{ marginLeft: 'auto' }}
-                                size="small"
-                                type={drawerOpen ? 'primary' : 'text'}
-                                icon={<LayoutOutlined />}
-                                onClick={() => setDrawerOpen((open) => !open)}
-                            />
-                        </Tooltip>
-                    </div>
-                )}
+                    </Tooltip>
+                </div>
 
                 <div style={{ width: '100%' }}>
                     <div
