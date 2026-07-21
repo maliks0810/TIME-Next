@@ -1,7 +1,7 @@
 import * as URI from "uri-js";
 import type { PeriodCode } from "../lib/periods";
 import type { MetricLabel } from "../lib/metrics";
-import { AttributionDispersionResponse, PortBenchRow } from "./types";
+import { AttributionDispersionResponse, FiReportSummaryResponse, PortBenchRow } from "./types";
 import { GridConfigResponse } from "../components/dram-grid";
 
 /* ---------------------------------- */
@@ -180,12 +180,12 @@ export const api = {
       method: "POST",
       body: JSON.stringify(state),
     }),
-  runAnalysis: (asset_class: string,port: string,period: string, breakdown: string, startDate: string, endDate: string): Promise<AnalyticsResponse> =>
+  runSecurityGrainAnalysis: (asset_class: string,port: string,period: string, breakdown: string, startDate: string, endDate: string): Promise<AnalyticsResponse> =>
     req<AnalyticsResponse>
   (`/api/attribution/${asset_class}/${period}/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}`),
-  runTestAnalysis: (asset_class: string,port: string,period: string, breakdown: string, startDate: string): Promise<AnalyticsResponse> =>
+  runBreakdownGrainAnalysis: (asset_class: string,port: string,period: string, breakdown: string, startDate: string, endDate: string): Promise<AnalyticsResponse> =>
     req<AnalyticsResponse>
-  (`/api/attribution/${asset_class}/${period}/?port=${port}&grouping=${breakdown}&start_date=${startDate}`),
+  (`/api/attribution/breakdown-grain/${asset_class}/${period}/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}`),
 
   requestByDateAborvsIborReportService:(as_of_date: string):  Promise<AttributionDispersionResponse> =>
 	  req<AttributionDispersionResponse>
@@ -196,7 +196,9 @@ export const api = {
   requestByDateCorePlusAttributionDispersonReportService: (as_of_date: string):  Promise<AttributionDispersionResponse> =>
 	      req<AttributionDispersionResponse>
   (`/api/attr-dispersion/?date==${as_of_date}`),
-
+  requestFIReportLatestSummaryService: ():  Promise<FiReportSummaryResponse> =>
+	      req<FiReportSummaryResponse>
+  (`/api/performance/fi-report-latest-summary/`),
   requestCorePlusAttributionDispersonReportService: ():  Promise<AttributionDispersionResponse> =>
 	  req<AttributionDispersionResponse>
     (`/api/attr-dispersion/`),
@@ -206,4 +208,8 @@ export const api = {
     runMktCapAnalysis: (): Promise<AnalyticsResponse> =>
     reqMain<AnalyticsResponse>
   (`/api/att-eq-mtd/?port=6614T&period&grouping=MktCap&asset_class=EQ`),
+  runDailySecurityGrainAnalysis: (port: string, breakdown: string, startDate: string, endDate: string): Promise<AnalyticsResponse> =>
+    req<AnalyticsResponse>
+  (`/api/att-eq-mtd/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}`),
+
 };

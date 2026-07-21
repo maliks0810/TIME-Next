@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Card,
@@ -10,11 +10,12 @@ import {
   Select,
   Space,
   Spin,
+  Tooltip,
   Typography,
   message,
 } from "antd";
 import AttributionPrintView from "../../components/dram-grid/AttributionPrintView";
-import { SettingOutlined } from "@ant-design/icons";
+import { BarChartOutlined, ReloadOutlined, SettingOutlined } from "@ant-design/icons";
 
 import {
   AnalyticResultRow,
@@ -32,6 +33,7 @@ import {
   extractGridConfig,
 } from "../../lib/helpers";
 import {
+  buildFilterOptions,
   DramDataGrid,
   DramGridProvider,
   getEffectiveColumns,
@@ -42,11 +44,16 @@ import { getKeyByAssetClass } from "../../components/WizardStateStore";
 import { getLastMonthEnd } from "../../components/AlphaDashboard/utils/alphaDashboardHelpers";
 import AttributionCompareView from "../../components/dram-grid/AttributionCompareView";
 import AttributionSingleModeChart from "../../components/dram-grid/AttributionSingleModeChart";
-import ConfigTabbedCompact, { AttribAnalysisApplyPayload } from "../../components/attrib-analysis-config/ConfigTabbedCompact";
+import ConfigTabbedCompact, { AttribAnalysisApplyPayload, AttribAnalysisSelectionState, AttribFilterState, BreakdownChain, EMPTY_BREAKDOWN_CHAIN } from "../../components/attrib-analysis-config/ConfigTabbedCompact";
 import { CompositeAttributionView } from "../../components/dram-grid/CompositeAttributionView";
 import { buildCompositeAttributionData, toCompositePeriods } from "../../components/dram-grid/compositeAttributionAdapter";
 import CompositeSummaryChart from "../../components/dram-grid/CompositeSummaryChart";
 import CompositeMatrixChart from "../../components/dram-grid/CompositeMatrixChart";
+import { AttribSavedView, createAttribSavedView, loadAttribSavedViews, loadFavoriteAttribViewId, persistAttribSavedViews, persistFavoriteAttribViewId } from "../../components/attrib-analysis-config/attribSavedViewsStorage";
+import { AttribCollapsedState, attribSectionDescriptions, AttribSectionId, attribSectionLabels, AttribSectionSpan, AttribSpanState, defaultAttribCollapsedState, defaultAttribOrder, defaultAttribSpanState, loadAttribCollapsed, loadAttribOrder, loadAttribSpans, persistAttribCollapsed, persistAttribOrder, persistAttribSpans } from "./attributionLayoutStorage";
+import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { AttributionResultCard } from "./AttributionResultCard";
 
 const { Title, Text } = Typography;
 
@@ -150,11 +157,103 @@ function extractMetadata(resp: AnalyticsResponse) {
   };
 }
 
+type WorkspaceMode = "single" | "compare" | "composite";
 /* ----------------------------- component ----------------------------- */
 
 export default function AtributionAnalysisWorkspace() {
 
-type WorkspaceMode = "single" | "compare" | "composite";
+const [layoutOrder, setLayoutOrder] = useState<AttribSectionId[]>(
+  () => loadAttribOrder(),
+);
+const [layoutSpans, setLayoutSpans] = useState<AttribSpanState>(
+  () => loadAttribSpans(),
+);
+const [layoutCollapsed, setLayoutCollapsed] = useState<AttribCollapsedState>(
+  () => loadAttribCollapsed(),
+);
+
+const sortableSensors = useSensors(
+  useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+  useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+);
+
+const handleLayoutDragEnd = (event: DragEndEvent) => {
+  const { active, over } = event;
+  if (!over || active.id === over.id) return;
+  const activeId = String(active.id) as AttribSectionId;
+  const overId = String(over.id) as AttribSectionId;
+  const oldIndex = layoutOrder.indexOf(activeId);
+  const newIndex = layoutOrder.indexOf(overId);
+  if (oldIndex < 0 || newIndex < 0) return;
+  const next = arrayMove(layoutOrder, oldIndex, newIndex);
+  setLayoutOrder(next);
+  persistAttribOrder(next);
+};
+
+const handleToggleCollapsed = (sectionId: string) => {
+  const next: AttribCollapsedState = {
+    ...layoutCollapsed,
+    [sectionId as AttribSectionId]: !layoutCollapsed[sectionId as AttribSectionId],
+  };
+  setLayoutCollapsed(next);
+  persistAttribCollapsed(next);
+  window.dispatchEvent(new Event("resize"));
+};
+
+const handleToggleSpan = (sectionId: string) => {
+  const id = sectionId as AttribSectionId;
+  const newValue: AttribSectionSpan =
+    layoutSpans[id] === "full" ? "half" : "full";
+
+  const next: AttribSpanState = Object.assign({}, layoutSpans, {
+    newValue,
+  });
+
+  setLayoutSpans(next);
+  persistAttribSpans(next);
+  window.dispatchEvent(new Event("resize"));
+};
+
+const handleExpandAll = () => {
+  setLayoutCollapsed(defaultAttribCollapsedState);
+  persistAttribCollapsed(defaultAttribCollapsedState);
+  window.dispatchEvent(new Event("resize"));
+};
+
+const handleCollapseAll = () => {
+  const next = Object.keys(defaultAttribCollapsedState).reduce<AttribCollapsedState>(
+    (state, sectionId) => ({ ...state, [sectionId as AttribSectionId]: true }),
+    { ...defaultAttribCollapsedState },
+  );
+  setLayoutCollapsed(next);
+  persistAttribCollapsed(next);
+  window.dispatchEvent(new Event("resize"));
+};
+
+const handleResetLayout = () => {
+  setLayoutOrder(defaultAttribOrder);
+  persistAttribOrder(defaultAttribOrder);
+  setLayoutSpans(defaultAttribSpanState);
+  persistAttribSpans(defaultAttribSpanState);
+  setLayoutCollapsed(defaultAttribCollapsedState);
+  persistAttribCollapsed(defaultAttribCollapsedState);
+  window.dispatchEvent(new Event("resize"));
+  message.info("Layout reset to default.");
+};
+const [attribSavedViews, setAttribSavedViews] = useState<AttribSavedView[]>(
+  () => loadAttribSavedViews(),
+);
+const [activeAttribViewId, setActiveAttribViewId] = useState<string | undefined>();
+const [favoriteAttribViewId, setFavoriteAttribViewId] = useState<string | undefined>(
+  () => loadFavoriteAttribViewId(),
+);
+const [viewFilters, setViewFilters] = useState<AttribFilterState>({
+  currency: [],
+  country: [],
+  sector: [],
+  rating: [],
+});
+const hasBootstrappedRef = useRef(false);
 
 const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("single");
 const [compositePeriods, setCompositePeriods] = useState<string[]>([]);
@@ -224,9 +323,10 @@ const effectiveColumns = useMemo(() => {
   return getEffectiveColumns(
     gridConfig,
     configuredColumns,
-    viewBreakdown
+    viewBreakdown,
+    viewFrequencyMode
   );
-}, [gridConfig, configuredColumns, viewBreakdown]);
+}, [gridConfig, configuredColumns, viewBreakdown, viewFrequencyMode]);
 
 
 const gridRowsByPeriod = useMemo<PeriodGridMap>(() => {
@@ -374,6 +474,139 @@ const compositeViewData = useMemo(() => {
     };
   };
 
+// Add local state for the chain (if not already present):
+const [viewBreakdownChain, setViewBreakdownChain] = useState<BreakdownChain>(
+  EMPTY_BREAKDOWN_CHAIN,
+);
+
+const buildCurrentAttribState = (): AttribAnalysisSelectionState => ({
+  assetClass: viewAssetClass,
+  portfolio: viewPortfolio,
+  benchmark: viewBenchmarks,
+  frequencyMode: viewFrequencyMode,
+  asOfDate: viewAsOfDate,
+  startDate: viewStartDate,
+  endDate: viewEndDate,
+  breakdownModeId: viewBreakdown,
+  breakdownChain: viewBreakdownChain,
+  periodIds: [],
+  selectedColumnIds: configuredColumns.map((c) => c.id ?? c.id).filter(Boolean),
+  filters: viewFilters,
+});
+
+
+const handleSaveAttribView = (
+  name: string,
+  description: string | undefined,
+  state: AttribAnalysisSelectionState,
+) => {
+  const finalState = state ?? buildCurrentAttribState();
+  const existing = attribSavedViews.find(
+    (v) => v.name.trim().toLowerCase() === name.trim().toLowerCase(),
+  );
+
+  const nextView: AttribSavedView = existing
+    ? {
+        ...existing,
+        name: name.trim(),
+        description: description?.trim() || undefined,
+        state: finalState,
+        updatedAt: new Date().toISOString(),
+      }
+    : createAttribSavedView({ name, description, state: finalState });
+
+  const nextViews = existing
+    ? attribSavedViews.map((v) => (v.id === existing.id ? nextView : v))
+    : [nextView, ...attribSavedViews];
+
+  setAttribSavedViews(nextViews);
+  persistAttribSavedViews(nextViews);
+  setActiveAttribViewId(nextView.id);
+  message.success(`Saved view: ${nextView.name}`);
+};
+
+
+const applyStateToWorkspace = (state: AttribAnalysisSelectionState): void => {
+  setViewAssetClass(state.assetClass as AssetClass);
+  setViewPortfolio(state.portfolio);
+  setViewBenchmarks(state.benchmark);
+  setViewFrequencyMode(state.frequencyMode);
+  setViewAsOfDate(state.asOfDate);
+  setViewStartDate(state.startDate);
+  setViewEndDate(state.endDate);
+  setViewBreakdown(state.breakdownModeId);
+  setViewBreakdownChain(state.breakdownChain ?? EMPTY_BREAKDOWN_CHAIN);
+  setViewFilters(state.filters);
+};
+
+
+const handleLoadAttribView = (
+  viewId: string,
+  options?: { autoRun?: boolean },
+) => {
+  const view = attribSavedViews.find((v) => v.id === viewId);
+  if (!view) {
+    message.error("Saved view was not found.");
+    return;
+  }
+  applyStateToWorkspace(view.state);
+  setActiveAttribViewId(view.id);
+
+  if (options?.autoRun) {
+    message.success(`Loaded view: ${view.name}. Running analysis...`);
+    void executeAttribAnalysis(view.state, { silent: true });
+  } else {
+    message.success(`Loaded view: ${view.name}`);
+  }
+};
+
+const handleDeleteAttribView = (viewId: string) => {
+  const view = attribSavedViews.find((v) => v.id === viewId);
+  const nextViews = attribSavedViews.filter((v) => v.id !== viewId);
+  setAttribSavedViews(nextViews);
+  persistAttribSavedViews(nextViews);
+  if (activeAttribViewId === viewId) setActiveAttribViewId(undefined);
+  if (favoriteAttribViewId === viewId) {
+    setFavoriteAttribViewId(undefined);
+    persistFavoriteAttribViewId(undefined);
+  }
+  message.success(view ? `Deleted view: ${view.name}` : "Deleted saved view.");
+};
+
+const handleSetFavoriteAttribView = (viewId: string | undefined) => {
+  if (viewId && !attribSavedViews.some((v) => v.id === viewId)) {
+    message.error("Saved view was not found.");
+    return;
+  }
+  setFavoriteAttribViewId(viewId);
+  persistFavoriteAttribViewId(viewId);
+  if (viewId) {
+    const view = attribSavedViews.find((v) => v.id === viewId);
+    message.success(view ? `Favorite view set: ${view.name}` : "Favorite view set.");
+  } else {
+    message.info("Favorite view cleared.");
+  }
+};
+const executeAttribAnalysis = async (
+  state: AttribAnalysisSelectionState,
+  options?: { silent?: boolean },
+): Promise<void> => {
+  await runAnalysis({
+    assetClass: state.assetClass,
+    portfolio: state.portfolio,
+    benchmark: state.benchmark,
+    frequencyMode: state.frequencyMode,
+    breakdownModeId: state.breakdownModeId,
+    asOfDate: state.asOfDate,
+    startDate: state.startDate,
+    endDate: state.endDate,
+    configuredColumns,
+    periodIds: state.periodIds,
+    selectedColumnIds: state.selectedColumnIds,
+    filters: state.filters,
+  } as AttribAnalysisApplyPayload);
+  if (!options?.silent) message.success("Analysis complete");
+};
   const runAnalysis = async (payload?: AttribAnalysisApplyPayload): Promise<void> => {
     const input = buildAnalysisInput(payload);
     if (!input) return;
@@ -381,13 +614,25 @@ const compositeViewData = useMemo(() => {
     setRunningAnalysis(true);
 
     try {
-      const inputGrouping = input.breakdownModeId === "Type_2" ? encodeURIComponent("Type 2") : input.breakdownModeId;
+      const inputGrouping = input.breakdownModeId === "Type_2" ? encodeURIComponent("Type 2") : input.breakdownModeId === "GICS" ? "GICS1"
+       : encodeURIComponent(input.breakdownModeId);
       const resp = input.breakdownModeId === 'MktCap' ? (await api.runMktCapAnalysis()) :
-      input.breakdownModeId === 'PEfwd' ? (await api.runPEfwdAnalysis()): (await api.runAnalysis(
+      input.breakdownModeId === 'PEfwd' ? (await api.runPEfwdAnalysis()):
+      input.frequencyMode === "daily" && input.assetClass === "EQ" ? (await api.runDailySecurityGrainAnalysis(
+        input.portfolio,
+        inputGrouping  || "GICS1",
+        input.startDate,
+        input.endDate
+      )) : input.frequencyMode === "monthly" && input.assetClass === "EQ" ? (await api.runSecurityGrainAnalysis(input.assetClass,
+        input.portfolio,input.frequencyMode,
+        inputGrouping  || "GICS1",
+        input.startDate,
+        input.endDate
+      )) :  (await api.runBreakdownGrainAnalysis(
         input.assetClass,
         input.portfolio,
         input.frequencyMode,
-        inputGrouping  || "GICS",
+        inputGrouping  || "GICS1",
         input.startDate,
         input.endDate
       )) as ResponseWithPeriodGrids;
@@ -416,17 +661,7 @@ const compositeViewData = useMemo(() => {
     void runAnalysis(payload);
   };
 
-  const applySelectionToView = (payload: AttribAnalysisApplyPayload): void => {
-    setViewAssetClass(payload.assetClass as AssetClass);
-    setViewPortfolio(payload.portfolio);
-    setViewBenchmarks(payload.benchmark);
-    setViewFrequencyMode(payload.frequencyMode);
-    setViewAsOfDate(payload.asOfDate);
-    setViewStartDate(payload.startDate);
-    setViewEndDate(payload.endDate);
-    setViewBreakdown(payload.breakdownModeId);
-    setConfiguredColumns(payload.configuredColumns);
-  };
+
 
 useEffect(() => {
   if (!pendingPrint || screenMode !== "print") return;
@@ -444,8 +679,145 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
   // { label: "FI", value: "FI" },
   { label: "EQ", value: "EQ" },
   { label: "EM", value: "EM" },
+  { label: "BL", value: "BL" },
+  { label: "HY", value: "HY" },
 ];
 
+
+useEffect(() => {
+  if (hasBootstrappedRef.current) return;
+  if (!gridConfig) return;
+  if (!favoriteAttribViewId) {
+    hasBootstrappedRef.current = true;
+    return;
+  }
+  const favorite = attribSavedViews.find((v) => v.id === favoriteAttribViewId);
+  if (!favorite) {
+    hasBootstrappedRef.current = true;
+    persistFavoriteAttribViewId(undefined);
+    setFavoriteAttribViewId(undefined);
+    return;
+  }
+
+  hasBootstrappedRef.current = true;
+  applyStateToWorkspace(favorite.state);
+  setActiveAttribViewId(favorite.id);
+  message.success(`Loaded favorite view: ${favorite.name}`);
+  void executeAttribAnalysis(favorite.state, { silent: true });
+}, [gridConfig, favoriteAttribViewId, attribSavedViews]);
+
+
+const applySelectionToView = (payload: AttribAnalysisApplyPayload): void => {
+  setViewAssetClass(payload.assetClass as AssetClass);
+  setViewPortfolio(payload.portfolio);
+  setViewBenchmarks(payload.benchmark);
+  setViewFrequencyMode(payload.frequencyMode);
+  setViewAsOfDate(payload.asOfDate);
+  setViewStartDate(payload.startDate);
+  setViewEndDate(payload.endDate);
+  setViewBreakdown(payload.breakdownModeId);
+  setViewBreakdownChain(payload.breakdownChain ?? EMPTY_BREAKDOWN_CHAIN);
+  setConfiguredColumns(payload.configuredColumns);
+  setViewFilters(payload.filters);
+};
+
+const filterOptions = useMemo(
+  () => buildFilterOptions(gridConfig),
+  [gridConfig],
+);
+const sections: Partial<Record<AttribSectionId, React.ReactNode>> = {};
+
+if (screenMode !== "print" && gridConfig) {
+  if (workspaceMode === "single") {
+    sections.attribGrid = (
+      <DramGridProvider
+        config={gridConfig}
+        storageKey={`${storageKey}-${selectedPeriod}`}
+        allColumns={effectiveColumns}
+      >
+        <DramDataGrid
+          rows={
+            selectedSecurityGroup
+              ? (gridRowsByPeriod[selectedPeriod] ?? []).filter(
+                  (r) =>
+                    String(r["SecurityGroup"] ?? "") === selectedSecurityGroup ||
+                    String(r["SecurityGroup"] ?? "") === "Total",
+                )
+              : gridRowsByPeriod[selectedPeriod] ?? []
+          }
+          config={gridConfig}
+          height={420}
+          storageKey={`${storageKey}-${selectedPeriod}`}
+          isConfigView={false}
+          allColumns={effectiveColumns}
+        />
+      </DramGridProvider>
+    );
+
+    sections.attribChart = (
+      <AttributionSingleModeChart
+        breakdown={viewBreakdown}
+        data={
+          (rawRowsByPeriod[selectedPeriod] ?? []).filter(
+            (r) =>
+              String(r["SecurityGroup"] ?? "") !== "Total" &&
+              (!selectedSecurityGroup ||
+                String(r["SecurityGroup"] ?? "") === selectedSecurityGroup),
+          )
+        }
+        selectedGroup={selectedSecurityGroup}
+        onSelect={(group: string) => {
+          setSelectedSecurityGroup((prev) => (prev === group ? null : group));
+        }}
+      />
+    );
+  }
+
+  if (workspaceMode === "compare" && comparePeriodPair) {
+    sections.compareGrid = (
+      <AttributionCompareView
+        leftPeriod={comparePeriodPair[0]}
+        rightPeriod={comparePeriodPair[1]}
+        leftRows={rawRowsByPeriod[comparePeriodPair[0]] ?? []}
+        rightRows={rawRowsByPeriod[comparePeriodPair[1]] ?? []}
+        selectedGroup={selectedSecurityGroup}
+        onSelect={(group) =>
+          setSelectedSecurityGroup((prev) => (prev === group ? null : group))
+        }
+      />
+    );
+  }
+
+  if (workspaceMode === "composite" && compositeViewData) {
+    sections.compositeSummary = (
+      <CompositeSummaryChart data={compositeViewData} decimalPlaces={2} />
+    );
+    sections.compositeAttribution = (
+      <CompositeMatrixChart
+        title="Attribution of Gross Out/Underperformance"
+        subtitle="bps by period"
+        periods={compositeViewData.periods}
+        rows={compositeViewData.attributionRows}
+      />
+    );
+    sections.compositeContribution = (
+      <CompositeMatrixChart
+        title="Contribution to Total Return"
+        subtitle="bps by period"
+        periods={compositeViewData.periods}
+        rows={compositeViewData.contributionRows}
+      />
+    );
+    sections.compositeGrid = (
+      <CompositeAttributionView data={compositeViewData} />
+    );
+  }
+}
+
+const activeOrderedIds = layoutOrder.filter(
+  (sectionId) => sections[sectionId] !== undefined,
+);
+//main component
   return (
     <div style={{ margin: "16px" }}>
       <Row justify="end" style={{ marginBottom: 12 }}>
@@ -457,65 +829,65 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
           Configure
         </Button>
       </Row>
-        <ConfigTabbedCompact open={configOpen} onClose={() => setConfigOpen(false)}
-          config={gridConfig ?? EMPTY_CONFIG}
-          assetClassOptions={assetClassOptions}
-          portfolioOptions={portfolioSelectOptions}
-          benchmarkOptions={benchmarkSelectOptions}
-          initialValues={{
-            assetClass: viewAssetClass ?? null,
-            portfolio: viewPortfolio,
-            benchmark: viewBenchmarks,
-            frequencyMode: viewFrequencyMode,
-            asOfDate: viewAsOfDate,
-            startDate: viewStartDate,
-            endDate: viewEndDate,
-            breakdownModeId: viewBreakdown,
-          }}
-          onAssetClassChange={(asset) => {
-            const nextAsset = asset as AssetClass;
-
-            setViewAssetClass(nextAsset);
-            setViewPortfolio("");
-            setConfigDraftPortfolio("");
-            setViewBenchmarks("");
-            setViewBreakdown("");
-            setConfiguredColumns([]);
-            setGridConfig(null);
-            setRawRowsByPeriod({});
-            setSelectedPeriod("");
-            setSelectedSecurityGroup(null);
-            setComparePeriods([]);
-            setWorkspaceMode("single");
-            setCompositePeriods([]);
-
-
-            void loadForAssetClass(nextAsset);
-          }}
-
-          onPortfolioChange={(portfolio) => {
-            setConfigDraftPortfolio(portfolio);
-          }}
-
-          onApply={(payload) => {
-            applySelectionToView(payload);
-            setConfigOpen(false);
-            message.success("Applied");
-            handleRunAnalysis(payload);
-          }}
-          onSave={(payload) => {
-            const persistKey = getKeyByAssetClass(payload.assetClass ?? "");
-            localStorage.setItem(
-              persistKey,
-              JSON.stringify(payload.configuredColumns)
-            );
-
-            applySelectionToView(payload);
-            setConfigOpen(false);
-            message.success("Configuration saved");
-            handleRunAnalysis(payload);
-          }}
-        />
+        <ConfigTabbedCompact
+            open={configOpen}
+            onClose={() => setConfigOpen(false)}
+            config={gridConfig ?? EMPTY_CONFIG}
+            assetClassOptions={assetClassOptions}
+            portfolioOptions={portfolioSelectOptions}
+            benchmarkOptions={benchmarkSelectOptions}
+            initialValues={{
+              assetClass: viewAssetClass ?? null,
+              portfolio: viewPortfolio,
+              benchmark: viewBenchmarks,
+              frequencyMode: viewFrequencyMode,
+              asOfDate: viewAsOfDate,
+              startDate: viewStartDate,
+              endDate: viewEndDate,
+              breakdownModeId: viewBreakdown,
+              filters: viewFilters,
+            }}
+            onAssetClassChange={(asset) => {
+              const nextAsset = asset as AssetClass;
+              setViewAssetClass(nextAsset);
+              setViewPortfolio("");
+              setConfigDraftPortfolio("");
+              setViewBenchmarks("");
+              setViewBreakdown("");
+              setConfiguredColumns([]);
+              setGridConfig(null);
+              setRawRowsByPeriod({});
+              setSelectedPeriod("");
+              setSelectedSecurityGroup(null);
+              setComparePeriods([]);
+              setWorkspaceMode("single");
+              setCompositePeriods([]);
+              void loadForAssetClass(nextAsset);
+            }}
+            onPortfolioChange={(portfolio) => setConfigDraftPortfolio(portfolio)}
+            onApply={(payload) => {
+              applySelectionToView(payload);
+              setConfigOpen(false);
+              message.success("Applied");
+              handleRunAnalysis(payload);
+            }}
+            onSave={(payload) => {
+              const persistKey = getKeyByAssetClass(payload.assetClass ?? "");
+              localStorage.setItem(persistKey, JSON.stringify(payload.configuredColumns));
+              applySelectionToView(payload);
+              setConfigOpen(false);
+              message.success("Configuration saved");
+              handleRunAnalysis(payload);
+            }}
+            savedViews={attribSavedViews}
+            activeSavedViewId={activeAttribViewId}
+            favoriteSavedViewId={favoriteAttribViewId}
+            onSaveView={handleSaveAttribView}
+            onLoadView={handleLoadAttribView}
+            onDeleteView={handleDeleteAttribView}
+            onSetFavoriteView={handleSetFavoriteAttribView}
+            filterOptions={filterOptions}
+          />
 
       {!viewAssetClass ? (
         <Card style={{ marginTop: 16 }}>
@@ -656,11 +1028,8 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
 
 {/* main content */}
 <Col span={24}>
-
-  {/*  PRINT MODE FIRST */}
-  {screenMode === "print" ? (
-
-<div id="print-root">
+{screenMode === "print" ? (
+  <div id="print-root">
     <AttributionPrintView
       rows={rawRowsByPeriod[selectedPeriod] ?? []}
       period={selectedPeriod}
@@ -670,160 +1039,81 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
       selectedSector={selectedSecurityGroup}
       onSectorSelect={(sector: string) =>
         setSelectedSecurityGroup((prev) =>
-          prev === sector ? null : sector
+          prev === sector ? null : sector,
         )
       }
     />
   </div>
-
-  ) :
- isCompositeMode ? (
-  compositeViewData ? (
-
-
-    <Row gutter={[16, 16]}>
-      <Col span={24}>
-        <Card title="Performance Summary" loading={runningAnalysis}>
-          <CompositeSummaryChart
-            data={compositeViewData}
-            decimalPlaces={2}
-          />
-        </Card>
-      </Col>
-
-      <Col span={24}>
-        <Card title="Attribution Chart" loading={runningAnalysis}>
-          <CompositeMatrixChart
-            title="Attribution of Gross Out/Underperformance"
-            subtitle="bps by period"
-            periods={compositeViewData.periods}
-            rows={compositeViewData.attributionRows}
-          //  decimalPlaces={compositeDecimalPlaces}
-          />
-        </Card>
-      </Col>
-
-      <Col span={24}>
-        <Card title="Contribution to Return Chart" loading={runningAnalysis}>
-          <CompositeMatrixChart
-            title="Contribution to Total Return"
-            subtitle="bps by period"
-            periods={compositeViewData.periods}
-            rows={compositeViewData.contributionRows}
-        //    decimalPlaces={compositeDecimalPlaces}
-          />
-        </Card>
-      </Col>
-
-      <Col span={24}>
-        <Card loading={runningAnalysis}>
-          <CompositeAttributionView
-            data={compositeViewData}
-          //  decimalPlaces={compositeDecimalPlaces}
-          />
-        </Card>
-      </Col>
-    </Row>
-
-
-  ) : (
-    <Card>
-      <Empty description="Select multiple periods to view composite attribution." />
+) : activeOrderedIds.length === 0 ? (
+  <Card>
+    <Empty
+      description={
+        isCompareMode
+          ? "Select 2 periods to compare."
+          : isCompositeMode
+            ? "Select multiple periods to view composite attribution."
+            : "No sections to display."
+      }
+    />
+  </Card>
+) : (
+  <Space direction="vertical" size={10} style={{ width: "100%" }}>
+    {/* Layout toolbar */}
+    <Card size="small" style={{ borderRadius: 8, border: "1px solid #d8dee9" }} bodyStyle={{ padding: "6px 10px" }}>
+      <Space style={{ width: "100%", justifyContent: "space-between" }} wrap>
+        <Space size={6} wrap>
+          <BarChartOutlined style={{ color: "#1d4ed8" }} />
+          <Text strong>Result Layout</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            Drag card headers to reorder · toggle half/full width · collapse to
+            title-only rows.
+          </Text>
+        </Space>
+        <Space size={6} wrap>
+          <Button size="small" onClick={handleExpandAll}>
+            Expand All
+          </Button>
+          <Button size="small" onClick={handleCollapseAll}>
+            Collapse All
+          </Button>
+          <Tooltip title="Restore default order, widths, and expanded state">
+            <Button size="small" icon={<ReloadOutlined />} onClick={handleResetLayout}>
+              Reset Layout
+            </Button>
+          </Tooltip>
+        </Space>
+      </Space>
     </Card>
-  )
-) : isCompareMode ? (
-  comparePeriodPair ? (
-    <Card>
-      <AttributionCompareView
-        leftPeriod={comparePeriodPair[0]}
-        rightPeriod={comparePeriodPair[1]}
-        leftRows={rawRowsByPeriod[comparePeriodPair[0]] ?? []}
-        rightRows={rawRowsByPeriod[comparePeriodPair[1]] ?? []}
-        selectedGroup={selectedSecurityGroup}
-        onSelect={(group) =>
-          setSelectedSecurityGroup((prev) =>
-            prev === group ? null : group
-          )
-        }
-      />
+
+    {/* Sortable grid */}
+    <Card loading={runningAnalysis} bodyStyle={{ padding: 8 }}>
+      <DndContext
+        sensors={sortableSensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleLayoutDragEnd}
+      >
+        <SortableContext items={activeOrderedIds} strategy={rectSortingStrategy}>
+          <Row gutter={[10, 10]} align="stretch">
+            {activeOrderedIds.map((sectionId) => (
+              <AttributionResultCard
+                key={sectionId}
+                id={sectionId}
+                title={attribSectionLabels[sectionId]}
+                description={attribSectionDescriptions[sectionId]}
+                span={layoutSpans[sectionId]}
+                collapsed={layoutCollapsed[sectionId]}
+                onToggleCollapsed={handleToggleCollapsed}
+                onToggleSpan={handleToggleSpan}
+              >
+                {sections[sectionId]}
+              </AttributionResultCard>
+            ))}
+          </Row>
+        </SortableContext>
+      </DndContext>
     </Card>
-  ) : (
-    <Card>
-      <Empty description="Select 2 periods to compare." />
-    </Card>
-  )
-)
- : (
-
-    /*  SINGLE VIEW (UNCHANGED) */
-    <Row gutter={[16, 16]}>
-      <Col span={24}>
-        <DramGridProvider
-          config={gridConfig}
-          storageKey={`${storageKey}-${selectedPeriod}`}
-          allColumns={effectiveColumns}
-        >
-          <Card
-            loading={runningAnalysis}
-          >
-            <DramDataGrid
-              rows={
-                selectedSecurityGroup
-                  ? (gridRowsByPeriod[selectedPeriod] ?? []).filter(
-                      (r) =>
-                        String(r["SecurityGroup"] ?? "") ===
-                          selectedSecurityGroup ||
-                        String(r["SecurityGroup"] ?? "") === "Total"
-                    )
-                  : gridRowsByPeriod[selectedPeriod] ?? []
-              }
-              config={gridConfig}
-              height={420}
-              storageKey={`${storageKey}-${selectedPeriod}`}
-              isConfigView={false}
-              allColumns={effectiveColumns}
-            />
-          </Card>
-        </DramGridProvider>
-      </Col>
-      <Col span={24}>
-        <Card
-          title={
-            <Row justify="space-between" align="middle">
-              <span>Performance Overview</span>
-              <Text type="secondary">
-                {selectedPeriod.toUpperCase()}
-              </Text>
-            </Row>
-          }
-          style={{ marginBottom: 16 }}
-          loading={runningAnalysis}
-        >
-
-<AttributionSingleModeChart
-  breakdown={viewBreakdown}
-  data={
-    (rawRowsByPeriod[selectedPeriod] ?? []).filter(
-      (r) =>
-        String(r["SecurityGroup"] ?? "") !== "Total" &&
-        (!selectedSecurityGroup ||
-          String(r["SecurityGroup"] ?? "") === selectedSecurityGroup)
-    )
-  }
-  selectedGroup={selectedSecurityGroup}
-  onSelect={(group: string) => {
-    setSelectedSecurityGroup((prev) =>
-      prev === group ? null : group
-    );
-  }}
-/>
-
-        </Card>
-      </Col>
-
-
-    </Row>
-  )}
+  </Space>
+)}
 
 </Col>
         </Row>

@@ -8,7 +8,7 @@ import { DriverAnalysisWorkspace } from '../driver-analysis-config/DriverAnalysi
 
 
 /** 1. Define keys FIRST -- add new key here */
-export type TabKey = 'pma-landing' | 'dashboard'| 'attribution-analysis' | 'diagnostics' | 'admin' | 'driver-analysis';
+export type TabKey = 'pm-landing' | 'dashboard'| 'attribution-analysis' | 'diagnostics' | 'admin' | 'driver-analysis';
 
 /** 2. Navigation type */
 export type NavigateFn = (key: TabKey) => void;
@@ -22,20 +22,20 @@ type TabConfigEntry = Readonly<{
 /** 4. Strongly-typed config  */
 export const TAB_CONFIG: Readonly<Record<TabKey, TabConfigEntry>> = {
   dashboard: {
-    label: ' Overview',
+    label: 'Overview',
+    getChildren: (navigate) => (
+      <PMAHomePage
+        onComplete={() => navigate('dashboard')}
+      />
+    ),
+  },
+  'pm-landing': {
+    label: ' PM Home',
     getChildren: (navigate) => (
       <PortfolioManagerPersonaHomePage
         onCallback={(key: string) => {
           if (isTabKey(key)) navigate(key);
         }}
-      />
-    ),
-  },
-  'pma-landing': {
-    label: 'PMA Home',
-    getChildren: (navigate) => (
-      <PMAHomePage
-        onComplete={() => navigate('dashboard')}
       />
     ),
   },

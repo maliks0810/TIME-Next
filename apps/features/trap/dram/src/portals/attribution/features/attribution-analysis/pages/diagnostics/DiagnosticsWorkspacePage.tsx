@@ -1,6 +1,6 @@
 import { Button, Card, DatePicker, Space, Tabs, Typography } from "antd";
-import React, { useEffect, useMemo, useState } from "react";
-import dayjs, { Dayjs } from "dayjs";
+import { useEffect, useMemo, useState } from "react";
+import dayjs from "dayjs";
 
 import AttributionABORvsIBORTable from "../../components/abor-vs-ibor/AttributionABORvsIBORTable";
 import AttributionABORvsIBORDailyTable from "../../components/abor-vs-ibor/AttributionABORvsIBORDailyTable";
@@ -165,7 +165,6 @@ export function DiagnosticsWorkspacePage() {
 
       <DatePicker
         value={viewAsOfDate ? dayjs(viewAsOfDate) : null}
-        disabledDate={(d: Dayjs) => d.date() !== d.daysInMonth()}
         onChange={(d) => {
           setViewAsOfDate(d ? d.format("YYYY-MM-DD") : "");
           setSelectedPortfolioId(null);

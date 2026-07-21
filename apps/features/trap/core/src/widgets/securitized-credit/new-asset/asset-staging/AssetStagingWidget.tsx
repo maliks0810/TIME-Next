@@ -273,12 +273,12 @@ export default function AssetStagingWidget({
         if (cusipOverride.trim()) {
             identifierTypeValue = "CUSIP";
             identifierValue = cusipOverride.trim();
-        } else if (snapshotIsin) {
-            identifierTypeValue = "ISIN";
-            identifierValue = snapshotIsin;
         } else if (snapshotCusip) {
             identifierTypeValue = "CUSIP";
             identifierValue = snapshotCusip;
+        } else if (snapshotIsin) {
+            identifierTypeValue = "ISIN";
+            identifierValue = snapshotIsin;
         }
 
         const merged: Record<string, unknown> = {

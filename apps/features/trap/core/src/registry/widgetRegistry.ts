@@ -9,9 +9,9 @@ import { LinkWidget } from '../widgets/common/link/LinkWidget';
 import { PeriodRadioGroup } from '../widgets/equity-research/PeriodRadioGroup/PeriodRadioGroup';
 import { CheckboxWidget } from '../widgets/common/checkbox/Checkbox';
 import { KPIComparisonWidget } from '../widgets/equity-research/KPIComparisonWidget/KPIComparisonWidget';
-import { NARMBSDealDetailsWidget } from '../widgets/securitized-credit/na-rmbs/DealDetailsWidget/NARMBSDealDetailsWidget';
-import { NARMBSTranchesWidget } from '../widgets/securitized-credit/na-rmbs/TranchesWidget/NARMBSTranchesWidget';
-import { NARMBSTrancheDetailWidget } from '../widgets/securitized-credit/na-rmbs/TrancheDateilsWidget/NARMBSTrancheDetailWidget';
+import { ScDealDetailsWidget } from '../widgets/securitized-credit/DealDetailsWidget/ScDealDetailsWidget';
+import { ScTranchesWidget } from '../widgets/securitized-credit/TranchesWidget/ScTranchesWidget';
+import { ScTrancheDetailWidget } from '../widgets/securitized-credit/TrancheDetailWidget/ScTrancheDetailWidget';
 import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/AnalystsCheckboxGroup/AnalystsCheckboxGroup';
 import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
 import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
@@ -42,26 +42,26 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: ['security.cusip'],
         emitsKeys: [],
     },
-    cwd_na_rmbs_deal_details_01: {
-        id: 'cwd_na_rmbs_deal_details_01',
-        component: NARMBSDealDetailsWidget,
-        category: 'NA-RMBS',
+    cwd_sc_deal_details_01: {
+        id: 'cwd_sc_deal_details_01',
+        component: ScDealDetailsWidget,
+        category: 'SecuritizedCredit',
         visibleIn: ['workflow'],
         listensToKeys: ['deal.id', 'deal.name', 'analysis.sessionId', 'workflow.refresh'],
         emitsKeys: [],
     },
-    cwd_na_rmbs_tranches_01: {
-        id: 'cwd_na_rmbs_tranches_01',
-        component: NARMBSTranchesWidget,
-        category: 'NA-RMBS',
+    cwd_sc_tranches_01: {
+        id: 'cwd_sc_tranches_01',
+        component: ScTranchesWidget,
+        category: 'SecuritizedCredit',
         visibleIn: ['workflow'],
         listensToKeys: ['deal.id', 'analysis.sessionId', 'workflow.refresh'],
         emitsKeys: ['tranche.id', 'tranche.name'],
     },
-    cwd_na_rmbs_tranche_detail_01: {
-        id: 'cwd_na_rmbs_tranche_detail_01',
-        component: NARMBSTrancheDetailWidget,
-        category: 'NA-RMBS',
+    cwd_sc_tranche_detail_01: {
+        id: 'cwd_sc_tranche_detail_01',
+        component: ScTrancheDetailWidget,
+        category: 'SecuritizedCredit',
         visibleIn: ['workflow'],
         listensToKeys: [
             'deal.id',
@@ -76,7 +76,7 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_new_asset_staging_01: {
         id: 'cwd_new_asset_staging_01',
         component: AssetStagingWidget,
-        category: 'NA-RMBS',
+        category: 'SecuritizedCredit',
         visibleIn: ['workflow'],
         listensToKeys: [
             'deal.id',

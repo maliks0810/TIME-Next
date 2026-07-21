@@ -1,3 +1,4 @@
+import type { AttributionAssetClass } from "./api/configApi";
 export type DatasetSourceType = "platform" | "uploaded_file" | "endpoint";
 export type DriverMetricFormat = "bps" | "percent" | "usd" | "number";
 
@@ -71,8 +72,19 @@ export interface DatasetSourceConfig {
   columnMapping?: ColumnMapping;
 }
 
+export interface AttributionAnalysisSettings {
+  enabled: boolean;
+  assetClass: AttributionAssetClass;
+  dimensions: string[];
+  effects: string[];
+  viewMode: "summary" | "detail";
+}
+
 export interface DriverAnalysisFormState {
+  /** Backward-compatible primary portfolio. Mirrors the first value in portfolioIds. */
   portfolioId: string;
+  /** Primary multi-portfolio selection used by the UI and API request payload. */
+  portfolioIds: string[];
   asOfDate: string;
   periods: string[];
   groupBy: string[];
@@ -88,11 +100,42 @@ export interface DriverAnalysisFormState {
     sector?: string[];
   };
   minimumAbsoluteValue?: number;
+  attributionAnalysis: AttributionAnalysisSettings;
   datasetSource: DatasetSourceConfig;
+}
+
+export interface AttributionBreakdownRow {
+  key: string;
+  portfolioId: string;
+  period: string;
+  dimension: string;
+  name: string;
+  portfolioWeight: number;
+  benchmarkWeight: number;
+  activeWeight: number;
+  portfolioReturn: number;
+  benchmarkReturn: number;
+  activeReturn: number;
+  allocationEffect: number;
+  selectionEffect: number;
+  interactionEffect: number;
+  totalEffect: number;
+  currencyEffect?: number;
+  spreadEffect?: number;
+}
+
+export interface AttributionSummary {
+  allocationEffect: number;
+  selectionEffect: number;
+  interactionEffect: number;
+  totalEffect: number;
+  currencyEffect: number;
+  spreadEffect: number;
 }
 
 export interface DriverRow {
   key: string;
+  portfolioId: string;
   period: string;
   direction: "top" | "bottom";
   rank: number;
@@ -107,17 +150,25 @@ export interface DriverRow {
   portfolioContribution?: number;
   benchmarkContribution?: number;
   activeContribution?: number;
+  pnlContributionUsd?: number;
+  trackingErrorContribution?: number;
+  varContribution?: number;
 }
 
 export interface DriverAnalysisResult {
   runId: string;
+  /** Backward-compatible primary portfolio. Mirrors the first value in portfolioIds. */
   portfolioId: string;
+  /** Portfolios included in the current driver run. */
+  portfolioIds: string[];
   asOfDate: string;
   periods: string[];
   groupBy: string[];
   metric: DriverMetric;
   topDrivers: DriverRow[];
   bottomDrivers: DriverRow[];
+  attributionSummary?: AttributionSummary;
+  attributionBreakdown?: AttributionBreakdownRow[];
   summary: {
     status: "Completed" | "Warning" | "Failed";
     inputRows: number;

@@ -61,7 +61,7 @@ export default function FeeDetailHistory({portfolioId, rows, onToolbarPreparing 
         <Column dataField="final" caption="Final" width={50} fixed={true} fixedPosition="left" />
         <Column dataField="endingDate" caption="Ending Date" width={90} fixed={true} fixedPosition="left" />
         <Column dataField="endingMV" caption="Ending MV" width={120} fixed={true} fixedPosition="left"
-          format="#,##0" />
+          format="#,##0.##" />
 
         <Column dataField="month" caption="Month" width={90} format="#0.####%" />
         <Column dataField="rollingQtr" caption="Rolling 3-Month" width={90} format="#0.####%" />
