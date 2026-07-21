@@ -175,6 +175,8 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       notesInstructions: s.notesInstructions,
       attachments: s.attachments,
       ...(s.uploadedFile && { uploadedFile: s.uploadedFile, isConfirmed: true }),
+      dmAnalystName: s.dmAnalystName,
+      dmAnalystEmail: s.dmAnalystEmail,
     };
   };
 
