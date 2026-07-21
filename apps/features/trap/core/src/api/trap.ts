@@ -36,7 +36,7 @@ export type TemplateSummary = {
     id: string;
     name: string;
     kind: string;
-    visibility: 'PRIVATE' | 'PUBLIC';
+    visibility: Visibility;
     ownerUserId?: string;
     createdByUserId?: string;
     updatedByUserId?: string;
@@ -113,10 +113,18 @@ export async function listTemplateVersions(templateId: string): Promise<any[]> {
     return data.templateVersions || [];
 }
 
+export enum Kind {
+    WORKFLOW,
+    LANDING,
+}
+export enum Visibility {
+    PRIVATE,
+    PUBLIC,
+}
 export async function createTemplate(input: {
     name: string;
-    kind: 'LANDING' | 'WORKFLOW' | 'landing' | 'workflow';
-    visibility?: 'PRIVATE' | 'PUBLIC';
+    kind: Kind;
+    visibility?: Visibility;
     class1?: string;
     class2?: string;
     class3?: string;
@@ -151,7 +159,7 @@ export async function createTemplate(input: {
 export async function updateTemplate(input: {
     templateId: string;
     name?: string;
-    visibility?: 'PRIVATE' | 'PUBLIC';
+    visibility?: Visibility;
     class1?: string;
     class2?: string;
     class3?: string;

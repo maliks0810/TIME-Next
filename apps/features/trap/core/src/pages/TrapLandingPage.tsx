@@ -1,14 +1,13 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tabs, Space, Dropdown, Button, message, Tooltip } from 'antd';
-import { EllipsisOutlined, HomeOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, HomeOutlined, LayoutOutlined } from '@ant-design/icons';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useUserInfo } from '@platform/utils';
 
 import LandingTab from '../features/landing/LandingTab';
 import WorkflowTab from '../features/workflow-runtime/WorkflowTab';
-import TrapHud from '../components/common/TrapHud';
 
 import { cloneTemplate, createDraftVersion, getTemplates, TemplateSummary } from '../api/trap';
 
@@ -16,6 +15,7 @@ import { setDefaultLandingTemplate } from '../utils/userPreferences';
 import { useGetActiveTab, useSetActiveTab } from '../state/Tabs/hooks';
 import { useGetActiveUser } from '../state/User/hooks';
 import { TemplateVersionLite } from '../features/workflow-launcher/types/workflowLauncher.types';
+import { Drawer } from '../features/landing/components/Drawer';
 
 type WorkflowTabModel = {
     key: string;
@@ -29,7 +29,7 @@ type WorkflowTabModel = {
 
 type OpenWorkflowRequest = Omit<WorkflowTabModel, 'bus'>;
 
-type HudWorkflowSelection = {
+export type HudWorkflowSelection = {
     templateId: string;
     templateName: string;
     templateVersionStatus: string;
@@ -37,7 +37,7 @@ type HudWorkflowSelection = {
     latestPublished?: TemplateVersionLite;
 };
 
-type HudLandingSelection = {
+export type HudLandingSelection = {
     templateId: string;
     ownerUserId: string;
 };
@@ -63,6 +63,7 @@ export default function TrapLandingPage() {
     const [allTemplates, setAllTemplates] = React.useState<TemplateSummary[]>([]);
     const activeKey = useGetActiveTab();
     const activeUser = useGetActiveUser();
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     const { login } = useUserInfo();
     const currentUser = localStorage.getItem('debug-user') || login;
@@ -173,10 +174,6 @@ export default function TrapLandingPage() {
         }
     };
 
-    const onExport = () => {
-        message.info('Export is not wired yet');
-    };
-
     const onLaunchHudWorkflow = React.useCallback(
         async (selection: HudWorkflowSelection) => {
             try {
@@ -187,7 +184,7 @@ export default function TrapLandingPage() {
                     templateId: selection.templateId,
                     templateVersionStatus: selection.templateVersionStatus,
                     ownerUserId: selection.ownerUserId,
-                    latestPublished: selection.latestPublished
+                    latestPublished: selection.latestPublished,
                 });
 
                 const newParams = new URLSearchParams();
@@ -219,7 +216,10 @@ export default function TrapLandingPage() {
     }, []);
 
     const tabLabel = (ws: WorkflowTabModel) => {
-        const isPublished = String(ws.templateVersionStatus ?? '').toUpperCase() === 'PUBLISHED' || allTemplates.find((el) => el.id === ws.templateId)?.latestPublished?.status === 'PUBLISHED';
+        const isPublished =
+            String(ws.templateVersionStatus ?? '').toUpperCase() === 'PUBLISHED' ||
+            allTemplates.find((el) => el.id === ws.templateId)?.latestPublished?.status ===
+                'PUBLISHED';
 
         const menuItems = [
             {
@@ -286,7 +286,7 @@ export default function TrapLandingPage() {
                 templateName: template.name,
                 templateVersionStatus: template.latestPublished.status,
                 ownerUserId: template.ownerUserId!,
-                latestPublished: template.latestPublished
+                latestPublished: template.latestPublished,
             };
             onLaunchHudWorkflow(selection);
         } else {
@@ -296,15 +296,9 @@ export default function TrapLandingPage() {
 
     return (
         <Space direction="vertical" size={10} style={{ width: '100%' }}>
-            <TrapHud
-                onExport={onExport}
-                onLaunchWorkflow={onLaunchHudWorkflow}
-                onEditWorkflow={onEditHudWorkflow}
-                onActivateLanding={onActivateHudLanding}
-            />
             <Space direction="vertical" size={0} style={{ width: '100%' }}>
                 {showTabs && (
-                    <div style={{ height: TAB_BAR_HEIGHT, overflow: 'hidden' }}>
+                    <div style={{ height: TAB_BAR_HEIGHT, overflow: 'hidden', display: 'flex' }}>
                         <Tabs
                             className="trap-tabs-bar-only"
                             type="editable-card"
@@ -318,6 +312,15 @@ export default function TrapLandingPage() {
                             tabBarStyle={{ margin: 0 }}
                             animated={false}
                         />
+                        <Tooltip title="Manage — Workspaces · Widgets · Themes" placement="left">
+                            <Button
+                                style={{ marginLeft: 'auto' }}
+                                size="small"
+                                type={drawerOpen ? 'primary' : 'text'}
+                                icon={<LayoutOutlined />}
+                                onClick={() => setDrawerOpen((open) => !open)}
+                            />
+                        </Tooltip>
                     </div>
                 )}
 
@@ -350,6 +353,14 @@ export default function TrapLandingPage() {
                         </div>
                     ))}
                 </div>
+
+                <Drawer
+                    drawerOpen={drawerOpen}
+                    setDrawerOpen={setDrawerOpen}
+                    onLaunchWorkflow={onLaunchHudWorkflow}
+                    onEditWorkflow={onEditHudWorkflow}
+                    onActivateLanding={onActivateHudLanding}
+                />
             </Space>
         </Space>
     );
