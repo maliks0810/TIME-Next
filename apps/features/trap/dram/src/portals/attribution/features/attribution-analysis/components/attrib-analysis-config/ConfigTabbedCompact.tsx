@@ -219,7 +219,6 @@ const defaultSectionOrder: ControlSectionId[] = [
 ];
 
 const defaultExpandedSections: ControlSectionId[] = [
-  "savedViews",
   "analysisScope",
   "dateRange",
   "periods",
@@ -506,6 +505,29 @@ export default function ConfigTabbedCompact({
   );
   const wasOpenRef = useRef(false);
 
+const initialValuesRef = useRef(initialValues);
+useEffect(() => {
+  initialValuesRef.current = initialValues;
+}, [initialValues]);
+
+useEffect(() => {
+  if (open && !wasOpenRef.current) {
+    setState(createDefaultState(config, initialValuesRef.current));
+  }
+  wasOpenRef.current = open;
+}, [open, config]);
+
+ const prevActiveViewRef = useRef(activeSavedViewId);
+  useEffect(() => {    if (
+          open &&
+                activeSavedViewId &&
+                     activeSavedViewId !== prevActiveViewRef.current
+                        ) {
+                                setState(createDefaultState(config, initialValuesRef.current));
+                                  }
+                                      prevActiveViewRef.current = activeSavedViewId;
+                                      }, [open, activeSavedViewId, config]);
+
   const [sectionOrder, setSectionOrder] =
     useState<ControlSectionId[]>(defaultSectionOrder);
   const [expandedSections, setExpandedSections] =
@@ -568,13 +590,6 @@ useEffect(() => {
     breakdownModeId: validLevels[0]?.dimensionId ?? "",
   }));
 }, [state.assetClass, state.breakdownChain]);
-
-  useEffect(() => {
-    if (open && !wasOpenRef.current) {
-      setState(createDefaultState(config, initialValues));
-    }
-    wasOpenRef.current = open;
-  }, [open, config, initialValues]);
 
   const periods = useMemo(() => {
     return (config.periods[0] ?? [])
@@ -1222,7 +1237,7 @@ const filtersContent = (
   },
     analysisScope: {
       id: "analysisScope",
-      title: "Analysis Scope",
+      title: "Portfolio Selection",
       description: "Asset class, portfolio, and benchmark",
       icon: <SlidersOutlined />,
       content: analysisScopeContent,
