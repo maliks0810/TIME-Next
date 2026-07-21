@@ -201,14 +201,14 @@ export const Row = ({
                     Current
                 </Tag>
             ) : null}
-            {!isLandingRow ? (
+            {/* {!isLandingRow ? (
                 <Tag
                     color="warning"
                     style={{ margin: 0, fontSize: 10, lineHeight: '16px', padding: '0 6px' }}
                 >
                     Draft
                 </Tag>
-            ) : null}
+            ) : null} */}
             {/* Ownership/visibility glyph — workflows only (a landing's home glyph is its identity). */}
             {!isLandingRow ? (
                 <span
