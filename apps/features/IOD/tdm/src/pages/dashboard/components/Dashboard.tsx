@@ -14,6 +14,7 @@ import { useDashboardStore } from '../../../stores/useDashboardStore';
 import { useReferenceData } from '../../../hooks/useReferenceData';
 import { ReferenceDataFieldKey } from '../../security-setup/lib/types/referenceDataTypes';
 import { useVisibilityChange } from '../../../hooks/useVisibilityChange';
+import { useIdentityUserAuth } from '../../../hooks/useIdentityUserAuth';
 import { useInterval } from '../../../hooks/useInterval';
 import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
 import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
@@ -36,7 +37,7 @@ const Dashboard: React.FC = () => {
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const isPageVisible = useVisibilityChange();
   const isDmAnalystDropdownOpen = useDashboardStore(s => s.isDmAnalystDropdownOpen);
-  const seedDmAnalystAssignments = useDashboardStore(s => s.seedDmAnalystAssignments)
+  const setDmAnalystAssignments = useDashboardStore(s => s.setDmAnalystAssignments)
   const navigate = useNavigate();
   const { name: currentUser } = useUserInfo();
   const dashboardGridRef = useRef<DataGridRef<IDashboardSecuritySetupRequest, number>>(null);
@@ -45,6 +46,9 @@ const Dashboard: React.FC = () => {
   const { data: referenceData } =
     useReferenceData();
   const dmAnalystOptions = referenceData?.byKey[ReferenceDataFieldKey.DmAnalyst]?.fieldDropdownValues ?? [];
+
+  // Set user auth permissions to Zustand store
+  useIdentityUserAuth();
 
   // poll data when page is visible
   useEffect(() => {
@@ -77,7 +81,7 @@ const Dashboard: React.FC = () => {
       const data = await getSecurityRequestsDashboard(parameters);
       setSecurityRequestsData(data.securityRequests);
       setDashboardStats(data.dashboardStats)
-      seedDmAnalystAssignments(
+      setDmAnalystAssignments(
         (data.securityRequests ?? []).map(r => ({ id: r.id, email: r.dmAnalystEmail })),
       )
 
@@ -90,7 +94,7 @@ const Dashboard: React.FC = () => {
     finally {
       setIsPolling(false);
     }
-  }, [searchParameters, setSecurityRequestsData, setLastRefreshed, setIsPolling, seedDmAnalystAssignments]);
+  }, [searchParameters, setSecurityRequestsData, setLastRefreshed, setIsPolling, setDmAnalystAssignments]);
 
   const handleClearGridFilters = () => {
     if (dashboardGridRef.current) {

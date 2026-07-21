@@ -14,6 +14,7 @@ import {
 } from '../lib/DashboardSecuritySetupRequestStatuses';
 import { IReferenceDataKeyValue } from '../../security-setup/lib/types/referenceDataTypes';
 import { useDashboardStore } from '../../../stores/useDashboardStore';
+import { useIdentityStore } from '../../../stores/useIdentityStore';
 import { setDmAssignment } from '../../../services/DashboardService';
 import '../lib/dashboard.scss';
 
@@ -36,7 +37,8 @@ const DmAnalystCell: React.FC<{
   requestId: number;
   options: IReferenceDataKeyValue[];
   onOpen: (requestId: number, position: { top: number; left: number }) => void;
-}> = ({ requestId, options, onOpen }) => {
+  allowExplicitAssignment: boolean;
+}> = ({ requestId, options, onOpen, allowExplicitAssignment }) => {
 
   // selector scoped to this row's assignment so ONLY THIS cell re-renders on change
   const selectedEmail = useDashboardStore(s => s.dmAnalystAssignments[requestId]);
@@ -49,6 +51,31 @@ const DmAnalystCell: React.FC<{
     const rect = e.currentTarget.getBoundingClientRect();
     onOpen(requestId, { top: rect.bottom, left: rect.left });
   };
+
+  if (!allowExplicitAssignment) {
+    return (
+      <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%'
+      }}
+    >
+      <Box
+        component='span'
+        sx={{
+          flex: 1,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}
+      >
+        {selectedAnalyst?.fieldDropdownDescription || ''}
+      </Box>
+    </Box>
+    )
+  }
 
   return (
     <Box
@@ -87,7 +114,10 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const [dmAnalystMenuState, setDmAnalystMenuState] = useState<DMAnalystMenuState | null>(null)
+  // Get user auth permissions by action
+  const userAuth = useIdentityStore((s) => s.userAuth);
+
+  const [dmAnalystMenuState, setDmAnalystMenuState] = useState<DMAnalystMenuState | null>(null);
 
   const dmAnalystAssignments = useDashboardStore((s) => s.dmAnalystAssignments);
   const setDmAnalyst = useDashboardStore((s) => s.setDmAnalyst);
@@ -291,7 +321,12 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   }, [setSelectedSecurityRequest, setIsRequestDetailsOpen]);
 
   const cellRenderDmAnalyst = useCallback((data: DataGridTypes.ColumnCellTemplateData) => {
-    return <DmAnalystCell requestId={data.data.id} options={dmAnalystOptions} onOpen={openDmAnalystMenu} />
+    return <DmAnalystCell 
+      requestId={data.data.id}
+      options={dmAnalystOptions}
+      onOpen={openDmAnalystMenu}
+      allowExplicitAssignment={userAuth?.permissionsAllowed.explicit_dm_analyst_assignment || false}
+    />
   }, [dmAnalystOptions, openDmAnalystMenu])
 
   const handleRowDbleClick = (e: DataGridTypes.RowDblClickEvent) => {

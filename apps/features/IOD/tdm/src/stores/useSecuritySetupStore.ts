@@ -50,6 +50,9 @@ const INITIAL_STATE: SecuritySetupState = {
   pendingUploadFiles: [],
   isUploadingFile: false,
   fileUploadError: null,
+  
+  dmAnalystName: null,
+  dmAnalystEmail: null,
   // current user
   userIdentity: null
 }
@@ -136,8 +139,9 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
         attachments: initialData.attachments ?? [],
         // navigation
         currentStep: (initialData.currentStep) ?? 'enter-identifier',
-        completedSteps
-
+        completedSteps,
+        dmAnalystName: initialData.dmAnalystName ?? undefined,
+        dmAnalystEmail: initialData.dmAnalystEmail ?? undefined,
       })
      },
 
@@ -167,7 +171,9 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
         tradeFields:  {...prev.tradeFields, ...savedData.tradeFields},
         speedOverrides:  {...prev.speedOverrides, ...savedData.speedOverrides},
         notesInstructions: savedData.notesInstructions ?? prev.notesInstructions,
-        attachments: savedData.attachments?.length ? savedData.attachments : prev.attachments
+        attachments: savedData.attachments?.length ? savedData.attachments : prev.attachments,
+        dmAnalystName: savedData.dmAnalystName ?? prev.dmAnalystName,
+        dmAnalystEmail: savedData.dmAnalystEmail ?? prev.dmAnalystEmail,
       }))
      },
 

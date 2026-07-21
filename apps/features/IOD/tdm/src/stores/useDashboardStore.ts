@@ -9,6 +9,7 @@ interface DashboardState {
 interface DashboardActions {
   setDmAnalyst: (requestId: number, analystEmail: string) => void;
   setDmAnalystDropdownOpen: (open: boolean) => void;
+  setDmAnalystAssignments: (rows: { id: number; email: string | null }[]) => void;
   seedDmAnalystAssignments: (rows: { id: number; email: string | null }[]) => void;
 }
 
@@ -23,6 +24,21 @@ export const useDashboardStore = create<DashboardStore>()(
         dmAnalystAssignments: { ...prev.dmAnalystAssignments, [requestId]: analystEmail}
       })),
     setDmAnalystDropdownOpen: (open: boolean) => set({ isDmAnalystDropdownOpen: open }),
+    
+    setDmAnalystAssignments: (rows: { id: number; email: string | null }[]) =>
+      set((prev: DashboardStore) => {
+        const patch: Record<number, string> = {};
+        for (const { id, email } of rows) {
+          if (email) {
+            patch[id] = email;
+          }
+        }
+
+        return Object.keys(patch).length
+          ? { dmAnalystAssignments: { ...prev.dmAnalystAssignments, ...patch } }
+          : prev;
+      }),
+    
     // only seeds rows not already in store - preserves in-session user selections across polls
     seedDmAnalystAssignments: (rows: { id: number; email: string | null }[]) =>
       set((prev: DashboardStore) => {

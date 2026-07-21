@@ -82,6 +82,8 @@ export interface ISecuritySetupRequestPresentation {
     updatedBy: string | null;
     updatedDate: string | null; // ISO 8601 DateTimeOffset,
     attachments?: ISecuritySetupRequestAttachment[] | null;
+    dmAnalystName?: string | null;
+    dmAnalystEmail?: string | null;
 }
 
 export interface ISecuritySetupRequestAttachment {
@@ -158,6 +160,8 @@ export interface ISecuritySetupRequestDomain {
     CreatedDate?: string | null; // ISO 8601 DateTimeOffset
     UpdatedBy?: string | null;
     UpdatedDate?: string | null; // ISO 8601 DateTimeOffset
+    DmAnalystName?: string | null;
+    DmAnalystEmail?: string | null;
 }
 
 // ============================================
@@ -224,6 +228,9 @@ export interface ISecuritySetupWizardPayload {
     updatedDate?: string | null;
     attachments?: ISecuritySetupRequestAttachment[];
     securitySetupStatusId?: number | null;
+
+    dmAnalystName?: string | null;
+    dmAnalystEmail?: string | null;
 }
 
 /**

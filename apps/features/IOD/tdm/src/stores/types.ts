@@ -1,6 +1,6 @@
 import { IESGFields, ISecurityAttachmentData, ISecurityDetails, ISpeedOverrides, ITradeFields, SecuritySetupStep } from '../pages/security-setup/lib/types/securitySetupTypes';
 import { ISecuritySetupRequestAttachment, ISecuritySetupWizardPayload } from '../services/domain-objects/SecuritySetupRequestPayload';
-import { IUserIdentity } from '../services/domain-objects/UserIdentityResponse';
+import { IUserAuth, IUserIdentity } from '../services/domain-objects/UserIdentityResponse';
 
 export interface SecuritySetupState {
   // identity / audit fields
@@ -56,6 +56,8 @@ export interface SecuritySetupState {
   isUploadingFile: boolean;
   fileUploadError: string | null;
 
+  dmAnalystName: string | null;
+  dmAnalystEmail: string | null;
   // current user identity
   userIdentity: IUserIdentity | null;
 }
@@ -93,3 +95,13 @@ export interface SecuritySetupActions {
   resetWizard: () => void;
   setUserIdentity: (identity: IUserIdentity) => void;
 }
+
+export interface IdentityState {
+  userAuth: IUserAuth | null;
+}
+
+export interface IdentityActions {
+  setUserAuth: (userAuth: IUserAuth) => void;
+}
+
+export type IdentityStore = IdentityState & IdentityActions

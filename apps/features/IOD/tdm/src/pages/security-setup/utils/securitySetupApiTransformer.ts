@@ -165,6 +165,9 @@ export const transformToApiDomain = (
         CurrentStepNumber: payload.currentStepNumber,
         SaveType: payload.saveType,
         ExternalSecuritySetupRequestId: payload.externalSecuritySetupRequestId,
+
+        DmAnalystName: payload.dmAnalystName,
+        DmAnalystEmail: payload.dmAnalystEmail,
     };
 };
 
@@ -288,5 +291,8 @@ export const transformFromApiPresentation = (
             presentation.attachments && presentation?.attachments?.length > 0
                 ? presentation.attachments
                 : undefined,
+
+        dmAnalystName: presentation.dmAnalystName || undefined,
+        dmAnalystEmail: presentation.dmAnalystEmail || undefined
     };
 };
