@@ -75,6 +75,8 @@ const extractPortBenchRows = (apiResp: OptionsResponse): PortBenchRow[] => {
         r["PORTFOLIO_SECONDARY_BENCHMARK_CODE"] ?? null,
       PORTFOLIO_SECONDARY_BENCHMARK_NAME:
         r["PORTFOLIO_SECONDARY_BENCHMARK_NAME"] ?? null,
+      DATE_INCEPTION:
+        r["DATE_INCEPTION"] ?? null,
     }))
     .filter((r) => r.PORTFOLIO_KEY !== "" && r.PORTFOLIO_NAME !== "");
 };
@@ -619,10 +621,8 @@ const executeAttribAnalysis = async (
        : encodeURIComponent(input.breakdownModeId);
       const resp = input.breakdownModeId === 'MktCap' ? (await api.runMktCapAnalysis()) :
       input.breakdownModeId === 'PEfwd' ? (await api.runPEfwdAnalysis()):
-      input.frequencyMode === "daily" && input.assetClass === "EQ" ? (await api.runDailySecurityGrainAnalysis(
+      input.frequencyMode === "daily" && input.assetClass === "EQ" ? (await api.runEQ5AttributionAnalysis(
         input.portfolio,
-        inputGrouping  || "GICS1",
-        input.startDate,
         input.endDate
       )) : input.frequencyMode === "monthly" && input.assetClass === "EQ" ? (await api.runSecurityGrainAnalysis(input.assetClass,
         input.portfolio,input.frequencyMode,

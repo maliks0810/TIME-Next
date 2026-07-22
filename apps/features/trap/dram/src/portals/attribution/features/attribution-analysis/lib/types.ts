@@ -38,6 +38,8 @@ export type PortBenchRow = Readonly<{
 
   PORTFOLIO_SECONDARY_BENCHMARK_CODE: string | null;
   PORTFOLIO_SECONDARY_BENCHMARK_NAME: string | null;
+
+  DATE_INCEPTION?: string | null;
 }>;
 
 export type SelectOption = Readonly<{
