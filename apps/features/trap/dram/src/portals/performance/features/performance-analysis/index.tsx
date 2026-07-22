@@ -86,7 +86,7 @@ export default function PerformanceAnalysisContent() {
 
   // RIGHT mode state
   const [mode, setMode] = React.useState<Mode>("summary");
-  const [summaryView, setSummaryView] = React.useState<SummaryView>("summaryList");
+  const [summaryView, setSummaryView] = React.useState<SummaryView>("summaryReport");
 
   // Summary state
   const [asOfDate, setAsOfDate] = React.useState<Date>(getPreviousMonthEnd());
