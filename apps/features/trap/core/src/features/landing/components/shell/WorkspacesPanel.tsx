@@ -9,7 +9,14 @@ import {
     PlusOutlined,
 } from '@ant-design/icons';
 import { useUserInfo } from '@platform/utils';
-import { getTemplates, updateTemplate, deleteTemplate, cloneTemplate } from '../../../../api/trap';
+import {
+    getTemplates,
+    updateTemplate,
+    deleteTemplate,
+    cloneTemplate,
+    getTeams,
+    Team,
+} from '../../../../api/trap';
 import styles from './WorkspacesPanel.module.scss';
 import { Row } from './Row';
 import { CreateNewSection } from './CreateNewSection';
@@ -50,6 +57,7 @@ type Props = {
     }) => void;
 };
 
+export type DepartmentTree = Map<string, Map<string, Set<string>>>;
 const FAV_KEY = 'favoriteWorkspaces';
 const loadFavs = (): string[] => {
     try {
@@ -78,6 +86,7 @@ export default function WorkspacesPanel({
     const org2 = String((claims as any)?.OrgLevel2 ?? '').trim();
     const myTeam = String((claims as any)?.OrgLevel4 ?? '').trim();
 
+    const [departmentTree, setDepartmentTree] = React.useState<DepartmentTree | null>();
     const [items, setItems] = React.useState<Item[]>([]);
     const [loading, setLoading] = React.useState(false);
     const [search, setSearch] = React.useState('');
@@ -114,8 +123,27 @@ export default function WorkspacesPanel({
         }
     }, []);
 
+    const buildTree = (data: Team[]) => {
+        return data.reduce<DepartmentTree>((tree, { departmentName, groupName, teamName }) => {
+            if (!tree.has(departmentName)) tree.set(departmentName, new Map());
+
+            const groups = tree.get(departmentName);
+
+            if (!groups?.has(groupName)) groups?.set(groupName, new Set());
+
+            groups?.get(groupName)?.add(teamName);
+
+            return tree;
+        }, new Map());
+    };
+    const fetchTeams = async () => {
+        const data = await getTeams();
+        const departmentTree = buildTree(data);
+        setDepartmentTree(departmentTree);
+    };
     React.useEffect(() => {
         refresh();
+        fetchTeams();
     }, []);
 
     const toggleFav = (id: string) => {
@@ -270,6 +298,7 @@ export default function WorkspacesPanel({
     if (showNew)
         return (
             <CreateNewSection
+                orgTree={departmentTree}
                 onCreateWorkspace={onCreateWorkspace}
                 org1={org1}
                 org2={org2}

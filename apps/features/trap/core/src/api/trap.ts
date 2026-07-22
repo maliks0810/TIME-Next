@@ -372,3 +372,19 @@ export async function widgetPreview(input: {
 }): Promise<any> {
     return executeWidget(input);
 }
+
+export type Team = {
+    departmentName: string;
+    groupName: string;
+
+    teamName: string;
+};
+export async function getTeams(): Promise<Team[]> {
+    const data = await gql<{ getTeams: Team[] }>(`query GetTeams { getTeams {
+        departmentName
+        groupName
+        id  
+        teamName }
+    }`);
+    return data.getTeams || [];
+}
