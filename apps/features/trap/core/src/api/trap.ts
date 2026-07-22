@@ -3,6 +3,7 @@
 // UI -> TRAP GraphQL only
 
 import { getIdentityHeaders } from './getIdentityHeaders';
+import { coreGlobalMessage } from '../utils/message';
 
 type GqlResponse<T> = { data?: T; errors?: Array<{ message: string }> };
 
@@ -24,9 +25,14 @@ async function gql<T>(
 
     if (!res.ok) {
         const msg = json?.errors?.[0]?.message || `HTTP ${res.status} ${res.statusText}`;
+        coreGlobalMessage.error(msg);
         throw new Error(msg);
     }
-    if (json.errors && json.errors.length) throw new Error(json.errors[0].message);
+    if (json.errors && json.errors.length) {
+        coreGlobalMessage.error(json.errors[0].message);
+        throw new Error(json.errors[0].message);
+    };
+
     if (!json.data) throw new Error('No data returned from GraphQL');
 
     return json.data;
