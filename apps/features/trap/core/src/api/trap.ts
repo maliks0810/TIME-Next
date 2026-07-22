@@ -31,7 +31,7 @@ async function gql<T>(
     if (json.errors && json.errors.length) {
         coreGlobalMessage.error(json.errors[0].message);
         throw new Error(json.errors[0].message);
-    };
+    }
 
     if (!json.data) throw new Error('No data returned from GraphQL');
 
@@ -120,12 +120,12 @@ export async function listTemplateVersions(templateId: string): Promise<any[]> {
 }
 
 export enum Kind {
-    WORKFLOW,
-    LANDING,
+    WORKFLOW = 'WORKFLOW',
+    LANDING = 'LANDING',
 }
 export enum Visibility {
-    PRIVATE,
-    PUBLIC,
+    PRIVATE = 'PRIVATE',
+    PUBLIC = 'PUBLIC',
 }
 export async function createTemplate(input: {
     name: string;
