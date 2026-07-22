@@ -20,10 +20,7 @@
         color 0.12s;
     line-height: 1.5;
 }
-.nf-opt:hover:not(.on):not(:disabled) {
-    background: var(--ant-color-fill-tertiary);
-}
-.nf-opt.on {
+.nf-opt-chosen {
     background: var(--ant-color-primary);
     color: #fff;
 }
@@ -45,4 +42,10 @@
 .nf-chip .anticon {
     opacity: 0.6;
     font-size: 11px;
+}
+.teams {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
 }
