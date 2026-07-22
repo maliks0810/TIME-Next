@@ -2,7 +2,7 @@ import { EditOutlined, LinkOutlined, LockOutlined } from '@ant-design/icons';
 import { Button, Input, Select } from 'antd';
 import React, { useCallback, useState } from 'react';
 import styles from './CreateNewSection.module.scss';
-import { Kind, Visibility } from '../../../../api/trap';
+import { Kind, Team, Visibility } from '../../../../api/trap';
 import clsx from 'clsx';
 import { DepartmentTree } from './WorkspacesPanel';
 export const CreateNewSection = ({
@@ -17,11 +17,14 @@ export const CreateNewSection = ({
     org1: string;
     org2: string;
     myTeam: string;
-    onCreateWorkspace: (input: {
-        name: string;
-        kind: Kind;
-        visibility: Visibility;
-    }) => void | Promise<void>;
+    onCreateWorkspace: (
+        input: {
+            name: string;
+            kind: Kind;
+            visibility: Visibility;
+        },
+        organization: Team
+    ) => void | Promise<void>;
     setShowNew: (value: boolean) => void;
 }) => {
     const [newName, setNewName] = React.useState('');
@@ -40,11 +43,18 @@ export const CreateNewSection = ({
         if (!newName.trim()) return;
         setCreating(true);
         try {
-            await onCreateWorkspace({
-                name: newName.trim(),
-                kind: newKind,
-                visibility: landing ? Visibility.PRIVATE : newVis,
-            });
+            await onCreateWorkspace(
+                {
+                    name: newName.trim(),
+                    kind: newKind,
+                    visibility: landing ? Visibility.PRIVATE : newVis,
+                },
+                {
+                    departmentName: entitlment.org1,
+                    groupName: entitlment.org2,
+                    teamName: entitlment.myTeam,
+                }
+            );
             // On success the parent opens the new draft tab and closes the drawer.
         } finally {
             setCreating(false);
@@ -86,6 +96,7 @@ export const CreateNewSection = ({
 
                         const team = [...(orgTree?.get(value)?.get(group)?.keys() || [])][0];
 
+                        console.log(team);
                         setEntitlement((prev) => ({
                             ...prev,
                             org1: value,
@@ -105,7 +116,7 @@ export const CreateNewSection = ({
                     }}
                 ></Select>
                 <Select
-                    defaultValue={entitlment.myTeam}
+                    value={entitlment.myTeam}
                     options={teams}
                     style={{ flex: 1 }}
                     onSelect={(value) => {

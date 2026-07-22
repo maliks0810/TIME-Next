@@ -43,11 +43,14 @@ type Props = {
     onActivateLanding: (sel: { templateId: string; name?: string }) => void;
     onSetHome?: (sel: { templateId: string; name?: string }) => void;
     currentHomeId?: string | null;
-    onCreateWorkspace: (input: {
-        name: string;
-        kind: Kind;
-        visibility: Visibility;
-    }) => Promise<void> | void;
+    onCreateWorkspace: (
+        input: {
+            name: string;
+            kind: Kind;
+            visibility: Visibility;
+        },
+        organization: Team
+    ) => Promise<void> | void;
     // Let the shell keep open tabs in sync when a workspace is mutated from this list
     // (close orphaned tabs on delete, retitle on rename, refresh menu state on change).
     onTemplateChanged?: (info: {

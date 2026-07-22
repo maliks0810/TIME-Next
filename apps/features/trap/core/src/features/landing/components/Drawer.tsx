@@ -5,7 +5,7 @@ import React from 'react';
 import WorkspacesPanel from './shell/WorkspacesPanel';
 import styles from './Drawer.module.scss';
 import { HudLandingSelection, HudWorkflowSelection } from '../../../pages/TrapLandingPage';
-import { createDraftVersion, createTemplate, listTemplateVersions } from '../../../api/trap';
+import { createDraftVersion, createTemplate, listTemplateVersions, Team } from '../../../api/trap';
 import { useUserInfo } from '@platform/utils';
 
 import { useNavigate } from 'react-router-dom';
@@ -29,15 +29,15 @@ export const Drawer = ({
     );
 
     const onCreateWorkspace = React.useCallback(
-        async (input: { name: string; kind: Kind; visibility: Visibility }) => {
+        async (input: { name: string; kind: Kind; visibility: Visibility }, organization: Team) => {
             try {
                 const tpl = await createTemplate({
                     name: input.name,
                     kind: input.kind,
                     visibility: input.visibility,
-                    class1: String((claims as any)?.OrgLevel1 ?? ''),
-                    class2: String((claims as any)?.OrgLevel2 ?? ''),
-                    class3: String((claims as any)?.OrgLevel4 ?? ''),
+                    class1: organization.departmentName,
+                    class2: organization.groupName,
+                    class3: organization.teamName,
                 });
                 // createTemplate seeds an empty DRAFT version; use it (fall back to createDraftVersion).
                 const versions = await listTemplateVersions(tpl.id);
