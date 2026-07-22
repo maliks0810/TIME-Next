@@ -1,5 +1,5 @@
 import React from 'react';
-import { BackTop, ConfigProvider, Layout } from 'antd';
+import { BackTop, ConfigProvider, Layout, App as AntdApp } from 'antd';
 import { Route, Routes } from 'react-router-dom';
 import { useUserInfo } from '@platform/utils';
 
@@ -18,6 +18,7 @@ import {
 } from './theme/ThemeContext';
 import { AdminPanel } from './features/AdminPanel';
 import { useSetActiveUser } from './state/User/hooks';
+import { MessageInitializer } from './components/common/MessageInitializer';
 
 const { Content } = Layout;
 
@@ -63,6 +64,8 @@ export default function App() {
     return (
         <ThemeContext.Provider value={{ themeName, setTheme: setThemeName }}>
             <ConfigProvider theme={{ ...themeConfig, cssVar: true }}>
+                <AntdApp>
+                    <MessageInitializer />
                 <BackTop />
                 <Layout
                     style={{
@@ -98,6 +101,7 @@ export default function App() {
                         </Routes>
                     </Content>
                 </Layout>
+                </AntdApp>
             </ConfigProvider>
         </ThemeContext.Provider>
     );
