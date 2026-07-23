@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Button, Tooltip } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { publishAnalyticsInput } from '../lib/services';
-import { extractCallable, extractCollateralType, normalizeStatus, speedOverridesExist } from '../../../lib/helpers';
+import { extractCallable, extractInfoApplyMultiplierEnabledType, normalizeStatus, speedOverridesExist } from '../../../lib/helpers';
 import { MessageInstance } from 'antd/es/message/interface';
-import { COMMON_COLLATERAL_TYPES, PUBLISH_BUTTON_HELPTEXT } from '../../../shared/constants';
+import { PUBLISH_BUTTON_HELPTEXT } from '../../../shared/constants';
 
 type PublishButtonProps = {
     messageApi: MessageInstance;
@@ -17,9 +17,8 @@ export const PublishButton = ({ selectedAssetStatus, messageApi, selectedPayload
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [searchParams] = useSearchParams();
 
-    const canPublish = normalizeStatus(selectedAssetStatus) === 'ANALYTICS INPUT PENDING REVIEW'
-        && (COMMON_COLLATERAL_TYPES.includes(extractCollateralType(selectedPayload))
-            || extractCallable(selectedPayload) !== 'N' || speedOverridesExist(selectedPayload));
+    const canPublish = (normalizeStatus(selectedAssetStatus) === 'ANALYTICS INPUT PENDING REVIEW' || normalizeStatus(selectedAssetStatus) === 'MANUAL')
+        && (extractInfoApplyMultiplierEnabledType(selectedPayload) !== false || speedOverridesExist(selectedPayload) || extractCallable(selectedPayload) !== 'N');
 
     const publishOverrides = async () => {
         const assetId = searchParams.get('assetId');

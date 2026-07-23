@@ -72,7 +72,7 @@ export const DefaultOverridesTab = ({ draft, onChange }: DefaultOverridesTabProp
     };
 
     return (
-        <div style={{ paddingTop: 8 }}>
+        <div className='defaultOverridesTabContainer'>
             {contextHolder}
             <Segmented
                 value={view}
@@ -88,13 +88,7 @@ export const DefaultOverridesTab = ({ draft, onChange }: DefaultOverridesTabProp
                     form={form}
                     initialValues={initialValues}
                     onValuesChange={handleValuesChange}
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: '280px 1fr',
-                        gap: 14,
-                        alignItems: 'center',
-                        padding: '16px 0',
-                    }}
+                    className='form'
                 >
                     <LabeledSelect
                         label="Callable"
@@ -173,7 +167,7 @@ export const DefaultOverridesTab = ({ draft, onChange }: DefaultOverridesTabProp
                             />
                             <LabeledNumberInput label="Prepayment Speed" name="prepaymentSpeed" />
 
-                             <LabeledSelect
+                            <LabeledSelect
                                 label=" Default Type"
                                 name="defaultType"
                                 options={PREPAYMENT_DEFAULT_TYPE_OPTIONS}

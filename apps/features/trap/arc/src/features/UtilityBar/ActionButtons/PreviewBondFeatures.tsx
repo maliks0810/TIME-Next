@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react';
 import PreviewBondFeaturesModal from '../Modals/PreviewBondFeaturesModal';
 import { Button, Tooltip } from 'antd';
 import { MessageInstance } from 'antd/es/message/interface';
-import { extractCollateralType } from '../../../lib/helpers';
-import { COMMON_COLLATERAL_TYPES, PREVIEW_BOND_BUTTON_TEXT } from '../../../shared/constants';
+import { extractInfoApplyMultiplierEnabledType } from '../../../lib/helpers';
+import { PREVIEW_BOND_BUTTON_TEXT } from '../../../shared/constants';
 
 type PreviewBondFeaturesButtonProps = {
     messageApi: MessageInstance;
@@ -21,9 +21,8 @@ export const PreviewBondFeaturesButton = ({
         if (!selectedPayload) {
             return true;
         }
-        const assetInfoCollateralType = extractCollateralType(selectedPayload);
 
-        return !COMMON_COLLATERAL_TYPES.includes(assetInfoCollateralType);
+        return extractInfoApplyMultiplierEnabledType(selectedPayload) === false;
     };
 
     const canPublish = !!selectedAladdinId &&!checkIsBondFeaturesDisabled();

@@ -186,6 +186,7 @@ export const getWorkflowExceptionsById = (
     serviceRequest(GetWorkflowExceptionsByIdUrl)().post('', { assetAnalyticsSetupId });
 
 export const resolveWorkflowExceptionById = (
-    workflowExceptionId: number
+    anchorId: number,
+    workflowExceptionId: number,
 ): Promise<void> =>
-    serviceRequest(ResolveWorkflowExceptionByIdUrl)().post('', { workflowExceptionId });
+    serviceRequest(ResolveWorkflowExceptionByIdUrl)().post('', { anchorId,workflowExceptionId });

@@ -1,30 +1,34 @@
 import { useLayoutEffect, useState } from 'react';
-import { FormInstance } from 'antd';
+import { Button, FormInstance } from 'antd';
 import { Switch } from 'antd';
 import { getWorkflowExceptionsById, resolveWorkflowExceptionById } from '../../lib/services';
 import { WorkflowException } from '../../lib/types';
-import { STATUSES_ENUM } from '../../lib/constants';
 
 export const WorkflowExceptionTable = ({
     selectedAssetId,
     form,
-    selectedStatus
+    latestUpdateTimestamp,
 }: {
     selectedAssetId?: number | null;
     form: FormInstance;
-     selectedStatus?: string;
+    latestUpdateTimestamp: number;
 }) => {
     const [exceptions, setExceptions] = useState<WorkflowException[]>([]);
 
     useLayoutEffect(() => {
         form.resetFields(['rows']);
-        if (selectedAssetId && selectedStatus?.toUpperCase() == STATUSES_ENUM.INVALID_REQUEST.toUpperCase()) {
+        if (selectedAssetId) {
             /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
             const rows: any = {};
 
             getWorkflowExceptionsById(selectedAssetId)
                 .then(({ data }) => {
-                    setExceptions(data.response);
+
+                    if (data.response.some(x => x.isResolved == false)) {
+                        setExceptions(data.response);
+                    } else {
+                        setExceptions([]);
+                    }
                 })
                 .catch((e) => {
                     console.warn('Unable to download exception data', e);
@@ -32,12 +36,14 @@ export const WorkflowExceptionTable = ({
                 .finally(() => {
                     form.setFieldsValue({ rows });
                 });
+        } else {
+            setExceptions([]);
         }
-    }, [form, selectedAssetId]);
+    }, [form, selectedAssetId, latestUpdateTimestamp]);
 
-    const handleResolve = (workflowExceptionId: number) => {
+    const handleResolve = (anchorId: number, workflowExceptionId: number) => {
 
-        resolveWorkflowExceptionById(workflowExceptionId)
+        resolveWorkflowExceptionById(anchorId, workflowExceptionId)
             .then(() => {
                 setExceptions((prev) =>
                     prev.map((ex) =>
@@ -80,12 +86,13 @@ export const WorkflowExceptionTable = ({
                                         </td>
                                         <td className="td-exception-resolved">
                                             {!ex.isResolved && (
-                                                <button
+                                                <Button
+                                                    type="primary"
                                                     className="resolve-button"
-                                                    onClick={() => handleResolve(ex.workflowExceptionId)}
+                                                    onClick={() => handleResolve(ex.anchorId, ex.workflowExceptionId)}
                                                 >
                                                     Resolve
-                                                </button>
+                                                </Button>
                                             )}
                                         </td>
                                     </tr>
