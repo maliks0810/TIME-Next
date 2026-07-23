@@ -1,7 +1,12 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { Tabs, Space, Dropdown, Button, message, Tooltip } from 'antd';
-import { EllipsisOutlined, HomeOutlined, LayoutOutlined } from '@ant-design/icons';
+import {
+    AppstoreOutlined,
+    EllipsisOutlined,
+    HomeOutlined,
+    LayoutOutlined,
+} from '@ant-design/icons';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useUserInfo } from '@platform/utils';
@@ -71,12 +76,18 @@ export default function TrapLandingPage() {
     const setActiveKey = useSetActiveTab();
     const [isInitialLoading, setIsInitialLoading] = React.useState(true);
 
+    const initTemplates = async () => {
+        const templates = await getTemplates();
+        setAllTemplates(templates);
+    };
     useEffect(() => {
         const templateId = searchParams.get('template_id');
 
         if (templateId && activeUser) {
             setIsInitialLoading(false);
             initWorkflowFromURL(templateId);
+        } else {
+            initTemplates();
         }
     }, [activeUser]);
 
@@ -291,11 +302,22 @@ export default function TrapLandingPage() {
             setSearchParams({}, { replace: true });
         }
     };
-
     return (
         <Space direction="vertical" size={10} style={{ width: '100%' }}>
             <Space direction="vertical" size={0} style={{ width: '100%' }}>
-                <div style={{ height: TAB_BAR_HEIGHT, overflow: 'hidden', display: 'flex' }}>
+                <div
+                    style={{
+                        height: TAB_BAR_HEIGHT,
+                        overflow: 'hidden',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                    }}
+                >
+                    <AppstoreOutlined style={{ fontSize: 16 }} />
+                    <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '0.04em' }}>
+                        TRAP
+                    </span>
                     <Tabs
                         className="trap-tabs-bar-only"
                         type="editable-card"
@@ -351,11 +373,13 @@ export default function TrapLandingPage() {
                 </div>
 
                 <Drawer
+                    templates={allTemplates}
                     drawerOpen={drawerOpen}
                     setDrawerOpen={setDrawerOpen}
                     onLaunchWorkflow={onLaunchHudWorkflow}
                     onEditWorkflow={onEditHudWorkflow}
                     onActivateLanding={onActivateHudLanding}
+                    onCloneTemplate={onCloneTemplate}
                 />
             </Space>
         </Space>
