@@ -16,6 +16,7 @@ import {
     cloneTemplate,
     getTeams,
     Team,
+    TemplateSummary,
 } from '../../../../api/trap';
 import styles from './WorkspacesPanel.module.scss';
 import { Row } from './Row';
@@ -28,8 +29,8 @@ export type Item = {
     templateName: string;
     kind: Kind;
     visibility: Visibility;
-    ownerUserId: string;
-    class3: string;
+    ownerUserId: string | null;
+    class3: string | null;
 };
 
 type Selection = {
@@ -40,7 +41,8 @@ type Selection = {
 type Props = {
     onLaunch: (sel: Selection) => void;
     onEdit: (ws: { workflowId: string; title: string; templateId: string }) => void;
-    onActivateLanding: (sel: { templateId: string; name?: string }) => void;
+    onActivateLanding: (sel: { templateId: string; templateName?: string }) => void;
+    onCloneTemplate: (sel: Item) => void;
     onSetHome?: (sel: { templateId: string; name?: string }) => void;
     currentHomeId?: string | null;
     onCreateWorkspace: (
@@ -58,6 +60,7 @@ type Props = {
         type: 'deleted' | 'renamed' | 'changed';
         name?: string;
     }) => void;
+    templates: TemplateSummary[];
 };
 
 export type DepartmentTree = Map<string, Map<string, Set<string>>>;
@@ -77,10 +80,11 @@ export default function WorkspacesPanel({
     onEdit,
     onSetHome,
     currentHomeId,
-
+    templates,
     onActivateLanding,
     onCreateWorkspace,
     onTemplateChanged,
+    onCloneTemplate,
 }: Props) {
     const { login, claims } = useUserInfo();
     const currentUser =
@@ -90,7 +94,16 @@ export default function WorkspacesPanel({
     const myTeam = String((claims as any)?.OrgLevel4 ?? '').trim();
 
     const [departmentTree, setDepartmentTree] = React.useState<DepartmentTree | null>();
-    const [items, setItems] = React.useState<Item[]>([]);
+    const [items, setItems] = React.useState<Item[]>(
+        templates?.map((el) => ({
+            class3: el.class3 || null,
+            ownerUserId: el.ownerUserId || el.createdByUserId || null,
+            visibility: el.visibility as Visibility,
+            templateId: el.id,
+            templateName: el.name,
+            kind: el.kind as Kind,
+        })) || []
+    );
     const [loading, setLoading] = React.useState(false);
     const [search, setSearch] = React.useState('');
     const [favs, setFavs] = React.useState<string[]>(loadFavs);
@@ -145,7 +158,6 @@ export default function WorkspacesPanel({
         setDepartmentTree(departmentTree);
     };
     React.useEffect(() => {
-        refresh();
         fetchTeams();
     }, []);
 
@@ -161,11 +173,10 @@ export default function WorkspacesPanel({
     const matches = (item: Item) =>
         !query ||
         item.templateName.toLowerCase().includes(query) ||
-        item.class3.toLowerCase().includes(query);
+        item.class3?.toLowerCase().includes(query);
     const visible = items.filter(matches);
 
-    const owned = (item: Item) =>
-        !item.ownerUserId && !currentUser && item.ownerUserId === currentUser;
+    const owned = (item: Item) => item.ownerUserId === currentUser;
     const isLanding = (item: Item) => item.kind === Kind.LANDING;
 
     const openItem = (item: Item) => {
@@ -173,7 +184,7 @@ export default function WorkspacesPanel({
             onActivateLanding({
                 templateId: item.templateId,
 
-                name: item.templateName,
+                templateName: item.templateName,
             });
             return;
         }
@@ -269,6 +280,7 @@ export default function WorkspacesPanel({
                             openItem={openItem}
                             renameItem={renameItem}
                             key={item.templateId}
+                            cloneItem={onCloneTemplate}
                         />
                     );
                 })}
@@ -346,6 +358,7 @@ export default function WorkspacesPanel({
                 <div>
                     <div className={styles['ws-sec']}>Other teams</div>
                     {otherTeams.map((team) => {
+                        if (!team) return null;
                         const list = otherWorkflows.filter((item) => item.class3 === team);
                         const open = openTeams[team] ?? false;
                         return (
@@ -374,6 +387,7 @@ export default function WorkspacesPanel({
                                         {list.map((item) => {
                                             const isFav = favs.includes(item.templateId);
                                             const landingRow = isLanding(item);
+
                                             return (
                                                 <Row
                                                     item={item}
@@ -388,6 +402,7 @@ export default function WorkspacesPanel({
                                                     duplicateItem={duplicateItem}
                                                     deleteItem={deleteItem}
                                                     editItem={editItem}
+                                                    cloneItem={onCloneTemplate}
                                                     onSetHome={onSetHome}
                                                     openItem={openItem}
                                                     renameItem={renameItem}

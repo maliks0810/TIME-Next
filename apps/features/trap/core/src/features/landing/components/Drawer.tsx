@@ -5,17 +5,29 @@ import React from 'react';
 import WorkspacesPanel from './shell/WorkspacesPanel';
 import styles from './Drawer.module.scss';
 import { HudLandingSelection, HudWorkflowSelection } from '../../../pages/TrapLandingPage';
-import { createDraftVersion, createTemplate, listTemplateVersions, Team } from '../../../api/trap';
+import {
+    createDraftVersion,
+    createTemplate,
+    listTemplateVersions,
+    Team,
+    TemplateSummary,
+} from '../../../api/trap';
 import { useUserInfo } from '@platform/utils';
 
 import { useNavigate } from 'react-router-dom';
 import { Kind, Visibility } from '../../../api/trap';
+import { WorkflowTabModel } from '../types/landing.types';
 export const Drawer = ({
     onLaunchWorkflow,
     onEditWorkflow,
     drawerOpen,
     setDrawerOpen,
+    onActivateLanding,
+    templates,
+    onCloneTemplate,
 }: {
+    onCloneTemplate: (ws: WorkflowTabModel) => Promise<void>;
+    templates: TemplateSummary[];
     onLaunchWorkflow: (selection: HudWorkflowSelection) => Promise<void>;
     onEditWorkflow: (selection: HudWorkflowSelection) => void;
     drawerOpen: boolean;
@@ -55,7 +67,6 @@ export const Drawer = ({
         },
         [claims]
     );
-
     if (!drawerOpen) return null;
     return (
         <div role="dialog" aria-label="Manage" className={styles.wrapper}>
@@ -85,6 +96,7 @@ export const Drawer = ({
             <div style={{ padding: '0 14px 14px', overflow: 'auto', flex: 1 }}>
                 {drawerSeg === 'workspaces' ? (
                     <WorkspacesPanel
+                        templates={templates}
                         onLaunch={(selected) => {
                             onLaunchWorkflow(selected as any);
                             setDrawerOpen(false);
@@ -97,9 +109,18 @@ export const Drawer = ({
                             onLaunchWorkflow(selected as any);
                             setDrawerOpen(false);
                         }}
-                        onSetHome={() => {}}
+                        onSetHome={(selected) => {
+                            onActivateLanding(selected as any);
+                            setDrawerOpen(false);
+                        }}
+                        onCloneTemplate={(selected) => {
+                            onCloneTemplate(selected as any);
+                            setDrawerOpen(false);
+                        }}
+                        //TODO: implement when removing designer page
                         currentHomeId={''}
                         onCreateWorkspace={onCreateWorkspace}
+                        //TODO: implement when removing designer page
                         onTemplateChanged={() => {}}
                     />
                 ) : null}

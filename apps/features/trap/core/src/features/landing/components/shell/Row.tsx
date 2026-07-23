@@ -43,6 +43,7 @@ export const Row = ({
     duplicateItem: (item: Item) => void;
     deleteItem: (item: Item) => void;
     editItem: (item: Item) => void;
+    cloneItem: (item: Item) => void;
     onSetHome?: ({ templateId, name }: { templateId: string; name: string }) => void;
 }) => {
     const rowMenu = useCallback(
@@ -50,10 +51,9 @@ export const Row = ({
             // Landings: no favourite (you set them as home). Workflows: open/edit-or-clone/favourite.
             if (isLanding) {
                 const isCur = !!(currentHomeId && item.templateId === currentHomeId);
-
                 return {
                     items: [
-                        { key: 'open', label: 'Open on Home', onClick: () => openItem(item) },
+                        { key: 'open', label: 'Open as Workflow', onClick: () => openItem(item) },
                         ...(isCur
                             ? []
                             : [
@@ -89,13 +89,6 @@ export const Row = ({
             return {
                 items: [
                     { key: 'open', label: 'Open', onClick: () => openItem(item) },
-                    owned
-                        ? {
-                              key: 'edit',
-                              label: 'Edit draft',
-                              onClick: () => editItem(item),
-                          }
-                        : { key: 'clone', label: 'Clone to edit', onClick: () => editItem(item) },
                     {
                         key: 'fav',
                         label: favs.includes(item.templateId)
@@ -106,6 +99,11 @@ export const Row = ({
                     ...(owned
                         ? [
                               { type: 'divider' as const },
+                              {
+                                  key: 'edit',
+                                  label: 'Edit draft',
+                                  onClick: () => editItem(item),
+                              },
                               { key: 'rename', label: 'Rename', onClick: () => renameItem(item) },
                               {
                                   key: 'dup',
