@@ -52,7 +52,6 @@ export const PushToManualButton = ({
             console.error('Failed to push to Manual Bucket:', err);
             messageApi.error('Failed to push to Manual Bucket. Please try again.');
         } finally {
-            setIsLoading(false);
             setIsPushtoManualModalOpen(false);
         }
     };
@@ -69,8 +68,17 @@ export const PushToManualButton = ({
                 title="This action will push the asset to Manual Bucket, Do you still want to proceed?"
                 closable={{ 'aria-label': 'Custom Close Button' }}
                 open={isPushtoManualModalOpen}
-                onOk={handlePushToManual}
+                onOk={async () => {
+                    if (isLoading) return; // prevent multiple submits from modal  
+                    setIsLoading(true);
+                    try {
+                        await handlePushToManual();
+                    } finally {
+                        setIsLoading(false);
+                    }
+                }}
                 okText={'Yes'}
+                okButtonProps={{ loading: isLoading }}
                 onCancel={handlePushtoManualCloseModal}
             >
             </Modal>

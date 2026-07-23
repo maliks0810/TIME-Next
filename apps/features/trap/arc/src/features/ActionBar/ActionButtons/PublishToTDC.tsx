@@ -52,7 +52,6 @@ export const PublishToTDCButton = ({
             console.error('Failed to publish to TDC:', err);
             messageApi.error('Failed to verify analytics on Aladdin. Please try again.');
         } finally {
-            setIsLoading(false);
             setIsPublishToTDCModalOpen(false);
         }
     };
@@ -69,15 +68,32 @@ export const PublishToTDCButton = ({
                 title="You have not published analytics via ARC, Do you still want to publish to TDC?"
                 closable={{ 'aria-label': 'Custom Close Button' }}
                 open={isPublishToTDCModalOpen}
-                onOk={handleVerifyOnAladdin}
+                onOk={async () => {
+                    if (isLoading) return; // prevent multiple submits from modal  
+                    setIsLoading(true);
+                    try {
+                        await handleVerifyOnAladdin();
+                    } finally {
+                        setIsLoading(false);
+                    }
+                }}
                 okText={'Yes'}
+                okButtonProps={{ loading: isLoading }}
                 onCancel={handlePublishToTDCCloseModal}
             >
             </Modal>
             <Tooltip title={PUBLISH_TDC_BUTTON_HELPTEXT} placement='top'>
                 <Button
                     type="primary"
-                    onClick={conditionalOnClickAction}
+                    onClick={async () => {
+                        if (isLoading) return; // prevent multiple calls  
+                        setIsLoading(true);
+                        try {
+                            await conditionalOnClickAction();
+                        } finally {
+                            setIsLoading(false);
+                        }
+                    }}
                     loading={isLoading}
                     disabled={verifyOnAladdinDisabled}
                     size="small"

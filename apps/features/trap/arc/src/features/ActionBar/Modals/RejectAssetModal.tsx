@@ -12,7 +12,8 @@ export const RejectAssetModal = ({
     assetAnalyticsSetupId?: number | null | undefined;
 }) => {
     const [messageApi, contextHolder] = message.useMessage();
-    const [notes, setNotes] = useState<string>();
+    const [notes, setNotes] = useState<string>('');
+    const [loading, setLoading] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
 
     const handleResetForm = () => {
@@ -20,6 +21,8 @@ export const RejectAssetModal = ({
     };
 
     const handleOk = async () => {
+        if (loading) return;
+        setLoading(true);
         try {
             const assetId = searchParams.get('assetId');
             const assetAnalyticsSetupId = assetId ? +assetId : -1;
@@ -28,26 +31,31 @@ export const RejectAssetModal = ({
                 noteText: notes ? notes : '',
             });
 
-            messageApi.success('Asset Rejected succesfully.');
+            messageApi.success('Asset Rejected successfully.');
             onClose();
             setSearchParams('');
             handleResetForm();
         } catch (e) {
             console.log(e);
-            messageApi.error('An error occured');
+            messageApi.error('An error occurred');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleCancel = () => {
+        if (loading) return;
         onClose();
         setSearchParams('');
         handleResetForm();
     };
 
     const okDisabled = !notes?.trim();
+
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setNotes(e.target.value);
     };
+
     return (
         <>
             {contextHolder}
@@ -60,13 +68,14 @@ export const RejectAssetModal = ({
                 onOk={handleOk}
                 okText={'Reject'}
                 onCancel={handleCancel}
-                okButtonProps={{ disabled: okDisabled }}
+                okButtonProps={{ disabled: okDisabled || loading, loading }}
             >
                 <Input.TextArea
                     style={{ width: '95%', height: '200px' }}
                     value={notes}
                     onChange={handleChange}
                     placeholder="Please Provide a reason here to Reject."
+                    disabled={loading}
                 />
             </Modal>
         </>

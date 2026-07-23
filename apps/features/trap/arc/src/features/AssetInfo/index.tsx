@@ -204,8 +204,8 @@ export const AssetInfo = ({
                 ...(hasValue(prepaymentSpeedValue) ? { prepaymentSpeed: Number(prepaymentSpeedValue) } : {}),
                 ...(hasValue(defaultTypeValue) ? { defaultType: defaultTypeValue } : {}),
                 ...(hasValue(defaultSpeedValue) ? { defaultSpeed: Number(defaultSpeedValue) } : {}),
-                ...(hasValue(severityValue) ? { severity: Number(severityValue) } : {}),
-                ...(hasValue(delinquencyValue) ? { delinquency: Number(delinquencyValue) } : {}),
+                ...(hasValue(severityValue) ? { severity: Number(severityValue) } : { severity: null }),
+                ...(hasValue(delinquencyValue) ? { delinquency: Number(delinquencyValue) } : { delinquency: null }),
             };
 
             if (Object.keys(speedOverridesParams).length > 0) {
