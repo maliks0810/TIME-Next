@@ -64,8 +64,8 @@ const METRIC_CONFIG: Record<ChartMode, MetricConfig> = {
   contribution: {
     kind: "paired",
     label: "Portfolio vs Benchmark Contribution Return",
-    portfolioField: "PFContribToRet",
-    benchmarkField: "BMContribToRet",
+    portfolioField: "PFContToRet",
+    benchmarkField: "BMContToRet",
   },
   effects: {
     kind: "effects",

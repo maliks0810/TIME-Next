@@ -103,3 +103,10 @@
   border-radius: 6px;
   color: #013D7D;
 }
+
+.dram-grid-group-row > td { font-weight: 600; }          /* sector / non-leaf rows */
+.dram-grid-total-row > td {                               /* Total / Subtotal rows */
+  font-weight: 700;
+  background-color: #ededed;
+  border-top: 2px solid #404040;
+}

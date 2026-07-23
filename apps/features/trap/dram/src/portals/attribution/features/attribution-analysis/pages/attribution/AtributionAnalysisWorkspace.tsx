@@ -619,17 +619,22 @@ const executeAttribAnalysis = async (
     try {
       const inputGrouping = input.breakdownModeId === "Type_2" ? encodeURIComponent("Type 2") : input.breakdownModeId === "GICS" ? "GICS1"
        : encodeURIComponent(input.breakdownModeId);
-      const resp = input.breakdownModeId === 'MktCap' ? (await api.runMktCapAnalysis()) :
-      input.breakdownModeId === 'PEfwd' ? (await api.runPEfwdAnalysis()):
+      const resp = input.breakdownModeId === 'MktCap' ||
+      input.breakdownModeId === 'PEfwd' ? (await api.runEQ5AttributionAnalysis(
+        input.portfolio,
+        input.endDate,
+        inputGrouping
+      )) :
       input.frequencyMode === "daily" && input.assetClass === "EQ" ? (await api.runEQ5AttributionAnalysis(
         input.portfolio,
-        input.endDate
+        input.endDate,
+        inputGrouping
       )) : input.frequencyMode === "monthly" && input.assetClass === "EQ" ? (await api.runSecurityGrainAnalysis(input.assetClass,
         input.portfolio,input.frequencyMode,
         inputGrouping  || "GICS1",
         input.startDate,
         input.endDate
-      )) :  (await api.runBreakdownGrainAnalysis(
+      )) :  (await api.runSecurityGrainAnalysis(
         input.assetClass,
         input.portfolio,
         input.frequencyMode,

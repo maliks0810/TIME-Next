@@ -117,6 +117,7 @@ const getLevel = (row: AnalyticResultRow): number => {
     "Level",
     "HierarchyLevel",
     "hierarchy_level",
+    "Hierarchy_level"
   ]);
 
   return value ?? 0;
@@ -125,7 +126,6 @@ const getLevel = (row: AnalyticResultRow): number => {
 const toBps = (value: number | null): number | null => {
   if (value === null) return null;
 
-  // If your backend already returns bps, change this to: return value;
   return Math.round(value * 10000);
 };
 
@@ -325,6 +325,7 @@ export const buildCompositeAttributionData = ({
       [
         "PFContribToRet",
         "PFContTotalReturn",
+        "PFContToRet",
         "PortContTotalReturn",
         "portfolioContributionTotalReturn",
         "PortfolioContributionToReturn",
