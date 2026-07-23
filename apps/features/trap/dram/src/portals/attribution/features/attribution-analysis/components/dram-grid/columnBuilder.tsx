@@ -415,15 +415,15 @@ export const getEffectiveColumns = (
         visible: false,
       };
     }
-    //  2. Apply BPS override
-    if (useSpecialMode) {
-      if (col.metricType !== "weight" && col.format === "percent") {
-        next = {
-          ...next,
-          format: "bps",
-        };
-      }
-    }
+    // //  2. Apply BPS override
+    // if (useSpecialMode) {
+    //   if (col.metricType !== "weight" && col.format === "percent") {
+    //     next = {
+    //       ...next,
+    //       format: "bps",
+    //     };
+    //   }
+    // }
 
     return next;
   });

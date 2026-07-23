@@ -24,13 +24,13 @@ export const attribSectionIds: AttribSectionId[] = [
 ];
 
 export const attribSectionLabels: Record<AttribSectionId, string> = {
-  attribGrid: "Attribution Grid",
+  attribGrid: "Attribution Result",
   attribChart: "Performance Overview",
   compareGrid: "Period Comparison",
   compositeSummary: "Performance Summary",
   compositeAttribution: "Attribution Chart",
   compositeContribution: "Contribution to Return",
-  compositeGrid: "Composite Attribution Grid",
+  compositeGrid: "Composite Attribution Result",
 };
 
 export const attribSectionDescriptions: Record<AttribSectionId, string> = {

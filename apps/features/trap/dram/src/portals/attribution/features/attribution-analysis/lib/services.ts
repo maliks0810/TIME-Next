@@ -211,7 +211,7 @@ export const api = {
   runDailySecurityGrainAnalysis: (port: string, breakdown: string, startDate: string, endDate: string): Promise<AnalyticsResponse> =>
     req<AnalyticsResponse>
   (`/api/att-eq-mtd/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}`),
-  runEQ5AttributionAnalysis: (port: string,endDate: string) : Promise<AnalyticsResponse> =>
+  runEQ5AttributionAnalysis: (port: string,endDate: string, breakdown: string) : Promise<AnalyticsResponse> =>
     req<AnalyticsResponse>
-  (`/api/att-eq-5/?port=${port}&end_date=${endDate}`),
+  (`/api/att-eq-5/?port=${port}&end_date=${endDate}&grouping_col=${breakdown}`),
 };
