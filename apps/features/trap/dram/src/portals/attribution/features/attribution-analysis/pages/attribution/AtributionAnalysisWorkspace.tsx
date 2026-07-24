@@ -634,7 +634,10 @@ const executeAttribAnalysis = async (
     setRunningAnalysis(true);
 
     try {
-      const inputGrouping = input.breakdownModeId === "Type_2" ? encodeURIComponent("Type 2") : input.breakdownModeId === "GICS" ? "GICS1"
+      const inputGrouping = input.breakdownModeId === "Type_2" ? encodeURIComponent("Type 2")
+      : input.breakdownModeId === "GICS" ? "GICS1"
+      : input.breakdownModeId === "Mag_7" ? encodeURIComponent("Mag 7")
+      : input.breakdownModeId === "Russell_Style" ? encodeURIComponent("Russell Style")
        : encodeURIComponent(input.breakdownModeId);
       const resp = input.breakdownModeId === 'MktCap' ||
       input.breakdownModeId === 'PEfwd' ? (await api.runEQ5AttributionAnalysis(
