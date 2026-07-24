@@ -62,6 +62,24 @@ interface FlatTreeRow {
   level: number;
 }
 
+type TreeRow = Record<string, unknown> & {
+  key?: string;
+  children?: TreeRow[];
+};
+
+/**
+ * One grid to be written into its own worksheet of a shared workbook.
+ * `allColumns` drives both the header layout and cell formatting.
+ */
+export interface ExcelGridInput {
+  /** Worksheet tab name (e.g. the period title "MTD: ..."). */
+  sheetName: string;
+  /** Flat rows for this grid (already mapped, each carrying Hierarchy_level). */
+  rows: TreeRow[];
+  /** Column configs used to build headers + resolve formats for this grid. */
+  allColumns: NormalizedColumnConfig[];
+}
+
 /** ------------------------------------------------------------------ *
  * Hierarchy indentation config (Option A: flat rows + Hierarchy_level)
  * ------------------------------------------------------------------ */
@@ -78,6 +96,10 @@ const getHierarchyLevel = (row: Record<string, unknown>): number => {
 /** Convert a 1-based Hierarchy_level into a 0-based indent depth. */
 const getIndentDepth = (row: Record<string, unknown>): number =>
   Math.max(0, getHierarchyLevel(row) - 1);
+
+/** Deepest hierarchy level across a set of rows (>= 1). */
+const getMaxHierarchyLevel = (rows: TreeRow[]): number =>
+  rows.reduce((acc, row) => Math.max(acc, getHierarchyLevel(row)), 1);
 
 const isColumnGroup = (column: ExcelColumn): column is ColumnGroupType<TreeRow> =>
   Array.isArray((column as ColumnGroupType<TreeRow>).children);
@@ -334,16 +356,34 @@ const sanitizeFileName = (value: string): string =>
     .replace(/[\\/:*?"<>|]+/g, "_")
     .replace(/\s+/g, "_");
 
+/**
+ * Excel worksheet names are limited to 31 chars, cannot contain
+ * \ / ? * [ ] : and must be unique within a workbook. This normalizes a
+ * proposed name and de-duplicates against names already used.
+ */
+const sanitizeSheetName = (name: string, used: Set<string>): string => {
+  const cleaned =
+    (name || "Sheet")
+      .replace(/[\\/?*[\]:]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 31) || "Sheet";
+  let candidate = cleaned;
+  let counter = 1;
+  while (used.has(candidate.toLowerCase())) {
+    const suffix = ` (${counter})`;
+    candidate = `${cleaned.slice(0, 31 - suffix.length)}${suffix}`;
+    counter += 1;
+  }
+  used.add(candidate.toLowerCase());
+  return candidate;
+};
+
 const escapeCsvCell = (value: string): string => {
   if (value.includes('"') || value.includes(",") || value.includes("\n")) {
     return `"${value.replace(/"/g, '""')}"`;
   }
   return value;
-};
-
-type TreeRow = Record<string, unknown> & {
-  key?: string;
-  children?: TreeRow[];
 };
 
 export const mapRowsToTreeTableRows = (
@@ -363,6 +403,266 @@ export const mapRowsToTreeTableRows = (
   });
 };
 
+/** ------------------------------------------------------------------ *
+ * Shared worksheet writer.
+ *
+ * Adds ONE worksheet (styled headers, indented + bold hierarchy rows,
+ * number formats, column widths, autofilter, frozen header) to an
+ * existing workbook. Reused for both the single-grid button and the
+ * multi-grid "export all" path so styling never drifts.
+ * ------------------------------------------------------------------ */
+export const addAttributionWorksheet = (
+  workbook: ExcelJS.Workbook,
+  grid: ExcelGridInput,
+  usedSheetNames: Set<string>
+): void => {
+  const { rows, allColumns } = grid;
+
+  // Build the antd column tree for this grid, then flatten it for Excel.
+  const displayColumns = decorateFirstColumnWithIndent(
+    buildColumns({ columns: allColumns })
+  ) as unknown as ColumnsType<TreeRow>;
+
+  const maxHeaderDepth = getMaxHeaderDepth(displayColumns as ExcelColumn[]);
+  const { headerCells, leafColumns } = buildExcelHeaderLayout(
+    displayColumns as ExcelColumn[]
+  );
+  if (leafColumns.length === 0) {
+    return;
+  }
+
+  const sheetName = sanitizeSheetName(grid.sheetName, usedSheetNames);
+  const worksheet = workbook.addWorksheet(sheetName, {
+    views: [
+      {
+        state: "frozen",
+        ySplit: maxHeaderDepth,
+      },
+    ],
+  });
+
+  const formatByAccessor = new Map<string, NormalizedColumnConfig>();
+  allColumns.forEach((column) => {
+    formatByAccessor.set(column.accessor, column);
+  });
+
+  // Header rows
+  for (let rowIndex = 1; rowIndex <= maxHeaderDepth; rowIndex += 1) {
+    worksheet.addRow([]);
+    worksheet.getRow(rowIndex).height = 22;
+  }
+  headerCells.forEach((header) => {
+    const cell = worksheet.getCell(header.row, header.startCol);
+    cell.value = header.title;
+    const shouldMergeHorizontal = header.endCol > header.startCol;
+    const shouldMergeVertical = header.isLeaf && header.row < maxHeaderDepth;
+    if (shouldMergeHorizontal) {
+      worksheet.mergeCells(header.row, header.startCol, header.row, header.endCol);
+    }
+    if (shouldMergeVertical) {
+      worksheet.mergeCells(
+        header.row,
+        header.startCol,
+        maxHeaderDepth,
+        header.startCol
+      );
+    }
+  });
+
+  // Header styling
+  for (let rowIndex = 1; rowIndex <= maxHeaderDepth; rowIndex += 1) {
+    const row = worksheet.getRow(rowIndex);
+    row.eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF1F4E78" },
+      };
+      cell.alignment = {
+        horizontal: "center",
+        vertical: "middle",
+        wrapText: true,
+      };
+      cell.border = {
+        top: { style: "thin", color: { argb: "FFD9E2F3" } },
+        left: { style: "thin", color: { argb: "FFD9E2F3" } },
+        bottom: { style: "thin", color: { argb: "FFD9E2F3" } },
+        right: { style: "thin", color: { argb: "FFD9E2F3" } },
+      };
+    });
+  }
+
+  // Top-level header banding (portfolio / benchmark / attribution)
+  headerCells.forEach((header) => {
+    if (header.row !== 1) return;
+    let color = "FF1F4E78";
+    const lower = header.title.toLowerCase();
+    if (lower.includes("portfolio")) {
+      color = "FF2F5597";
+    } else if (lower.includes("bench")) {
+      color = "FF5B9BD5";
+    } else if (lower.includes("attribution")) {
+      color = "FF8064A2";
+    }
+    const headerCell = worksheet.getCell(header.row, header.startCol);
+    headerCell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: color },
+    };
+  });
+
+  // Option A: derive indent depth from Hierarchy_level (flat data).
+  const flatRows: FlatTreeRow[] = rows.map((row) => ({
+    row,
+    level: getIndentDepth(row),
+  }));
+  const maxHierarchyLevel = getMaxHierarchyLevel(rows);
+  const isGroupRow = (row: TreeRow): boolean =>
+    getHierarchyLevel(row) < maxHierarchyLevel;
+
+  flatRows.forEach(({ row, level }) => {
+    const values = leafColumns.map((column, columnIndex) => {
+      const rawValue = getNestedValue(row, column.accessor);
+      const columnConfig = formatByAccessor.get(column.accessor);
+      const excelValue = toExcelCellValue(rawValue, columnConfig);
+      if (columnIndex === 0 && typeof excelValue === "string") {
+        return `${" ".repeat(level * EXCEL_INDENT_SPACES)}${excelValue}`;
+      }
+      return excelValue;
+    });
+    const excelRow = worksheet.addRow(values);
+    excelRow.outlineLevel = level;
+    const totalRow = isTotalLikeRow(row);
+    const groupRow = isGroupRow(row);
+
+    excelRow.eachCell((cell, columnNumber) => {
+      const leafColumn = leafColumns[columnNumber - 1];
+      const columnConfig = formatByAccessor.get(leafColumn.accessor);
+      const colIndex = columnNumber - 1;
+
+      cell.alignment = {
+        vertical: "middle",
+        horizontal:
+          colIndex === 0
+            ? "left"
+            : typeof cell.value === "number"
+            ? "right"
+            : "left",
+      };
+      cell.border = {
+        top: { style: "thin", color: { argb: "FFE7E6E6" } },
+        left: { style: "thin", color: { argb: "FFE7E6E6" } },
+        bottom: { style: "thin", color: { argb: "FFE7E6E6" } },
+        right: { style: "thin", color: { argb: "FFE7E6E6" } },
+      };
+
+      if (typeof cell.value === "number") {
+        if (
+          columnConfig?.format === "percent" ||
+          columnConfig?.format === "percentage"
+        ) {
+          cell.numFmt = "0.00%";
+        } else if (
+          columnConfig?.format === "currency" ||
+          columnConfig?.format === "money"
+        ) {
+          cell.numFmt = "$#,##0.00;[Red]($#,##0.00)";
+        } else {
+          cell.numFmt = "#,##0.00;[Red](#,##0.00)";
+        }
+      }
+
+      if (groupRow) {
+        cell.font = { bold: true };
+      }
+      if (totalRow) {
+        cell.font = { bold: true, size: 11 };
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFEDEDED" },
+        };
+        cell.border = {
+          top: { style: "medium", color: { argb: "FF404040" } },
+          bottom: { style: "thin", color: { argb: "FFE7E6E6" } },
+          left: { style: "thin", color: { argb: "FFE7E6E6" } },
+          right: { style: "thin", color: { argb: "FFE7E6E6" } },
+        };
+      }
+    });
+  });
+
+  // Column widths
+  leafColumns.forEach((column, index) => {
+    const excelColumn = worksheet.getColumn(index + 1);
+    const widthFromScreen =
+      typeof column.width === "number"
+        ? Math.ceil(column.width / 7)
+        : undefined;
+    let maxContentLength = column.title.length;
+    excelColumn.eachCell({ includeEmpty: false }, (cell) => {
+      const cellText =
+        cell.value === null || cell.value === undefined
+          ? ""
+          : String(cell.value);
+      maxContentLength = Math.max(maxContentLength, cellText.length);
+    });
+    excelColumn.width = Math.min(
+      Math.max(widthFromScreen ?? maxContentLength + 2, 12),
+      45
+    );
+  });
+
+  worksheet.autoFilter = {
+    from: { row: maxHeaderDepth, column: 1 },
+    to: { row: maxHeaderDepth, column: leafColumns.length },
+  };
+};
+
+/** ------------------------------------------------------------------ *
+ * Public: export MULTIPLE grids into a SINGLE workbook, one sheet each.
+ * Empty grids (no leaf columns) are skipped. If nothing is written the
+ * function returns false so the caller can warn the user.
+ * ------------------------------------------------------------------ */
+export const exportAttributionGridsToExcel = async (
+  grids: ExcelGridInput[],
+  options?: { fileName?: string }
+): Promise<boolean> => {
+  if (!grids.length) {
+    return false;
+  }
+
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "DRAM";
+  workbook.created = new Date();
+
+  const usedSheetNames = new Set<string>();
+  grids.forEach((grid) => {
+    addAttributionWorksheet(workbook, grid, usedSheetNames);
+  });
+
+  if (workbook.worksheets.length === 0) {
+    return false;
+  }
+
+  const baseName = options?.fileName ?? "Attribution";
+  const fileName = `${sanitizeFileName(baseName)}_${new Date()
+    .toISOString()
+    .slice(0, 19)
+    .replace(/[:T]/g, "-")}.xlsx`;
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(
+    new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }),
+    fileName
+  );
+  return true;
+};
+
 export const DramDataGrid: React.FC<DramDataGridProps> = ({
   config,
   rows,
@@ -378,8 +678,6 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
   );
 
   // Option A: wrap buildColumns so the first leaf column indents by Hierarchy_level.
-  // The decorator is generic, so the returned type still matches buildColumns'
-  // return type and is accepted by <Table columns={...}> without any cast.
   const columns = useMemo(
     () => decorateFirstColumnWithIndent(buildColumns({ columns: allColumns })),
     [allColumns]
@@ -398,19 +696,12 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
     [normalized]
   );
 
-  // Deepest hierarchy level in the current data set. Any row above this
-  // (i.e. a non-leaf level such as Total or a sector header) is a "group"
-  // row and should render bold — mirroring the Excel export styling.
+  // Deepest hierarchy level — used to bold non-leaf (group) rows in the grid.
   const maxHierarchyLevel = useMemo(
-    () =>
-      (dataSource as TreeRow[]).reduce(
-        (acc, row) => Math.max(acc, getHierarchyLevel(row)),
-        1
-      ),
+    () => getMaxHierarchyLevel(dataSource as TreeRow[]),
     [dataSource]
   );
 
-  // rowClassName drives the bold styling in the grid (see DramDataGrid.css).
   const getRowClassName = (record: TreeRow): string => {
     if (isTotalLikeRow(record)) {
       return "dram-grid-total-row";
@@ -435,7 +726,6 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
         .map((col, colIndex) => {
           const rawValue = row[col.accessor] as PrimitiveCellValue;
           const formatted = formatValue(rawValue, col.format, "");
-          // Indent the first (label) column to reflect hierarchy in CSV too.
           if (colIndex === 0 && depth > 0) {
             return escapeCsvCell(
               `${" ".repeat(depth * EXCEL_INDENT_SPACES)}${formatted}`
@@ -446,9 +736,7 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
         .join(",");
     });
     const csv = [`\uFEFF${headerLine}`, ...lines].join("\n");
-    const blob = new Blob([csv], {
-      type: "text/csv;charset=utf-8;",
-    });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const fileName = `${sanitizeFileName(title)}_${new Date()
       .toISOString()
       .slice(0, 19)
@@ -464,252 +752,27 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
     message.success("CSV export complete.");
   };
 
+  // Single-grid export now delegates to the shared multi-grid utility.
   const handleExportExcel = async (): Promise<void> => {
-    // columns is ColumnsType<AttributionRow>; the Excel helpers only read
-    // titles/dataIndex, so reinterpret via unknown to the TreeRow-based
-    // ExcelColumn shape used by the layout builders.
-    const displayColumns = columns as unknown as ColumnsType<TreeRow>;
-    if (displayColumns.length === 0) {
+    if (columns.length === 0) {
       message.warning("There are no columns to export.");
       return;
     }
-    const maxHeaderDepth = getMaxHeaderDepth(displayColumns as ExcelColumn[]);
-    const { headerCells, leafColumns } = buildExcelHeaderLayout(
-      displayColumns as ExcelColumn[]
-    );
-    if (leafColumns.length === 0) {
-      message.warning("There are no visible columns to export.");
-      return;
-    }
-
-    const workbook = new ExcelJS.Workbook();
-    workbook.creator = "DRAM";
-    workbook.created = new Date();
-    const worksheet = workbook.addWorksheet("Attribution", {
-      views: [
+    const ok = await exportAttributionGridsToExcel(
+      [
         {
-          state: "frozen",
-          ySplit: maxHeaderDepth,
+          sheetName: title,
+          rows: dataSource as TreeRow[],
+          allColumns,
         },
       ],
-    });
-
-    const formatByAccessor = new Map<string, NormalizedColumnConfig>();
-    allColumns.forEach((column) => {
-      formatByAccessor.set(column.accessor, column);
-    });
-
-    // Header rows
-    for (let rowIndex = 1; rowIndex <= maxHeaderDepth; rowIndex += 1) {
-      worksheet.addRow([]);
-      worksheet.getRow(rowIndex).height = 22;
-    }
-    headerCells.forEach((header) => {
-      const cell = worksheet.getCell(header.row, header.startCol);
-      cell.value = header.title;
-      const shouldMergeHorizontal = header.endCol > header.startCol;
-      const shouldMergeVertical =
-        header.isLeaf && header.row < maxHeaderDepth;
-      if (shouldMergeHorizontal) {
-        worksheet.mergeCells(
-          header.row,
-          header.startCol,
-          header.row,
-          header.endCol
-        );
-      }
-      if (shouldMergeVertical) {
-        worksheet.mergeCells(
-          header.row,
-          header.startCol,
-          maxHeaderDepth,
-          header.startCol
-        );
-      }
-    });
-
-    // Header styling
-    for (let rowIndex = 1; rowIndex <= maxHeaderDepth; rowIndex += 1) {
-      const row = worksheet.getRow(rowIndex);
-      row.eachCell((cell) => {
-        cell.font = {
-          bold: true,
-          color: { argb: "FFFFFFFF" },
-        };
-        cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "FF1F4E78" },
-        };
-        cell.alignment = {
-          horizontal: "center",
-          vertical: "middle",
-          wrapText: true,
-        };
-        cell.border = {
-          top: { style: "thin", color: { argb: "FFD9E2F3" } },
-          left: { style: "thin", color: { argb: "FFD9E2F3" } },
-          bottom: { style: "thin", color: { argb: "FFD9E2F3" } },
-          right: { style: "thin", color: { argb: "FFD9E2F3" } },
-        };
-      });
-    }
-
-    // Option A: derive indent depth from Hierarchy_level (flat data),
-    // instead of relying on tree nesting depth.
-    const flatRows: FlatTreeRow[] = (dataSource as TreeRow[]).map((row) => ({
-      row,
-      level: getIndentDepth(row),
-    }));
-
-    const isGroupRow = (row: TreeRow): boolean => {
-      // With flat data, a "group" is any non-leaf hierarchy level.
-      // e.g. level 1 (Total) and level 2 (sectors) are group-like headers.
-      return getHierarchyLevel(row) < maxHierarchyLevel;
-    };
-
-    flatRows.forEach(({ row, level }) => {
-      const values = leafColumns.map((column, columnIndex) => {
-        const rawValue = getNestedValue(row, column.accessor);
-        const columnConfig = formatByAccessor.get(column.accessor);
-        const excelValue = toExcelCellValue(rawValue, columnConfig);
-        if (columnIndex === 0 && typeof excelValue === "string") {
-          return `${" ".repeat(level * EXCEL_INDENT_SPACES)}${excelValue}`;
-        }
-        return excelValue;
-      });
-      const excelRow = worksheet.addRow(values);
-      excelRow.outlineLevel = level;
-      const totalRow = isTotalLikeRow(row);
-      excelRow.eachCell((cell, columnNumber) => {
-        const leafColumn = leafColumns[columnNumber - 1];
-        const columnConfig = formatByAccessor.get(leafColumn.accessor);
-        cell.alignment = {
-          vertical: "middle",
-          horizontal:
-            typeof cell.value === "number" ? "right" : "left",
-        };
-        cell.border = {
-          top: { style: "thin", color: { argb: "FFE7E6E6" } },
-          left: { style: "thin", color: { argb: "FFE7E6E6" } },
-          bottom: { style: "thin", color: { argb: "FFE7E6E6" } },
-          right: { style: "thin", color: { argb: "FFE7E6E6" } },
-        };
-        if (typeof cell.value === "number") {
-          if (
-            columnConfig?.format === "percent" ||
-            columnConfig?.format === "percentage"
-          ) {
-            cell.numFmt = "0.00%";
-          } else if (
-            columnConfig?.format === "currency" ||
-            columnConfig?.format === "money"
-          ) {
-            cell.numFmt = "$#,##0.00;[Red]($#,##0.00)";
-          } else {
-            cell.numFmt = "#,##0.00;[Red](#,##0.00)";
-          }
-        }
-        headerCells.forEach((header) => {
-          const isTopLevel = header.row === 1;
-          if (isTopLevel) {
-            let color = "FF1F4E78";
-            if (header.title.toLowerCase().includes("portfolio")) {
-              color = "FF2F5597";
-            } else if (header.title.toLowerCase().includes("bench")) {
-              color = "FF5B9BD5";
-            } else if (header.title.toLowerCase().includes("attribution")) {
-              color = "FF8064A2";
-            }
-            const headerCell = worksheet.getCell(header.row, header.startCol);
-            headerCell.fill = {
-              type: "pattern",
-              pattern: "solid",
-              fgColor: { argb: color },
-            };
-          }
-        });
-        excelRow.eachCell((innerCell, innerColumnNumber) => {
-          const colIndex = innerColumnNumber - 1;
-          innerCell.alignment = {
-            vertical: "middle",
-            horizontal:
-              colIndex === 0
-                ? "left"
-                : typeof innerCell.value === "number"
-                ? "right"
-                : "left",
-          };
-        });
-        if (isGroupRow(row)) {
-          cell.font = {
-            bold: true,
-          };
-        }
-        if (totalRow) {
-          cell.font = {
-            bold: true,
-            size: 11,
-          };
-          cell.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: { argb: "FFEDEDED" }, // lighter gray (closer to UI)
-          };
-          cell.border = {
-            top: { style: "medium", color: { argb: "FF404040" } },
-            bottom: { style: "thin", color: { argb: "FFE7E6E6" } },
-            left: { style: "thin", color: { argb: "FFE7E6E6" } },
-            right: { style: "thin", color: { argb: "FFE7E6E6" } },
-          };
-        }
-      });
-    });
-
-    // Column widths
-    leafColumns.forEach((column, index) => {
-      const excelColumn = worksheet.getColumn(index + 1);
-      const widthFromScreen =
-        typeof column.width === "number"
-          ? Math.ceil(column.width / 7)
-          : undefined;
-      let maxContentLength = column.title.length;
-      excelColumn.eachCell({ includeEmpty: false }, (cell) => {
-        const cellText =
-          cell.value === null || cell.value === undefined
-            ? ""
-            : String(cell.value);
-        maxContentLength = Math.max(maxContentLength, cellText.length);
-      });
-      excelColumn.width = Math.min(
-        Math.max(widthFromScreen ?? maxContentLength + 2, 12),
-        45
-      );
-    });
-
-    worksheet.autoFilter = {
-      from: {
-        row: maxHeaderDepth,
-        column: 1,
-      },
-      to: {
-        row: maxHeaderDepth,
-        column: leafColumns.length,
-      },
-    };
-
-    const buffer = await workbook.xlsx.writeBuffer();
-    const fileName = `${sanitizeFileName(title)}_${new Date()
-      .toISOString()
-      .slice(0, 19)
-      .replace(/[:T]/g, "-")}.xlsx`;
-    saveAs(
-      new Blob([buffer], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      }),
-      fileName
+      { fileName: title }
     );
-    message.success("Excel export complete.");
+    if (ok) {
+      message.success("Excel export complete.");
+    } else {
+      message.warning("There are no visible columns to export.");
+    }
   };
 
   useEffect(() => {
@@ -726,11 +789,7 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
   return (
     <Card
       size="small"
-      styles={{
-        body: {
-          paddingTop: 12,
-        },
-      }}
+      styles={{ body: { paddingTop: 12 } }}
       title={
         <Space size="middle" align="center">
           <Typography.Text strong>{title}</Typography.Text>
@@ -766,10 +825,7 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
         sticky
         virtual={false}
         rowClassName={(record) => getRowClassName(record as TreeRow)}
-        scroll={{
-          x: scrollX,
-          y: height,
-        }}
+        scroll={{ x: scrollX, y: height }}
       />
     </Card>
   );
