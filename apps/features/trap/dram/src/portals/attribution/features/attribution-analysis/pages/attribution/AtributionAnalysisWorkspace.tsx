@@ -15,7 +15,7 @@ import {
   message,
 } from "antd";
 import AttributionPrintView from "../../components/dram-grid/AttributionPrintView";
-import { BarChartOutlined, ReloadOutlined, SettingOutlined } from "@ant-design/icons";
+import { BarChartOutlined, DownloadOutlined, ReloadOutlined, SettingOutlined } from "@ant-design/icons";
 
 import {
   AnalyticResultRow,
@@ -36,6 +36,7 @@ import {
   buildFilterOptions,
   DramDataGrid,
   DramGridProvider,
+  exportAttributionGridsToExcel,
   getEffectiveColumns,
   GridConfigResponse,
   NormalizedColumnConfig,
@@ -178,6 +179,22 @@ const sortableSensors = useSensors(
   useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
   useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
 );
+
+
+
+const handleExportAllPeriods = async () => {
+  const grids = periodKeys.map((period) => ({
+    sheetName: period,
+    rows: gridRowsByPeriod[period] ?? [],
+    allColumns: effectiveColumns,
+  }));
+  const ok = await exportAttributionGridsToExcel(grids, { fileName: pageTitle });
+  if (ok) {
+    message.success("Exported all periods.");
+  } else {
+    message.warning("Nothing to export.");
+  }
+};
 
 const handleLayoutDragEnd = (event: DragEndEvent) => {
   const { active, over } = event;
@@ -1028,6 +1045,9 @@ const activeOrderedIds = layoutOrder.filter(
                     options={compositePeriodOptions}
                   />
                 )}
+                <Button type="primary" icon={<DownloadOutlined />} onClick={() => void handleExportAllPeriods()}>
+                  Export All Periods
+                </Button>
                   </Space>
                 </Col>
               </Row>
