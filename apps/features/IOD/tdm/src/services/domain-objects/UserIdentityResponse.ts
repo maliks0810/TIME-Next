@@ -20,3 +20,12 @@ export interface IUserAuthPermissions {
   explicit_dm_analyst_assignment: boolean;
   ssap_release: boolean;
 }
+
+export interface UserAuthResponse {
+  userAuth: {
+    userId: string;
+    userFullName: string;
+    userEmail: string;
+    permissionsAllowed: IUserAuthPermissions;
+  }
+}

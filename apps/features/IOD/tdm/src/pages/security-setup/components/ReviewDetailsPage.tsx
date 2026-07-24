@@ -28,6 +28,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
     notesInstructions,
     attachments,
     isReadOnly,
+    isUserReadOnly
   } = useReviewDetailsFields();
 
   let { euSecuritizationTipEuId } = useReviewDetailsFields();
@@ -166,7 +167,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={aladdinCdiId || ''}
               onChange={(e) => handleIdentifierFieldChange('aladdinCdiId', e.target.value)}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               variant="outlined"
             />
           </div>
@@ -176,7 +177,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={securityDetails?.identifier || ''}
               onChange={(e) => handleSecurityDetailsChange('identifier', e.target.value)}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               variant="outlined"
             />
           </div>
@@ -186,7 +187,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={securityDetails?.description || ''}
               onChange={(e) => handleSecurityDetailsChange('description', e.target.value)}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               variant="outlined"
             />
           </div>
@@ -196,7 +197,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={securityDetails?.tranche || ''}
               onChange={(e) => handleSecurityDetailsChange('tranche', e.target.value)}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               variant="outlined"
             />
           </div>
@@ -216,7 +217,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleSecurityDetailsChange('sectorValue', value)}
               referenceData={referenceData}
               label="Sector *"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
           <div className={`form-row-group${missingFields.callableValue ? ' field-required-missing' : ''}`}>
@@ -226,7 +227,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleSecurityDetailsChange('callableValue', value)}
               referenceData={referenceData}
               label="Callable *"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
           <div className={`form-row-group${missingFields.callDate ? ' field-required-missing' : ''}`}>
@@ -236,7 +237,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               type="date"
               value={formatDateForInput(securityDetails?.callDate)}
               onChange={(e) => handleSecurityDetailsChange('callDate', e.target.value)}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               variant="outlined"
             />
           </div>
@@ -246,7 +247,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={securityDetails?.price || ''}
               onChange={(e) => handleSecurityDetailsChange('price', e.target.value)}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               variant="outlined"
             />
           </div>
@@ -260,7 +261,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleSpeedOverridesChange('prepaymentTypeValue', value)}
               referenceData={referenceData}
               label={'Prepayment Type' + setRPLRequiredField(securityDetails?.sectorValue)}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
           <div className={`form-row-group${missingFields.defaultTypeValue ? ' field-required-missing' : ''}`}>
@@ -270,7 +271,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleSpeedOverridesChange('defaultTypeValue', value)}
               referenceData={referenceData}
               label={'Default Type' + setRPLRequiredField(securityDetails?.sectorValue)}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
         </div>
@@ -283,7 +284,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               type="number"
               value={speedOverrides?.prepaymentSpeed ?? ''}
               onChange={(e) => handleSpeedOverridesChange('prepaymentSpeed', toTwoDecimalValue(e.target.value))}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               variant="outlined"
               {...({ slotProps: { htmlInput: { inputMode: 'decimal' } } })}
             />
@@ -295,7 +296,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               type="number"
               value={speedOverrides?.defaultSpeed ?? ''}
               onChange={(e) => handleSpeedOverridesChange('defaultSpeed', toTwoDecimalValue(e.target.value))}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               variant="outlined"
               {...({ slotProps: { htmlInput: { inputMode: 'decimal' } } })}
             />
@@ -311,7 +312,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               value={speedOverrides?.severity ?? ''}
               onChange={(e) => handleSpeedOverridesChange('severity', toTwoDecimalValue(e.target.value))}
               onBlur={() => clampField('severity', 0, 100)}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               variant="outlined"
               // TODO: investigate why min/max attributes are not enforced
               {...({ slotProps: { htmlInput: { min: 0, max: 100, inputMode: 'decimal' } } })}
@@ -325,7 +326,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               value={speedOverrides?.delinquency ?? ''}
               onChange={(e) => handleSpeedOverridesChange('delinquency', toTwoDecimalValue(e.target.value))}
               onBlur={() => clampField('delinquency', 0, 100)}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               variant="outlined"
               // TODO: investigate why min/max attributes are not enforced
               {...({ slotProps: { htmlInput: { min: 0, max: 100, inputMode: 'decimal' } } })}
@@ -342,7 +343,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
             rows={2}
             value={notesInstructions || ''}
             onChange={handleNotesChange}
-            disabled={isReadOnly}
+            disabled={isReadOnly || isUserReadOnly}
             variant="outlined"
             slotProps={{ htmlInput: { maxLength: 510 } }}
             helperText={`${(notesInstructions || '').length}/510`}
@@ -365,7 +366,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleESGChange('tcwEsgValue', value)}
               referenceData={referenceData}
               label="TCW ESG"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
           <div className="form-field">
@@ -392,7 +393,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleESGChange('tcwEsgTypeValue', value)}
               referenceData={referenceData}
               label="TCW ESG Type"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
         </div>
@@ -412,7 +413,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('slicerTypeValue', value)}
               referenceData={referenceData}
               label="Slicer Type"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
           <div className="form-field">
@@ -422,7 +423,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('mbsTypeValue', value)}
               referenceData={referenceData}
               label="MBS Type"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
         </div>
@@ -435,7 +436,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('loanCreditValue', value)}
               referenceData={referenceData}
               label="Loan Credit"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
           <div className="form-field">
@@ -445,7 +446,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('mbsCollateralValue', value)}
               referenceData={referenceData}
               label="MBS Collateral"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
         </div>
@@ -458,7 +459,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('mbsCollateralSubValue', value)}
               referenceData={referenceData}
               label="MBS Collateral Sub"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
           <div className="form-field">
@@ -468,7 +469,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('seniorMostCashFlowValue', value)}
               referenceData={referenceData}
               label="Sr. Most Cash Flow"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
         </div>
@@ -481,7 +482,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('trancheTypeValue', value)}
               referenceData={referenceData}
               label="Tranche Type"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
           <div className={`form-row-group${missingFields.loanCategoryValue ? ' field-required-missing' : ''}`}>
@@ -491,7 +492,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('loanCategoryValue', value)}
               referenceData={referenceData}
               label="Loan Category *"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
         </div>
@@ -504,7 +505,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={(value) => handleTradeFieldsChange('collateralValue', value)}
               referenceData={referenceData}
               label="Collateral"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
         </div>
@@ -524,7 +525,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               onChange={handleEuSecuritizationStatusChange}
               referenceData={referenceData}
               fullWidth={false}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
           <div className="form-field">
@@ -533,7 +534,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
               fullWidth
               value={setEuSecuritizationTipEuId(euSecuritizationStatus)}
               onChange={(e) => handleIdentifierFieldChange('euSecuritizationTipEuId', e.target.value)}
-              disabled={isReadOnly || isEuSecuritizationTipDisabled}
+              disabled={isReadOnly || isUserReadOnly || isEuSecuritizationTipDisabled}
               variant="outlined"
             />
           </div>
@@ -549,7 +550,7 @@ export const ReviewDetailsPage: React.FC<ReviewDetailsPageProps> = ({
                 onChange={(value) => handleIdentifierFieldChange('erisaStatus', value)}
                 referenceData={referenceData}
                 fullWidth={false}
-                disabled={isReadOnly}
+                disabled={isReadOnly || isUserReadOnly}
               />
             </div>
           </div>

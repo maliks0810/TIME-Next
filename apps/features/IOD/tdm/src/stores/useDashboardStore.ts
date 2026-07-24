@@ -27,15 +27,15 @@ export const useDashboardStore = create<DashboardStore>()(
     
     setDmAnalystAssignments: (rows: { id: number; email: string | null }[]) =>
       set((prev: DashboardStore) => {
-        const patch: Record<number, string> = {};
+        const assignments: Record<number, string> = {};
         for (const { id, email } of rows) {
           if (email) {
-            patch[id] = email;
+            assignments[id] = email;
           }
         }
 
-        return Object.keys(patch).length
-          ? { dmAnalystAssignments: { ...prev.dmAnalystAssignments, ...patch } }
+        return Object.keys(assignments).length
+          ? { dmAnalystAssignments: { ...assignments } }
           : prev;
       }),
     

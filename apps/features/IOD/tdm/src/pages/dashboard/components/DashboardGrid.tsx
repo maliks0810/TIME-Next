@@ -112,7 +112,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   dmAnalystOptions,
   currentUser
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate();  
 
   // Get user auth permissions by action
   const userAuth = useIdentityStore((s) => s.userAuth);
@@ -320,14 +320,14 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 
   }, [setSelectedSecurityRequest, setIsRequestDetailsOpen]);
 
-  const cellRenderDmAnalyst = useCallback((data: DataGridTypes.ColumnCellTemplateData) => {
+  const cellRenderDmAnalyst = useCallback((data: DataGridTypes.ColumnCellTemplateData) => {         
     return <DmAnalystCell 
       requestId={data.data.id}
       options={dmAnalystOptions}
       onOpen={openDmAnalystMenu}
-      allowExplicitAssignment={userAuth?.permissionsAllowed.explicit_dm_analyst_assignment || false}
+      allowExplicitAssignment={userAuth?.permissionsAllowed?.explicit_dm_analyst_assignment || false}
     />
-  }, [dmAnalystOptions, openDmAnalystMenu])
+  }, [dmAnalystOptions, openDmAnalystMenu, userAuth])
 
   const handleRowDbleClick = (e: DataGridTypes.RowDblClickEvent) => {
 
@@ -406,7 +406,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           minWidth={175}
         />
         <Column
-          dataField='dmAnalyst'
+          dataField='dmAnalystName'
           caption='DM Analyst'
           alignment='center'
           minWidth={175}
