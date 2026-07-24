@@ -1,5 +1,5 @@
 import { getApiBaseUrl } from '../constants/environments';
-import { IUserIdentity, IUserAuth } from './domain-objects/UserIdentityResponse';
+import { IUserIdentity, IUserAuth, UserAuthResponse } from './domain-objects/UserIdentityResponse';
 
 const API_BASE_URL = getApiBaseUrl();
 
@@ -29,10 +29,10 @@ export const IdentityService = {
     userEmail: string,
     userToken: string)
   : Promise<IUserAuth> => {
-    //const queryParams = new URLSearchParams({ userFullName, userEmail });
-    //const url = `${API_BASE_URL}/identity/userauth?${queryParams.toString()}`;
+    const queryParams = new URLSearchParams({ userFullName, userEmail });
+    const url = `${API_BASE_URL}/identity/userauth?${queryParams.toString()}`;
 
-    /*const response = await fetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',
@@ -42,25 +42,28 @@ export const IdentityService = {
 
     if (!response.ok) {
         const errorText = await response.text().catch(() => response.statusText);
-        throw new Error(`Failed to fetch user identity (${response.status}): ${errorText}`
+        throw new Error(`Failed to fetch user auth (${response.status}): ${errorText}`
       );
     }
 
-    return response.json() as Promise<IUserAuth>;
-    */
+    const result = await response.json();
+    const mapped = transformUserAuthResponse(result);
+    return mapped;
+  }
+}
 
-    return {
-      "userId": userToken,
-      "userFullName": userFullName,
-      "userEmail": userEmail,
-      "permissionsAllowed": {
-        "cancel_request": true,
-        "cancel_request_after_submission": true,
-        "confirm_request": true,
-        "duplicate_request": true,
-        "explicit_dm_analyst_assignment": true,
-        "ssap_release": true
-        }
+export const transformUserAuthResponse = (apiData: UserAuthResponse): IUserAuth => {
+  return {
+    userId: apiData.userAuth?.userId,
+    userFullName: apiData.userAuth?.userFullName,
+    userEmail: apiData.userAuth?.userEmail,
+    permissionsAllowed: {
+      cancel_request: apiData.userAuth?.permissionsAllowed?.cancel_request || false,
+      cancel_request_after_submission: apiData.userAuth?.permissionsAllowed?.cancel_request_after_submission || false,
+      confirm_request: apiData.userAuth?.permissionsAllowed?.confirm_request || false,
+      duplicate_request: apiData.userAuth?.permissionsAllowed?.duplicate_request || false,
+      explicit_dm_analyst_assignment: apiData.userAuth?.permissionsAllowed?.explicit_dm_analyst_assignment || false,
+      ssap_release: apiData.userAuth?.permissionsAllowed?.ssap_release || false,
     }
   }
 }

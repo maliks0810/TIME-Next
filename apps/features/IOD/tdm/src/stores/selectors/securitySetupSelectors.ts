@@ -30,6 +30,7 @@ export const useIdentifierFields = () =>
       isSsapReleasedByDm: s.isSsapReleasedByDm,
       isEuSecuritizationRequired: s.isEuSecuritizationRequired,
       isReadOnly: s.isReadOnly,
+      isUserReadOnly: s.isUserReadOnly,
       pendingUploadFiles: s.pendingUploadFiles,
       isUploadingFile: s.isUploadingFile,
       fileUploadError: s.fileUploadError,
@@ -42,7 +43,8 @@ export const useSsapFields = () =>
   useSecuritySetupStore(
     useShallow((s: SecuritySetupStore) => ({
       isSsapReleasedByDm: s.isSsapReleasedByDm,
-      isReadOnly: s.isReadOnly
+      isReadOnly: s.isReadOnly,
+      isUserReadOnly: s.isUserReadOnly
     }))
   )
 
@@ -61,7 +63,8 @@ export const useReviewDetailsFields = () =>
       speedOverrides: s.speedOverrides,
       notesInstructions: s.notesInstructions,
       attachments: s.attachments,
-      isReadOnly: s.isReadOnly
+      isReadOnly: s.isReadOnly,
+      isUserReadOnly: s.isUserReadOnly
     }))
   )
 
@@ -92,6 +95,7 @@ export const useWizardNavigation = () =>
       currentStep: s.currentStep,
       completedSteps: s.completedSteps,
       isReadOnly: s.isReadOnly,
+      isUserReadOnly: s.isUserReadOnly,
       showConfirmModal: s.showConfirmModal
     }))
   )

@@ -47,6 +47,7 @@ import {
   useSummary,
   useFileUploadState
 } from '../../../stores/selectors/securitySetupSelectors';
+import { setDmAssignment } from '../../../services/DashboardService';
 
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
@@ -66,7 +67,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const navigate = useNavigate();
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorModalBody, setErrorModalBody] = useState('');
-  const { name: currentUser } = useUserInfo();
+  const { name: currentUser, email: currentUserEmail } = useUserInfo();
 
   // Server state hooks — stay as hooks, not in Zustand
   const { data: referenceData, loading: loadingReferenceData, error: referenceDataError } =
@@ -94,6 +95,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     markStepComplete,
     goToStep,
     setReadOnly,
+    setUserReadOnly,
     openConfirmModal,
     closeConfirmModal,
     setPendingFiles,
@@ -104,7 +106,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   } = useSecuritySetupStore();
 
   // Store state via selectors
-  const { currentStep, completedSteps, isReadOnly, showConfirmModal } = useWizardNavigation();
+  const { currentStep, completedSteps, isReadOnly, isUserReadOnly, showConfirmModal } = useWizardNavigation();
   const hasPasswordFlow = useHasPasswordFlow();
   const validationFields = useValidationFields();
   const step1Summary = useSummary();
@@ -134,6 +136,39 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       hydrateFromPayload(initialData);
     }
   }, [initialRequestId]);
+
+  // Set to read only if DM Analyst is assigned to a different user
+  useEffect(() => {
+    const readOnly = (initialData?.dmAnalystName !== undefined && currentUser !== initialData?.dmAnalystName);
+    setUserReadOnly(readOnly);
+  }, [initialData])
+
+  useEffect(() => {
+    setDmAnalyst();
+  }, [initialData, referenceData])
+  
+  const setDmAnalyst = useCallback(async () => {
+    if (currentUser && currentUserEmail && initialData) {
+      if (initialData.securitySetupRequestId) {
+        // if a DM Analyst opens the request and no DM Analyst is assigned, then self-assign
+        if (initialData.dmAnalystName === null || initialData.dmAnalystName === undefined) {
+          const dmAnalystOptions = referenceData?.byKey[ReferenceDataFieldKey.DmAnalyst]?.fieldDropdownValues ?? [];
+          if (dmAnalystOptions.length > 0) {
+            const dmAnalystNames = dmAnalystOptions.map(option => option.fieldDropdownDescription ?? '');
+            if (dmAnalystNames.includes(currentUser)){
+              initialData.dmAnalystName = currentUser;
+              await setDmAssignment({
+                securitySetupRequestId: initialData.securitySetupRequestId,
+                name: currentUser,
+                email: currentUserEmail,
+                updatedBy: currentUser
+              });
+            }
+          }
+        }
+      }
+    }
+  }, [currentUser, currentUserEmail, initialData, referenceData])
 
   const saveErrorMessage = saveStatus === "error" ? (saveError?.message ?? "") : "";
   const isInvalidMarketSector = !!saveErrorMessage.includes("Invalid Market Sector");
@@ -718,7 +753,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         {showBackButton &&
           currentStep !== "enter-identifier" &&
           currentStep !== "ssap-confirmation" && (
-            <Button variant="outlined" className="back-button" onClick={handleBack} startIcon={<ArrowBackIcon />}>
+            <Button
+              variant="outlined"
+              className="back-button"
+              onClick={handleBack}
+              disabled={isUserReadOnly}
+              startIcon={<ArrowBackIcon />}>
               Back
             </Button>
           )}
@@ -727,7 +767,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             variant="outlined"
             className="save-button"
             onClick={handleSave}
-            disabled={isCancelled || (currentStep === "enter-identifier" && isReadOnly)}
+            disabled={isCancelled || (currentStep === "enter-identifier" && isReadOnly) || isUserReadOnly}
             startIcon={<SaveIcon />}
           >
             Save
@@ -738,7 +778,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             variant="contained"
             className="next-button"
             onClick={handleNext}
-            disabled={!canProceed()}
+            disabled={!canProceed() || isUserReadOnly}
             endIcon={
               currentStep === 'confirm-details' ? (
                 <CheckIcon />

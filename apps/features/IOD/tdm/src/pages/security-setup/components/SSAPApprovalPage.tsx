@@ -17,7 +17,7 @@ export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
   isSaving,
   hasSaveError
 }) => {
-  const { isSsapReleasedByDm, isReadOnly } = useSsapFields();
+  const { isSsapReleasedByDm, isReadOnly, isUserReadOnly } = useSsapFields();
   const { updateIdentifierFields } = useSecuritySetupStore();
   const hasDmRole = useHasDmRole();
 
@@ -41,7 +41,7 @@ export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
               className="button"
               onClick={onBack}
               startIcon={<ArrowBack />}
-              disabled={isSaving}
+              disabled={isSaving || isUserReadOnly}
             >
               Back
             </Button>
@@ -49,7 +49,7 @@ export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
               variant="contained"
               className="approve-ssap-button button"
               onClick={handleRequestRelease}
-              disabled={isSaving || isReadOnly || isSsapApproved || !hasDmRole}
+              disabled={isSaving || isReadOnly || isUserReadOnly || isSsapApproved || !hasDmRole}
             >
               SSAP Security Released
             </Button>

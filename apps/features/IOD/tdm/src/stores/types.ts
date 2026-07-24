@@ -49,6 +49,7 @@ export interface SecuritySetupState {
   currentStep: SecuritySetupStep;
   completedSteps: SecuritySetupStep[];
   isReadOnly: boolean;
+  isUserReadOnly: boolean;
   showConfirmModal: boolean;
 
   // file upload
@@ -86,6 +87,7 @@ export interface SecuritySetupActions {
   goToStep: (step: SecuritySetupStep) => void;
   markStepComplete: (step: SecuritySetupStep) => void;
   setReadOnly: (flag: boolean) => void;
+  setUserReadOnly: (flag: boolean) => void;
   setPendingFiles: (file: File[] | undefined) => void;
   removePendingFile: (index: number) => void;
   setUploadingFile: (flag: boolean) => void;

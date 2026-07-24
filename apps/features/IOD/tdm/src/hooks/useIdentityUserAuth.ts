@@ -12,15 +12,17 @@ export const useIdentityUserAuth = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userFullName = name || '';
+        const userFullName = name;
         const userEmail = email;
-        const userToken = accessToken || '';
+        const userToken = accessToken;
         
-        const userAuth = await IdentityService.fetchUserAuth(
-          userFullName,
-          userEmail,
-          userToken);
-        setUserAuth(userAuth);
+        if (userFullName && userEmail && userToken) {
+          const userAuth = await IdentityService.fetchUserAuth(
+            userFullName,
+            userEmail,
+            userToken);
+          setUserAuth(userAuth);
+        }
 
       } catch (err: unknown) {
         setError(err instanceof Error ? err : new Error('Failed to load user auth'));

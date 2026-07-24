@@ -45,6 +45,7 @@ const INITIAL_STATE: SecuritySetupState = {
   currentStep: 'enter-identifier',
   completedSteps: [],
   isReadOnly: false,
+  isUserReadOnly: false,
   showConfirmModal: false,
   // file upload
   pendingUploadFiles: [],
@@ -183,6 +184,8 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
       set((prev: SecuritySetupStore)=> prev.completedSteps.includes(step) ? prev : {completedSteps: [...prev.completedSteps, step]}),
 
     setReadOnly: (flag: boolean) => set({ isReadOnly: flag }),
+
+    setUserReadOnly: (flag: boolean) => set({ isUserReadOnly: flag }),
 
     setPendingFiles: (files: File[] | undefined) => set({ pendingUploadFiles: files }),
 
