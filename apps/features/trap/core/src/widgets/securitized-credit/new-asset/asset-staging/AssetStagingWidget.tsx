@@ -21,12 +21,25 @@ import { SectionHeader } from './components/SectionTitle';
 import { StagedItemsPanel } from './components/StagedIemsPanel';
 import { InputAssumptionsPanel } from './components/InputAssumptionsPanel';
 import { PayloadPreview } from './components/PayloadPreview';
+import StatusLine from './components/StatusLine';
+import type { StatusTone, StatusChip, ChipState } from './components/StatusLine';
 import { calculateAssetStagingReadiness } from './utils/readiness';
 import type { CallableType, InputAssumptionsState, StagingItem } from './types';
 import type { Dayjs } from 'dayjs';
 import styles from './AssetStagingWidget.module.scss';
 
 const { Text } = Typography;
+
+/** Single consolidated status shown in the StatusLine banner. */
+type StatusState = {
+    tone: StatusTone;
+    label: string;
+    summary: string;
+    detail?: string;
+    popoverTitle?: string;
+    chips?: StatusChip[];
+    copyable?: boolean;
+};
 
 const ITEMS: StagingItem[] = [
     { label: "Deal", ctxKey: "deal.name", required: true },
@@ -83,8 +96,8 @@ export default function AssetStagingWidget({
     const [validationErrors, setValidationErrors] = React.useState<ValidationErrors>({});
     const [submitting, setSubmitting] = React.useState(false);
 
-    const [stageError, setStageError] = React.useState<string | null>(null);
-    const [stageSuccess, setStageSuccess] = React.useState(false);
+    // Consolidated result banner (replaces separate stageError / stageSuccess)
+    const [status, setStatus] = React.useState<StatusState | null>(null);
 
     const channelId = widgetInstance?.config?.params?.channel;
     const isDesigner = mode === "designer";
@@ -130,8 +143,7 @@ export default function AssetStagingWidget({
     React.useEffect(() => {
         if (dealName && dealName !== prevDealNameRef.current) {
             // Reset all local state
-            setStageError(null);
-            setStageSuccess(false);
+            setStatus(null);
             setExtId("");
             setCusipOverride("");
             setOmFile(null);
@@ -208,8 +220,7 @@ export default function AssetStagingWidget({
         }
 
         prevTrancheIdRef.current = trancheId;
-        setStageError(null);
-        setStageSuccess(false);
+        setStatus(null);
 
         const prefetch = async () => {
             setPrefilling(true);
@@ -479,9 +490,9 @@ export default function AssetStagingWidget({
 
     // ─── Step 4: Launch — merge snapshot + user inputs → call GraphQL ───
     const handleLaunch = React.useCallback(async () => {
-        // Don't clear banners here — wait for final result
+        if (submitting) return; // Guard against double-submit (non-click paths too)
 
-        if (submitting) return; // Guard against double-click
+        setStatus(null);
 
         const errors = validateStagingForm({
             extId,
@@ -513,7 +524,7 @@ export default function AssetStagingWidget({
             }
         });
 
-        // OM file as base64
+        // OM file as base64 (optional)
         let omBase64: string | undefined;
 
         if (omFile) {
@@ -525,10 +536,8 @@ export default function AssetStagingWidget({
             });
         }
 
-        // Now commit — disable button, hide previous banners
+        // Now commit — disable button, clear previous banner
         setSubmitting(true);
-        setStageError(null);
-        setStageSuccess(false);
 
         try {
             const { result: stageResult } = await executeWidget({
@@ -547,23 +556,107 @@ export default function AssetStagingWidget({
 
             const staged = stageResult as Record<string, unknown>;
 
-            // Check for error returned from backend
+            // ── Hard failure: request rejected by backend ──
             if (staged?.success === false || staged?.error) {
-                setStageError(String(staged.error ?? "Asset staging failed — try again"));
+                const errorMsg = String(staged.error ?? "Request failed — please try again");
+                setStatus({
+                    tone: "error",
+                    label: "Submission failed",
+                    summary: errorMsg,
+                    detail: errorMsg,
+                    popoverTitle: "Submission failed",
+                    copyable: true,
+                    chips: [{ label: "Details", state: "bad" }],
+                });
+                message.error("Security setup request failed");
+                setSubmitting(false);
                 return;
             }
 
-            // Success
-            setStageSuccess(true);
-            if( staged.securitySetupUrl) {
-                window.open(staged.securitySetupUrl as string, "_blank", "noopener,noreferrer");
+            // ── Request submitted. Now try to open the Security Setup App. ──
+            const setupUrl = staged.securitySetupUrl as string | undefined;
+
+            let launchOk = false;
+            let launchIssue: "no-link" | "blocked" | null = null;
+
+            if (setupUrl) {
+                const win = window.open(setupUrl, "_blank", "noopener,noreferrer");
+                if (win) {
+                    launchOk = true;
+                } else {
+                    launchIssue = "blocked"; // browser blocked the pop-up
+                }
+            } else {
+                launchIssue = "no-link"; // backend returned no URL
             }
 
-            if (staged?.omUploaded === false && staged?.omError) {
-                message.success("Asset staged successfully");
-                message.warning(`OM upload failed: ${staged.omError}`);
+            // OM outcome (OM is optional)
+            const omAttached = !!omFile;
+            const omFailed = staged?.omUploaded === false && !!staged?.omError;
+
+            const omState: ChipState = !omAttached ? "na" : (omFailed ? "bad" : "ok");
+            const launchState: ChipState = launchOk ? "ok" : "warn";
+
+            const chips: StatusChip[] = [
+                { label: "Details", state: "ok" },
+                { label: "OM", state: omState },
+                { label: "Launch", state: launchState },
+            ];
+
+            if (launchOk && !omFailed) {
+                // Clean success — Security Setup App opened
+                setStatus({
+                    tone: "success",
+                    label: "Request submitted",
+                    summary: "Security Setup opened in a new tab",
+                    chips,
+                });
+                message.success("Security setup request submitted");
             } else {
-                message.success("Asset staging submitted");
+                // Submitted, but something needs the user's attention.
+                const parts: string[] = [];
+
+                if (omFailed) {
+                    parts.push(`Offering Memorandum upload failed: ${staged.omError}.`);
+                }
+
+                if (launchIssue === "no-link") {
+                    parts.push(
+                        "The request was submitted successfully, but the Security Setup " +
+                        "app could not be opened because no setup link was provided by the service."
+                    );
+                } else if (launchIssue === "blocked") {
+                    parts.push(
+                        "The request was submitted successfully, but your browser blocked the " +
+                        "Security Setup pop-up. Please allow pop-ups for this site and try the link again."
+                    );
+                }
+
+                let summary: string;
+                let popoverTitle: string;
+
+                if (launchIssue === "no-link") {
+                    summary = "Setup app not opened — no link provided";
+                    popoverTitle = "Security Setup not opened";
+                } else if (launchIssue === "blocked") {
+                    summary = "Setup app blocked by browser pop-up settings";
+                    popoverTitle = "Security Setup blocked";
+                } else {
+                    // launch was fine, so the only issue is the OM
+                    summary = "Request submitted — Offering Memorandum upload failed";
+                    popoverTitle = "Offering Memorandum not uploaded";
+                }
+
+                setStatus({
+                    tone: "warning",
+                    label: "Request submitted",
+                    summary,
+                    detail: parts.join(" "),
+                    popoverTitle,
+                    copyable: true,
+                    chips,
+                });
+                message.warning(summary);
             }
 
             uiActions?.openWorkflow?.({
@@ -574,8 +667,17 @@ export default function AssetStagingWidget({
                 }),
             });
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : "Asset staging failed — try again";
-            setStageError(msg);
+            const msg = err instanceof Error ? err.message : "Request failed — please try again";
+            setStatus({
+                tone: "error",
+                label: "Submission failed",
+                summary: msg,
+                detail: msg,
+                popoverTitle: "Submission failed",
+                copyable: true,
+                chips: [{ label: "Details", state: "bad" }],
+            });
+            message.error(msg);
         } finally {
             setSubmitting(false);
         }
@@ -600,6 +702,10 @@ export default function AssetStagingWidget({
             return next;
         });
     }, []);
+
+    // Request went through if we ended in success OR warning (staging itself
+    // succeeded — only a hard error leaves the button enabled for retry).
+    const submitted = status?.tone === "success" || status?.tone === "warning";
 
     return (
         <WidgetCardShell>
@@ -744,56 +850,28 @@ export default function AssetStagingWidget({
                                     validationErrors={validationErrors}
                                 />
 
-                                {stageError && (
-                                    <div
-                                        style={{
-                                            borderRadius: token.borderRadius,
-                                            background: token.colorErrorBg,
-                                            border: `1px solid ${token.colorErrorBorder}`,
-                                            padding: '8px 12px',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            gap: 4,
-                                        }}
-                                    >
-                                        <span style={{ fontSize: 11, fontWeight: 700, color: token.colorError }}>
-                                            Submission failed
-                                        </span>
-                                        <span style={{ fontSize: 11, color: token.colorError, lineHeight: '16px' }}>
-                                            {stageError}
-                                        </span>
-                                    </div>
-                                )}
-
-                                {stageSuccess && (
-                                    <div
-                                        style={{
-                                            borderRadius: token.borderRadius,
-                                            background: token.colorSuccessBg,
-                                            border: `1px solid ${token.colorSuccessBorder}`,
-                                            padding: '8px 12px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 8,
-                                        }}
-                                    >
-                                        <CheckCircleOutlined style={{ fontSize: 13, color: token.colorSuccess }} />
-                                        <span style={{ fontSize: 11, fontWeight: 600, color: token.colorSuccess }}>
-                                            Security setup request submitted successfully
-                                        </span>
-                                    </div>
+                                {status && (
+                                    <StatusLine
+                                        tone={status.tone}
+                                        label={status.label}
+                                        summary={status.summary}
+                                        detail={status.detail}
+                                        popoverTitle={status.popoverTitle}
+                                        chips={status.chips}
+                                        copyable={status.copyable}
+                                    />
                                 )}
 
                                 <div className={styles.launchContainer}>
                                     <Button
                                         type="primary"
                                         icon={<ArrowRightOutlined />}
-                                        disabled={!readiness.canLaunch || stageSuccess || submitting}
+                                        disabled={!readiness.canLaunch || submitted || submitting}
                                         loading={submitting}
                                         onClick={handleLaunch}
                                         style={{ width: "100%" }}
                                     >
-                                        {stageSuccess ? "Submitted" : "Launch asset setup"}
+                                        {submitted ? "Submitted" : "Launch asset setup"}
                                     </Button>
                                 </div>
                             </>
