@@ -494,6 +494,8 @@ export default function AssetStagingWidget({
 
         setStatus(null);
 
+        // Validate synchronously FIRST — no awaits yet, so the click's
+        // user-activation is still alive when we open the tab below.
         const errors = validateStagingForm({
             extId,
             cusipOverride: cusipRequired ? cusipOverride : undefined,
@@ -515,6 +517,30 @@ export default function AssetStagingWidget({
             return;
         }
 
+        setStatus(null);
+
+        // ── Open the Security Setup tab NOW, synchronously, inside the click. ──
+        // Browsers only allow window.open() while the user gesture is active.
+        // We open a blank tab here (still in the gesture) and navigate it once
+        // the async stage call returns. This defeats the pop-up blocker — the
+        // tab is tied to the click, not to the later async callback.
+        // NOTE: no "noopener" — we must keep the window handle to navigate it.
+        const setupWindow = window.open("about:blank", "_blank");
+
+        if (setupWindow) {
+            // Friendly placeholder while the stage request is in flight.
+            try {
+                setupWindow.document.write(
+                    "<!doctype html><title>Security Setup</title>" +
+                    "<body style='font:14px -apple-system,Segoe UI,Roboto,Arial;" +
+                    "display:flex;align-items:center;justify-content:center;" +
+                    "height:100vh;margin:0;color:#555'>Opening Security Setup…</body>"
+                );
+            } catch {
+                // Cross-origin/security edge — safe to ignore, tab still opens.
+            }
+        }
+
         // Build final payload: backend snapshot + user overrides
         const finalPayload: Record<string, unknown> = {};
 
@@ -528,15 +554,30 @@ export default function AssetStagingWidget({
         let omBase64: string | undefined;
 
         if (omFile) {
-            omBase64 = await new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve((reader.result as string).split(',')[1]);
-                reader.onerror = () => reject(new Error('File read failed'));
-                reader.readAsDataURL(omFile);
-            });
+            try {
+                omBase64 = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve((reader.result as string).split(',')[1]);
+                    reader.onerror = () => reject(new Error('File read failed'));
+                    reader.readAsDataURL(omFile);
+                });
+            } catch {
+                if (setupWindow) setupWindow.close();
+                setStatus({
+                    tone: "error",
+                    label: "Submission failed",
+                    summary: "Could not read the Offering Memorandum file.",
+                    detail: "The selected Offering Memorandum file could not be read. Please re-attach it and try again.",
+                    popoverTitle: "File read error",
+                    copyable: true,
+                    chips: [{ label: "Details", state: "bad" }],
+                });
+                message.error("Could not read the OM file");
+                return;
+            }
         }
 
-        // Now commit — disable button, clear previous banner
+        // Now commit — disable button
         setSubmitting(true);
 
         try {
@@ -558,6 +599,7 @@ export default function AssetStagingWidget({
 
             // ── Hard failure: request rejected by backend ──
             if (staged?.success === false || staged?.error) {
+                if (setupWindow) setupWindow.close(); // nothing to show — close the tab
                 const errorMsg = String(staged.error ?? "Request failed — please try again");
                 setStatus({
                     tone: "error",
@@ -573,26 +615,40 @@ export default function AssetStagingWidget({
                 return;
             }
 
-            // ── Request submitted. Now try to open the Security Setup App. ──
+            // ── Request submitted. Navigate the tab we already opened. ──
             const setupUrl = staged.securitySetupUrl as string | undefined;
 
             let launchOk = false;
             let launchIssue: "no-link" | "blocked" | null = null;
 
             if (setupUrl) {
-                const win = window.open(setupUrl, "_blank", "noopener,noreferrer");
-                if (win) {
+                if (setupWindow) {
+                    // Tab is already open from the click → just point it at the URL.
+                    setupWindow.location.href = setupUrl;
                     launchOk = true;
                 } else {
-                    launchIssue = "blocked"; // browser blocked the pop-up
+                    // The synchronous open was refused (hard blocker/extension).
+                    // Last-ditch attempt, then report if it also fails.
+                    const retry = window.open(setupUrl, "_blank");
+                    if (retry) {
+                        launchOk = true;
+                    } else {
+                        launchIssue = "blocked";
+                    }
                 }
             } else {
-                launchIssue = "no-link"; // backend returned no URL
+                // No URL came back — close the placeholder tab.
+                if (setupWindow) setupWindow.close();
+                launchIssue = "no-link";
             }
 
-            // OM outcome (OM is optional)
+            // OM outcome (OM is optional).
+            // Failed if the backend explicitly says it didn't upload — the
+            // omError string is optional detail, NOT a condition for "failed".
+            // (Guards against a false-green chip when omUploaded:false arrives
+            // with no accompanying error message.)
             const omAttached = !!omFile;
-            const omFailed = staged?.omUploaded === false && !!staged?.omError;
+            const omFailed = omAttached && staged?.omUploaded === false;
 
             const omState: ChipState = !omAttached ? "na" : (omFailed ? "bad" : "ok");
             const launchState: ChipState = launchOk ? "ok" : "warn";
@@ -617,7 +673,12 @@ export default function AssetStagingWidget({
                 const parts: string[] = [];
 
                 if (omFailed) {
-                    parts.push(`Offering Memorandum upload failed: ${staged.omError}.`);
+                    // omError is optional — only append it if the backend sent one.
+                    parts.push(
+                        staged.omError
+                            ? `Offering Memorandum upload failed: ${staged.omError}.`
+                            : "Offering Memorandum upload failed."
+                    );
                 }
 
                 if (launchIssue === "no-link") {
@@ -667,6 +728,7 @@ export default function AssetStagingWidget({
                 }),
             });
         } catch (err: unknown) {
+            if (setupWindow) setupWindow.close(); // request errored — close the tab
             const msg = err instanceof Error ? err.message : "Request failed — please try again";
             setStatus({
                 tone: "error",
