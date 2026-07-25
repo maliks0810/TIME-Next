@@ -4,6 +4,8 @@ export type AttribSectionId =
   | "attribGrid"
   | "attribChart"
   | "compareGrid"
+  | "compareChart"
+  | "compareDetail"
   | "compositeSummary"
   | "compositeAttribution"
   | "compositeContribution"
@@ -17,6 +19,8 @@ export const attribSectionIds: AttribSectionId[] = [
   "attribGrid",
   "attribChart",
   "compareGrid",
+  "compareChart",
+  "compareDetail",
   "compositeSummary",
   "compositeAttribution",
   "compositeContribution",
@@ -27,6 +31,8 @@ export const attribSectionLabels: Record<AttribSectionId, string> = {
   attribGrid: "Attribution Result",
   attribChart: "Performance Overview",
   compareGrid: "Period Comparison",
+  compareChart: "Compare Chart",
+  compareDetail: "Compare Detail",
   compositeSummary: "Performance Summary",
   compositeAttribution: "Attribution Chart",
   compositeContribution: "Contribution to Return",
@@ -37,6 +43,8 @@ export const attribSectionDescriptions: Record<AttribSectionId, string> = {
   attribGrid: "Detailed attribution rows for the selected period",
   attribChart: "Attribution effects and drivers by security group",
   compareGrid: "Side-by-side comparison across two periods",
+  compareChart: "Comparison visualization",
+  compareDetail: "Side-by-side attribution values",
   compositeSummary: "Cumulative performance across selected periods",
   compositeAttribution: "Attribution matrix in bps by period",
   compositeContribution: "Contribution to total return by period",
@@ -50,6 +58,8 @@ export const defaultAttribCollapsedState: AttribCollapsedState = {
   attribGrid: false,
   attribChart: false,
   compareGrid: false,
+  compareChart: false,
+  compareDetail: false,
   compositeSummary: false,
   compositeAttribution: false,
   compositeContribution: false,
@@ -60,6 +70,8 @@ export const defaultAttribSpanState: AttribSpanState = {
   attribGrid: "full",
   attribChart: "full",
   compareGrid: "full",
+  compareChart: "half",
+  compareDetail:  "half",
   compositeSummary: "full",
   compositeAttribution: "half",
   compositeContribution: "half",
@@ -68,18 +80,26 @@ export const defaultAttribSpanState: AttribSpanState = {
 
 export const defaultAttribOrder: AttribSectionId[] = [...attribSectionIds];
 
-export function loadAttribOrder(): AttribSectionId[] {
+export const loadAttribOrder = (): AttribSectionId[] => {
   try {
-    const raw = window.localStorage.getItem(ORDER_KEY);
-    if (!raw) return defaultAttribOrder;
-    const parsed = JSON.parse(raw) as AttribSectionId[];
-    const valid = parsed.filter((id) => attribSectionIds.includes(id));
-    const missing = defaultAttribOrder.filter((id) => !valid.includes(id));
-    return [...valid, ...missing];
+    const raw = localStorage.getItem(ORDER_KEY);
+
+    if (!raw) {
+      return defaultAttribOrder;
+    }
+
+    const saved = JSON.parse(raw) as AttribSectionId[];
+
+    const merged = [
+      ...saved.filter((id) => defaultAttribOrder.includes(id)),
+      ...defaultAttribOrder.filter((id) => !saved.includes(id)),
+    ];
+
+    return merged;
   } catch {
     return defaultAttribOrder;
   }
-}
+};
 
 export function persistAttribOrder(order: AttribSectionId[]): void {
   window.localStorage.setItem(ORDER_KEY, JSON.stringify(order));

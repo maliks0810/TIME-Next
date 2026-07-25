@@ -22,6 +22,7 @@ import type {
   LineSeriesOption,
   ScatterSeriesOption,
 } from "echarts/charts";
+import { ComparePeriodInfo } from "../../pages/attribution/AtributionAnalysisWorkspace";
 
 const { Text } = Typography;
 
@@ -32,10 +33,12 @@ type GlobalSort = "absDelta" | "portfolio" | "benchmark" | "name";
 type WeightViewMode = "compare" | "delta";
 
 type Props = {
-  leftPeriod: string;
-  rightPeriod: string;
+  leftPeriod: ComparePeriodInfo;
+  rightPeriod: ComparePeriodInfo;
+
   leftRows: DataRow[];
   rightRows: DataRow[];
+
   selectedGroup?: string | null;
   onSelect?: (group: string) => void;
   height?: number;
@@ -120,8 +123,8 @@ const NUMBER_FIELDS = {
   },
   contribution: {
     label: "Contribution Return",
-    pf: "PFContribToRet",
-    bm: "BMContribToRet",
+    pf: "PFContToRet",
+    bm: "BMContToRet",
   },
 } satisfies Record<
   CompareMetric,
@@ -138,7 +141,7 @@ function getNumber(row: DataRow | null | undefined, key: string): number {
 }
 
 function getGroup(row: DataRow | null | undefined): string {
-  return String(row?.["SecurityGroup"] ?? "");
+  return String(row?.["SecurityGroup"] ?? row?.["SecurityName"] ?? "");
 }
 
 function fmtPct(value: number): string {
@@ -244,8 +247,8 @@ function sortAlignedRows(
 
 function buildWeightGroupedBarOption(
   rows: AlignedGroupRow[],
-  leftPeriod: string,
-  rightPeriod: string,
+  leftPeriodCode: string,
+  rightPeriodCode: string,
   chartTheme: ChartTheme
 ): WeightGroupedBarChartOption {
   const cfg = NUMBER_FIELDS.weight;
@@ -258,7 +261,7 @@ function buildWeightGroupedBarOption(
 
   const series: BarSeriesOption[] = [
     {
-      name: `${leftPeriod.toUpperCase()} PF`,
+      name: `${leftPeriodCode} PF`,
       type: "bar",
       data: leftPf,
       itemStyle: {
@@ -266,7 +269,7 @@ function buildWeightGroupedBarOption(
       },
     },
     {
-      name: `${leftPeriod.toUpperCase()} BM`,
+      name: `${leftPeriodCode} BM`,
       type: "bar",
       data: leftBm,
       itemStyle: {
@@ -274,7 +277,7 @@ function buildWeightGroupedBarOption(
       },
     },
     {
-      name: `${rightPeriod.toUpperCase()} PF`,
+      name: `${rightPeriodCode} PF`,
       type: "bar",
       data: rightPf,
       itemStyle: {
@@ -282,7 +285,7 @@ function buildWeightGroupedBarOption(
       },
     },
     {
-      name: `${rightPeriod.toUpperCase()} BM`,
+      name: `${rightPeriodCode} BM`,
       type: "bar",
       data: rightBm,
       itemStyle: {
@@ -363,17 +366,16 @@ function buildWeightGroupedBarOption(
     series,
   };
 }
-
 function buildWeightDumbbellOption(
   rows: AlignedGroupRow[],
-  leftPeriod: string,
-  rightPeriod: string,
+  leftPeriodCode: string,
+  rightPeriodCode: string,
   chartTheme: ChartTheme
 ): WeightDumbbellChartOption {
   const cfg = NUMBER_FIELDS.weight;
 
-  const leftLabel = leftPeriod.toUpperCase();
-  const rightLabel = rightPeriod.toUpperCase();
+  const leftLabel = leftPeriodCode;
+  const rightLabel = rightPeriodCode;
 
   const categoryRows = rows.flatMap((row) => [
     `${row.SecurityGroup} · ${leftLabel}`,
@@ -570,8 +572,8 @@ function buildWeightDumbbellOption(
 function buildPfBmDeltaOption(
   rows: AlignedGroupRow[],
   metric: CompareMetric,
-  leftPeriod: string,
-  rightPeriod: string,
+  leftPeriodCode: string,
+  rightPeriodCode: string,
   chartTheme: ChartTheme
 ): PfBmDeltaChartOption {
   const cfg = NUMBER_FIELDS[metric];
@@ -592,7 +594,7 @@ function buildPfBmDeltaOption(
 
   const series: Array<BarSeriesOption | LineSeriesOption> = [
     {
-      name: `${leftPeriod.toUpperCase()} Portfolio`,
+      name: `${leftPeriodCode} Portfolio`,
       type: "bar",
       data: leftPf,
       itemStyle: {
@@ -600,7 +602,7 @@ function buildPfBmDeltaOption(
       },
     },
     {
-      name: `${leftPeriod.toUpperCase()} Benchmark`,
+      name: `${leftPeriodCode} Benchmark`,
       type: "bar",
       data: leftBm,
       itemStyle: {
@@ -608,7 +610,7 @@ function buildPfBmDeltaOption(
       },
     },
     {
-      name: `${rightPeriod.toUpperCase()} Portfolio`,
+      name: `${rightPeriodCode} Portfolio`,
       type: "bar",
       data: rightPf,
       itemStyle: {
@@ -616,7 +618,7 @@ function buildPfBmDeltaOption(
       },
     },
     {
-      name: `${rightPeriod.toUpperCase()} Benchmark`,
+      name: `${rightPeriodCode} Benchmark`,
       type: "bar",
       data: rightBm,
       itemStyle: {
@@ -854,15 +856,15 @@ function buildWaterfallOption(
 
 function extractGroupFromChartClick(
   rawName: unknown,
-  leftPeriod: string,
-  rightPeriod: string
+  leftPeriodCode: string,
+  rightPeriodCode: string
 ): string | null {
   if (typeof rawName !== "string" || !rawName) {
     return null;
   }
 
-  const leftSuffix = ` · ${leftPeriod.toUpperCase()}`;
-  const rightSuffix = ` · ${rightPeriod.toUpperCase()}`;
+  const leftSuffix = ` · ${leftPeriodCode}`;
+  const rightSuffix = ` · ${rightPeriodCode}`;
 
   if (rawName.endsWith(leftSuffix)) {
     return rawName.slice(0, -leftSuffix.length);
@@ -884,6 +886,12 @@ export default function AttributionCompareView({
   onSelect,
   height = 420,
 }: Props) {
+  const leftPeriodCode = leftPeriod.code;
+  const rightPeriodCode = rightPeriod.code;
+
+  const leftPeriodLabel = leftPeriod.label;
+  const rightPeriodLabel = rightPeriod.label;
+
   const { token } = theme.useToken();
 
   const [metric, setMetric] = useState<CompareMetric>("weight");
@@ -966,16 +974,16 @@ export default function AttributionCompareView({
       if (weightViewMode === "delta") {
         return buildWeightDumbbellOption(
           alignedRows,
-          leftPeriod,
-          rightPeriod,
+          leftPeriodCode,
+          rightPeriodCode,
           chartTheme
         );
       }
 
       return buildWeightGroupedBarOption(
         alignedRows,
-        leftPeriod,
-        rightPeriod,
+        leftPeriodCode,
+        rightPeriodCode,
         chartTheme
       );
     }
@@ -983,8 +991,8 @@ export default function AttributionCompareView({
     return buildPfBmDeltaOption(
       alignedRows,
       metric,
-      leftPeriod,
-      rightPeriod,
+      leftPeriodCode,
+      rightPeriodCode,
       chartTheme
     );
   }, [
@@ -997,12 +1005,12 @@ export default function AttributionCompareView({
   ]);
 
   const leftWaterfall = useMemo<WaterfallChartOption>(
-    () => buildWaterfallOption(leftSelected, leftPeriod, chartTheme),
+    () => buildWaterfallOption(leftSelected, leftPeriodLabel, chartTheme),
     [leftSelected, leftPeriod, chartTheme]
   );
 
   const rightWaterfall = useMemo<WaterfallChartOption>(
-    () => buildWaterfallOption(rightSelected, rightPeriod, chartTheme),
+    () => buildWaterfallOption(rightSelected, rightPeriodLabel, chartTheme),
     [rightSelected, rightPeriod, chartTheme]
   );
 
@@ -1075,8 +1083,8 @@ export default function AttributionCompareView({
           click: (params: ChartClickParam) => {
             const group = extractGroupFromChartClick(
               params.name,
-              leftPeriod,
-              rightPeriod
+              leftPeriodCode,
+              rightPeriodCode
             );
 
             if (group) {
@@ -1093,7 +1101,7 @@ export default function AttributionCompareView({
               <AntRow justify="space-between">
                 <span>Attribution Waterfall</span>
                 <Text type="secondary">
-                  {leftPeriod.toUpperCase()} · {waterfallGroup}
+                  {leftPeriodCode} · {waterfallGroup}
                 </Text>
               </AntRow>
             }
@@ -1113,7 +1121,7 @@ export default function AttributionCompareView({
               <AntRow justify="space-between">
                 <span>Attribution Waterfall</span>
                 <Text type="secondary">
-                  {rightPeriod.toUpperCase()} · {waterfallGroup}
+                  {rightPeriodCode} · {waterfallGroup}
                 </Text>
               </AntRow>
             }

@@ -206,3 +206,8 @@ export interface SinglePeriodAttributionRow {
 
   children?: SinglePeriodAttributionRow[];
 }
+
+export type PeriodDisplayInfo = {
+  code: string;   // MTD, QTD, YTD
+  label: string;  // MTD: 2026-06-01 TO 2026-06-30
+};

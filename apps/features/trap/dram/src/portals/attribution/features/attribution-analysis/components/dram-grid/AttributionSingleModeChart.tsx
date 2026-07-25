@@ -128,7 +128,10 @@ function getAxisValue(params: CallbackDataParams[]): string {
 }
 
 function getGroup(row: Row): string {
-  return String(row["SecurityGroup"] ?? "");
+  const group = row["SecurityGroup"];
+  return typeof group === "string" && group.trim()
+    ? group
+    : ((row["SecurityName"] as string) || "");
 }
 
 export default function AttributionSingleModeChart({
