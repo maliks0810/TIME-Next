@@ -16,7 +16,6 @@ import {
 } from "antd";
 import AttributionPrintView from "../../components/dram-grid/AttributionPrintView";
 import { BarChartOutlined, DownloadOutlined, ReloadOutlined, SettingOutlined } from "@ant-design/icons";
-
 import {
   AnalyticResultRow,
   AnalyticsResponse,
@@ -55,16 +54,58 @@ import { AttribCollapsedState, attribSectionDescriptions, AttribSectionId, attri
 import { closestCenter, DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { AttributionResultCard } from "./AttributionResultCard";
-
+import AttributionCompareGrid from "../../components/dram-grid/AttributionCompareGrid";
+import AttributionCompareCombinedChart from "../../components/dram-grid/AttributionCompareCombinedChart";
 const { Title, Text } = Typography;
 
 /* ----------------------------- helpers ----------------------------- */
+export type ComparePeriodInfo = {
+  code: string;
+  label: string;
+};
+
+/**
+ * Extract the canonical period code from a period string.
+ * Handles BOTH shapes:
+ *   - "MTD"                              -> "MTD"
+ *   - "MTD: 2026-06-01 to 2026-06-30"    -> "MTD"
+ *   - "  qtd : 2026-... "                -> "QTD"
+ * Returns "" for empty/nullish input.
+ */
+export const getPeriodCode = (period: string | null | undefined): string => {
+  if (!period) return "";
+  // The delimiter between the code and an optional date range is ":".
+  // Take everything before the first ":" (if any), trim, and normalize case.
+  const colonIndex = period.indexOf(":");
+  const codePart = colonIndex >= 0 ? period.slice(0, colonIndex) : period;
+  return codePart.trim().toUpperCase();
+};
+
+/**
+ * Extract the human-readable date range from a period string, if present.
+ *   - "MTD"                            -> ""
+ *   - "MTD: 2026-06-01 to 2026-06-30"  -> "2026-06-01 to 2026-06-30"
+ */
+export const getPeriodRange = (period: string | null | undefined): string => {
+  if (!period) return "";
+  const colonIndex = period.indexOf(":");
+  return colonIndex >= 0 ? period.slice(colonIndex + 1).trim() : "";
+};
+
+/**
+ * Build a ComparePeriodInfo from a raw period key.
+ * `code` is the normalized code (MTD/QTD/YTD/...) and `label` keeps the
+ * full original text (including any ": date range" suffix) for display.
+ */
+export const createPeriodInfo = (period: string): ComparePeriodInfo => ({
+  code: getPeriodCode(period),
+  label: period,
+});
 
 const extractPortBenchRows = (apiResp: OptionsResponse): PortBenchRow[] => {
   const allRows = Array.isArray(apiResp.data?.grids)
     ? apiResp.data.grids.flatMap((g) => (Array.isArray(g.rows) ? g.rows : []))
     : [];
-
   return allRows
     .filter((r) => typeof r === "object" && r !== null)
     .map((r) => ({
@@ -136,24 +177,19 @@ const toRowId = (
 
 const extractRowsByPeriod = (resp: ResponseWithPeriodGrids): PeriodGridMap => {
   const grids = Array.isArray(resp.data?.grids) ? resp.data.grids : [];
-
   return grids.reduce<PeriodGridMap>((acc, grid, gridIndex) => {
     const period = String(grid.title ?? `grid_${gridIndex}`);
     const rows = Array.isArray(grid.rows) ? grid.rows : [];
-
     acc[period] = rows.map((row, idx) => ({
       id: toRowId(period, idx, row),
       ...row,
     })) as AnalyticResultRow[];
-
     return acc;
   }, {});
 };
 
-
 function extractMetadata(resp: AnalyticsResponse) {
   const metadata = (resp as ResponseWithPeriodGrids).data?.metadata;
-
   return {
     pageTitle: metadata?.page_title ?? "Attribution Analysis",
     valueDate: metadata?.value_date ?? "",
@@ -161,10 +197,9 @@ function extractMetadata(resp: AnalyticsResponse) {
 }
 
 type WorkspaceMode = "single" | "compare" | "composite";
+
 /* ----------------------------- component ----------------------------- */
-
 export default function AtributionAnalysisWorkspace() {
-
 const [layoutOrder, setLayoutOrder] = useState<AttribSectionId[]>(
   () => loadAttribOrder(),
 );
@@ -174,14 +209,10 @@ const [layoutSpans, setLayoutSpans] = useState<AttribSpanState>(
 const [layoutCollapsed, setLayoutCollapsed] = useState<AttribCollapsedState>(
   () => loadAttribCollapsed(),
 );
-
 const sortableSensors = useSensors(
   useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
   useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
 );
-
-
-
 const handleExportAllPeriods = async () => {
   const grids = periodKeys.map((period) => ({
     sheetName: period,
@@ -195,7 +226,6 @@ const handleExportAllPeriods = async () => {
     message.warning("Nothing to export.");
   }
 };
-
 const handleLayoutDragEnd = (event: DragEndEvent) => {
   const { active, over } = event;
   if (!over || active.id === over.id) return;
@@ -208,7 +238,6 @@ const handleLayoutDragEnd = (event: DragEndEvent) => {
   setLayoutOrder(next);
   persistAttribOrder(next);
 };
-
 const handleToggleCollapsed = (sectionId: string) => {
   const next: AttribCollapsedState = {
     ...layoutCollapsed,
@@ -218,27 +247,21 @@ const handleToggleCollapsed = (sectionId: string) => {
   persistAttribCollapsed(next);
   window.dispatchEvent(new Event("resize"));
 };
-
 const handleToggleSpan = (sectionId: string) => {
   const id = sectionId as AttribSectionId;
   const newValue: AttribSectionSpan =
     layoutSpans[id] === "full" ? "half" : "full";
-
-  const next: AttribSpanState = Object.assign({}, layoutSpans, {
-    newValue,
-  });
-
+  // FIX: previously created a literal key "newValue" instead of updating `id`.
+  const next: AttribSpanState = { ...layoutSpans, [id]: newValue };
   setLayoutSpans(next);
   persistAttribSpans(next);
   window.dispatchEvent(new Event("resize"));
 };
-
 const handleExpandAll = () => {
   setLayoutCollapsed(defaultAttribCollapsedState);
   persistAttribCollapsed(defaultAttribCollapsedState);
   window.dispatchEvent(new Event("resize"));
 };
-
 const handleCollapseAll = () => {
   const next = Object.keys(defaultAttribCollapsedState).reduce<AttribCollapsedState>(
     (state, sectionId) => ({ ...state, [sectionId as AttribSectionId]: true }),
@@ -248,7 +271,6 @@ const handleCollapseAll = () => {
   persistAttribCollapsed(next);
   window.dispatchEvent(new Event("resize"));
 };
-
 const handleResetLayout = () => {
   setLayoutOrder(defaultAttribOrder);
   persistAttribOrder(defaultAttribOrder);
@@ -273,17 +295,14 @@ const [viewFilters, setViewFilters] = useState<AttribFilterState>({
   rating: [],
 });
 const hasBootstrappedRef = useRef(false);
-
 const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("single");
 const [compositePeriods, setCompositePeriods] = useState<string[]>([]);
 const isCompareMode = workspaceMode === "compare";
 const isCompositeMode = workspaceMode === "composite";
 const [screenMode, setScreenMode] = useState<"view" | "print">("view");
 const [pendingPrint, setPendingPrint] = useState(false);
-
   const [portBenchRows, setPortBenchRows] = useState<PortBenchRow[]>([]);
   const [gridConfig, setGridConfig] = useState<GridConfigResponse | null>(null);
-
   const [pageTitle, setPageTitle] = useState<string>("Attribution Analysis");
   const [valueDate, setValueDate] = useState<string>("");
   const [viewPeriodIds, setViewPeriodIds] = useState<string[]>(["MTD"]);
@@ -296,49 +315,39 @@ const [pendingPrint, setPendingPrint] = useState(false);
     useState<string>("monthly");
   const [viewAssetClass, setViewAssetClass] = useState<AssetClass | null>("EQ");
   const [viewBreakdown, setViewBreakdown] = useState<string>("");
-
   const [selectedSecurityGroup, setSelectedSecurityGroup] = useState<
     string | null
   >(null);
-
   const [configOpen, setConfigOpen] = useState(false);
   const [configuredColumns, setConfiguredColumns] = useState<
     NormalizedColumnConfig[]
   >([]);
   const [loadingConfig, setLoadingConfig] = useState(false);
   const [runningAnalysis, setRunningAnalysis] = useState(false);
-
   const [rawRowsByPeriod, setRawRowsByPeriod] = useState<PeriodGridMap>({});
   const [selectedPeriod, setSelectedPeriod] = useState<string>("");
-
+  // FIX: compare periods are period KEYS (strings), not ComparePeriodInfo objects.
   const [comparePeriods, setComparePeriods] = useState<string[]>([]);
-
   const storageKey = getKeyByAssetClass(viewAssetClass ?? "");
   const [configDraftPortfolio, setConfigDraftPortfolio] = useState<string>("");
-
   const portfolioSelectOptions = useMemo(
     () => buildPortfolioOptions(portBenchRows),
     [portBenchRows]
   );
-
   const benchmarkSelectOptions = useMemo(() => {
     const activePortfolio = configOpen ? configDraftPortfolio : viewPortfolio;
-
     return buildBenchmarkOptions(
       portBenchRows,
       activePortfolio ? [activePortfolio] : []
     );
   }, [portBenchRows, configOpen, configDraftPortfolio, viewPortfolio]);
-
   useEffect(() => {
     if (configOpen) {
       setConfigDraftPortfolio(viewPortfolio);
     }
   }, [configOpen, viewPortfolio]);
-
 const effectiveColumns = useMemo(() => {
   if (!gridConfig) return [];
-
   return getEffectiveColumns(
     gridConfig,
     configuredColumns,
@@ -346,19 +355,19 @@ const effectiveColumns = useMemo(() => {
     viewFrequencyMode
   );
 }, [gridConfig, configuredColumns, viewBreakdown, viewFrequencyMode]);
-
-
 const gridRowsByPeriod = useMemo<PeriodGridMap>(() => {
   return rawRowsByPeriod;
 }, [rawRowsByPeriod]);
-
   const periodKeys = useMemo(
     () => Object.keys(rawRowsByPeriod),
     [rawRowsByPeriod]
   );
 
+// FIX: holds string period KEYS (e.g. "MTD" or "MTD: 2026-06-01 to 2026-06-30").
 const comparePeriodPair = useMemo<[string, string] | null>(() => {
-  if (!isCompareMode || comparePeriods.length < 2) return null;
+  if (!isCompareMode || comparePeriods.length < 2) {
+    return null;
+  }
   return [comparePeriods[0], comparePeriods[1]];
 }, [isCompareMode, comparePeriods]);
 
@@ -366,11 +375,25 @@ useEffect(() => {
   if (!isCompareMode) {
     setComparePeriods([]);
   }
-
   if (!isCompositeMode) {
     setCompositePeriods([]);
   }
 }, [isCompareMode, isCompositeMode]);
+
+// FIX: previously a dangling/broken memo. Derives ComparePeriodInfo objects
+// from the raw period keys. `code` = normalized code (handles "MTD" and
+// "MTD: <date range>"), `label` = full original text for display.
+const comparePeriodInfo = useMemo<
+  [ComparePeriodInfo, ComparePeriodInfo] | null
+>(() => {
+  if (!comparePeriodPair) {
+    return null;
+  }
+  return [
+    createPeriodInfo(comparePeriodPair[0]),
+    createPeriodInfo(comparePeriodPair[1]),
+  ];
+}, [comparePeriodPair]);
 
   useEffect(() => {
     if (!selectedPeriod && periodKeys.length > 0) {
@@ -378,27 +401,26 @@ useEffect(() => {
     }
   }, [periodKeys, selectedPeriod]);
 
+// Options for period selectors. `label` shows the normalized code, while
+// `value` keeps the full key so lookups against rawRowsByPeriod stay valid.
 const compositePeriodOptions = useMemo(
   () =>
     periodKeys.map((period) => ({
-      label: period.toUpperCase(),
+      label: getPeriodCode(period),
       value: period,
     })),
   [periodKeys]
 );
-
 const compositeViewData = useMemo(() => {
   if (!gridConfig || compositePeriods.length === 0) {
     return null;
   }
-
   const selectedRowsByPeriod = Object.fromEntries(
     compositePeriods.map((period) => [
       period,
       rawRowsByPeriod[period] ?? [],
     ])
   ) as PeriodGridMap;
-
   return buildCompositeAttributionData({
     pageTitle,
     valueDate,
@@ -416,10 +438,8 @@ const compositeViewData = useMemo(() => {
   viewBenchmarks,
   viewPortfolio,
 ]);
-
   const loadForAssetClass = async (asset: AssetClass): Promise<void> => {
     setLoadingConfig(true);
-
     try {
       const optsResp = (await api.getAccounts(asset)) as OptionsResponse;
       setPortBenchRows(extractPortBenchRows(optsResp));
@@ -428,7 +448,6 @@ const compositeViewData = useMemo(() => {
       setPortBenchRows([]);
       message.warning("Options failed to load");
     }
-
     try {
       const configResp = (await api.getConfigs(asset)) as GridConfigResponse;
       const nextGridConfig = extractGridConfig(configResp);
@@ -441,12 +460,10 @@ const compositeViewData = useMemo(() => {
       setLoadingConfig(false);
     }
   };
-
   useEffect(() => {
     if (!viewAssetClass) return;
     void loadForAssetClass(viewAssetClass);
   }, [viewAssetClass]);
-
   const buildAnalysisInput = (
     payload?: AttribAnalysisApplyPayload
   ): AnalysisInput | null => {
@@ -460,19 +477,16 @@ const compositeViewData = useMemo(() => {
     const asOfDate = payload?.asOfDate ?? viewAsOfDate;
     const startDate = payload?.startDate ?? viewStartDate;
     const endDate = payload?.endDate ?? viewEndDate;
-
     if (!assetClass || !portfolio) {
       message.warning(
         "Please select asset class and portfolio before running analysis."
       );
       return null;
     }
-
     if (frequencyMode.toLowerCase() !== "daily" && !endDate) {
       message.warning("Please select at lease end date.");
       return null;
     }
-
     if (
       frequencyMode.toLowerCase() === "daily" &&
       (!startDate || !endDate)
@@ -480,7 +494,6 @@ const compositeViewData = useMemo(() => {
       message.warning("Please select start and end dates.");
       return null;
     }
-
     return {
       assetClass,
       portfolio,
@@ -492,12 +505,10 @@ const compositeViewData = useMemo(() => {
       endDate,
     };
   };
-
 // Add local state for the chain (if not already present):
 const [viewBreakdownChain, setViewBreakdownChain] = useState<BreakdownChain>(
   EMPTY_BREAKDOWN_CHAIN,
 );
-
 const buildCurrentAttribState = (): AttribAnalysisSelectionState => ({
   assetClass: viewAssetClass,
   portfolio: viewPortfolio,
@@ -509,11 +520,10 @@ const buildCurrentAttribState = (): AttribAnalysisSelectionState => ({
   breakdownModeId: viewBreakdown,
   breakdownChain: viewBreakdownChain,
   periodIds: viewPeriodIds,
-  selectedColumnIds: configuredColumns.map((c) => c.id ?? c.id).filter(Boolean),
+  // FIX: removed redundant `c.id ?? c.id`.
+  selectedColumnIds: configuredColumns.map((c) => c.id).filter(Boolean),
   filters: viewFilters,
 });
-
-
 const handleSaveAttribView = (
   name: string,
   description: string | undefined,
@@ -523,7 +533,6 @@ const handleSaveAttribView = (
   const existing = attribSavedViews.find(
     (v) => v.name.trim().toLowerCase() === name.trim().toLowerCase(),
   );
-
   const nextView: AttribSavedView = existing
     ? {
         ...existing,
@@ -533,18 +542,14 @@ const handleSaveAttribView = (
         updatedAt: new Date().toISOString(),
       }
     : createAttribSavedView({ name, description, state: finalState });
-
   const nextViews = existing
     ? attribSavedViews.map((v) => (v.id === existing.id ? nextView : v))
     : [nextView, ...attribSavedViews];
-
   setAttribSavedViews(nextViews);
   persistAttribSavedViews(nextViews);
   setActiveAttribViewId(nextView.id);
   message.success(`Saved view: ${nextView.name}`);
 };
-
-
 const applyStateToWorkspace = (state: AttribAnalysisSelectionState): void => {
   setViewAssetClass(state.assetClass as AssetClass);
   setViewPortfolio(state.portfolio);
@@ -558,8 +563,6 @@ const applyStateToWorkspace = (state: AttribAnalysisSelectionState): void => {
   setViewPeriodIds(state.periodIds ?? []);
   setViewFilters(state.filters);
 };
-
-
 const handleLoadAttribView = (
   viewId: string,
   options?: { autoRun?: boolean },
@@ -571,7 +574,6 @@ const handleLoadAttribView = (
   }
   applyStateToWorkspace(view.state);
   setActiveAttribViewId(view.id);
-
   if (options?.autoRun) {
     message.success(`Loaded view: ${view.name}. Running analysis...`);
     void executeAttribAnalysis(view.state, { silent: true });
@@ -579,7 +581,6 @@ const handleLoadAttribView = (
     message.success(`Loaded view: ${view.name}`);
   }
 };
-
 const handleDeleteAttribView = (viewId: string) => {
   const view = attribSavedViews.find((v) => v.id === viewId);
   const nextViews = attribSavedViews.filter((v) => v.id !== viewId);
@@ -592,7 +593,6 @@ const handleDeleteAttribView = (viewId: string) => {
   }
   message.success(view ? `Deleted view: ${view.name}` : "Deleted saved view.");
 };
-
 const handleSetFavoriteAttribView = (viewId: string | undefined) => {
   if (viewId && !attribSavedViews.some((v) => v.id === viewId)) {
     message.error("Saved view was not found.");
@@ -630,9 +630,7 @@ const executeAttribAnalysis = async (
   const runAnalysis = async (payload?: AttribAnalysisApplyPayload): Promise<void> => {
     const input = buildAnalysisInput(payload);
     if (!input) return;
-
     setRunningAnalysis(true);
-
     try {
       const inputGrouping = input.breakdownModeId === "Type_2" ? encodeURIComponent("Type 2")
       : input.breakdownModeId === "GICS" ? "GICS1"
@@ -650,30 +648,26 @@ const executeAttribAnalysis = async (
         input.endDate,
         inputGrouping
       )) : input.frequencyMode === "monthly" && input.assetClass === "EQ" ? (await api.runSecurityGrainAnalysis(input.assetClass,
-        input.portfolio,input.frequencyMode,
-        inputGrouping  || "GICS1",
+        input.portfolio, input.frequencyMode,
+        inputGrouping || "GICS1",
         input.startDate,
         input.endDate
       )) :  (await api.runSecurityGrainAnalysis(
         input.assetClass,
         input.portfolio,
         input.frequencyMode,
-        inputGrouping  || "GICS1",
+        inputGrouping || "GICS1",
         input.startDate,
         input.endDate
       )) as ResponseWithPeriodGrids;
-
       const meta = extractMetadata(resp);
       setPageTitle(meta.pageTitle);
       setValueDate(meta.valueDate);
-
       const rowsByPeriod = extractRowsByPeriod(resp);
       setRawRowsByPeriod(rowsByPeriod);
-
       const firstPeriod = Object.keys(rowsByPeriod)[0] ?? "";
       setSelectedPeriod(firstPeriod);
       setSelectedSecurityGroup(null);
-
       message.success("Analysis complete");
     } catch (err) {
       console.error("Analysis failed:", err);
@@ -682,25 +676,18 @@ const executeAttribAnalysis = async (
       setRunningAnalysis(false);
     }
   };
-
   const handleRunAnalysis = (payload?: AttribAnalysisApplyPayload): void => {
     void runAnalysis(payload);
   };
-
-
-
 useEffect(() => {
   if (!pendingPrint || screenMode !== "print") return;
-
   // wait one paint so print layout is visible before opening browser print dialog
   const id = requestAnimationFrame(() => {
     window.print();
     setPendingPrint(false);
   });
-
   return () => cancelAnimationFrame(id);
 }, [pendingPrint, screenMode]);
-
 const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
   // { label: "FI", value: "FI" },
   { label: "EQ", value: "EQ" },
@@ -708,8 +695,6 @@ const assetClassOptions: SegmentedProps<AssetClass>["options"] = [
   { label: "BL", value: "BL" },
   { label: "HY", value: "HY" },
 ];
-
-
 useEffect(() => {
   if (hasBootstrappedRef.current) return;
   if (!gridConfig) return;
@@ -724,15 +709,12 @@ useEffect(() => {
     setFavoriteAttribViewId(undefined);
     return;
   }
-
   hasBootstrappedRef.current = true;
   applyStateToWorkspace(favorite.state);
   setActiveAttribViewId(favorite.id);
   message.success(`Loaded favorite view: ${favorite.name}`);
   void executeAttribAnalysis(favorite.state, { silent: true });
 }, [gridConfig, favoriteAttribViewId, attribSavedViews]);
-
-
 const applySelectionToView = (payload: AttribAnalysisApplyPayload): void => {
   setViewAssetClass(payload.assetClass as AssetClass);
   setViewPortfolio(payload.portfolio);
@@ -747,13 +729,11 @@ const applySelectionToView = (payload: AttribAnalysisApplyPayload): void => {
   setConfiguredColumns(payload.configuredColumns);
   setViewFilters(payload.filters);
 };
-
 const filterOptions = useMemo(
   () => buildFilterOptions(gridConfig),
   [gridConfig],
 );
 const sections: Partial<Record<AttribSectionId, React.ReactNode>> = {};
-
 if (screenMode !== "print" && gridConfig) {
   if (workspaceMode === "single") {
     sections.attribGrid = (
@@ -780,7 +760,6 @@ if (screenMode !== "print" && gridConfig) {
         />
       </DramGridProvider>
     );
-
     sections.attribChart = (
       <AttributionSingleModeChart
         breakdown={viewBreakdown}
@@ -799,22 +778,54 @@ if (screenMode !== "print" && gridConfig) {
       />
     );
   }
+if (workspaceMode === "compare" && comparePeriodInfo && comparePeriodPair) {
+  sections.compareGrid = (
+    <AttributionCompareGrid
+      view="effect"
+      leftPeriod={comparePeriodInfo[0]}
+      rightPeriod={comparePeriodInfo[1]}
+      leftRows={rawRowsByPeriod[comparePeriodPair[0]] ?? []}
+      rightRows={rawRowsByPeriod[comparePeriodPair[1]] ?? []}
+      selectedGroup={selectedSecurityGroup}
+      onSelect={(group) =>
+        setSelectedSecurityGroup((prev) =>
+          prev === group ? null : group
+        )
+      }
+    />
+  );
 
-  if (workspaceMode === "compare" && comparePeriodPair) {
-    sections.compareGrid = (
-      <AttributionCompareView
-        leftPeriod={comparePeriodPair[0]}
-        rightPeriod={comparePeriodPair[1]}
-        leftRows={rawRowsByPeriod[comparePeriodPair[0]] ?? []}
-        rightRows={rawRowsByPeriod[comparePeriodPair[1]] ?? []}
-        selectedGroup={selectedSecurityGroup}
-        onSelect={(group) =>
-          setSelectedSecurityGroup((prev) => (prev === group ? null : group))
-        }
-      />
-    );
-  }
+  sections.compareChart = (
+    <AttributionCompareCombinedChart
+      leftPeriod={comparePeriodInfo[0]}
+      rightPeriod={comparePeriodInfo[1]}
+      leftRows={rawRowsByPeriod[comparePeriodPair[0]] ?? []}
+      rightRows={rawRowsByPeriod[comparePeriodPair[1]] ?? []}
+      inputScale="fraction"
+      selectedGroup={selectedSecurityGroup}
+      onSelect={(group) =>
+        setSelectedSecurityGroup((prev) =>
+          prev === group ? null : group
+        )
+      }
+    />
+  );
 
+  sections.compareDetail = (
+    <AttributionCompareView
+      leftPeriod={comparePeriodInfo[0]}
+      rightPeriod={comparePeriodInfo[1]}
+      leftRows={rawRowsByPeriod[comparePeriodPair[0]] ?? []}
+      rightRows={rawRowsByPeriod[comparePeriodPair[1]] ?? []}
+      selectedGroup={selectedSecurityGroup}
+      onSelect={(group) =>
+        setSelectedSecurityGroup((prev) =>
+          prev === group ? null : group
+        )
+      }
+    />
+  );
+}
   if (workspaceMode === "composite" && compositeViewData) {
     sections.compositeSummary = (
       <CompositeSummaryChart data={compositeViewData} decimalPlaces={2} />
@@ -840,7 +851,6 @@ if (screenMode !== "print" && gridConfig) {
     );
   }
 }
-
 const activeOrderedIds = layoutOrder.filter(
   (sectionId) => sections[sectionId] !== undefined,
 );
@@ -916,7 +926,6 @@ const activeOrderedIds = layoutOrder.filter(
             onSetFavoriteView={handleSetFavoriteAttribView}
             filterOptions={filterOptions}
           />
-
       {!viewAssetClass ? (
         <Card style={{ marginTop: 16 }}>
           <Empty description="Click Configure to select asset class and run analysis." />
@@ -940,32 +949,25 @@ const activeOrderedIds = layoutOrder.filter(
                     <Title level={4} style={{ margin: 0 }}>
                       {pageTitle}
                     </Title>
-
                     {valueDate && (
                       <div>
                         <Text type="secondary">As of Date: {valueDate}</Text>
                       </div>
                     )}
-
-
-                    {isCompareMode && comparePeriods.length > 0 && (
+                    {isCompareMode && comparePeriodInfo && (
                       <Text type="secondary">
-                        Comparing: {comparePeriods.map((p) => p.toUpperCase()).join(" vs ")}
+                        Comparing: {comparePeriodInfo[0].label} vs {comparePeriodInfo[1].label}
                       </Text>
                     )}
-
                     {isCompositeMode && compositePeriods.length > 0 && (
                       <Text type="secondary">
-                        Composite Periods: {compositePeriods.map((p) => p.toUpperCase()).join(", ")}
+                        Composite Periods: {compositePeriods.map((p) => getPeriodCode(p)).join(", ")}
                       </Text>
                     )}
-
                   </div>
                 </Col>
-
                 <Col>
                   <Space>
-
                   <Segmented
                     value={screenMode}
                     onChange={(v) => setScreenMode(v as "view" | "print")}
@@ -974,31 +976,24 @@ const activeOrderedIds = layoutOrder.filter(
                       { label: "Print", value: "print" },
                     ]}
                   />
-
                 <Segmented<WorkspaceMode>
                   value={workspaceMode}
                   onChange={(value) => {
                     const nextMode = value as WorkspaceMode;
-
                     setWorkspaceMode(nextMode);
                     setSelectedSecurityGroup(null);
-
                     if (nextMode === "single") {
                       setComparePeriods([]);
                       setCompositePeriods([]);
                     }
-
                     if (nextMode === "compare") {
                       setCompositePeriods([]);
-
                       if (selectedPeriod) {
                         setComparePeriods([selectedPeriod]);
                       }
                     }
-
                     if (nextMode === "composite") {
                       setComparePeriods([]);
-
                       if (compositePeriods.length === 0) {
                         setCompositePeriods(periodKeys.slice(0, Math.min(periodKeys.length, 6)));
                       }
@@ -1010,7 +1005,6 @@ const activeOrderedIds = layoutOrder.filter(
                     { label: "Composite", value: "composite" },
                   ]}
                 />
-
                 {isCompareMode ? (
                   <Select
                     mode="multiple"
@@ -1056,7 +1050,6 @@ const activeOrderedIds = layoutOrder.filter(
               </Row>
             </Card>
           </Col>
-
 {/* main content */}
 <Col span={24}>
 {screenMode === "print" ? (
@@ -1115,7 +1108,6 @@ const activeOrderedIds = layoutOrder.filter(
         </Space>
       </Space>
     </Card>
-
     {/* Sortable grid */}
     <Card loading={runningAnalysis} bodyStyle={{ padding: 8 }}>
       <DndContext
@@ -1145,7 +1137,6 @@ const activeOrderedIds = layoutOrder.filter(
     </Card>
   </Space>
 )}
-
 </Col>
         </Row>
       )}
