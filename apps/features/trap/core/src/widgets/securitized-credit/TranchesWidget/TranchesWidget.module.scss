@@ -2,13 +2,15 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    height: 456px;
+    height: 100%;          /* was 456px — now fills the widget card so the table sizes to the widget */
+    min-height: 0;
     overflow: hidden;
 
     .headerContainer {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        flex-shrink: 0;     /* title always visible */
     }
 
     .headerTitleContainer {
@@ -83,7 +85,12 @@
         color: var(--ant-color-text-tertiary);
     }
 
+    /* Table now FILLS remaining height; body scrolls, header pinned. */
     .tranchesTable {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
         border: 1px solid var(--ant-color-border-secondary);
         border-radius: var(--ant-border-radius-sm);
         overflow: hidden;
@@ -94,6 +101,18 @@
         background: var(--ant-color-fill-alter);
         border-bottom: 1px solid var(--ant-color-border-secondary);
         padding: 0 8px;
+        flex-shrink: 0;
+        /* allow the sticky body first-column to slide under nothing here */
+        position: relative;
+        z-index: 2;
+    }
+
+    /* NEW: the scrollable body region — fills leftover height */
+    .tranchesTableBody {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: auto;
     }
 
     .headerColumnText {
@@ -144,6 +163,20 @@
 
     .tranchesTableRowSelected {
         background: var(--ant-color-primary-bg) !important;
+    }
+
+    /* NEW: pin the first (Tranche) column on horizontal scroll.
+       background:inherit picks up the row's computed bg (zebra/hover/selected),
+       so the pinned cell always matches its row. */
+    .stickyFirstCol {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background: inherit;
+    }
+    .tranchesTableHeader .stickyFirstCol {
+        background: var(--ant-color-fill-alter);
+        z-index: 3;
     }
 
     .defaultColValue {
@@ -277,5 +310,6 @@
         font-size: 10px;
         line-height: 14px;
         color: var(--ant-color-text-tertiary);
+        flex-shrink: 0;
     }
 }

@@ -32,17 +32,17 @@
             "id": "default",
             "label": "Default",
             "sizing": {
-                "resizable": true,
+                "resizable": false,
                 "width": {
                     "default": 4,
                     "min": 1,
                     "max": 12
                 },
                 "height": {
-                    "default": 675,
-                    "min": 400,
-                    "max": 1080,
-                    "step": 10
+                    "default": 13,
+                    "min": 13,
+                    "max": 13,
+                    "step": 1
                 }
             }
         }

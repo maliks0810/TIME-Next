@@ -1,8 +1,25 @@
+/* EXISTING: apps/features/trap/core/src/widgets/securitized-credit/TrancheDetailsWidget/TrancheDetailsWidget.module.scss
+ *
+ * Fills the widget card (sizes to widget AND maximize overlay). No scrollbars:
+ * the plan renders only the panels that fit. Panels are FULL-WIDTH and stacked
+ * (each spreads its rows across bodyCols columns), so a lone panel fills the
+ * width and stays short — no horizontal gap. .headerContainer reserves a right
+ * gutter so the Stage button clears the shell's expand icon (top-right, 26px).
+ */
+
+.fill {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+}
+
 .trancheDetailsContainer {
+    position: absolute;
+    inset: 0;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    height: 716px;
     overflow: hidden;
 
     .headerContainer {
@@ -11,6 +28,8 @@
         justify-content: space-between;
         flex-wrap: wrap;
         gap: 8px;
+        flex-shrink: 0;
+        padding-right: 30px; /* clear the shell's expand icon (top-right, 26px) */
     }
 
     .headerTitleContainer {
@@ -104,6 +123,58 @@
         font-size: 12px;
         line-height: 16px;
         color: var(--ant-color-text-tertiary);
+    }
+
+    /* ── Metric cards (tall) ── */
+    .metricCardsContainer {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    /* ── Compact metric strip (short heights) ── */
+    .metricStrip {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 2px 16px;
+        flex-shrink: 0;
+    }
+
+    .metricStripItem {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 2px 0;
+        border-bottom: 1px solid var(--ant-color-border-secondary);
+    }
+
+    .metricStripLabel {
+        font-size: 10px;
+        line-height: 14px;
+        color: var(--ant-color-text-tertiary);
+        white-space: nowrap;
+    }
+
+    .metricStripValue {
+        font-size: 12px;
+        line-height: 16px;
+        font-weight: 700;
+        color: var(--ant-color-text);
+        font-variant-numeric: tabular-nums;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* ── Panels: full-width, stacked. No scroll; plan renders only what fits. ── */
+    .attributePanels {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 0;
+        flex: 1;
+        overflow: hidden;
     }
 
     :global(.ant-btn-sm) {

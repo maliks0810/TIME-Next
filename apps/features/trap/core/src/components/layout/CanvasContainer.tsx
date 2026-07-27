@@ -1,10 +1,13 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import React from 'react';
-import GridLayout from 'react-grid-layout';
+import RGL, { WidthProvider } from 'react-grid-layout/legacy';
 
 export const CANVAS_SHELL_WIDTH = 1840;
 export const CANVAS_COLUMNS_COUNT = 12;
+export const CANVAS_ROW_HEIGHT = 50;
 const CANVAS_MIN_WIDTH = 1140;
+
+const ReactGridLayout = WidthProvider(RGL);
 
 type CanvasContainerProps = {
     children: React.ReactNode;
@@ -29,6 +32,9 @@ export default function CanvasContainer({
     isDraggable = false,
     isResizable = false,
 }: CanvasContainerProps) {
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => setMounted(true), []);
+
     return (
         <div
             id="canvasWrapper"
@@ -39,45 +45,32 @@ export default function CanvasContainer({
                 margin: '0 auto',
             }}
         >
-            <div
-                style={{
-                    margin: '0 auto',
+            <ReactGridLayout
+                className={className}
+                cols={CANVAS_COLUMNS_COUNT}
+                rowHeight={CANVAS_ROW_HEIGHT}
+                layout={layout as any}
+                isDraggable={isDraggable}
+                isResizable={isResizable}
+                resizeHandles={['se']}
+                draggableHandle={draggableHandle}
+                draggableCancel={draggableCancel}
+                // No auto-repack on drop → a resized item keeps the size you
+                // released at instead of RGL compacting it back.
+                compactType={null}
+                preventCollision={true}
+                isBounded={false}
+                autoSize={true}
+                useCSSTransforms={mounted}
+                margin={[0, 0]}
+                containerPadding={[0, 0]}
+                onLayoutChange={(l: any) => {
+                    if (!isInitialLoading && onLayoutChange) onLayoutChange(l as any);
                 }}
+                style={{ minWidth: CANVAS_MIN_WIDTH }}
             >
-                <GridLayout
-                    className={className}
-                    gridConfig={{
-                        cols: CANVAS_COLUMNS_COUNT,
-                        rowHeight: 1,
-                        margin: [0, 0],
-                        containerPadding: [0, 14],
-                    }}
-                    width={CANVAS_SHELL_WIDTH}
-                    style={{
-                        width: '100%',
-                        maxWidth: CANVAS_SHELL_WIDTH,
-                        minWidth: CANVAS_MIN_WIDTH,
-                        overflowX: 'auto',
-                        overflowY: 'hidden',
-                        //TODO Keep commented until 6/30/2026, remove in case it wouldn't lead us to UI bugs
-                        // minHeight: '85vh',
-                    }}
-                    layout={layout as any}
-                    onLayoutChange={(layout: any) => {
-                        if (!isInitialLoading && onLayoutChange) {
-                            onLayoutChange(layout as any);
-                        }
-                    }}
-                    dragConfig={{
-                        handle: draggableHandle,
-                        cancel: draggableCancel,
-                        enabled: isDraggable,
-                    }}
-                    resizeConfig={{ enabled: isResizable, handles: ['se'] }}
-                >
-                    {children}
-                </GridLayout>
-            </div>
+                {children}
+            </ReactGridLayout>
         </div>
     );
 }
