@@ -1,115 +1,60 @@
+/* EXISTING: apps/features/trap/core/src/widgets/securitized-credit/DealDetailsWidget/components/DealDetailsComponents.module.scss
+ *
+ * ALIGNED TO THE MATRIX PREVIEWER. The real leaf components were a few px taller
+ * than the previewer mock on every dimension, which compounded to ~39px over
+ * budget at 6×650 (Parties clipped) and looked loose at short heights.
+ * Every value below now matches the previewer's proven budget 1:1, so all
+ * width×height permutations render identically to the previewer.
+ *
+ * Changes vs. previous:
+ *   .metricCardValue   font-size 15→14, line-height 19→18
+ *   .metricList        + align-content: start  (never stretch grid rows)
+ *   .attrPanelContainer padding 10px 14px → 8px 12px
+ *   .attrRowContainer  padding 4px 0 → 3px 0
+ *   .attrRowValue      max-width 200px → 180px
+ */
+
+/* Metric card — no full border; left accent bar carries color. */
 .metricCardContainer {
-    flex: 1;
-    min-width: 0;
-    background: var(--ant-color-bg-elevated);
-    border: 1px solid var(--ant-color-primary-border);
-    border-radius: var(--ant-border-radius);
-    padding: 9px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    position: relative;
-    overflow: hidden;
-}
-
-.metricCardAccentHighlight {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(
-        90deg,
-        var(--ant-color-primary) 0%,
-        var(--ant-color-primary-hover) 100%
-    );
-}
-
-.metricCardLabel {
-    font-size: 9px;
-    line-height: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--ant-color-text-tertiary);
-}
-
-.metricCardValue {
-    font-size: 15px;
-    line-height: 19px;
-    font-weight: 700;
-    color: var(--ant-color-text);
-}
-
-.metricCardValueAccent {
-    color: var(--ant-color-primary);
-}
-
-.metricCardValueHighlight {
-    color: var(--ant-color-warning);
-}
-
-.metricCardSubText {
-    font-size: 9px;
-    line-height: 12px;
-    color: var(--ant-color-text-tertiary);
-}
-
-.attrPanelContainer {
+    flex: 1; min-width: 0;
     background: var(--ant-color-fill-alter);
-    border: 1px solid var(--ant-color-border-secondary);
-    border-radius: var(--ant-border-radius);
-    padding: 10px 14px;
-}
-
-.attrRowContainer {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 4px 0;
-    border-bottom: 1px solid var(--ant-color-border-secondary);
-
-    &:last-child {
-        border-bottom: none;
-    }
-}
-
-.attrRowLabel {
-    font-size: 11px;
-    line-height: 16px;
-    color: var(--ant-color-text-secondary);
-    flex-shrink: 0;
-    white-space: nowrap;
-}
-
-.attrRowValue {
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 600;
-    color: var(--ant-color-text);
-    text-align: right;
+    border: none;
+    border-left: 3px solid var(--ant-color-border-secondary);
+    border-radius: 0 var(--ant-border-radius) var(--ant-border-radius) 0;
+    padding: 8px 12px;
+    display: flex; flex-direction: column; gap: 2px;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 200px;
 }
+.metricCardAccent { border-left-color: var(--ant-color-primary); }
+.metricCardHighlight { border-left-color: var(--ant-color-warning); }
 
-.attrRowValueAccent {
-    color: var(--ant-color-warning);
-}
+.metricCardLabel { font-size: 9px; line-height: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ant-color-text-tertiary); }
+.metricCardValue { font-size: 14px; line-height: 18px; font-weight: 700; color: var(--ant-color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.metricCardValueAccent { color: var(--ant-color-primary); }
+.metricCardValueHighlight { color: var(--ant-color-warning); }
+.metricCardSubText { font-size: 9px; line-height: 12px; color: var(--ant-color-text-tertiary); }
 
-.fontFamilyMono {
-    font-family: monospace;
-}
+/* Metric LIST (the card↔list transform) */
+.metricList { display: grid; gap: 2px 20px; flex-shrink: 0; align-content: start; }
+.metricListOne { grid-template-columns: 1fr; }
+.metricListTwo { grid-template-columns: 1fr 1fr; }
+.metricListThree { grid-template-columns: 1fr 1fr 1fr; }
+.metricListRow { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px solid var(--ant-color-border-secondary); }
+.metricListLabel { font-size: 11px; line-height: 16px; color: var(--ant-color-text-secondary); white-space: nowrap; }
+.metricListValue { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ant-color-text); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.sectionLabelContainer {
-    display: block;
-    font-size: 10px;
-    line-height: 14px;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: var(--ant-color-text-tertiary);
-    margin-bottom: 6px;
-}
+/* Attribute panel */
+.attrPanelContainer { background: var(--ant-color-fill-alter); border: 1px solid var(--ant-color-border-secondary); border-radius: var(--ant-border-radius); padding: 8px 12px; }
+.attrBody { display: grid; gap: 0 20px; }
+.attrBodyOne { grid-template-columns: 1fr; }
+.attrBodyTwo { grid-template-columns: 1fr 1fr; }
+.attrBodyThree { grid-template-columns: 1fr 1fr 1fr; }
+
+.attrRowContainer { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px solid var(--ant-color-border-secondary); }
+.attrRowContainer:last-child { border-bottom: none; }
+.attrRowLabel { font-size: 11px; line-height: 16px; color: var(--ant-color-text-secondary); flex-shrink: 0; white-space: nowrap; }
+.attrRowValue { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ant-color-text); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
+.attrRowValueAccent { color: var(--ant-color-warning); }
+.fontFamilyMono { font-family: monospace; }
+
+.sectionLabelContainer { display: block; font-size: 10px; line-height: 14px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ant-color-text-tertiary); margin-bottom: 6px; }

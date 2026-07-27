@@ -262,14 +262,21 @@ export default function TrapLandingPage() {
     };
 
     return (
-        <Space direction="vertical" size={10} style={{ width: '100%' }}>
-            <TrapHud
-                onExport={onExport}
-                onLaunchWorkflow={onLaunchHudWorkflow}
-                onEditWorkflow={onEditHudWorkflow}
-                onActivateLanding={onActivateHudLanding}
-            />
-            <Space direction="vertical" size={0} style={{ width: '100%' }}>
+        // Plain full-width divs (NOT antd Space) around the canvas: Space injects
+        // .ant-space-item flex wrappers that shrink the grid's measured width below
+        // 1840, which makes react-grid-layout's WidthProvider under-measure and the
+        // resize handle under-track. Gap spacing is preserved via marginBottom.
+        <div style={{ width: '100%' }}>
+            <div style={{ marginBottom: 10 }}>
+                <TrapHud
+                    onExport={onExport}
+                    onLaunchWorkflow={onLaunchHudWorkflow}
+                    onEditWorkflow={onEditHudWorkflow}
+                    onActivateLanding={onActivateHudLanding}
+                />
+            </div>
+
+            <div style={{ width: '100%' }}>
                 {showTabs && (
                     <div style={{ height: TAB_BAR_HEIGHT, overflow: 'hidden' }}>
                         <Tabs
@@ -317,7 +324,7 @@ export default function TrapLandingPage() {
                         </div>
                     ))}
                 </div>
-            </Space>
-        </Space>
+            </div>
+        </div>
     );
 }

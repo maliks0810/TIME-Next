@@ -6,12 +6,21 @@ import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import type { WidgetComponentProps } from '../../../types/widget';
 import { TrancheRow } from './utils/mockData';
 import { getRatingsClassname } from './utils/helpers';
-import { ROW_HEIGHT_PX, TRANCHES_COLS, VISIBLE_ROWS } from './utils/constants';
+import { ROW_HEIGHT_PX, TRANCHES_COLS } from './utils/constants';
 import { DEAL_ID_KEY, DEAL_NAME_KEY, TRANCHE_ID_KEY, TRANCHE_NAME_KEY } from '../../constants';
 import { useGetWidgetValue, useSetWidgetValue } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
 import styles from './TranchesWidget.module.scss';
 import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingState';
+
+const normName = (s: unknown): string =>
+    (s ?? '').toString().toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+type TranchesResult = {
+    dealName?: string;
+    bloombergDealName?: string;
+    tranches?: TrancheRow[];
+};
 
 export function ScTranchesWidget({
     result,
@@ -23,29 +32,73 @@ export function ScTranchesWidget({
     const setWidgetValueToChannel = useSetWidgetValue();
     const channelId = widgetInstance?.config?.params?.channel;
 
-    const trancheId = useGetWidgetValue({
-        channelId,
-        key: TRANCHE_ID_KEY,
-    });
-
-    const dealId = useGetWidgetValue({
-        channelId,
-        key: DEAL_ID_KEY,
-    });
-
-    const dealName = useGetWidgetValue({
-        channelId,
-        key: DEAL_NAME_KEY,
-    });
+    const trancheId = useGetWidgetValue({ channelId, key: TRANCHE_ID_KEY });
+    const trancheName = useGetWidgetValue({ channelId, key: TRANCHE_NAME_KEY });
+    const dealId = useGetWidgetValue({ channelId, key: DEAL_ID_KEY });
+    const dealName = useGetWidgetValue({ channelId, key: DEAL_NAME_KEY });
 
     const [selectedId, setSelectedId] = React.useState<string | null>(null);
     const scrollRef = React.useRef<HTMLDivElement>(null);
 
-    // Security Lookup may have pre-selected a tranche
+    const r = result as TranchesResult | undefined;
+
+    const tranches: TrancheRow[] | null =
+        r && Array.isArray(r.tranches) ? r.tranches : null;
+
+    const loadedDealName: string | null =
+        r?.dealName ? String(r.dealName) : null;
+
+    const bloombergDealName: string | undefined =
+        r?.bloombergDealName ? String(r.bloombergDealName) : undefined;
+    const displayDealName = bloombergDealName ?? (dealName as string | undefined);
+
+    const dealMatches =
+        !!dealName && !!loadedDealName &&
+        normName(dealName) === normName(loadedDealName);
+
+    // Execute for the deal (INTEX name) + reset LOCAL selection when deal changes.
+    React.useEffect(() => {
+        if (dealName) {
+            execute?.({ dealName });
+        }
+        setSelectedId(null);
+    }, [dealName]);
+
+    // Legacy id-path clear.
+    React.useEffect(() => {
+        setSelectedId(null);
+        setWidgetValueToChannel({ key: TRANCHE_ID_KEY, channelId, value: null, activeTab });
+        setWidgetValueToChannel({ key: TRANCHE_NAME_KEY, channelId, value: null, activeTab });
+    }, [dealId, setWidgetValueToChannel, channelId, activeTab]);
+
+    // NAME-driven select + auto-scroll — gated on the loaded list belonging to
+    // the current deal (INTEX match), so Security Lookup's tranche signal
+    // survives the load window and selects on the FIRST search.
+    React.useEffect(() => {
+        if (!tranches || !dealMatches) return;
+        const tn = trancheName ? String(trancheName) : '';
+        if (!tn) {
+            setSelectedId(null);
+            return;
+        }
+        const target = normName(tn);
+        const row = tranches.find((t) => normName(t.name) === target);
+        if (row) {
+            setSelectedId(row.id);
+            setTimeout(() => {
+                const el = scrollRef.current?.querySelector(`[data-tranche-id="${row.id}"]`);
+                el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }, 50);
+        } else {
+            setSelectedId(null);
+            setWidgetValueToChannel({ key: TRANCHE_NAME_KEY, channelId, value: null, activeTab });
+        }
+    }, [trancheName, tranches, dealMatches]);
+
+    // Legacy id-driven select/scroll.
     React.useEffect(() => {
         if (trancheId && trancheId !== selectedId) {
             setSelectedId(trancheId as string);
-
             setTimeout(() => {
                 const el = scrollRef.current?.querySelector(`[data-tranche-id="${trancheId}"]`);
                 el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -53,59 +106,12 @@ export function ScTranchesWidget({
         }
     }, [trancheId]);
 
-    React.useEffect(() => {
-        if (dealName) {
-            execute?.({ dealName });
-        }
-
-        setWidgetValueToChannel({
-            key: TRANCHE_NAME_KEY,
-            channelId,
-            value: null,
-            activeTab,
-        });
-    }, [dealName]);
-
-    // Clear on deal change
-    React.useEffect(() => {
-        setSelectedId(null);
-
-        setWidgetValueToChannel({
-            key: TRANCHE_ID_KEY,
-            channelId,
-            value: null,
-            activeTab,
-        });
-
-        setWidgetValueToChannel({
-            key: TRANCHE_NAME_KEY,
-            channelId,
-            value: null,
-            activeTab,
-        });
-    }, [dealId, setWidgetValueToChannel, channelId, activeTab]);
-
-    const tranches: TrancheRow[] | null =
-        result && Array.isArray(result.tranches) ? result.tranches : null;
-
     const ratingAgency = tranches && tranches.length > 0 ? tranches[0].ratingAgency : 'unknown';
 
     const handleSelect = (trancheRow: TrancheRow) => {
         setSelectedId(trancheRow.id);
-
-        setWidgetValueToChannel({
-            key: TRANCHE_ID_KEY,
-            channelId,
-            value: trancheRow.id,
-            activeTab,
-        });
-
-        setWidgetValueToChannel({
-            key: TRANCHE_NAME_KEY,
-            channelId,
-            value: trancheRow.name,
-            activeTab,
-        });
+        setWidgetValueToChannel({ key: TRANCHE_ID_KEY, channelId, value: trancheRow.id, activeTab });
+        setWidgetValueToChannel({ key: TRANCHE_NAME_KEY, channelId, value: trancheRow.name, activeTab });
     };
 
     const fmt = (n: number) =>
@@ -120,19 +126,14 @@ export function ScTranchesWidget({
         if (typeof label !== 'string') {
             return label;
         }
-
         const match = label.match(/^(.*?)(\s*\(.+\))$/);
-
         if (!match) {
             return label;
         }
-
         return (
             <>
                 <span>{match[1]}</span>
-                <span className={styles.headerColumnSubText}>
-                    {match[2].trim()}
-                </span>
+                <span className={styles.headerColumnSubText}>{match[2].trim()}</span>
             </>
         );
     };
@@ -148,30 +149,24 @@ export function ScTranchesWidget({
     return (
         <WidgetCardShell>
             <div className={styles.mainContainer}>
-                {/* Header */}
+                {/* Header — always visible */}
                 <div className={styles.headerContainer}>
                     <div className={styles.headerTitleContainer}>
                         <TableOutlined className={styles.headerTitleIcon} />
 
-                        <span className={styles.headerTitleText}>
-                            All tranches
-                        </span>
+                        <span className={styles.headerTitleText}>All tranches</span>
 
                         {tranches && (
-                            <div className={styles.counterBadge}>
-                                {tranches.length}
-                            </div>
+                            <div className={styles.counterBadge}>{tranches.length}</div>
                         )}
 
-                        {dealName && (
+                        {displayDealName && (
                             <span className={styles.dealName}>
-                                {dealName as string}
+                                {displayDealName.toUpperCase()}
                             </span>
                         )}
                     </div>
                 </div>
-
-                <div style={{ height: 1 }} />
 
                 {!loading && !tranches && (
                     <div className={styles.loadingContainer}>
@@ -179,9 +174,7 @@ export function ScTranchesWidget({
                             <TableOutlined className={styles.loadingIcon} />
                         </div>
 
-                        <span className={styles.loadingText}>
-                            Load a deal to view tranches
-                        </span>
+                        <span className={styles.loadingText}>Load a deal to view tranches</span>
                     </div>
                 )}
 
@@ -189,9 +182,12 @@ export function ScTranchesWidget({
                     <div className={styles.tranchesTable}>
                         {/* Sticky column header */}
                         <div className={styles.tranchesTableHeader}>
-                            {TRANCHES_COLS.map((column) => (
+                            {TRANCHES_COLS.map((column, colIdx) => (
                                 <div
                                     key={column.label}
+                                    className={clsx({
+                                        [styles.stickyFirstCol]: colIdx === 0,
+                                    })}
                                     style={{
                                         width: column.width,
                                         flexShrink: 0,
@@ -210,28 +206,22 @@ export function ScTranchesWidget({
                             ))}
                         </div>
 
-                        <div
-                            ref={scrollRef}
-                            style={{
-                                maxHeight: ROW_HEIGHT_PX * VISIBLE_ROWS,
-                                overflowY: 'auto',
-                            }}
-                        >
+                        {/* Body — fills remaining widget height and scrolls */}
+                        <div ref={scrollRef} className={styles.tranchesTableBody}>
                             {tranches.map((tranche) => (
                                 <div
                                     key={tranche.id}
                                     data-tranche-id={tranche.id}
                                     onClick={() => handleSelect(tranche)}
-                                    style={{
-                                        height: ROW_HEIGHT_PX,
-                                    }}
+                                    style={{ height: ROW_HEIGHT_PX }}
                                     className={clsx(styles.tranchesTableRow, {
                                         [styles.tranchesTableRowSelected]:
                                             tranche.id === selectedId,
                                     })}
                                 >
-                                    {/* Tranche name */}
+                                    {/* Tranche name — pinned first column */}
                                     <div
+                                        className={styles.stickyFirstCol}
                                         style={{
                                             width: TRANCHES_COLS[0].width,
                                             flexShrink: 0,
@@ -256,9 +246,7 @@ export function ScTranchesWidget({
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <span className={styles.defaultColValue}>
-                                            {tranche.cusip}
-                                        </span>
+                                        <span className={styles.defaultColValue}>{tranche.cusip}</span>
                                     </div>
 
                                     {/* Coupon */}
@@ -285,10 +273,8 @@ export function ScTranchesWidget({
                                     >
                                         <span
                                             className={clsx(styles.typeColValue, {
-                                                [styles.typeColValueMEZ]:
-                                                    tranche.type.startsWith('MEZ'),
-                                                [styles.typeColValueJUN]:
-                                                    tranche.type.startsWith('JUN'),
+                                                [styles.typeColValueMEZ]: tranche.type.startsWith('MEZ'),
+                                                [styles.typeColValueJUN]: tranche.type.startsWith('JUN'),
                                             })}
                                         >
                                             {tranche.type}
@@ -304,9 +290,7 @@ export function ScTranchesWidget({
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <span className={styles.currencyColValue}>
-                                            {tranche.currency}
-                                        </span>
+                                        <span className={styles.currencyColValue}>{tranche.currency}</span>
                                     </div>
 
                                     {/* Orig balance */}
@@ -334,8 +318,7 @@ export function ScTranchesWidget({
                                     >
                                         <span
                                             className={clsx(styles.zeroableColValue, {
-                                                [styles.zeroableColValueZero]:
-                                                    tranche.currBalance === 0,
+                                                [styles.zeroableColValueZero]: tranche.currBalance === 0,
                                             })}
                                         >
                                             {fmt(tranche.currBalance)}

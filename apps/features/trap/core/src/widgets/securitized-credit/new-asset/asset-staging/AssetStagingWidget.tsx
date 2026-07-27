@@ -30,7 +30,6 @@ import styles from './AssetStagingWidget.module.scss';
 
 const { Text } = Typography;
 
-/** Single consolidated status shown in the StatusLine banner. */
 type StatusState = {
     tone: StatusTone;
     label: string;
@@ -72,11 +71,9 @@ export default function AssetStagingWidget({
     const [collateralType, setCollateralType] = React.useState<string | undefined>(undefined);
     const [prefilling, setPrefilling] = React.useState(false);
 
-    // Backend-driven payload snapshot
     const [payloadSnapshot, setPayloadSnapshot] = React.useState<Record<string, unknown>>({});
     const [initializingPayload, setInitializingPayload] = React.useState(false);
 
-    // Dynamic call options from deal structure
     const [callOptions, setCallOptions] = React.useState<{ label: string; value: string }[]>([]);
 
     const [price, setPrice] = React.useState<number | null>(null);
@@ -96,7 +93,6 @@ export default function AssetStagingWidget({
     const [validationErrors, setValidationErrors] = React.useState<ValidationErrors>({});
     const [submitting, setSubmitting] = React.useState(false);
 
-    // Consolidated result banner (replaces separate stageError / stageSuccess)
     const [status, setStatus] = React.useState<StatusState | null>(null);
 
     const channelId = widgetInstance?.config?.params?.channel;
@@ -114,15 +110,31 @@ export default function AssetStagingWidget({
         key: "deal.name",
     }) as string | undefined;
 
-    const trancheId = useGetWidgetValue({
+    const stagedTrancheId = useGetWidgetValue({
         channelId,
         key: "asset.staged.trancheId",
     }) as string | undefined;
 
-    const trancheName = useGetWidgetValue({
+    const stagedTrancheName = useGetWidgetValue({
         channelId,
         key: "asset.staged.trancheName",
     }) as string | undefined;
+
+    const liveTrancheId = useGetWidgetValue({
+        channelId,
+        key: "tranche.id",
+    }) as string | undefined;
+
+    const liveTrancheName = useGetWidgetValue({
+        channelId,
+        key: "tranche.name",
+    }) as string | undefined;
+
+    const trancheName = stagedTrancheName ?? liveTrancheName;
+    const derivedTrancheId = trancheName
+        ? `t_${String(trancheName).toLowerCase()}`
+        : undefined;
+    const trancheId = stagedTrancheId ?? liveTrancheId ?? derivedTrancheId;
 
     const scenarioId = useGetWidgetValue({
         channelId,
@@ -142,7 +154,6 @@ export default function AssetStagingWidget({
 
     React.useEffect(() => {
         if (dealName && dealName !== prevDealNameRef.current) {
-            // Reset all local state
             setStatus(null);
             setExtId("");
             setCusipOverride("");
@@ -171,7 +182,6 @@ export default function AssetStagingWidget({
                 setWidgetValueToChannel({ channelId, key, value: null, activeTab })
             );
 
-            // Call backend to init payload with deal-level data
             const init = async () => {
                 setInitializingPayload(true);
 
@@ -188,12 +198,10 @@ export default function AssetStagingWidget({
 
                     setPayloadSnapshot(result.fields ?? {});
 
-                    // Dynamic call options from deal structure
                     if (Array.isArray(result.callOptions)) {
                         setCallOptions(result.callOptions);
                     }
 
-                    // If deal has calls, default callable to "C"
                     if (result.fields?.callableValue) {
                         setCallable(result.fields.callableValue as CallableType);
                     }
@@ -210,16 +218,16 @@ export default function AssetStagingWidget({
         prevDealNameRef.current = dealName;
     }, [dealName, channelId, activeTab, setWidgetValueToChannel, widgetDefId, isDesigner]);
 
-    // ─── Step 2: Prefill when tranche is selected ───
-    const prevTrancheIdRef = React.useRef(trancheId);
+    // ─── Step 2: Prefill when tranche is selected (keyed on NAME) ───
+    const prevTrancheNameRef = React.useRef(trancheName);
 
     React.useEffect(() => {
-        if (!trancheId || trancheId === prevTrancheIdRef.current) {
-            prevTrancheIdRef.current = trancheId;
+        if (!trancheName || trancheName === prevTrancheNameRef.current) {
+            prevTrancheNameRef.current = trancheName;
             return;
         }
 
-        prevTrancheIdRef.current = trancheId;
+        prevTrancheNameRef.current = trancheName;
         setStatus(null);
 
         const prefetch = async () => {
@@ -237,7 +245,6 @@ export default function AssetStagingWidget({
                     mode: isDesigner ? "MOCK" : "LIVE",
                 });
 
-                // Prefill form fields
                 if (result.cusip) setTrancheCusip(result.cusip);
                 if (result.collateralType) setCollateralType(result.collateralType);
                 if (typeof result.price === "number") setPrice(result.price);
@@ -249,7 +256,6 @@ export default function AssetStagingWidget({
                 if (typeof result.severity === "number") setSeverity(result.severity);
                 if (typeof result.delinquency === "number") setDelinquency(result.delinquency);
 
-                // Merge tranche-level fields into payload snapshot
                 if (result.fields) {
                     setPayloadSnapshot((prev) => ({ ...prev, ...result.fields }));
                 }
@@ -261,11 +267,51 @@ export default function AssetStagingWidget({
         };
 
         prefetch();
-    }, [trancheId, dealName, widgetDefId, isDesigner]);
+    }, [trancheName, dealName, widgetDefId, isDesigner]);
+
+    // Reset tranche-derived fields whenever the effective tranche CLEARS.
+    // The deal-change reset only fires on a DIFFERENT deal; re-selecting the
+    // SAME deal with no tranche (e.g. after an A3 recent) left stale tranche
+    // data — most visibly the CUSIP. Keying on trancheName going falsy clears
+    // it in every case (same deal or new deal).
+    const hadTrancheRef = React.useRef<boolean>(!!trancheName);
+    React.useEffect(() => {
+        const hasTranche = !!trancheName;
+        if (hadTrancheRef.current && !hasTranche) {
+            // Tranche was present and is now gone → clear tranche-level state.
+            setTrancheCusip(undefined);
+            setCusipOverride("");
+            setCollateralType(undefined);
+            setPrice(null);
+            setCallable("N");
+            setCallDate(null);
+            setCallValue(undefined);
+            setPrepaymentType(undefined);
+            setPrepaymentValue(null);
+            setDefaultType(undefined);
+            setDefaultValue(null);
+            setSeverity(null);
+            setDelinquency(null);
+            // Drop tranche-level fields merged into the snapshot during prefill,
+            // but keep deal-level fields (from initPayload) intact.
+            setPayloadSnapshot((prev) => {
+                const next = { ...prev };
+                delete next.cusip;
+                delete next.tranche;
+                delete next.identifierTypeValue;
+                delete next.identifierValue;
+                delete next.idBbGlobal;
+                return next;
+            });
+            // Also reset the prefill guard so re-selecting the SAME tranche name
+            // later will re-run prefill instead of being deduped.
+            prevTrancheNameRef.current = undefined;
+        }
+        hadTrancheRef.current = hasTranche;
+    }, [trancheName]);
 
     // ─── Payload preview: merge backend snapshot + user overrides ───
     const payloadFields = React.useMemo(() => {
-        // Determine the best CUSIP — override wins, then snapshot (only if not placeholder)
         const snapshotCusip = payloadSnapshot.cusip
             && !/^(.)\1+$/i.test(String(payloadSnapshot.cusip))
             ? String(payloadSnapshot.cusip)
@@ -273,7 +319,6 @@ export default function AssetStagingWidget({
 
         const effectiveCusip = cusipOverride.trim() || snapshotCusip || trancheCusip;
 
-        // Identifier: override CUSIP → snapshot ISIN → valid snapshot CUSIP
         const snapshotIsin = payloadSnapshot.identifierTypeValue === "ISIN" && payloadSnapshot.identifierValue
             ? String(payloadSnapshot.identifierValue)
             : undefined;
@@ -292,43 +337,41 @@ export default function AssetStagingWidget({
             identifierValue = snapshotIsin;
         }
 
+        // INTEX deal name — the ONLY value SSD receives as the deal identity.
+        const intexName =
+            (dealName as string | undefined) ??
+            (payloadSnapshot.intexDealName as string | undefined);
+
         const merged: Record<string, unknown> = {
             ...payloadSnapshot,
 
-            // CUSIP: override → valid snapshot → trancheCusip
             cusip: effectiveCusip,
 
-            // External ID → aladdinCdiId
             aladdinCdiId: extId.trim() || payloadSnapshot.aladdinCdiId,
 
-            // INTEX deal name always from channel
-            intexDealName: dealName ?? payloadSnapshot.intexDealName,
+            // SSD deal identity: ALWAYS INTEX (both fields), never Bloomberg.
+            intexDealName: intexName,
+            dealName: intexName,
 
-            // SSD dealName: Bloomberg name from backend, fallback to INTEX
-            dealName: payloadSnapshot.dealName ?? dealName,
-
-            // Description: Bloomberg ticker from backend, fallback to deal + tranche
+            // Description = Bloomberg ticker from backend (includes tranche) — this
+            // is CORRECT for SSD labeling. It is DISPLAY-ONLY-elsewhere; it must
+            // NOT be used as the Deal-row display (that needs the deal name only).
             description: payloadSnapshot.description
-                ?? (dealName && trancheName ? `${dealName} ${trancheName}` : undefined),
+                ?? (intexName && trancheName ? `${intexName} ${trancheName}` : undefined),
 
-            // Tranche name
             tranche: payloadSnapshot.tranche ?? trancheName,
 
-            // Identifier
             identifierTypeValue,
             identifierValue,
 
-            // Bloomberg ID from backend
             idBbGlobal: payloadSnapshot.idBbGlobal ?? undefined,
 
-            // Static
             isNewIssue: true,
             ssapIdPassword: "",
             isEuSecuritizationRequested: payloadSnapshot.isEuSecuritizationRequested ?? false,
             sourceAppName: "TRAP",
             marketSectorTypeValue: "Mtge",
 
-            // User form inputs — override snapshot
             callableValue: callable ?? payloadSnapshot.callableValue,
             callDate: callDate?.format("YYYY-MM-DD") ?? payloadSnapshot.callDate,
             price: price ?? payloadSnapshot.price,
@@ -341,12 +384,10 @@ export default function AssetStagingWidget({
             severity: severity ?? payloadSnapshot.severity,
             delinquency: delinquency ?? payloadSnapshot.delinquency,
 
-            // Computed from backend
             slicerTypeValue: payloadSnapshot.slicerTypeValue ?? undefined,
             mbsTypeValue: payloadSnapshot.mbsTypeValue ?? undefined,
         };
 
-        // noteInstructions: set when callable is C with selected call option
         if (callable === "C" && callValue) {
             merged.noteInstructions = callValue;
         }
@@ -391,15 +432,25 @@ export default function AssetStagingWidget({
 
     const doneMap: Record<string, boolean> = {
         "deal.name": !!dealName,
-        "asset.staged.trancheId": !!trancheId,
+        "asset.staged.trancheId": !!trancheName,
         "__cusipOverride__": cusipRequired
             ? (cusipOverride.trim().length === 9 && isValidCusip(cusipOverride.trim().toUpperCase()) && !validationErrors.cusip)
             : true,
         "__extId__": !!extId.trim(),
     };
 
+    // DISPLAY: Deal row shows the BLOOMBERG DEAL NAME only (e.g. "EART 2025-2A").
+    // Source is the dedicated bloomberg deal-name field ONLY — never `description`
+    // (that's the Bloomberg TICKER and includes the tranche, e.g. "EART 2025-2A
+    // A1", which is what wrongly appeared). Falls back to INTEX when no Bloomberg
+    // deal name is available (CDI path).
+    const bloombergDealName =
+        (payloadSnapshot.bloombergDealName as string | undefined) ??
+        (payloadSnapshot.bloombergName as string | undefined) ??
+        (payloadSnapshot.ssdDealName as string | undefined);
+
     const displayVal: Record<string, string | undefined> = {
-        "deal.name": dealName,
+        "deal.name": bloombergDealName || dealName,
         "asset.staged.trancheId": trancheName ?? trancheId,
         "__cusipOverride__": cusipOverride.trim() || trancheCusip,
         "scenario.selectedResultId": scenarioId,
@@ -442,7 +493,6 @@ export default function AssetStagingWidget({
         }
     }, []);
 
-    // Clear validation errors when user corrects values
     React.useEffect(() => {
         setValidationErrors((prev) => {
             if (!prev.extId) return prev;
@@ -488,14 +538,12 @@ export default function AssetStagingWidget({
         });
     }, [defaultValue]);
 
-    // ─── Step 4: Launch — merge snapshot + user inputs → call GraphQL ───
+    // ─── Step 4: Launch ───
     const handleLaunch = React.useCallback(async () => {
-        if (submitting) return; // Guard against double-submit (non-click paths too)
+        if (submitting) return;
 
         setStatus(null);
 
-        // Validate synchronously FIRST — no awaits yet, so the click's
-        // user-activation is still alive when we open the tab below.
         const errors = validateStagingForm({
             extId,
             cusipOverride: cusipRequired ? cusipOverride : undefined,
@@ -512,23 +560,15 @@ export default function AssetStagingWidget({
             return;
         }
 
-        // Also block if there are existing blur errors
         if (validationErrors.cusip || validationErrors.extId) {
             return;
         }
 
         setStatus(null);
 
-        // ── Open the Security Setup tab NOW, synchronously, inside the click. ──
-        // Browsers only allow window.open() while the user gesture is active.
-        // We open a blank tab here (still in the gesture) and navigate it once
-        // the async stage call returns. This defeats the pop-up blocker — the
-        // tab is tied to the click, not to the later async callback.
-        // NOTE: no "noopener" — we must keep the window handle to navigate it.
         const setupWindow = window.open("about:blank", "_blank");
 
         if (setupWindow) {
-            // Friendly placeholder while the stage request is in flight.
             try {
                 setupWindow.document.write(
                     "<!doctype html><title>Security Setup</title>" +
@@ -541,7 +581,6 @@ export default function AssetStagingWidget({
             }
         }
 
-        // Build final payload: backend snapshot + user overrides
         const finalPayload: Record<string, unknown> = {};
 
         payloadFields.forEach(({ key, value }) => {
@@ -550,7 +589,6 @@ export default function AssetStagingWidget({
             }
         });
 
-        // OM file as base64 (optional)
         let omBase64: string | undefined;
 
         if (omFile) {
@@ -577,7 +615,6 @@ export default function AssetStagingWidget({
             }
         }
 
-        // Now commit — disable button
         setSubmitting(true);
 
         try {
@@ -597,9 +634,8 @@ export default function AssetStagingWidget({
 
             const staged = stageResult as Record<string, unknown>;
 
-            // ── Hard failure: request rejected by backend ──
             if (staged?.success === false || staged?.error) {
-                if (setupWindow) setupWindow.close(); // nothing to show — close the tab
+                if (setupWindow) setupWindow.close();
                 const errorMsg = String(staged.error ?? "Request failed — please try again");
                 setStatus({
                     tone: "error",
@@ -615,7 +651,6 @@ export default function AssetStagingWidget({
                 return;
             }
 
-            // ── Request submitted. Navigate the tab we already opened. ──
             const setupUrl = staged.securitySetupUrl as string | undefined;
 
             let launchOk = false;
@@ -623,12 +658,9 @@ export default function AssetStagingWidget({
 
             if (setupUrl) {
                 if (setupWindow) {
-                    // Tab is already open from the click → just point it at the URL.
                     setupWindow.location.href = setupUrl;
                     launchOk = true;
                 } else {
-                    // The synchronous open was refused (hard blocker/extension).
-                    // Last-ditch attempt, then report if it also fails.
                     const retry = window.open(setupUrl, "_blank");
                     if (retry) {
                         launchOk = true;
@@ -637,16 +669,10 @@ export default function AssetStagingWidget({
                     }
                 }
             } else {
-                // No URL came back — close the placeholder tab.
                 if (setupWindow) setupWindow.close();
                 launchIssue = "no-link";
             }
 
-            // OM outcome (OM is optional).
-            // Failed if the backend explicitly says it didn't upload — the
-            // omError string is optional detail, NOT a condition for "failed".
-            // (Guards against a false-green chip when omUploaded:false arrives
-            // with no accompanying error message.)
             const omAttached = !!omFile;
             const omFailed = omAttached && staged?.omUploaded === false;
 
@@ -660,7 +686,6 @@ export default function AssetStagingWidget({
             ];
 
             if (launchOk && !omFailed) {
-                // Clean success — Security Setup App opened
                 setStatus({
                     tone: "success",
                     label: "Request submitted",
@@ -669,11 +694,9 @@ export default function AssetStagingWidget({
                 });
                 message.success("Security setup request submitted");
             } else {
-                // Submitted, but something needs the user's attention.
                 const parts: string[] = [];
 
                 if (omFailed) {
-                    // omError is optional — only append it if the backend sent one.
                     parts.push(
                         staged.omError
                             ? `Offering Memorandum upload failed: ${staged.omError}.`
@@ -703,7 +726,6 @@ export default function AssetStagingWidget({
                     summary = "Setup app blocked by browser pop-up settings";
                     popoverTitle = "Security Setup blocked";
                 } else {
-                    // launch was fine, so the only issue is the OM
                     summary = "Request submitted — Offering Memorandum upload failed";
                     popoverTitle = "Offering Memorandum not uploaded";
                 }
@@ -728,7 +750,7 @@ export default function AssetStagingWidget({
                 }),
             });
         } catch (err: unknown) {
-            if (setupWindow) setupWindow.close(); // request errored — close the tab
+            if (setupWindow) setupWindow.close();
             const msg = err instanceof Error ? err.message : "Request failed — please try again";
             setStatus({
                 tone: "error",
@@ -765,8 +787,6 @@ export default function AssetStagingWidget({
         });
     }, []);
 
-    // Request went through if we ended in success OR warning (staging itself
-    // succeeded — only a hard error leaves the button enabled for retry).
     const submitted = status?.tone === "success" || status?.tone === "warning";
 
     return (

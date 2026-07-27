@@ -1,0 +1,26 @@
+.root { height: 100%; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+
+.twoPane { display: flex; gap: 20px; min-width: 0; min-height: 0; flex: 1; overflow: hidden; }
+
+.leftHalf { flex: 1; min-width: 0; min-height: 0; display: flex; overflow: hidden; }
+
+.recentPane {
+    flex: 1; min-width: 0; min-height: 0; overflow: hidden;
+    border-left: 1px solid var(--ant-color-border-secondary); padding-left: 16px;
+}
+
+.main { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; flex: 1; overflow: hidden; justify-content: flex-start; }
+
+/* Title — icon carries a quiet brand accent; text stays neutral structure. */
+.title { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.titleIcon { font-size: 12px; color: var(--ant-color-primary); }
+.titleText {
+    font-size: 10px; line-height: 14px; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--ant-color-text-tertiary);
+}
+
+.inputRow { display: flex; gap: 16px; min-width: 0; flex-shrink: 0; align-items: center; }
+.inputWrap { flex-shrink: 0; }
+.identityWrap { flex: 1; min-width: 0; overflow: hidden; }
+
+.recentStacked { flex: 1; min-height: 0; overflow: hidden; border-top: 1px solid var(--ant-color-border-secondary); padding-top: 8px; }
