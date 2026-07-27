@@ -30,6 +30,7 @@ import { TabsControl } from '../widgets/dram/tabs-control/TabsControl';
 import { PortfolioInfo } from '../widgets/dram/info/PortfolioInfo';
 import AssetStagingWidget from '../widgets/securitized-credit/new-asset/asset-staging/AssetStagingWidget';
 import { HeatGridWidget } from '../widgets/common/heatgrid/HeatGridWidget';
+import { SummaryPanelWidget } from '../widgets/common/summary-panel/SummaryPanel';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -292,4 +293,12 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: [],
         emitsKeys: [],
     },
+    cwd_common_summary_panel_01: {
+        id: 'cwd_common_summary_panel_01',
+        component: SummaryPanelWidget,
+        category: 'View',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    }
 };
