@@ -109,7 +109,7 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         subHeader: NavbarSubHeader.Risk,
         id: '@r2/dram',
         name: 'nippon-risk-monitor',
-        title: 'Nippon Client Report (Beta)',
+        title: 'TIME – Nippon Reporting UI',
         env: HighestEnv.prod,
 
         path: '/dram/risk/dashboard',
