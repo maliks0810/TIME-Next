@@ -66,8 +66,8 @@
             "label": "Default",
             "sizing": {
                 "resizable": true,
-                "width": { "default": 4, "min": 2, "max": 4 },
-                "height": { "default": 3, "min": 2, "max": 6, "step": 1 }
+                "width": { "default": 4, "min": 2, "max": 6 },
+                "height": { "default": 3, "min": 2, "max": 10, "step": 1 }
             }
         }
     ]
