@@ -13,3 +13,13 @@ export const metricShortLabels: Record<MetricLabel, string> = {
 export const default_eq_port = "6614T";
 export const default_fi_port = "702T";
 export const default_em_port = "3734T";
+
+export const DEFAULT_MONTHLY_PERIODS = ["MTD"];
+
+export const DEFAULT_DAILY_PERIODS = [
+  "MTD",
+  "QTD",
+  "YTD",
+  "1Y",
+  "ATD",
+];

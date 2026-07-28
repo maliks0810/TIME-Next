@@ -72,6 +72,7 @@ import { UniversalFilterSearch } from "./UniversalFilterSearch";
 import { FilterChipBar } from "./FilterChipBar";
 import { FilterGroupSection } from "./FilterGroupSection";
 import { filterDimensionsForAssetClass, isChainValidForAssetClass } from "./breakdownScoping";
+import { getDefaultPeriodsForFrequency } from "../../lib/helpers";
 
 const { Text, Title } = Typography;
 
@@ -331,7 +332,10 @@ function createDefaultState(
           ],
         }
       : EMPTY_BREAKDOWN_CHAIN);
-
+      const frequencyMode =
+      initialValues?.frequencyMode ??
+      config.frequencyMode[0]?.id ??
+      "monthly";
 
   return {
     assetClass: initialValues?.assetClass ?? null,
@@ -342,7 +346,10 @@ function createDefaultState(
     benchmark: initialValues?.benchmark ?? "",
     frequencyMode:
       initialValues?.frequencyMode ?? config.frequencyMode[0]?.id ?? "monthly",
-    periodIds: initialValues?.periodIds ?? ["MTD"],
+    periodIds:
+      initialValues?.periodIds ??
+      getDefaultPeriodsForFrequency(frequencyMode),
+
     selectedColumnIds:
       initialValues?.selectedColumnIds ??
       config.columnConfigs.all
@@ -443,6 +450,7 @@ const getPeriodStartDate = (
   if (code === "MTD") return clampToInception(asOfDate.startOf("month"), inceptionDate);
   if (code === "QTD") return clampToInception(getQuarterStart(asOfDate), inceptionDate);
   if (code === "YTD") return clampToInception(asOfDate.startOf("year"), inceptionDate);
+  if (code === "ATD") return dayjs("2025-04-01");
   if (code === "ITD" || code === "SI")
     return inceptionDate ? inceptionDate.startOf("day") : null;
 
@@ -568,6 +576,15 @@ const breakdownContent = (
     />
   </Card>
 );
+useEffect(() => {
+  if (state.periodIds.length > 0) return;
+
+  setState(prev => ({
+    ...prev,
+    periodIds:
+      getDefaultPeriodsForFrequency(prev.frequencyMode),
+  }));
+}, [state.frequencyMode, state.periodIds.length]);
 
 // Effect: prune invalid breakdown levels when asset class changes
 useEffect(() => {
@@ -657,21 +674,11 @@ useEffect(() => {
     hasValidDate &&
     hasValidItdSelection;
 
-  const { RangePicker } = DatePicker;
-
   const monthlyAsOfValue = useMemo(() => {
     if (!state.asOfDate) return null;
     const parsed = dayjs(state.asOfDate);
     return parsed.isValid() ? parsed : null;
   }, [state.asOfDate]);
-
-  const dailyRangeValue = useMemo<[Dayjs | null, Dayjs | null] | null>(() => {
-    if (!state.startDate && !state.endDate) return null;
-    return [
-      state.startDate ? dayjs(state.startDate) : null,
-      state.endDate ? dayjs(state.endDate) : null,
-    ];
-  }, [state.startDate, state.endDate]);
 
   const handleMonthlyAsOfChange = (value: Dayjs | null): void => {
     if (!value) {
@@ -691,35 +698,10 @@ useEffect(() => {
     }));
   };
 
-  const handleDailyRangeChange = (
-    vals: [Dayjs | null, Dayjs | null] | null,
-  ): void => {
-    if (!vals) {
-      setState((prev) => ({ ...prev, asOfDate: "", startDate: "", endDate: "" }));
-      return;
-    }
-    const [start, end] = vals;
-    setState((prev) => ({
-      ...prev,
-      asOfDate: end ? end.format(DATE_FORMAT) : "",
-      startDate: start ? start.format(DATE_FORMAT) : "",
-      endDate: end ? end.format(DATE_FORMAT) : "",
-    }));
-  };
-
   const monthlyDisabledDate = (current: Dayjs): boolean => {
     if (!current) return false;
     return !isMonthEnd(current);
   };
-
-  const dailyDisabledDate = useMemo(
-    () =>
-      createRangeDisabledDate({
-        frequency: "daily",
-        startValue: dailyRangeValue?.[0] ?? null,
-      }),
-    [dailyRangeValue],
-  );
 
   useEffect(() => {
     if (state.frequencyMode !== "monthly") return;
@@ -749,11 +731,75 @@ useEffect(() => {
     state.endDate,
     portfolioInceptionDate,
   ]);
+useEffect(() => {
+  if (state.frequencyMode !== "daily") return;
+  if (!state.endDate) return;
 
+  const parsedEndDate = dayjs(state.endDate);
+
+  if (!parsedEndDate.isValid()) return;
+
+  const minStartDate = getMinStartDateFromPeriods(
+    state.periodIds,
+    {
+      asOfDate: parsedEndDate,
+      inceptionDate: portfolioInceptionDate,
+    },
+  );
+
+  const nextStartDate = minStartDate
+    ? minStartDate.format(DATE_FORMAT)
+    : "";
+
+  if (state.startDate === nextStartDate) {
+    return;
+  }
+
+  setState((prev) => ({
+    ...prev,
+    startDate: nextStartDate,
+  }));
+}, [
+  state.frequencyMode,
+  state.endDate,
+  state.periodIds,
+  state.startDate,
+  portfolioInceptionDate,
+]);
   const portfolioValue =
     state.portfolio && portfolioOptions.some((o) => o.value === state.portfolio)
       ? state.portfolio
       : undefined;
+
+  const handleFrequencyChange = (frequencyMode: string) => {
+    setState((prev) => {
+      const availablePeriodIds = new Set(
+        (config.periods[0] ?? [])
+          .filter((p) => p.frequency_mode === frequencyMode)
+          .map((p) => p.id),
+      );
+
+      // Keep any currently selected periods that are valid
+      const preservedPeriods = prev.periodIds.filter((periodId) =>
+        availablePeriodIds.has(periodId),
+      );
+
+      return {
+        ...prev,
+        frequencyMode,
+
+        // Clear dates because Monthly/Daily use different date controls
+        asOfDate: "",
+        startDate: "",
+        endDate: "",
+
+        periodIds:
+          preservedPeriods.length > 0
+            ? preservedPeriods
+            : getDefaultPeriodsForFrequency(frequencyMode),
+      };
+    });
+  };
 
   // ---------- Section content ----------
 
@@ -834,16 +880,7 @@ useEffect(() => {
                   value: f.id,
                   label: f.label,
                 }))}
-                onChange={(val) =>
-                  setState((prev) => ({
-                    ...prev,
-                    frequencyMode: val,
-                    asOfDate: "",
-                    startDate: "",
-                    endDate: "",
-                    periodIds: val === "daily" ? ["1D"] : ["MTD"],
-                  }))
-                }
+                onChange={handleFrequencyChange}
               />
             </Form.Item>
           </Col>
@@ -876,14 +913,43 @@ useEffect(() => {
                 ) : null}
               </Form.Item>
             ) : (
-              <Form.Item label="Start Date - End Date">
-                <RangePicker
-                  size="small"
-                  value={dailyRangeValue}
-                  onChange={handleDailyRangeChange}
-                  disabledDate={dailyDisabledDate}
-                  style={{ width: "100%" }}
-                />
+              <Form.Item label="Analysis Range">
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <DatePicker
+                    size="small"
+                    value={
+                      state.endDate
+                        ? dayjs(state.endDate)
+                        : null
+                    }
+                    onChange={(end) =>
+                      setState((prev) => ({
+                        ...prev,
+                        asOfDate: end?.format(DATE_FORMAT) ?? "",
+                        endDate: end?.format(DATE_FORMAT) ?? "",
+                      }))
+                    }
+                    disabledDate={(d) =>
+                      createRangeDisabledDate({
+                        frequency: "daily",
+                      })(d)
+                    }
+                    style={{ width: "100%" }}
+                  />
+
+                  {state.startDate && state.endDate && (
+                    <Text
+                      type="secondary"
+                      style={{ fontSize: 12 }}
+                    >
+                      Run analysis range:
+                      {" "}
+                      {state.startDate}
+                      {" → "}
+                      {state.endDate}
+                    </Text>
+                  )}
+                </Space>
               </Form.Item>
             )}
           </Col>

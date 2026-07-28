@@ -6,7 +6,7 @@ export default function RiskAnalysisDashboard() {
 	const components = [
 		{
 			key: 'nippon-report-monitor',
-			label: 'Nippon Report Monitor',
+			label: 'TIME – Nippon Reporting UI',
 			children: (
 				<NipponReportMonitorPage />
 			),
