@@ -3,19 +3,63 @@
     "name": "Chart",
     "version": 1,
     "description": "Shows data as a chart.",
+    "tags": null,
+    "category": "widgetDefinition",
     "datasetId": "ds_common_chart_01",
     "listensToKeys": ["deal.name", "security.cusip", "security.ticker", "portfolio.id"],
+    "emitsKeys": null,
     "configSchema": {
         "properties": {
-            "channel": { "default": 1, "enum": [1,2,3,4,5], "title": "Communication Channel", "type": "string", "category": "Interactions", "description": "Widgets on the same channel share data." },
-            "schemaKey": { "enum": ["abf.performance.summary"], "title": "Schema Key", "type": "string", "category": "System Parameters", "description": "Chart scenario resolved by GraphQL; returns the render-ready ECharts option." },
-            "showTitle": { "default": true, "title": "Show Title", "type": "boolean", "category": "View Parameters", "description": "Show the chart's title row above the plot." },
-            "titleText": { "default": "", "title": "Custom Title Text", "type": "string", "category": "View Parameters", "description": "Overrides the chart title. Blank = scenario title from GraphQL." },
-            "emptyStateText": { "default": "No chart data", "title": "Empty State Text", "type": "string", "category": "View Parameters", "description": "Shown when the scenario returns no chart." }
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel share data (e.g. the selected deal or portfolio) between each other.",
+                "enum": [1, 2, 3, 4, 5],
+                "title": "Communication Channel",
+                "type": "string",
+                "category": "Interactions"
+            },
+            "schemaKey": {
+                "description": "Logical chart scenario resolved by GraphQL. Each scenario owns its own series and data source; GraphQL returns the render-ready ECharts option.",
+                "enum": ["abf.performance.summary", "abf.cgl.trend"],
+                "title": "Schema Key",
+                "type": "string",
+                "category": "System Parameters"
+            },
+            "showTitle": {
+                "default": true,
+                "title": "Show Title",
+                "description": "Show the chart's title row (icon + label) above the plot.",
+                "type": "boolean",
+                "category": "View Parameters"
+            },
+            "titleText": {
+                "default": "",
+                "title": "Custom Title Text",
+                "description": "Overrides the chart title. Leave blank to use the scenario title from GraphQL.",
+                "type": "string",
+                "category": "View Parameters"
+            },
+            "emptyStateText": {
+                "default": "No chart data",
+                "title": "Empty State Text",
+                "description": "Message shown when the scenario returns no chart (e.g. nothing selected on the channel yet).",
+                "type": "string",
+                "category": "View Parameters"
+            }
         },
         "required": ["schemaKey"],
         "type": "object"
     },
     "uiHints": { "category": "Common", "visibleIn": ["workflow", "landing"] },
-    "variants": [{ "id": "default", "label": "Default", "sizing": { "resizable": true, "width": { "default": 4, "min": 3, "max": 8 }, "height": { "default": 3, "min": 2, "max": 8, "step": 1 } } }]
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": { "default": 4, "min": 3, "max": 8 },
+                "height": { "default": 3, "min": 2, "max": 8, "step": 1 }
+            }
+        }
+    ]
 }

@@ -21,11 +21,6 @@ interface ChartResult {
     option?: Record<string, any> | null;
 }
 
-/**
- * Rough perceived-luminance check on a CSS colour string (hex or rgb/rgba).
- * Returns true when the colour is dark — used to detect dark theme from the
- * resolved container background (AntD's algorithm flag isn't on `token`).
- */
 function isColorDark(color: string): boolean {
     if (!color) return false;
     let r = 255, g = 255, b = 255;
@@ -43,8 +38,26 @@ function isColorDark(color: string): boolean {
             [r, g, b] = parts;
         }
     }
-    // Rec. 601 luma; < 128 = dark.
     return 0.299 * r + 0.587 * g + 0.114 * b < 128;
+}
+
+function withAlpha(color: string, alpha: number): string {
+    if (!color) return color;
+    const c = color.trim();
+    if (c.startsWith('#')) {
+        const h = c.slice(1);
+        const full = h.length === 3 ? h.split('').map((x) => x + x).join('') : h;
+        const r = parseInt(full.slice(0, 2), 16);
+        const g = parseInt(full.slice(2, 4), 16);
+        const b = parseInt(full.slice(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    const m = c.match(/rgba?\(([^)]+)\)/i);
+    if (m) {
+        const [r, g, b] = m[1].split(',').map((s) => parseFloat(s.trim()));
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    return c;
 }
 
 function ChartIcon({ chartType }: { chartType?: string }) {
@@ -84,12 +97,6 @@ function getWidgetValues(
     return { titleOverride, emptyText, showTitle };
 }
 
-/**
- * Mount an ECharts instance on the returned callback ref, keep it sized via a
- * ResizeObserver, and re-apply the option whenever the option OR the theme colours
- * change. Option + roles are held in refs so the initial paint fires the moment the
- * host mounts (even when data/theme arrive after first render).
- */
 function useEchart(option: Record<string, any> | null | undefined, roles: EchartsRoleColors) {
     const chartRef = useRef<echarts.ECharts | null>(null);
     const hostRef = useRef<HTMLDivElement | null>(null);
@@ -126,12 +133,11 @@ function useEchart(option: Record<string, any> | null | undefined, roles: Echart
             ro.observe(node);
             roRef.current = ro;
 
-            apply(); // paint immediately if an option is already available
+            apply();
         },
         [apply]
     );
 
-    // Re-apply when the option OR the resolved theme colours change (light/dark).
     useEffect(() => {
         apply();
     }, [option, roles, apply]);
@@ -146,21 +152,17 @@ export function ChartWidget(props: WidgetComponentProps) {
     const properties = widgetDefinition?.configSchema?.properties ?? {};
     const { titleOverride, emptyText, showTitle } = getWidgetValues(config, properties);
 
-    // Resolve chart colours from the ACTIVE AntD theme (reactive on light/dark).
     const { token } = theme.useToken();
     const roleColors: EchartsRoleColors = useMemo(() => {
-        // Detect dark mode from the resolved container background luminance
-        // (AntD's algorithm flag isn't exposed on `token`, but bg is dark in dark).
         const isDark = isColorDark(token.colorBgContainer);
-
-        // Dark mode: use the softer, lower-chroma "-Border" status variants so bars
-        // don't glow. Light mode: standard status colours.
         return {
             '@primary': token.colorPrimary,
             '@success': isDark ? token.colorSuccessBorder : token.colorSuccess,
             '@warning': isDark ? token.colorWarningBorder : token.colorWarning,
             '@error': isDark ? token.colorErrorBorder : token.colorError,
             '@errorDark': isDark ? token.colorErrorBorderHover : token.colorErrorActive,
+            '@errorFade35': withAlpha(token.colorError, 0.35),
+            '@errorFade02': withAlpha(token.colorError, 0.02),
             '@text': token.colorText,
             '@textSecondary': token.colorTextSecondary,
             '@textTertiary': token.colorTextTertiary,
@@ -169,7 +171,6 @@ export function ChartWidget(props: WidgetComponentProps) {
         };
     }, [token]);
 
-    // #3 pattern: read the deal name off the shared channel and fire execute.
     const channelId = config?.params?.channel;
     const dealName = useGetWidgetValue({ channelId, key: DEAL_NAME_KEY });
 
