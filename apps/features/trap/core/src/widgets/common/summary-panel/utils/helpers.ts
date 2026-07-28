@@ -22,10 +22,10 @@ function str(v: unknown): string | null {
 }
 
 export function normaliseSummary(result: any): NormalisedSummary | null {
+    // Only a truly absent result yields null (nothing to render at all).
     if (!result) return null;
 
     const rawMetrics: any[] = Array.isArray(result.metrics) ? result.metrics : [];
-    if (!rawMetrics.length) return null;
 
     const metrics: SummaryMetric[] = rawMetrics
         .map((m, i) => {
@@ -41,10 +41,10 @@ export function normaliseSummary(result: any): NormalisedSummary | null {
         })
         .filter((m): m is SummaryMetric => m !== null);
 
-    if (!metrics.length) return null;
-
+    // Preserve the envelope even when metrics is empty, so the eyebrow (title)
+    // renders on initial/empty — GraphQL-driven, consistent with ChartWidget.
     return {
-        eyebrow: str(result.eyebrow) ?? str(result.title) ?? 'Summary',
+        eyebrow: str(result.eyebrow) ?? str(result.title) ?? '',
         dealName: str(result.dealName),
         collateralType: str(result.collateralType),
         asOf: str(result.asOf),
