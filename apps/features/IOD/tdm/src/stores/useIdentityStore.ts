@@ -3,13 +3,13 @@ import type { StoreApi } from 'zustand';
 import { IdentityActions, IdentityState, IdentityStore } from './types';
 
 const INITIAL_STATE: IdentityState = {
-  userAuth: null
+  userIdentity: null
 }
 
 export const useIdentityStore = create<IdentityState & IdentityActions>()(
   (set: StoreApi<IdentityStore>['setState']) => ({
     ...INITIAL_STATE,
 
-    setUserAuth: (auth) => set({ userAuth: auth})
+    setUserIdentity: (auth) => set({ userIdentity: auth})
   })
 )

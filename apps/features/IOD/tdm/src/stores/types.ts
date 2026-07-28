@@ -1,6 +1,6 @@
 import { IESGFields, ISecurityAttachmentData, ISecurityDetails, ISpeedOverrides, ITradeFields, SecuritySetupStep } from '../pages/security-setup/lib/types/securitySetupTypes';
 import { ISecuritySetupRequestAttachment, ISecuritySetupWizardPayload } from '../services/domain-objects/SecuritySetupRequestPayload';
-import { IUserAuth, IUserIdentity } from '../services/domain-objects/UserIdentityResponse';
+import { IUserIdentity } from '../services/domain-objects/UserIdentityResponse';
 
 export interface SecuritySetupState {
   // identity / audit fields
@@ -59,8 +59,6 @@ export interface SecuritySetupState {
 
   dmAnalystName: string | null;
   dmAnalystEmail: string | null;
-  // current user identity
-  userIdentity: IUserIdentity | null;
 }
 
 export type IdentifierFieldsPatch = Partial<Pick<SecuritySetupState,
@@ -95,15 +93,14 @@ export interface SecuritySetupActions {
   openConfirmModal: () => void;
   closeConfirmModal: () => void;
   resetWizard: () => void;
-  setUserIdentity: (identity: IUserIdentity) => void;
 }
 
 export interface IdentityState {
-  userAuth: IUserAuth | null;
+  userIdentity: IUserIdentity | null;
 }
 
 export interface IdentityActions {
-  setUserAuth: (userAuth: IUserAuth) => void;
+  setUserIdentity: (identity: IUserIdentity) => void;
 }
 
 export type IdentityStore = IdentityState & IdentityActions

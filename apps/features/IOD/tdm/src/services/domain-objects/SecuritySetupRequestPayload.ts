@@ -157,8 +157,10 @@ export interface ISecuritySetupRequestDomain {
     SaveType?: string;
     IsActive?: boolean;
     CreatedBy?: string | null;
+    CreatedByEmail?: string | null;
     CreatedDate?: string | null; // ISO 8601 DateTimeOffset
     UpdatedBy?: string | null;
+    UpdatedByEmail?: string | null;
     UpdatedDate?: string | null; // ISO 8601 DateTimeOffset
     DmAnalystName?: string | null;
     DmAnalystEmail?: string | null;
@@ -223,8 +225,10 @@ export interface ISecuritySetupWizardPayload {
     reviewedBy?: string | null;
     reviewedDate?: string | null;
     createdBy?: string | null;
+    createdByEmail?: string | null;
     createdDate?: string | null;
     updatedBy?: string | null;
+    updatedByEmail?: string | null;
     updatedDate?: string | null;
     attachments?: ISecuritySetupRequestAttachment[];
     securitySetupStatusId?: number | null;

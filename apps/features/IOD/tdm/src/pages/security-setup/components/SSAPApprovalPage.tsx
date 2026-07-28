@@ -1,8 +1,9 @@
 import React from 'react';
 import { Button } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
-import { useSsapFields, useHasDmRole } from '../../../stores/selectors/securitySetupSelectors';
+import { useSsapFields } from '../../../stores/selectors/securitySetupSelectors';
 import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
+import { useIdentityStore } from '../../../stores/useIdentityStore';
 
 interface SSAPApprovalPageProps {
   onProceedToReview: () => void;
@@ -19,7 +20,9 @@ export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
 }) => {
   const { isSsapReleasedByDm, isReadOnly, isUserReadOnly } = useSsapFields();
   const { updateIdentifierFields } = useSecuritySetupStore();
-  const hasDmRole = useHasDmRole();
+  
+  const userIdentity = useIdentityStore((s) => s.userIdentity);
+  const hasSsapReleasePermission = userIdentity?.permissionsAllowed?.ssap_release || false;
 
   const isSsapApproved = !!isSsapReleasedByDm && !hasSaveError;
 
@@ -49,7 +52,7 @@ export const SSAPApprovalPage: React.FC<SSAPApprovalPageProps> = ({
               variant="contained"
               className="approve-ssap-button button"
               onClick={handleRequestRelease}
-              disabled={isSaving || isReadOnly || isUserReadOnly || isSsapApproved || !hasDmRole}
+              disabled={isSaving || isReadOnly || isUserReadOnly || isSsapApproved || !hasSsapReleasePermission}
             >
               SSAP Security Released
             </Button>
