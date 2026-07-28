@@ -44,23 +44,11 @@ function getWidgetValues(
     return { rowStyle, showFooter, titleOverride, emptyText };
 }
 
-/**
- * Measure a container's pixel width/height via ResizeObserver, using a CALLBACK
- * REF (not useLayoutEffect + useRef).
- *
- * Why a callback ref: the widget has a `loading` early-return, so the measured
- * .container mounts AFTER the first render. An effect with [] deps runs once while
- * ref.current is still null (during loading) and never re-attaches when the real
- * node mounts — leaving the size stuck at 0×0 (which forced permanent 1-column).
- * A callback ref fires exactly when the node attaches/detaches, so the observer is
- * always wired to the live DOM regardless of loading transitions.
- */
 function useElementSize<T extends HTMLElement>() {
     const [size, setSize] = useState<{ widthPx: number; heightPx: number }>({ widthPx: 0, heightPx: 0 });
     const roRef = useRef<ResizeObserver | null>(null);
 
     const ref = useCallback((node: T | null) => {
-        // Tear down any previous observer (node changed or unmounted).
         if (roRef.current) {
             roRef.current.disconnect();
             roRef.current = null;
@@ -68,7 +56,7 @@ function useElementSize<T extends HTMLElement>() {
         if (!node) return;
 
         const measure = () => setSize({ widthPx: node.clientWidth, heightPx: node.clientHeight });
-        measure(); // initial synchronous read
+        measure();
 
         const ro = new ResizeObserver(measure);
         ro.observe(node);
@@ -78,15 +66,20 @@ function useElementSize<T extends HTMLElement>() {
     return { ref, ...size };
 }
 
-/* #1: title row = icon + eyebrow + (optional) collateral chip. NO deal name. */
-function Header({ data, showChip }: { data: NormalisedSummary; showChip: boolean }) {
+function Header({
+    eyebrow,
+    collateralType,
+    showChip,
+}: {
+    eyebrow: string;
+    collateralType: string | null;
+    showChip: boolean;
+}) {
     return (
         <div className={styles.header}>
             <ProfileOutlined className={styles.headerIcon} />
-            <span className={styles.eyebrow}>{data.eyebrow}</span>
-            {showChip && !!data.collateralType && (
-                <span className={styles.chip}>{data.collateralType}</span>
-            )}
+            <span className={styles.eyebrow}>{eyebrow}</span>
+            {showChip && !!collateralType && <span className={styles.chip}>{collateralType}</span>}
         </div>
     );
 }
@@ -98,12 +91,10 @@ export function SummaryPanelWidget(props: WidgetComponentProps) {
     const properties = widgetDefinition?.configSchema?.properties ?? {};
     const { rowStyle, showFooter, titleOverride, emptyText } = getWidgetValues(config, properties);
 
-    // Real-pixel measurement drives the layout plan (see file header for why).
     const { ref, widthPx, heightPx } = useElementSize<HTMLDivElement>();
     const plan = planSummary(widthPx, heightPx);
     const showChip = plan.headerMode === 'full';
 
-    // #3: read the deal name off the shared channel and fire execute when it changes.
     const channelId = config?.params?.channel;
     const dealName = useGetWidgetValue({ channelId, key: DEAL_NAME_KEY });
 
@@ -114,6 +105,9 @@ export function SummaryPanelWidget(props: WidgetComponentProps) {
 
     const data: NormalisedSummary | null =
         mode === 'preview' ? summaryPanelPreviewResult : normaliseSummary(result);
+
+    const eyebrow = titleOverride ?? data?.eyebrow ?? '';
+    const hasMetrics = !!data && data.metrics.length > 0;
 
     if (loading) {
         return (
@@ -127,22 +121,16 @@ export function SummaryPanelWidget(props: WidgetComponentProps) {
         <WidgetCardShell overflow="hidden">
             <div className={styles.fill}>
                 <div ref={ref} className={styles.container}>
-                    {!data && (
-                        <div className={styles.loading}>
-                            <div className={styles.loadingCircle}>
-                                <ProfileOutlined className={styles.loadingIcon} />
-                            </div>
-                            <span className={styles.loadingText}>{emptyText}</span>
-                        </div>
+                    {!!eyebrow && (
+                        <Header
+                            eyebrow={eyebrow}
+                            collateralType={data?.collateralType ?? null}
+                            showChip={showChip}
+                        />
                     )}
 
-                    {data && (
+                    {hasMetrics ? (
                         <>
-                            <Header
-                                data={titleOverride ? { ...data, eyebrow: titleOverride } : data}
-                                showChip={showChip}
-                            />
-
                             <div className={clsx(styles.body, plan.fade && styles.bodyFade)}>
                                 <div
                                     className={clsx(
@@ -150,19 +138,26 @@ export function SummaryPanelWidget(props: WidgetComponentProps) {
                                         plan.gridCols === 2 ? styles.gridTwo : styles.gridOne
                                     )}
                                 >
-                                    {data.metrics.map((m) => (
+                                    {data!.metrics.map((m) => (
                                         <MetricRow key={m.key} metric={m} rowStyle={rowStyle} />
                                     ))}
                                 </div>
                             </div>
 
-                            {showFooter && plan.footer && !!data.asOf && (
+                            {showFooter && plan.footer && !!data!.asOf && (
                                 <div className={styles.footer}>
                                     <span className={styles.footerDot} />
-                                    <span className={styles.footerText}>as of {data.asOf}</span>
+                                    <span className={styles.footerText}>as of {data!.asOf}</span>
                                 </div>
                             )}
                         </>
+                    ) : (
+                        <div className={styles.loading}>
+                            <div className={styles.loadingCircle}>
+                                <ProfileOutlined className={styles.loadingIcon} />
+                            </div>
+                            <span className={styles.loadingText}>{emptyText}</span>
+                        </div>
                     )}
                 </div>
             </div>
