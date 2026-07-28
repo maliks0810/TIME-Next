@@ -156,8 +156,10 @@ export const transformToApiDomain = (
         ReviewedBy: payload.reviewedBy || undefined,
         ReviewedDate: payload.reviewedDate || null,
         CreatedBy: payload.createdBy || undefined,
+        CreatedByEmail: payload.createdByEmail || undefined,
         CreatedDate: payload.createdDate || undefined,
         UpdatedBy: payload.updatedBy || undefined,
+        UpdatedByEmail: payload.updatedByEmail || undefined,
         UpdatedDate: payload.updatedDate || undefined,
 
         // Wizard metadata

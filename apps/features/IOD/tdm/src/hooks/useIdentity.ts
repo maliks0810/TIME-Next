@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react'
 import { useIdentityStore } from '../stores/useIdentityStore';
 import { IdentityService } from '../services/IdentityService';
 
-export const useIdentityUserAuth = () => {
+export const useIdentity = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { name, email, accessToken } = useUserInfo();
-  const setUserAuth = useIdentityStore((s) => s.setUserAuth);
+  const setUserIdentity = useIdentityStore((s) => s.setUserIdentity);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -17,11 +17,11 @@ export const useIdentityUserAuth = () => {
         const userToken = accessToken;
         
         if (userFullName && userEmail && userToken) {
-          const userAuth = await IdentityService.fetchUserAuth(
+          const userIdentity = await IdentityService.fetchUserIdentity(
             userFullName,
             userEmail,
             userToken);
-          setUserAuth(userAuth);
+          setUserIdentity(userIdentity);
         }
 
       } catch (err: unknown) {

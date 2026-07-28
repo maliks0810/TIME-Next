@@ -14,7 +14,7 @@ import { useDashboardStore } from '../../../stores/useDashboardStore';
 import { useReferenceData } from '../../../hooks/useReferenceData';
 import { ReferenceDataFieldKey } from '../../security-setup/lib/types/referenceDataTypes';
 import { useVisibilityChange } from '../../../hooks/useVisibilityChange';
-import { useIdentityUserAuth } from '../../../hooks/useIdentityUserAuth';
+import { useIdentity } from '../../../hooks/useIdentity';
 import { useInterval } from '../../../hooks/useInterval';
 import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
 import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
@@ -48,7 +48,7 @@ const Dashboard: React.FC = () => {
   const dmAnalystOptions = referenceData?.byKey[ReferenceDataFieldKey.DmAnalyst]?.fieldDropdownValues ?? [];
 
   // Set user auth permissions to Zustand store
-  useIdentityUserAuth();
+  useIdentity();
 
   // poll data when page is visible
   useEffect(() => {

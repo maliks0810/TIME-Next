@@ -53,9 +53,7 @@ const INITIAL_STATE: SecuritySetupState = {
   fileUploadError: null,
   
   dmAnalystName: null,
-  dmAnalystEmail: null,
-  // current user
-  userIdentity: null
+  dmAnalystEmail: null
 }
 
 const computeCompletedSteps = (
@@ -202,9 +200,7 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
 
     closeConfirmModal: () => set({ showConfirmModal: false }),
 
-    resetWizard: () => set(INITIAL_STATE),
-
-    setUserIdentity: (identity) => set({ userIdentity: identity })
+    resetWizard: () => set(INITIAL_STATE)
   })
 )
 

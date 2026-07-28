@@ -24,7 +24,7 @@ import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
 import { ISecuritySetupRequestAttachment, ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 import { SecuritySetupService } from '../../../services/SecuritySetupService';
 import { useReferenceData } from '../hooks/useReferenceData';
-import { useIdentity } from '../hooks/useIdentity';
+import { useIdentity } from '../../../hooks/useIdentity';
 import { getStepNumber } from '../utils/securitySetupApiTransformer';
 import {
   isValidString,
@@ -217,9 +217,17 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   const getAuditFields = useCallback(() => {
     if (securitySetupRequestId == null) {
-      return { createdBy: currentUser, createdDate: new Date().toISOString() };
+      return { 
+        createdBy: currentUser,
+        createdByEmail: currentUserEmail,
+        createdDate: new Date().toISOString() 
+      };
     }
-    return { updatedBy: currentUser, updatedDate: new Date().toISOString() };
+    return {
+      updatedBy: currentUser,
+      updatedByEmail: currentUserEmail,
+      updatedDate: new Date().toISOString() 
+    };
   }, [securitySetupRequestId, currentUser]);
 
   const getNextStep = (current: SecuritySetupStep): SecuritySetupStep | null => {

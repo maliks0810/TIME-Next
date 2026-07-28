@@ -1,12 +1,4 @@
 export interface IUserIdentity {
-  userId: number;
-  userEmail: string;
-  userName: string;
-  roles: string[];
-  rolePermissions: Record<string, string[]>;
-}
-
-export interface IUserAuth {
   userId: string;
   userFullName: string;
   userEmail: string;
@@ -19,13 +11,4 @@ export interface IUserAuthPermissions {
   duplicate_request: boolean;
   explicit_dm_analyst_assignment: boolean;
   ssap_release: boolean;
-}
-
-export interface UserAuthResponse {
-  userAuth: {
-    userId: string;
-    userFullName: string;
-    userEmail: string;
-    permissionsAllowed: IUserAuthPermissions;
-  }
 }

@@ -115,7 +115,7 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   const navigate = useNavigate();  
 
   // Get user auth permissions by action
-  const userAuth = useIdentityStore((s) => s.userAuth);
+  const userIdentity = useIdentityStore((s) => s.userIdentity);
 
   const [dmAnalystMenuState, setDmAnalystMenuState] = useState<DMAnalystMenuState | null>(null);
 
@@ -325,9 +325,9 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
       requestId={data.data.id}
       options={dmAnalystOptions}
       onOpen={openDmAnalystMenu}
-      allowExplicitAssignment={userAuth?.permissionsAllowed?.explicit_dm_analyst_assignment || false}
+      allowExplicitAssignment={userIdentity?.permissionsAllowed?.explicit_dm_analyst_assignment || false}
     />
-  }, [dmAnalystOptions, openDmAnalystMenu, userAuth])
+  }, [dmAnalystOptions, openDmAnalystMenu, userIdentity])
 
   const handleRowDbleClick = (e: DataGridTypes.RowDblClickEvent) => {
 
