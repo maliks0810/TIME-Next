@@ -10,6 +10,7 @@ import { deleteSecurityRequests, duplicateSecuritySetupRequest } from '../../../
 import { useUserInfo } from '@platform/utils';
 import { ConfirmationModal } from '../../../common/components/ConfirmationModal';
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../../../pages/security-setup/lib/types/referenceDataTypes';
+import { useIdentityStore } from '../../../stores/useIdentityStore';
 
 type DashboardRequestDetailsProps = {
   securityRequest: IDashboardSecuritySetupRequest | undefined;
@@ -26,6 +27,10 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
   const [isDuplicateConfirmationOpen, setIsDuplicateConfirmationOpen] = useState<boolean>(false);
   const [isCancelConfirmationOpen, setIsCancelConfirmationOpen] = useState<boolean>(false);
   const { name: currentUser } = useUserInfo();
+  const userIdentity = useIdentityStore((s) => s.userIdentity);
+  const hasCancelRequest = userIdentity?.permissionsAllowed?.cancel_request || false;
+  const hasCancelRequestAfterSubmission = userIdentity?.permissionsAllowed?.cancel_request_after_submission || false;
+  const hasDuplicateRequest = userIdentity?.permissionsAllowed?.duplicate_request || false;
 
   // TODO: call service to load SecuritySetupRequest on open of Request Details
 
@@ -53,7 +58,9 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
     if (securityRequest.setupStatus === 'Request Initiated' ||
       securityRequest.setupStatus === 'Pending DM SSAP Review' ||
       securityRequest.setupStatus === 'Cancelled' ||
-      securityRequest.setupStatus === 'Pending Trader Details') {
+      securityRequest.setupStatus === 'Pending Trader Details' ||
+      hasDuplicateRequest === false
+    ) {
       return true;
     }
 
@@ -61,11 +68,14 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
   }
 
   const isCancelButtonDisabled = () => {
-    if (securityRequest.setupStatus === 'Cancelled' ||
+    if (
+      securityRequest.setupStatus === 'Cancelled' ||
       securityRequest.setupStatus === 'Request Submitted' ||
       securityRequest.setupStatus === 'Security Review Complete' ||
       securityRequest.setupStatus === 'Security Setup Complete' ||
-      securityRequest.setupStatus === 'Ready for Trading'
+      securityRequest.setupStatus === 'Ready for Trading' ||
+      hasCancelRequest === false || 
+      hasCancelRequestAfterSubmission === false
     ) {
       return true;
     }
