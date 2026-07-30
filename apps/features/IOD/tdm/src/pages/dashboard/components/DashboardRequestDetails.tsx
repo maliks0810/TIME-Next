@@ -28,9 +28,9 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
   const [isCancelConfirmationOpen, setIsCancelConfirmationOpen] = useState<boolean>(false);
   const { name: currentUser } = useUserInfo();
   const userIdentity = useIdentityStore((s) => s.userIdentity);
-  const hasCancelRequest = userIdentity?.permissionsAllowed?.cancel_request || false;
-  const hasCancelRequestAfterSubmission = userIdentity?.permissionsAllowed?.cancel_request_after_submission || false;
-  const hasDuplicateRequest = userIdentity?.permissionsAllowed?.duplicate_request || false;
+  const userCanCancelRequest = userIdentity?.permissionsAllowed?.cancel_request || false;
+  const userCanCancelRequestAfterSubmission = userIdentity?.permissionsAllowed?.cancel_request_after_submission || false;
+  const userCanDuplicateRequest = userIdentity?.permissionsAllowed?.duplicate_request || false;
 
   // TODO: call service to load SecuritySetupRequest on open of Request Details
 
@@ -59,7 +59,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
       securityRequest.setupStatus === 'Pending DM SSAP Review' ||
       securityRequest.setupStatus === 'Cancelled' ||
       securityRequest.setupStatus === 'Pending Trader Details' ||
-      hasDuplicateRequest === false
+      userCanDuplicateRequest === false
     ) {
       return true;
     }
@@ -69,10 +69,9 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
 
   const isCancelButtonDisabled = () => {
     if (
-      securityRequest.setupStatus === 'Request Submitted'
-      && hasCancelRequestAfterSubmission === true
-    )
-    {
+      userCanCancelRequestAfterSubmission === true &&
+      securityRequest.setupStatus !== 'Cancelled'
+    ) {
         return false;
     }
 
@@ -82,7 +81,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
       securityRequest.setupStatus === 'Security Review Complete' ||
       securityRequest.setupStatus === 'Security Setup Complete' ||
       securityRequest.setupStatus === 'Ready for Trading' ||
-      hasCancelRequest === false
+      userCanCancelRequest === false
     ) {
       return true;
     }
