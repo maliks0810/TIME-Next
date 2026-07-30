@@ -360,10 +360,11 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
                   Callable
                 </Typography>
                 <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
-                  <pre>
-                    {JSON.stringify(securityRequest.securityRequestDetails.callableValue, null, 2)}
-                  </pre>
-                  {lookupReferenceDataDescription(ReferenceDataFieldKey.Callable, securityRequest.securityRequestDetails.callableValue)}
+                  {
+                    lookupReferenceDataDescription(
+                      ReferenceDataFieldKey.Callable,
+                      securityRequest.securityRequestDetails.callableValue
+                  )}
                 </Typography>
               </Grid>
             </Grid>
