@@ -14,6 +14,7 @@ export function PortfolioAnalysisMainPanel({
   decimalSettings,
   decimalMode,
   columnGroups,
+  benchmarkEnabled,
   selectedRowId,
   selectedColumnGroup,
   onSelectedRowIdChange,
@@ -29,6 +30,7 @@ export function PortfolioAnalysisMainPanel({
   decimalSettings: DecimalSettings;
   decimalMode: DecimalMode;
   columnGroups: PortfolioAnalysisColumnGroupVisibility;
+  benchmarkEnabled: boolean;
   selectedRowId: string | null;
   selectedColumnGroup?: PortfolioAnalysisColumnGroupContext | null;
   onSelectedRowIdChange: (rowId: string | null) => void;
@@ -51,6 +53,7 @@ export function PortfolioAnalysisMainPanel({
         decimalSettings={decimalSettings}
         decimalMode={decimalMode}
         columnGroups={columnGroups}
+        benchmarkEnabled={benchmarkEnabled}
         selectedRowId={selectedRowId}
         selectedColumnGroup={selectedColumnGroup}
         onSelectedRowIdChange={onSelectedRowIdChange}

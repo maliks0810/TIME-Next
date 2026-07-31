@@ -7,10 +7,12 @@ import type {
     PortfolioAnalysisTradeEvent,
     PortfolioAnalysisTreeRow,
     PortfolioPositionAnalytics,
+    BenchmarkPositionAnalytics,
     SecurityAnalytics,
 } from '../types';
 import { calculateCashflowDurationImpact } from './calculations';
 import { dateOnly, includedEventTMinus } from './dates';
+
 
 const DURATION_METRIC_KEY = 'dur';
 const TCW_CORE_LEVEL_KEYS = [
@@ -28,6 +30,8 @@ type MutableTreeRow = PortfolioAnalysisTreeRow &
     Record<string, unknown> & { day: Record<number, DayAttribution>; total: DayAttribution };
 type AnyRecord = Record<string, unknown>;
 type PositionDateValue = { exposure: number | null; marketValue: number | null; par: number | null; durationContribution: number | null };
+type BenchmarkDateValue = { exposure: number | null; marketValue: number | null; par: number | null; durationContribution: number | null };
+type SourcePresence = { portfolio: boolean; benchmark: boolean };
 type NodeBuildContext = {
     nodes: Map<string, MutableTreeRow>;
     childrenByParentId: Map<string, string[]>;
@@ -92,7 +96,7 @@ function safeIdPart(value: string): string {
     return value.replaceAll('|', '/').trim();
 }
 function positionMatchKey(position: PortfolioPositionAnalytics): string {
-    return [getString(position, FIELD.portfolioKey), getString(position, FIELD.securityKey), getString(position, FIELD.longShortFlag)].map(clean).join('|');
+    return getString(position, FIELD.securityKey);
 }
 function portfolioSecurityDateKey(source: unknown, date: string | null): string {
     return [getString(source, FIELD.portfolioKey), getString(source, FIELD.securityKey), date ?? ''].map(clean).join('|');
@@ -129,6 +133,10 @@ function blankDay(): DayAttribution {
         trades: null,
         cashflows: null,
         drift: null,
+        benchmarkExposure: null,
+        benchmarkMarketValue: null,
+        benchmarkPar: null,
+        benchmarkDurationContribution: null,
     };
 }
 function addNullable(a: number | null | undefined, b: number | null | undefined): number | null {
@@ -164,12 +172,20 @@ function totalFromDays(day: Record<number, DayAttribution>, comparisonTMinus: nu
             trades: addNullable(acc.trades, d.trades),
             cashflows: addNullable(acc.cashflows, d.cashflows),
             drift: addNullable(acc.drift, d.drift),
+            benchmarkExposure: null,
+            benchmarkMarketValue: null,
+            benchmarkPar: null,
+            benchmarkDurationContribution: null,
         };
     }, blankDay());
     total.exposure = pointInTime.exposure;
     total.marketValue = pointInTime.marketValue;
     total.par = pointInTime.par;
     total.durationContribution = pointInTime.durationContribution;
+    total.benchmarkExposure = pointInTime.benchmarkExposure;
+    total.benchmarkMarketValue = pointInTime.benchmarkMarketValue;
+    total.benchmarkPar = pointInTime.benchmarkPar;
+    total.benchmarkDurationContribution = pointInTime.benchmarkDurationContribution;
     return total;
 }
 function syncFlatFields(row: MutableTreeRow, comparisonTMinus: number): void {
@@ -185,6 +201,10 @@ function syncFlatFields(row: MutableTreeRow, comparisonTMinus: number): void {
         row[fieldName(tMinus, 'trades')] = d.trades;
         row[fieldName(tMinus, 'cashflows')] = d.cashflows;
         row[fieldName(tMinus, 'drift')] = d.drift;
+        row[fieldName(tMinus, 'benchmarkExposure')] = d.benchmarkExposure;
+        row[fieldName(tMinus, 'benchmarkMarketValue')] = d.benchmarkMarketValue;
+        row[fieldName(tMinus, 'benchmarkPar')] = d.benchmarkPar;
+        row[fieldName(tMinus, 'benchmarkDurationContribution')] = d.benchmarkDurationContribution;
     });
     row[fieldName('total', 'exposure')] = row.total.exposure;
     row[fieldName('total', 'marketValue')] = row.total.marketValue;
@@ -196,6 +216,10 @@ function syncFlatFields(row: MutableTreeRow, comparisonTMinus: number): void {
     row[fieldName('total', 'trades')] = row.total.trades;
     row[fieldName('total', 'cashflows')] = row.total.cashflows;
     row[fieldName('total', 'drift')] = row.total.drift;
+    row[fieldName('total', 'benchmarkExposure')] = row.total.benchmarkExposure;
+    row[fieldName('total', 'benchmarkMarketValue')] = row.total.benchmarkMarketValue;
+    row[fieldName('total', 'benchmarkPar')] = row.total.benchmarkPar;
+    row[fieldName('total', 'benchmarkDurationContribution')] = row.total.benchmarkDurationContribution;
 }
 function addChild(ctx: NodeBuildContext, parentId: string | null, childId: string): void {
     if (!parentId) return;
@@ -285,6 +309,20 @@ function aggregateValuesRecursive(node: MutableTreeRow, ctx: NodeBuildContext, a
     if (node.nodeType === 'position' || node.nodeType === 'syntheticTrade') return;
     const children = (ctx.childrenByParentId.get(node.id) ?? []).map((id) => ctx.nodes.get(id)).filter(Boolean) as MutableTreeRow[];
     children.forEach((child) => aggregateValuesRecursive(child, ctx, allTMinus, visited));
+    const hasPortfolio = children.some(
+        (child) => child.holdingState === 'portfolio-only' || child.holdingState === 'both',
+    );
+    const hasBenchmark = children.some(
+        (child) => child.holdingState === 'benchmark-only' || child.holdingState === 'both',
+    );
+    node.holdingState = hasPortfolio && hasBenchmark
+        ? 'both'
+        : hasPortfolio
+          ? 'portfolio-only'
+          : hasBenchmark
+            ? 'benchmark-only'
+            : 'historical-only';
+
     allTMinus.forEach((tMinus) => {
         const totals = children.reduce<DayAttribution>((acc, child) => {
             const d = child.day[tMinus] ?? blankDay();
@@ -299,6 +337,13 @@ function aggregateValuesRecursive(node: MutableTreeRow, ctx: NodeBuildContext, a
                 trades: null,
                 cashflows: null,
                 drift: null,
+                benchmarkExposure: addNullable(acc.benchmarkExposure, d.benchmarkExposure),
+                benchmarkMarketValue: addNullable(acc.benchmarkMarketValue, d.benchmarkMarketValue),
+                benchmarkPar: addNullable(acc.benchmarkPar, d.benchmarkPar),
+                benchmarkDurationContribution: addNullable(
+                    acc.benchmarkDurationContribution,
+                    d.benchmarkDurationContribution,
+                ),
             };
         }, blankDay());
         node.day[tMinus] = {
@@ -307,6 +352,10 @@ function aggregateValuesRecursive(node: MutableTreeRow, ctx: NodeBuildContext, a
             marketValue: totals.marketValue,
             par: totals.par,
             durationContribution: totals.durationContribution,
+            benchmarkExposure: totals.benchmarkExposure,
+            benchmarkMarketValue: totals.benchmarkMarketValue,
+            benchmarkPar: totals.benchmarkPar,
+            benchmarkDurationContribution: totals.benchmarkDurationContribution,
         };
     });
 }
@@ -413,6 +462,7 @@ export function buildPortfolioAnalysisRowIndex(rows: PortfolioAnalysisTreeRow[])
 
 export function buildPortfolioAnalysisTreeRows({
     positions,
+    benchmarkPositions = [],
     securities = [],
     snapshots,
     trades,
@@ -422,6 +472,7 @@ export function buildPortfolioAnalysisTreeRows({
     portfolioName,
 }: {
     positions: PortfolioPositionAnalytics[];
+    benchmarkPositions?: BenchmarkPositionAnalytics[];
     securities?: SecurityAnalytics[];
     snapshots: Record<number, Snapshot>;
     trades: MonitorV2Trade[];
@@ -437,6 +488,8 @@ export function buildPortfolioAnalysisTreeRows({
     const allTMinus = eventAndReferenceTMinus(comparisonTMinus);
     const dateToTMinus = new Map<string, number>();
     const positionValuesByTreeDate = new Map<string, PositionDateValue>();
+    const benchmarkValuesByTreeDate = new Map<string, BenchmarkDateValue>();
+    const sourcePresenceByTreeDate = new Map<string, SourcePresence>();
     const assignmentsByTreeId = new Map<string, PositionTreeAssignment>();
     const positionTreeIdsByPortfolioSecurityDate = new Map<string, string[]>();
     const directTradeByNodeDay = new Map<string, number>();
@@ -483,6 +536,15 @@ export function buildPortfolioAnalysisTreeRows({
         const treeId = `${parent.id}|position|${safeIdPart(fullPathKey)}|${safeIdPart(positionMatchKey(position))}`;
         if (!assignmentsByTreeId.has(treeId)) assignmentsByTreeId.set(treeId, { treeId, sample: position, parentId: parent.id, pathDepth: path.length || 1, fullPathKey });
         if (date) {
+            const sourcePresenceKey = `${treeId}|${date}`;
+            const sourcePresence = sourcePresenceByTreeDate.get(sourcePresenceKey) ?? {
+                portfolio: false,
+                benchmark: false,
+            };
+            sourcePresence.portfolio = true;
+            sourcePresenceByTreeDate.set(sourcePresenceKey, sourcePresence);
+        }
+        if (date) {
             const treeDateKey = `${treeId}|${date}`;
             const existing = positionValuesByTreeDate.get(treeDateKey) ?? { exposure: null, marketValue: null, par: null, durationContribution: null };
             positionValuesByTreeDate.set(treeDateKey, {
@@ -497,8 +559,69 @@ export function buildPortfolioAnalysisTreeRows({
             positionTreeIdsByPortfolioSecurityDate.set(securityDateKeyValue, ids);
         }
     });
+    benchmarkPositions.forEach((position) => {
+        const date = normalizedDate(getString(position, FIELD.asOfDate));
+        const path = tcwCoreLevels(position).filter(Boolean);
+        const parent = ensurePath(ctx, path.length ? path : ['Unclassified']);
+        const fullPathKey = fullTcwCorePathKey(position);
+        const securityKey = getString(position, FIELD.securityKey);
+        const treeId = `${parent.id}|position|${safeIdPart(fullPathKey)}|${safeIdPart(securityKey)}`;
+        if (!assignmentsByTreeId.has(treeId)) {
+            assignmentsByTreeId.set(treeId, {
+                treeId,
+                sample: position as unknown as PortfolioPositionAnalytics,
+                parentId: parent.id,
+                pathDepth: path.length || 1,
+                fullPathKey,
+            });
+        }
+        if (date) {
+            const sourcePresenceKey = `${treeId}|${date}`;
+            const sourcePresence = sourcePresenceByTreeDate.get(sourcePresenceKey) ?? {
+                portfolio: false,
+                benchmark: false,
+            };
+            sourcePresence.benchmark = true;
+            sourcePresenceByTreeDate.set(sourcePresenceKey, sourcePresence);
+        }
+
+        if (!date) return;
+        const key = `${treeId}|${date}`;
+        const existing = benchmarkValuesByTreeDate.get(key) ?? {
+            exposure: null,
+            marketValue: null,
+            par: null,
+            durationContribution: null,
+        };
+        benchmarkValuesByTreeDate.set(key, {
+            exposure: addNullable(
+                existing.exposure,
+                getNumber(position, ['marketValuePercentage', 'MARKET_VALUE_PERCENTAGE']),
+            ),
+            marketValue: addNullable(existing.marketValue, getNumber(position, FIELD.usdMarketValue)),
+            par: addNullable(existing.par, getNumber(position, FIELD.currentFace)),
+            durationContribution: addNullable(
+                existing.durationContribution,
+                getNumber(position, FIELD.durationContribution),
+            ),
+        });
+    });
+
     assignmentsByTreeId.forEach((assignment, treeId) => {
         const { sample, parentId, pathDepth } = assignment;
+        const portfolioTDate = snapshotDate(snapshots, 0);
+        const benchmarkTMinus1Date = snapshotDate(snapshots, 1);
+        const hasPortfolioAtT =
+            sourcePresenceByTreeDate.get(`${treeId}|${portfolioTDate ?? ''}`)?.portfolio === true;
+        const hasBenchmarkAtTMinus1 =
+            sourcePresenceByTreeDate.get(`${treeId}|${benchmarkTMinus1Date ?? ''}`)?.benchmark === true;
+        const holdingState = hasPortfolioAtT && hasBenchmarkAtTMinus1
+            ? 'both'
+            : hasPortfolioAtT
+              ? 'portfolio-only'
+              : hasBenchmarkAtTMinus1
+                ? 'benchmark-only'
+                : 'historical-only';
         const row = ensureNode(ctx, {
             id: treeId,
             parentId,
@@ -511,6 +634,7 @@ export function buildPortfolioAnalysisTreeRows({
             longShortFlag: getString(sample, FIELD.longShortFlag),
             securityGroup: sample.securityGroup,
             securityType: sample.securityType,
+            holdingState,
             day: {},
             total: blankDay(),
             events: {},
@@ -519,6 +643,11 @@ export function buildPortfolioAnalysisTreeRows({
         allTMinus.forEach((tMinus) => {
             const date = snapshotDate(snapshots, tMinus);
             const v = date ? positionValuesByTreeDate.get(`${treeId}|${date}`) : undefined;
+            const benchmarkTMinus = tMinus === 0 ? 1 : tMinus;
+            const benchmarkDate = snapshotDate(snapshots, benchmarkTMinus);
+            const benchmarkValue = benchmarkDate
+                ? benchmarkValuesByTreeDate.get(`${treeId}|${benchmarkDate}`)
+                : undefined;
             row.day[tMinus] = {
                 exposure: v?.exposure ?? null,
                 marketValue: v?.marketValue ?? null,
@@ -530,6 +659,10 @@ export function buildPortfolioAnalysisTreeRows({
                 trades: null,
                 cashflows: null,
                 drift: null,
+                benchmarkExposure: benchmarkValue?.exposure ?? null,
+                benchmarkMarketValue: benchmarkValue?.marketValue ?? null,
+                benchmarkPar: benchmarkValue?.par ?? null,
+                benchmarkDurationContribution: benchmarkValue?.durationContribution ?? null,
             };
         });
         attachDiagnostics(row, allTMinus, snapshots, securityByDateSecurity);
@@ -594,6 +727,7 @@ export function buildPortfolioAnalysisTreeRows({
     const ordered = rowOrderTraversal(ctx);
     exposeDebug({
         positions: positions.length,
+        benchmarkPositions: benchmarkPositions.length,
         securities: securities.length,
         trades: trades.length,
         cashflows: cashflows.length,

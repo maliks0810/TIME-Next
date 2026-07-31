@@ -19,6 +19,16 @@ type TradeWithDuration = PortfolioAnalysisTradeEvent & {
   secDuration?: number | null;
 };
 
+type TradeWithAudit = PortfolioAnalysisTradeEvent & {
+  lastUpdatedDate?: string | null;
+  LastUpdatedDate?: string | null;
+};
+type CashflowWithAudit = MonitorV2Cashflow & {
+  cashModifiedDate?: string | null;
+  CashModifiedDate?: string | null;
+  cashModifiedBy?: string | null;
+  CashModifiedBy?: string | null;
+};
 type TradeWithPrices = PortfolioAnalysisTradeEvent & {
   TradePrice?: number | string | null;
   tradePrice?: number | string | null;
@@ -55,6 +65,35 @@ function dateOnly(value: string | null | undefined): string {
   return value ? String(value).slice(0, 10) : '';
 }
 
+function formatDateTime(value: string | null | undefined): string {
+  if (!value) return '';
+  const text = String(value);
+  const parsed = new Date(text);
+  if (Number.isNaN(parsed.getTime())) return text.replace('T', ' ');
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).format(parsed);
+}
+
+function tradeLastUpdatedDate(trade: PortfolioAnalysisTradeEvent): string {
+  const audit = trade as TradeWithAudit;
+  return formatDateTime(audit.lastUpdatedDate ?? audit.LastUpdatedDate);
+}
+function cashModifiedDate(cashflow: MonitorV2Cashflow): string {
+  const audit = cashflow as CashflowWithAudit;
+  return dateOnly(audit.cashModifiedDate ?? audit.CashModifiedDate);
+}
+function cashModifiedBy(cashflow: MonitorV2Cashflow): string {
+  const audit = cashflow as CashflowWithAudit;
+  return audit.cashModifiedBy ?? audit.CashModifiedBy ?? '';
+}
+
 function tradeDuration(trade: PortfolioAnalysisTradeEvent): number | null {
   const withDuration = trade as TradeWithDuration;
   return asNumber(withDuration.TradeDuration ?? withDuration.tradeDuration);
@@ -88,6 +127,7 @@ function tradeKey(trade: PortfolioAnalysisTradeEvent): string {
     asText(trade.invNum) ?? '',
     trade.securityKey ?? '',
     dateOnly(trade.tradeDate),
+    tradeLastUpdatedDate(trade),
     asNumber(trade.flippedCurrentFace) ?? '',
     asNumber(trade.flippedTradeNetMoney) ?? '',
     asNumber(trade.ctd) ?? '',
@@ -110,7 +150,7 @@ function uniqueTrades(trades: PortfolioAnalysisTradeEvent[]): PortfolioAnalysisT
 }
 
 function cashflowKey(cashflow: MonitorV2Cashflow): string {
-  return [dateOnly(cashflow.settleDate), cashflow.portfolioKey, cashflow.cashType, cashflow.baseAmount ?? '', cashflow.source].join('|');
+  return [dateOnly(cashflow.settleDate), cashflow.portfolioKey, cashflow.cashType, cashflow.baseAmount ?? '', cashflow.source, cashModifiedDate(cashflow), cashModifiedBy(cashflow)].join('|');
 }
 
 function uniqueCashflows(cashflows: MonitorV2Cashflow[]): MonitorV2Cashflow[] {
@@ -182,6 +222,13 @@ export function PortfolioAnalysisEventsTab({
                 align: 'left',
                 render: (row) => dateOnly(row.tradeDate),
                 sortValue: (row) => dateOnly(row.tradeDate),
+              },
+              {
+                key: 'lastUpdatedDate',
+                label: 'Last Updated',
+                align: 'left',
+                render: (row) => tradeLastUpdatedDate(row),
+                sortValue: (row) => tradeLastUpdatedDate(row),
               },
               {
                 key: 'security',
@@ -285,6 +332,20 @@ export function PortfolioAnalysisEventsTab({
                 align: 'left',
                 render: (row) => row.source,
                 sortValue: (row) => row.source,
+              },
+              {
+                key: 'cashModifiedDate',
+                label: 'Modified',
+                align: 'left',
+                render: (row) => cashModifiedDate(row),
+                sortValue: (row) => cashModifiedDate(row),
+              },
+              {
+                key: 'cashModifiedBy',
+                label: 'Modified By',
+                align: 'left',
+                render: (row) => cashModifiedBy(row),
+                sortValue: (row) => cashModifiedBy(row),
               },
             ]}
           />

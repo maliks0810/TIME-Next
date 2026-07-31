@@ -1,9 +1,13 @@
 import { useMemo, useState, type JSX } from 'react';
 import { chip } from '../domain/dates';
-import { usePortfolioPositionAnalytics, useSecurities } from '../api/portfolioAnalysisApi';
+import {
+  useBenchmarkPositionAnalytics,
+  usePortfolioPositionAnalytics,
+  useSecurities,
+} from '../api/portfolioAnalysisApi';
 import { buildPortfolioAnalysisTreeRows } from '../domain/tree';
 import type { DecimalMode, DecimalSettings } from '../domain/format';
-import type { PortfolioAnalysisContext } from '../types';
+import type { BenchmarkUniverseType, PortfolioAnalysisContext } from '../types';
 import type { PortfolioAnalysisColumnGroupVisibility } from './PortfolioAnalysisPage';
 import { PortfolioAnalysisMainPanel } from './PortfolioAnalysisMainPanel';
 import {
@@ -32,6 +36,9 @@ export function PortfolioAnalysisContent({
   decimalMode,
   columnGroups,
   lookThrough,
+  benchmarkEnabled,
+  benchmarkUniverseType,
+  loadVersion,
 }: {
   context: PortfolioAnalysisContext;
   searchQuery: string;
@@ -39,21 +46,39 @@ export function PortfolioAnalysisContent({
   decimalMode: DecimalMode;
   columnGroups: PortfolioAnalysisColumnGroupVisibility;
   lookThrough: boolean;
+  benchmarkEnabled: boolean;
+  benchmarkUniverseType: BenchmarkUniverseType;
+  loadVersion: number;
 }): JSX.Element {
   const positionsQ = usePortfolioPositionAnalytics({
     portfolioKey: context.portfolioKey,
     comparisonTMinus: context.comparisonTMinus,
     lookThrough,
+    loadVersion,
     enabled: true,
   });
-  const securitiesQ = useSecurities({ portfolioKey: context.portfolioKey, comparisonTMinus: context.comparisonTMinus, enabled: true });
+  const benchmarkQ = useBenchmarkPositionAnalytics({
+    legacyBenchmarkCode: context.legacyBenchmarkCode ?? null,
+    comparisonTMinus: context.comparisonTMinus,
+    universeType: benchmarkUniverseType,
+    loadVersion,
+    enabled: Boolean(context.legacyBenchmarkCode),
+  });
+  const securitiesQ = useSecurities({
+    portfolioKey: context.portfolioKey,
+    comparisonTMinus: context.comparisonTMinus,
+    loadVersion,
+    enabled: true,
+  });
   const rows = useMemo(
     () => buildPortfolioAnalysisTreeRows({
-      positions: positionsQ.data ?? [], securities: securitiesQ.data ?? [], snapshots: context.snapshots,
+      positions: positionsQ.data ?? [],
+      benchmarkPositions: benchmarkEnabled ? benchmarkQ.data ?? [] : [],
+      securities: securitiesQ.data ?? [], snapshots: context.snapshots,
       trades: context.cachedTrades ?? [], cashflows: context.cachedCashflows ?? [], comparisonTMinus: context.comparisonTMinus,
       portfolioKey: context.portfolioKey, portfolioName: context.portfolioName,
     }),
-    [positionsQ.data, securitiesQ.data, context.snapshots, context.cachedTrades, context.cachedCashflows, context.comparisonTMinus, context.portfolioKey, context.portfolioName],
+    [positionsQ.data, benchmarkQ.data, benchmarkEnabled, securitiesQ.data, context.snapshots, context.cachedTrades, context.cachedCashflows, context.comparisonTMinus, context.portfolioKey, context.portfolioName],
   );
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
   const [selectedColumnGroup, setSelectedColumnGroup] = useState<PortfolioAnalysisColumnGroupContext | null>(null);
@@ -73,8 +98,10 @@ export function PortfolioAnalysisContent({
   };
   return (
     <section className="portfolio-analysis-content min-h-0 min-w-0 flex-1 overflow-hidden p-0">
-      <PortfolioAnalysisMainPanel context={context} rows={rows} isLoading={positionsQ.isLoading} isError={positionsQ.isError}
-        searchQuery={searchQuery} decimalSettings={decimalSettings} decimalMode={decimalMode} columnGroups={columnGroups}
+      <PortfolioAnalysisMainPanel context={context} rows={rows}
+        isLoading={positionsQ.isLoading || benchmarkQ.isLoading}
+        isError={positionsQ.isError || benchmarkQ.isError}
+        searchQuery={searchQuery} decimalSettings={decimalSettings} decimalMode={decimalMode} columnGroups={columnGroups} benchmarkEnabled={benchmarkEnabled}
         selectedRowId={selectedRowId} selectedColumnGroup={selectedColumnGroup} onSelectedRowIdChange={handleSelectedRowIdChange}
         onSelectedColumnGroupChange={setSelectedColumnGroup} onOpenColumnGroupDetail={openColumnGroupDetail} onOpenDriftDetail={openDriftDetail} />
       <PortfolioAnalysisBottomPanel open={bottomPanelOpen} selectedRow={selectedRow} rows={rows} context={context}

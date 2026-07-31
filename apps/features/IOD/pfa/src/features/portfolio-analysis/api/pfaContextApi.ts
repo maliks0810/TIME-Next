@@ -149,6 +149,15 @@ export function getPortfolioBenchmark(portfolio: PfaPortfolio): string {
   ]);
 }
 
+export function getPortfolioLegacyBenchmarkCode(portfolio: PfaPortfolio): string {
+  return readString(portfolio, [
+    'legacyPortfolioBenchmarkCode',
+    'LegacyPortfolioBenchmarkCode',
+    'legacy_portfolio_benchmark_code',
+    'LEGACY_PORTFOLIO_BENCHMARK_CODE',
+  ]);
+}
+
 export function getRhsGroup(portfolio: PfaPortfolio): string {
   return readString(portfolio, ['rhsGroup', 'RhsGroup', 'rhs_group', 'RHS_GROUP', 'rhsGroupCode', 'RhsGroupCode', 'rhs_group_code', 'RHS_GROUP_CODE']);
 }
@@ -289,6 +298,7 @@ export function usePfaPortfolioAnalysisContext({
       portfolioKey,
       portfolioName: selectedPortfolio ? getPortfolioName(selectedPortfolio) : undefined,
       benchmarkCode: selectedPortfolio ? getPortfolioBenchmark(selectedPortfolio) : undefined,
+      legacyBenchmarkCode: selectedPortfolio ? getPortfolioLegacyBenchmarkCode(selectedPortfolio) : undefined,
       portfolioGroup: selectedPortfolio ? getPortfolioGroup(selectedPortfolio) : undefined,
       rhsGroup: selectedPortfolio ? getRhsGroup(selectedPortfolio) : undefined,
       futureEligible: selectedPortfolio ? getFutureEligible(selectedPortfolio) : null,

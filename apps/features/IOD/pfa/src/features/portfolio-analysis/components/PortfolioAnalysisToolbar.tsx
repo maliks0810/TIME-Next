@@ -19,6 +19,8 @@ type PortfolioAnalysisToolbarProps = {
   onDecimalModeChange: (value: DecimalMode) => void;
   columnGroups: PortfolioAnalysisColumnGroupVisibility;
   onColumnGroupsChange: (value: PortfolioAnalysisColumnGroupVisibility) => void;
+  benchmarkEnabled: boolean;
+  onBenchmarkEnabledChange: (value: boolean) => void;
   onBack?: () => void;
   backLabel?: string;
   leftContent?: ReactNode;
@@ -83,6 +85,8 @@ export function PortfolioAnalysisToolbar({
   onDecimalModeChange,
   columnGroups,
   onColumnGroupsChange,
+  benchmarkEnabled,
+  onBenchmarkEnabledChange,
   onBack,
   backLabel = 'Back',
   leftContent,
@@ -157,6 +161,12 @@ export function PortfolioAnalysisToolbar({
               onClick={() => toggleColumnGroup(group.id)}
             />
           ))}
+          <GroupPill
+            active={benchmarkEnabled}
+            label="BM"
+            title="Show benchmark positions and benchmark columns."
+            onClick={() => onBenchmarkEnabledChange(!benchmarkEnabled)}
+          />
         </div>
         <div className="portfolio-analysis-toolbar-divider" />
         <button

@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -37,7 +38,11 @@ type MetricName =
   | 'durationDelta'
   | 'trades'
   | 'cashflows'
-  | 'drift';
+  | 'drift'
+  | 'benchmarkExposure'
+  | 'benchmarkMarketValue'
+  | 'benchmarkPar'
+  | 'benchmarkDurationContribution';
 type SortState = { field: string; metric: MetricName; direction: SortDirection };
 type LeafColumn = {
   key: string;
@@ -64,6 +69,7 @@ type PortfolioAnalysisTreeGridProps = {
   decimalSettings: DecimalSettings;
   decimalMode: DecimalMode;
   columnGroups: ColumnGroupVisibility;
+  benchmarkEnabled: boolean;
   selectedRowId: string | null;
   selectedColumnGroup?: PortfolioAnalysisColumnGroupContext | null;
   onSelectedRowIdChange: (rowId: string | null) => void;
@@ -104,8 +110,8 @@ function numericValue(row: PortfolioAnalysisTreeRow, field: string, metric: Metr
 function normalizeSearch(value: string): string {
   return value.trim().toUpperCase().replaceAll('-', '').replaceAll(' ', '');
 }
-function priorDateCaption(context: PortfolioAnalysisContext, tMinus: number): string {
-  return context.dateLabels[tMinus + 1] ?? chip(tMinus + 1);
+function priorTMinusCaption(tMinus: number): string {
+  return chip(tMinus + 1);
 }
 function stickyClass(sticky?: StickyKind): string {
   return sticky === 'first' ? 'portfolio-analysis-grid-sticky-1' : sticky === 'second' ? 'portfolio-analysis-grid-sticky-2' : '';
@@ -240,10 +246,10 @@ function withVisibleLeaves(group: HeaderGroup, columnGroups: ColumnGroupVisibili
 }
 function formatGridNumber(value: number | null | undefined, metric: MetricName | undefined, kind: ColumnKind, decimalSettings: DecimalSettings, decimalMode: DecimalMode): string {
   if (kind === 'exposure') return fmtDynamicPercent(value, decimalSettings.pct, decimalMode);
-  if (metric === 'marketValue' || metric === 'marketValueDelta') {
+  if (metric === 'marketValue' || metric === 'marketValueDelta' || metric === 'benchmarkMarketValue') {
     return metric === 'marketValueDelta' ? fmtDynamicSignedNumber(value, decimalSettings.money, decimalMode) : fmtDynamicNumber(value, decimalSettings.money, decimalMode);
   }
-  if (metric === 'par' || metric === 'parDelta') {
+  if (metric === 'par' || metric === 'parDelta' || metric === 'benchmarkPar') {
     return metric === 'parDelta' ? fmtDynamicSignedNumber(value, decimalSettings.qty, decimalMode) : fmtDynamicNumber(value, decimalSettings.qty, decimalMode);
   }
   return kind === 'number' ? fmtDynamicSignedNumber(value, decimalSettings.contrib, decimalMode) : fmtDynamicNumber(value, decimalSettings.contrib, decimalMode);
@@ -258,6 +264,7 @@ export function PortfolioAnalysisTreeGrid({
   decimalSettings,
   decimalMode,
   columnGroups,
+  benchmarkEnabled,
   selectedRowId,
   selectedColumnGroup,
   onSelectedRowIdChange,
@@ -274,6 +281,12 @@ export function PortfolioAnalysisTreeGrid({
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const effectiveSelectedColumnGroup = internalSelectedColumnGroup ?? selectedColumnGroup ?? null;
+  const refreshViewport = useCallback((): void => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    setViewportHeight(scroller.clientHeight);
+    setScrollTop(scroller.scrollTop);
+  }, []);
   const eventTMinus = useMemo(() => includedEventTMinus(context.comparisonTMinus), [context.comparisonTMinus]);
   const displayTMinus = useMemo(() => [...eventTMinus].sort((a, b) => a - b), [eventTMinus]);
   const { rowById, childIdsByParentId } = useMemo(() => buildPortfolioAnalysisRowIndex(rows), [rows]);
@@ -322,12 +335,16 @@ export function PortfolioAnalysisTreeGrid({
         width: 982,
         leaves: [
           { key: `d${tMinus}-exposure`, caption: 'MV%', width: 88, kind: 'exposure', metric: 'exposure', columnGroup: 'mv', sortable: true, field: fieldName(tMinus, 'exposure'), tMinus },
+          ...(benchmarkEnabled ? [{ key: `d${tMinus}-bm-exposure`, caption: 'BM MV%', width: 88, kind: 'exposure' as const, metric: 'benchmarkExposure' as const, columnGroup: 'mv' as const, sortable: true, field: fieldName(tMinus, 'benchmarkExposure'), tMinus }] : []),
           { key: `d${tMinus}-mv`, caption: 'MV', width: 104, kind: 'plainNumber', metric: 'marketValue', columnGroup: 'mv', sortable: true, field: fieldName(tMinus, 'marketValue'), tMinus },
-          { key: `d${tMinus}-delta-mv`, caption: `Δ MV [${priorDateCaption(context, tMinus)}]`, width: 108, kind: 'number', metric: 'marketValueDelta', columnGroup: 'mv', sortable: true, field: fieldName(tMinus, 'marketValueDelta'), tMinus },
+          ...(benchmarkEnabled ? [{ key: `d${tMinus}-bm-mv`, caption: 'BM MV', width: 104, kind: 'plainNumber' as const, metric: 'benchmarkMarketValue' as const, columnGroup: 'mv' as const, sortable: true, field: fieldName(tMinus, 'benchmarkMarketValue'), tMinus }] : []),
+          { key: `d${tMinus}-delta-mv`, caption: `Δ MV [${priorTMinusCaption(tMinus)}]`, width: 96, kind: 'number', metric: 'marketValueDelta', columnGroup: 'mv', sortable: true, field: fieldName(tMinus, 'marketValueDelta'), tMinus },
           { key: `d${tMinus}-par`, caption: 'PAR', width: 104, kind: 'plainNumber', metric: 'par', columnGroup: 'par', sortable: true, field: fieldName(tMinus, 'par'), tMinus },
-          { key: `d${tMinus}-delta-par`, caption: `Δ PAR [${priorDateCaption(context, tMinus)}]`, width: 104, kind: 'number', metric: 'parDelta', columnGroup: 'par', sortable: true, field: fieldName(tMinus, 'parDelta'), tMinus },
+          ...(benchmarkEnabled ? [{ key: `d${tMinus}-bm-par`, caption: 'BM PAR', width: 104, kind: 'plainNumber' as const, metric: 'benchmarkPar' as const, columnGroup: 'par' as const, sortable: true, field: fieldName(tMinus, 'benchmarkPar'), tMinus }] : []),
+          { key: `d${tMinus}-delta-par`, caption: `Δ PAR [${priorTMinusCaption(tMinus)}]`, width: 96, kind: 'number', metric: 'parDelta', columnGroup: 'par', sortable: true, field: fieldName(tMinus, 'parDelta'), tMinus },
           { key: `d${tMinus}-dur-contribution`, caption: 'Dur Contrib', width: 112, kind: 'plainNumber', metric: 'durationContribution', columnGroup: 'dur', sortable: true, field: fieldName(tMinus, 'durationContribution'), tMinus },
-          { key: `d${tMinus}-delta`, caption: `Δ Dur [${priorDateCaption(context, tMinus)}]`, width: 126, kind: 'number', metric: 'durationDelta', columnGroup: 'dur', sortable: true, field: fieldName(tMinus, 'durationDelta'), tMinus },
+          ...(benchmarkEnabled ? [{ key: `d${tMinus}-bm-duration`, caption: 'BM Dur Contrib', width: 122, kind: 'plainNumber' as const, metric: 'benchmarkDurationContribution' as const, columnGroup: 'dur' as const, sortable: true, field: fieldName(tMinus, 'benchmarkDurationContribution'), tMinus }] : []),
+          { key: `d${tMinus}-delta`, caption: `Δ Dur [${priorTMinusCaption(tMinus)}]`, width: 100, kind: 'number', metric: 'durationDelta', columnGroup: 'dur', sortable: true, field: fieldName(tMinus, 'durationDelta'), tMinus },
           { key: `d${tMinus}-trades`, caption: 'Trades', width: 82, kind: 'number', metric: 'trades', columnGroup: 'drift', sortable: true, field: fieldName(tMinus, 'trades'), tMinus },
           { key: `d${tMinus}-cashflows`, caption: 'Cashflows', width: 92, kind: 'number', metric: 'cashflows', columnGroup: 'drift', sortable: true, field: fieldName(tMinus, 'cashflows'), tMinus },
           { key: `d${tMinus}-drift`, caption: 'Drift', width: 62, kind: 'number', metric: 'drift', columnGroup: 'drift', sortable: true, field: fieldName(tMinus, 'drift'), tMinus },
@@ -335,14 +352,15 @@ export function PortfolioAnalysisTreeGrid({
       });
     });
     return groups.map((group) => withVisibleLeaves(group, columnGroups)).filter(Boolean) as HeaderGroup[];
-  }, [columnGroups, context, displayTMinus]);
+  }, [benchmarkEnabled, columnGroups, context, displayTMinus]);
 
   const leafColumns = useMemo(
     () => headerGroups.flatMap((group) => group.leaves.map((leaf, index) => ({ ...leaf, groupStart: index === 0, groupEnd: index === group.leaves.length - 1 }))),
     [headerGroups],
   );
   const totalWidth = useMemo(() => leafColumns.reduce((sum, column) => sum + column.width, 0), [leafColumns]);
-  const bodyHeight = Math.max(0, viewportHeight - HEADER_HEIGHT);
+  const effectiveViewportHeight = scrollerRef.current?.clientHeight ?? viewportHeight;
+  const bodyHeight = Math.max(0, effectiveViewportHeight - HEADER_HEIGHT);
   const startIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN_ROWS);
   const endIndex = Math.min(visibleRows.length, Math.ceil((scrollTop + bodyHeight) / ROW_HEIGHT) + OVERSCAN_ROWS);
   const renderedRows = visibleRows.slice(startIndex, endIndex);
@@ -357,6 +375,11 @@ export function PortfolioAnalysisTreeGrid({
       return next;
     });
   }, [rowById]);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(refreshViewport);
+    return () => window.cancelAnimationFrame(frame);
+  }, [expandedIds, refreshViewport, rows.length]);
+
   useEffect(() => {
     if (!matchedRowIds.length) return;
     setExpandedIds((current) => {
@@ -416,6 +439,7 @@ export function PortfolioAnalysisTreeGrid({
   const expandAll = (): void => {
     setExpandedIds(new Set(nonLeafRows.map((row) => row.id)));
     setMenu(null);
+    window.requestAnimationFrame(refreshViewport);
   };
   const collapseAll = (): void => {
     setExpandedIds(new Set(['root']));
@@ -424,6 +448,7 @@ export function PortfolioAnalysisTreeGrid({
   const expandCurrentLevel = (row: PortfolioAnalysisTreeRow): void => {
     setExpandedIds((current) => new Set([...current, ...(sameLevelNonLeafIdsByDepth.get(row.depth) ?? [])]));
     setMenu(null);
+    window.requestAnimationFrame(refreshViewport);
   };
   const collapseCurrentLevel = (row: PortfolioAnalysisTreeRow): void => {
     const ids = new Set(sameLevelNonLeafIdsByDepth.get(row.depth) ?? []);
@@ -555,7 +580,7 @@ function GridCell({
           <button type="button" className={`portfolio-analysis-grid-caret ${hasChildren ? '' : 'portfolio-analysis-grid-caret-placeholder'}`} onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleRow(row); }}>
             {hasChildren ? expanded ? <ChevronDown size={15} strokeWidth={2} /> : <ChevronRight size={15} strokeWidth={2} /> : null}
           </button>
-          <span className={`portfolio-analysis-grid-truncate ${row.nodeType === 'position' ? 'portfolio-analysis-grid-position-label' : row.nodeType === 'syntheticTrade' ? 'portfolio-analysis-grid-synthetic-label' : 'portfolio-analysis-grid-bucket-label'}`}>
+          <span className={`portfolio-analysis-grid-truncate ${`${row.nodeType === 'position' ? 'portfolio-analysis-grid-position-label' : row.nodeType === 'syntheticTrade' ? 'portfolio-analysis-grid-synthetic-label' : 'portfolio-analysis-grid-bucket-label'} portfolio-analysis-grid-holding-${row.holdingState ?? 'historical-only'}`}`}>
             {row.label}
           </span>
         </div>

@@ -79,10 +79,18 @@ export type MonitorV2Cashflow = {
   [key: string]: unknown;
 };
 
+export type BenchmarkUniverseType = 'RETURNS' | 'STATS';
+export type HoldingState =
+  | 'portfolio-only'
+  | 'benchmark-only'
+  | 'both'
+  | 'historical-only';
+  
 export type PortfolioAnalysisContext = {
   portfolioKey: string;
   portfolioName?: string;
   benchmarkCode?: string;
+  legacyBenchmarkCode?: string;
   portfolioGroup?: string;
   rhsGroup?: string;
   futureEligible?: boolean | null;
@@ -91,6 +99,27 @@ export type PortfolioAnalysisContext = {
   snapshots: Record<number, Snapshot>;
   cachedTrades?: MonitorV2Trade[];
   cachedCashflows?: MonitorV2Cashflow[];
+};
+
+export type BenchmarkPositionAnalytics = {
+  asOfDate: string;
+  benchmarkKey?: string | null;
+  legacyBenchmarkCode?: string | null;
+  universeTypeCode?: string | null;
+  securityKey: string;
+  ticker?: string | null;
+  currentFace: number | null;
+  marketValuePercentage: number | null;
+  usdMarketValue: number | null;
+  durationContribution: number | null;
+  tcwCoreLevel1?: string | null;
+  tcwCoreLevel2?: string | null;
+  tcwCoreLevel3?: string | null;
+  tcwCoreLevel4?: string | null;
+  tcwCoreLevel5?: string | null;
+  tcwCoreLevel6?: string | null;
+  tcwCoreLevel7?: string | null;
+  [key: string]: unknown;
 };
 
 export type PortfolioPositionAnalytics = {
@@ -182,6 +211,10 @@ export type PortfolioAnalysisDayAttribution = {
   trades: number | null;
   cashflows: number | null;
   drift: number | null;
+  benchmarkExposure: number | null;
+  benchmarkMarketValue: number | null;
+  benchmarkPar: number | null;
+  benchmarkDurationContribution: number | null;
 };
 
 export type PortfolioAnalysisTradeMatchStatus = 'same-day-position' | 'bucket-only' | 'trade-only';
@@ -216,6 +249,7 @@ export type PortfolioAnalysisTreeRow = {
   longShortFlag?: string;
   securityGroup?: string;
   securityType?: string;
+  holdingState?: HoldingState;
   day: Record<number, PortfolioAnalysisDayAttribution>;
   total: PortfolioAnalysisDayAttribution;
   diagnostics?: Record<number, PortfolioAnalysisRowDiagnostics>;

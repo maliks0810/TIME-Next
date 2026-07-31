@@ -1,4 +1,5 @@
 import { Loader2, Search } from 'lucide-react';
+import type { BenchmarkUniverseType } from '../types';
 import {
   useCallback,
   useEffect,
@@ -31,14 +32,19 @@ function normalizePortfolioInput(value: string): string {
 function readInitialSearchParams(): { portfolioKey: string; tMinusStart: number; lookThrough: boolean } {
   const params = new URLSearchParams(window.location.search);
   const portfolioKey = normalizePortfolioInput(params.get('portfolioKey') ?? '');
-  const tMinusStart = Number(params.get('tMinusStart') ?? '5');
+  const tMinusStart = Number(params.get('tMinusStart') ?? '1');
   const lookThrough = params.get('lookThrough') === 'true';
 
   return {
     portfolioKey,
-    tMinusStart: Number.isFinite(tMinusStart) && tMinusStart > 0 ? Math.trunc(tMinusStart) : 5,
+    tMinusStart: Number.isFinite(tMinusStart) && tMinusStart > 0 ? Math.trunc(tMinusStart) : 1,
     lookThrough,
   };
+}
+
+function normalizeComparisonTMinus(value: string | number): number {
+  const numericValue = typeof value === 'number' ? value : Number(value.trim());
+  return Number.isFinite(numericValue) && numericValue > 0 ? Math.trunc(numericValue) : 1;
 }
 
 function syncSearchParams(portfolioKey: string, tMinusStart: number, lookThrough: boolean): void {
@@ -71,9 +77,15 @@ export function PfaPortfolioAnalysisShell(): JSX.Element {
   const initial = useMemo(readInitialSearchParams, []);
   const [portfolioKey, setPortfolioKey] = useState(initial.portfolioKey);
   const [portfolioSearch, setPortfolioSearch] = useState(initial.portfolioKey);
+  const [comparisonTMinusInput, setComparisonTMinusInput] = useState(String(initial.tMinusStart));
   const [comparisonTMinus, setComparisonTMinus] = useState(initial.tMinusStart);
   const [lookThroughInput, setLookThroughInput] = useState(initial.lookThrough);
   const [lookThrough, setLookThrough] = useState(initial.lookThrough);
+  const [benchmarkUniverseInput, setBenchmarkUniverseInput] =
+    useState<BenchmarkUniverseType>('RETURNS');
+  const [benchmarkUniverseType, setBenchmarkUniverseType] =
+    useState<BenchmarkUniverseType>('RETURNS');
+  const [loadVersion, setLoadVersion] = useState(0);
   const [isPortfolioPopupOpen, setIsPortfolioPopupOpen] = useState(false);
   const [popupPosition, setPopupPosition] = useState<PopupPosition | null>(null);
   const selectorRef = useRef<HTMLFormElement | null>(null);
@@ -119,6 +131,7 @@ export function PfaPortfolioAnalysisShell(): JSX.Element {
       const next = readInitialSearchParams();
       setPortfolioKey(next.portfolioKey);
       setPortfolioSearch(next.portfolioKey);
+      setComparisonTMinusInput(String(next.tMinusStart));
       setComparisonTMinus(next.tMinusStart);
       setLookThroughInput(next.lookThrough);
       setLookThrough(next.lookThrough);
@@ -144,16 +157,23 @@ export function PfaPortfolioAnalysisShell(): JSX.Element {
     };
   }, [updatePopupPosition]);
 
-  const loadPortfolio = useCallback(
-    (nextValue = portfolioSearch): void => {
-      const nextPortfolioKey = normalizePortfolioInput(nextValue);
-      setPortfolioKey(nextPortfolioKey);
-      setPortfolioSearch(nextPortfolioKey);
-      setLookThrough(lookThroughInput);
-      setIsPortfolioPopupOpen(false);
-    },
-    [lookThroughInput, portfolioSearch],
-  );
+  const selectPortfolioDraft = useCallback((nextValue: string): void => {
+    setPortfolioSearch(normalizePortfolioInput(nextValue));
+    setIsPortfolioPopupOpen(false);
+  }, []);
+
+  const loadPortfolio = useCallback((): void => {
+    const nextPortfolioKey = normalizePortfolioInput(portfolioSearch);
+    const nextComparisonTMinus = normalizeComparisonTMinus(comparisonTMinusInput);
+    setPortfolioKey(nextPortfolioKey);
+    setPortfolioSearch(nextPortfolioKey);
+    setComparisonTMinusInput(String(nextComparisonTMinus));
+    setComparisonTMinus(nextComparisonTMinus);
+    setLookThrough(lookThroughInput);
+    setBenchmarkUniverseType(benchmarkUniverseInput);
+    setLoadVersion((current) => current + 1);
+    setIsPortfolioPopupOpen(false);
+  }, [benchmarkUniverseInput, comparisonTMinusInput, lookThroughInput, portfolioSearch]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -177,7 +197,7 @@ export function PfaPortfolioAnalysisShell(): JSX.Element {
                 key={`${getPortfolioKey(portfolio)}-${getPortfolioGroup(portfolio)}-${getRhsGroup(portfolio)}-${getPortfolioName(portfolio)}`}
                 className="pfa-portfolio-popup-row"
                 onMouseDown={(event) => event.preventDefault()}
-                onClick={() => loadPortfolio(getPortfolioKey(portfolio))}
+                onClick={() => selectPortfolioDraft(getPortfolioKey(portfolio))}
               >
                 <span className="pfa-portfolio-popup-key">{getPortfolioKey(portfolio)}</span>
                 <span>{getPortfolioGroup(portfolio) || '-'}</span>
@@ -212,11 +232,33 @@ export function PfaPortfolioAnalysisShell(): JSX.Element {
         <input
           type="number"
           min={1}
-          value={comparisonTMinus}
-          onChange={(event) => setComparisonTMinus(Math.max(1, Math.trunc(Number(event.target.value) || 1)))}
+          value={comparisonTMinusInput}
+          onChange={(event) => setComparisonTMinusInput(event.target.value)}
         />
         <span>to T</span>
       </label>
+      <div
+        className="pfa-benchmark-universe"
+        role="group"
+        aria-label="Benchmark universe type"
+      >
+        {(['RETURNS', 'STATS'] as const).map((type) => {
+          const isActive = benchmarkUniverseInput === type;
+
+          return (
+            <button
+              type="button"
+              key={type}
+              className="portfolio-analysis-group-pill pfa-benchmark-universe-option"
+              data-active={isActive}
+              aria-pressed={isActive}
+              onClick={() => setBenchmarkUniverseInput(type)}
+            >
+              {type === 'RETURNS' ? 'Returns' : 'Stats'}
+            </button>
+          );
+        })}
+      </div>
       <button
         type="button"
         className="portfolio-analysis-group-pill pfa-look-through-toggle"
@@ -246,6 +288,8 @@ export function PfaPortfolioAnalysisShell(): JSX.Element {
         context={contextState.context}
         toolbarLeftContent={toolbarSelector}
         lookThrough={lookThrough}
+        benchmarkUniverseType={benchmarkUniverseType}
+        loadVersion={loadVersion}
       />
     );
   }
