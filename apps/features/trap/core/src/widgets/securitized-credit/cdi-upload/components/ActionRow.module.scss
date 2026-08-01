@@ -1,0 +1,39 @@
+.row { display: flex; gap: 8px; align-items: center; flex-shrink: 0; min-width: 0; }
+
+/* Fetch group capped (~26–30 chars) — never sprawls. */
+.fetchGroup { display: flex; min-width: 0; max-width: 420px; flex: 0 1 420px; }
+
+.inpDeal, .inpPass, .inpBtn {
+    height: 32px;
+    border: 1px solid var(--ant-color-border-secondary);
+    background: var(--ant-color-bg-container);
+    font-size: 12px;
+    color: var(--ant-color-text);
+    outline: none;
+}
+.inpDeal {
+    flex: 1; min-width: 0; padding: 0 10px;
+    border-radius: var(--ant-border-radius) 0 0 var(--ant-border-radius);
+    overflow: hidden; text-overflow: ellipsis;
+}
+.inpPass {
+    width: 96px; flex-shrink: 0; padding: 0 10px; border-left: none;
+}
+.inpBtn {
+    width: 34px; flex-shrink: 0; border-left: none;
+    border-radius: 0 var(--ant-border-radius) var(--ant-border-radius) 0;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ant-color-primary); cursor: pointer; background: var(--ant-color-fill-tertiary);
+}
+.inpBtn:hover { background: var(--ant-color-primary-bg); }
+
+.inpDeal:focus, .inpPass:focus { border-color: var(--ant-color-primary); }
+
+.upBtn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 32px; padding: 0 14px; flex-shrink: 0;
+    border: none; border-radius: var(--ant-border-radius);
+    background: var(--ant-color-primary); color: #fff;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.upBtn:hover { background: var(--ant-color-primary-hover); }

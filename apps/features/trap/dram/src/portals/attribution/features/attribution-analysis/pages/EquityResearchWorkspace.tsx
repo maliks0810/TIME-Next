@@ -234,10 +234,10 @@ export default function EquityResearchWorkspace() {
         disabled={!canRun}
         onClick={async () => {
         try {
-          const resp = (await api.runAnalysis(
+          const resp = (await api.runSecurityGrainAnalysis(
           assetType,
           viewPortfolios ?? default_em_port,"monthly","GICS","",
-          viewAsOfDate
+          viewAsOfDate,""
           )) as AnalyticsResponse;
 
           const nextConfig = extractGridConfig(resp);

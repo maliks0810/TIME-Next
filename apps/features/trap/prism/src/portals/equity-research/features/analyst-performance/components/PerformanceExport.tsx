@@ -45,7 +45,10 @@ export const PerformanceExport: React.FC<PerformanceExportProps> = ({ results, r
     if (!value) return '';
     const d = value instanceof Date ? value : new Date(value);
     if (Number.isNaN(d.getTime())) return safeText(value);
-    return formatDate(d.toString());
+    const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(d.getUTCDate()).padStart(2, '0');
+    const yyyy = d.getUTCFullYear();
+    return `${mm}/${dd}/${yyyy}`;
   };
 
   /**

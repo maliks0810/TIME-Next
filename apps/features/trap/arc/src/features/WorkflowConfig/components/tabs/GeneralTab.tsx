@@ -2,7 +2,6 @@ import { Form, Select, Switch } from 'antd';
 import { MetaDataResponse, WorkflowConfig, WorkflowsCollection } from '../../lib/types';
 import { useEffect, useState } from 'react';
 import { getMetaData, getWorkflowMetaData } from '../../lib/services';
-
 type GeneralTabProps = {
     draft: WorkflowConfig;
     onChange: (partial: Partial<WorkflowConfig>) => void;
@@ -12,24 +11,31 @@ export const GeneralTab = ({ draft, onChange }: GeneralTabProps) => {
     const [form] = Form.useForm();
     const [metaData, setMetaData] = useState<MetaDataResponse | null>(null);
     const [workflowMetaData, setWorkflowMetaData] = useState<WorkflowsCollection | null>(null);
-    const [selectedAssetTypeValue, setSelectedAssetTypeValue] = useState<string | null>(null);
-    const [selectedAssetSubTypeValue, setSelectedAssetSubTypeValue] = useState<string | null>(null);
-    const [selectedCollateralTypeValue, setSelectedCollateralTypeValue] = useState<string | null>(null);
+
+    const assetTypeFormValue = Form.useWatch('assetType', form);
+    const assetSubTypeFormValue = Form.useWatch('assetSubType', form);
+
+    const initialFormValues = {
+        workflowId: draft.workflowId || undefined,
+        assetType: draft.assetType,
+        assetSubType: draft.assetSubType,
+        collateralType: draft.collateralType,
+        isActive: draft.isActive,
+    };
 
     useEffect(() => {
-
-        const fetch = async () => {
+        const fetchMetaDataForGeneralTab = async () => {
             try {
                 const reponse = await getMetaData();
                 setMetaData(reponse.data);
 
                 if (draft.configurationId > 0) {
-                    setSelectedAssetTypeValue(draft.assetType);
+                    form.setFieldsValue({ assetType: draft.assetType });
                     if (draft.assetSubType != undefined) {
-                        setSelectedAssetSubTypeValue(draft.assetSubType);
+                        form.setFieldsValue({ assetSubType: draft.assetSubType });
 
                         if (draft.collateralType != undefined) {
-                            setSelectedCollateralTypeValue(draft.collateralType);
+                            form.setFieldsValue({ collateralType: draft.collateralType });
                         }
                     }
                 }
@@ -42,25 +48,20 @@ export const GeneralTab = ({ draft, onChange }: GeneralTabProps) => {
             }
         };
 
-        fetch();
+        fetchMetaDataForGeneralTab();
     }, []);
 
-    // const validate = async () => {
-    //     // Surface required-field errors before delegating to the parent save handler.
-    //     await form.validateFields();
-    // };
-    // Get filtered lists based on selections and active status  
     const assetTypes = metaData?.assetTypes || [];
     const assetSubTypes =
-        assetTypes?.find(at => at.assetTypeValue === selectedAssetTypeValue)?.assetSubTypes || [];
+        assetTypes?.find(at => at.assetTypeValue === assetTypeFormValue)?.assetSubTypes || [];
     const collateralTypes =
-        assetSubTypes?.find(ast => ast.assetSubTypeValue === selectedAssetSubTypeValue)?.collateralTypes || [];
+        assetSubTypes?.find(ast => ast.assetSubTypeValue === assetSubTypeFormValue)?.collateralTypes || [];
 
-    // Handlers for cascading selects  
+    // Handlers for cascading selects    
     const onAssetTypeChange = (value: string) => {
-        setSelectedAssetTypeValue(value);
-        setSelectedAssetSubTypeValue(null);
-        setSelectedCollateralTypeValue(null);
+        form.setFieldsValue({ assetType: value });
+        form.setFieldsValue({ assetSubType: null });
+        form.setFieldsValue({ collateralType: null });
 
         form.resetFields([
             'assetSubType',
@@ -69,8 +70,8 @@ export const GeneralTab = ({ draft, onChange }: GeneralTabProps) => {
     };
 
     const onAssetSubTypeChange = (value: string) => {
-        setSelectedAssetSubTypeValue(value);
-        setSelectedCollateralTypeValue(null);
+        form.setFieldsValue({ assetSubType: value });
+        form.setFieldsValue({ collateralType: null });
 
         form.resetFields([
             'collateralType',
@@ -78,43 +79,23 @@ export const GeneralTab = ({ draft, onChange }: GeneralTabProps) => {
     };
 
     const onCollateralTypeChange = (value: string) => {
-        setSelectedCollateralTypeValue(value);
+        form.setFieldsValue({ collateralType: value });
     };
 
     return (
         <Form
             form={form}
-            initialValues={{
-                workflowId: draft.workflowId || undefined,
-                assetType: draft.assetType,
-                assetSubType: draft.assetSubType,
-                collateralType: draft.collateralType,
-                isActive: draft.isActive,
-            }}
-            onValuesChange={(changed) => onChange(changed)}
+            initialValues={initialFormValues}
+            onValuesChange={onChange}
         >
-            <div
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns: '140px 1fr',
-                    gap: 14,
-                    alignItems: 'center',
-                    padding: '12px 0',
-                }}
-            >
+            <div className='generalTabcontainer'>
                 <label htmlFor="workflowId">
                     <strong>Workflow</strong>
                 </label>
                 <Form.Item name="workflowId" noStyle rules={[{ required: true }]}>
                     <Select
                         id="workflowId"
-                        style={{
-                            width: '350px',
-                            padding: '4px',
-                            borderRadius: '6px',
-                            border: '1px solid lightgray',
-                            backgroundColor: 'white',
-                        }}
+                        className='generalTabSelect'
                         placeholder="Select Workflow"
                         options={
                             workflowMetaData?.workflowItems
@@ -131,17 +112,10 @@ export const GeneralTab = ({ draft, onChange }: GeneralTabProps) => {
                 </label>
                 <Form.Item name="assetType" noStyle rules={[{ required: true }]}>
                     <Select
-                        value={selectedAssetTypeValue}
                         onChange={onAssetTypeChange}
                         placeholder="Select Asset Type"
                         defaultValue="NARMBS"
-                        style={{
-                            width: '350px',
-                            padding: '4px',
-                            borderRadius: '6px',
-                            border: '1px solid lightgray',
-                            backgroundColor: 'white',
-                        }}
+                        className='generalTabSelect'
                         options={
                             assetTypes
                                 .map(at => ({
@@ -157,16 +131,9 @@ export const GeneralTab = ({ draft, onChange }: GeneralTabProps) => {
                 </label>
                 <Form.Item name="assetSubType" noStyle>
                     <Select
-                        value={selectedAssetSubTypeValue}
                         onChange={onAssetSubTypeChange}
                         placeholder="Select Asset Sub Type"
-                        style={{
-                            width: '350px',
-                            padding: '4px',
-                            borderRadius: '6px',
-                            border: '1px solid lightgray',
-                            backgroundColor: 'white',
-                        }}
+                        className='generalTabSelect'
                         options={
                             assetSubTypes
                                 .map(at => ({
@@ -182,16 +149,9 @@ export const GeneralTab = ({ draft, onChange }: GeneralTabProps) => {
                 </label>
                 <Form.Item name="collateralType" noStyle>
                     <Select
-                        value={selectedCollateralTypeValue}
                         placeholder="Select Collateral Type"
                         onChange={onCollateralTypeChange}
-                        style={{
-                            width: '350px',
-                            padding: '4px',
-                            borderRadius: '6px',
-                            border: '1px solid lightgray',
-                            backgroundColor: 'white',
-                        }}
+                        className='generalTabSelect'
                         options={
                             collateralTypes
                                 .map(at => ({
@@ -214,4 +174,4 @@ export const GeneralTab = ({ draft, onChange }: GeneralTabProps) => {
             </div>
         </Form>
     );
-};
+};  

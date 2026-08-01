@@ -1,6 +1,6 @@
 import { Button, Card, DatePicker, Space, Tabs, Typography } from "antd";
-import React, { useEffect, useMemo, useState } from "react";
-import dayjs, { Dayjs } from "dayjs";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import dayjs from "dayjs";
 
 import AttributionABORvsIBORTable from "../../components/abor-vs-ibor/AttributionABORvsIBORTable";
 import AttributionABORvsIBORDailyTable from "../../components/abor-vs-ibor/AttributionABORvsIBORDailyTable";
@@ -10,7 +10,6 @@ import { api } from "../../lib/services";
 
 import { AttributionDispersionResponse } from "../../lib/types";
 import { AborVsIborDailyRow, AborVsIborMtdRow } from "../../components/abor-vs-ibor/aborVsIbor";
-
 
 //  Strong type guard
 type RawDailyRow = {
@@ -48,30 +47,24 @@ export function DiagnosticsWorkspacePage() {
   const [activeTabKey, setActiveTabKey] = useState<string>("mtd");
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(null);
 
-  //  API load
-  useEffect(() => {
-    let cancelled = false;
-
-    runWithLoading(async () => {
-      try {
-        const resp = !viewAsOfDate
-          ? await api.requestAborvsIborReportService()
-          : await api.requestByDateAborvsIborReportService(viewAsOfDate);
-
-        if (!cancelled) {
+  const loadReport = useCallback(
+    (asOfDate: string) =>
+      runWithLoading(async () => {
+        try {
+          const resp = !asOfDate
+            ? await api.requestAborvsIborReportService()
+            : await api.requestByDateAborvsIborReportService(asOfDate);
           setAborVsIborResponse(resp as AttributionDispersionResponse);
-        }
-      } catch {
-        if (!cancelled) {
+        } catch {
           setAborVsIborResponse(null);
         }
-      }
-    });
+      }),
+    [runWithLoading]
+  );
 
-    return () => {
-      cancelled = true;
-    };
-  }, [runWithLoading, viewAsOfDate]);
+  useEffect(() => {
+    loadReport("");
+  }, []);
 
   // SPLIT + TYPED (NO ANY)
   const { mtdRows, dailyRows } = useMemo(() => {
@@ -159,16 +152,17 @@ export function DiagnosticsWorkspacePage() {
   };
 
   return (
-  <div style={{margin:'16px' }}>
+  <div style={{ margin: "16px" }}>
     <Space direction="vertical" size={16} style={{ width: "100%" }}>
       <Typography.Paragraph strong>As Of Date</Typography.Paragraph>
 
       <DatePicker
         value={viewAsOfDate ? dayjs(viewAsOfDate) : null}
-        disabledDate={(d: Dayjs) => d.date() !== d.daysInMonth()}
         onChange={(d) => {
-          setViewAsOfDate(d ? d.format("YYYY-MM-DD") : "");
+          const next = d ? d.format("YYYY-MM-DD") : "";
+          setViewAsOfDate(next);
           setSelectedPortfolioId(null);
+          loadReport(next);
         }}
       />
 

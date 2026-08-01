@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Empty, Typography } from "antd";
 import { CompositeAttributionViewData, MultiPeriodAttributionRow } from "./compositeAttributionAdapter";
+import { getCompositePeriodLabel } from "./periodUtils";
 
 
 const { Text } = Typography;
@@ -133,7 +134,7 @@ const CompositeAttributionChart: React.FC<CompositeAttributionChartProps> = ({
 
         return {
           periodId: period.id,
-          label: period.short_label || period.label,
+          label: getCompositePeriodLabel(period),
           value,
         };
       })

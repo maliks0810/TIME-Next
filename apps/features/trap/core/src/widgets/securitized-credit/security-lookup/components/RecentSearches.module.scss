@@ -1,0 +1,69 @@
+.container { display: flex; flex-direction: column; gap: 8px; min-height: 0; height: 100%; overflow: hidden; }
+
+.header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.headerLeft { display: flex; align-items: center; gap: 6px; }
+.headerIcon { font-size: 11px; color: var(--ant-color-primary); }
+.headerText {
+    font-size: 10px; line-height: 14px; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--ant-color-text-tertiary);
+}
+.clear { font-size: 11px; color: var(--ant-color-text-quaternary); cursor: pointer; transition: color .15s ease; }
+.clear:hover { color: var(--ant-color-text-secondary); }
+.empty { font-size: 11px; color: var(--ant-color-text-quaternary); padding: 4px 0; }
+
+/* Lane modes */
+.grid { display: grid; gap: 8px; min-width: 0; min-height: 0; overflow-x: hidden; overflow-y: auto; align-content: start; }
+.gridTwo { grid-template-columns: 1fr 1fr; }
+.gridOne { grid-template-columns: 1fr; }
+.gridMulti { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+
+/* Card — native <button> resets + fixed height so clicking (focus) never
+   reveals hidden overflow as a scrollbar, and never shifts the box. */
+.card {
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+    line-height: 1.2;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    height: 44px;
+    flex-shrink: 0;
+    padding: 0 10px 0 8px;
+    border: 1px solid var(--ant-color-border-secondary);
+    border-left: 2px solid transparent;
+    border-radius: var(--ant-border-radius);
+    background: var(--ant-color-fill-quaternary);
+    cursor: pointer;
+    text-align: left;
+    min-width: 0;
+    overflow: hidden;
+    scrollbar-width: none;
+    transition: border-color .15s ease, background .15s ease;
+}
+.card::-webkit-scrollbar { display: none; }
+
+.card:focus { outline: none; }
+.card:focus-visible {
+    outline: none;
+    border-color: var(--ant-color-primary-border);
+    border-left-color: var(--ant-color-primary);
+}
+.card:hover {
+    border-color: var(--ant-color-primary-border);
+    border-left-color: var(--ant-color-primary);
+    background: var(--ant-color-primary-bg);
+}
+
+.cardMain { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden; }
+.cardName { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ant-color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cardMeta { font-family: monospace; font-size: 10px; line-height: 14px; color: var(--ant-color-text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cardTime { margin-left: 6px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--ant-color-text-quaternary); }
+
+.cardRight { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.cardTag { margin: 0; font-size: 9px; line-height: 14px; }
+.cardArrow { font-size: 11px; color: var(--ant-color-text-quaternary); transition: color .15s ease, transform .15s ease; }
+.card:hover .cardArrow { color: var(--ant-color-primary); transform: translateX(2px); }

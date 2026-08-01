@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Empty, Typography } from "antd";
 import { CompositeAttributionViewData } from "./compositeAttributionAdapter";
+import { getCompositePeriodLabel } from "./periodUtils";
 
 const { Text } = Typography;
 
@@ -44,7 +45,7 @@ const CompositeSummaryChart: React.FC<CompositeSummaryChartProps> = ({
 
         {visiblePeriods.map((period) => (
           <Text key={period.id} strong style={{ textAlign: "center" }}>
-            {period.short_label || period.label}
+            {getCompositePeriodLabel(period)}
           </Text>
         ))}
 

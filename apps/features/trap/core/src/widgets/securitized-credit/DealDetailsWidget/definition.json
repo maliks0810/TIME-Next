@@ -27,16 +27,16 @@
             "id": "default",
             "label": "Default",
             "sizing": {
-                "resizable": false,
+                "resizable": true,
                 "width": {
                     "default": 8,
-                    "min": 8,
-                    "max": 8
+                    "min": 6,
+                    "max": 12
                 },
                 "height": {
-                    "default": 650,
-                    "min": 650,
-                    "max": 650
+                    "default": 8,
+                    "min": 4,
+                    "max": 13
                 }
             }
         }

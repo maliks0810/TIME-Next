@@ -17,10 +17,8 @@ export const DownloadBrsBondFeaturesButton = ({
     selectedAssetStatus
 }: DownloadBrsBondFeaturesButtonProps) => {
 
-    const canDownloadBrsAnalytics = selectedAssetStatus === normalizeStatus(STATUSES_ENUM.INPUT_SENT_TO_ALADDIN) 
-    || selectedAssetStatus === normalizeStatus(STATUSES_ENUM.ANALYTICS_SENT_TO_ALADDIN) 
-    || selectedAssetStatus === normalizeStatus(STATUSES_ENUM.ANALYTICS_VERIFIED_IN_ALADDIN)
-    || selectedAssetStatus === normalizeStatus(STATUSES_ENUM.ANALYTICS_INPUT_VERIFIED_IN_ALADDIN);
+    const canDownloadBrsAnalytics = selectedAssetStatus != normalizeStatus(STATUSES_ENUM.INPUT_PENDING_REVIEW)
+        && selectedAssetStatus != normalizeStatus(STATUSES_ENUM.CORRECTION);
 
     const canPublish = !!assetAnalyticsSetupId && canDownloadBrsAnalytics;
 
@@ -29,43 +27,47 @@ export const DownloadBrsBondFeaturesButton = ({
             assetAnalyticsSetupId,
             interface: BOND_INTERFACE
         };
-    
+
         try {
             const response = await downloadBrsFileAPI(payload);
-        
-            const blob = new Blob([response.data], {
-                type: response.headers['content-type'] || 'text/csv',
-            });
-        
-            const url = window.URL.createObjectURL(blob);
-        
-            let fileName = `download_${assetAnalyticsSetupId}_bond_override.csv`;
-        
-            const contentDisposition =
-                response.headers['content-disposition'] ||
-                response.headers['Content-Disposition'];
-        
-            if (contentDisposition) {
-                const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
-                const regularMatch = contentDisposition.match(/filename="?([^"]+)"?/i);
-            
-                if (utf8Match?.[1]) {
-                    fileName = decodeURIComponent(utf8Match[1]);
-                } else if (regularMatch?.[1]) {
-                    fileName = regularMatch[1];
+
+            if (response.status == 204) {
+                messageApi.error('Failed to download the file; we have not published any bond feature file to BRS for this asset');
+            } else {
+                const blob = new Blob([response.data], {
+                    type: response.headers['content-type'] || 'text/csv',
+                });
+
+                const url = window.URL.createObjectURL(blob);
+
+                let fileName = `download_${assetAnalyticsSetupId}_bond_override.csv`;
+
+                const contentDisposition =
+                    response.headers['content-disposition'] ||
+                    response.headers['Content-Disposition'];
+
+                if (contentDisposition) {
+                    const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+                    const regularMatch = contentDisposition.match(/filename="?([^"]+)"?/i);
+
+                    if (utf8Match?.[1]) {
+                        fileName = decodeURIComponent(utf8Match[1]);
+                    } else if (regularMatch?.[1]) {
+                        fileName = regularMatch[1];
+                    }
                 }
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+                messageApi.success('Bond BRS File Downloaded. Check Downloads on Browser');
             }
-        
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-        
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        
-            messageApi.success('Bond BRS File Downloaded. Check Downloads on Browser');
         } catch (err: any) {
             console.error('Failed to pull BRS file:', err);
             messageApi.error(

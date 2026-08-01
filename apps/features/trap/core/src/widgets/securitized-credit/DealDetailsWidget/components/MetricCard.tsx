@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-
 import { useTheme, getThemeSurfaceMeta } from '../../../../theme/ThemeContext';
 import styles from './DealDetailsComponents.module.scss';
 
@@ -17,25 +16,16 @@ export function MetricCard({
     highlight?: boolean;
 }) {
     const { themeName } = useTheme();
-    const surfaceMeta = getThemeSurfaceMeta(themeName);
+    getThemeSurfaceMeta(themeName); // keep hook parity if used elsewhere
 
     return (
-        <div className={styles.metricCardContainer}>
-            {accent && (
-                <div
-                    className={styles.metricCardAccentHighlight}
-                    style={{
-                        background: surfaceMeta.isGradientTheme
-                            ? surfaceMeta.accentGradient
-                            : undefined,
-                    }}
-                />
-            )}
-
-            <span className={styles.metricCardLabel}>
-                {label}
-            </span>
-
+        <div
+            className={clsx(styles.metricCardContainer, {
+                [styles.metricCardAccent]: accent,
+                [styles.metricCardHighlight]: highlight,
+            })}
+        >
+            <span className={styles.metricCardLabel}>{label}</span>
             <span
                 className={clsx(styles.metricCardValue, {
                     [styles.metricCardValueAccent]: accent,
@@ -44,12 +34,7 @@ export function MetricCard({
             >
                 {value ?? '—'}
             </span>
-
-            {sub && (
-                <span className={styles.metricCardSubText}>
-                    {sub}
-                </span>
-            )}
+            {sub && <span className={styles.metricCardSubText}>{sub}</span>}
         </div>
     );
 }

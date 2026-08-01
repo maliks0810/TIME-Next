@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { Space, theme } from 'antd';
+import { theme } from 'antd';
 import { useTheme, getThemeSurfaceMeta } from '../../theme/ThemeContext';
 
 import CanvasContainer from '../../components/layout/CanvasContainer';
@@ -93,42 +93,48 @@ export default function WorkflowDesignerPage() {
     );
 
     return (
-        <Space direction="vertical" size={16} style={{ width: '100%', gap: 4 }}>
+        // Plain full-width divs (NOT antd Space) around the canvas: Space injects
+        // .ant-space-item flex wrappers that shrink the grid's measured width below
+        // 1840 → react-grid-layout's WidthProvider under-measures → resize handle
+        // under-tracks. Gap spacing preserved via marginBottom.
+        <div style={{ width: '100%' }}>
             {contextHolder}
-            <DesignerHeader
-                templateId={templateId}
-                loaded={loaded}
-                loading={loading}
-                isPublished={isPublished}
-                isDraft={isDraft}
-                isDarkHud={isDarkHud}
-                designerHeaderBackground={designerHeaderBackground}
-                borderStyle={
-                    surfaceMeta.isGradientTheme
-                        ? '1px solid rgba(255,255,255,0.10)'
-                        : `1px solid ${token.colorBorderSecondary}`
-                }
-                boxShadow={
-                    surfaceMeta.isGradientTheme
-                        ? `inset 0 1px 0 rgba(255,255,255,0.08), 0 0 16px ${surfaceMeta.hudGlow}`
-                        : 'none'
-                }
-                textColor={isDarkHud ? '#fff' : token.colorText}
-                secondaryTextColor={isDarkHud ? 'rgba(255,255,255,0.82)' : token.colorTextSecondary}
-                buttonBackground={isDarkHud ? 'rgba(255,255,255,0.10)' : token.colorBgElevated}
-                buttonBorder={
-                    isDarkHud
-                        ? '1px solid rgba(255,255,255,0.12)'
-                        : `1px solid ${token.colorBorder}`
-                }
-                buttonTextColor={isDarkHud ? '#fff' : token.colorText}
-                saveDisabledReason={saveDisabledReason}
-                publishDisabledReason={publishDisabledReason}
-                onOpenLibrary={() => setWidgetPickerOpen(true)}
-                onSaveDraft={() => void saveDraft()}
-                onPublish={() => void publish()}
-                onBack={() => nav('/trap')}
-            />
+            <div style={{ marginBottom: 16 }}>
+                <DesignerHeader
+                    templateId={templateId}
+                    loaded={loaded}
+                    loading={loading}
+                    isPublished={isPublished}
+                    isDraft={isDraft}
+                    isDarkHud={isDarkHud}
+                    designerHeaderBackground={designerHeaderBackground}
+                    borderStyle={
+                        surfaceMeta.isGradientTheme
+                            ? '1px solid rgba(255,255,255,0.10)'
+                            : `1px solid ${token.colorBorderSecondary}`
+                    }
+                    boxShadow={
+                        surfaceMeta.isGradientTheme
+                            ? `inset 0 1px 0 rgba(255,255,255,0.08), 0 0 16px ${surfaceMeta.hudGlow}`
+                            : 'none'
+                    }
+                    textColor={isDarkHud ? '#fff' : token.colorText}
+                    secondaryTextColor={isDarkHud ? 'rgba(255,255,255,0.82)' : token.colorTextSecondary}
+                    buttonBackground={isDarkHud ? 'rgba(255,255,255,0.10)' : token.colorBgElevated}
+                    buttonBorder={
+                        isDarkHud
+                            ? '1px solid rgba(255,255,255,0.12)'
+                            : `1px solid ${token.colorBorder}`
+                    }
+                    buttonTextColor={isDarkHud ? '#fff' : token.colorText}
+                    saveDisabledReason={saveDisabledReason}
+                    publishDisabledReason={publishDisabledReason}
+                    onOpenLibrary={() => setWidgetPickerOpen(true)}
+                    onSaveDraft={() => void saveDraft()}
+                    onPublish={() => void publish()}
+                    onBack={() => nav('/trap')}
+                />
+            </div>
 
             {!templateId || layout.length === 0 ? (
                 <EmptyDesignerState
@@ -199,6 +205,6 @@ export default function WorkflowDesignerPage() {
                 onAddWidget={addWidget}
                 loading={loading}
             />
-        </Space>
+        </div>
     );
 }

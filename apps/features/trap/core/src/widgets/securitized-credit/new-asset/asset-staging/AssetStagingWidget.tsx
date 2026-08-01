@@ -21,12 +21,24 @@ import { SectionHeader } from './components/SectionTitle';
 import { StagedItemsPanel } from './components/StagedIemsPanel';
 import { InputAssumptionsPanel } from './components/InputAssumptionsPanel';
 import { PayloadPreview } from './components/PayloadPreview';
+import StatusLine from './components/StatusLine';
+import type { StatusTone, StatusChip, ChipState } from './components/StatusLine';
 import { calculateAssetStagingReadiness } from './utils/readiness';
 import type { CallableType, InputAssumptionsState, StagingItem } from './types';
 import type { Dayjs } from 'dayjs';
 import styles from './AssetStagingWidget.module.scss';
 
 const { Text } = Typography;
+
+type StatusState = {
+    tone: StatusTone;
+    label: string;
+    summary: string;
+    detail?: string;
+    popoverTitle?: string;
+    chips?: StatusChip[];
+    copyable?: boolean;
+};
 
 const ITEMS: StagingItem[] = [
     { label: "Deal", ctxKey: "deal.name", required: true },
@@ -59,11 +71,9 @@ export default function AssetStagingWidget({
     const [collateralType, setCollateralType] = React.useState<string | undefined>(undefined);
     const [prefilling, setPrefilling] = React.useState(false);
 
-    // Backend-driven payload snapshot
     const [payloadSnapshot, setPayloadSnapshot] = React.useState<Record<string, unknown>>({});
     const [initializingPayload, setInitializingPayload] = React.useState(false);
 
-    // Dynamic call options from deal structure
     const [callOptions, setCallOptions] = React.useState<{ label: string; value: string }[]>([]);
 
     const [price, setPrice] = React.useState<number | null>(null);
@@ -83,8 +93,7 @@ export default function AssetStagingWidget({
     const [validationErrors, setValidationErrors] = React.useState<ValidationErrors>({});
     const [submitting, setSubmitting] = React.useState(false);
 
-    const [stageError, setStageError] = React.useState<string | null>(null);
-    const [stageSuccess, setStageSuccess] = React.useState(false);
+    const [status, setStatus] = React.useState<StatusState | null>(null);
 
     const channelId = widgetInstance?.config?.params?.channel;
     const isDesigner = mode === "designer";
@@ -101,15 +110,31 @@ export default function AssetStagingWidget({
         key: "deal.name",
     }) as string | undefined;
 
-    const trancheId = useGetWidgetValue({
+    const stagedTrancheId = useGetWidgetValue({
         channelId,
         key: "asset.staged.trancheId",
     }) as string | undefined;
 
-    const trancheName = useGetWidgetValue({
+    const stagedTrancheName = useGetWidgetValue({
         channelId,
         key: "asset.staged.trancheName",
     }) as string | undefined;
+
+    const liveTrancheId = useGetWidgetValue({
+        channelId,
+        key: "tranche.id",
+    }) as string | undefined;
+
+    const liveTrancheName = useGetWidgetValue({
+        channelId,
+        key: "tranche.name",
+    }) as string | undefined;
+
+    const trancheName = stagedTrancheName ?? liveTrancheName;
+    const derivedTrancheId = trancheName
+        ? `t_${String(trancheName).toLowerCase()}`
+        : undefined;
+    const trancheId = stagedTrancheId ?? liveTrancheId ?? derivedTrancheId;
 
     const scenarioId = useGetWidgetValue({
         channelId,
@@ -129,9 +154,7 @@ export default function AssetStagingWidget({
 
     React.useEffect(() => {
         if (dealName && dealName !== prevDealNameRef.current) {
-            // Reset all local state
-            setStageError(null);
-            setStageSuccess(false);
+            setStatus(null);
             setExtId("");
             setCusipOverride("");
             setOmFile(null);
@@ -159,7 +182,6 @@ export default function AssetStagingWidget({
                 setWidgetValueToChannel({ channelId, key, value: null, activeTab })
             );
 
-            // Call backend to init payload with deal-level data
             const init = async () => {
                 setInitializingPayload(true);
 
@@ -176,12 +198,10 @@ export default function AssetStagingWidget({
 
                     setPayloadSnapshot(result.fields ?? {});
 
-                    // Dynamic call options from deal structure
                     if (Array.isArray(result.callOptions)) {
                         setCallOptions(result.callOptions);
                     }
 
-                    // If deal has calls, default callable to "C"
                     if (result.fields?.callableValue) {
                         setCallable(result.fields.callableValue as CallableType);
                     }
@@ -198,18 +218,17 @@ export default function AssetStagingWidget({
         prevDealNameRef.current = dealName;
     }, [dealName, channelId, activeTab, setWidgetValueToChannel, widgetDefId, isDesigner]);
 
-    // ─── Step 2: Prefill when tranche is selected ───
-    const prevTrancheIdRef = React.useRef(trancheId);
+    // ─── Step 2: Prefill when tranche is selected (keyed on NAME) ───
+    const prevTrancheNameRef = React.useRef(trancheName);
 
     React.useEffect(() => {
-        if (!trancheId || trancheId === prevTrancheIdRef.current) {
-            prevTrancheIdRef.current = trancheId;
+        if (!trancheName || trancheName === prevTrancheNameRef.current) {
+            prevTrancheNameRef.current = trancheName;
             return;
         }
 
-        prevTrancheIdRef.current = trancheId;
-        setStageError(null);
-        setStageSuccess(false);
+        prevTrancheNameRef.current = trancheName;
+        setStatus(null);
 
         const prefetch = async () => {
             setPrefilling(true);
@@ -226,7 +245,6 @@ export default function AssetStagingWidget({
                     mode: isDesigner ? "MOCK" : "LIVE",
                 });
 
-                // Prefill form fields
                 if (result.cusip) setTrancheCusip(result.cusip);
                 if (result.collateralType) setCollateralType(result.collateralType);
                 if (typeof result.price === "number") setPrice(result.price);
@@ -238,7 +256,6 @@ export default function AssetStagingWidget({
                 if (typeof result.severity === "number") setSeverity(result.severity);
                 if (typeof result.delinquency === "number") setDelinquency(result.delinquency);
 
-                // Merge tranche-level fields into payload snapshot
                 if (result.fields) {
                     setPayloadSnapshot((prev) => ({ ...prev, ...result.fields }));
                 }
@@ -250,11 +267,51 @@ export default function AssetStagingWidget({
         };
 
         prefetch();
-    }, [trancheId, dealName, widgetDefId, isDesigner]);
+    }, [trancheName, dealName, widgetDefId, isDesigner]);
+
+    // Reset tranche-derived fields whenever the effective tranche CLEARS.
+    // The deal-change reset only fires on a DIFFERENT deal; re-selecting the
+    // SAME deal with no tranche (e.g. after an A3 recent) left stale tranche
+    // data — most visibly the CUSIP. Keying on trancheName going falsy clears
+    // it in every case (same deal or new deal).
+    const hadTrancheRef = React.useRef<boolean>(!!trancheName);
+    React.useEffect(() => {
+        const hasTranche = !!trancheName;
+        if (hadTrancheRef.current && !hasTranche) {
+            // Tranche was present and is now gone → clear tranche-level state.
+            setTrancheCusip(undefined);
+            setCusipOverride("");
+            setCollateralType(undefined);
+            setPrice(null);
+            setCallable("N");
+            setCallDate(null);
+            setCallValue(undefined);
+            setPrepaymentType(undefined);
+            setPrepaymentValue(null);
+            setDefaultType(undefined);
+            setDefaultValue(null);
+            setSeverity(null);
+            setDelinquency(null);
+            // Drop tranche-level fields merged into the snapshot during prefill,
+            // but keep deal-level fields (from initPayload) intact.
+            setPayloadSnapshot((prev) => {
+                const next = { ...prev };
+                delete next.cusip;
+                delete next.tranche;
+                delete next.identifierTypeValue;
+                delete next.identifierValue;
+                delete next.idBbGlobal;
+                return next;
+            });
+            // Also reset the prefill guard so re-selecting the SAME tranche name
+            // later will re-run prefill instead of being deduped.
+            prevTrancheNameRef.current = undefined;
+        }
+        hadTrancheRef.current = hasTranche;
+    }, [trancheName]);
 
     // ─── Payload preview: merge backend snapshot + user overrides ───
     const payloadFields = React.useMemo(() => {
-        // Determine the best CUSIP — override wins, then snapshot (only if not placeholder)
         const snapshotCusip = payloadSnapshot.cusip
             && !/^(.)\1+$/i.test(String(payloadSnapshot.cusip))
             ? String(payloadSnapshot.cusip)
@@ -262,7 +319,6 @@ export default function AssetStagingWidget({
 
         const effectiveCusip = cusipOverride.trim() || snapshotCusip || trancheCusip;
 
-        // Identifier: override CUSIP → snapshot ISIN → valid snapshot CUSIP
         const snapshotIsin = payloadSnapshot.identifierTypeValue === "ISIN" && payloadSnapshot.identifierValue
             ? String(payloadSnapshot.identifierValue)
             : undefined;
@@ -281,43 +337,41 @@ export default function AssetStagingWidget({
             identifierValue = snapshotIsin;
         }
 
+        // INTEX deal name — the ONLY value SSD receives as the deal identity.
+        const intexName =
+            (dealName as string | undefined) ??
+            (payloadSnapshot.intexDealName as string | undefined);
+
         const merged: Record<string, unknown> = {
             ...payloadSnapshot,
 
-            // CUSIP: override → valid snapshot → trancheCusip
             cusip: effectiveCusip,
 
-            // External ID → aladdinCdiId
             aladdinCdiId: extId.trim() || payloadSnapshot.aladdinCdiId,
 
-            // INTEX deal name always from channel
-            intexDealName: dealName ?? payloadSnapshot.intexDealName,
+            // SSD deal identity: ALWAYS INTEX (both fields), never Bloomberg.
+            intexDealName: intexName,
+            dealName: intexName,
 
-            // SSD dealName: Bloomberg name from backend, fallback to INTEX
-            dealName: payloadSnapshot.dealName ?? dealName,
-
-            // Description: Bloomberg ticker from backend, fallback to deal + tranche
+            // Description = Bloomberg ticker from backend (includes tranche) — this
+            // is CORRECT for SSD labeling. It is DISPLAY-ONLY-elsewhere; it must
+            // NOT be used as the Deal-row display (that needs the deal name only).
             description: payloadSnapshot.description
-                ?? (dealName && trancheName ? `${dealName} ${trancheName}` : undefined),
+                ?? (intexName && trancheName ? `${intexName} ${trancheName}` : undefined),
 
-            // Tranche name
             tranche: payloadSnapshot.tranche ?? trancheName,
 
-            // Identifier
             identifierTypeValue,
             identifierValue,
 
-            // Bloomberg ID from backend
             idBbGlobal: payloadSnapshot.idBbGlobal ?? undefined,
 
-            // Static
             isNewIssue: true,
             ssapIdPassword: "",
             isEuSecuritizationRequested: payloadSnapshot.isEuSecuritizationRequested ?? false,
             sourceAppName: "TRAP",
             marketSectorTypeValue: "Mtge",
 
-            // User form inputs — override snapshot
             callableValue: callable ?? payloadSnapshot.callableValue,
             callDate: callDate?.format("YYYY-MM-DD") ?? payloadSnapshot.callDate,
             price: price ?? payloadSnapshot.price,
@@ -330,12 +384,10 @@ export default function AssetStagingWidget({
             severity: severity ?? payloadSnapshot.severity,
             delinquency: delinquency ?? payloadSnapshot.delinquency,
 
-            // Computed from backend
             slicerTypeValue: payloadSnapshot.slicerTypeValue ?? undefined,
             mbsTypeValue: payloadSnapshot.mbsTypeValue ?? undefined,
         };
 
-        // noteInstructions: set when callable is C with selected call option
         if (callable === "C" && callValue) {
             merged.noteInstructions = callValue;
         }
@@ -380,15 +432,25 @@ export default function AssetStagingWidget({
 
     const doneMap: Record<string, boolean> = {
         "deal.name": !!dealName,
-        "asset.staged.trancheId": !!trancheId,
+        "asset.staged.trancheId": !!trancheName,
         "__cusipOverride__": cusipRequired
             ? (cusipOverride.trim().length === 9 && isValidCusip(cusipOverride.trim().toUpperCase()) && !validationErrors.cusip)
             : true,
         "__extId__": !!extId.trim(),
     };
 
+    // DISPLAY: Deal row shows the BLOOMBERG DEAL NAME only (e.g. "EART 2025-2A").
+    // Source is the dedicated bloomberg deal-name field ONLY — never `description`
+    // (that's the Bloomberg TICKER and includes the tranche, e.g. "EART 2025-2A
+    // A1", which is what wrongly appeared). Falls back to INTEX when no Bloomberg
+    // deal name is available (CDI path).
+    const bloombergDealName =
+        (payloadSnapshot.bloombergDealName as string | undefined) ??
+        (payloadSnapshot.bloombergName as string | undefined) ??
+        (payloadSnapshot.ssdDealName as string | undefined);
+
     const displayVal: Record<string, string | undefined> = {
-        "deal.name": dealName,
+        "deal.name": bloombergDealName || dealName,
         "asset.staged.trancheId": trancheName ?? trancheId,
         "__cusipOverride__": cusipOverride.trim() || trancheCusip,
         "scenario.selectedResultId": scenarioId,
@@ -431,7 +493,6 @@ export default function AssetStagingWidget({
         }
     }, []);
 
-    // Clear validation errors when user corrects values
     React.useEffect(() => {
         setValidationErrors((prev) => {
             if (!prev.extId) return prev;
@@ -477,11 +538,11 @@ export default function AssetStagingWidget({
         });
     }, [defaultValue]);
 
-    // ─── Step 4: Launch — merge snapshot + user inputs → call GraphQL ───
+    // ─── Step 4: Launch ───
     const handleLaunch = React.useCallback(async () => {
-        // Don't clear banners here — wait for final result
+        if (submitting) return;
 
-        if (submitting) return; // Guard against double-click
+        setStatus(null);
 
         const errors = validateStagingForm({
             extId,
@@ -499,12 +560,27 @@ export default function AssetStagingWidget({
             return;
         }
 
-        // Also block if there are existing blur errors
         if (validationErrors.cusip || validationErrors.extId) {
             return;
         }
 
-        // Build final payload: backend snapshot + user overrides
+        setStatus(null);
+
+        const setupWindow = window.open("about:blank", "_blank");
+
+        if (setupWindow) {
+            try {
+                setupWindow.document.write(
+                    "<!doctype html><title>Security Setup</title>" +
+                    "<body style='font:14px -apple-system,Segoe UI,Roboto,Arial;" +
+                    "display:flex;align-items:center;justify-content:center;" +
+                    "height:100vh;margin:0;color:#555'>Opening Security Setup…</body>"
+                );
+            } catch {
+                // Cross-origin/security edge — safe to ignore, tab still opens.
+            }
+        }
+
         const finalPayload: Record<string, unknown> = {};
 
         payloadFields.forEach(({ key, value }) => {
@@ -513,22 +589,33 @@ export default function AssetStagingWidget({
             }
         });
 
-        // OM file as base64
         let omBase64: string | undefined;
 
         if (omFile) {
-            omBase64 = await new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve((reader.result as string).split(',')[1]);
-                reader.onerror = () => reject(new Error('File read failed'));
-                reader.readAsDataURL(omFile);
-            });
+            try {
+                omBase64 = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve((reader.result as string).split(',')[1]);
+                    reader.onerror = () => reject(new Error('File read failed'));
+                    reader.readAsDataURL(omFile);
+                });
+            } catch {
+                if (setupWindow) setupWindow.close();
+                setStatus({
+                    tone: "error",
+                    label: "Submission failed",
+                    summary: "Could not read the Offering Memorandum file.",
+                    detail: "The selected Offering Memorandum file could not be read. Please re-attach it and try again.",
+                    popoverTitle: "File read error",
+                    copyable: true,
+                    chips: [{ label: "Details", state: "bad" }],
+                });
+                message.error("Could not read the OM file");
+                return;
+            }
         }
 
-        // Now commit — disable button, hide previous banners
         setSubmitting(true);
-        setStageError(null);
-        setStageSuccess(false);
 
         try {
             const { result: stageResult } = await executeWidget({
@@ -547,23 +634,112 @@ export default function AssetStagingWidget({
 
             const staged = stageResult as Record<string, unknown>;
 
-            // Check for error returned from backend
             if (staged?.success === false || staged?.error) {
-                setStageError(String(staged.error ?? "Asset staging failed — try again"));
+                if (setupWindow) setupWindow.close();
+                const errorMsg = String(staged.error ?? "Request failed — please try again");
+                setStatus({
+                    tone: "error",
+                    label: "Submission failed",
+                    summary: errorMsg,
+                    detail: errorMsg,
+                    popoverTitle: "Submission failed",
+                    copyable: true,
+                    chips: [{ label: "Details", state: "bad" }],
+                });
+                message.error("Security setup request failed");
+                setSubmitting(false);
                 return;
             }
 
-            // Success
-            setStageSuccess(true);
-            if( staged.securitySetupUrl) {
-                window.open(staged.securitySetupUrl as string, "_blank", "noopener,noreferrer");
+            const setupUrl = staged.securitySetupUrl as string | undefined;
+
+            let launchOk = false;
+            let launchIssue: "no-link" | "blocked" | null = null;
+
+            if (setupUrl) {
+                if (setupWindow) {
+                    setupWindow.location.href = setupUrl;
+                    launchOk = true;
+                } else {
+                    const retry = window.open(setupUrl, "_blank");
+                    if (retry) {
+                        launchOk = true;
+                    } else {
+                        launchIssue = "blocked";
+                    }
+                }
+            } else {
+                if (setupWindow) setupWindow.close();
+                launchIssue = "no-link";
             }
 
-            if (staged?.omUploaded === false && staged?.omError) {
-                message.success("Asset staged successfully");
-                message.warning(`OM upload failed: ${staged.omError}`);
+            const omAttached = !!omFile;
+            const omFailed = omAttached && staged?.omUploaded === false;
+
+            const omState: ChipState = !omAttached ? "na" : (omFailed ? "bad" : "ok");
+            const launchState: ChipState = launchOk ? "ok" : "warn";
+
+            const chips: StatusChip[] = [
+                { label: "Details", state: "ok" },
+                { label: "OM", state: omState },
+                { label: "Launch", state: launchState },
+            ];
+
+            if (launchOk && !omFailed) {
+                setStatus({
+                    tone: "success",
+                    label: "Request submitted",
+                    summary: "Security Setup opened in a new tab",
+                    chips,
+                });
+                message.success("Security setup request submitted");
             } else {
-                message.success("Asset staging submitted");
+                const parts: string[] = [];
+
+                if (omFailed) {
+                    parts.push(
+                        staged.omError
+                            ? `Offering Memorandum upload failed: ${staged.omError}.`
+                            : "Offering Memorandum upload failed."
+                    );
+                }
+
+                if (launchIssue === "no-link") {
+                    parts.push(
+                        "The request was submitted successfully, but the Security Setup " +
+                        "app could not be opened because no setup link was provided by the service."
+                    );
+                } else if (launchIssue === "blocked") {
+                    parts.push(
+                        "The request was submitted successfully, but your browser blocked the " +
+                        "Security Setup pop-up. Please allow pop-ups for this site and try the link again."
+                    );
+                }
+
+                let summary: string;
+                let popoverTitle: string;
+
+                if (launchIssue === "no-link") {
+                    summary = "Setup app not opened — no link provided";
+                    popoverTitle = "Security Setup not opened";
+                } else if (launchIssue === "blocked") {
+                    summary = "Setup app blocked by browser pop-up settings";
+                    popoverTitle = "Security Setup blocked";
+                } else {
+                    summary = "Request submitted — Offering Memorandum upload failed";
+                    popoverTitle = "Offering Memorandum not uploaded";
+                }
+
+                setStatus({
+                    tone: "warning",
+                    label: "Request submitted",
+                    summary,
+                    detail: parts.join(" "),
+                    popoverTitle,
+                    copyable: true,
+                    chips,
+                });
+                message.warning(summary);
             }
 
             uiActions?.openWorkflow?.({
@@ -574,8 +750,18 @@ export default function AssetStagingWidget({
                 }),
             });
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : "Asset staging failed — try again";
-            setStageError(msg);
+            if (setupWindow) setupWindow.close();
+            const msg = err instanceof Error ? err.message : "Request failed — please try again";
+            setStatus({
+                tone: "error",
+                label: "Submission failed",
+                summary: msg,
+                detail: msg,
+                popoverTitle: "Submission failed",
+                copyable: true,
+                chips: [{ label: "Details", state: "bad" }],
+            });
+            message.error(msg);
         } finally {
             setSubmitting(false);
         }
@@ -600,6 +786,8 @@ export default function AssetStagingWidget({
             return next;
         });
     }, []);
+
+    const submitted = status?.tone === "success" || status?.tone === "warning";
 
     return (
         <WidgetCardShell>
@@ -744,56 +932,28 @@ export default function AssetStagingWidget({
                                     validationErrors={validationErrors}
                                 />
 
-                                {stageError && (
-                                    <div
-                                        style={{
-                                            borderRadius: token.borderRadius,
-                                            background: token.colorErrorBg,
-                                            border: `1px solid ${token.colorErrorBorder}`,
-                                            padding: '8px 12px',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            gap: 4,
-                                        }}
-                                    >
-                                        <span style={{ fontSize: 11, fontWeight: 700, color: token.colorError }}>
-                                            Submission failed
-                                        </span>
-                                        <span style={{ fontSize: 11, color: token.colorError, lineHeight: '16px' }}>
-                                            {stageError}
-                                        </span>
-                                    </div>
-                                )}
-
-                                {stageSuccess && (
-                                    <div
-                                        style={{
-                                            borderRadius: token.borderRadius,
-                                            background: token.colorSuccessBg,
-                                            border: `1px solid ${token.colorSuccessBorder}`,
-                                            padding: '8px 12px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 8,
-                                        }}
-                                    >
-                                        <CheckCircleOutlined style={{ fontSize: 13, color: token.colorSuccess }} />
-                                        <span style={{ fontSize: 11, fontWeight: 600, color: token.colorSuccess }}>
-                                            Security setup request submitted successfully
-                                        </span>
-                                    </div>
+                                {status && (
+                                    <StatusLine
+                                        tone={status.tone}
+                                        label={status.label}
+                                        summary={status.summary}
+                                        detail={status.detail}
+                                        popoverTitle={status.popoverTitle}
+                                        chips={status.chips}
+                                        copyable={status.copyable}
+                                    />
                                 )}
 
                                 <div className={styles.launchContainer}>
                                     <Button
                                         type="primary"
                                         icon={<ArrowRightOutlined />}
-                                        disabled={!readiness.canLaunch || stageSuccess || submitting}
+                                        disabled={!readiness.canLaunch || submitted || submitting}
                                         loading={submitting}
                                         onClick={handleLaunch}
                                         style={{ width: "100%" }}
                                     >
-                                        {stageSuccess ? "Submitted" : "Launch asset setup"}
+                                        {submitted ? "Submitted" : "Launch asset setup"}
                                     </Button>
                                 </div>
                             </>

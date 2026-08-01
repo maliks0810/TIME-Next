@@ -1,116 +1,272 @@
-import {   Card, Col,  Row,  } from "antd";
-import {  Grid, Props } from "../../lib/types";
-import { useCallback, useEffect, useState } from "react";
+import { Col, Row } from "antd";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import WelcomeBanner from "../../components/pma-home/WelcomeBanner";
+
+import {
+  FiReportSummaryResponse,
+  Grid,
+  Props,
+} from "../../lib/types";
+
 import { normalizeDispersionResponse } from "../../lib/helpers";
-import { KpiGrid } from "../../components/kpi-card/KpiGrid";
 import { api } from "../../lib/services";
+import { useUserInfo } from "@platform/utils";
+import { getPersonaByRole, getRoleByOrg } from "../../lib/rbac/roles";
+
+export function isFiReportSummaryResponse(
+  data: unknown
+): data is FiReportSummaryResponse {
+  if (!data || typeof data !== "object") {
+    return false;
+  }
+
+  const d = data as Record<string, unknown>;
+
+  return (
+    typeof d.asOfDate === "string" &&
+    Array.isArray(d.portfolioNumbers) &&
+    d.portfolioNumbers.every(
+      (p) => typeof p === "string"
+    ) &&
+    typeof d.count === "number"
+  );
+}
+
+export const EMPTY_FI_REPORT_SUMMARY: FiReportSummaryResponse = {
+  asOfDate: "",
+  portfolioNumbers: [],
+  count: 0,
+};
 
 export function useLoadingAggregator() {
   const [pending, setPending] = useState(0);
 
-  const runWithLoading = useCallback(async <T,>(fn: () => Promise<T>): Promise<T> => {
-    setPending((p) => p + 1);
-    try {
-      return await fn();
-    } finally {
-      setPending((p) => Math.max(0, p - 1));
-    }
-  }, []);
+  const runWithLoading = useCallback(
+    async <T,>(fn: () => Promise<T>): Promise<T> => {
+      setPending((p) => p + 1);
 
-  return { isLoading: pending > 0, runWithLoading };
+      try {
+        return await fn();
+      } finally {
+        setPending((p) => Math.max(0, p - 1));
+      }
+    },
+    []
+  );
+
+  return {
+    isLoading: pending > 0,
+    runWithLoading,
+  };
 }
 
-export default function PMAHomePage({  }: Props)  {
+export default function PMAHomePage({}: Props) {
+  const userInfo = useUserInfo();
+  const { claims } = useUserInfo();
+  const currentUser = useMemo(() => {
+    let role = "";
+    const resolvedRole = getRoleByOrg(claims?.OrgLevel4);
+    role = resolvedRole;
+    if(resolvedRole === undefined){
+      const resolvedRole1 = getRoleByOrg(claims?.OrgLevel1);
+    if(resolvedRole1 !== undefined)
+      role = resolvedRole1;
+    }
 
-  const [attributionDispersionData, setAtributionDispersionData] = useState<Grid[]>([]);
-  const [attributionAborIborDispersionData, setAttributionAborIborDispersionData] = useState<Grid[]>([]);
+    return {
+      firstName: userInfo.name,
+      persona: getPersonaByRole(role),
+      location: 'Los Angeles',
+    };
+  }, [userInfo]);
+
+  const [
+    attributionDispersionData,
+    setAttributionDispersionData,
+  ] = useState<Grid[]>([]);
+
+  const [
+    attributionAborIborDispersionData,
+    setAttributionAborIborDispersionData,
+  ] = useState<Grid[]>([]);
+
+  const [
+    monthlyFIReturnsData,
+    setMonthlyFIReturnsData,
+  ] = useState<FiReportSummaryResponse>(
+    EMPTY_FI_REPORT_SUMMARY
+  );
+
   const { runWithLoading } = useLoadingAggregator();
 
-    // Core Plus Attribution Dispersion
+  /**
+   * Core Plus Attribution Dispersion
+   */
   useEffect(() => {
     let cancelled = false;
 
     runWithLoading(async () => {
       try {
-        const resp = await api.requestCorePlusAttributionDispersonReportService();
+        const resp =
+          await api.requestCorePlusAttributionDispersonReportService();
 
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
 
-        const normalized = normalizeDispersionResponse(resp);
-        setAtributionDispersionData(normalized?.data.grids ?? []);
+        const normalized =
+          normalizeDispersionResponse(resp);
+
+        setAttributionDispersionData(
+          normalized?.data.grids ?? []
+        );
       } catch {
-
+        setAttributionDispersionData([]);
       }
     });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [runWithLoading]);
 
-  // ABOR vs IBOR Dispersion
+  /**
+   * ABOR vs IBOR Dispersion
+   */
   useEffect(() => {
     let cancelled = false;
 
     runWithLoading(async () => {
       try {
+        const resp =
+          await api.requestAborvsIborReportService();
 
-        const resp = await api.requestAborvsIborReportService();
+        if (cancelled) {
+          return;
+        }
 
-        if (cancelled) return;
+        const normalized =
+          normalizeDispersionResponse(resp);
 
-        const normalized = normalizeDispersionResponse(resp);
-        setAttributionAborIborDispersionData(normalized?.data.grids ?? []);
+        setAttributionAborIborDispersionData(
+          normalized?.data.grids ?? []
+        );
       } catch {
+        setAttributionAborIborDispersionData([]);
       }
     });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [runWithLoading]);
 
+  /**
+   * Monthly FI Returns
+   */
+  useEffect(() => {
+    let cancelled = false;
 
-	type Kpi = {
-	title: string;
-	subtitle: string;
-	value: string;
-	actionLink: string;
-	status?: "success" | "warning" | "error";
-	};
+    runWithLoading(async () => {
+      try {
+        const resp =
+          await api.requestFIReportLatestSummaryService();
 
+        if (cancelled) {
+          return;
+        }
 
-const kpis: Kpi[] = [
-  {
-    title: "ABOR vs. IBOR",
-    subtitle: "Dispersion across ABOR and IBOR",
-    value: `${attributionAborIborDispersionData.length}`,
-    actionLink: "diagnostics",
-    status:
-      attributionAborIborDispersionData.length > 0
-        ? "warning"
-        : "success",
-  },
-  {
-    title: "Attrib. Dispersion",
-    subtitle: "Outliers in attribution dispersion",
-    value: `${attributionDispersionData.length}`,
-    actionLink: "diagnostics",
-    status:
-      attributionDispersionData.length > 0
-        ? "warning"
-        : "success",
-  },
-];
+        if (isFiReportSummaryResponse(resp)) {
+          setMonthlyFIReturnsData(resp);
+        } else {
+          setMonthlyFIReturnsData(
+            EMPTY_FI_REPORT_SUMMARY
+          );
+        }
+      } catch {
+        setMonthlyFIReturnsData(
+          EMPTY_FI_REPORT_SUMMARY
+        );
+      }
+    });
 
+    return () => {
+      cancelled = true;
+    };
+  }, [runWithLoading]);
+
+  /**
+   * Temporary value.
+   * Eventually comes from Recent Analyses API
+   */
+  const activeAnalyses = 3;
+
+  const bannerKpis = useMemo(
+    () => [
+      {
+        title: "ABOR vs IBOR",
+        value:
+          attributionAborIborDispersionData.length,
+      },
+      {
+        title: "Attrib. Dispersion",
+        value:
+          attributionDispersionData.length,
+      },
+      {
+        title: "Monthly Returns",
+        value: monthlyFIReturnsData.count,
+      },
+      {
+        title: "Portfolios",
+        value:
+          monthlyFIReturnsData
+            .portfolioNumbers.length,
+      },
+    ],
+    [
+      attributionAborIborDispersionData,
+      attributionDispersionData,
+      monthlyFIReturnsData,
+    ]
+  );
 
   return (
-	<div style={{margin:'16px' }}>
-	    <Card className="pa-card" title="Returns / Attribution Exceptions">
-        <Row gutter={[16, 16]}>
-          <Col xs={24} xl={12}>
-            <Card size="small" title="Diagnostics Review">
-				      <KpiGrid kpis={kpis} />
-            </Card>
-          </Col>
-        </Row>
-      </Card>
-	</div>
+    <div
+      style={{
+        margin: 16,
+      }}
+    >
+      <Row gutter={[16, 16]}>
+        <Col span={24}>
+          <WelcomeBanner
+            userName={currentUser.firstName ?? ""}
+            persona={currentUser.persona}
+            location={currentUser.location}
+            assignedPortfolios={
+              monthlyFIReturnsData
+                .portfolioNumbers.length
+            }
+            activeAnalyses={activeAnalyses}
+            kpis={bannerKpis}
+          />
+        </Col>
+
+        {/*
+          Next widgets to add:
+
+          <QuickActions />
+
+          <RecentAnalysesCard />
+
+          <PortfolioAssignmentsCard />
+
+          <SavedViewsCard />
+
+          <AlertsCard />
+        */}
+      </Row>
+    </div>
   );
 }

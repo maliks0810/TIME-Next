@@ -54,7 +54,7 @@ function NewAssetsContent({
         }, {});
 
         if (!selectedRowRequestId) return;
-        
+
         valuesToPublish["AssetAnalyticsSetupId"] = selectedRowRequestId;
 
         setIsAnalitycsSavePending(true);
@@ -114,7 +114,7 @@ function NewAssetsContent({
             >
                 <div style={{ display: 'flex', gap: 16 }}>
                     <div style={{ flex: 1 }}>
-                        <ActionBar selectedAssetStatus={selectedStatus} selectedPayload= {selectedPayload} setIsActionInprogress={setIsActionInprogress} />
+                        <ActionBar selectedAssetStatus={selectedStatus} selectedPayload={selectedPayload} setIsActionInprogress={setIsActionInprogress} />
                     </div>
 
                     <div style={{ flex: 1 }}>
@@ -136,7 +136,7 @@ function NewAssetsContent({
                 />
                 <WorkflowExceptionTable
                     selectedAssetId={selectedRowRequestId}
-                    selectedStatus={selectedStatus}
+                    latestUpdateTimestamp={latestUpdateTimestamp}
                     form={form}
                 />
             </Form>
