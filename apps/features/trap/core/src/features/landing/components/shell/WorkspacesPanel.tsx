@@ -33,7 +33,7 @@ export type Item = {
     class3: string | null;
 };
 
-type Selection = {
+type Selection = Item & {
     templateId: string;
     templateName: string;
 };
@@ -189,8 +189,10 @@ export default function WorkspacesPanel({
             return;
         }
         onLaunch({
+            ...item,
             templateId: item.templateId,
             templateName: item.templateName,
+            ownerUserId: item.ownerUserId || '',
         });
     };
 

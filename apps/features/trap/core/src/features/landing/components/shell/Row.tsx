@@ -101,7 +101,7 @@ export const Row = ({
                               { type: 'divider' as const },
                               {
                                   key: 'edit',
-                                  label: 'Edit draft',
+                                  label: 'Edit',
                                   onClick: () => editItem(item),
                               },
                               { key: 'rename', label: 'Rename', onClick: () => renameItem(item) },
