@@ -4,7 +4,6 @@ import { Route, Routes } from 'react-router-dom';
 import { useUserInfo } from '@platform/utils';
 
 import TrapLandingPage from './pages/TrapLandingPage';
-import TemplateDesignerPage from './features/workflow-designer/WorkflowDesignerPage';
 import WidgetStudioConfigurePage from './features/widget-studio/WidgetStudioConfigurePage';
 import 'devextreme/dist/css/dx.light.css';
 import './styles/datagrid-theme-bridge.scss';
@@ -36,8 +35,6 @@ export default function App() {
     const { claims } = useUserInfo();
     const setActiveUser = useSetActiveUser();
 
-
-
     React.useEffect(() => {
         if (claims) {
             sessionStorage.setItem('okta-user', claims.ad_samaccountname);
@@ -55,10 +52,7 @@ export default function App() {
         localStorage.setItem(THEME_STORAGE_KEY, themeName);
     }, [themeName]);
 
-    const appBackground = React.useMemo(
-        () => getAppSurfaceBackground(themeName),
-        [themeName]
-    );
+    const appBackground = React.useMemo(() => getAppSurfaceBackground(themeName), [themeName]);
     const themeConfig = React.useMemo(() => getThemeConfig(themeName), [themeName]);
 
     return (
@@ -66,41 +60,41 @@ export default function App() {
             <ConfigProvider theme={{ ...themeConfig, cssVar: true }}>
                 <AntdApp>
                     <MessageInitializer />
-                <BackTop />
-                <Layout
-                    style={{
-                        minHeight: '100vh',
-                        maxWidth: '100vw',
-                        minWidth: APP_SHELL_MIN_WIDTH,
-                        overflowX: 'auto',
-                        background: appBackground,
-                        transition: 'background 180ms ease',
-                    }}
-                >
-                    <Content
+                    <BackTop />
+                    <Layout
                         style={{
+                            minHeight: '100vh',
+                            maxWidth: '100vw',
                             minWidth: APP_SHELL_MIN_WIDTH,
-                            width: '100%',
-                            maxWidth: CONTENT_MAX_WIDTH,
-                            margin: '0 auto',
-                            paddingTop: APP_TOP_PADDING,
-                            paddingLeft: APP_HORIZONTAL_PADDING,
-                            paddingRight: APP_HORIZONTAL_PADDING,
-                            paddingBottom: 16,
-                            boxSizing: 'border-box',
+                            overflowX: 'auto',
+                            background: appBackground,
+                            transition: 'background 180ms ease',
                         }}
                     >
-                        <Routes>
-                            <Route path="/" element={<TrapLandingPage />} />
-                            <Route path="designer" element={<TemplateDesignerPage />} />
-                            <Route path="admin" element={<AdminPanel />} />
-                            <Route
-                                path="studio/configure"
-                                element={<WidgetStudioConfigurePage />}
-                            />
-                        </Routes>
-                    </Content>
-                </Layout>
+                        <Content
+                            style={{
+                                minWidth: APP_SHELL_MIN_WIDTH,
+                                width: '100%',
+                                maxWidth: CONTENT_MAX_WIDTH,
+                                margin: '0 auto',
+                                paddingTop: APP_TOP_PADDING,
+                                paddingLeft: APP_HORIZONTAL_PADDING,
+                                paddingRight: APP_HORIZONTAL_PADDING,
+                                paddingBottom: 16,
+                                boxSizing: 'border-box',
+                            }}
+                        >
+                            <Routes>
+                                <Route path="/" element={<TrapLandingPage />} />
+
+                                <Route path="admin" element={<AdminPanel />} />
+                                <Route
+                                    path="studio/configure"
+                                    element={<WidgetStudioConfigurePage />}
+                                />
+                            </Routes>
+                        </Content>
+                    </Layout>
                 </AntdApp>
             </ConfigProvider>
         </ThemeContext.Provider>

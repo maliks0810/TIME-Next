@@ -10,7 +10,7 @@ import { AddWidgetOptions } from '../hooks/useWorkflowDesigner';
 type WidgetPickerModalProps = {
     open: boolean;
     isPublished: boolean;
-    templateId: string;
+    templateId?: string;
     widgetSearch: string;
     selectedCategory: string;
     widgetCategories: string[];
@@ -83,7 +83,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
     );
 
     const addWidgetDisabled =
-        !props.selectedWidgetDef || props.isPublished || !props.templateId || !hasAllRequiredParams;
+        !props.selectedWidgetDef || !props.templateId || !hasAllRequiredParams;
 
     const getOptions = (field: any) => {
         // If the property has options field then it depends on another field.
@@ -111,7 +111,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                     background: surfaceMeta.isGradientTheme ? 'rgba(0,0,0,0.32)' : undefined,
                 },
                 content: {
-                    padding: 0, 
+                    padding: 0,
                     overflow: 'hidden',
                     borderRadius: 20,
                     background: modalPanelBackground,
@@ -314,7 +314,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
 
                                 <Button
                                     type="primary"
-                                    onClick={() => props.onAddWidget({keepPickerOpen: true})}
+                                    onClick={() => props.onAddWidget({ keepPickerOpen: true })}
                                     disabled={addWidgetDisabled}
                                     loading={props.loading}
                                 >
@@ -322,7 +322,7 @@ export default function WidgetPickerModal(props: WidgetPickerModalProps) {
                                 </Button>
                                 <Button
                                     type="primary"
-                                    onClick={() => props.onAddWidget({keepPickerOpen: false})}
+                                    onClick={() => props.onAddWidget({ keepPickerOpen: false })}
                                     disabled={addWidgetDisabled}
                                 >
                                     Add & Close

@@ -11,14 +11,6 @@ type EmptyDesignerStateProps = {
 };
 
 export default function EmptyDesignerState(props: EmptyDesignerStateProps) {
-    if (!props.hasRoute) {
-        return (
-            <Empty description="No workflow loaded" image={Empty.PRESENTED_IMAGE_SIMPLE}>
-                <Button onClick={props.onBack}>Back to TRAP Landing</Button>
-            </Empty>
-        );
-    }
-
     if (!props.hasWidgets) {
         return (
             <Empty description="No widgets on canvas yet" image={Empty.PRESENTED_IMAGE_SIMPLE}>

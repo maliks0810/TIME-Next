@@ -12,8 +12,27 @@ import DesignerCanvasItem from './components/DesignerCanvasItem';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useWorkflowDesigner } from './hooks/useWorkflowDesigner';
+import { setActiveCanvas } from '../landing/components/shell/activeCanvas';
 
-export default function WorkflowDesignerPage() {
+type WorkflowDesignerPageProps = {
+    // Provided when embedded inside a workflow tab (new shell). Omitted on the
+    // standalone /designer route, where the hook falls back to query params.
+    templateId?: string;
+    versionId?: string;
+    embedded?: boolean;
+    active?: boolean;
+    // New shell: "Add Widget" opens the drawer's Widgets segment (the concept's library),
+    // not the legacy in-designer picker modal.
+    onRequestAddWidget?: () => void;
+    onPublished?: () => void;
+};
+
+export default function WorkflowDesignerPage({
+    templateId: propTemplateId,
+    embedded,
+    active,
+    onPublished,
+}: WorkflowDesignerPageProps = {}) {
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const { token } = theme.useToken();
     const { themeName } = useTheme();
@@ -72,8 +91,13 @@ export default function WorkflowDesignerPage() {
         saveDraft,
         publish,
         updateWidgetConfig,
-        contextHolder
-    } = useWorkflowDesigner();
+        contextHolder,
+        widgetOptions,
+        addWidgetById,
+    } = useWorkflowDesigner({
+        onPublishedCb: onPublished,
+        templateId: propTemplateId,
+    });
 
     useEffect(() => {
         if (layout.length !== 0) {
@@ -91,12 +115,23 @@ export default function WorkflowDesignerPage() {
         () => applySizing(layout, widgetsById, widgetDefById),
         [layout, widgetsById, widgetDefById]
     );
+    // While this is the active draft tab, publish its actions to the shell so the
+    // drawer's Widgets segment can open the library for it.
+    useEffect(() => {
+        if (!embedded || !active) return;
+        setActiveCanvas({
+            isDraft,
+            widgets: widgetOptions,
+            addWidget: addWidgetById,
+        });
+        return () => setActiveCanvas(null);
+    }, [embedded, active, isDraft, widgetOptions, addWidgetById]);
 
     return (
         <Space direction="vertical" size={16} style={{ width: '100%', gap: 4 }}>
             {contextHolder}
             <DesignerHeader
-                templateId={templateId}
+                templateId={propTemplateId}
                 loaded={loaded}
                 loading={loading}
                 isPublished={isPublished}
@@ -130,7 +165,7 @@ export default function WorkflowDesignerPage() {
                 onBack={() => nav('/trap')}
             />
 
-            {!templateId || layout.length === 0 ? (
+            {!propTemplateId || layout.length === 0 ? (
                 <EmptyDesignerState
                     hasRoute={!!templateId}
                     hasWidgets={layout.length > 0}
@@ -162,7 +197,7 @@ export default function WorkflowDesignerPage() {
                                     item={it}
                                     widget={widget}
                                     widgetDefinition={widgetDefinition}
-                                    templateId={templateId}
+                                    templateId={propTemplateId}
                                     isPublished={isPublished}
                                     isDraft={isDraft}
                                     isDraftSaved={isDraftSaved}
@@ -178,7 +213,7 @@ export default function WorkflowDesignerPage() {
             <WidgetPickerModal
                 open={widgetPickerOpen}
                 isPublished={isPublished}
-                templateId={templateId}
+                templateId={propTemplateId}
                 widgetSearch={widgetSearch}
                 selectedCategory={selectedCategory}
                 widgetCategories={widgetCategories}

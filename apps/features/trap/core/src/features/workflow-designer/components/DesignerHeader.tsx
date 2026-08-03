@@ -4,7 +4,7 @@ import { AppstoreAddOutlined, SaveOutlined } from '@ant-design/icons';
 import JsonInfoModal from '../../../components/common/JsonInfoModal';
 
 type DesignerHeaderProps = {
-    templateId: string;
+    templateId?: string;
     loaded: any;
     loading: boolean;
     isPublished: boolean;
@@ -67,12 +67,11 @@ export default function DesignerHeader(props: DesignerHeaderProps) {
             style={{
                 position: 'relative',
                 width: '100%',
-                minHeight: 64,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: 16,
-                padding: '8px 4px 10px 4px',
+                padding: '8px 16px',
                 boxSizing: 'border-box',
                 overflow: 'hidden',
                 background: 'transparent',
@@ -137,60 +136,6 @@ export default function DesignerHeader(props: DesignerHeaderProps) {
                 }}
             >
                 <Col flex="auto">
-                    <Space align="center" size={6}>
-                        <div
-                            onClick={props.onBack}
-                            style={{
-                                position: 'relative',
-                                zIndex: 1,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 12,
-                                minWidth: 0,
-                                flex: 1,
-                                cursor: 'pointer',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: 30,
-                                    height: 30,
-                                    display: 'grid',
-                                    placeItems: 'center',
-                                    flexShrink: 0,
-                                }}
-                            >
-                                <AppstoreAddOutlined style={{ fontSize: 16 }} />
-                            </div>
-
-                            <div style={{ minWidth: 0 }}>
-                                <div
-                                    style={{
-                                        fontSize: 18,
-                                        fontWeight: 700,
-                                        lineHeight: '18px',
-                                        textTransform: 'uppercase',
-                                    }}
-                                >
-                                    TRAP
-                                </div>
-                                <Typography.Text
-                                    style={{
-                                        display: 'block',
-                                        marginTop: 2,
-                                        fontSize: 11,
-                                        lineHeight: '14px',
-                                        // color: subtleText,
-                                        letterSpacing: 0.2,
-                                    }}
-                                >
-                                    TCW Risk Analytics Portal
-                                </Typography.Text>
-                            </div>
-                        </div>
-                    </Space>
-                </Col>
-                <Col flex="auto">
                     <Space size={6} align="center">
                         <Typography.Text
                             strong
@@ -222,58 +167,38 @@ export default function DesignerHeader(props: DesignerHeaderProps) {
                 </Col>
 
                 <Col>
-                    {!props.templateId ? (
-                        <Space wrap>
+                    <Space wrap size={8}>
+                        <Button
+                            icon={<AppstoreAddOutlined />}
+                            type="text"
+                            onClick={props.onOpenLibrary}
+                            disabled={props.isPublished}
+                            style={{
+                                fontWeight: 600,
+                            }}
+                        >
+                            Add Widget
+                        </Button>
+                        <Tooltip
+                            title={
+                                !!props.publishDisabledReason
+                                    ? `Publish (${props.publishDisabledReason})`
+                                    : null
+                            }
+                        >
                             <Button
-                                onClick={props.onBack}
-                                style={{
-                                    height: 32,
-                                    borderRadius: 8,
-                                    border: 'none',
-                                    boxShadow: 'none',
-                                    fontWeight: 600,
-                                    background: props.buttonBackground,
-                                    color: props.buttonTextColor,
-                                    paddingInline: 10,
-                                }}
-                            >
-                                Back to TRAP Landing
-                            </Button>
-                        </Space>
-                    ) : (
-                        <Space wrap size={8}>
-                            <Button
-                                icon={<AppstoreAddOutlined />}
+                                icon={<SaveOutlined />}
                                 type="text"
-                                onClick={props.onOpenLibrary}
-                                disabled={props.isPublished}
+                                onClick={props.onPublish}
+                                disabled={!!props.publishDisabledReason}
                                 style={{
                                     fontWeight: 600,
                                 }}
                             >
-                                Add Widget
+                                Publish
                             </Button>
-                            <Tooltip
-                                title={
-                                    !!props.publishDisabledReason
-                                        ? `Publish (${props.publishDisabledReason})`
-                                        : null
-                                }
-                            >
-                                <Button
-                                    icon={<SaveOutlined />}
-                                    type="text"
-                                    onClick={props.onPublish}
-                                    disabled={!!props.publishDisabledReason}
-                                    style={{
-                                        fontWeight: 600,
-                                    }}
-                                >
-                                    Publish
-                                </Button>
-                            </Tooltip>
-                        </Space>
-                    )}
+                        </Tooltip>
+                    </Space>
                 </Col>
             </Row>
         </div>
