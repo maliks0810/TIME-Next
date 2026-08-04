@@ -309,12 +309,12 @@ const MaintenanceBrokerGroupGrid = () => {
                     <FormItem dataField="brokerGroupId" editorType="dxSelectBox" cssClass="dx-common-selectbox-short80"
                     editorOptions={{
                       items: brokerGroups, displayExpr: "brokerGroupName", valueExpr: "brokerGroupId",
-                      searchEnabled: true, searchMode: "contains"
+                      searchEnabled: true, searchMode: "startswith"
                     }} />
                     <FormItem dataField="brokerCode" label={{text:"Broker"}} editorType="dxSelectBox" cssClass="dx-common-selectbox-short80"
                       editorOptions={{
                         items: brokers, displayExpr: "brokerName", valueExpr: "brokerCode",
-                        searchEnabled: true, searchMode: "contains"
+                        searchEnabled: true, searchMode: "startswith", searchExpr: "brokerName",
                       }} />
                   </Form>
                 </Editing>

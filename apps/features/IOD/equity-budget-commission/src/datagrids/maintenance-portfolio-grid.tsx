@@ -381,13 +381,13 @@ return (
                 />  
                 <div className='div-container-center'>
                   <Form colCount={1} width="95%">
-                    <FormItem dataField="portfolioId" label={{text:"Portfolio"}} editorType="dxSelectBox" 
+                    <FormItem dataField="portfolioId" label={{text:"Portfolio"}} editorType="dxSelectBox" isRequired
                       editorOptions={{
                         dataSource: portfolios, displayExpr:"portfolioName", valueExpr:"portfolioId",
                         searchEnabled:true, searchMode: "contains"
                       }}
                       cssClass="dx-common-selectbox" />
-                    <FormItem dataField="portfolioGroupId" label={{text:"Portfolio Group"}} editorType="dxSelectBox"
+                    <FormItem dataField="portfolioGroupId" label={{text:"Portfolio Group"}} editorType="dxSelectBox" isRequired
                       editorOptions={{
                         dataSource: portfolioGroups, displayExpr:"portfolioGroupName", valueExpr:"portfolioGroupId",
                         searchEnabled:true, searchMode: "contains"
