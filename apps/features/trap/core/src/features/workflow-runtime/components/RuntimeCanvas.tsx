@@ -41,8 +41,8 @@ export default function RuntimeCanvas(props: RuntimeCanvasProps) {
     return (
         <CanvasContainer
             layout={sizedLayout as any}
-            isDraggable={false}   /* runtime = locked */
-            isResizable={false}   /* runtime = locked */
+            isDraggable={false} /* runtime = locked */
+            isResizable={false} /* runtime = locked */
             isInitialLoading={isInitialLoading}
         >
             {props.runtimeItems.map(({ item, widgetInstance, widgetDefinition }) => (

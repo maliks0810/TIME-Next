@@ -72,7 +72,7 @@ export default function WorkflowDesignerPage() {
         saveDraft,
         publish,
         updateWidgetConfig,
-        contextHolder
+        contextHolder,
     } = useWorkflowDesigner();
 
     useEffect(() => {
@@ -119,7 +119,9 @@ export default function WorkflowDesignerPage() {
                             : 'none'
                     }
                     textColor={isDarkHud ? '#fff' : token.colorText}
-                    secondaryTextColor={isDarkHud ? 'rgba(255,255,255,0.82)' : token.colorTextSecondary}
+                    secondaryTextColor={
+                        isDarkHud ? 'rgba(255,255,255,0.82)' : token.colorTextSecondary
+                    }
                     buttonBackground={isDarkHud ? 'rgba(255,255,255,0.10)' : token.colorBgElevated}
                     buttonBorder={
                         isDarkHud

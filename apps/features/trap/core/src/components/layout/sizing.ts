@@ -21,7 +21,7 @@ export type SizingAxis = {
 
 export type WidgetSizing = {
     resizable?: boolean;
-    width?: SizingAxis;  // columns
+    width?: SizingAxis; // columns
     height?: SizingAxis; // rows (10px each)
 };
 

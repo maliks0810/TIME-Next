@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React from 'react';
+import React, { useMemo } from 'react';
 import RGL, { WidthProvider } from 'react-grid-layout/legacy';
 
 export const CANVAS_SHELL_WIDTH = 1840;
@@ -21,6 +21,30 @@ type CanvasContainerProps = {
     isResizable?: boolean;
 };
 
+const scaleLayout = (layout: any[], action: 'reduce' | 'increase') => {
+    switch (action) {
+        case 'reduce':
+            return layout.map((widget) => ({
+                ...widget,
+                h: Math.round(widget.h / CANVAS_ROW_HEIGHT),
+
+                maxH: widget.maxH / CANVAS_ROW_HEIGHT,
+                minH: widget.minH / CANVAS_ROW_HEIGHT,
+                y: Math.round(widget.y / CANVAS_ROW_HEIGHT),
+            }));
+        case 'increase':
+            return layout.map((widget) => ({
+                ...widget,
+                h: widget.h * CANVAS_ROW_HEIGHT,
+
+                maxH: widget.maxH * CANVAS_ROW_HEIGHT,
+                minH: widget.minH * CANVAS_ROW_HEIGHT,
+                y: widget.y * CANVAS_ROW_HEIGHT,
+            }));
+        default:
+            return layout;
+    }
+};
 export default function CanvasContainer({
     children,
     layout,
@@ -34,6 +58,8 @@ export default function CanvasContainer({
 }: CanvasContainerProps) {
     const [mounted, setMounted] = React.useState(false);
     React.useEffect(() => setMounted(true), []);
+
+    const adjustedLayout = useMemo(() => scaleLayout(layout, 'reduce'), [layout]);
 
     return (
         <div
@@ -49,7 +75,7 @@ export default function CanvasContainer({
                 className={className}
                 cols={CANVAS_COLUMNS_COUNT}
                 rowHeight={CANVAS_ROW_HEIGHT}
-                layout={layout as any}
+                layout={adjustedLayout as any}
                 isDraggable={isDraggable}
                 isResizable={isResizable}
                 resizeHandles={['se']}
@@ -64,8 +90,9 @@ export default function CanvasContainer({
                 useCSSTransforms={mounted}
                 margin={[0, 0]}
                 containerPadding={[0, 0]}
-                onLayoutChange={(l: any) => {
-                    if (!isInitialLoading && onLayoutChange) onLayoutChange(l as any);
+                onLayoutChange={(layout: any) => {
+                    if (!isInitialLoading && onLayoutChange)
+                        onLayoutChange(scaleLayout(layout, 'increase') as any);
                 }}
                 style={{ minWidth: CANVAS_MIN_WIDTH }}
             >
