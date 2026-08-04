@@ -1,3 +1,5 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+import { WidgetDefinitionLike } from '../../../../types/widget';
 import React from 'react';
 
 /**
@@ -11,7 +13,13 @@ export type WidgetOption = { id: string; name: string; category: string; descrip
 export type CanvasActions = {
     isDraft: boolean;
     widgets: WidgetOption[];
-    addWidget: (id: string) => void;
+    addWidget: () => void;
+    selectedWidgetParams: any;
+    loading: boolean;
+    onWidgetParamsSelect: any;
+    setSelectedWidgetDefId: (id: string) => void;
+    selectedWidgetDef: WidgetDefinitionLike;
+    filteredWidgetDefs: WidgetDefinitionLike[];
 } | null;
 
 let current: CanvasActions = null;

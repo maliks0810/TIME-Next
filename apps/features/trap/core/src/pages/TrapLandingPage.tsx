@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tabs, Space, Dropdown, Button, message, Tooltip } from 'antd';
 import {
     AppstoreOutlined,
@@ -357,11 +357,6 @@ export default function TrapLandingPage() {
         }
     };
 
-    const activeWf = useMemo(
-        () => workflows.find(({ workflowId }) => workflowId === activeKey),
-        [workflows, activeKey]
-    );
-
     return (
         <div style={{ width: '100%' }}>
             <div style={{ width: '100%' }}>
@@ -476,7 +471,6 @@ export default function TrapLandingPage() {
                 </div>
 
                 <Drawer
-                    activeWorkflow={activeWf}
                     openDraftTab={openDraftTab}
                     templates={allTemplates}
                     drawerOpen={drawerOpen}

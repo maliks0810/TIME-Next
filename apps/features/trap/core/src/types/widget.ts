@@ -69,6 +69,7 @@ export type WidgetDefinitionLike = {
         };
     }>;
     uiHints?: Record<string, any>;
+    description?: string;
     [k: string]: any;
 };
 
