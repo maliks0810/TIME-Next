@@ -120,7 +120,6 @@ export function useWorkflowDesigner() {
     }, [widgetDefs, loaded]);
 
     const widgetDefById = React.useMemo(() => {
-        console.log(designerWidgetDefs);
         const m: Record<string, any> = {};
         for (const d of designerWidgetDefs as any[]) m[String(d.id)] = d;
         return m;

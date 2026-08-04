@@ -5,6 +5,7 @@ import CanvasContainer from '../../../components/layout/CanvasContainer';
 import WidgetHost from '../../../components/widget-runtime/WidgetHost';
 
 import { extractLayout, extractWidgetsArray, widgetsMapById } from '../utils/landing.utils';
+import { applySizing } from '../../../components/layout/sizing';
 
 type LandingCanvasProps = {
     onOpenWorkflowFromRecent: (input: {
@@ -42,14 +43,16 @@ export default function LandingCanvas(props: LandingCanvasProps) {
         }
     }, [compiledLayout]);
 
+    const sizedLayout = React.useMemo(() => applySizing(compiledLayout, {}, {}), [compiledLayout]);
+
     return (
         <CanvasContainer
-            layout={compiledLayout as any}
+            layout={sizedLayout as any}
             isDraggable={false}
             isResizable={false}
             isInitialLoading={isInitialLoading}
         >
-            {compiledLayout
+            {sizedLayout
                 .filter((it: any) => !!compiledWidgetsById[it.i])
                 .map((it: any) => {
                     const widgetInstance = compiledWidgetsById[it.i];
