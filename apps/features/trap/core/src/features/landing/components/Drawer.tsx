@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CloseOutlined } from '@ant-design/icons';
-import { Button, message, Segmented, Space, Typography } from 'antd';
+import { Button, message, Segmented, Typography } from 'antd';
 import React from 'react';
 import WorkspacesPanel from './shell/WorkspacesPanel';
 import styles from './Drawer.module.scss';
@@ -15,9 +15,9 @@ import {
 import { useUserInfo } from '@platform/utils';
 
 import { Kind, Visibility } from '../../../api/trap';
-import WidgetsPanel from './shell/WidgetsPanel';
-import { useActiveCanvas } from './shell/activeCanvas';
 import { WorkflowTabModel } from '../types/landing.types';
+import WidgetsPanelWrapper from './shell/WidgetsPanelWrapper';
+
 export const Drawer = ({
     onLaunchWorkflow,
     onEditWorkflow,
@@ -27,9 +27,7 @@ export const Drawer = ({
     templates,
     onCloneTemplate,
     openDraftTab,
-    activeWorkflow,
 }: {
-    activeWorkflow?: WorkflowTabModel;
     openDraftTab: (id: string, draftId: string, name: string) => void;
     onCloneTemplate: (ws: WorkflowTabModel) => Promise<void>;
     templates: TemplateSummary[];
@@ -44,7 +42,6 @@ export const Drawer = ({
         'workspaces'
     );
 
-    const activeCanvas = useActiveCanvas();
     const onCreateWorkspace = React.useCallback(
         async (input: { name: string; kind: Kind; visibility: Visibility }, organization: Team) => {
             try {
@@ -70,12 +67,34 @@ export const Drawer = ({
         },
         [claims]
     );
-    const activeIsDraft =
-        String(activeWorkflow?.templateVersionStatus ?? '').toUpperCase() === 'DRAFT';
-    const renderSegment = (drawerSeg: string) => {
-        switch (drawerSeg) {
-            case 'workspaces':
-                return (
+    if (!drawerOpen) return null;
+    return (
+        <div role="dialog" aria-label="Manage" className={styles.wrapper}>
+            <div className={styles.header}>
+                <Typography.Text strong>Manage</Typography.Text>
+                <Button
+                    size="small"
+                    type="text"
+                    icon={<CloseOutlined />}
+                    onClick={() => setDrawerOpen(false)}
+                />
+            </div>
+
+            <div style={{ padding: 14 }}>
+                <Segmented
+                    block
+                    value={drawerSeg}
+                    onChange={(value) => setDrawerSeg(value as any)}
+                    options={[
+                        { label: 'Workspaces', value: 'workspaces' },
+                        { label: 'Widgets', value: 'widgets' },
+                        { label: 'Themes', value: 'themes' },
+                    ]}
+                />
+            </div>
+
+            <div style={{ padding: '0 14px 14px', overflow: 'auto', flex: 1 }}>
+                {drawerSeg === 'workspaces' ? (
                     <WorkspacesPanel
                         templates={templates}
                         onLaunch={(selected) => {
@@ -105,62 +124,9 @@ export const Drawer = ({
                         //TODO: implement when removing designer page
                         onTemplateChanged={() => {}}
                     />
-                );
-            case 'widgets':
-                return activeIsDraft ? (
-                    activeCanvas?.widgets ? (
-                        <WidgetsPanel
-                            widgets={activeCanvas.widgets}
-                            onAdd={activeCanvas.addWidget}
-                        />
-                    ) : (
-                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                            Loading widgets…
-                        </Typography.Text>
-                    )
-                ) : (
-                    <Space direction="vertical" size={10} style={{ width: '100%' }}>
-                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                            Widgets can only be added to a Draft.
-                        </Typography.Text>
-                        <Typography.Text type="secondary" style={{ fontSize: 11 }}>
-                            Open a draft — or “Edit — create a draft” on a published tab — to add
-                            widgets.
-                        </Typography.Text>
-                    </Space>
-                );
-            default:
-                return null;
-        }
-    };
-    if (!drawerOpen) return null;
-    return (
-        <div role="dialog" aria-label="Manage" className={styles.wrapper}>
-            <div className={styles.header}>
-                <Typography.Text strong>Manage</Typography.Text>
-                <Button
-                    size="small"
-                    type="text"
-                    icon={<CloseOutlined />}
-                    onClick={() => setDrawerOpen(false)}
-                />
-            </div>
+                ) : null}
 
-            <div style={{ padding: 14 }}>
-                <Segmented
-                    block
-                    value={drawerSeg}
-                    onChange={(value) => setDrawerSeg(value as any)}
-                    options={[
-                        { label: 'Workspaces', value: 'workspaces' },
-                        { label: 'Widgets', value: 'widgets', disabled: !activeIsDraft },
-                        { label: 'Themes', value: 'themes' },
-                    ]}
-                />
-            </div>
-
-            <div style={{ padding: '0 14px 14px', overflow: 'auto', flex: 1 }}>
-                {renderSegment(drawerSeg)}
+                {drawerSeg === 'widgets' ? <WidgetsPanelWrapper /> : null}
             </div>
         </div>
     );

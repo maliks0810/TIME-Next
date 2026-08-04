@@ -29,9 +29,10 @@ type WorkflowDesignerPageProps = {
 
 export default function WorkflowDesignerPage({
     templateId: propTemplateId,
+    onPublished,
     embedded,
     active,
-    onPublished,
+    onRequestAddWidget,
 }: WorkflowDesignerPageProps = {}) {
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const { token } = theme.useToken();
@@ -92,18 +93,37 @@ export default function WorkflowDesignerPage({
         publish,
         updateWidgetConfig,
         contextHolder,
-        widgetOptions,
-        addWidgetById,
-    } = useWorkflowDesigner({
-        onPublishedCb: onPublished,
-        templateId: propTemplateId,
-    });
+    } = useWorkflowDesigner(onPublished);
 
     useEffect(() => {
         if (layout.length !== 0) {
             setIsInitialLoading(false);
         }
     }, [layout]);
+
+    useEffect(() => {
+        if (!embedded || !active) return;
+        setActiveCanvas({
+            isDraft,
+            widgets: filteredWidgetDefs,
+            addWidget,
+            selectedWidgetParams,
+            loading,
+            onWidgetParamsSelect: setSelectedWidgetParams,
+            setSelectedWidgetDefId,
+            selectedWidgetDef,
+            filteredWidgetDefs,
+        });
+        return () => setActiveCanvas(null);
+    }, [
+        embedded,
+        active,
+        isDraft,
+        filteredWidgetDefs,
+        selectedWidgetParams,
+        loading,
+        selectedWidgetDef,
+    ]);
 
     // Decorate the layout with per-item resize policy derived from each
     // widget's `uiHints.sizing`. Opted-in widgets (e.g. the counter tile)
@@ -115,17 +135,6 @@ export default function WorkflowDesignerPage({
         () => applySizing(layout, widgetsById, widgetDefById),
         [layout, widgetsById, widgetDefById]
     );
-    // While this is the active draft tab, publish its actions to the shell so the
-    // drawer's Widgets segment can open the library for it.
-    useEffect(() => {
-        if (!embedded || !active) return;
-        setActiveCanvas({
-            isDraft,
-            widgets: widgetOptions,
-            addWidget: addWidgetById,
-        });
-        return () => setActiveCanvas(null);
-    }, [embedded, active, isDraft, widgetOptions, addWidgetById]);
 
     return (
         // Plain full-width divs (NOT antd Space) around the canvas: Space injects
@@ -136,7 +145,7 @@ export default function WorkflowDesignerPage({
             {contextHolder}
             <div style={{ marginBottom: 16 }}>
                 <DesignerHeader
-                    templateId={templateId}
+                    templateId={propTemplateId}
                     loaded={loaded}
                     loading={loading}
                     isPublished={isPublished}
@@ -166,7 +175,7 @@ export default function WorkflowDesignerPage({
                     buttonTextColor={isDarkHud ? '#fff' : token.colorText}
                     saveDisabledReason={saveDisabledReason}
                     publishDisabledReason={publishDisabledReason}
-                    onOpenLibrary={() => setWidgetPickerOpen(true)}
+                    onOpenLibrary={onRequestAddWidget as () => void}
                     onSaveDraft={() => void saveDraft()}
                     onPublish={() => void publish()}
                     onBack={() => nav('/trap')}
