@@ -309,11 +309,15 @@ const ResearchBudgetGrid: React.FC = () => {
             <Lookup dataSource={masterDivisions} valueExpr="divisionId" displayExpr="divisionName" />
             <RequiredRule message={ValidationMessage.RequiredField} />
           </Column>
-          <Column dataField="masterBrokerId" caption="Master Broker" allowSorting={true} width="25%">
+          <Column dataField="masterBrokerId" caption="Master Broker" allowSorting width="25%" 
+            calculateSortValue={(rowData) => {
+              const broker = masterBrokers.find(b => b.masterBrokerId === rowData.masterBrokerId);
+              return broker?.masterBrokerName ?? '';
+              }}>
             <Lookup dataSource={masterBrokers} valueExpr="masterBrokerId" displayExpr="masterBrokerName" />
             <RequiredRule message={ValidationMessage.RequiredField} />
           </Column>
-          <Column dataField="mBkrCode" caption="Master Broker Code" allowSorting={true} width="10%" formItem={{ visible: false }} />
+          <Column dataField="mBkrCode" caption="Master Broker Code" allowSorting width="10%" formItem={{ visible: false }} />
           <Column dataField="budgetYear" caption="Budget Year" dataType="number" visible={false} />
           <Column dataField="quarterOne" caption="Q1 Budget" dataType="number" width="10%" alignment="left" format={{ type: "currency", precision: 2 }} />
           <Column dataField="quarterTwo" caption="Q2 Budget" dataType="number" width="10%" alignment="left" format={{ type: "currency", precision: 2 }} />

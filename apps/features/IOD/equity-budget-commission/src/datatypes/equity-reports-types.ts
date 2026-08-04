@@ -14,7 +14,11 @@ export const ReportsList = [
   { value: 'R13', name: 'COB - Proprietery Research Budget by Division' },
   { value: 'R14', name: 'COB - Directed By Strategy' },
   { value: 'R15', name: 'COB - Derivatives and Options Commission' },
-
+  { value: 'R16', name: 'COB - CSA Credit Reconciliation Detail' },
+  { value: 'R17', name: 'COB - CSA Credit Reconciliation Summary' },
+  { value: 'R18', name: 'COB - CSA Full BreakDown' },
+  { value: 'R19', name: 'COB - Relative Value Trades Report' },
+  
 ];
 
 export type Report = {
@@ -39,4 +43,8 @@ export const Reports: Report[] = [
   { rptCode: 'R13', rptName: 'COB - Proprietery Research Budget by Division', rptHeight: '950' },
   { rptCode: 'R14', rptName: 'COB - Directed By Strategy', rptHeight: '950' },
   { rptCode: 'R15', rptName: 'COB - Derivatives and Options Commission', rptHeight: '950' },
+  { rptCode: 'R16', rptName: 'COB - CSA Credit Reconciliation Detail', rptHeight: '950' },
+  { rptCode: 'R17', rptName: 'COB - CSA Credit Reconciliation Summary', rptHeight: '950' },
+  { rptCode: 'R18', rptName: 'COB - CSA Full BreakDown', rptHeight: '950' },
+  { rptCode: 'R19', rptName: 'COB - Relative Value Trades Report', rptHeight: '950' },
 ]
