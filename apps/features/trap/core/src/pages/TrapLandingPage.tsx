@@ -363,8 +363,8 @@ export default function TrapLandingPage() {
     );
 
     return (
-        <Space direction="vertical" size={10} style={{ width: '100%' }}>
-            <Space direction="vertical" size={0} style={{ width: '100%' }}>
+        <div style={{ width: '100%' }}>
+            <div style={{ width: '100%' }}>
                 <div
                     style={{
                         height: TAB_BAR_HEIGHT,
@@ -486,7 +486,7 @@ export default function TrapLandingPage() {
                     onActivateLanding={onActivateHudLanding}
                     onCloneTemplate={onCloneTemplate}
                 />
-            </Space>
-        </Space>
+            </div>
+        </div>
     );
 }

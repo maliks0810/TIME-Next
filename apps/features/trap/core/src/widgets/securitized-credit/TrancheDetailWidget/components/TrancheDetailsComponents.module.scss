@@ -1,26 +1,31 @@
+/* EXISTING: apps/features/trap/core/src/widgets/securitized-credit/TrancheDetailsWidget/components/TrancheDetailsComponents.module.scss
+ *
+ * Metric cards use the Deal Details left-accent look. .detailBody supports 1/2/3
+ * columns so a full-width panel can spread its rows across up to 3 columns
+ * (fills width + stays short).
+ */
+
+/* ── Metric card — left accent bar, transparent fill (Deal Details style) ── */
 .metricCardContainer {
     flex: 1;
     min-width: 0;
-    background: var(--ant-color-bg-elevated);
-    border: 1px solid var(--ant-color-primary-border);
-    border-radius: var(--ant-border-radius);
-    padding: 9px 12px;
+    background: var(--ant-color-fill-alter);
+    border: none;
+    border-left: 3px solid var(--ant-color-border-secondary);
+    border-radius: 0 var(--ant-border-radius) var(--ant-border-radius) 0;
+    padding: 8px 12px;
     display: flex;
     flex-direction: column;
     gap: 2px;
-    position: relative;
     overflow: hidden;
 }
 
-.metricCardAccentHighlight {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg,
-            var(--ant-color-primary) 0%,
-            var(--ant-color-primary-hover) 100%);
+.metricCardAccent {
+    border-left-color: var(--ant-color-primary);
+}
+
+.metricCardHighlight {
+    border-left-color: var(--ant-color-warning);
 }
 
 .metricCardLabel {
@@ -28,19 +33,26 @@
     line-height: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.06em;
     color: var(--ant-color-text-tertiary);
 }
 
 .metricCardValue {
-    font-size: 15px;
-    line-height: 19px;
+    font-size: 14px;
+    line-height: 18px;
     font-weight: 700;
     color: var(--ant-color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .metricCardValueAccent {
     color: var(--ant-color-primary);
+}
+
+.metricCardValueHighlight {
+    color: var(--ant-color-warning);
 }
 
 .metricCardSubText {
@@ -49,11 +61,30 @@
     color: var(--ant-color-text-tertiary);
 }
 
+/* ── Detail panel ── */
 .detailPanelContainer {
     background: var(--ant-color-fill-alter);
     border: 1px solid var(--ant-color-border-secondary);
     border-radius: var(--ant-border-radius);
     padding: 10px 14px;
+    min-width: 0;
+}
+
+.detailBody {
+    display: grid;
+    gap: 0 24px;
+}
+
+.detailBodyOne {
+    grid-template-columns: 1fr;
+}
+
+.detailBodyTwo {
+    grid-template-columns: 1fr 1fr;
+}
+
+.detailBodyThree {
+    grid-template-columns: 1fr 1fr 1fr;
 }
 
 .detailRowContainer {

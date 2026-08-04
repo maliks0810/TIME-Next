@@ -31,6 +31,8 @@ import AssetStagingWidget from '../widgets/securitized-credit/new-asset/asset-st
 import { HeatGridWidget } from '../widgets/common/heatgrid/HeatGridWidget';
 import { GridRegistry } from '../widgets/common/data-grid/GridRegistry';
 import { Input } from '../widgets/common/input/Input';
+import { SummaryPanelWidget } from '../widgets/common/summary-panel/SummaryPanel';
+import { ChartWidget } from '../widgets/common/chart/ChartWidget';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -296,6 +298,23 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_input: {
         id: 'cwd_input',
         component: Input,
+        category: 'View',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+
+    cwd_common_summary_panel_01: {
+        id: 'cwd_common_summary_panel_01',
+        component: SummaryPanelWidget,
+        category: 'View',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_common_chart_01: {
+        id: 'cwd_common_chart_01',
+        component: ChartWidget,
         category: 'View',
         visibleIn: ['workflow'],
         listensToKeys: [],

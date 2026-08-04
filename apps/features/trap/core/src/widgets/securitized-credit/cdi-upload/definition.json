@@ -37,15 +37,15 @@
             "sizing": {
                 "resizable": true,
                 "width": {
-                    "default": 5,
-                    "min": 1,
+                    "default": 6,
+                    "min": 3,
                     "max": 12
                 },
                 "height": {
-                    "default": 255,
-                    "min": 150,
-                    "max": 410,
-                    "step": 10
+                    "default": 3,
+                    "min": 2,
+                    "max": 5,
+                    "step": 1
                 }
             }
         }

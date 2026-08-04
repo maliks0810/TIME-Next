@@ -64,8 +64,8 @@ const METRIC_CONFIG: Record<ChartMode, MetricConfig> = {
   contribution: {
     kind: "paired",
     label: "Portfolio vs Benchmark Contribution Return",
-    portfolioField: "PFContribToRet",
-    benchmarkField: "BMContribToRet",
+    portfolioField: "PFContToRet",
+    benchmarkField: "BMContToRet",
   },
   effects: {
     kind: "effects",
@@ -128,7 +128,10 @@ function getAxisValue(params: CallbackDataParams[]): string {
 }
 
 function getGroup(row: Row): string {
-  return String(row["SecurityGroup"] ?? "");
+  const group = row["SecurityGroup"];
+  return typeof group === "string" && group.trim()
+    ? group
+    : ((row["SecurityName"] as string) || "");
 }
 
 export default function AttributionSingleModeChart({

@@ -1,5 +1,5 @@
 import { GridConfigResponse } from "../components/dram-grid";
-import { referencePeriods } from "./constants";
+import { DEFAULT_DAILY_PERIODS, DEFAULT_MONTHLY_PERIODS, referencePeriods } from "./constants";
 import { PeriodCode } from "./periods";
 import { WorkflowState } from "./services";
 import { AttributionDispersionResponse, PortBenchRow, SelectOption } from "./types";
@@ -241,3 +241,11 @@ export function normalizeDispersionResponse(
 
   return undefined;
 }
+
+export const getDefaultPeriodsForFrequency = (
+  frequencyMode: string,
+): string[] => {
+  return frequencyMode === "daily"
+    ? [...DEFAULT_DAILY_PERIODS]
+    : [...DEFAULT_MONTHLY_PERIODS];
+};

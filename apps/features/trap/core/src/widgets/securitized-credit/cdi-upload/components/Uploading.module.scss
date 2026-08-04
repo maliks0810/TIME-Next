@@ -1,13 +1,4 @@
-.container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.text {
-    font-size: 12px;
-    line-height: 16px;
-}
+.container { display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+.head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.fileName { font-family: monospace; font-size: 12px; font-weight: 500; color: var(--ant-color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status { font-size: 11px; line-height: 15px; color: var(--ant-color-text-secondary); }

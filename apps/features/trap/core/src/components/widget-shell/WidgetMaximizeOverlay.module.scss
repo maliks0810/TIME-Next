@@ -1,0 +1,112 @@
+/* Fullscreen widget overlay.
+ *
+ * Layout: .body is a sized, position:relative box so widgets whose inner
+ * container is `position:absolute; inset:0` fill it. Chrome: opaque + isolated
+ * so the live dashboard can't bleed through. box-sizing:border-box for a real
+ * gutter. Cursor default inside (forms-friendly); only the restore btn is a hand.
+ *
+ * Nav-bar fix: the app's fixed TIME nav bar sits ABOVE this overlay's stacking
+ * context (the scrim renders under it), so a centered panel tucked its close
+ * button behind the nav. We anchor the panel from the TOP with an offset equal
+ * to the nav height (--wmo-top-offset) so the close button always clears it.
+ * Adjust --wmo-top-offset to match the real nav height if it changes.
+ */
+
+.scrim {
+    /* Set this to the app nav-bar height; panel is pushed below it. */
+    --wmo-top-offset: 72px;
+
+    box-sizing: border-box;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000; /* above the fixed TIME nav bar */
+    display: flex;
+    align-items: flex-start;      /* anchor from top, not center */
+    justify-content: center;
+
+    /* Top padding clears the nav; sides/bottom give the usual gutter. */
+    padding: calc(var(--wmo-top-offset) + 16px) 24px 24px 24px;
+
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(3px);
+    cursor: pointer;              /* clicking the scrim restores */
+    animation: wmo-fade 160ms ease both;
+}
+
+.panel {
+    box-sizing: border-box;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+
+    width: min(1760px, 94vw);
+    /* Fill the space left below the nav, capped. */
+    height: min(900px, calc(100vh - var(--wmo-top-offset) - 40px));
+    max-width: 94vw;
+
+    background-color: var(--ant-color-bg-container, #ffffff);
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: 12px;
+    box-shadow: 0 16px 56px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+
+    cursor: default;
+    animation: wmo-pop 160ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.closeBtn {
+    box-sizing: border-box;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: var(--ant-border-radius, 8px);
+    background: var(--ant-color-bg-elevated, #ffffff);
+    color: var(--ant-color-text-secondary);
+    cursor: pointer;              /* the one true pointer: restore */
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+        background: var(--ant-color-fill-secondary);
+        color: var(--ant-color-text);
+        border-color: var(--ant-color-border);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--ant-color-primary);
+        outline-offset: 1px;
+    }
+}
+
+.body {
+    box-sizing: border-box;
+    position: relative;
+    z-index: 0;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    padding: 44px 24px 20px 24px;
+    overflow: auto;
+    background-color: var(--ant-color-bg-container, #ffffff);
+    cursor: default;
+}
+
+@keyframes wmo-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes wmo-pop {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+}

@@ -270,7 +270,7 @@ export function BreakdownChainBuilder({
         {chain.levels.length === 0 ? (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description="Add levels below or pick a preset above"
+            description="Add levels below"
             style={{ margin: "8px 0" }}
           />
         ) : (

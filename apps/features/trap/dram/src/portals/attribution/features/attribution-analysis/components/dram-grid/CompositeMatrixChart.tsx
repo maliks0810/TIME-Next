@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { Empty, Typography } from "antd";
 import { PeriodConfig } from "./types";
 import { MultiPeriodAttributionRow } from "./compositeAttributionAdapter";
+import { getCompositePeriodLabel } from "./periodUtils";
 
 const { Text } = Typography;
 
@@ -75,7 +76,7 @@ export const CompositeMatrixChart: React.FC<CompositeMatrixChartProps> = ({
 
         return {
           periodId: p.id,
-          label: p.short_label || p.label,
+          label: getCompositePeriodLabel(p),
           value: raw,
         };
       })
@@ -171,7 +172,7 @@ export const CompositeMatrixChart: React.FC<CompositeMatrixChartProps> = ({
                 textAnchor="middle"
                 fontSize={12}
               >
-                {p.label}
+                {getCompositePeriodLabel(p)}
               </text>
             </g>
           );
