@@ -190,6 +190,8 @@ const onBudgetSaveClick = useCallback(async ()=> {
             onValueChanged={(e) => setSelectedDivision(e.value)}
             placeholder="Division"
             showClearButton={true}
+            searchEnabled
+            searchMode='contains'
             width={200}
             className='dx-common-selectbox'
         />
@@ -203,6 +205,8 @@ const onBudgetSaveClick = useCallback(async ()=> {
             onValueChanged={(e) => setSelectedMasterBroker(e.value)}
             placeholder="Master Broker"
             showClearButton={true}
+            searchEnabled
+            searchMode='contains'
             width={300}
             className='dx-common-selectbox'
         />
@@ -232,7 +236,7 @@ const onBudgetSaveClick = useCallback(async ()=> {
             mode:"multiple", 
             selectAllMode:"allPages", 
             showCheckBoxesMode:"always", 
-            allowSelectAll:false,            
+            allowSelectAll:false,
           }}
           onSelectionChanged={(e) => onSelectionChanged(e.selectedRowKeys as string[])}  
           scrolling={{mode:"virtual"}}
@@ -241,21 +245,25 @@ const onBudgetSaveClick = useCallback(async ()=> {
             allowUpdating:isAdmin,
             useIcons:true,
           }}
-          onSaving={onCellSaving}          
+          onSaving={onCellSaving}
         >        
           <FilterRow visible={false} applyFilter="auto" />
                       
           <Column type="selection" width="10%" headerCellRender={SelectionHeaderCell} />        
-          <Column dataField="divisionId" caption="Division" width="10%" allowSorting={true} allowEditing={false}>
+          <Column dataField="divisionId" caption="Division" width="10%" allowSorting allowEditing={false}>
             <Lookup dataSource={divisions} valueExpr="divisionId" displayExpr="divisionName" />
           </Column>
-          <Column dataField="departmentId" caption="Department" width="12%" allowSorting={true} allowEditing={false}>
+          <Column dataField="departmentId" caption="Department" width="12%" allowSorting allowEditing={false}>
             <Lookup dataSource={departments} valueExpr="departmentId" displayExpr="departmentName" />
           </Column>
-          <Column dataField="masterBrokerId" caption="Master Broker" allowSorting={true} width="26%" allowEditing={false}>
+          <Column dataField="masterBrokerId" caption="Master Broker" allowSorting width="26%" allowEditing={false}
+              calculateSortValue={(rowData) => {
+                const broker = masterBrokers.find(b => b.masterBrokerId === rowData.masterBrokerId);
+                return broker?.masterBrokerName ?? '';
+              }}>
             <Lookup dataSource={masterBrokers} valueExpr="masterBrokerId" displayExpr="masterBrokerName" />
           </Column>
-          <Column dataField="mBkrCode" caption="Broker Code" allowSorting={true} width="10%" allowEditing={false} />
+          <Column dataField="mBkrCode" caption="Broker Code" allowSorting width="10%" allowEditing={false} />
           <Column dataField="budgetYear" caption="Budget Year" dataType="number" visible={false} />
           <Column dataField="quarterOne" caption="Q1 Budget" dataType="number" width="8%" alignment="left" format={{ type: "currency", precision: 2 }} />
           <Column dataField="quarterTwo" caption="Q2 Budget" dataType="number" width="8%" alignment="left" format={{ type: "currency", precision: 2 }} />

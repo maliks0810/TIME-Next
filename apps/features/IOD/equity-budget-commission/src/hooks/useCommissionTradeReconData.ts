@@ -28,6 +28,14 @@ const [reconDetailData, setReconDetailData] = useState<CommissionReconDetail | u
 const [isSaveError, setIsSaveError] = useState(false);
 const [adminData, setAdminData] = useState<MaintenanceUser[]>([]);
 
+const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);  
+const [isBatchSaveError, setIsBatchSaveError] = useState(false);
+const [batchPopupVisible, setBatchPopupVisible] = useState(false);  
+const [batchFormData, setBatchFormData] = useState({  
+  reason: null,        
+  creditBroker: null, 
+});  
+
 useEffect(() => {  
   const fetchMasterData = async () => {
     try {  
@@ -151,6 +159,41 @@ const handleToDateChanged = useCallback((e: DateBoxTypes.ValueChangedEvent) => {
     }
   },[isSaveError]);
 
+  const saveBatchUpdateChange  = useCallback(async () => {
+    try{   
+      const tradeIds: string[] = selectedRowKeys.map(s=> s);
+      const updateDto: CommissionTradeBatchRequestDto = {
+        orderId: tradeIds,
+        creditBroker: batchFormData.creditBroker??'',
+        reason: batchFormData.reason??'',
+        lastUpdateBy: userInfo.name
+      }
+      const result = await saveBatchUpdateChanges(updateDto);
+      setBatchPopupVisible(false);  
+      return result;
+    }
+    catch(error){
+      setIsBatchSaveError(true);
+      throw error;
+    }
+  },[selectedRowKeys, isBatchSaveError]);
+
+  // selection  
+  const onSelectionChanged = useCallback((selectedKeys: string[]) => {  
+    setSelectedRowKeys(selectedKeys);  
+  }, []);  
+
+    // batch update popup  
+  const handleBatchUpdate = useCallback(() => {  
+    if (selectedRowKeys.length > 1) {  
+      setBatchPopupVisible(true);  
+    }
+  }, [selectedRowKeys]);  
+
+  const closeBatchUpdatePopup = () => {  
+    setBatchPopupVisible(false);  
+  }; 
+
   return {  
     selectedBeginDate,  
     selectedEndDate,  
@@ -168,7 +211,17 @@ const handleToDateChanged = useCallback((e: DateBoxTypes.ValueChangedEvent) => {
     onRowDblClick,
     handleClosePopup,
     isSaveError,
+    batchPopupVisible,  
+    isBatchSaveError,
+    selectedRowKeys,  
+    batchFormData,
+    setBatchFormData,
     reloadReconData: loadReconsData,
-    saveCommissionReconChange
+    saveCommissionReconChange,
+    onSelectionChanged,
+    setSelectedRowKeys,
+    handleBatchUpdate,  
+    closeBatchUpdatePopup,  
+    saveBatchUpdateChange,
   };   
 }

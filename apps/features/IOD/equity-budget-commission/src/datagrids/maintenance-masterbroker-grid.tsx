@@ -206,7 +206,7 @@ const MaintenanceMasterBrokerGrid: React.FC = () => {
     <div>      
       <div className="div-container-left">
         <Button text="Add" visible={isAdmin?true:false} icon="plus" onClick={openAddPopup} /> 
-        <CheckBox text='Legacy' value={isLegacy} onValueChanged={(e) => setIsLegacy(e.value)}/>
+        <CheckBox text='Legacy' value={isLegacy} onValueChanged={(e) => setIsLegacy(e.value)} visible={false}/>
       </div>
       <div className='grid-container-smaller'> 
         <DataGrid
