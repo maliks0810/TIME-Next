@@ -1,16 +1,16 @@
-import type { JSX } from 'react';
-import type { DecimalMode, DecimalSettings } from '../../domain/format';
-import { fmtDynamicNumber, fmtDynamicSignedNumber } from '../../domain/format';
+import type { JSX } from "react";
+import type { DecimalMode, DecimalSettings } from "../../domain/format";
+import { fmtDynamicNumber, fmtDynamicSignedNumber } from "../../domain/format";
 import type {
   MonitorV2Cashflow,
   PortfolioAnalysisContext,
   PortfolioAnalysisTradeEvent,
   PortfolioAnalysisTreeRow,
-} from '../../types';
-import { PortfolioAnalysisMiniGrid } from './PortfolioAnalysisMiniGrid';
-import type { PortfolioAnalysisPeriodKey } from './PortfolioAnalysisPeriodSelector';
-import type { PortfolioAnalysisColumnGroupContext } from './PortfolioAnalysisColumnGroupContext';
-import { effectivePeriod, eventPeriods } from './periodScope';
+} from "../../types";
+import { PortfolioAnalysisMiniGrid } from "./PortfolioAnalysisMiniGrid";
+import type { PortfolioAnalysisPeriodKey } from "./PortfolioAnalysisPeriodSelector";
+import type { PortfolioAnalysisColumnGroupContext } from "./PortfolioAnalysisColumnGroupContext";
+import { effectivePeriod, eventPeriods } from "./periodScope";
 
 type TradeWithDuration = PortfolioAnalysisTradeEvent & {
   TradeDuration?: number | null;
@@ -26,6 +26,8 @@ type TradeWithAudit = PortfolioAnalysisTradeEvent & {
 type CashflowWithAudit = MonitorV2Cashflow & {
   cashModifiedDate?: string | null;
   CashModifiedDate?: string | null;
+  modifiedAt?: string | null;
+  ModifiedAt?: string | null;
   cashModifiedBy?: string | null;
   CashModifiedBy?: string | null;
 };
@@ -44,13 +46,13 @@ type TradeWithPrices = PortfolioAnalysisTradeEvent & {
 };
 
 function asText(value: unknown): string | number | null {
-  if (typeof value === 'string' || typeof value === 'number') return value;
+  if (typeof value === "string" || typeof value === "number") return value;
   return null;
 }
 
 function asNumber(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string' && value.trim()) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric : null;
   }
@@ -62,21 +64,21 @@ function absNumber(value: unknown): number {
 }
 
 function dateOnly(value: string | null | undefined): string {
-  return value ? String(value).slice(0, 10) : '';
+  return value ? String(value).slice(0, 10) : "";
 }
 
 function formatDateTime(value: string | null | undefined): string {
-  if (!value) return '';
+  if (!value) return "";
   const text = String(value);
   const parsed = new Date(text);
-  if (Number.isNaN(parsed.getTime())) return text.replace('T', ' ');
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
+  if (Number.isNaN(parsed.getTime())) return text.replace("T", " ");
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
     hour12: false,
   }).format(parsed);
 }
@@ -87,11 +89,16 @@ function tradeLastUpdatedDate(trade: PortfolioAnalysisTradeEvent): string {
 }
 function cashModifiedDate(cashflow: MonitorV2Cashflow): string {
   const audit = cashflow as CashflowWithAudit;
-  return dateOnly(audit.cashModifiedDate ?? audit.CashModifiedDate);
+  return formatDateTime(
+    audit.modifiedAt ??
+      audit.ModifiedAt ??
+      audit.cashModifiedDate ??
+      audit.CashModifiedDate,
+  );
 }
 function cashModifiedBy(cashflow: MonitorV2Cashflow): string {
   const audit = cashflow as CashflowWithAudit;
-  return audit.cashModifiedBy ?? audit.CashModifiedBy ?? '';
+  return audit.cashModifiedBy ?? audit.CashModifiedBy ?? "";
 }
 
 function tradeDuration(trade: PortfolioAnalysisTradeEvent): number | null {
@@ -106,7 +113,13 @@ function securityDuration(trade: PortfolioAnalysisTradeEvent): number | null {
 
 function tradePrice(trade: PortfolioAnalysisTradeEvent): number | null {
   const withPrices = trade as TradeWithPrices;
-  return asNumber(withPrices.TradePrice ?? withPrices.tradePrice ?? withPrices.TRADE_PRICE ?? withPrices.price ?? withPrices.Price);
+  return asNumber(
+    withPrices.TradePrice ??
+      withPrices.tradePrice ??
+      withPrices.TRADE_PRICE ??
+      withPrices.price ??
+      withPrices.Price,
+  );
 }
 
 function securityPrice(trade: PortfolioAnalysisTradeEvent): number | null {
@@ -123,22 +136,24 @@ function securityPrice(trade: PortfolioAnalysisTradeEvent): number | null {
 
 function tradeKey(trade: PortfolioAnalysisTradeEvent): string {
   return [
-    asText(trade.tradeNum) ?? '',
-    asText(trade.invNum) ?? '',
-    trade.securityKey ?? '',
+    asText(trade.tradeNum) ?? "",
+    asText(trade.invNum) ?? "",
+    trade.securityKey ?? "",
     dateOnly(trade.tradeDate),
     tradeLastUpdatedDate(trade),
-    asNumber(trade.flippedCurrentFace) ?? '',
-    asNumber(trade.flippedTradeNetMoney) ?? '',
-    asNumber(trade.ctd) ?? '',
-    tradePrice(trade) ?? '',
-    securityPrice(trade) ?? '',
-    tradeDuration(trade) ?? '',
-    securityDuration(trade) ?? '',
-  ].join('|');
+    asNumber(trade.flippedCurrentFace) ?? "",
+    asNumber(trade.flippedTradeNetMoney) ?? "",
+    asNumber(trade.ctd) ?? "",
+    tradePrice(trade) ?? "",
+    securityPrice(trade) ?? "",
+    tradeDuration(trade) ?? "",
+    securityDuration(trade) ?? "",
+  ].join("|");
 }
 
-function uniqueTrades(trades: PortfolioAnalysisTradeEvent[]): PortfolioAnalysisTradeEvent[] {
+function uniqueTrades(
+  trades: PortfolioAnalysisTradeEvent[],
+): PortfolioAnalysisTradeEvent[] {
   const byKey = new Map<string, PortfolioAnalysisTradeEvent>();
 
   trades.forEach((trade) => {
@@ -150,7 +165,15 @@ function uniqueTrades(trades: PortfolioAnalysisTradeEvent[]): PortfolioAnalysisT
 }
 
 function cashflowKey(cashflow: MonitorV2Cashflow): string {
-  return [dateOnly(cashflow.settleDate), cashflow.portfolioKey, cashflow.cashType, cashflow.baseAmount ?? '', cashflow.source, cashModifiedDate(cashflow), cashModifiedBy(cashflow)].join('|');
+  return [
+    dateOnly(cashflow.settleDate),
+    cashflow.portfolioKey,
+    cashflow.cashType,
+    cashflow.baseAmount ?? "",
+    cashflow.source,
+    cashModifiedDate(cashflow),
+    cashModifiedBy(cashflow),
+  ].join("|");
 }
 
 function uniqueCashflows(cashflows: MonitorV2Cashflow[]): MonitorV2Cashflow[] {
@@ -173,7 +196,10 @@ function scopedEventDetails(row: PortfolioAnalysisTreeRow, periods: number[]) {
         cashflows: [...(acc.cashflows ?? []), ...(details.cashflows ?? [])],
       };
     },
-    {} as { trades?: PortfolioAnalysisTradeEvent[]; cashflows?: MonitorV2Cashflow[] },
+    {} as {
+      trades?: PortfolioAnalysisTradeEvent[];
+      cashflows?: MonitorV2Cashflow[];
+    },
   );
 }
 
@@ -194,7 +220,10 @@ export function PortfolioAnalysisEventsTab({
   decimalMode: DecimalMode;
 }): JSX.Element {
   const period = effectivePeriod(context, activeTMinus, selectedColumnGroup);
-  const details = scopedEventDetails(selectedRow, eventPeriods(context, period));
+  const details = scopedEventDetails(
+    selectedRow,
+    eventPeriods(context, period),
+  );
   const trades = uniqueTrades(details.trades ?? []);
   const cashflows = uniqueCashflows(details.cashflows ?? []);
 
@@ -210,79 +239,114 @@ export function PortfolioAnalysisEventsTab({
             defaultSortDirection="desc"
             columns={[
               {
-                key: 'tradeNum',
-                label: 'Trade #',
-                align: 'left',
+                key: "tradeNum",
+                label: "Trade #",
+                align: "left",
                 render: (row) => asText(row.tradeNum),
                 sortValue: (row) => asText(row.tradeNum),
               },
               {
-                key: 'date',
-                label: 'Date',
-                align: 'left',
+                key: "date",
+                label: "Date",
+                align: "left",
                 render: (row) => dateOnly(row.tradeDate),
                 sortValue: (row) => dateOnly(row.tradeDate),
               },
               {
-                key: 'lastUpdatedDate',
-                label: 'Last Updated',
-                align: 'left',
+                key: "lastUpdatedDate",
+                label: "Last Updated",
+                align: "left",
                 render: (row) => tradeLastUpdatedDate(row),
                 sortValue: (row) => tradeLastUpdatedDate(row),
               },
               {
-                key: 'security',
-                label: 'Security',
-                align: 'left',
+                key: "security",
+                label: "Security",
+                align: "left",
                 render: (row) => row.securityKey,
                 sortValue: (row) => row.securityKey,
               },
               {
-                key: 'tradeDuration',
-                label: 'Trade Dur',
-                render: (row) => fmtDynamicNumber(tradeDuration(row), decimalSettings.contrib, decimalMode),
+                key: "tradeDuration",
+                label: "Trade Dur",
+                render: (row) =>
+                  fmtDynamicNumber(
+                    tradeDuration(row),
+                    decimalSettings.contrib,
+                    decimalMode,
+                  ),
                 sortValue: (row) => absNumber(tradeDuration(row)),
                 toneValue: (row) => tradeDuration(row),
               },
               {
-                key: 'secDuration',
-                label: 'Sec Dur',
-                render: (row) => fmtDynamicNumber(securityDuration(row), decimalSettings.contrib, decimalMode),
+                key: "secDuration",
+                label: "Sec Dur",
+                render: (row) =>
+                  fmtDynamicNumber(
+                    securityDuration(row),
+                    decimalSettings.contrib,
+                    decimalMode,
+                  ),
                 sortValue: (row) => absNumber(securityDuration(row)),
                 toneValue: (row) => securityDuration(row),
               },
               {
-                key: 'tradePrice',
-                label: 'Trade Price',
-                render: (row) => fmtDynamicNumber(tradePrice(row), decimalSettings.money, decimalMode),
+                key: "tradePrice",
+                label: "Trade Price",
+                render: (row) =>
+                  fmtDynamicNumber(
+                    tradePrice(row),
+                    decimalSettings.money,
+                    decimalMode,
+                  ),
                 sortValue: (row) => absNumber(tradePrice(row)),
                 toneValue: (row) => tradePrice(row),
               },
               {
-                key: 'secPrice',
-                label: 'Sec Price',
-                render: (row) => fmtDynamicNumber(securityPrice(row), decimalSettings.money, decimalMode),
+                key: "secPrice",
+                label: "Sec Price",
+                render: (row) =>
+                  fmtDynamicNumber(
+                    securityPrice(row),
+                    decimalSettings.money,
+                    decimalMode,
+                  ),
                 sortValue: (row) => absNumber(securityPrice(row)),
                 toneValue: (row) => securityPrice(row),
               },
               {
-                key: 'face',
-                label: 'Face',
-                render: (row) => fmtDynamicNumber(asNumber(row.flippedCurrentFace), decimalSettings.qty, decimalMode),
+                key: "face",
+                label: "Face",
+                render: (row) =>
+                  fmtDynamicNumber(
+                    asNumber(row.flippedCurrentFace),
+                    decimalSettings.qty,
+                    decimalMode,
+                  ),
                 sortValue: (row) => absNumber(row.flippedCurrentFace),
                 toneValue: (row) => asNumber(row.flippedCurrentFace),
               },
               {
-                key: 'net',
-                label: 'Net',
-                render: (row) => fmtDynamicNumber(asNumber(row.flippedTradeNetMoney), decimalSettings.money, decimalMode),
+                key: "net",
+                label: "Net",
+                render: (row) =>
+                  fmtDynamicNumber(
+                    asNumber(row.flippedTradeNetMoney),
+                    decimalSettings.money,
+                    decimalMode,
+                  ),
                 sortValue: (row) => absNumber(row.flippedTradeNetMoney),
                 toneValue: (row) => asNumber(row.flippedTradeNetMoney),
               },
               {
-                key: 'ctd',
-                label: 'CTD',
-                render: (row) => fmtDynamicNumber(asNumber(row.ctd), decimalSettings.contrib, decimalMode),
+                key: "ctd",
+                label: "CTD",
+                render: (row) =>
+                  fmtDynamicNumber(
+                    asNumber(row.ctd),
+                    decimalSettings.contrib,
+                    decimalMode,
+                  ),
                 sortValue: (row) => absNumber(row.ctd),
                 toneValue: (row) => asNumber(row.ctd),
               },
@@ -291,7 +355,9 @@ export function PortfolioAnalysisEventsTab({
         </section>
 
         <section className="portfolio-analysis-bottom-section portfolio-analysis-bottom-section-fill">
-          <div className="portfolio-analysis-bottom-section-title">Cashflows</div>
+          <div className="portfolio-analysis-bottom-section-title">
+            Cashflows
+          </div>
           <PortfolioAnalysisMiniGrid
             rows={cashflows}
             emptyText="No cashflows."
@@ -299,51 +365,56 @@ export function PortfolioAnalysisEventsTab({
             defaultSortDirection="desc"
             columns={[
               {
-                key: 'settle',
-                label: 'Settle',
-                align: 'left',
+                key: "settle",
+                label: "Settle",
+                align: "left",
                 render: (row) => dateOnly(row.settleDate),
                 sortValue: (row) => dateOnly(row.settleDate),
               },
               {
-                key: 'type',
-                label: 'Type',
-                align: 'left',
+                key: "type",
+                label: "Type",
+                align: "left",
                 render: (row) => row.cashType,
                 sortValue: (row) => row.cashType,
               },
               {
-                key: 'amount',
-                label: 'Amount',
-                render: (row) => fmtDynamicSignedNumber(row.baseAmount, decimalSettings.money, decimalMode),
+                key: "amount",
+                label: "Amount",
+                render: (row) =>
+                  fmtDynamicSignedNumber(
+                    row.baseAmount,
+                    decimalSettings.money,
+                    decimalMode,
+                  ),
                 sortValue: (row) => Math.abs(row.baseAmount ?? 0),
                 toneValue: (row) => row.baseAmount,
               },
               {
-                key: 'ccy',
-                label: 'CCY',
-                align: 'left',
+                key: "ccy",
+                label: "CCY",
+                align: "left",
                 render: (row) => row.currency,
                 sortValue: (row) => row.currency,
               },
               {
-                key: 'source',
-                label: 'Source',
-                align: 'left',
+                key: "source",
+                label: "Source",
+                align: "left",
                 render: (row) => row.source,
                 sortValue: (row) => row.source,
               },
               {
-                key: 'cashModifiedDate',
-                label: 'Modified',
-                align: 'left',
+                key: "cashModifiedDate",
+                label: "Modified",
+                align: "left",
                 render: (row) => cashModifiedDate(row),
                 sortValue: (row) => cashModifiedDate(row),
               },
               {
-                key: 'cashModifiedBy',
-                label: 'Modified By',
-                align: 'left',
+                key: "cashModifiedBy",
+                label: "Modified By",
+                align: "left",
                 render: (row) => cashModifiedBy(row),
                 sortValue: (row) => cashModifiedBy(row),
               },

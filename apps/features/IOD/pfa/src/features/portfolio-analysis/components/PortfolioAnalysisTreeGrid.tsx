@@ -806,8 +806,8 @@ export function PortfolioAnalysisTreeGrid({
           row.nodeType === "position" || row.nodeType === "syntheticTrade",
       )
       .filter((row) =>
-        normalizeSearch(String(row.securityKey ?? row.label ?? "")).includes(
-          normalizedQuery,
+        [row.securityKey, row.label, row.ticker].some((value) =>
+          normalizeSearch(String(value ?? "")).includes(normalizedQuery),
         ),
       )
       .map((row) => row.id);
@@ -1714,6 +1714,7 @@ function GridCell({
           <span
             className={labelClassName(row, context.comparisonTMinus)}
             style={{ fontWeight: 400 }}
+            title={row.labelTooltip}
           >
             {row.label}
           </span>

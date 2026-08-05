@@ -23,6 +23,7 @@ type MetricRow = {
   metric: string;
   values: Record<string, number | string | null | undefined>;
   places: number;
+  valueKind?: "number" | "date" | "text";
 };
 
 function numberDelta(
@@ -43,6 +44,10 @@ function formatValue(
   return typeof value === "number"
     ? fmtDynamicNumber(value, places, mode)
     : String(value ?? "");
+}
+function formatDateOnly(value: number | string | null | undefined): string {
+  const text = String(value ?? "").trim();
+  return text ? text.slice(0, 10) : "";
 }
 function formatDelta(
   value: number | null | undefined,
@@ -94,6 +99,13 @@ function buildSecurityRows(
       places: settings.contrib,
     },
     { metric: "Price Source", key: "priceSource", places: 0 },
+    { metric: "Unit Multiplier", key: "unitMultiplier", places: 0 },
+    {
+      metric: "Legacy Price Factor",
+      key: "legacyPriceFactor",
+      places: settings.contrib,
+    },
+    { metric: "Issue Date", key: "issueDate", places: 0 },
     { metric: "OAS", key: "oas", places: settings.contrib },
     { metric: "Local Price", key: "localPrice", places: settings.contrib },
     { metric: "Dirty Price", key: "dirtyPrice", places: settings.contrib },
@@ -109,16 +121,23 @@ function buildSecurityRows(
     Object.entries(selectedRow.diagnostics ?? {}).forEach(
       ([key, diagnostics]) => {
         values[key] = diagnostics.currentSecurity?.[metric.key] as
-          | number
-          | string
-          | null
-          | undefined;
+          number | string | null | undefined;
         values[String(Number(key) + 1)] ??= diagnostics.priorSecurity?.[
           metric.key
         ] as number | string | null | undefined;
       },
     );
-    return { metric: metric.metric, places: metric.places, values };
+    return {
+      metric: metric.metric,
+      places: metric.places,
+      values,
+      valueKind:
+        metric.key === "issueDate"
+          ? "date"
+          : metric.key === "priceSource"
+            ? "text"
+            : "number",
+    };
   });
 }
 function buildValueColumns(
@@ -137,7 +156,9 @@ function buildValueColumns(
       key: `v-${value}`,
       label: tMinusLabel(value),
       render: (row: MetricRow) =>
-        formatValue(row.values[String(value)], row.places, mode),
+        row.valueKind === "date"
+          ? formatDateOnly(row.values[String(value)])
+          : formatValue(row.values[String(value)], row.places, mode),
       sortValue: (row: MetricRow) =>
         typeof row.values[String(value)] === "number"
           ? (row.values[String(value)] as number)
@@ -165,14 +186,16 @@ function buildDeltaColumns(
       key: `d-${period}`,
       label: deltaColumnLabel(period),
       render: (row: MetricRow) =>
-        formatDelta(
-          numberDelta(
-            row.values[String(period)],
-            row.values[String(period + 1)],
-          ),
-          row.places,
-          mode,
-        ),
+        row.valueKind === "date" || row.valueKind === "text"
+          ? ""
+          : formatDelta(
+              numberDelta(
+                row.values[String(period)],
+                row.values[String(period + 1)],
+              ),
+              row.places,
+              mode,
+            ),
       sortValue: (row: MetricRow) =>
         Math.abs(
           numberDelta(

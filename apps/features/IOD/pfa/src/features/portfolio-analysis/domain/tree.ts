@@ -209,11 +209,16 @@ function portfolioSecurityDateKey(
     .map(clean)
     .join("|");
 }
+function normalizedSecurityKey(
+  securityKey: string | null | undefined,
+): string {
+  return clean(securityKey).toUpperCase();
+}
 function securityDateKey(
   securityKey: string | null | undefined,
   date: string | null,
 ): string {
-  return [clean(securityKey), date ?? ""].join("|");
+  return [normalizedSecurityKey(securityKey), date ?? ""].join("|");
 }
 function tcwCoreLevels(source: unknown): string[] {
   const r = source as AnyRecord;
@@ -234,17 +239,37 @@ function tcwCoreDebug(source: unknown): Record<string, unknown> {
   const r = source as AnyRecord;
   return Object.fromEntries(TCW_CORE_LEVEL_KEYS.map((k) => [k, r[k] ?? null]));
 }
-function positionLabel(position: PortfolioPositionAnalytics): string {
+function positionLabel(
+  position: PortfolioPositionAnalytics,
+  security: SecurityAnalytics | null,
+): string {
   const level1 = clean(
     (position as AnyRecord).tcwCoreLevel1 as string | number | null | undefined,
   );
   if (level1.toLowerCase() === "government") {
-    const description = getString(position, FIELD.securityDescription);
+    const description = clean(security?.securityDescription);
     if (description) return description;
   }
   return (
     getString(position, FIELD.securityKey) || getString(position, FIELD.ticker)
   );
+}
+function positionLabelTooltip(
+  position: PortfolioPositionAnalytics,
+  security: SecurityAnalytics | null,
+): string | undefined {
+  const securityKey = getString(position, FIELD.securityKey);
+  const description = clean(security?.securityDescription);
+  const level1 = clean(
+    (position as AnyRecord).tcwCoreLevel1 as
+      | string
+      | number
+      | null
+      | undefined,
+  );
+  if (level1.toLowerCase() === "government" && description)
+    return securityKey || undefined;
+  return description || undefined;
 }
 function blankDay(): DayAttribution {
   return {
@@ -502,6 +527,7 @@ function ensureSyntheticTradeRow(
   trade: MonitorV2Trade,
   tMinus: number,
   parentBucket: MutableTreeRow,
+  security: SecurityAnalytics | null,
 ): MutableTreeRow {
   const tradeOnlyBucket = ensureNode(ctx, {
     id: `${parentBucket.id}|trade-only`,
@@ -518,6 +544,7 @@ function ensureSyntheticTradeRow(
     id: `${tradeOnlyBucket.id}|syntheticTrade|${safeIdPart(securityKey)}|${tMinus}`,
     parentId: tradeOnlyBucket.id,
     label: securityKey,
+    labelTooltip: clean(security?.securityDescription) || undefined,
     nodeType: "syntheticTrade",
     depth: tradeOnlyBucket.depth + 1,
     portfolioKey: ctx.portfolioKey,
@@ -923,12 +950,17 @@ export function buildPortfolioAnalysisTreeRows({
   const cashflowAmountByDate = new Map<string, number>();
   const skippedLevelSamples: Array<Record<string, unknown>> = [];
   const securityByDateSecurity = new Map<string, SecurityAnalytics>();
+  const firstSecurityBySecurityKey = new Map<string, SecurityAnalytics>();
 
   securities.forEach((security) => {
+    const securityKey = normalizedSecurityKey(security.securityKey);
     const date = normalizedDate(security.asOfDate);
-    if (security.securityKey && date)
+    if (!securityKey) return;
+    if (!firstSecurityBySecurityKey.has(securityKey))
+      firstSecurityBySecurityKey.set(securityKey, security);
+    if (date)
       securityByDateSecurity.set(
-        securityDateKey(security.securityKey, date),
+        securityDateKey(securityKey, date),
         security,
       );
   });
@@ -1105,10 +1137,15 @@ export function buildPortfolioAnalysisTreeRows({
           : hasBenchmarkAtTMinus1
             ? "benchmark-only"
             : "historical-only";
+    const labelSecurity =
+      firstSecurityBySecurityKey.get(
+        normalizedSecurityKey(getString(sample, FIELD.securityKey)),
+      ) ?? null;
     const row = ensureNode(ctx, {
       id: treeId,
       parentId,
-      label: positionLabel(sample),
+      label: positionLabel(sample, labelSecurity),
+      labelTooltip: positionLabelTooltip(sample, labelSecurity),
       nodeType: "position",
       depth: pathDepth + 1,
       portfolioKey,
@@ -1212,7 +1249,17 @@ export function buildPortfolioAnalysisTreeRows({
           ? compactTcwCorePath(trade)
           : ["Unclassified"],
       );
-      const synthetic = ensureSyntheticTradeRow(ctx, trade, tMinus, bucket);
+      const syntheticSecurity =
+        firstSecurityBySecurityKey.get(
+          normalizedSecurityKey(getString(trade, FIELD.securityKey)),
+        ) ?? null;
+      const synthetic = ensureSyntheticTradeRow(
+        ctx,
+        trade,
+        tMinus,
+        bucket,
+        syntheticSecurity,
+      );
       const key = directTradeMapKey(synthetic.id, tMinus);
       directTradeByNodeDay.set(
         key,

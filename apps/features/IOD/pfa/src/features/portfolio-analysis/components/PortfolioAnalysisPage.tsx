@@ -34,7 +34,7 @@ export function PortfolioAnalysisPage({
   toolbarLeftContent,
   portfolioSelectorCaption,
   lookThrough = false,
-  benchmarkEnabled = false,
+  benchmarkEnabled = true,
   benchmarkUniverseType = "RETURNS",
   benchmarkPositions = [],
   securities = [],

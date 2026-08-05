@@ -105,10 +105,10 @@ export function PfaPortfolioAnalysisShell(): JSX.Element {
   const [comparisonTMinus, setComparisonTMinus] = useState(initial.tMinusStart);
   const [lookThroughInput, setLookThroughInput] = useState(initial.lookThrough);
   const [lookThrough, setLookThrough] = useState(initial.lookThrough);
-  const [benchmarkEnabledInput, setBenchmarkEnabledInput] = useState(false);
+  const [benchmarkEnabledInput, setBenchmarkEnabledInput] = useState(true);
   const [benchmarkUniverseInput, setBenchmarkUniverseInput] =
     useState<BenchmarkUniverseType>("RETURNS");
-  const [benchmarkEnabled, setBenchmarkEnabled] = useState(false);
+  const [benchmarkEnabled, setBenchmarkEnabled] = useState(true);
   const [benchmarkUniverseType, setBenchmarkUniverseType] =
     useState<BenchmarkUniverseType>("RETURNS");
   const [loadVersion, setLoadVersion] = useState(0);

@@ -74,6 +74,7 @@ export type MonitorV2Cashflow = {
   entryDate?: string | null;
   cashModifiedBy?: string | null;
   cashModifiedDate?: string | null;
+  modifiedAt?: string | null;
   notation?: string | null;
   source?: string | null;
   [key: string]: unknown;
@@ -196,6 +197,10 @@ export type SecurityAnalytics = {
   priceSource: string | null;
   dirtyPrice: number | null;
   localPrice: number | null;
+  unitMultiplier: number | null;
+  securityDescription: string | null;
+  legacyPriceFactor: number | null;
+  issueDate: string | null;
 };
 
 export type PortfolioAnalysisDayAttribution = {
@@ -254,6 +259,7 @@ export type PortfolioAnalysisTreeRow = {
   id: string;
   parentId: string | null;
   label: string;
+  labelTooltip?: string;
   nodeType: "root" | "bucket" | "position" | "syntheticTrade";
   depth: number;
   portfolioKey: string;
