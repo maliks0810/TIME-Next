@@ -388,3 +388,70 @@ export async function getTeams(): Promise<Team[]> {
     }`);
     return data.getTeams || [];
 }
+
+// ---- Custom themes -----------------------------------------------------------
+// User-authored themes persisted via the Core API → Cosmos "themes" container. tokens is a
+// JSON blob so new token keys don't require a per-field schema change across the 4 layers.
+export type ThemeRecord = {
+    id: string;
+    name: string;
+    base: string;
+    mode: 'light' | 'dark';
+    tokens: Record<string, string | number>;
+    ownerUserId?: string;
+    scopeType?: 'USER' | 'AUDIENCE';
+    scopeKey?: Record<string, string>;
+};
+
+export async function listThemes(): Promise<ThemeRecord[]> {
+    const data = await gql<{ themes: ThemeRecord[] }>(
+        `query Themes {
+      themes {
+        id
+        name
+        base
+        mode
+        tokens
+        ownerUserId
+        scopeType
+        scopeKey
+      }
+    }`
+    );
+    return data.themes || [];
+}
+
+export async function saveTheme(input: {
+    id: string;
+    name: string;
+    base: string;
+    mode: 'light' | 'dark';
+    tokens: Record<string, string | number>;
+}): Promise<ThemeRecord> {
+    const data = await gql<{ saveTheme: ThemeRecord }>(
+        `mutation SaveTheme($input: ThemeInput!) {
+      saveTheme(input: $input) {
+        id
+        name
+        base
+        mode
+        tokens
+        ownerUserId
+        scopeType
+        scopeKey
+      }
+    }`,
+        { input }
+    );
+    return data.saveTheme;
+}
+
+export async function deleteTheme(id: string): Promise<boolean> {
+    const data = await gql<{ deleteTheme: boolean }>(
+        `mutation DeleteTheme($input: DeleteThemeInput!) {
+      deleteTheme(input: $input)
+    }`,
+        { input: { id } }
+    );
+    return data.deleteTheme;
+}

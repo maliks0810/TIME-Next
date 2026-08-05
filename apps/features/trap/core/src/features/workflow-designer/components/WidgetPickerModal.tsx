@@ -6,6 +6,7 @@ import styles from './WidgetPickerModal.module.scss';
 import { SimplifiedWidgetView } from './SimplifiedWidgetView';
 import { PreviewWidgetsContainer } from './PreviewWidgetsContainer';
 import { AddWidgetOptions } from '../hooks/useWorkflowDesigner';
+import { ThemeName } from '../../../theme/types';
 
 type WidgetPickerModalProps = {
     open: boolean;
@@ -32,7 +33,7 @@ type WidgetPickerModalProps = {
 export default function WidgetPickerModal(props: WidgetPickerModalProps) {
     const { token } = theme.useToken();
     const { themeName } = useTheme();
-    const surfaceMeta = getThemeSurfaceMeta(themeName);
+    const surfaceMeta = getThemeSurfaceMeta(themeName as ThemeName);
     /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     const [isPreviewModeEnabled, setIsPreviewModeEnabled] = useState(false);
     const [paramToUpdate, setParamToUpdate] = useState({ requiredField: '', value: '' });
