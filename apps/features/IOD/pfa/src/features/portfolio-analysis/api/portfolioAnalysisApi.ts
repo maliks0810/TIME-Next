@@ -1,11 +1,23 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 import type {
-  BenchmarkPositionAnalytics,
   BenchmarkUniverseType,
   PortfolioPositionAnalytics,
   SecurityAnalytics,
-} from '../types';
-import { apiUrl, fetchPfaJson } from './pfaFetch';
+} from "../types";
+import { fetchBenchmarkPositionArrow } from "./benchmarkPositionArrow";
+import { apiUrl, fetchPfaJson } from "./pfaFetch";
+
+function benchmarkPositionArrowQuery(
+  legacyBenchmarkCode: string | null,
+  comparisonTMinus: number,
+  universeType: BenchmarkUniverseType,
+): string {
+  return apiUrl(
+    `/benchmark-position-analytics/arrow?tMinusStart=${comparisonTMinus}&tMinusEnd=1` +
+      `&legacyBenchmarkCodes=${encodeURIComponent(legacyBenchmarkCode ?? "")}` +
+      `&universeTypeCode=${encodeURIComponent(universeType)}`,
+  );
+}
 
 export function usePortfolioPositionAnalytics({
   portfolioKey,
@@ -21,14 +33,22 @@ export function usePortfolioPositionAnalytics({
   enabled?: boolean;
 }) {
   return useQuery({
-    queryKey: ['portfolio-analysis', 'positions', portfolioKey, comparisonTMinus, lookThrough, loadVersion],
-    queryFn: () =>
+    queryKey: [
+      "portfolio-analysis",
+      "positions",
+      portfolioKey,
+      comparisonTMinus,
+      lookThrough,
+      loadVersion,
+    ],
+    queryFn: ({ signal }) =>
       fetchPfaJson<PortfolioPositionAnalytics[]>(
         apiUrl(
           `/portfolio-position-analytics?tMinusStart=${comparisonTMinus}&tMinusEnd=0` +
-            `&lookThrough=${lookThrough ? 'true' : 'false'}` +
-            `&portfolioKeys=${encodeURIComponent(portfolioKey ?? '')}`,
+            `&lookThrough=${lookThrough ? "true" : "false"}` +
+            `&portfolioKeys=${encodeURIComponent(portfolioKey ?? "")}`,
         ),
+        signal,
       ),
     enabled: Boolean(enabled && portfolioKey && comparisonTMinus > 0),
     staleTime: 300_000,
@@ -51,23 +71,25 @@ export function useBenchmarkPositionAnalytics({
 }) {
   return useQuery({
     queryKey: [
-      'portfolio-analysis',
-      'benchmark-positions',
+      "portfolio-analysis",
+      "benchmark-positions-arrow",
       legacyBenchmarkCode,
       comparisonTMinus,
       universeType,
       loadVersion,
     ],
-    queryFn: () =>
-      fetchPfaJson<BenchmarkPositionAnalytics[]>(
-        apiUrl(
-          `/benchmark-position-analytics?tMinusStart=${comparisonTMinus}&tMinusEnd=1` +
-            `&legacyBenchmarkCodes=${encodeURIComponent(legacyBenchmarkCode ?? '')}` +
-            `&universeTypeCode=${encodeURIComponent(universeType)}`,
+    queryFn: ({ signal }) =>
+      fetchBenchmarkPositionArrow(
+        benchmarkPositionArrowQuery(
+          legacyBenchmarkCode,
+          comparisonTMinus,
+          universeType,
         ),
+        signal,
       ),
     enabled: Boolean(enabled && legacyBenchmarkCode && comparisonTMinus > 0),
     staleTime: 300_000,
+    retry: false,
     refetchOnWindowFocus: false,
   });
 }
@@ -84,13 +106,20 @@ export function useSecurities({
   enabled?: boolean;
 }) {
   return useQuery({
-    queryKey: ['portfolio-analysis', 'securities', portfolioKey, comparisonTMinus, loadVersion],
-    queryFn: () =>
+    queryKey: [
+      "portfolio-analysis",
+      "securities",
+      portfolioKey,
+      comparisonTMinus,
+      loadVersion,
+    ],
+    queryFn: ({ signal }) =>
       fetchPfaJson<SecurityAnalytics[]>(
         apiUrl(
           `/securities?tMinusStart=${comparisonTMinus}&tMinusEnd=0` +
-            `&portfolioKeys=${encodeURIComponent(portfolioKey ?? '')}`,
+            `&portfolioKeys=${encodeURIComponent(portfolioKey ?? "")}`,
         ),
+        signal,
       ),
     enabled: Boolean(enabled && portfolioKey && comparisonTMinus > 0),
     staleTime: 300_000,

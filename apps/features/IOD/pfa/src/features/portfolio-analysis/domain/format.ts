@@ -1,24 +1,29 @@
-const F6 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 6, maximumFractionDigits: 6 });
-const F3 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
-const MONEY0 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
+const F6 = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 6,
+  maximumFractionDigits: 6,
+});
+const F3 = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 3,
+  maximumFractionDigits: 3,
+});
+const MONEY0 = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 
 export function fmtContribution(value: number | null | undefined): string {
-  if (value == null || !Number.isFinite(value)) return '';
-  return `${value > 0 ? '+' : ''}${F6.format(value)}`;
+  if (value == null || !Number.isFinite(value)) return "";
+  return `${value > 0 ? "+" : ""}${F6.format(value)}`;
 }
 
 export function fmtNumber(value: number | null | undefined): string {
-  if (value == null || !Number.isFinite(value)) return '';
+  if (value == null || !Number.isFinite(value)) return "";
   return F3.format(value);
 }
 
 export function fmtMoney(value: number | null | undefined): string {
-  if (value == null || !Number.isFinite(value)) return '';
+  if (value == null || !Number.isFinite(value)) return "";
   return MONEY0.format(value);
 }
 
-
-export type DecimalMode = 'round' | 'truncate';
+export type DecimalMode = "round" | "truncate";
 export type DecimalSettings = {
   money: number;
   contrib: number;
@@ -44,8 +49,14 @@ function truncateToDecimalPlaces(value: number, decimalPlaces: number): number {
   return value < 0 ? -truncated : truncated;
 }
 
-function dynamicDisplayValue(value: number, decimalPlaces: number, decimalMode: DecimalMode): number {
-  return decimalMode === 'truncate' ? truncateToDecimalPlaces(value, decimalPlaces) : value;
+function dynamicDisplayValue(
+  value: number,
+  decimalPlaces: number,
+  decimalMode: DecimalMode,
+): number {
+  return decimalMode === "truncate"
+    ? truncateToDecimalPlaces(value, decimalPlaces)
+    : value;
 }
 
 export function fmtDynamicNumber(
@@ -53,9 +64,9 @@ export function fmtDynamicNumber(
   decimalPlaces: number,
   decimalMode: DecimalMode,
 ): string {
-  if (value == null || !Number.isFinite(value)) return '';
+  if (value == null || !Number.isFinite(value)) return "";
   const places = normalizeDecimalPlaces(decimalPlaces);
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: places,
     maximumFractionDigits: places,
   }).format(dynamicDisplayValue(value, places, decimalMode));
@@ -66,8 +77,8 @@ export function fmtDynamicSignedNumber(
   decimalPlaces: number,
   decimalMode: DecimalMode,
 ): string {
-  if (value == null || !Number.isFinite(value)) return '';
-  return `${value > 0 ? '+' : ''}${fmtDynamicNumber(value, decimalPlaces, decimalMode)}`;
+  if (value == null || !Number.isFinite(value)) return "";
+  return `${value > 0 ? "+" : ""}${fmtDynamicNumber(value, decimalPlaces, decimalMode)}`;
 }
 
 export function fmtDynamicPercent(
@@ -75,6 +86,15 @@ export function fmtDynamicPercent(
   decimalPlaces: number,
   decimalMode: DecimalMode,
 ): string {
-  if (value == null || !Number.isFinite(value) || value === 0) return '';
+  if (value == null || !Number.isFinite(value) || value === 0) return "";
   return `${fmtDynamicNumber(value * 100, decimalPlaces, decimalMode)}%`;
+}
+
+export function fmtDynamicSignedPercent(
+  value: number | null | undefined,
+  decimalPlaces: number,
+  decimalMode: DecimalMode,
+): string {
+  if (value == null || !Number.isFinite(value)) return "";
+  return `${value > 0 ? "+" : ""}${fmtDynamicNumber(value * 100, decimalPlaces, decimalMode)}%`;
 }

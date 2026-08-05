@@ -25,7 +25,9 @@ function valueOf(
   key: PortfolioAnalysisPeriodKey,
   metric: keyof PortfolioAnalysisTreeRow['total'],
 ): number | null {
-  return key === 'total' ? row.total[metric] : row.day[key]?.[metric] ?? null;
+  return key === "total"
+  ? (row.total[metric] ?? null)
+  : (row.day[key]?.[metric] ?? null);
 }
 
 function fmt(value: number | null | undefined, places: number, mode: DecimalMode): string {

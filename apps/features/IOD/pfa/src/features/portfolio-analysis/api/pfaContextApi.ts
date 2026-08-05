@@ -1,8 +1,19 @@
-import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { chip } from '../domain/dates';
-import type { MonitorV2Cashflow, MonitorV2Trade, PortfolioAnalysisContext, Snapshot } from '../types';
-import { apiUrl, fetchPfaJson } from './pfaFetch';
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { chip } from "../domain/dates";
+import type {
+  BenchmarkUniverseType,
+  MonitorV2Cashflow,
+  MonitorV2Trade,
+  PortfolioAnalysisContext,
+  Snapshot,
+} from "../types";
+import {
+  useBenchmarkPositionAnalytics,
+  usePortfolioPositionAnalytics,
+  useSecurities,
+} from "./portfolioAnalysisApi";
+import { apiUrl, fetchPfaJson } from "./pfaFetch";
 
 type AnyRecord = Record<string, unknown>;
 
@@ -67,25 +78,31 @@ export type PfaPortfolioAnalytics = {
 };
 
 const PORTFOLIO_KEY_FIELDS = [
-  'portfolioKey',
-  'PortfolioKey',
-  'portfolio_key',
-  'PORTFOLIO_KEY',
-  'portfolioNumber',
-  'PortfolioNumber',
-  'portfolio_number',
-  'PORTFOLIO_NUMBER',
-  'legacyPortfolioNumber',
-  'LegacyPortfolioNumber',
-  'legacy_portfolio_number',
-  'LEGACY_PORTFOLIO_NUMBER',
+  "portfolioKey",
+  "PortfolioKey",
+  "portfolio_key",
+  "PORTFOLIO_KEY",
+  "portfolioNumber",
+  "PortfolioNumber",
+  "portfolio_number",
+  "PORTFOLIO_NUMBER",
+  "legacyPortfolioNumber",
+  "LegacyPortfolioNumber",
+  "legacy_portfolio_number",
+  "LEGACY_PORTFOLIO_NUMBER",
 ] as const;
 
-function readString(source: unknown, names: readonly string[], fallback = ''): string {
+function readString(
+  source: unknown,
+  names: readonly string[],
+  fallback = "",
+): string {
   const record = source as AnyRecord;
   for (const name of names) {
     const value = record[name];
-    if (value !== undefined && value !== null && String(value).trim()) return String(value).trim();
+    if (value !== undefined && value !== null && String(value).trim()) {
+      return String(value).trim();
+    }
   }
   return fallback;
 }
@@ -94,34 +111,48 @@ function readNumber(source: unknown, names: readonly string[]): number | null {
   const record = source as AnyRecord;
   for (const name of names) {
     const value = record[name];
-    if (value === undefined || value === null || value === '') continue;
-    const numeric = typeof value === 'number' ? value : Number(value);
+    if (value === undefined || value === null || value === "") continue;
+    const numeric = typeof value === "number" ? value : Number(value);
     if (Number.isFinite(numeric)) return numeric;
   }
   return null;
 }
 
 function normalizePortfolioKey(value: string | null | undefined): string {
-  return String(value ?? '').trim().toUpperCase();
+  return String(value ?? "")
+    .trim()
+    .toUpperCase();
 }
 
 function portfolioKeyCandidates(value: string | null | undefined): string[] {
   const normalized = normalizePortfolioKey(value);
   if (!normalized) return [];
-  const withoutT = normalized.endsWith('T') ? normalized.slice(0, -1) : normalized;
-  const withT = normalized.endsWith('T') ? normalized : `${normalized}T`;
+  const withoutT = normalized.endsWith("T")
+    ? normalized.slice(0, -1)
+    : normalized;
+  const withT = normalized.endsWith("T") ? normalized : `${normalized}T`;
   return Array.from(new Set([normalized, withoutT, withT]));
 }
 
-export function portfolioMatches(rowPortfolioKey: string | null | undefined, selectedPortfolioKey: string): boolean {
+export function portfolioMatches(
+  rowPortfolioKey: string | null | undefined,
+  selectedPortfolioKey: string,
+): boolean {
   const rowCandidates = portfolioKeyCandidates(rowPortfolioKey);
   const selectedCandidates = portfolioKeyCandidates(selectedPortfolioKey);
-  return rowCandidates.some((candidate) => selectedCandidates.includes(candidate));
+  return rowCandidates.some((candidate) =>
+    selectedCandidates.includes(candidate),
+  );
 }
 
-export function filterByPortfolio<T>(rows: T[], portfolioKey: string | null): T[] {
+export function filterByPortfolio<T>(
+  rows: T[],
+  portfolioKey: string | null,
+): T[] {
   if (!portfolioKey) return rows;
-  return rows.filter((row) => portfolioMatches(readString(row, PORTFOLIO_KEY_FIELDS), portfolioKey));
+  return rows.filter((row) =>
+    portfolioMatches(readString(row, PORTFOLIO_KEY_FIELDS), portfolioKey),
+  );
 }
 
 export function getPortfolioKey(portfolio: PfaPortfolio): string {
@@ -129,146 +160,301 @@ export function getPortfolioKey(portfolio: PfaPortfolio): string {
 }
 
 export function getPortfolioName(portfolio: PfaPortfolio): string {
-  return readString(portfolio, ['portfolioName', 'PortfolioName', 'portfolio_name', 'PORTFOLIO_NAME']);
+  return readString(portfolio, [
+    "portfolioName",
+    "PortfolioName",
+    "portfolio_name",
+    "PORTFOLIO_NAME",
+  ]);
 }
 
 export function getPortfolioGroup(portfolio: PfaPortfolio): string {
-  return readString(portfolio, ['portfolioGroup', 'PortfolioGroup', 'portfolio_group', 'PORTFOLIO_GROUP', 'parentCode', 'ParentCode', 'parent_code', 'PARENT_CODE']);
+  return readString(portfolio, [
+    "portfolioGroup",
+    "PortfolioGroup",
+    "portfolio_group",
+    "PORTFOLIO_GROUP",
+    "parentCode",
+    "ParentCode",
+    "parent_code",
+    "PARENT_CODE",
+  ]);
 }
 
 export function getPortfolioBenchmark(portfolio: PfaPortfolio): string {
   return readString(portfolio, [
-    'benchmarkCode',
-    'BenchmarkCode',
-    'benchmark_code',
-    'BENCHMARK_CODE',
-    'legacyPortfolioBenchmarkCode',
-    'LegacyPortfolioBenchmarkCode',
-    'legacy_portfolio_benchmark_code',
-    'LEGACY_PORTFOLIO_BENCHMARK_CODE',
+    "benchmarkCode",
+    "BenchmarkCode",
+    "benchmark_code",
+    "BENCHMARK_CODE",
+    "legacyPortfolioBenchmarkCode",
+    "LegacyPortfolioBenchmarkCode",
+    "legacy_portfolio_benchmark_code",
+    "LEGACY_PORTFOLIO_BENCHMARK_CODE",
   ]);
 }
 
-export function getPortfolioLegacyBenchmarkCode(portfolio: PfaPortfolio): string {
+export function getPortfolioLegacyBenchmarkCode(
+  portfolio: PfaPortfolio,
+): string {
   return readString(portfolio, [
-    'legacyPortfolioBenchmarkCode',
-    'LegacyPortfolioBenchmarkCode',
-    'legacy_portfolio_benchmark_code',
-    'LEGACY_PORTFOLIO_BENCHMARK_CODE',
+    "legacyPortfolioBenchmarkCode",
+    "LegacyPortfolioBenchmarkCode",
+    "legacy_portfolio_benchmark_code",
+    "LEGACY_PORTFOLIO_BENCHMARK_CODE",
   ]);
 }
 
 export function getRhsGroup(portfolio: PfaPortfolio): string {
-  return readString(portfolio, ['rhsGroup', 'RhsGroup', 'rhs_group', 'RHS_GROUP', 'rhsGroupCode', 'RhsGroupCode', 'rhs_group_code', 'RHS_GROUP_CODE']);
+  return readString(portfolio, [
+    "rhsGroup",
+    "RhsGroup",
+    "rhs_group",
+    "RHS_GROUP",
+    "rhsGroupCode",
+    "RhsGroupCode",
+    "rhs_group_code",
+    "RHS_GROUP_CODE",
+  ]);
 }
 
 function getFutureEligible(portfolio: PfaPortfolio): boolean | null {
   const record = portfolio as AnyRecord;
-  const value = record.futureEligible ?? record.FutureEligible ?? record.future_eligible ?? record.FUTURE_ELIGIBLE;
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'string') {
+  const value =
+    record.futureEligible ??
+    record.FutureEligible ??
+    record.future_eligible ??
+    record.FUTURE_ELIGIBLE;
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
     const normalized = value.trim().toUpperCase();
-    if (normalized === 'Y' || normalized === 'YES' || normalized === 'TRUE') return true;
-    if (normalized === 'N' || normalized === 'NO' || normalized === 'FALSE') return false;
+    if (["Y", "YES", "TRUE"].includes(normalized)) return true;
+    if (["N", "NO", "FALSE"].includes(normalized)) return false;
   }
   return null;
 }
 
 function dateOnly(value: string | null | undefined): string | null {
-  if (!value) return null;
-  const normalized = String(value).trim();
-  if (!normalized) return null;
-  return normalized.slice(0, 10);
+  const normalized = String(value ?? "").trim();
+  return normalized ? normalized.slice(0, 10) : null;
 }
 
-function buildSnapshots(analytics: PfaPortfolioAnalytics[], comparisonTMinus: number): {
-  snapshots: Record<number, Snapshot>;
-  dateLabels: Record<number, string>;
-} {
+function buildSnapshots(
+  analytics: PfaPortfolioAnalytics[],
+  comparisonTMinus: number,
+): { snapshots: Record<number, Snapshot>; dateLabels: Record<number, string> } {
+  const dateFields = ["asOfDate", "AsOfDate", "as_of_date", "AS_OF_DATE"];
   const rows = [...analytics]
-    .filter((row) => dateOnly(readString(row, ['asOfDate', 'AsOfDate', 'as_of_date', 'AS_OF_DATE'])))
-    .sort((a, b) => {
-      const aDate = dateOnly(readString(a, ['asOfDate', 'AsOfDate', 'as_of_date', 'AS_OF_DATE'])) ?? '';
-      const bDate = dateOnly(readString(b, ['asOfDate', 'AsOfDate', 'as_of_date', 'AS_OF_DATE'])) ?? '';
-      return bDate.localeCompare(aDate);
-    });
-
+    .filter((row) => dateOnly(readString(row, dateFields)))
+    .sort((a, b) =>
+      (dateOnly(readString(b, dateFields)) ?? "").localeCompare(
+        dateOnly(readString(a, dateFields)) ?? "",
+      ),
+    );
   const snapshots: Record<number, Snapshot> = {};
   const dateLabels: Record<number, string> = {};
 
   rows.slice(0, comparisonTMinus + 1).forEach((row, index) => {
-    const explicitTMinus = readNumber(row, ['tMinus', 'TMinus', 't_minus', 'T_MINUS']);
-    const tMinus = explicitTMinus != null && explicitTMinus >= 0 ? explicitTMinus : index;
+    const explicitTMinus = readNumber(row, [
+      "tMinus",
+      "TMinus",
+      "t_minus",
+      "T_MINUS",
+    ]);
+    const tMinus =
+      explicitTMinus != null && explicitTMinus >= 0 ? explicitTMinus : index;
     if (tMinus > comparisonTMinus) return;
-
-    const asOfDate = dateOnly(readString(row, ['asOfDate', 'AsOfDate', 'as_of_date', 'AS_OF_DATE'])) ?? '';
-
+    const asOfDate = dateOnly(readString(row, dateFields)) ?? "";
     snapshots[tMinus] = {
       asOfDate,
       tMinus,
       metadata: {
-        mv: readNumber(row, ['mv', 'Mv', 'MV', 'marketValue', 'MarketValue', 'market_value', 'USD_MARKET_VALUE']),
-        level1Cash: readNumber(row, ['level1Cash', 'Level1Cash', 'level1_cash', 'LEVEL1_CASH']),
-        level1CashPct: readNumber(row, ['level1CashPct', 'Level1CashPct', 'level1_cash_pct', 'LEVEL1_CASH_PCT']),
+        mv: readNumber(row, [
+          "mv",
+          "Mv",
+          "MV",
+          "marketValue",
+          "MarketValue",
+          "market_value",
+          "USD_MARKET_VALUE",
+        ]),
+        level1Cash: readNumber(row, [
+          "level1Cash",
+          "Level1Cash",
+          "level1_cash",
+          "LEVEL1_CASH",
+        ]),
+        level1CashPct: readNumber(row, [
+          "level1CashPct",
+          "Level1CashPct",
+          "level1_cash_pct",
+          "LEVEL1_CASH_PCT",
+        ]),
       },
       portfolio: {
-        dur: readNumber(row, ['duration', 'Duration', 'dur', 'DUR', 'DURATION']),
-        krd2y: readNumber(row, ['krd2YrBucket', 'Krd2YrBucket', 'krd_2yr_bucket', 'KRD_2YR_BUCKET', 'krd2y']),
-        krd5y: readNumber(row, ['krd5YrBucket', 'Krd5YrBucket', 'krd_5yr_bucket', 'KRD_5YR_BUCKET', 'krd5y']),
-        krd10y: readNumber(row, ['krd10YrBucket', 'Krd10YrBucket', 'krd_10yr_bucket', 'KRD_10YR_BUCKET', 'krd10y']),
-        krd30y: readNumber(row, ['krd30YrBucket', 'Krd30YrBucket', 'krd_30yr_bucket', 'KRD_30YR_BUCKET', 'krd30y']),
-        oas: readNumber(row, ['oas', 'Oas', 'OAS']),
-        spreadDuration: readNumber(row, ['spreadDuration', 'SpreadDuration', 'spread_duration', 'SPREAD_DURATION']),
-        avgLife: readNumber(row, ['avgLife', 'AvgLife', 'avg_life', 'AVG_LIFE']),
-        yieldToWorst: readNumber(row, ['yieldToWorst', 'YieldToWorst', 'yield_to_worst', 'YIELD_TO_WORST']),
+        dur: readNumber(row, [
+          "duration",
+          "Duration",
+          "dur",
+          "DUR",
+          "DURATION",
+        ]),
+        krd2y: readNumber(row, [
+          "krd2YrBucket",
+          "Krd2YrBucket",
+          "krd_2yr_bucket",
+          "KRD_2YR_BUCKET",
+          "krd2y",
+        ]),
+        krd5y: readNumber(row, [
+          "krd5YrBucket",
+          "Krd5YrBucket",
+          "krd_5yr_bucket",
+          "KRD_5YR_BUCKET",
+          "krd5y",
+        ]),
+        krd10y: readNumber(row, [
+          "krd10YrBucket",
+          "Krd10YrBucket",
+          "krd_10yr_bucket",
+          "KRD_10YR_BUCKET",
+          "krd10y",
+        ]),
+        krd30y: readNumber(row, [
+          "krd30YrBucket",
+          "Krd30YrBucket",
+          "krd_30yr_bucket",
+          "KRD_30YR_BUCKET",
+          "krd30y",
+        ]),
+        oas: readNumber(row, ["oas", "Oas", "OAS"]),
+        spreadDuration: readNumber(row, [
+          "spreadDuration",
+          "SpreadDuration",
+          "spread_duration",
+          "SPREAD_DURATION",
+        ]),
+        avgLife: readNumber(row, [
+          "avgLife",
+          "AvgLife",
+          "avg_life",
+          "AVG_LIFE",
+        ]),
+        yieldToWorst: readNumber(row, [
+          "yieldToWorst",
+          "YieldToWorst",
+          "yield_to_worst",
+          "YIELD_TO_WORST",
+        ]),
       },
       benchmark: {},
       target: {},
       ouBenchmark: {},
       ouTarget: {},
     };
-
-    dateLabels[tMinus] = tMinus === 0 ? `T (${asOfDate})` : `${chip(tMinus)} (${asOfDate})`;
+    dateLabels[tMinus] =
+      tMinus === 0 ? `T (${asOfDate})` : `${chip(tMinus)} (${asOfDate})`;
   });
-
   return { snapshots, dateLabels };
 }
 
 export function usePfaPortfolios() {
   return useQuery({
-    queryKey: ['pfa', 'portfolios'],
-    queryFn: () => fetchPfaJson<PfaPortfolio[]>(apiUrl('/portfolios')),
+    queryKey: ["pfa", "portfolios"],
+    queryFn: () => fetchPfaJson<PfaPortfolio[]>(apiUrl("/portfolios")),
     staleTime: 300_000,
     refetchOnWindowFocus: false,
   });
 }
 
-export function usePfaPortfolioAnalytics({ portfolioKey, comparisonTMinus, enabled = true }: { portfolioKey: string | null; comparisonTMinus: number; enabled?: boolean }) {
+export function usePfaPortfolioAnalytics({
+  portfolioKey,
+  comparisonTMinus,
+  loadVersion = 0,
+  enabled = true,
+}: {
+  portfolioKey: string | null;
+  comparisonTMinus: number;
+  loadVersion?: number;
+  enabled?: boolean;
+}) {
   return useQuery({
-    queryKey: ['pfa', 'portfolio-analytics', portfolioKey, comparisonTMinus],
-    queryFn: async () => filterByPortfolio(await fetchPfaJson<PfaPortfolioAnalytics[]>(apiUrl(`/portfolio-analytics?tMinusStart=${comparisonTMinus}&tMinusEnd=0`)), portfolioKey),
+    queryKey: [
+      "pfa",
+      "portfolio-analytics",
+      portfolioKey,
+      comparisonTMinus,
+      loadVersion,
+    ],
+    queryFn: async ({ signal }) =>
+      filterByPortfolio(
+        await fetchPfaJson<PfaPortfolioAnalytics[]>(
+          apiUrl(
+            `/portfolio-analytics?tMinusStart=${comparisonTMinus}&tMinusEnd=0`,
+          ),
+          signal,
+        ),
+        portfolioKey,
+      ),
     enabled: Boolean(enabled && portfolioKey && comparisonTMinus > 0),
     staleTime: 300_000,
+    retry: false,
     refetchOnWindowFocus: false,
   });
 }
 
-export function usePfaTrades({ portfolioKey, comparisonTMinus, enabled = true }: { portfolioKey: string | null; comparisonTMinus: number; enabled?: boolean }) {
+export function usePfaTrades({
+  portfolioKey,
+  comparisonTMinus,
+  loadVersion = 0,
+  enabled = true,
+}: {
+  portfolioKey: string | null;
+  comparisonTMinus: number;
+  loadVersion?: number;
+  enabled?: boolean;
+}) {
   return useQuery({
-    queryKey: ['pfa', 'trades', portfolioKey, comparisonTMinus],
-    queryFn: async () => filterByPortfolio(await fetchPfaJson<MonitorV2Trade[]>(apiUrl(`/trades?tMinusStart=${comparisonTMinus}&tMinusEnd=0`)), portfolioKey),
+    queryKey: ["pfa", "trades", portfolioKey, comparisonTMinus, loadVersion],
+    queryFn: ({ signal }) =>
+      fetchPfaJson<MonitorV2Trade[]>(
+        apiUrl(
+          `/trades?tMinusStart=${comparisonTMinus}&tMinusEnd=0` +
+            `&portfolioKeys=${encodeURIComponent(portfolioKey ?? "")}`,
+        ),
+        signal,
+      ),
     enabled: Boolean(enabled && portfolioKey && comparisonTMinus > 0),
     staleTime: 300_000,
+    retry: false,
     refetchOnWindowFocus: false,
   });
 }
 
-export function usePfaCashflows({ portfolioKey, comparisonTMinus, enabled = true }: { portfolioKey: string | null; comparisonTMinus: number; enabled?: boolean }) {
+export function usePfaCashflows({
+  portfolioKey,
+  comparisonTMinus,
+  loadVersion = 0,
+  enabled = true,
+}: {
+  portfolioKey: string | null;
+  comparisonTMinus: number;
+  loadVersion?: number;
+  enabled?: boolean;
+}) {
   return useQuery({
-    queryKey: ['pfa', 'cashflows', portfolioKey, comparisonTMinus],
-    queryFn: async () => filterByPortfolio(await fetchPfaJson<MonitorV2Cashflow[]>(apiUrl(`/cashflows?tMinusStart=${comparisonTMinus}&tMinusEnd=0`)), portfolioKey),
+    queryKey: ["pfa", "cashflows", portfolioKey, comparisonTMinus, loadVersion],
+    queryFn: ({ signal }) =>
+      fetchPfaJson<MonitorV2Cashflow[]>(
+        apiUrl(
+          `/cashflows?tMinusStart=${comparisonTMinus}&tMinusEnd=0` +
+            `&portfolioKeys=${encodeURIComponent(portfolioKey ?? "")}`,
+        ),
+        signal,
+      ),
     enabled: Boolean(enabled && portfolioKey && comparisonTMinus > 0),
     staleTime: 300_000,
+    retry: false,
     refetchOnWindowFocus: false,
   });
 }
@@ -276,46 +462,137 @@ export function usePfaCashflows({ portfolioKey, comparisonTMinus, enabled = true
 export function usePfaPortfolioAnalysisContext({
   portfolioKey,
   comparisonTMinus,
+  lookThrough,
+  loadVersion,
   portfolios,
+  benchmarkEnabled = false,
+  benchmarkUniverseType = "RETURNS",
   enabled = true,
 }: {
   portfolioKey: string | null;
   comparisonTMinus: number;
+  lookThrough: boolean;
+  loadVersion: number;
   portfolios: PfaPortfolio[] | undefined;
+  benchmarkEnabled?: boolean;
+  benchmarkUniverseType?: BenchmarkUniverseType;
   enabled?: boolean;
 }) {
-  const analyticsQ = usePfaPortfolioAnalytics({ portfolioKey, comparisonTMinus, enabled });
-  const tradesQ = usePfaTrades({ portfolioKey, comparisonTMinus, enabled });
-  const cashflowsQ = usePfaCashflows({ portfolioKey, comparisonTMinus, enabled });
+  const selectedPortfolio = (portfolios ?? []).find((portfolio) =>
+    portfolioMatches(getPortfolioKey(portfolio), portfolioKey ?? ""),
+  );
+  const legacyBenchmarkCode = selectedPortfolio
+    ? getPortfolioLegacyBenchmarkCode(selectedPortfolio)
+    : "";
+  const analyticsQ = usePfaPortfolioAnalytics({
+    portfolioKey,
+    comparisonTMinus,
+    loadVersion,
+    enabled,
+  });
+  const tradesQ = usePfaTrades({
+    portfolioKey,
+    comparisonTMinus,
+    loadVersion,
+    enabled,
+  });
+  const cashflowsQ = usePfaCashflows({
+    portfolioKey,
+    comparisonTMinus,
+    loadVersion,
+    enabled,
+  });
+  const positionsQ = usePortfolioPositionAnalytics({
+    portfolioKey,
+    comparisonTMinus,
+    lookThrough,
+    loadVersion,
+    enabled,
+  });
+  const benchmarkQ = useBenchmarkPositionAnalytics({
+    legacyBenchmarkCode: legacyBenchmarkCode || null,
+    comparisonTMinus,
+    universeType: benchmarkUniverseType,
+    loadVersion,
+    enabled: Boolean(enabled && benchmarkEnabled && legacyBenchmarkCode),
+  });
+  const securitiesQ = useSecurities({
+    portfolioKey,
+    comparisonTMinus,
+    loadVersion,
+    enabled,
+  });
 
   const context = useMemo<PortfolioAnalysisContext | null>(() => {
-    if (!portfolioKey || comparisonTMinus <= 0 || !analyticsQ.data) return null;
-    const selectedPortfolio = (portfolios ?? []).find((portfolio) => portfolioMatches(getPortfolioKey(portfolio), portfolioKey));
-    const { snapshots, dateLabels } = buildSnapshots(analyticsQ.data, comparisonTMinus);
+    if (
+      !portfolioKey ||
+      comparisonTMinus <= 0 ||
+      !analyticsQ.data ||
+      !tradesQ.data ||
+      !cashflowsQ.data ||
+      !positionsQ.data
+    ) {
+      return null;
+    }
+
+    const { snapshots, dateLabels } = buildSnapshots(
+      analyticsQ.data,
+      comparisonTMinus,
+    );
     if (!snapshots[0] || !snapshots[comparisonTMinus]) return null;
 
     return {
       portfolioKey,
-      portfolioName: selectedPortfolio ? getPortfolioName(selectedPortfolio) : undefined,
-      benchmarkCode: selectedPortfolio ? getPortfolioBenchmark(selectedPortfolio) : undefined,
-      legacyBenchmarkCode: selectedPortfolio ? getPortfolioLegacyBenchmarkCode(selectedPortfolio) : undefined,
-      portfolioGroup: selectedPortfolio ? getPortfolioGroup(selectedPortfolio) : undefined,
+      portfolioName: selectedPortfolio
+        ? getPortfolioName(selectedPortfolio)
+        : undefined,
+      benchmarkCode: selectedPortfolio
+        ? getPortfolioBenchmark(selectedPortfolio)
+        : undefined,
+      legacyBenchmarkCode: selectedPortfolio
+        ? getPortfolioLegacyBenchmarkCode(selectedPortfolio)
+        : undefined,
+      portfolioGroup: selectedPortfolio
+        ? getPortfolioGroup(selectedPortfolio)
+        : undefined,
       rhsGroup: selectedPortfolio ? getRhsGroup(selectedPortfolio) : undefined,
-      futureEligible: selectedPortfolio ? getFutureEligible(selectedPortfolio) : null,
+      futureEligible: selectedPortfolio
+        ? getFutureEligible(selectedPortfolio)
+        : null,
       comparisonTMinus,
       dateLabels,
       snapshots,
-      cachedTrades: tradesQ.data ?? [],
-      cachedCashflows: cashflowsQ.data ?? [],
+      cachedPositions: positionsQ.data,
+      cachedTrades: tradesQ.data,
+      cachedCashflows: cashflowsQ.data,
     };
-  }, [analyticsQ.data, cashflowsQ.data, comparisonTMinus, portfolioKey, portfolios, tradesQ.data]);
+  }, [
+    analyticsQ.data,
+    cashflowsQ.data,
+    comparisonTMinus,
+    portfolioKey,
+    portfolios,
+    positionsQ.data,
+    tradesQ.data,
+  ]);
 
   return {
     context,
     analyticsQ,
     tradesQ,
     cashflowsQ,
-    isLoading: analyticsQ.isLoading || tradesQ.isLoading || cashflowsQ.isLoading,
-    isError: analyticsQ.isError || tradesQ.isError || cashflowsQ.isError,
+    positionsQ,
+    benchmarkQ,
+    securitiesQ,
+    isLoading:
+      analyticsQ.isLoading ||
+      tradesQ.isLoading ||
+      cashflowsQ.isLoading ||
+      positionsQ.isLoading,
+    isError:
+      analyticsQ.isError ||
+      tradesQ.isError ||
+      cashflowsQ.isError ||
+      positionsQ.isError,
   };
 }

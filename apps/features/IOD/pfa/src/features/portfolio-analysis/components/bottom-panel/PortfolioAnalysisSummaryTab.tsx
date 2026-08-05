@@ -25,8 +25,11 @@ function valueOf(
   period: PortfolioAnalysisPeriodKey,
   key: keyof PortfolioAnalysisTreeRow["total"],
 ): number | null {
-  return period === "total" ? row.total[key] : (row.day[period]?.[key] ?? null);
+  return period === "total"
+    ? (row.total[key] ?? null)
+    : (row.day[period]?.[key] ?? null);
 }
+
 function fmtContrib(
   value: number | null | undefined,
   settings: DecimalSettings,
