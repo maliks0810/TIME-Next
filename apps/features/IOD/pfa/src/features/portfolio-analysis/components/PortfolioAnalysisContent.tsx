@@ -51,6 +51,8 @@ export function PortfolioAnalysisContent({
   benchmarkError,
   securitiesError,
   loadVersion,
+  exportRequestId,
+  onExportingChange,
 }: {
   context: PortfolioAnalysisContext;
   searchQuery: string;
@@ -66,6 +68,8 @@ export function PortfolioAnalysisContent({
   benchmarkError: boolean;
   securitiesError: boolean;
   loadVersion: number;
+  exportRequestId: number;
+  onExportingChange: (isExporting: boolean) => void;
 }): JSX.Element {
   void lookThrough;
   void benchmarkUniverseType;
@@ -155,6 +159,8 @@ export function PortfolioAnalysisContent({
         onSelectedColumnGroupChange={setSelectedColumnGroup}
         onOpenColumnGroupDetail={openColumnGroupDetail}
         onOpenDriftDetail={openDriftDetail}
+        exportRequestId={exportRequestId}
+        onExportingChange={onExportingChange}
       />
       <PortfolioAnalysisBottomPanel
         open={bottomPanelOpen}

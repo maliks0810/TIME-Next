@@ -1041,3 +1041,13 @@
     font-weight: 500 !important;
   }
 }
+
+@layer components {
+  #pfa-app-root .portfolio-analysis-toolbar-right {
+    gap: 6px;
+  }
+  #pfa-app-root .portfolio-analysis-export-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}

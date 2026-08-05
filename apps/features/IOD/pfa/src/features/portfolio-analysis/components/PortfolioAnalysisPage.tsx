@@ -66,6 +66,8 @@ export function PortfolioAnalysisPage({
   const [columnGroups, setColumnGroups] =
     useState<PortfolioAnalysisColumnGroupVisibility>(DEFAULT_COLUMN_GROUPS);
   const [benchmarkVisible, setBenchmarkVisible] = useState(true);
+  const [exportRequestId, setExportRequestId] = useState(0);
+  const [isExporting, setIsExporting] = useState(false);
   const effectiveBenchmarkVisible = benchmarkEnabled && benchmarkVisible;
 
   return (
@@ -89,6 +91,8 @@ export function PortfolioAnalysisPage({
           backLabel={backLabel}
           leftContent={toolbarLeftContent}
           leftContentCaption={portfolioSelectorCaption}
+          isExporting={isExporting}
+          onExport={() => setExportRequestId((current) => current + 1)}
         />
       </section>
       <PortfolioAnalysisContent
@@ -106,6 +110,8 @@ export function PortfolioAnalysisPage({
         benchmarkError={benchmarkError}
         securitiesError={securitiesError}
         loadVersion={loadVersion}
+        exportRequestId={exportRequestId}
+        onExportingChange={setIsExporting}
       />
     </div>
   );

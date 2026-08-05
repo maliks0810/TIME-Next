@@ -10,6 +10,8 @@ import {
   type UIEvent,
 } from "react";
 import { createPortal } from "react-dom";
+import { Workbook } from "exceljs";
+import saveAs from "file-saver";
 import type { PortfolioAnalysisColumnGroupContext } from "./bottom-panel/PortfolioAnalysisColumnGroupContext";
 import type {
   PortfolioAnalysisContext,
@@ -105,6 +107,8 @@ type PortfolioAnalysisTreeGridProps = {
     context: PortfolioAnalysisColumnGroupContext,
   ) => void;
   onOpenDriftDetail: (rowId: string, tMinus: number | "total") => void;
+  exportRequestId: number;
+  onExportingChange: (isExporting: boolean) => void;
 };
 
 const ROW_HEIGHT = 24;
@@ -322,6 +326,33 @@ function buildVisibleRows(
   rootIds.forEach(visit);
   return { visibleRows, traversalCycleIds };
 }
+function buildAllSortedRows(
+  rows: PortfolioAnalysisTreeRow[],
+  rowById: Map<string, PortfolioAnalysisTreeRow>,
+  childIdsByParentId: Map<string, string[]>,
+  sortState: SortState | null,
+): PortfolioAnalysisTreeRow[] {
+  const result: PortfolioAnalysisTreeRow[] = [];
+  const visited = new Set<string>();
+  const rootIds = rowById.has("root")
+    ? ["root"]
+    : rows.filter((row) => !row.parentId).map((row) => row.id);
+  const visit = (id: string): void => {
+    if (visited.has(id)) return;
+    const row = rowById.get(id);
+    if (!row) return;
+    visited.add(id);
+    result.push(row);
+    const children = (childIdsByParentId.get(id) ?? [])
+      .map((childId) => rowById.get(childId))
+      .filter(Boolean) as PortfolioAnalysisTreeRow[];
+    children.sort((left, right) => compareRows(left, right, sortState));
+    children.forEach((child) => visit(child.id));
+  };
+  rootIds.forEach(visit);
+  return result;
+}
+
 function sortIndicator(
   column: LeafColumn,
   sortState: SortState | null,
@@ -585,6 +616,123 @@ function derivedTooltipContent(
       return null;
   }
 }
+function excelNumberFormat(
+  column: LeafColumn,
+  settings: DecimalSettings,
+): string | undefined {
+  const decimals =
+    column.kind === "exposure" || column.kind === "signedExposure"
+      ? settings.pct
+      : column.metric === "marketValue" ||
+          column.metric === "marketValueDelta" ||
+          column.metric === "benchmarkMarketValue"
+        ? settings.money
+        : column.metric === "par" ||
+            column.metric === "parDelta" ||
+            column.metric === "benchmarkPar"
+          ? settings.qty
+          : settings.contrib;
+  const zeros = decimals > 0 ? `.${"0".repeat(decimals)}` : "";
+  return column.kind === "exposure" || column.kind === "signedExposure"
+    ? `0${zeros}%`
+    : `#,##0${zeros};[Red]-#,##0${zeros}`;
+}
+
+async function exportPortfolioAnalysisToExcel({
+  context,
+  rows,
+  headerGroups,
+  decimalSettings,
+}: {
+  context: PortfolioAnalysisContext;
+  rows: PortfolioAnalysisTreeRow[];
+  headerGroups: HeaderGroup[];
+  decimalSettings: DecimalSettings;
+}): Promise<void> {
+  const columns = headerGroups.flatMap((group) => group.leaves);
+  const workbook = new Workbook();
+  const worksheet = workbook.addWorksheet("Portfolio Analysis");
+  worksheet.addRow(
+    headerGroups.flatMap((group) => group.leaves.map(() => group.caption)),
+  );
+  worksheet.addRow(columns.map((column) => column.caption));
+  let startColumn = 1;
+  headerGroups.forEach((group) => {
+    const endColumn = startColumn + group.leaves.length - 1;
+    if (endColumn > startColumn)
+      worksheet.mergeCells(1, startColumn, 1, endColumn);
+    startColumn = endColumn + 1;
+  });
+  rows.forEach((row) => {
+    const record = row as unknown as Record<string, unknown>;
+    const excelRow = worksheet.addRow(
+      columns.map((column) => {
+        if (column.kind === "label") return row.label;
+        const value = column.field ? record[column.field] : null;
+        return typeof value === "number" && Number.isFinite(value)
+          ? value
+          : typeof value === "string"
+            ? value
+            : null;
+      }),
+    );
+    excelRow.getCell(1).alignment = {
+      horizontal: "left",
+      vertical: "middle",
+      indent: Math.max(0, Math.min(15, row.depth)),
+    };
+    columns.forEach((column, index) => {
+      const numFmt = excelNumberFormat(column, decimalSettings);
+      if (numFmt && typeof excelRow.getCell(index + 1).value === "number") {
+        excelRow.getCell(index + 1).numFmt = numFmt;
+      }
+    });
+  });
+  worksheet.views = [{ state: "frozen", xSplit: 1, ySplit: 2 }];
+  worksheet.autoFilter = {
+    from: { row: 2, column: 1 },
+    to: { row: 2, column: columns.length },
+  };
+  columns.forEach((column, index) => {
+    worksheet.getColumn(index + 1).width = Math.max(
+      10,
+      Math.min(52, Math.round(column.width / 7)),
+    );
+  });
+  [1, 2].forEach((rowNumber) => {
+    const row = worksheet.getRow(rowNumber);
+    row.height = 20;
+    row.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 };
+    row.alignment = {
+      horizontal: "center",
+      vertical: "middle",
+      wrapText: true,
+    };
+    row.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: rowNumber === 1 ? "FF013D7D" : "FF0B4F8A" },
+      };
+      cell.border = {
+        top: { style: "thin", color: { argb: "FF6E92B8" } },
+        left: { style: "thin", color: { argb: "FF6E92B8" } },
+        bottom: { style: "thin", color: { argb: "FF6E92B8" } },
+        right: { style: "thin", color: { argb: "FF6E92B8" } },
+      };
+    });
+  });
+  const buffer = await workbook.xlsx.writeBuffer();
+  const stamp = new Date().toISOString().slice(0, 10);
+  const safePortfolioKey = context.portfolioKey.replace(/[^a-zA-Z0-9_-]/g, "_");
+  saveAs(
+    new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }),
+    `PFA_${safePortfolioKey}_T-${context.comparisonTMinus}_to_T_${stamp}.xlsx`,
+  );
+}
+
 export function PortfolioAnalysisTreeGrid({
   context,
   rows,
@@ -601,6 +749,8 @@ export function PortfolioAnalysisTreeGrid({
   onSelectedColumnGroupChange,
   onOpenColumnGroupDetail,
   onOpenDriftDetail,
+  exportRequestId,
+  onExportingChange,
 }: PortfolioAnalysisTreeGridProps): JSX.Element {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(
     () => new Set(["root"]),
@@ -613,6 +763,7 @@ export function PortfolioAnalysisTreeGrid({
   const [viewportHeight, setViewportHeight] = useState(0);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const lastExportRequestIdRef = useRef(0);
   const effectiveSelectedColumnGroup =
     internalSelectedColumnGroup ?? selectedColumnGroup ?? null;
   const refreshViewport = useCallback((): void => {
@@ -1062,6 +1213,32 @@ export function PortfolioAnalysisTreeGrid({
       ),
     [headerGroups],
   );
+  const exportRows = useMemo(
+    () => buildAllSortedRows(rows, rowById, childIdsByParentId, sortState),
+    [rows, rowById, childIdsByParentId, sortState],
+  );
+  useEffect(() => {
+    if (
+      exportRequestId <= 0 ||
+      lastExportRequestIdRef.current === exportRequestId
+    )
+      return;
+    lastExportRequestIdRef.current = exportRequestId;
+    onExportingChange(true);
+    void exportPortfolioAnalysisToExcel({
+      context,
+      rows: exportRows,
+      headerGroups,
+      decimalSettings,
+    }).finally(() => onExportingChange(false));
+  }, [
+    context,
+    decimalSettings,
+    exportRequestId,
+    exportRows,
+    headerGroups,
+    onExportingChange,
+  ]);
   const totalWidth = useMemo(
     () => leafColumns.reduce((sum, column) => sum + column.width, 0),
     [leafColumns],

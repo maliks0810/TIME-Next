@@ -24,6 +24,8 @@ export function PortfolioAnalysisMainPanel({
   onSelectedColumnGroupChange,
   onOpenColumnGroupDetail,
   onOpenDriftDetail,
+  exportRequestId,
+  onExportingChange,
 }: {
   context: PortfolioAnalysisContext;
   rows: PortfolioAnalysisTreeRow[];
@@ -46,6 +48,8 @@ export function PortfolioAnalysisMainPanel({
     context: PortfolioAnalysisColumnGroupContext,
   ) => void;
   onOpenDriftDetail: (rowId: string, tMinus: number | "total") => void;
+  exportRequestId: number;
+  onExportingChange: (isExporting: boolean) => void;
 }): JSX.Element {
   return (
     <main className="portfolio-analysis-main relative min-h-0 min-w-0 flex-1 overflow-hidden border border-grey-300 bg-tcw-white shadow-[0_1px_2px_rgba(13,13,13,0.04),0_8px_24px_rgba(1,61,125,0.06)]">
@@ -65,6 +69,8 @@ export function PortfolioAnalysisMainPanel({
         onSelectedColumnGroupChange={onSelectedColumnGroupChange}
         onOpenColumnGroupDetail={onOpenColumnGroupDetail}
         onOpenDriftDetail={onOpenDriftDetail}
+        exportRequestId={exportRequestId}
+        onExportingChange={onExportingChange}
       />
     </main>
   );

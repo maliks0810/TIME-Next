@@ -49,6 +49,7 @@ type SourcePresence = { portfolio: boolean; benchmark: boolean };
 type NodeBuildContext = {
   nodes: Map<string, MutableTreeRow>;
   childrenByParentId: Map<string, string[]>;
+  pathNodeByKey: Map<string, MutableTreeRow>;
   portfolioKey: string;
 };
 type PositionTreeAssignment = {
@@ -452,9 +453,12 @@ function addChild(
   childId: string,
 ): void {
   if (!parentId) return;
-  const children = ctx.childrenByParentId.get(parentId) ?? [];
-  if (!children.includes(childId)) children.push(childId);
-  ctx.childrenByParentId.set(parentId, children);
+  const children = ctx.childrenByParentId.get(parentId);
+  if (children) {
+    children.push(childId);
+  } else {
+    ctx.childrenByParentId.set(parentId, [childId]);
+  }
 }
 function ensureNode(
   ctx: NodeBuildContext,
@@ -467,10 +471,15 @@ function ensureNode(
   return node;
 }
 function ensurePath(ctx: NodeBuildContext, path: string[]): MutableTreeRow {
+  const normalizedPath = path.length ? path : ["Unclassified"];
+  const cacheKey = normalizedPath.join("\u001f");
+  const cached = ctx.pathNodeByKey.get(cacheKey);
+  if (cached) return cached;
+
   let parentId = "root";
   let pathId = "root";
   let node = ctx.nodes.get("root");
-  path.forEach((label, index) => {
+  normalizedPath.forEach((label, index) => {
     pathId = `${pathId}|${index + 1}:${safeIdPart(label)}`;
     node = ensureNode(ctx, {
       id: pathId,
@@ -484,7 +493,9 @@ function ensurePath(ctx: NodeBuildContext, path: string[]): MutableTreeRow {
     });
     parentId = pathId;
   });
-  return node ?? ctx.nodes.get("root")!;
+  const resolved = node ?? ctx.nodes.get("root")!;
+  ctx.pathNodeByKey.set(cacheKey, resolved);
+  return resolved;
 }
 function ensureSyntheticTradeRow(
   ctx: NodeBuildContext,
@@ -842,9 +853,7 @@ function exposeDebug(summary: Record<string, unknown>): void {
   (
     window as unknown as { __portfolioAnalysisDebug?: Record<string, unknown> }
   ).__portfolioAnalysisDebug = summary;
-  console.groupCollapsed("[PortfolioAnalysis] tree build debug");
-  console.table(summary);
-  console.groupEnd();
+  console.info("[PortfolioAnalysis] tree build", summary);
 }
 export function buildPortfolioAnalysisRowIndex(
   rows: PortfolioAnalysisTreeRow[],
@@ -886,10 +895,24 @@ export function buildPortfolioAnalysisTreeRows({
 }): PortfolioAnalysisTreeRow[] {
   const nodes = new Map<string, MutableTreeRow>();
   const childrenByParentId = new Map<string, string[]>();
-  const ctx: NodeBuildContext = { nodes, childrenByParentId, portfolioKey };
+  const ctx: NodeBuildContext = {
+    nodes,
+    childrenByParentId,
+    pathNodeByKey: new Map<string, MutableTreeRow>(),
+    portfolioKey,
+  };
+  const buildStartedAt = performance.now();
+  const stageTimings: Record<string, number> = {};
+  let stageStartedAt = buildStartedAt;
+  const completeStage = (name: string): void => {
+    const now = performance.now();
+    stageTimings[name] = now - stageStartedAt;
+    stageStartedAt = now;
+  };
   const eventTMinus = includedEventTMinus(comparisonTMinus);
   const allTMinus = eventAndReferenceTMinus(comparisonTMinus);
   const dateToTMinus = new Map<string, number>();
+  const snapshotDateByTMinus = new Map<number, string | null>();
   const positionValuesByTreeDate = new Map<string, PositionDateValue>();
   const benchmarkValuesByTreeDate = new Map<string, BenchmarkDateValue>();
   const sourcePresenceByTreeDate = new Map<string, SourcePresence>();
@@ -911,8 +934,12 @@ export function buildPortfolioAnalysisTreeRows({
   });
   allTMinus.forEach((tMinus) => {
     const d = snapshotDate(snapshots, tMinus);
+    snapshotDateByTMinus.set(tMinus, d);
     if (d) dateToTMinus.set(d, tMinus);
   });
+  const dateAt = (tMinus: number): string | null =>
+    snapshotDateByTMinus.get(tMinus) ?? snapshotDate(snapshots, tMinus);
+  completeStage("initialize");
   ensureNode(ctx, {
     id: "root",
     parentId: null,
@@ -927,12 +954,17 @@ export function buildPortfolioAnalysisTreeRows({
   let nonZeroDurationRows = 0;
   let nonZeroExposureRows = 0;
   positions.forEach((position) => {
-    const date = normalizedDate(getString(position, FIELD.asOfDate));
-    const durationContribution = getNumber(
-      position,
-      FIELD.durationContribution,
-    );
-    const exposure = getNumber(position, FIELD.marketValuePercent);
+    const date = normalizedDate(position.asOfDate);
+    const durationContribution =
+      typeof position.durationContribution === "number" &&
+      Number.isFinite(position.durationContribution)
+        ? position.durationContribution
+        : null;
+    const exposure =
+      typeof position.marketValuePercent === "number" &&
+      Number.isFinite(position.marketValuePercent)
+        ? position.marketValuePercent
+        : null;
     const marketValue =
       typeof position.usdMarketValue === "number" &&
       Number.isFinite(position.usdMarketValue)
@@ -1003,12 +1035,13 @@ export function buildPortfolioAnalysisTreeRows({
       positionTreeIdsByPortfolioSecurityDate.set(securityDateKeyValue, ids);
     }
   });
+  completeStage("portfolio-input");
   benchmarkPositions.forEach((position) => {
-    const date = normalizedDate(getString(position, FIELD.asOfDate));
+    const date = normalizedDate(position.asOfDate);
     const path = tcwCoreLevels(position).filter(Boolean);
     const parent = ensurePath(ctx, path.length ? path : ["Unclassified"]);
     const fullPathKey = fullTcwCorePathKey(position);
-    const securityKey = getString(position, FIELD.securityKey);
+    const securityKey = position.securityKey.trim();
     const treeId = `${parent.id}|position|${safeIdPart(fullPathKey)}|${safeIdPart(securityKey)}`;
     if (!assignmentsByTreeId.has(treeId)) {
       assignmentsByTreeId.set(treeId, {
@@ -1042,29 +1075,22 @@ export function buildPortfolioAnalysisTreeRows({
     benchmarkValuesByTreeDate.set(key, {
       exposure: addNullable(
         existing.exposure,
-        normalizeBenchmarkExposure(
-          getNumber(position, [
-            "marketValuePercentage",
-            "MARKET_VALUE_PERCENTAGE",
-          ]),
-        ),
+        normalizeBenchmarkExposure(position.marketValuePercentage),
       ),
-      marketValue: addNullable(
-        existing.marketValue,
-        getNumber(position, FIELD.usdMarketValue),
-      ),
-      par: addNullable(existing.par, getNumber(position, FIELD.currentFace)),
+      marketValue: addNullable(existing.marketValue, position.usdMarketValue),
+      par: addNullable(existing.par, position.currentFace),
       durationContribution: addNullable(
         existing.durationContribution,
-        getNumber(position, FIELD.durationContribution),
+        position.durationContribution,
       ),
     });
   });
 
+  completeStage("benchmark-input");
   assignmentsByTreeId.forEach((assignment, treeId) => {
     const { sample, parentId, pathDepth } = assignment;
-    const portfolioTDate = snapshotDate(snapshots, 0);
-    const benchmarkTMinus1Date = snapshotDate(snapshots, 1);
+    const portfolioTDate = dateAt(0);
+    const benchmarkTMinus1Date = dateAt(1);
     const hasPortfolioAtT =
       sourcePresenceByTreeDate.get(`${treeId}|${portfolioTDate ?? ""}`)
         ?.portfolio === true;
@@ -1098,12 +1124,12 @@ export function buildPortfolioAnalysisTreeRows({
       diagnostics: {},
     });
     allTMinus.forEach((tMinus) => {
-      const date = snapshotDate(snapshots, tMinus);
+      const date = dateAt(tMinus);
       const v = date
         ? positionValuesByTreeDate.get(`${treeId}|${date}`)
         : undefined;
       const benchmarkTMinus = tMinus === 0 ? 1 : tMinus;
-      const benchmarkDate = snapshotDate(snapshots, benchmarkTMinus);
+      const benchmarkDate = dateAt(benchmarkTMinus);
       const benchmarkValue = benchmarkDate
         ? benchmarkValuesByTreeDate.get(`${treeId}|${benchmarkDate}`)
         : undefined;
@@ -1130,6 +1156,7 @@ export function buildPortfolioAnalysisTreeRows({
     });
     attachDiagnostics(row, allTMinus, snapshots, securityByDateSecurity);
   });
+  completeStage("materialize-rows");
   const root = ctx.nodes.get("root")!;
   cashflows.forEach((cashflow) => {
     const date = normalizedDate(getString(cashflow, FIELD.settleDate));
@@ -1212,14 +1239,18 @@ export function buildPortfolioAnalysisTreeRows({
         allocatedToPosition: targetIds.length > 0,
       });
   });
+  completeStage("events-input");
   aggregateValuesRecursive(root, ctx, allTMinus);
+  completeStage("aggregate-values");
   computeDeltasAndTradesRecursive(
     root,
     ctx,
     comparisonTMinus,
     directTradeByNodeDay,
   );
+  completeStage("deltas-and-trades");
   aggregateEventsRecursive(root, ctx, allTMinus);
+  completeStage("aggregate-events");
   eventTMinus.forEach((tMinus) => {
     const prior = snapshots[tMinus + 1];
     const date = snapshotDate(snapshots, tMinus) ?? "";
@@ -1250,13 +1281,18 @@ export function buildPortfolioAnalysisTreeRows({
   root.total = totalFromDays(root.day, comparisonTMinus);
   syncFlatFields(root, comparisonTMinus);
   const ordered = rowOrderTraversal(ctx);
+  completeStage("finalize-and-order");
+  const totalMilliseconds = performance.now() - buildStartedAt;
   exposeDebug({
+    totalMilliseconds,
+    stageTimings,
     positions: positions.length,
     benchmarkPositions: benchmarkPositions.length,
     securities: securities.length,
     trades: trades.length,
     cashflows: cashflows.length,
     nodes: ordered.length,
+    uniqueHierarchyPaths: ctx.pathNodeByKey.size,
     assignments: assignmentsByTreeId.size,
     positionTreeDateKeys: positionValuesByTreeDate.size,
     positionSecurityDateKeys: positionTreeIdsByPortfolioSecurityDate.size,

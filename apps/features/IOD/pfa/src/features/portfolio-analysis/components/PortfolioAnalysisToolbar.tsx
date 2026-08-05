@@ -1,4 +1,11 @@
-import { ArrowLeft, ChevronDown, Search, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  Download,
+  Loader2,
+  Search,
+  X,
+} from "lucide-react";
 import {
   useEffect,
   useLayoutEffect,
@@ -35,6 +42,8 @@ type PortfolioAnalysisToolbarProps = {
   backLabel?: string;
   leftContent?: ReactNode;
   leftContentCaption?: string;
+  isExporting: boolean;
+  onExport: () => void;
 };
 
 const COLUMN_GROUPS: Array<{
@@ -143,6 +152,8 @@ export function PortfolioAnalysisToolbar({
   onBack,
   backLabel = "Back",
   leftContent,
+  isExporting,
+  onExport,
 }: PortfolioAnalysisToolbarProps): JSX.Element {
   const [decimalMenuOpen, setDecimalMenuOpen] = useState(false);
   const [decimalMenuPosition, setDecimalMenuPosition] =
@@ -331,6 +342,21 @@ export function PortfolioAnalysisToolbar({
             </button>
           ) : null}
         </div>
+        <button
+          type="button"
+          className="portfolio-analysis-toolbar-button portfolio-analysis-export-button"
+          onClick={onExport}
+          disabled={isExporting}
+          aria-busy={isExporting}
+          title="Export all grid rows to Excel"
+        >
+          {isExporting ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : (
+            <Download size={14} />
+          )}
+          {isExporting ? "Exporting" : "Export"}
+        </button>
       </div>
     </div>
   );
