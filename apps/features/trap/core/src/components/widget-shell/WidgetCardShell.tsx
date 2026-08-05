@@ -5,6 +5,7 @@ import { useTheme, getThemeSurfaceMeta } from '../../theme/ThemeContext';
 import { WidgetSizeContext, WidgetPixels } from './WidgetSizeContext';
 import { WidgetMaximizeOverlay } from './WidgetMaximizeOverlay';
 import { useIsMaximized } from './WidgetMaximizeContext';
+import { ThemeName } from '../../theme/types';
 
 export default function WidgetCardShell(props: {
     style?: Record<string, string>;
@@ -18,7 +19,7 @@ export default function WidgetCardShell(props: {
 }) {
     const { token } = theme.useToken();
     const { themeName } = useTheme();
-    const surfaceMeta = getThemeSurfaceMeta(themeName);
+    const surfaceMeta = getThemeSurfaceMeta(themeName as ThemeName);
     const overflow = props.overflow ?? 'auto';
     const alreadyMax = useIsMaximized();
 
@@ -75,7 +76,12 @@ export default function WidgetCardShell(props: {
                 >
                     <div
                         ref={measureRef}
-                        style={{ position: 'relative', height: '100%', width: '100%', minHeight: 0 }}
+                        style={{
+                            position: 'relative',
+                            height: '100%',
+                            width: '100%',
+                            minHeight: 0,
+                        }}
                         onMouseEnter={showExpand ? () => setHovered(true) : undefined}
                         onMouseLeave={showExpand ? () => setHovered(false) : undefined}
                     >

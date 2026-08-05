@@ -13,6 +13,7 @@ import DesignerCanvasItem from './components/DesignerCanvasItem';
 import { useEffect, useMemo, useState } from 'react';
 import { useWorkflowDesigner } from './hooks/useWorkflowDesigner';
 import { setActiveCanvas } from '../landing/components/shell/activeCanvas';
+import { ThemeName } from '../../theme/types';
 
 type WorkflowDesignerPageProps = {
     // Provided when embedded inside a workflow tab (new shell). Omitted on the
@@ -37,7 +38,7 @@ export default function WorkflowDesignerPage({
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const { token } = theme.useToken();
     const { themeName } = useTheme();
-    const surfaceMeta = getThemeSurfaceMeta(themeName);
+    const surfaceMeta = getThemeSurfaceMeta(themeName as ThemeName);
 
     const isDarkHud =
         themeName === 'dark' ||

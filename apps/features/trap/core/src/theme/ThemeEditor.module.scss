@@ -1,0 +1,76 @@
+.te-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.te-back {
+    cursor: pointer;
+    color: var(--ant-color-text-secondary);
+    font-size: 14px;
+}
+.te-back:hover {
+    color: var(--ant-color-text);
+}
+.te-title {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 700;
+}
+.te-lbl {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--ant-color-text-secondary);
+    margin: 14px 0 5px;
+}
+.te-sec {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 24px;
+    margin: 16px 0 9px;
+}
+.te-sec-lbl {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--ant-color-text-secondary);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+.te-colors {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px 10px;
+}
+.te-color {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.te-color .anticon,
+.te-color .ant-color-picker-trigger {
+    flex: 0 0 auto;
+}
+.te-color-lbl {
+    font-size: 11.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.te-note {
+    font-size: 10px;
+    color: var(--ant-color-text-tertiary);
+    margin-top: 8px;
+    line-height: 1.4;
+}
+.te-chip {
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 5px;
+    border: 1px solid;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}

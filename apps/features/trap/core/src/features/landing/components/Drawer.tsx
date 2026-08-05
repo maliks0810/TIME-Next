@@ -16,6 +16,7 @@ import { useUserInfo } from '@platform/utils';
 
 import { Kind, Visibility } from '../../../api/trap';
 import { WorkflowTabModel } from '../types/landing.types';
+import ThemesPanel from './shell/ThemePanel';
 import WidgetsPanelWrapper from './shell/WidgetsPanelWrapper';
 
 export const Drawer = ({
@@ -67,34 +68,10 @@ export const Drawer = ({
         },
         [claims]
     );
-    if (!drawerOpen) return null;
-    return (
-        <div role="dialog" aria-label="Manage" className={styles.wrapper}>
-            <div className={styles.header}>
-                <Typography.Text strong>Manage</Typography.Text>
-                <Button
-                    size="small"
-                    type="text"
-                    icon={<CloseOutlined />}
-                    onClick={() => setDrawerOpen(false)}
-                />
-            </div>
-
-            <div style={{ padding: 14 }}>
-                <Segmented
-                    block
-                    value={drawerSeg}
-                    onChange={(value) => setDrawerSeg(value as any)}
-                    options={[
-                        { label: 'Workspaces', value: 'workspaces' },
-                        { label: 'Widgets', value: 'widgets' },
-                        { label: 'Themes', value: 'themes' },
-                    ]}
-                />
-            </div>
-
-            <div style={{ padding: '0 14px 14px', overflow: 'auto', flex: 1 }}>
-                {drawerSeg === 'workspaces' ? (
+    const renderSegment = (drawerSeg: string) => {
+        switch (drawerSeg) {
+            case 'workspaces':
+                return (
                     <WorkspacesPanel
                         templates={templates}
                         onLaunch={(selected) => {
@@ -124,9 +101,43 @@ export const Drawer = ({
                         //TODO: implement when removing designer page
                         onTemplateChanged={() => {}}
                     />
-                ) : null}
+                );
+            case 'widgets':
+                return <WidgetsPanelWrapper />;
+            case 'themes':
+                return <ThemesPanel />;
+            default:
+                return null;
+        }
+    };
+    if (!drawerOpen) return null;
+    return (
+        <div role="dialog" aria-label="Manage" className={styles.wrapper}>
+            <div className={styles.header}>
+                <Typography.Text strong>Manage</Typography.Text>
+                <Button
+                    size="small"
+                    type="text"
+                    icon={<CloseOutlined />}
+                    onClick={() => setDrawerOpen(false)}
+                />
+            </div>
 
-                {drawerSeg === 'widgets' ? <WidgetsPanelWrapper /> : null}
+            <div style={{ padding: 14 }}>
+                <Segmented
+                    block
+                    value={drawerSeg}
+                    onChange={(value) => setDrawerSeg(value as any)}
+                    options={[
+                        { label: 'Workspaces', value: 'workspaces' },
+                        { label: 'Widgets', value: 'widgets' },
+                        { label: 'Themes', value: 'themes' },
+                    ]}
+                />
+            </div>
+
+            <div style={{ padding: '0 14px 14px', overflow: 'auto', flex: 1 }}>
+                {renderSegment(drawerSeg)}
             </div>
         </div>
     );
