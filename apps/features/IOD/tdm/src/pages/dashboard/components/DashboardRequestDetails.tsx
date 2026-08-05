@@ -55,11 +55,14 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
   }
 
   const isDuplicateButtonDisabled = () => {
+    if (userCanDuplicateRequest === false) {
+      return true;
+    }
+    
     if (securityRequest.setupStatus === 'Request Initiated' ||
       securityRequest.setupStatus === 'Pending DM SSAP Review' ||
       securityRequest.setupStatus === 'Cancelled' ||
-      securityRequest.setupStatus === 'Pending Trader Details' ||
-      userCanDuplicateRequest === false
+      securityRequest.setupStatus === 'Pending Trader Details' 
     ) {
       return true;
     }
@@ -75,13 +78,16 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
         return false;
     }
 
+    if (userCanCancelRequest === false) {
+      return true;
+    }
+
     if (
       securityRequest.setupStatus === 'Cancelled' ||
       securityRequest.setupStatus === 'Request Submitted' ||
       securityRequest.setupStatus === 'Security Review Complete' ||
       securityRequest.setupStatus === 'Security Setup Complete' ||
-      securityRequest.setupStatus === 'Ready for Trading' ||
-      userCanCancelRequest === false
+      securityRequest.setupStatus === 'Ready for Trading'
     ) {
       return true;
     }
