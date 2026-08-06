@@ -15,14 +15,14 @@ export const coreGlobalMessage = {
     loading: (content: string) => globalMessageApi?.loading(content),
     error: (content: string) => {
         if (activeErrors.has(content)) {
-            return; 
+            return;
         }
         activeErrors.add(content);
         globalMessageApi?.error({
             content,
             onClose: () => {
                 activeErrors.delete(content);
-            }
+            },
         });
     },
 };
