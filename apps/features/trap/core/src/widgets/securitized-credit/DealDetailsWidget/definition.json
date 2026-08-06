@@ -34,9 +34,10 @@
                     "max": 12
                 },
                 "height": {
-                    "default": 8,
-                    "min": 4,
-                    "max": 13
+                    "default": 400,
+                    "min": 200,
+                    "max": 650,
+                    "step": 50
                 }
             }
         }

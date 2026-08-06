@@ -20,7 +20,7 @@
             },
             "schemaKey": {
                 "description": "Logical chart scenario resolved by GraphQL. Each scenario owns its own series and data source; GraphQL returns the render-ready ECharts option.",
-                "enum": ["abf.performance.summary", "abf.cgl.trend"],
+                "enum": ["abf.performance.summary", "abf.cgl.trend", "abf.dq.roll"],
                 "title": "Schema Key",
                 "type": "string",
                 "category": "System Parameters"
@@ -58,7 +58,7 @@
             "sizing": {
                 "resizable": true,
                 "width": { "default": 4, "min": 3, "max": 8 },
-                "height": { "default": 3, "min": 2, "max": 8, "step": 1 }
+                "height": { "default": 150, "min": 100, "max": 400, "step": 50 }
             }
         }
     ]
