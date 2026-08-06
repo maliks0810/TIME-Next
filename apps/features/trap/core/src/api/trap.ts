@@ -9,6 +9,17 @@ type GqlResponse<T> = { data?: T; errors?: Array<{ message: string }> };
 
 const GRAPHQL_URL = import.meta.env.VITE_APP_GRAPHQL_URL;
 
+// Filter out cases for now:
+// 1. Unsuported schemakey
+// 2. No datset key found
+const IGNORED_ERROR_PATTERNS = [
+    'No dataset executor registered for datasetId=',
+    'Unsupported schemaKey:',
+];
+
+const isErrorIgnorable = (error: string) => {
+    return IGNORED_ERROR_PATTERNS.some((message) => error.includes(message));
+};
 async function gql<T>(
     query: string,
     variables?: Record<string, any>,
@@ -25,11 +36,12 @@ async function gql<T>(
 
     if (!res.ok) {
         const msg = json?.errors?.[0]?.message || `HTTP ${res.status} ${res.statusText}`;
-        coreGlobalMessage.error(msg);
+        if (!isErrorIgnorable(msg)) coreGlobalMessage.error(msg);
         throw new Error(msg);
     }
     if (json.errors && json.errors.length) {
-        coreGlobalMessage.error(json.errors[0].message);
+        if (!isErrorIgnorable(json.errors[0].message))
+            coreGlobalMessage.error(json.errors[0].message);
         throw new Error(json.errors[0].message);
     }
 
