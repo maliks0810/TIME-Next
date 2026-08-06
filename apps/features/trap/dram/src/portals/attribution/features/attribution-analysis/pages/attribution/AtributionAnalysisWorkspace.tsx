@@ -442,7 +442,7 @@ const headerInfo = useMemo(() => {
     (p) => p.toUpperCase(),
   );
 
-  const breakdown = viewBreakdown;
+  const breakdown = viewBreakdown == "Type 2" ? "Region Rating Corp" : viewBreakdown;
 
   return {
     portfolio,
