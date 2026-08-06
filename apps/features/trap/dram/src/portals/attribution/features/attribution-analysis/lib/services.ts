@@ -162,9 +162,9 @@ export const api = {
       method: "POST",
       body: JSON.stringify(state),
     }),
-  runSecurityGrainAnalysis: (asset_class: string,port: string,frequency: string, breakdown: string, startDate: string, endDate: string, periodList: string): Promise<AnalyticsResponse> =>
+  runSecurityGrainAnalysis: (asset_class: string,port: string,frequency: string, breakdown: string, startDate: string, endDate: string, periodList: string,benchmarkCode:string): Promise<AnalyticsResponse> =>
     req<AnalyticsResponse>
-  (`/api/attribution/${asset_class}/${frequency}/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}&period_list=${periodList}`),
+  (`/api/attribution/${asset_class}/${frequency}/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}&period_list=${periodList}&bm_code=${benchmarkCode}`),
 
   requestByDateAborvsIborReportService:(as_of_date: string):  Promise<AttributionDispersionResponse> =>
 	  req<AttributionDispersionResponse>
@@ -181,7 +181,7 @@ export const api = {
   requestCorePlusAttributionDispersonReportService: ():  Promise<AttributionDispersionResponse> =>
 	  req<AttributionDispersionResponse>
     (`/api/attr-dispersion/`),
-runDailySecurityGrainAnalysis: (port: string, breakdown: string, startDate: string, endDate: string, periodList: string): Promise<AnalyticsResponse> =>
+runDailySecurityGrainAnalysis: (port: string, breakdown: string, startDate: string, endDate: string, periodList: string,benchmarkCode:string): Promise<AnalyticsResponse> =>
     req<AnalyticsResponse>
-  (`/api/att-eq-mtd/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}&period_list=${periodList}`),
+  (`/api/att-eq-mtd/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}&period_list=${periodList}&bm_code=${benchmarkCode}`),
 };
