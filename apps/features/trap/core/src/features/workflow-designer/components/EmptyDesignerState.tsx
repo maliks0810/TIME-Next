@@ -7,7 +7,7 @@ type EmptyDesignerStateProps = {
     hasWidgets: boolean;
     isPublished: boolean;
     onBack: () => void;
-    onOpenLibrary: () => void;
+    onOpenLibrary?: () => void;
 };
 
 export default function EmptyDesignerState(props: EmptyDesignerStateProps) {
