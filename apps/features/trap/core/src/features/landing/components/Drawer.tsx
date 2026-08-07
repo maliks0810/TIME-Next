@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CloseOutlined } from '@ant-design/icons';
 import { Button, message, Segmented, Typography } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import WorkspacesPanel from './shell/WorkspacesPanel';
 import styles from './Drawer.module.scss';
 import { HudLandingSelection, HudWorkflowSelection } from '../../../pages/TrapLandingPage';
@@ -22,8 +22,8 @@ import WidgetsPanelWrapper from './shell/WidgetsPanelWrapper';
 export const Drawer = ({
     onLaunchWorkflow,
     onEditWorkflow,
-    drawerOpen,
-    setDrawerOpen,
+    drawerState,
+    setDrawerState,
     onActivateLanding,
     templates,
     onCloneTemplate,
@@ -34,14 +34,26 @@ export const Drawer = ({
     templates: TemplateSummary[];
     onLaunchWorkflow: (selection: HudWorkflowSelection) => Promise<void>;
     onEditWorkflow: (selection: WorkflowTabModel) => Promise<void>;
-    drawerOpen: boolean;
-    setDrawerOpen: (value: boolean) => void;
+    drawerState: { isOpen: boolean; initialDrawerSeg?: 'workspaces' | 'widgets' | 'themes' };
+    setDrawerState: ({
+        isOpen,
+        initialDrawerSeg,
+    }: {
+        isOpen: boolean;
+        initialDrawerSeg?: 'workspaces' | 'widgets' | 'themes';
+    }) => void;
     onActivateLanding: (selection: HudLandingSelection) => void;
 }) => {
     const { claims } = useUserInfo();
     const [drawerSeg, setDrawerSeg] = React.useState<'workspaces' | 'widgets' | 'themes'>(
         'workspaces'
     );
+
+    useEffect(() => {
+        if (drawerState.initialDrawerSeg) {
+            setDrawerSeg(drawerState.initialDrawerSeg);
+        }
+    }, [drawerState.initialDrawerSeg]);
 
     const onCreateWorkspace = React.useCallback(
         async (input: { name: string; kind: Kind; visibility: Visibility }, organization: Team) => {
@@ -59,7 +71,7 @@ export const Drawer = ({
                 let draft = versions.find((v: any) => String(v.status).toUpperCase() === 'DRAFT');
                 if (!draft) draft = await createDraftVersion(tpl.id);
                 openDraftTab(tpl.id, draft.id, input.name);
-                setDrawerOpen(false);
+                setDrawerState({ isOpen: false });
 
                 message.success('Workspace created');
             } catch (e: any) {
@@ -76,24 +88,23 @@ export const Drawer = ({
                         templates={templates}
                         onLaunch={(selected) => {
                             onLaunchWorkflow(selected as any);
-                            setDrawerOpen(false);
+                            setDrawerState({ isOpen: false });
                         }}
                         onEdit={(ws) => {
-                            console.log(ws);
                             onEditWorkflow(ws as any);
-                            setDrawerOpen(false);
+                            setDrawerState({ isOpen: false });
                         }}
                         onActivateLanding={(selected) => {
                             onLaunchWorkflow(selected as any);
-                            setDrawerOpen(false);
+                            setDrawerState({ isOpen: false });
                         }}
                         onSetHome={(selected) => {
                             onActivateLanding(selected as any);
-                            setDrawerOpen(false);
+                            setDrawerState({ isOpen: false });
                         }}
                         onCloneTemplate={(selected) => {
                             onCloneTemplate(selected as any);
-                            setDrawerOpen(false);
+                            setDrawerState({ isOpen: false });
                         }}
                         //TODO: implement when removing designer page
                         currentHomeId={''}
@@ -110,7 +121,7 @@ export const Drawer = ({
                 return null;
         }
     };
-    if (!drawerOpen) return null;
+    if (!drawerState.isOpen) return null;
     return (
         <div role="dialog" aria-label="Manage" className={styles.wrapper}>
             <div className={styles.header}>
@@ -119,7 +130,7 @@ export const Drawer = ({
                     size="small"
                     type="text"
                     icon={<CloseOutlined />}
-                    onClick={() => setDrawerOpen(false)}
+                    onClick={() => setDrawerState({ isOpen: false })}
                 />
             </div>
 

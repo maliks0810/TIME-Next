@@ -6,7 +6,6 @@ import CanvasContainer from '../../components/layout/CanvasContainer';
 import { applySizing, toPersistedLayout } from '../../components/layout/sizing';
 
 import DesignerHeader from './components/DesignerHeader';
-import WidgetPickerModal from './components/WidgetPickerModal';
 import EmptyDesignerState from './components/EmptyDesignerState';
 import DesignerCanvasItem from './components/DesignerCanvasItem';
 
@@ -63,30 +62,20 @@ export default function WorkflowDesignerPage({
         loading,
         loaded,
         templateId,
-        widgetSearch,
-        selectedCategory,
-        selectedWidgetDefId,
-        selectedWidgetVariantId,
         selectedWidgetParams,
         layout,
         widgetsById,
         defaultContextJson,
         isDraftSaved,
-        widgetPickerOpen,
         isPublished,
         isDraft,
         saveDisabledReason,
         publishDisabledReason,
         widgetDefById,
         selectedWidgetDef,
-        widgetCategories,
         filteredWidgetDefs,
-        setWidgetSearch,
-        setSelectedCategory,
         setSelectedWidgetDefId,
-        setSelectedWidgetVariantId,
         setSelectedWidgetParams,
-        setWidgetPickerOpen,
         onLayoutChange,
         addWidget,
         removeWidget,
@@ -189,7 +178,7 @@ export default function WorkflowDesignerPage({
                     hasWidgets={layout.length > 0}
                     isPublished={isPublished}
                     onBack={() => nav('/trap')}
-                    onOpenLibrary={() => setWidgetPickerOpen(true)}
+                    onOpenLibrary={onRequestAddWidget}
                 />
             ) : (
                 <CanvasContainer
@@ -227,31 +216,6 @@ export default function WorkflowDesignerPage({
                         })}
                 </CanvasContainer>
             )}
-
-            <WidgetPickerModal
-                open={widgetPickerOpen}
-                isPublished={isPublished}
-                templateId={propTemplateId}
-                widgetSearch={widgetSearch}
-                selectedCategory={selectedCategory}
-                widgetCategories={widgetCategories}
-                filteredWidgetDefs={filteredWidgetDefs}
-                selectedWidgetDefId={selectedWidgetDefId}
-                selectedWidgetVariantId={selectedWidgetVariantId}
-                onSelectParams={setSelectedWidgetParams}
-                selectedParams={selectedWidgetParams}
-                selectedWidgetDef={selectedWidgetDef}
-                onClose={() => setWidgetPickerOpen(false)}
-                onSearchChange={setWidgetSearch}
-                onCategoryChange={setSelectedCategory}
-                onSelectWidget={(widgetId) => {
-                    setSelectedWidgetDefId(widgetId);
-                    setSelectedWidgetVariantId(undefined);
-                }}
-                onSelectVariant={setSelectedWidgetVariantId}
-                onAddWidget={addWidget}
-                loading={loading}
-            />
         </div>
     );
 }

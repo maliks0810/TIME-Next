@@ -69,7 +69,10 @@ export default function TrapLandingPage() {
     const [allTemplates, setAllTemplates] = React.useState<TemplateSummary[]>([]);
     const activeKey = useGetActiveTab();
     const activeUser = useGetActiveUser();
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [drawerState, setDrawerState] = useState<{
+        isOpen: boolean;
+        initialDrawerSeg?: 'workspaces' | 'widgets' | 'themes';
+    }>({ isOpen: false });
 
     const { login } = useUserInfo();
     const currentUser = localStorage.getItem('debug-user') || login;
@@ -378,9 +381,9 @@ export default function TrapLandingPage() {
                         <Button
                             style={{ marginLeft: 'auto' }}
                             size="small"
-                            type={drawerOpen ? 'primary' : 'text'}
+                            type={drawerState.isOpen ? 'primary' : 'text'}
                             icon={<LayoutOutlined />}
-                            onClick={() => setDrawerOpen((open) => !open)}
+                            onClick={() => setDrawerState(({ isOpen }) => ({ isOpen: !isOpen }))}
                         />
                     </Tooltip>
                 </div>
@@ -415,7 +418,10 @@ export default function TrapLandingPage() {
                                         active={activeKey === ws.workflowId}
                                         templateId={ws.templateId}
                                         onRequestAddWidget={() => {
-                                            setDrawerOpen(true);
+                                            setDrawerState({
+                                                isOpen: true,
+                                                initialDrawerSeg: 'widgets',
+                                            });
                                         }}
                                         onPublished={() => {
                                             setWorkflows((prev) =>
@@ -446,8 +452,8 @@ export default function TrapLandingPage() {
                 <Drawer
                     openDraftTab={openDraftTab}
                     templates={allTemplates}
-                    drawerOpen={drawerOpen}
-                    setDrawerOpen={setDrawerOpen}
+                    drawerState={drawerState}
+                    setDrawerState={setDrawerState}
                     onLaunchWorkflow={onLaunchHudWorkflow}
                     onEditWorkflow={onEditWorkspace}
                     onActivateLanding={onActivateHudLanding}
