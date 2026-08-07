@@ -336,12 +336,12 @@ export default function WorkspacesPanel({
             />
             <Button
                 block
-                type="dashed"
+                type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => setShowNew(true)}
                 style={{ marginBottom: 4 }}
             >
-                New workspace
+                Create Workspace
             </Button>
 
             {renderGroup(

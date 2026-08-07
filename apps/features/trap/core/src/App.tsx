@@ -129,7 +129,7 @@ export default function App() {
                     <BackTop />
                     <Layout
                         style={{
-                            minHeight: '100vh',
+                            height: 'calc(100vh - 70px)',
                             maxWidth: '100vw',
                             minWidth: APP_SHELL_MIN_WIDTH,
                             overflowX: 'auto',

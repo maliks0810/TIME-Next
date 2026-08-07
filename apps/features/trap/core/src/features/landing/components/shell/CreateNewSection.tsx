@@ -96,7 +96,6 @@ export const CreateNewSection = ({
 
                         const team = [...(orgTree?.get(value)?.get(group)?.keys() || [])][0];
 
-                        console.log(team);
                         setEntitlement((prev) => ({
                             ...prev,
                             org1: value,

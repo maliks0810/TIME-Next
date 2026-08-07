@@ -7,7 +7,7 @@ import {
     HomeOutlined,
     LayoutOutlined,
 } from '@ant-design/icons';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 import { useUserInfo } from '@platform/utils';
 
@@ -64,7 +64,6 @@ const loadTabsFromStorage = () => {
 };
 
 export default function TrapLandingPage() {
-    const nav = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [workflows, setWorkflows] = React.useState<WorkflowTabModel[]>(loadTabsFromStorage());
     const [allTemplates, setAllTemplates] = React.useState<TemplateSummary[]>([]);
@@ -228,21 +227,6 @@ export default function TrapLandingPage() {
         [openDraftTab, currentUser]
     );
 
-    const onCloneTemplate = async (ws: WorkflowTabModel) => {
-        try {
-            const cloneName = `${ws.title} Copy`;
-
-            const result: any = await cloneTemplate(ws.templateId, cloneName);
-            const nextTemplate = result?.template;
-            const nextVersion = result?.version;
-            if (nextTemplate && nextVersion) {
-                nav(`designer?templateId=${nextTemplate.id}`);
-            }
-        } catch (e: any) {
-            message.error(e?.message ?? 'Failed to clone template');
-        }
-    };
-
     const onLaunchHudWorkflow = React.useCallback(
         async (selection: HudWorkflowSelection) => {
             try {
@@ -299,7 +283,7 @@ export default function TrapLandingPage() {
                 disabled: !isPublished,
                 onClick: async (e: any) => {
                     e?.domEvent?.stopPropagation?.();
-                    await onCloneTemplate(ws);
+                    await onEditWorkspace(ws);
                 },
             },
         ];
@@ -362,11 +346,15 @@ export default function TrapLandingPage() {
             <div style={{ width: '100%' }}>
                 <div
                     style={{
+                        zIndex: '99',
+                        backgroundColor: 'var(--ant-color-bg-layout)',
+                        position: 'sticky',
                         height: TAB_BAR_HEIGHT,
                         overflow: 'hidden',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '4px',
+                        top: 0,
                     }}
                 >
                     <AppstoreOutlined style={{ fontSize: 16 }} />
@@ -453,21 +441,6 @@ export default function TrapLandingPage() {
                             </div>
                         );
                     })}
-                    {/* {workflows.map((ws) => (
-                        <div
-                            key={ws.workflowId}
-                            style={{
-                                display: activeKey === ws.workflowId ? 'block' : 'none',
-                                width: '100%',
-                            }}
-                        >
-                            <WorkflowTab
-                                workflowId={ws.workflowId}
-                                templateId={ws.templateId}
-                                onClose={() => closeWorkflowTab(ws.workflowId)}
-                            />
-                        </div>
-                    ))} */}
                 </div>
 
                 <Drawer
@@ -478,7 +451,7 @@ export default function TrapLandingPage() {
                     onLaunchWorkflow={onLaunchHudWorkflow}
                     onEditWorkflow={onEditWorkspace}
                     onActivateLanding={onActivateHudLanding}
-                    onCloneTemplate={onCloneTemplate}
+                    onCloneTemplate={onEditWorkspace}
                 />
             </div>
         </div>
