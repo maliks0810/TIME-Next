@@ -1,8 +1,8 @@
 {
     "id": "cwd_common_data_grid_01",
-    "name": "Common Data Grid",
+    "name": "Data Grid",
     "version": 1,
-    "description": "Reusable DevExtreme-based data grid widget for domain driven tabular data.",
+    "description": "Reusable data grid widget for large datasets.",
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_common_data_grid_01",

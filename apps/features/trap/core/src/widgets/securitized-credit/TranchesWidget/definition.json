@@ -6,41 +6,24 @@
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_sc_tranches_01",
-    "listensToKeys": [
-        "deal.id",
-        "analysis.sessionId",
-        "workflow.refresh"
-    ],
-    "emitsKeys": [
-        "tranche.id",
-        "tranche.name"
-    ],
+    "listensToKeys": ["deal.id", "analysis.sessionId", "workflow.refresh"],
+    "emitsKeys": ["tranche.id", "tranche.name"],
     "configSchema": {
         "properties": {
             "columns": {
-                "default": [
-                    "name",
-                    "rating",
-                    "balance",
-                    "coupon",
-                    "wal",
-                    "maturity"
-                ],
+                "category": "View Parameters",
+                "default": ["name", "rating", "balance", "coupon", "wal", "maturity"],
                 "description": "Ordered list of visible column keys",
                 "items": {
                     "type": "string"
                 },
-                "type": "array",
-                "category": "View Parameters"
+                "type": "array"
             },
             "selectionMode": {
+                "category": "Interactions",
                 "default": "single",
-                "enum": [
-                    "single",
-                    "none"
-                ],
-                "type": "string",
-                "category": "Interactions"
+                "enum": ["single", "none"],
+                "type": "string"
             }
         },
         "required": [],
@@ -58,13 +41,14 @@
                 "width": {
                     "default": 8,
                     "min": 6,
-                    "max": 12
+                    "max": 12,
+                    "step": null
                 },
                 "height": {
-                    "default": 8,
-                    "min": 4,
-                    "max": 13,
-                    "step": 1
+                    "default": 400,
+                    "min": 200,
+                    "max": 650,
+                    "step": 50
                 }
             }
         }
