@@ -222,10 +222,11 @@ export const deleteSecurityRequests = async (
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache',
         'Expires': '0',
+        'Authorization': 'Bearer ' + parameters.userToken
       },
       params: {
         securitySetupRequestId: parameters.securitySetupRequestId ?? "",
-        updatedBy: parameters.updatedBy ?? "",
+        updatedBy: parameters.updatedBy ?? ""
       }
     }
 

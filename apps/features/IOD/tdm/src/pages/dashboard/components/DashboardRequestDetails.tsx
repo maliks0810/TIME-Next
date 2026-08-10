@@ -26,7 +26,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
   const navigate = useNavigate();
   const [isDuplicateConfirmationOpen, setIsDuplicateConfirmationOpen] = useState<boolean>(false);
   const [isCancelConfirmationOpen, setIsCancelConfirmationOpen] = useState<boolean>(false);
-  const { name: currentUser } = useUserInfo();
+  const { name: currentUser, accessToken: currentUserToken } = useUserInfo();
   const userIdentity = useIdentityStore((s) => s.userIdentity);
   const userCanCancelRequest = userIdentity?.permissionsAllowed?.cancel_request || false;
   const userCanCancelRequestAfterSubmission = userIdentity?.permissionsAllowed?.cancel_request_after_submission || false;
@@ -108,6 +108,7 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
     const currentCancelParameters: IDashboardDetailsDeleteParameters = {
       securitySetupRequestId: securityRequest.id.toString(),
       updatedBy: currentUser ?? '',
+      userToken: currentUserToken ?? ''
     };
 
     try {

@@ -115,6 +115,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const isCancelled =
     initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
 
+  useEffect(() => {
+    const cancelled = initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
+    setReadOnly(cancelled);
+  }, [initialData]);
+
   const [isDirty, setIsDirty] = useState(false);
   const stepBaseLineRef = useRef(validationFields);
 
@@ -765,7 +770,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
               variant="outlined"
               className="back-button"
               onClick={handleBack}
-              disabled={isUserReadOnly}
+              disabled={isCancelled || isUserReadOnly}
               startIcon={<ArrowBackIcon />}>
               Back
             </Button>
@@ -786,7 +791,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             variant="contained"
             className="next-button"
             onClick={handleNext}
-            disabled={!canProceed() || isUserReadOnly}
+            disabled={!canProceed() || isCancelled || isUserReadOnly}
             endIcon={
               currentStep === 'confirm-details' ? (
                 <CheckIcon />
