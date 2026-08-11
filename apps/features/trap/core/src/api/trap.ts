@@ -18,7 +18,9 @@ const IGNORED_ERROR_PATTERNS = [
 ];
 
 const isErrorIgnorable = (error: string) => {
-    return IGNORED_ERROR_PATTERNS.some((message) => error.includes(message));
+    return (
+        import.meta.env.PROD || IGNORED_ERROR_PATTERNS.some((message) => error.includes(message))
+    );
 };
 async function gql<T>(
     query: string,
