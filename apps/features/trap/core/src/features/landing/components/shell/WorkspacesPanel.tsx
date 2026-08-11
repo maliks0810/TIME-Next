@@ -141,13 +141,13 @@ export default function WorkspacesPanel({
 
     const buildTree = (data: Team[]) => {
         return data.reduce<DepartmentTree>((tree, { departmentName, groupName, teamName }) => {
-            if (!tree.has(departmentName)) tree.set(departmentName, new Map());
+            if (!tree.has(groupName)) tree.set(groupName, new Map());
 
-            const groups = tree.get(departmentName);
+            const groups = tree.get(groupName);
 
-            if (!groups?.has(groupName)) groups?.set(groupName, new Set());
+            if (!groups?.has(departmentName)) groups?.set(departmentName, new Set());
 
-            groups?.get(groupName)?.add(teamName);
+            groups?.get(departmentName)?.add(teamName);
 
             return tree;
         }, new Map());
