@@ -45,6 +45,11 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
     setBrokerGroups(normalizeBrokerGroups(groups));
   }, [normalizeBrokerGroups]);
 
+  const reloadBrokers = useCallback(async () => {
+    const brkers = await fetchBrokers();
+    setBrokers(brkers?.filter(c=> c.brokerType !== 'LEGACY') ?? []);
+  }, []);
+
   const reloadGroupMemberGroup = useCallback(async () => {
     const allmembers = await fetchBrokerGroupsMember();
 
@@ -65,7 +70,7 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
 
         setBrokerGroups(normalizeBrokerGroups(grpData));
         //setBrokerGroupMembers(memberData ?? []);
-        setBrokers(brokerData ?? []);
+        setBrokers(brokerData?.filter(c=> c.brokerType !== 'LEGACY') ?? []);
         const u = adminData?.find(a=> a.firstName+ " "+ a.lastName === userInfo.name);
         if(u){
           setIsAdmin(true);
@@ -176,7 +181,7 @@ export function useBrokerGroups({ userInfo }: UseBrokerGroupProps) {
     brokerGroups,
     brokerGroupMembers,
     brokers,
-
+    reloadBrokers,
     addBrokerGroup,
     modifyBrokerGroup,
     removeBrokerGroup,

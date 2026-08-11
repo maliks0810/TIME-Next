@@ -107,11 +107,23 @@ const MaintenanceBrokerGrid: React.FC = () => {
       try {
         for (const change of e.changes) {
           if (change.type === 'insert') {
-            await addBroker(change.data as Partial<MaintenanceBroker>);
-            showToast('New Broker added successfully!', 'success');
+            const data = change.data as Partial<MaintenanceBroker>
+            if(brokers.find(s=> s.brokerName?.toLowerCase() === data.brokerName?.toLowerCase() || s.brokerCode?.toLowerCase() === data.brokerCode?.toLowerCase())){
+              showToast('Broker Name / Code already exists in the system.', 'error');
+            }
+            else {
+              await addBroker(data);
+              showToast('New Broker added successfully!', 'success');
+            }
           } else if (change.type === 'update') {
-            await modifyBroker(change.key as number, change.data as Partial<MaintenanceBroker>);
-            showToast('Broker data updated successfully!', 'success');
+            const data = change.data as Partial<MaintenanceBroker>;
+            if(brokers.find(s=> (s.brokerName?.toLowerCase() === data.brokerName?.toLowerCase() || s.brokerCode?.toLowerCase() === data.brokerCode?.toLowerCase()) && s.brokerId !== data.brokerId)){
+              showToast('Broker Name / Code already exists in the system.', 'error');
+            }
+            else {
+              await modifyBroker(change.key as number, data);
+              showToast('Broker data updated successfully!', 'success');
+            }
           } else if (change.type === 'remove') {
             await removeBroker(change.key as number);
             showToast('Broker deleted successfully!', 'success');
@@ -184,7 +196,9 @@ const MaintenanceBrokerGrid: React.FC = () => {
         <Column  dataField="brokerName" caption= "Broker Name"  width= "20%" allowFiltering={true} allowSorting={true} dataType="string">
             <RequiredRule message={ValidationMessage.RequiredField} />
         </Column>   
-        <Column  dataField="brokerCode" caption= "Broker Code" allowFiltering={true}  width= "10%" allowSorting={true} dataType="string"/>   
+        <Column  dataField="brokerCode" caption= "Broker Code" allowFiltering={true}  width= "10%" allowSorting={true} dataType="string" >
+            <RequiredRule message={ValidationMessage.RequiredField} />
+        </Column>
         <Column  dataField="masterBrokerId" caption= "Master Broker Name" allowFiltering={true} width= "25%" allowSorting={true} dataType="string">
             <Lookup dataSource={masterBrokers} valueExpr="masterBrokerId" displayExpr="masterBrokerName" />
             <RequiredRule message={ValidationMessage.RequiredField} />
