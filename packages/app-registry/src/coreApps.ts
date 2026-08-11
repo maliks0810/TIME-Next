@@ -50,16 +50,16 @@ export const coreApps: (InternalAppMetadata | ExternalAppMetadata)[] = [
         hideFooter: true,
     },
     {
-        "type": "internal",
-        "header": NavbarHeader.ResearchAnalysis,
-        "subHeader": NavbarSubHeader.Fundamental,
-        "id": "narmbs-security-analyzer",
-        "name": "narmbs-security-analyzer",
-        "title": "NARMBS Security Analyzer",
+        type: 'internal',
+        header: NavbarHeader.ResearchAnalysis,
+        subHeader: NavbarSubHeader.Fundamental,
+        id: 'narmbs-security-analyzer',
+        name: 'narmbs-security-analyzer',
+        title: 'NA-RMBS Security Analyzer',
         env: HighestEnv.prod,
-        "path": "/trap?template_id=t_7a904c0e156c83139d9c518cba260312", // As the URL is hardcoded for production only, for other environments this URL will be redirected to /trap  page
-        "team": "R2",
+        path: '/trap?template_id=t_fc4018069de16a715131e2002677709f', // As the URL is hardcoded for production only, for other environments this URL will be redirected to /trap  page
+        team: 'R2',
         component: lazy(() => import('@r2/core/src/App')),
-        "description": "",
-    }
+        description: '',
+    },
 ];
