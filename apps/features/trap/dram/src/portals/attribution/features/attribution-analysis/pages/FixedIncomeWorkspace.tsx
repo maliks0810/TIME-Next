@@ -237,7 +237,7 @@ export default function EmergingMarketWorkspace() {
           const resp = (await api.runSecurityGrainAnalysis(
           assetType,
           viewPortfolios ?? default_em_port,"monthly","GICS","",
-          viewAsOfDate,""
+          viewAsOfDate,"",""
           )) as AnalyticsResponse;
 
 		  const nextConfig = extractGridConfig(resp);

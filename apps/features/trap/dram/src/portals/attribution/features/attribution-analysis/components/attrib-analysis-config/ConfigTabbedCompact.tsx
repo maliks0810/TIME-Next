@@ -389,12 +389,9 @@ const isWeekend = (d: Dayjs): boolean => {
   const day = d.day();
   return day === 0 || day === 6;
 };
-const isHoliday = (d: Dayjs, holidays: Set<string>): boolean =>
-  holidays.has(d.format("YYYY-MM-DD"));
 
 export const createRangeDisabledDate = ({
   frequency,
-  holidays = new Set<string>(),
   startValue,
 }: RangeDisabledArgs) => {
   return (current: Dayjs): boolean => {
@@ -406,7 +403,6 @@ export const createRangeDisabledDate = ({
     }
     if (frequency === "daily") {
       if (isWeekend(current)) return true;
-      if (isHoliday(current, holidays)) return true;
       if (startValue && current.isBefore(startValue, "day")) return true;
       return false;
     }
@@ -451,6 +447,7 @@ const getPeriodStartDate = (
   if (code === "QTD") return clampToInception(getQuarterStart(asOfDate), inceptionDate);
   if (code === "YTD") return clampToInception(asOfDate.startOf("year"), inceptionDate);
   if (code === "ATD") return dayjs("2025-04-01");
+  if (code === "1D") return asOfDate;
   if (code === "ITD" || code === "SI")
     return inceptionDate ? inceptionDate.startOf("day") : null;
 

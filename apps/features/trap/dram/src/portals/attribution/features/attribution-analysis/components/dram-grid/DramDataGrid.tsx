@@ -31,7 +31,16 @@ import { ColumnTitle, ColumnTitleProps } from "antd/es/table/interface";
 import "./DramDataGrid.css"
 
 type ExcelColumn = ColumnType<TreeRow> | ColumnGroupType<TreeRow>;
-
+// Primary button styled like a header pill
+const exportPillStyle: React.CSSProperties = {
+  height: 32,
+  borderRadius: 18,
+  fontWeight: 600,
+  paddingInline: 16,
+  background: "#2563eb",
+  borderColor: "#2563eb",
+  boxShadow: "none",
+};
 interface DramDataGridProps {
   config: GridConfigResponse;
   rows: Record<string, string | number | null | undefined>[];
@@ -801,6 +810,7 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
           <Button
             type="primary"
             icon={<DownloadOutlined />}
+            style={exportPillStyle}
             onClick={handleExportCsv}
           >
             Export CSV
@@ -808,6 +818,7 @@ export const DramDataGrid: React.FC<DramDataGridProps> = ({
           <Button
             type="primary"
             icon={<DownloadOutlined />}
+            style={exportPillStyle}
             onClick={() => void handleExportExcel()}
           >
             Export Excel

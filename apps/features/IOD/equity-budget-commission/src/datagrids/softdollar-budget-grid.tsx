@@ -895,7 +895,6 @@ return (
                     </div>
                   )}
                 </TabItem>  
-                <TabItem title="Invoices" />  
                 <TabItem title="Comments" >
                   { isCommentsLoading && commentsData.length > 0 ? (
                     <div className="div-loader">  

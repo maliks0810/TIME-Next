@@ -240,7 +240,7 @@ export default function EmergingMarketWorkspace() {
 					assetType,
 					viewPortfolios ?? default_em_port,
 					"monthly","",
-					viewAsOfDate,"",""
+					viewAsOfDate,"","",""
 				  )) as AnalyticsResponse;
 
 				  const nextConfig = extractGridConfig(resp);

@@ -28,7 +28,7 @@
             "schemaKey": {
                 "category": "System Parameters",
                 "description": "Logical chart scenario resolved by GraphQL. Each scenario owns its own series and data source; GraphQL returns the render-ready ECharts option.",
-                "enum": ["abf.performance.summary", "abf.cgl.trend"],
+                "enum": ["abf.performance.summary", "abf.cgl.trend", "abf.dq.roll"],
                 "title": "Schema Key",
                 "type": "string"
             },

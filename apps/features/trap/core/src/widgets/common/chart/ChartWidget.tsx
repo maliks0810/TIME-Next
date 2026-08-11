@@ -41,25 +41,6 @@ function isColorDark(color: string): boolean {
     return 0.299 * r + 0.587 * g + 0.114 * b < 128;
 }
 
-function withAlpha(color: string, alpha: number): string {
-    if (!color) return color;
-    const c = color.trim();
-    if (c.startsWith('#')) {
-        const h = c.slice(1);
-        const full = h.length === 3 ? h.split('').map((x) => x + x).join('') : h;
-        const r = parseInt(full.slice(0, 2), 16);
-        const g = parseInt(full.slice(2, 4), 16);
-        const b = parseInt(full.slice(4, 6), 16);
-        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-    const m = c.match(/rgba?\(([^)]+)\)/i);
-    if (m) {
-        const [r, g, b] = m[1].split(',').map((s) => parseFloat(s.trim()));
-        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-    return c;
-}
-
 function ChartIcon({ chartType }: { chartType?: string }) {
     switch (chartType) {
         case 'bar':
@@ -155,14 +136,23 @@ export function ChartWidget(props: WidgetComponentProps) {
     const { token } = theme.useToken();
     const roleColors: EchartsRoleColors = useMemo(() => {
         const isDark = isColorDark(token.colorBgContainer);
+
+        // BASE tokens only — the resolver derives every "@<name>FadeNN" gradient
+        // stop from these, so we do NOT hardcode fade variants here.
         return {
             '@primary': token.colorPrimary,
+
+            // Performing / Current — BLUE.
+            '@info': token.colorInfo,
+
+            // Severity ramp
             '@success': isDark ? token.colorSuccessBorder : token.colorSuccess,
             '@warning': isDark ? token.colorWarningBorder : token.colorWarning,
+            '@warningDark': isDark ? token.colorWarningBorderHover : token.colorWarningActive,
             '@error': isDark ? token.colorErrorBorder : token.colorError,
             '@errorDark': isDark ? token.colorErrorBorderHover : token.colorErrorActive,
-            '@errorFade35': withAlpha(token.colorError, 0.35),
-            '@errorFade02': withAlpha(token.colorError, 0.02),
+
+            // Text + structure
             '@text': token.colorText,
             '@textSecondary': token.colorTextSecondary,
             '@textTertiary': token.colorTextTertiary,
@@ -171,13 +161,26 @@ export function ChartWidget(props: WidgetComponentProps) {
         };
     }, [token]);
 
+    // ── Context binding (KEY-AGNOSTIC) ──
+    // The widget no longer hardcodes the deal key. `contextKey` says WHICH channel
+    // value to read (deal name today; portfolio id, cusip, etc. tomorrow) and
+    // defaults to DEAL_NAME_KEY for back-compat. The pulled value is passed to
+    // execute both under the neutral `contextValue` field AND under its own key
+    // name, so existing executors that read `dealName` keep working while new
+    // executors can read `contextValue` (or the configured key) generically.
     const channelId = config?.params?.channel;
-    const dealName = useGetWidgetValue({ channelId, key: DEAL_NAME_KEY });
+    const contextKey: string = config?.params?.contextKey ?? DEAL_NAME_KEY;
+    const contextValue = useGetWidgetValue({ channelId, key: contextKey });
 
     useEffect(() => {
         if (mode === 'preview') return;
-        if (dealName) execute?.({ dealName });
-    }, [dealName, mode]);
+        if (contextValue == null || contextValue === '') return;
+
+        // Neutral field + keyed field (e.g. { contextKey: 'dealName',
+        // contextValue: 'exar2502', dealName: 'exar2502' }). Existing deal
+        // executors resolve `dealName`; future ones resolve `contextValue`.
+        execute?.({ contextKey, contextValue, [contextKey]: contextValue });
+    }, [contextKey, contextValue, mode]);
 
     const data = (result as ChartResult | undefined) ?? null;
     const option = data?.option ?? null;
