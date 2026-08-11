@@ -1,7 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { message } from 'antd';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
     getTemplateVersion,
@@ -21,15 +21,17 @@ import {
     uid,
 } from '../utils/workflowDesigner.utils';
 import { createDefaultConfigFromDefinition } from '../../widget-studio/helpers/helpers';
+import { useUserInfo } from '../../../../../../../../packages/utils/src/hooks/Authentication/user-info-context';
 
 export type AddWidgetOptions = {
     keepPickerOpen?: boolean;
 };
 
-export function useWorkflowDesigner() {
+export function useWorkflowDesigner(onPublishedCb?: () => void) {
     const nav = useNavigate();
     const location = useLocation();
 
+    const { login } = useUserInfo();
     const [loading, setLoading] = React.useState(false);
     const [loaded, setLoaded] = React.useState<any>(null);
 
@@ -42,9 +44,6 @@ export function useWorkflowDesigner() {
         [key: string]: string | number;
     }>({});
 
-    const [widgetSearch, setWidgetSearch] = React.useState('');
-    const [selectedCategory, setSelectedCategory] = React.useState<string>('All');
-
     const [layout, setLayout] = React.useState<WidgetLayout[]>([]);
     const [widgetsById, setWidgetsById] = React.useState<Record<string, DesignerWidgetInstance>>(
         {}
@@ -52,15 +51,12 @@ export function useWorkflowDesigner() {
 
     const [defaultContextJson, setDefaultContextJson] = React.useState<string>('{}');
     const [isDraftSaved, setIsDraftSaved] = React.useState(true);
-    const [widgetPickerOpen, setWidgetPickerOpen] = React.useState(false);
 
     const removingIdsRef = React.useRef<Set<string>>(new Set());
-
     const params = React.useMemo(() => new URLSearchParams(location.search), [location.search]);
-    const routeTemplateId = params.get('templateId') ?? '';
+    const routeTemplateId = params.get('template_id') ?? '';
 
     const [templateId, setTemplateId] = React.useState(routeTemplateId);
-
     const [messageApi, contextHolder] = message.useMessage();
 
     React.useEffect(() => {
@@ -99,9 +95,7 @@ export function useWorkflowDesigner() {
             ? 'Only draft versions can be published'
             : !hasWidgets
               ? 'Add at least one widget before publishing'
-              : !isDraftSaved
-                ? 'Save draft before publishing'
-                : undefined;
+              : undefined;
 
     const designerWidgetDefs = React.useMemo(() => {
         const kind = String(loaded?.kind ?? '').toLowerCase();
@@ -144,52 +138,19 @@ export function useWorkflowDesigner() {
         return ['All', ...Array.from(set).sort((a, b) => a.localeCompare(b))];
     }, [designerWidgetDefs]);
 
-    const filteredWidgetDefs = React.useMemo(() => {
-        const q = widgetSearch.trim().toLowerCase();
-        return (designerWidgetDefs as any[])
-            .filter((d: any) => {
-                const entry = widgetRegistry[String(d?.id ?? '')];
-                const category = String(
-                    d?.uiHints?.category ?? d?.category ?? entry?.category ?? 'Other'
-                );
-
-                if (selectedCategory !== 'All' && category !== selectedCategory) return false;
-
-                if (!q) return true;
-
-                const hay = [
-                    d?.name,
-                    d?.description,
-                    d?.category,
-                    d?.uiHints?.category,
-                    ...(Array.isArray(d?.tags) ? d.tags : []),
-                ]
-                    .filter(Boolean)
-                    .join(' ')
-                    .toLowerCase();
-
-                return hay.includes(q);
-            })
-            .sort((a: any, b: any) => String(a?.name ?? '').localeCompare(String(b?.name ?? '')));
-    }, [designerWidgetDefs, widgetSearch, selectedCategory]);
-
     React.useEffect(() => {
-        if (!widgetCategories.includes(selectedCategory)) {
-            setSelectedCategory('All');
-        }
-
         // Logic to change the widget based on category change
         // If previously selected widget is present in changed category, then keep the existing widget selection.
         // If previously selected widget is not present in changed category, then select the first widget. Also clear the variant & params.
-        const isWidgetPresentInCategory = filteredWidgetDefs.some(
+        const isWidgetPresentInCategory = designerWidgetDefs.some(
             (widget) => widget.id === selectedWidgetDefId
         );
         if (!isWidgetPresentInCategory) {
-            setSelectedWidgetDefId(filteredWidgetDefs?.[0]?.id);
+            setSelectedWidgetDefId(designerWidgetDefs?.[0]?.id);
             setSelectedWidgetVariantId(undefined);
             setSelectedWidgetParams({});
         }
-    }, [widgetCategories, selectedCategory]);
+    }, [widgetCategories]);
 
     const hydrateFromTemplateVersion = React.useCallback((tv: any) => {
         const w = tv?.widgets;
@@ -251,8 +212,6 @@ export function useWorkflowDesigner() {
                 hydrateFromTemplateVersion(enriched);
             } catch {
                 try {
-                    nav(`designer?templateId=${templateId}`, { replace: true });
-
                     const tv = await getTemplateVersion(templateId);
                     const templateMeta = await loadTemplateMeta(templateId);
 
@@ -271,7 +230,7 @@ export function useWorkflowDesigner() {
                 }
             }
         })();
-    }, [templateId, nav, hydrateFromTemplateVersion, loadTemplateMeta]);
+    }, [templateId]);
 
     const getParams = React.useCallback(() => {
         switch (true) {
@@ -297,62 +256,57 @@ export function useWorkflowDesigner() {
         }
     }, [selectedWidgetParams, selectedWidgetDef]);
 
-    const addWidget = React.useCallback(
-        async ({ keepPickerOpen = false }: AddWidgetOptions = {}) => {
-            if (!selectedWidgetDef) {
-                message.error('Pick a widget definition first');
-                return;
-            }
+    const addWidget = React.useCallback(async () => {
+        if (!selectedWidgetDef) {
+            message.error('Pick a widget definition first');
+            return;
+        }
 
-            const variant =
-                (selectedWidgetDef.variants ?? []).find(
-                    (v: any) => v.id === selectedWidgetVariantId
-                ) ?? selectedWidgetDef.variants?.[0];
+        const variant =
+            (selectedWidgetDef.variants ?? []).find((v: any) => v.id === selectedWidgetVariantId) ??
+            selectedWidgetDef.variants?.[0];
 
-            const params = getParams();
+        const params = getParams();
 
-            // Initial footprint comes from the selected variant's `sizing`.
-            const fromDefintionDefault = createDefaultConfigFromDefinition(
-                selectedWidgetDef.configSchema.properties
-            );
-            const sizing = (variant as any)?.sizing;
-            const w = sizing?.width?.default ?? 4;
-            const h = sizing?.height?.default ?? 3;
-            const instanceId = uid('wi');
-            const nextY =
-                (layout.reduce((m, it) => Math.max(m, (it.y ?? 0) + (it.h ?? 1)), 0) ?? 0) + 1;
+        // Initial footprint comes from the selected variant's `sizing`.
+        const fromDefintionDefault = createDefaultConfigFromDefinition(
+            selectedWidgetDef.configSchema.properties
+        );
+        const sizing = (variant as any)?.sizing;
+        const w = sizing?.width?.default ?? 4;
+        const h = sizing?.height?.default ?? 3;
+        const instanceId = uid('wi');
+        const nextY =
+            (layout.reduce((m, it) => Math.max(m, (it.y ?? 0) + (it.h ?? 1)), 0) ?? 0) + 1;
 
-            const item: WidgetLayout = {
-                i: instanceId,
-                x: 0,
-                y: nextY,
-                w,
-                h,
-                minW: sizing?.width?.min,
-                minH: sizing?.height?.min,
-                maxW: sizing?.width?.max,
-                maxH: sizing?.height?.max,
-            };
+        const item: WidgetLayout = {
+            i: instanceId,
+            x: 0,
+            y: nextY,
+            w,
+            h,
+            minW: sizing?.width?.min,
+            minH: sizing?.height?.min,
+            maxW: sizing?.width?.max,
+            maxH: sizing?.height?.max,
+        };
 
-            setLayout((prev) => [...prev, item]);
+        setLayout((prev) => [...prev, item]);
 
-            setWidgetsById((prev) => ({
-                ...prev,
-                [instanceId]: {
-                    instanceId,
-                    widgetDefinitionId: selectedWidgetDef.id,
-                    widgetDefinitionVersion: (selectedWidgetDef as any).version ?? 1,
-                    variantId: variant?.id,
-                    config: { params: { ...fromDefintionDefault, ...params } },
-                },
-            }));
+        setWidgetsById((prev) => ({
+            ...prev,
+            [instanceId]: {
+                instanceId,
+                widgetDefinitionId: selectedWidgetDef.id,
+                widgetDefinitionVersion: (selectedWidgetDef as any).version ?? 1,
+                variantId: variant?.id,
+                config: { params: { ...fromDefintionDefault, ...params } },
+            },
+        }));
 
-            setIsDraftSaved(false);
-            setWidgetPickerOpen(keepPickerOpen);
-            messageApi.success('Widget added successfully.');
-        },
-        [layout, selectedWidgetDef, selectedWidgetVariantId, selectedWidgetParams]
-    );
+        setIsDraftSaved(false);
+        messageApi.success('Widget added successfully.');
+    }, [layout, selectedWidgetDef, selectedWidgetVariantId, selectedWidgetParams]);
 
     const removeWidget = React.useCallback((instanceId: string) => {
         removingIdsRef.current.add(instanceId);
@@ -432,7 +386,7 @@ export function useWorkflowDesigner() {
             hydrateFromTemplateVersion(enriched);
             setIsDraftSaved(true);
 
-            nav(`?templateId=${templateId}`, { replace: true });
+            nav(`?template_id=${templateId}`, { replace: true });
 
             message.success('Draft saved');
         } catch (e: any) {
@@ -473,12 +427,13 @@ export function useWorkflowDesigner() {
                 kind: templateMeta?.kind ?? published?.kind,
                 templateName: templateMeta?.name,
                 templateKind: templateMeta?.kind,
+                ownerUserId: login,
             };
 
             setLoaded(enriched);
             hydrateFromTemplateVersion(enriched);
             message.success('Published');
-            nav(`/trap?template_id=${templateId}`);
+            onPublishedCb?.();
         } catch (e: any) {
             message.error(e?.message ?? String(e));
         } finally {
@@ -488,55 +443,30 @@ export function useWorkflowDesigner() {
 
     return {
         nav,
-
         loading,
         loaded,
-
         templateId,
-
-        widgetSearch,
-        selectedCategory,
-        selectedWidgetDefId,
-        selectedWidgetVariantId,
         selectedWidgetParams,
-
         layout,
         widgetsById,
         defaultContextJson,
         isDraftSaved,
-        widgetPickerOpen,
-
-        loadedStatus,
         isPublished,
         isDraft,
-        hasWidgets,
         saveDisabledReason,
         publishDisabledReason,
-
-        designerWidgetDefs,
         widgetDefById,
         selectedWidgetDef,
-        widgetCategories,
-        filteredWidgetDefs,
-        removingIdsRef,
-
-        setWidgetSearch,
-        setSelectedCategory,
+        // TODO rename filteredWidgetDefs to designerWidgetDefs
+        filteredWidgetDefs: designerWidgetDefs,
         setSelectedWidgetDefId,
-        setSelectedWidgetVariantId,
         setSelectedWidgetParams,
-        setLayout,
-        setDefaultContextJson,
-        setWidgetPickerOpen,
-
+        onLayoutChange,
         addWidget,
         removeWidget,
-        onLayoutChange,
         saveDraft,
         publish,
-
         updateWidgetConfig,
-
         contextHolder,
     };
 }

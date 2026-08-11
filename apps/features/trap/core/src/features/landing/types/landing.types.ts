@@ -26,6 +26,7 @@ export type WorkflowTabModel = {
     templateId: string;
     templateVersionStatus: string;
     initialContext?: WorkflowContext;
+    ownerUserId: string;
 };
 
 export type RecentWorkflowItem = {

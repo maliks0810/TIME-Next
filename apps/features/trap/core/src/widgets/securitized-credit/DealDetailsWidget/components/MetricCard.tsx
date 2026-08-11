@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useTheme, getThemeSurfaceMeta } from '../../../../theme/ThemeContext';
 import styles from './DealDetailsComponents.module.scss';
+import { ThemeName } from '../../../../theme/types';
 
 export function MetricCard({
     label,
@@ -16,7 +17,7 @@ export function MetricCard({
     highlight?: boolean;
 }) {
     const { themeName } = useTheme();
-    getThemeSurfaceMeta(themeName); // keep hook parity if used elsewhere
+    getThemeSurfaceMeta(themeName as ThemeName); // keep hook parity if used elsewhere
 
     return (
         <div

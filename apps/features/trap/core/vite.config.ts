@@ -32,4 +32,7 @@ export default defineConfig(({ mode }) => ({
             mode === 'production' ? 'production' : 'development'
         ),
     },
+    optimizeDeps: {
+        include: ['graphql-ws'],
+    },
 }));

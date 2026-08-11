@@ -6,18 +6,38 @@ import CanvasContainer from '../../components/layout/CanvasContainer';
 import { applySizing, toPersistedLayout } from '../../components/layout/sizing';
 
 import DesignerHeader from './components/DesignerHeader';
-import WidgetPickerModal from './components/WidgetPickerModal';
 import EmptyDesignerState from './components/EmptyDesignerState';
 import DesignerCanvasItem from './components/DesignerCanvasItem';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useWorkflowDesigner } from './hooks/useWorkflowDesigner';
+import { setActiveCanvas } from '../landing/components/shell/activeCanvas';
+import { ThemeName } from '../../theme/types';
 
-export default function WorkflowDesignerPage() {
+type WorkflowDesignerPageProps = {
+    // Provided when embedded inside a workflow tab (new shell). Omitted on the
+    // standalone /designer route, where the hook falls back to query params.
+    templateId?: string;
+    versionId?: string;
+    embedded?: boolean;
+    active?: boolean;
+    // New shell: "Add Widget" opens the drawer's Widgets segment (the concept's library),
+    // not the legacy in-designer picker modal.
+    onRequestAddWidget?: () => void;
+    onPublished?: () => void;
+};
+
+export default function WorkflowDesignerPage({
+    templateId: propTemplateId,
+    onPublished,
+    embedded,
+    active,
+    onRequestAddWidget,
+}: WorkflowDesignerPageProps = {}) {
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const { token } = theme.useToken();
     const { themeName } = useTheme();
-    const surfaceMeta = getThemeSurfaceMeta(themeName);
+    const surfaceMeta = getThemeSurfaceMeta(themeName as ThemeName);
 
     const isDarkHud =
         themeName === 'dark' ||
@@ -42,30 +62,20 @@ export default function WorkflowDesignerPage() {
         loading,
         loaded,
         templateId,
-        widgetSearch,
-        selectedCategory,
-        selectedWidgetDefId,
-        selectedWidgetVariantId,
         selectedWidgetParams,
         layout,
         widgetsById,
         defaultContextJson,
         isDraftSaved,
-        widgetPickerOpen,
         isPublished,
         isDraft,
         saveDisabledReason,
         publishDisabledReason,
         widgetDefById,
         selectedWidgetDef,
-        widgetCategories,
         filteredWidgetDefs,
-        setWidgetSearch,
-        setSelectedCategory,
         setSelectedWidgetDefId,
-        setSelectedWidgetVariantId,
         setSelectedWidgetParams,
-        setWidgetPickerOpen,
         onLayoutChange,
         addWidget,
         removeWidget,
@@ -73,13 +83,37 @@ export default function WorkflowDesignerPage() {
         publish,
         updateWidgetConfig,
         contextHolder,
-    } = useWorkflowDesigner();
+    } = useWorkflowDesigner(onPublished);
 
     useEffect(() => {
         if (layout.length !== 0) {
             setIsInitialLoading(false);
         }
     }, [layout]);
+
+    useEffect(() => {
+        if (!embedded || !active) return;
+        setActiveCanvas({
+            isDraft,
+            widgets: filteredWidgetDefs,
+            addWidget,
+            selectedWidgetParams,
+            loading,
+            onWidgetParamsSelect: setSelectedWidgetParams,
+            setSelectedWidgetDefId,
+            selectedWidgetDef,
+            filteredWidgetDefs,
+        });
+        return () => setActiveCanvas(null);
+    }, [
+        embedded,
+        active,
+        isDraft,
+        filteredWidgetDefs,
+        selectedWidgetParams,
+        loading,
+        selectedWidgetDef,
+    ]);
 
     // Decorate the layout with per-item resize policy derived from each
     // widget's `uiHints.sizing`. Opted-in widgets (e.g. the counter tile)
@@ -101,7 +135,7 @@ export default function WorkflowDesignerPage() {
             {contextHolder}
             <div style={{ marginBottom: 16 }}>
                 <DesignerHeader
-                    templateId={templateId}
+                    templateId={propTemplateId}
                     loaded={loaded}
                     loading={loading}
                     isPublished={isPublished}
@@ -131,20 +165,20 @@ export default function WorkflowDesignerPage() {
                     buttonTextColor={isDarkHud ? '#fff' : token.colorText}
                     saveDisabledReason={saveDisabledReason}
                     publishDisabledReason={publishDisabledReason}
-                    onOpenLibrary={() => setWidgetPickerOpen(true)}
+                    onOpenLibrary={onRequestAddWidget as () => void}
                     onSaveDraft={() => void saveDraft()}
                     onPublish={() => void publish()}
                     onBack={() => nav('/trap')}
                 />
             </div>
 
-            {!templateId || layout.length === 0 ? (
+            {!propTemplateId || layout.length === 0 ? (
                 <EmptyDesignerState
                     hasRoute={!!templateId}
                     hasWidgets={layout.length > 0}
                     isPublished={isPublished}
                     onBack={() => nav('/trap')}
-                    onOpenLibrary={() => setWidgetPickerOpen(true)}
+                    onOpenLibrary={onRequestAddWidget}
                 />
             ) : (
                 <CanvasContainer
@@ -170,7 +204,7 @@ export default function WorkflowDesignerPage() {
                                     item={it}
                                     widget={widget}
                                     widgetDefinition={widgetDefinition}
-                                    templateId={templateId}
+                                    templateId={propTemplateId}
                                     isPublished={isPublished}
                                     isDraft={isDraft}
                                     isDraftSaved={isDraftSaved}
@@ -182,31 +216,6 @@ export default function WorkflowDesignerPage() {
                         })}
                 </CanvasContainer>
             )}
-
-            <WidgetPickerModal
-                open={widgetPickerOpen}
-                isPublished={isPublished}
-                templateId={templateId}
-                widgetSearch={widgetSearch}
-                selectedCategory={selectedCategory}
-                widgetCategories={widgetCategories}
-                filteredWidgetDefs={filteredWidgetDefs}
-                selectedWidgetDefId={selectedWidgetDefId}
-                selectedWidgetVariantId={selectedWidgetVariantId}
-                onSelectParams={setSelectedWidgetParams}
-                selectedParams={selectedWidgetParams}
-                selectedWidgetDef={selectedWidgetDef}
-                onClose={() => setWidgetPickerOpen(false)}
-                onSearchChange={setWidgetSearch}
-                onCategoryChange={setSelectedCategory}
-                onSelectWidget={(widgetId) => {
-                    setSelectedWidgetDefId(widgetId);
-                    setSelectedWidgetVariantId(undefined);
-                }}
-                onSelectVariant={setSelectedWidgetVariantId}
-                onAddWidget={addWidget}
-                loading={loading}
-            />
         </div>
     );
 }

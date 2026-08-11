@@ -6,12 +6,7 @@
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_sc_deal_details_01",
-    "listensToKeys": [
-        "deal.id",
-        "deal.name",
-        "analysis.sessionId",
-        "workflow.refresh"
-    ],
+    "listensToKeys": ["deal.id", "deal.name", "analysis.sessionId", "workflow.refresh"],
     "emitsKeys": null,
     "configSchema": {
         "properties": {},
@@ -31,13 +26,14 @@
                 "width": {
                     "default": 8,
                     "min": 6,
-                    "max": 12
+                    "max": 12,
+                    "step": null
                 },
                 "height": {
                     "default": 400,
                     "min": 200,
                     "max": 650,
-                    "step": 50
+                    "step": null
                 }
             }
         }
