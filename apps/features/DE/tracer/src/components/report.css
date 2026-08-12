@@ -1,0 +1,308 @@
+/* =========================================================================
+   report.css
+   Styles for the Power BI embed. Tabs are now rendered INSIDE the header
+   (right of the subtitle), and the "View" dropdown sits top-right of the
+   header. Includes a grey circular spinner + native-fullscreen fill rules.
+   ========================================================================= */
+
+/* ---- Root container ---------------------------------------------------- */
+.pbi-report-root {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  color: #201f1e;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.pbi-report-root *,
+.pbi-report-root *::before,
+.pbi-report-root *::after {
+  box-sizing: border-box;
+}
+
+/* ---- Page tabs (modern segmented pills, inside the header) -------------- */
+.page-tabs {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 4px;
+  background: #f3f4f6;
+  border: 1px solid #eceef1;
+  border-radius: 12px;
+  max-width: 100%;
+}
+
+.page-tabs__hint {
+  padding: 6px 12px;
+  color: #a19f9d;
+  font-size: 12.5px;
+  font-style: italic;
+}
+
+.page-tabs .tab {
+  position: relative;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #605e5c;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  cursor: pointer;
+  border-radius: 9px;
+  white-space: nowrap;
+  transition: color 0.2s ease, background-color 0.2s ease,
+    box-shadow 0.2s ease, transform 0.12s ease;
+}
+
+.page-tabs .tab:hover {
+  color: #201f1e;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.page-tabs .tab:active {
+  transform: scale(0.97);
+}
+
+.page-tabs .tab:focus-visible {
+  outline: 2px solid #003e7e;
+  outline-offset: 2px;
+}
+
+/* Active tab = elevated white pill with subtle gradient + brand text */
+.page-tabs .tab.active {
+  color: #003e7e;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.page-tabs .tab.active::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 5px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #003e7e, #1f7fd1);
+}
+
+/* ---- Action button + View dropdown ------------------------------------- */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
+  color: #323130;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.18s ease, border-color 0.18s ease,
+    box-shadow 0.18s ease, transform 0.12s ease;
+}
+
+.action-btn:hover {
+  background: #ffffff;
+  border-color: #d0d0d0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:active {
+  transform: scale(0.97);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-btn:focus-visible {
+  outline: 2px solid #003e7e;
+  outline-offset: 2px;
+}
+
+.view-menu {
+  position: relative;
+}
+
+.view-menu__trigger {
+  gap: 8px;
+}
+
+.view-menu__caret {
+  font-size: 11px;
+  margin-left: 2px;
+  color: #605e5c;
+}
+
+.view-menu__list {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 200px;
+  background: #ffffff;
+  border: 1px solid #e1dfdd;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  padding: 6px;
+  z-index: 1200;
+  animation: view-menu-in 0.12s ease-out;
+}
+
+@keyframes view-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.view-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  background: transparent;
+  color: #201f1e;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.12s ease;
+}
+
+.view-menu__item:hover {
+  background: #f3f2f1;
+}
+
+.view-menu__item:focus-visible {
+  outline: 2px solid #003e7e;
+  outline-offset: -2px;
+}
+
+.view-menu__icon,
+.view-menu__check {
+  width: 18px;
+  text-align: center;
+  color: #003e7e;
+  font-weight: 700;
+}
+
+.view-menu__divider {
+  height: 1px;
+  background: #edebe9;
+  margin: 6px 4px;
+}
+
+/* ---- Embed area & iframe fill (CRITICAL) ------------------------------- */
+.report-embed-wrapper {
+  position: relative;
+  width: 100%;
+  border: 1px solid #edebe9;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #faf9f8;
+  z-index: 1;
+  display: flex;            /* centers the spinner / status */
+  align-items: center;
+  justify-content: center;
+}
+
+.report-embed-wrapper .report-style-class,
+.report-style-class {
+  width: 100%;
+  height: 100%;
+}
+
+.report-embed-wrapper iframe,
+.report-style-class iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* ---- Grey circular spinner --------------------------------------------- */
+.pbi-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.pbi-spinner {
+  width: 46px;
+  height: 46px;
+  border: 4px solid #e0e0e0;      /* light grey track */
+  border-top-color: #9e9e9e;      /* darker grey moving arc */
+  border-radius: 50%;
+  animation: pbi-spin 0.8s linear infinite;
+}
+
+@keyframes pbi-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pbi-loader__label {
+  color: #8a8886;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+/* ---- Error / status ---------------------------------------------------- */
+.pbi-report-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-size: 15px;
+  color: #605e5c;
+}
+
+.pbi-report-status.error {
+  color: #a4262c;
+}
+
+/* ---- NATIVE FULLSCREEN (backup to inline JS sizing) -------------------- */
+.pbi-report-root:fullscreen,
+.pbi-report-root:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  padding: 12px !important;
+  background: #ffffff;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.pbi-report-root:fullscreen .report-embed-wrapper,
+.pbi-report-root:-webkit-full-screen .report-embed-wrapper {
+  flex: 1 1 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  border-radius: 6px;
+}
+
+/* ---- Small screens ----------------------------------------------------- */
+@media (max-width: 600px) {
+  .page-tabs .tab {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+  .view-menu__list {
+    min-width: 180px;
+  }
+}

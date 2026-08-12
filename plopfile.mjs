@@ -82,7 +82,7 @@ plop.setGenerator('app', {
             type: 'list',
             name: 'team',
             message: 'Select your Team',
-            choices: ['PE', 'R2', 'IOD']
+            choices: ['PE', 'R2', 'IOD', 'DE']
         },
         {
             type: 'input',
@@ -107,7 +107,7 @@ plop.setGenerator('app', {
             type: 'list',
             name: 'navMenu',
             message: 'Which Menu item would you like your application to be under in the Nav Bar?',
-            choices: ['Portfolio Management', 'Research & Analysis', 'Risk & Performance', 'Compliance', 'Client Management', 'AI Products', 'Support']
+            choices: ['Portfolio Management', 'Research & Analysis', 'Risk & Performance', 'Compliance', 'Client Management', 'AI Products', 'Insights', 'Support']
         },
         {
             type: 'list',
@@ -127,6 +127,8 @@ plop.setGenerator('app', {
                             return ['Research'];
                         case 'AI Products':
                             return ['AI Themes', 'AI Upload Tools']
+                        case 'Insights':
+                            return ['Report Center']
                         case 'Support':
                             return ['General'];
                         case 'Equity':
@@ -169,6 +171,7 @@ plop.setGenerator('app', {
             'Compliance': 'complianceApps',
             'Client Management': 'clientManagementApps',
             'AI Products': 'aiProductsApps',
+            'Insights': 'insightsApps',
             'Support': 'supportApps',
             'Equity': 'equityApps'
         };
