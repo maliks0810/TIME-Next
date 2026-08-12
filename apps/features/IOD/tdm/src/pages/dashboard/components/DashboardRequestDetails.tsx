@@ -87,7 +87,8 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
       securityRequest.setupStatus === 'Request Submitted' ||
       securityRequest.setupStatus === 'Security Review Complete' ||
       securityRequest.setupStatus === 'Security Setup Complete' ||
-      securityRequest.setupStatus === 'Ready for Trading'
+      securityRequest.setupStatus === 'Ready for Trading' ||
+      securityRequest.setupStatus === 'Security Review In Progress'
     ) {
       return true;
     }
