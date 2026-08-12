@@ -1,0 +1,27 @@
+.dram-header-segmented {
+  border-radius: 18px;
+
+  .ant-segmented-item {
+    border-radius: 14px;
+    color: #2563eb;
+    font-weight: 600;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .ant-segmented-item:hover {
+    color: #1d4ed8;
+  }
+
+  // idle "thumb" background
+  .ant-segmented-item-selected {
+    background: #2563eb;
+    color: #ffffff;
+    border-radius: 14px;
+  }
+
+  // the sliding indicator behind the selected item
+  .ant-segmented-thumb {
+    background: #2563eb;
+    border-radius: 14px;
+  }
+}

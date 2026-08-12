@@ -1,37 +1,14 @@
-.wrapper {
-    display: grid;
-    grid-template-columns: 380px 1px 1fr;
-    gap: 0 20px;
-    height: 214px;
-    overflow: hidden;
-}
+.root { height: 100%; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
 
-.left {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 0;
-    overflow: hidden;
-    height: 100%;
-}
+.twoPane { display: flex; gap: 20px; min-width: 0; min-height: 0; flex: 1; overflow: hidden; }
+.leftHalf { flex: 1; min-width: 0; min-height: 0; display: flex; overflow: hidden; }
+.recentPane { flex: 1; min-width: 0; min-height: 0; overflow: hidden; border-left: 1px solid var(--ant-color-border-secondary); padding-left: 16px; }
 
-.right {
-    min-width: 0;
-    overflow: hidden;
-    height: 100%;
-}
+.single { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.recentBelow { flex: 1; min-height: 0; overflow: hidden; border-top: 1px solid var(--ant-color-border-secondary); padding-top: 8px; margin-top: 8px; }
 
-.vertical {
-    width: 1px;
-    align-self: stretch;
-}
+.left { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; flex: 1; overflow: hidden; justify-content: flex-start; }
 
-.previewContainer {
-    width: 640px;
-    height: 280px;
-    position: relative;
-    pointer-events: none;
-    overflow: hidden;
-    transform: scale(0.35);
-    transform-origin: top left;
-}
+.title { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.titleIcon { font-size: 12px; color: var(--ant-color-primary); }
+.titleText { font-size: 10px; line-height: 14px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ant-color-text-tertiary); }

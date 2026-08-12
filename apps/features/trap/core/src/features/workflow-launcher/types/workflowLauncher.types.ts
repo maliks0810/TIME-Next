@@ -1,3 +1,5 @@
+import { Visibility } from '../../../api/trap';
+
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export type LauncherMode = 'new' | 'public' | 'mine' | 'landing';
 export type MineFilter = 'ALL' | 'DRAFT' | 'PUBLISHED' | 'PUBLIC' | 'PRIVATE';
@@ -14,7 +16,7 @@ export type TemplateRecord = {
     id: string;
     name: string;
     kind: string;
-    visibility: 'PRIVATE' | 'PUBLIC';
+    visibility: Visibility;
     ownerUserId?: string;
     sourceTemplateId?: string | null;
 
@@ -31,7 +33,7 @@ export type WorkflowLauncherItem = {
     templateId: string;
     templateName: string;
     kind: string;
-    visibility: 'PRIVATE' | 'PUBLIC';
+    visibility: Visibility;
     ownerUserId?: string;
     sourceTemplateId?: string | null;
 
@@ -49,8 +51,8 @@ export type WorkflowLauncherItem = {
 
 export type WorkflowLaunchSelection = {
     templateId: string;
-    templateVersionId: string;
     templateName: string;
     templateVersionStatus: string;
     initialContext?: Record<string, any>;
+    ownerUserId: string;
 };

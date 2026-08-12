@@ -40,3 +40,112 @@ html, body, #root {
   width: 100%;
   height: 260px;
 }
+
+.driver-control-section .ant-collapse-header {
+  align-items: center !important;
+  background: #ffffff;
+  border-radius: 8px !important;
+}
+
+.driver-control-section .ant-collapse-content-box {
+  padding: 8px 0 0 !important;
+}
+
+.driver-control-section-dragging {
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+}
+
+/* Result panel grid layout: drag/drop plus width and height resizing. */
+.driver-result-grid-layout {
+  position: relative;
+}
+
+.driver-result-grid-layout .react-grid-item {
+  transition: all 180ms ease;
+}
+
+.driver-result-grid-layout .react-grid-item.react-grid-placeholder {
+  background: rgba(29, 78, 216, 0.12);
+  border: 1px dashed #1d4ed8;
+  border-radius: 10px;
+}
+
+.result-grid-item {
+  position: relative;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.result-grid-content {
+  height: calc(100% - 42px);
+  overflow: auto;
+  padding: 6px 0 0;
+}
+
+.result-grid-content > .ant-card {
+  height: calc(100% - 2px);
+  display: flex;
+  flex-direction: column;
+}
+
+.result-grid-content > .ant-card > .ant-card-body {
+  flex: 1;
+  overflow: auto;
+}
+
+.result-card-header-strip {
+  height: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid #d8dee9;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+}
+
+.result-card-title-block {
+  min-width: 0;
+  flex: 1;
+}
+
+.result-card-actions {
+  margin-left: auto;
+}
+
+.result-grid-item-collapsed .result-card-header-strip {
+  height: 100%;
+}
+
+.result-card-drag-handle,
+.result-card-resize-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border: 1px solid #d8dee9;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+
+.result-card-drag-handle {
+  cursor: grab;
+}
+
+.result-card-drag-handle:active {
+  cursor: grabbing;
+}
+
+.driver-result-grid-layout .react-resizable-handle {
+  z-index: 16;
+}
+
+.driver-result-grid-layout .react-resizable-handle-se::after {
+  border-right: 2px solid #64748b;
+  border-bottom: 2px solid #64748b;
+}

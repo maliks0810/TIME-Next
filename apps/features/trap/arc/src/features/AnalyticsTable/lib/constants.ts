@@ -26,7 +26,6 @@ export const MAIN_GRID_FIELDS: RowDataType[] = [
     { key: 'zvWal', label: 'ZV WAL' },
     { key: 'zvYield', label: 'ZV Yield' },
     { key: 'staticYield', label: 'Static Yield' },
-    { key: 'modelOad', label: 'Model OAD' },
     { key: 'modelOac', label: 'Model OAC' },
     { key: 'oav', label: 'OAV' },
 ];

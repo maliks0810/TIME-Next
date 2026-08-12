@@ -15,6 +15,7 @@ import {
     FilePreviewRequestCollection,
     AbandonAssetPayload,
     MetaDataResponse,
+    WorkflowExceptionResponseCollection,
 } from './types';
 
 import { serviceRequest } from './serviceUtils';
@@ -74,6 +75,12 @@ const getModelInputByIdUrl =
     import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/get-analytics-input-by-id';
 
 const claimAssetUrl = import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/claim-asset?';
+
+const GetWorkflowExceptionsByIdUrl =
+    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/workflow-exception/get-workflow-exceptions';
+
+const ResolveWorkflowExceptionByIdUrl =
+    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/workflow-exception/resolve-workflow-exception';
 
 export const fetchStatus = () => serviceRequest(statusCheckUrl)().post<StatusResponse>('');
 
@@ -167,8 +174,19 @@ export const getNotes = (
 ): Promise<{ data: { response: NoteType[] } }> =>
     serviceRequest(getNotesUrl)().post('', { assetAnalyticsSetupId });
 
-    
-export const getMetaData= (
+
+export const getMetaData = (
 ): Promise<{ data: MetaDataResponse }> =>
     serviceRequest(getMetaDataUrl)().post('');
 
+
+export const getWorkflowExceptionsById = (
+    assetAnalyticsSetupId: number
+): Promise<{ data: WorkflowExceptionResponseCollection }> =>
+    serviceRequest(GetWorkflowExceptionsByIdUrl)().post('', { assetAnalyticsSetupId });
+
+export const resolveWorkflowExceptionById = (
+    anchorId: number,
+    workflowExceptionId: number,
+): Promise<void> =>
+    serviceRequest(ResolveWorkflowExceptionByIdUrl)().post('', { anchorId,workflowExceptionId });

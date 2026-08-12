@@ -1,135 +1,65 @@
-import React, { useState } from 'react';
-import { Input, Space, theme, Divider } from 'antd';
-import { CloudUploadOutlined, DownloadOutlined } from '@ant-design/icons';
+import React, { useRef, useState } from 'react';
+import { CloudUploadOutlined } from '@ant-design/icons';
+import { theme } from 'antd';
 import styles from './Dropzone.module.scss';
 
-export const Dropzone = ({
-    handleUpload,
-    execute,
-}: {
-    handleUpload: (file: File) => void;
-    execute: ({ dealName, passcode }: { dealName: string; passcode: string }) => void;
-}) => {
+type Props = {
+    heightPx: number;      // widget height — drives text adaptation
+    onUpload: (file: File) => void;
+};
+
+export const Dropzone = ({ heightPx, onUpload }: Props) => {
     const { token } = theme.useToken();
-    const fileRef = React.useRef<HTMLInputElement>(null);
-    const [dragOver, setDragOver] = React.useState(false);
+    const fileRef = useRef<HTMLInputElement>(null);
+    const [dragOver, setDragOver] = useState(false);
 
-    const [dealName, setDealName] = useState<string>('');
-    const [passcode, setPasscode] = useState<string>('');
+    // Dropzone gets roughly (usable − title − actionRow − gaps). Squashed → minimal text.
+    const dzSlice = heightPx - 24 - 20 - 40 - 20;
+    const squashed = dzSlice < 90;
 
-    const handleFiles = (files: FileList | null) => {
-        const file = files?.[0];
-        if (file) handleUpload(file);
-    };
-
-    const handleExecute = () => {
-        if (dealName && passcode) {
-            execute?.({ dealName, passcode });
-        }
+    const pick = (files: FileList | null) => {
+        const f = files?.[0];
+        if (f) onUpload(f);
     };
 
     return (
-        <div className={styles.container}>
-            <span
-                className={styles.label}
-                style={{
-                    color: token.colorTextTertiary,
-                }}
-            >
-                Fetch from intex
-            </span>
-
-            <Space.Compact size="middle">
-                <Input
-                    placeholder="Deal name"
-                    autoComplete='off'
-                    data-form-type='other'
-                    style={{ flex: 1 }}
-                    value={dealName}
-                    onChange={(e) => setDealName(e.target.value)}
-                />
-
-                <Input
-                    placeholder="Passcode"
-                    style={{ flex: 0, minWidth: 120 }}
-                    value={passcode}
-                    onChange={(e) => setPasscode(e.target.value)}
-                />
-
-                <Space.Addon onClick={handleExecute} className={styles.download}>
-                    <DownloadOutlined />
-                </Space.Addon>
-            </Space.Compact>
-
-            <Divider style={{ margin: 2, color: token.colorTextTertiary }}>
-                or
-            </Divider>
-
-            <span
-                className={styles.label}
-                style={{
-                    color: token.colorTextTertiary,
-                }}
-            >
-                Upload file
-            </span>
-
+        <>
             <input
                 ref={fileRef}
                 type="file"
                 accept=".cdi,.zip"
                 style={{ display: 'none' }}
-                onChange={(e) => handleFiles(e.target.files)}
+                onChange={(e) => pick(e.target.files)}
             />
-
             <div
+                className={styles.drop}
                 onClick={() => fileRef.current?.click()}
-                onDragOver={(e) => {
-                    e.preventDefault();
-                    setDragOver(true);
-                }}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
-                onDrop={(e) => {
-                    e.preventDefault();
-                    setDragOver(false);
-                    handleFiles(e.dataTransfer.files);
-                }}
-                className={styles.input}
+                onDrop={(e) => { e.preventDefault(); setDragOver(false); pick(e.dataTransfer.files); }}
                 style={{
-                    border: `2px dashed ${dragOver ? token.colorPrimary : token.colorBorderSecondary
-                        }`,
-                    borderRadius: token.borderRadius,
+                    borderColor: dragOver ? token.colorPrimary : token.colorBorderSecondary,
                     background: dragOver ? token.colorPrimaryBg : token.colorFillAlter,
                 }}
             >
                 <CloudUploadOutlined
                     style={{
-                        fontSize: 28,
+                        fontSize: squashed ? 20 : 28,
                         color: dragOver ? token.colorPrimary : token.colorTextQuaternary,
-                        transition: 'color 0.15s',
+                        transition: 'color .15s',
                     }}
                 />
-
-                <div className={styles.text}>
-                    <span
-                        className={styles.dropTitle}
-                        style={{
-                            color: token.colorTextSecondary,
-                        }}
-                    >
-                        Drop CDI or ZIP here
-                    </span>
-
-                    <span
-                        className={styles.dropSubText}
-                        style={{
-                            color: token.colorTextTertiary,
-                        }}
-                    >
-                        or click to browse · .cdi · .zip
-                    </span>
-                </div>
+                {squashed ? (
+                    // Even squashed, the dropzone only shows at ≥200px — always name
+                    // the format. Just drop the secondary helper line when tight.
+                    <span className={styles.title}>Drop CDI or ZIP here</span>
+                ) : (
+                    <div className={styles.text}>
+                        <span className={styles.title}>Drop CDI or ZIP here</span>
+                        <span className={styles.sub}>or click to browse · .cdi · .zip</span>
+                    </div>
+                )}
             </div>
-        </div>
+        </>
     );
 };

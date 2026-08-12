@@ -103,3 +103,39 @@
   border-radius: 6px;
   color: #013D7D;
 }
+
+
+/* ------------------------------------------------------------------ *
+ * Hierarchy row emphasis (bold) — mirrors the Excel export styling.
+ * Applied via rowClassName in DramDataGrid.tsx.
+ *   .dram-grid-group-row  -> any non-leaf level (e.g. sector headers)
+ *   .dram-grid-total-row  -> Total / Subtotal / Grand Total rows
+ * Target every cell (td) so number columns bold too, and override the
+ * AntD hover background on total rows so the emphasis stays visible.
+ * ------------------------------------------------------------------ */
+.dram-grid-group-row > td {
+  font-weight: 600;
+}
+
+.dram-grid-total-row > td {
+  font-weight: 700;
+  background-color: #ededed;
+  border-top: 2px solid #404040;
+}
+
+/* Keep total-row background on hover instead of AntD's default hover gray */
+.dram-grid-total-row:hover > td,
+.dram-grid-total-row:hover > td.ant-table-cell-row-hover {
+  background-color: #e6e6e6 !important;
+}
+
+/* Ensure bold survives on fixed (frozen) columns as well */
+.dram-grid-group-row > td.ant-table-cell-fix-left,
+.dram-grid-group-row > td.ant-table-cell-fix-right {
+  font-weight: 600;
+}
+.dram-grid-total-row > td.ant-table-cell-fix-left,
+.dram-grid-total-row > td.ant-table-cell-fix-right {
+  font-weight: 700;
+  background-color: #ededed;
+}

@@ -2,26 +2,21 @@
     "id": "wd_cdi_upload_widget",
     "name": "CDI Extraction",
     "version": 1,
-    "description": "",
+    "description": null,
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_sc_cdi_upload_01",
     "listensToKeys": null,
-    "emitsKeys": [],
+    "emitsKeys": null,
     "configSchema": {
         "properties": {
             "channel": {
+                "category": "Interactions",
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [
-                    1,
-                    2,
-                    3,
-                    4
-                ],
+                "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
-                "type": "string",
-                "category": "Interactions"
+                "type": "string"
             }
         },
         "required": [],
@@ -37,15 +32,16 @@
             "sizing": {
                 "resizable": true,
                 "width": {
-                    "default": 5,
-                    "min": 1,
-                    "max": 12
+                    "default": 6,
+                    "min": 3,
+                    "max": 12,
+                    "step": null
                 },
                 "height": {
-                    "default": 255,
-                    "min": 150,
-                    "max": 410,
-                    "step": 10
+                    "default": 150,
+                    "min": 100,
+                    "max": 250,
+                    "step": 1
                 }
             }
         }

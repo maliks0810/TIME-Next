@@ -21,7 +21,9 @@
     "@platform/styles": "1.0.0",
     "@platform/ui": "1.0.0",
     "@platform/utils": "1.0.0",
-    "@tanstack/react-query": "5.90.20"
+    "@tanstack/react-query": "5.90.20",
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0"
   },
   "devDependencies": {
     "@tanstack/react-query-devtools": "5.91.2"

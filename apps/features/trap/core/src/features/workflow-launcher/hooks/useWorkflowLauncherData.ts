@@ -9,6 +9,7 @@ import {
     listTemplates,
     publishTemplateVersion,
     updateTemplate,
+    Visibility,
 } from '../../../api/trap';
 
 import { useUserInfo } from '@platform/utils';
@@ -70,12 +71,17 @@ export function useWorkflowLauncherData(args: Args) {
     const refreshLauncherData = React.useCallback(async () => {
         setLoading(true);
         try {
-            const templates = ((await listTemplates()) as TemplateRecord[]);
-            setItems(templates.map(template => ({
-                ...template,
-                templateId: template.id,
-                templateName: template.name
-            } as WorkflowLauncherItem)));
+            const templates = (await listTemplates()) as TemplateRecord[];
+            setItems(
+                templates.map(
+                    (template) =>
+                        ({
+                            ...template,
+                            templateId: template.id,
+                            templateName: template.name,
+                        }) as WorkflowLauncherItem
+                )
+            );
         } catch (err: any) {
             message.error(extractErrorMessage(err, 'Failed to load workflows'));
         } finally {
@@ -89,7 +95,9 @@ export function useWorkflowLauncherData(args: Args) {
             ...Array.from(
                 new Set(
                     items
-                        .filter((item) => item.visibility === 'PUBLIC' && item.latestPublished)
+                        .filter(
+                            (item) => item.visibility === Visibility.PUBLIC && item.latestPublished
+                        )
                         .map((item) => normalizeClassValue(item.class1))
                 )
             ).sort((a, b) => a.localeCompare(b)),
@@ -98,7 +106,7 @@ export function useWorkflowLauncherData(args: Args) {
 
     const publicClass2Options = React.useMemo(() => {
         const base = items.filter((item) => {
-            if (item.visibility !== 'PUBLIC' || !item.latestPublished) return false;
+            if (item.visibility !== Visibility.PUBLIC || !item.latestPublished) return false;
             if (selectedClass1 !== 'All' && normalizeClassValue(item.class1) !== selectedClass1)
                 return false;
             return true;
@@ -114,7 +122,7 @@ export function useWorkflowLauncherData(args: Args) {
 
     const publicClass3Options = React.useMemo(() => {
         const base = items.filter((item) => {
-            if (item.visibility !== 'PUBLIC' || !item.latestPublished) return false;
+            if (item.visibility !== Visibility.PUBLIC || !item.latestPublished) return false;
             if (selectedClass1 !== 'All' && normalizeClassValue(item.class1) !== selectedClass1)
                 return false;
             if (selectedClass2 !== 'All' && normalizeClassValue(item.class2) !== selectedClass2)
@@ -139,7 +147,9 @@ export function useWorkflowLauncherData(args: Args) {
                 item.scopeType === 'AUDIENCE';
 
             const matchesVisibility =
-                item.visibility === 'PUBLIC' && !!item.latestPublished && !isDepartmentLanding;
+                item.visibility === Visibility.PUBLIC &&
+                !!item.latestPublished &&
+                !isDepartmentLanding;
 
             const matchesClass1 =
                 selectedClass1 === 'All' || normalizeClassValue(item.class1) === selectedClass1;
@@ -201,9 +211,9 @@ export function useWorkflowLauncherData(args: Args) {
                 case 'PUBLISHED':
                     return !!item.latestPublished;
                 case 'PUBLIC':
-                    return item.visibility === 'PUBLIC';
+                    return item.visibility === Visibility.PUBLIC;
                 case 'PRIVATE':
-                    return item.visibility === 'PRIVATE';
+                    return item.visibility === Visibility.PRIVATE;
                 default:
                     return true;
             }
@@ -223,10 +233,10 @@ export function useWorkflowLauncherData(args: Args) {
 
             await onLaunchWorkflow?.({
                 templateId: item.templateId,
-                templateVersionId: version.id,
                 templateName: item.templateName,
                 templateVersionStatus: version.status,
                 initialContext: version.defaultContext ?? {},
+                ownerUserId: item.ownerUserId!,
             });
 
             closeModal();
@@ -255,10 +265,10 @@ export function useWorkflowLauncherData(args: Args) {
 
                 onEditWorkflow?.({
                     templateId: item.templateId,
-                    templateVersionId: version.id,
                     templateName: item.templateName,
                     templateVersionStatus: version.status,
                     initialContext: version.defaultContext ?? {},
+                    ownerUserId: item.ownerUserId!,
                 });
 
                 closeModal();
@@ -282,10 +292,10 @@ export function useWorkflowLauncherData(args: Args) {
                 if (nextTemplate?.id && nextVersion?.id) {
                     onEditWorkflow?.({
                         templateId: nextTemplate.id,
-                        templateVersionId: nextVersion.id,
                         templateName: nextTemplate.name ?? cloneName,
                         templateVersionStatus: nextVersion.status ?? 'DRAFT',
                         initialContext: nextVersion.defaultContext ?? {},
+                        ownerUserId: item.ownerUserId!,
                     });
                     closeModal();
                     return;
@@ -335,11 +345,14 @@ export function useWorkflowLauncherData(args: Args) {
             try {
                 await updateTemplate({
                     templateId: item.templateId,
-                    visibility: item.visibility === 'PUBLIC' ? 'PRIVATE' : 'PUBLIC',
+                    visibility:
+                        item.visibility === Visibility.PUBLIC
+                            ? Visibility.PRIVATE
+                            : Visibility.PUBLIC,
                 });
                 await refreshLauncherData();
                 message.success(
-                    item.visibility === 'PUBLIC'
+                    item.visibility === Visibility.PUBLIC
                         ? 'Workflow is now private'
                         : 'Workflow is now public'
                 );

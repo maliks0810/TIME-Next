@@ -13,17 +13,9 @@ type ConfigDetailsProps = {
 };
 
 const buildRequest = (d: WorkflowConfig): WorkflowConfigRequest => ({
-    workflowId: d.workflowId,
-    assetType: d.assetType,
-    assetSubType: d.assetSubType,
-    collateralType: d.collateralType,
-    isActive: d.isActive,
-    defaultOverrides: d.defaultOverrides,
+    ...d,
     defaultOverridesJson: JSON.stringify(d.defaultOverrides),
-    workflowRules: d.workflowRules,
     workflowConfigurationJson: JSON.stringify(d.workflowRules),
-    lastModifiedAt: d.lastModifiedAt,
-    lastModifiedBy: d.lastModifiedBy
 });
 
 export const ConfigDetails = ({ config, onSave, onClose }: ConfigDetailsProps) => {
@@ -56,7 +48,7 @@ export const ConfigDetails = ({ config, onSave, onClose }: ConfigDetailsProps) =
 
     const setRules = (workflowRules: WorkflowRuleConfig) =>
         setDraft((prev) => (prev ? { ...prev, workflowRules } : prev));
-     
+
 
     const handleSave = async () => {
         setSaving(true);
@@ -72,41 +64,36 @@ export const ConfigDetails = ({ config, onSave, onClose }: ConfigDetailsProps) =
             key: 'general',
             label: 'General',
             children:
-                activeTab === 'general' ? (
-                    <GeneralTab
-                        key={draft.configurationId}
-                        draft={draft}
-                        onChange={updateGeneral}
-                    />
-                ) : null,
+                <GeneralTab
+                    key={draft.configurationId}
+                    draft={draft}
+                    onChange={updateGeneral}
+                />
         },
         {
             key: 'overrides',
             label: 'Default Overrides',
             children:
-                activeTab === 'overrides' ? (
-                    <DefaultOverridesTab
-                        key={draft.configurationId}
-                        draft={draft}
-                        onChange={setOverrides}
-                    />
-                ) : null,
+                <DefaultOverridesTab
+                    key={draft.configurationId}
+                    draft={draft}
+                    onChange={setOverrides}
+                />
         },
         {
             key: 'logic',
             label: 'Workflow Logic',
             children:
-                activeTab === 'logic' ? (
-                    <WorkflowLogicTab
-                        draft={draft}
-                        onRulesChange={setRules}
-                    />
-                ) : null,
+                <WorkflowLogicTab
+                    draft={draft}
+                    onRulesChange={setRules}
+                />
         },
         {
             key: 'history',
             label: 'History',
-            children: activeTab === 'history' ? <HistoryTab configId={draft.configurationId} /> : null,
+            children:
+                <HistoryTab configId={draft.configurationId} />
         },
     ];
 

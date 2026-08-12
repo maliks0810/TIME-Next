@@ -1,0 +1,39 @@
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    overflow: hidden;
+  }
+
+  #rwm-app-root {
+    height: 100%;
+    min-height: 0;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: var(--tcw-font-sans);
+    font-size: var(--tcw-body-font-size);
+    line-height: var(--tcw-body-line-height);
+    color: var(--tcw-grey-900);
+    background-color: var(--tcw-white);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #rwm-app-root,
+  #rwm-app-root *,
+  #rwm-app-root::before,
+  #rwm-app-root::after,
+  #rwm-app-root *::before,
+  #rwm-app-root *::after {
+    box-sizing: border-box;
+  }
+}

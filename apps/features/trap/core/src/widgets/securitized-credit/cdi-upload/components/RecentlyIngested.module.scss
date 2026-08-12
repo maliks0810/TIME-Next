@@ -1,122 +1,46 @@
-.wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 0;
+.container { display: flex; flex-direction: column; gap: 8px; min-height: 0; height: 100%; overflow: hidden; }
+
+.head { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.headIcon { font-size: 11px; color: var(--ant-color-primary); }
+.headText { font-size: 10px; line-height: 14px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ant-color-text-tertiary); }
+.headInfo { font-size: 11px; color: var(--ant-color-text-quaternary); cursor: help; }
+
+.empty { font-size: 11px; color: var(--ant-color-text-tertiary); }
+
+/* Lane modes */
+.list { min-width: 0; min-height: 0; overflow-x: hidden; overflow-y: auto; }
+.gridOne {
+    /* single-file list, bordered container */
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: var(--ant-border-radius);
+}
+.gridTwo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; }
+.gridMulti { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; align-content: start; }
+
+.deal { display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0; transition: background .1s; }
+.dealRow { padding: 8px 12px; }
+.dealRow:hover { background: var(--ant-color-primary-bg) !important; }
+.dealCard {
+    padding: 8px 10px;
+    border: 1px solid var(--ant-color-border-secondary);
+    border-left: 2px solid transparent;
+    border-radius: var(--ant-border-radius);
+    background: var(--ant-color-fill-quaternary);
+    height: 48px;
     overflow: hidden;
-    height: 100%;
+}
+.dealCard:hover {
+    border-color: var(--ant-color-primary-border);
+    border-left-color: var(--ant-color-primary);
+    background: var(--ant-color-primary-bg);
 }
 
-.items {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
+.dealIcon { font-size: 12px; color: var(--ant-color-primary); flex-shrink: 0; }
 
-.delete {
-    font-size: 12px;
-    height: 22px;
-    width: 22px;
-    min-width: 22px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: none;
-    border: none;
-}
+.dealMain { flex: 1; min-width: 0; }
+.dealName { display: block; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ant-color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dealMeta { display: block; font-size: 10px; line-height: 14px; color: var(--ant-color-text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.tag {
-    font-size: 9px;
-    margin: 0;
-    line-height: 20px;
-    height: 22px;
-    display: flex;
-    align-items: center;
-}
-
-.name {
-    display: block;
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 600;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.deals {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    cursor: pointer;
-}
-
-.uploading {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    justify-content: center;
-    height: 100%;
-}
-
-.uploadingFileName {
-    font-size: 12px;
-    line-height: 16px;
-    font-family: monospace;
-    font-weight: 500;
-}
-
-.uploadingStatus {
-    font-size: 11px;
-    line-height: 15px;
-}
-
-.errorTitle {
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 700;
-}
-
-.errorMessage {
-    font-size: 11px;
-    line-height: 15px;
-}
-
-.loadedDealName {
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 700;
-}
-
-.successDealName {
-    font-size: 13px;
-    line-height: 17px;
-    font-weight: 700;
-}
-
-.packageLoadedText {
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 700;
-}
-
-.sectionTitle {
-    font-size: 10px;
-    line-height: 14px;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-}
-
-.emptyText {
-    font-size: 11px;
-    line-height: 15px;
-}
-
-.recentDealMeta {
-    display: block;
-    font-size: 10px;
-    line-height: 14px;
-}
+.dealRight { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.tag { font-size: 9px; margin: 0; line-height: 20px; height: 22px; display: flex; align-items: center; font-family: monospace; }
+.more { font-size: 12px; height: 22px; width: 22px; min-width: 22px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: none; border: none; }

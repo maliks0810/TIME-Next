@@ -1,26 +1,19 @@
 {
     "id": "wd_period_radio_group",
-    "name": "Time Period Radiogroup",
+    "name": "Single Selection",
     "version": 1,
     "description": "Radiogroup control to select a time period from MTD, QTD, YTD, 1Y, 3Y, 5Y, MAX",
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_period_radio_group",
     "listensToKeys": null,
-    "emitsKeys": [
-        "equity.period"
-    ],
+    "emitsKeys": ["equity.period"],
     "configSchema": {
         "properties": {
             "channel": {
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [
-                    1,
-                    2,
-                    3,
-                    4
-                ],
+                "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
                 "type": "string",
                 "category": "Interactions"
@@ -29,10 +22,7 @@
                 "title": "Layout variant",
                 "description": "Choose radiogroup layout option",
                 "type": "string",
-                "enum": [
-                    "vertical",
-                    "horizontal"
-                ],
+                "enum": ["vertical", "horizontal"],
                 "category": "View Parameters"
             }
         },

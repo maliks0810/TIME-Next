@@ -1,7 +1,7 @@
 import * as URI from "uri-js";
 import type { PeriodCode } from "../lib/periods";
 import type { MetricLabel } from "../lib/metrics";
-import { AttributionDispersionResponse, PortBenchRow } from "./types";
+import { AttributionDispersionResponse, FiReportSummaryResponse, PortBenchRow } from "./types";
 import { GridConfigResponse } from "../components/dram-grid";
 
 /* ---------------------------------- */
@@ -60,24 +60,6 @@ async function req<TResponse>(
   return (await res.json()) as TResponse;
 }
 
-async function reqMain<TResponse>(
-  path: string,
-  init?: RequestInit
-): Promise<TResponse> {
-  const res = await fetch(buildDram2UrlNonAttribution(path), {
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-    ...init,
-  });
-
-  if (!res.ok) {
-    throw new Error(`API error ${res.status}`);
-  }
-
-  return (await res.json()) as TResponse;
-}
 
 /* ---------------------------------- */
 /* Domain Types */
@@ -180,30 +162,26 @@ export const api = {
       method: "POST",
       body: JSON.stringify(state),
     }),
-  runAnalysis: (asset_class: string,port: string,period: string, breakdown: string, startDate: string, endDate: string): Promise<AnalyticsResponse> =>
+  runSecurityGrainAnalysis: (asset_class: string,port: string,frequency: string, breakdown: string, startDate: string, endDate: string, periodList: string,benchmarkCode:string): Promise<AnalyticsResponse> =>
     req<AnalyticsResponse>
-  (`/api/attribution/${asset_class}/${period}/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}`),
-  runTestAnalysis: (asset_class: string,port: string,period: string, breakdown: string, startDate: string): Promise<AnalyticsResponse> =>
-    req<AnalyticsResponse>
-  (`/api/attribution/${asset_class}/${period}/?port=${port}&grouping=${breakdown}&start_date=${startDate}`),
+  (`/api/attribution/${asset_class}/${frequency}/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}&period_list=${periodList}&bm_code=${benchmarkCode}`),
 
   requestByDateAborvsIborReportService:(as_of_date: string):  Promise<AttributionDispersionResponse> =>
 	  req<AttributionDispersionResponse>
-  (`/api/abor-ibor/?date=${as_of_date}`),
+  (`/api/abor-ibor/?input_date=${as_of_date}`),
   requestAborvsIborReportService:():  Promise<AttributionDispersionResponse> =>
 	  req<AttributionDispersionResponse>
   (`/api/abor-ibor/`),
   requestByDateCorePlusAttributionDispersonReportService: (as_of_date: string):  Promise<AttributionDispersionResponse> =>
 	      req<AttributionDispersionResponse>
-  (`/api/attr-dispersion/?date==${as_of_date}`),
-
+  (`/api/attr-dispersion/?input_date==${as_of_date}`),
+  requestFIReportLatestSummaryService: ():  Promise<FiReportSummaryResponse> =>
+	      req<FiReportSummaryResponse>
+  (`/api/performance/fi-report-latest-summary/`),
   requestCorePlusAttributionDispersonReportService: ():  Promise<AttributionDispersionResponse> =>
 	  req<AttributionDispersionResponse>
     (`/api/attr-dispersion/`),
-  runPEfwdAnalysis: (): Promise<AnalyticsResponse> =>
-    reqMain<AnalyticsResponse>
-  ('/api/att-eq-mtd/?port=6614T&grouping=PEfwd&asset_class=EQ'),
-    runMktCapAnalysis: (): Promise<AnalyticsResponse> =>
-    reqMain<AnalyticsResponse>
-  (`/api/att-eq-mtd/?port=6614T&period&grouping=MktCap&asset_class=EQ`),
+runDailySecurityGrainAnalysis: (port: string, breakdown: string, startDate: string, endDate: string, periodList: string,benchmarkCode:string): Promise<AnalyticsResponse> =>
+    req<AnalyticsResponse>
+  (`/api/att-eq-mtd/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}&period_list=${periodList}&bm_code=${benchmarkCode}`),
 };

@@ -2,13 +2,7 @@ import { MetricLabel } from "./metrics";
 import { PeriodCode } from "./periods";
 
 export type FrequencyMode = "Monthly" | "Daily";
-export type AssetClass = "EM" | "EQ" | "FI" | "None";
-
-export const ASSET_CLASS_OPTIONS: { label: string; value: AssetClass }[] = [
-  { label: "Fixed Income (FI)", value: "FI" },
-  { label: "Equity (EQ)", value: "EQ" },
-  { label: "Emerging Market Fixed Income (EM)", value: "EM" },
-];
+export type AssetClass = "EM" | "EQ" | "FI" | "BL" | "HY" | "None";
 
 export interface ColumnMeta {
   key: string;
@@ -44,6 +38,8 @@ export type PortBenchRow = Readonly<{
 
   PORTFOLIO_SECONDARY_BENCHMARK_CODE: string | null;
   PORTFOLIO_SECONDARY_BENCHMARK_NAME: string | null;
+
+  DATE_INCEPTION?: string | null;
 }>;
 
 export type SelectOption = Readonly<{
@@ -114,3 +110,9 @@ export type AttributionDispersionResponse = {
     grids?: Grid[];
   }
 };
+
+export type FiReportSummaryResponse = {
+  asOfDate: string;
+  portfolioNumbers: string[];
+  count: number;
+}

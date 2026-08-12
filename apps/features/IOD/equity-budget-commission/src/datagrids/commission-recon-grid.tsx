@@ -41,11 +41,22 @@ export const CommissionReconGrid = () => {
         reconDetailData,
         reasonsData,
         brokersData,
+        uniqueCRBrokers,
         onRowDblClick,
         handleClosePopup,
         isSaveError,
         reloadReconData,
-        saveCommissionReconChange
+        saveCommissionReconChange,
+        handleBatchUpdate,
+        closeBatchUpdatePopup,
+        selectedRowKeys,
+        batchPopupVisible,
+        isBatchSaveError,
+        batchFormData,
+        setBatchFormData,
+        saveBatchUpdateChange,
+        onSelectionChanged,
+        setSelectedRowKeys
     } = useCommissionTradeRecon({userInfo, startDate: startDate, endDate:endDate});  
 
     // Toast handling  
@@ -95,6 +106,28 @@ export const CommissionReconGrid = () => {
       }
   }; 
 
+    const onBatchPopupSave = async () => {
+    try {            
+        setReconDataSaving(true);
+        // Batch Update existing  
+        await saveBatchUpdateChange();             
+        if(isBatchSaveError)
+            showToast('Batch Update failed: Unknown error', 'error');  
+        else {    
+            await reloadReconData();
+            showToast('Batch Saved successfully', 'success');            
+        }
+    } catch (error) {  
+        if (error instanceof Error) {  
+            showToast('Save failed: ' + error.message, 'error');  
+        }  
+    }
+    finally{
+        setReconDataSaving(false);
+        setSelectedRowKeys([]);
+    }
+};  
+
 return (  
 <div>
     <div className="div-container-left">  
@@ -119,6 +152,8 @@ return (
             width={150}
         />        
         <Button text='Refresh' onClick={handleRefresh} hint="Refresh" type="default" icon="refresh" stylingMode="contained" width={120} className='popup-button'/>
+        <Button type="default" text="Batch Update" width={120} visible={selectedRowKeys.length > 1 ? true : false} 
+                className='popup-button' stylingMode='contained' onClick={handleBatchUpdate}></Button>
     </div>
     <div className='div-form-container'>       
       { isLoading ?
@@ -144,9 +179,14 @@ return (
         }}
         showBorders={true}  
         paging={{ enabled: false }}  
+        selection={{mode: isAdmin? "multiple":"none", showCheckBoxesMode:"always"}}
         hoverStateEnabled={true}
         focusedRowEnabled={true}
         rowAlternationEnabled={true}
+        onSelectionChanged={(e) => {
+            if(!isAdmin) return; 
+            onSelectionChanged(e.selectedRowKeys as string[])
+        }}
         scrolling={{mode:'virtual'}}             
       >  
         <Grouping allowCollapsing={true}  expandMode='rowClick'/>
@@ -352,6 +392,65 @@ return (
           </div>
       </Popup>    
     </div>
+    {/* Batch update popup */}  
+    <div>
+        { batchPopupVisible &&
+            <Popup  
+                visible={batchPopupVisible}  
+                onHiding={closeBatchUpdatePopup}  
+                dragEnabled={false}  
+                showTitle={true}  
+                title="Batch Update Trades"  
+                className="modern-trade-popup"  
+                width={400}  
+                height={300}  
+            >  
+                {/* Example batch update form or content */}  
+                <div style={{ padding: 20 }}>  
+                    <Form colCount={1} width='95%'
+                        formData={batchFormData} 
+                        onFieldDataChanged={(e) => {     
+                            if(e.dataField === "reason")                      
+                                batchFormData.reason = e.value;
+                            if(e.dataField === "creditBroker")                      
+                                batchFormData.creditBroker = e.value;
+
+                            setBatchFormData(batchFormData);
+                        }}>
+                        <Item dataField ="creditBroker" colSpan={1} label={{text:"Cr Broker"}} 
+                          editorType="dxSelectBox" 
+                          cssClass="dx-common-selectbox" 
+                          editorOptions={{ 
+                            searchEnabled: true,  
+                            searchMode: "contains",
+                            dataSource: uniqueCRBrokers ?? [],
+                            displayExpr: 'creditBrokerName',   // field to display
+                            valueExpr: 'creditBroker',     // field to use as the value                              
+                          }} />
+                        <Item colSpan={1} itemType='empty'></Item>
+                        <Item dataField ="reason" colSpan={1} label={{text:"Reason"}} 
+                          editorType="dxSelectBox" 
+                          cssClass="dx-common-selectbox" 
+                          editorOptions = {{
+                            dataSource: reasonsData ?? [],    // data source for the dropdown
+                            displayExpr: 'name',  // field to display
+                            valueExpr: 'code',    // field to use as the value                              
+                            searchEnabled: false,  
+                          }} />
+                        <Item colSpan={1} itemType='empty'></Item>
+                        <Item colSpan={1} itemType='empty'></Item>
+                        <Item colSpan={1} itemType='empty'></Item>
+                        <Item colSpan={1} horizontalAlignment="right">
+                            <div className="div-container-center">
+                                <Button text={reconDataSaving?"Saving..":"Save"} disabled={reconDataSaving} width={150} height={32} className="dxButton" onClick={() => { onBatchPopupSave(); }}></Button>
+                                <Button text="Cancel" width={150} height={32} className="dxButton" onClick={() => { closeBatchUpdatePopup(); }}></Button>
+                            </div>
+                        </Item> 
+                    </Form>  
+                </div>  
+            </Popup>
+        }
+        </div>     
   </div>
   );  
 };
