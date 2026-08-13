@@ -27,6 +27,8 @@ export interface IDashboardSecuritySetupRequest {
     euSecuritizationStatus: string;
     erisaStatus: string;
     processTime: number | null;
+    dmAnalystName: string | null;
+    dmAnalystEmail: string | null;
     securityRequestDetails: IDashboardSecuritySetupRequestDetails;
     securityRequestEsgFields: IDashboardSecuritySetupRequestEsgFields;
     securityRequestTradeFields: IDashboardSecuritySetupRequestTradeFields;

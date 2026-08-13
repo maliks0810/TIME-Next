@@ -10,6 +10,7 @@ import { deleteSecurityRequests, duplicateSecuritySetupRequest } from '../../../
 import { useUserInfo } from '@platform/utils';
 import { ConfirmationModal } from '../../../common/components/ConfirmationModal';
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../../../pages/security-setup/lib/types/referenceDataTypes';
+import { useIdentityStore } from '../../../stores/useIdentityStore';
 
 type DashboardRequestDetailsProps = {
   securityRequest: IDashboardSecuritySetupRequest | undefined;
@@ -26,6 +27,10 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
   const [isDuplicateConfirmationOpen, setIsDuplicateConfirmationOpen] = useState<boolean>(false);
   const [isCancelConfirmationOpen, setIsCancelConfirmationOpen] = useState<boolean>(false);
   const { name: currentUser } = useUserInfo();
+  const userIdentity = useIdentityStore((s) => s.userIdentity);
+  const userCanCancelRequest = userIdentity?.permissionsAllowed?.cancel_request || false;
+  const userCanCancelRequestAfterSubmission = userIdentity?.permissionsAllowed?.cancel_request_after_submission || false;
+  const userCanDuplicateRequest = userIdentity?.permissionsAllowed?.duplicate_request || false;
 
   // TODO: call service to load SecuritySetupRequest on open of Request Details
 
@@ -50,10 +55,15 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
   }
 
   const isDuplicateButtonDisabled = () => {
+    if (userCanDuplicateRequest === false) {
+      return true;
+    }
+    
     if (securityRequest.setupStatus === 'Request Initiated' ||
       securityRequest.setupStatus === 'Pending DM SSAP Review' ||
       securityRequest.setupStatus === 'Cancelled' ||
-      securityRequest.setupStatus === 'Pending Trader Details') {
+      securityRequest.setupStatus === 'Pending Trader Details' 
+    ) {
       return true;
     }
 
@@ -61,11 +71,24 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
   }
 
   const isCancelButtonDisabled = () => {
-    if (securityRequest.setupStatus === 'Cancelled' ||
+    if (
+      userCanCancelRequestAfterSubmission === true &&
+      securityRequest.setupStatus !== 'Cancelled'
+    ) {
+        return false;
+    }
+
+    if (userCanCancelRequest === false) {
+      return true;
+    }
+
+    if (
+      securityRequest.setupStatus === 'Cancelled' ||
       securityRequest.setupStatus === 'Request Submitted' ||
       securityRequest.setupStatus === 'Security Review Complete' ||
       securityRequest.setupStatus === 'Security Setup Complete' ||
-      securityRequest.setupStatus === 'Ready for Trading'
+      securityRequest.setupStatus === 'Ready for Trading' ||
+      securityRequest.setupStatus === 'Security Review In Progress'
     ) {
       return true;
     }
@@ -82,10 +105,11 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
     setIsCancelConfirmationOpen(false);
   }
 
-  const handleCancelConfirmationConfirm = async () => {
+  const handleCancelConfirmationConfirm = async () => {  
     const currentCancelParameters: IDashboardDetailsDeleteParameters = {
       securitySetupRequestId: securityRequest.id.toString(),
       updatedBy: currentUser ?? '',
+      canCancelRequestAfterSubmission: userCanCancelRequestAfterSubmission ?? false
     };
 
     try {
@@ -136,13 +160,13 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
 
   const lookupReferenceDataDescription = (key: string, value: string) => {
     let description: string | undefined = value;
-    
+
     const data = referenceData?.byKey[key];
 
-    if (data){
-      if (data.fieldDropdownValues){
+    if (data) {
+      if (data.fieldDropdownValues) {
         const fieldDropdown = data.fieldDropdownValues.find(field => field.fieldDropdownValue === value);
-        if (fieldDropdown){
+        if (fieldDropdown) {
           description = fieldDropdown.fieldDropdownDescription;
         }
       }
@@ -344,7 +368,11 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
                   Callable
                 </Typography>
                 <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
-                  {lookupReferenceDataDescription(ReferenceDataFieldKey.Callable, securityRequest.securityRequestDetails.callableValue)}
+                  {
+                    lookupReferenceDataDescription(
+                      ReferenceDataFieldKey.Callable,
+                      securityRequest.securityRequestDetails.callableValue
+                  )}
                 </Typography>
               </Grid>
             </Grid>
