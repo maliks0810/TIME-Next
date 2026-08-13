@@ -36,7 +36,7 @@ export type TableRow<T = any> = {
     createdDate?: string;
     raw: T;
 };
-export type ActiveView = 'assets' | 'configs';
+export type ActiveView = 'assets' | 'configs' | 'lens' ;
 export type DealDetail = {
     message: string;
     operation: string; // potentially could be a separate type
@@ -447,4 +447,9 @@ export type WorkflowException = {
 
 export type WorkflowExceptionResponseCollection = {
     response: WorkflowException[];
+};
+
+export type DownloadBRSRequestCollection = {
+    assetAnalyticsSetupId: number;
+    interface: string;
 };

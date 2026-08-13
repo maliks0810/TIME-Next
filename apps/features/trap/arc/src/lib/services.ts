@@ -16,6 +16,7 @@ import {
     AbandonAssetPayload,
     MetaDataResponse,
     WorkflowExceptionResponseCollection,
+    DownloadBRSRequestCollection,
 } from './types';
 
 import { serviceRequest } from './serviceUtils';
@@ -45,6 +46,9 @@ const previewStaticScenariosUrl =
 
 const previewAnalyticsOverrideUrl =
     import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/preview-analytics';
+
+const downloadBrsFileUrl =
+    import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/download-brs-file';
 
 const downloadBondFeaturesUrl =
     import.meta.env.VITE_R2_TRAP_ARC_SERVICE + '/api/v1/new-asset/download-bond-features';
@@ -109,6 +113,11 @@ export const previewStaticScenariosAPI = (payload: FilePreviewRequestCollection)
 export const previewAnalyticsOverrideAPI = (payload: FilePreviewRequestCollection) =>
     serviceRequest(previewAnalyticsOverrideUrl)().post('', payload);
 
+export const downloadBrsFileAPI = (payload: DownloadBRSRequestCollection) =>
+    serviceRequest(downloadBrsFileUrl)().post('', payload, {
+        responseType: 'blob',
+    });
+    
 export const downloadBondFeaturesAPI = (payload: FilePreviewRequestCollection) =>
     serviceRequest(downloadBondFeaturesUrl)().post('', payload);
 
