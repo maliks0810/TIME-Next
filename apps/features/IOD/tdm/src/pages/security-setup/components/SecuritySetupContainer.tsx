@@ -40,6 +40,7 @@ import { ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { ApiResponseError } from '../../../common/lib/ApiResponseError';
 import { ErrorModal } from '../../../common/components/ErrorModal';
 import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
+import { useIdentityStore } from '../../../stores/useIdentityStore';
 import {
   useWizardNavigation,
   useHasPasswordFlow,
@@ -142,10 +143,16 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
   }, [initialRequestId]);
 
+  const userIdentity = useIdentityStore((s) => s.userIdentity);
+
   // Set to read only if DM Analyst is assigned to a different user
   useEffect(() => {
-    const readOnly = (initialData?.dmAnalystName !== undefined && currentUser !== initialData?.dmAnalystName);
-    setUserReadOnly(readOnly);
+    const canEditAnySecuritySetupRequest = userIdentity?.permissionsAllowed?.edit_any_security_setup_request || false;
+    // Check if user can edit any request regardless of assignment (DM Admin)
+    if (!canEditAnySecuritySetupRequest) {
+      const readOnly = (initialData?.dmAnalystName !== undefined && currentUser !== initialData?.dmAnalystName);
+      setUserReadOnly(readOnly);
+    }
   }, [initialData])
 
   useEffect(() => {
