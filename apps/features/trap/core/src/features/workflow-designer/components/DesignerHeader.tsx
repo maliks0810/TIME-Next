@@ -21,7 +21,6 @@ type DesignerHeaderProps = {
     saveDisabledReason?: string;
     publishDisabledReason?: string;
     onOpenLibrary: () => void;
-    onSaveDraft: () => void;
     onPublish: () => void;
     onBack: () => void;
 };
