@@ -59,6 +59,7 @@ import AttributionCompareGrid from "../../components/dram-grid/AttributionCompar
 import AttributionCompareCombinedChart from "../../components/dram-grid/AttributionCompareCombinedChart";
 const { Title, Text } = Typography;
 import "./attributionws.scss"
+import ValidationResponseView, { ValidationResponse } from "../../components/dram-grid/ValidationResponseView";
 /* ----------------------------- helpers ----------------------------- */
 export type ComparePeriodInfo = {
   code: string;
@@ -125,6 +126,12 @@ const exportPillStyle: React.CSSProperties = {
   borderColor: "#2563eb",
   boxShadow: "none",
 };
+export /** True when the backend returns a top-level error envelope (e.g. weight validation failure). */
+const isErrorResponse = (
+  resp: AnalyticsResponse | ResponseWithPeriodGrids,
+): boolean =>
+  String((resp as { message?: string })?.message ?? "").toLowerCase() === "error";
+
 /**
  * Extract the canonical period code from a period string.
  * Handles BOTH shapes:
@@ -385,6 +392,7 @@ const [pendingPrint, setPendingPrint] = useState(false);
     NormalizedColumnConfig[]
   >([]);
   const [loadingConfig, setLoadingConfig] = useState(false);
+  const [validationError, setValidationError] = useState<ValidationResponse | null>(null);
   const [runningAnalysis, setRunningAnalysis] = useState(false);
   const [rawRowsByPeriod, setRawRowsByPeriod] = useState<PeriodGridMap>({});
   const [selectedPeriod, setSelectedPeriod] = useState<string>("");
@@ -856,6 +864,17 @@ const executeAttribAnalysis = async (
         :  (await api.runSecurityGrainAnalysis(
         input.assetClass, input.portfolio,input.frequencyMode,inputGrouping,input.startDate, input.endDate,input.periodIdsCsv,input.benchmark
       )) as ResponseWithPeriodGrids;
+      if (isErrorResponse(resp)) {
+            const meta = extractMetadata(resp);
+            setPageTitle(meta.pageTitle);
+            setValueDate(meta.valueDate);
+            setValidationError(resp as unknown as ValidationResponse);
+            setRawRowsByPeriod({}); // clears any stale grids
+            setSelectedPeriod("");
+            setSelectedSecurityGroup(null);
+            message.error("Analysis returned a validation error.");
+            return;
+            }
       const meta = extractMetadata(resp);
       setPageTitle(meta.pageTitle);
       setValueDate(meta.valueDate);
@@ -1134,15 +1153,6 @@ const activeOrderedIds = layoutOrder.filter(
 //main component
   return (
     <div style={{ margin: "16px" }}>
-      <Row justify="end" style={{ marginBottom: 12 }}>
-        <Button
-          icon={<SettingOutlined />}
-          loading={loadingConfig}
-          onClick={() => setConfigOpen(true)}
-        >
-          Configure
-        </Button>
-      </Row>
         <ConfigTabbedCompact
             open={configOpen}
             onClose={() => setConfigOpen(false)}
@@ -1177,6 +1187,7 @@ const activeOrderedIds = layoutOrder.filter(
               setComparePeriods([]);
               setWorkspaceMode("single");
               setCompositePeriods([]);
+              setValidationError(null);
               void loadForAssetClass(nextAsset);
             }}
             onPortfolioChange={(portfolio) => setConfigDraftPortfolio(portfolio)}
@@ -1203,59 +1214,93 @@ const activeOrderedIds = layoutOrder.filter(
             onSetFavoriteView={handleSetFavoriteAttribView}
             filterOptions={filterOptions}
           />
+      {/* Single workspace header — always visible; Configure lives only here */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 12,
+          padding: "14px 18px",
+          marginTop: 16,
+          background: "linear-gradient(180deg, #fbfcff 0%, #f5f8ff 100%)",
+          border: "1px solid #eef1f6",
+          borderRadius: 10,
+        }}
+      >
+        <Title
+          level={4}
+          style={{ margin: 0, fontSize: 18, color: "#0f172a" }}
+        >
+          Attribution Analysis{" "}
+          {viewAssetClass && gridConfig && periodKeys.length > 0 && (
+            <Space wrap size={10}>
+              <span style={contextPillStyle}>
+                <FundOutlined style={contextIconStyle} />
+                {headerInfo.portfolio || "No portfolio selected"}
+              </span>
+
+              <span style={contextPillStyle}>
+                <BarChartOutlined style={contextIconStyle} />
+                vs {headerInfo.benchmark || "No benchmark selected"}
+              </span>
+
+              <span style={contextPillStyle}>
+                <CalendarOutlined style={contextIconStyle} />
+                {viewFrequencyMode === "daily"
+                  ? headerDateLabel
+                  : `as of ${headerDateLabel}`}
+              </span>
+            </Space>
+          )}
+        </Title>
+
+        <Button
+          icon={<SettingOutlined />}
+          loading={loadingConfig || runningAnalysis}
+          onClick={() => setConfigOpen(true)}
+          style={{ flexShrink: 0 }}
+        >
+        </Button>
+      </div>
       {!viewAssetClass ? (
         <Card style={{ marginTop: 16 }}>
           <Empty description="Click Configure to select asset class and run analysis." />
         </Card>
       ) : !gridConfig ? (
-        <Card style={{ marginTop: 16 }}>
-          <Spin />
-        </Card>
-      ) : periodKeys.length === 0 ? (
-        <Card style={{ marginTop: 16 }}>
-          <Empty description="Run analysis to view period grids." />
-        </Card>
-      ) : (
-        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-          {/* workspace header */}
+
+              <Card style={{ marginTop: 16 }}>
+
+              <Spin />
+
+              </Card>
+
+              ) : validationError ? (
+
+              <div style={{ marginTop: 16 }}>
+
+              <ValidationResponseView response={validationError} />
+
+              </div>
+
+              ) : periodKeys.length === 0 ? (
+
+              <Card style={{ marginTop: 16 }}>
+
+              <Empty description="Run analysis to view period grids." />
+
+              </Card>
+
+              ) : (
+
+<Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+
+{/* workspace header */}
 <Col span={24}>
   <Card
     bodyStyle={{ padding: 0 }}
     style={{ borderRadius: 10, border: "1px solid #eef1f6", overflow: "hidden" }}
   >
-    {/* Top band: title + context pills (subtle gradient) */}
-    <div
-      style={{
-        padding: "14px 18px",
-        background: "linear-gradient(180deg, #fbfcff 0%, #f5f8ff 100%)",
-        borderBottom: "1px solid #eef1f6",
-      }}
-    >
-      <Title
-        level={4}
-        style={{ margin: 0, marginBottom: 10, fontSize: 18, color: "#0f172a" }}
-      >
-        Attribution Analysis <Space wrap size={10}>
-        <span style={contextPillStyle}>
-          <FundOutlined style={contextIconStyle} />
-          {headerInfo.portfolio || "No portfolio selected"}
-        </span>
-
-        <span style={contextPillStyle}>
-          <BarChartOutlined style={contextIconStyle} />
-          vs {headerInfo.benchmark || "No benchmark selected"}
-        </span>
-
-        <span style={contextPillStyle}>
-          <CalendarOutlined style={contextIconStyle} />
-          {viewFrequencyMode === "daily"
-            ? headerDateLabel
-            : `as of ${headerDateLabel}`}
-        </span>
-      </Space>
-      </Title>
-    </div>
-
     {/* Bottom band: breakdown + periods + controls */}
     <div style={{ padding: "12px 18px" }}>
       <Row justify="space-between" align="middle" gutter={[12, 12]}>
