@@ -11,4 +11,5 @@ export interface IUserAuthPermissions {
   duplicate_request: boolean;
   explicit_dm_analyst_assignment: boolean;
   ssap_release: boolean;
+  edit_any_security_setup_request: boolean;
 }
