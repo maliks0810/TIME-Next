@@ -1,0 +1,161 @@
+/*
+ * Tailwind v4 + TCW design tokens.
+ * Keep this file focused on tokens/theme only. App/global layout belongs in base.css;
+ * component-specific overrides belong in devextreme-overrides.css or feature CSS.
+ */
+
+@layer theme, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Explicit source scanning for manual CLI builds in the monorepo. */
+@source "../**/*.{ts,tsx,js,jsx,html}";
+@source "../features/**/*.{ts,tsx}";
+@source "../ui/**/*.{ts,tsx}";
+@source "../components/**/*.{ts,tsx}";
+@source "../lib/**/*.{ts,tsx}";
+@source "../store/**/*.{ts,tsx}";
+
+:root {
+  /* Primary brand colors */
+  --tcw-blue: #013D7D;
+  --tcw-green: #4B773D;
+  --tcw-plum: #6C1444;
+  --tcw-gold: #DB9F00;
+  --tcw-white: #FFFFFF;
+  --tcw-black: #000000;
+
+  /* Greyscale */
+  --tcw-grey-100: #F9F9F9;
+  --tcw-grey-200: #EDEDED;
+  --tcw-grey-300: #E0E0E0;
+  --tcw-grey-400: #D4D4D4;
+  --tcw-grey-500: #B2B2B2;
+  --tcw-grey-600: #757575;
+  --tcw-grey-700: #4D4D4D;
+  --tcw-grey-800: #333333;
+  --tcw-grey-900: #1A1A1A;
+  --tcw-grey-1000: #0D0D0D;
+
+  /* Blue tonal scale */
+  --tcw-blue-100: #E7F3FC;
+  --tcw-blue-200: #CEDFF4;
+  --tcw-blue-300: #B4CCE9;
+  --tcw-blue-400: #9BB8DD;
+  --tcw-blue-500: #82A3CD;
+  --tcw-blue-600: #688FBD;
+  --tcw-blue-700: #4F7AAD;
+  --tcw-blue-800: #36669D;
+  --tcw-blue-900: #1D518D;
+  --tcw-blue-1000: #013D7D;
+
+  /* Supporting tonal scales */
+  --tcw-green-100: #F6FAE8;
+  --tcw-green-1000: #4B773D;
+  --tcw-plum-100: #FAEEF0;
+  --tcw-plum-1000: #6C1444;
+  --tcw-gold-100: #FFFEEC;
+  --tcw-gold-1000: #DB9F00;
+
+  /* Data-viz accents */
+  --tcw-data-purple: #654D88;
+  --tcw-data-brown: #904529;
+  --tcw-data-pink: #CB197B;
+  --tcw-data-orange: #D76712;
+  --tcw-data-red: #CE1F00;
+
+  /* Typography */
+  --tcw-font-sans: 'ABC-MonumentGrotesk-Regular', 'Helvetica', 'Arial', system-ui, sans-serif;
+  --tcw-font-bold: 'ABC-MonumentGrotesk-Bold', 'Helvetica', 'Arial', system-ui, sans-serif;
+  --tcw-font-bold-italic: 'ABC-MonumentGrotesk-BoldItalic', 'Helvetica', 'Arial', system-ui, sans-serif;
+  --tcw-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Shape */
+  --tcw-radius: 6px;
+  --tcw-radius-sm: 4px;
+  --tcw-radius-md: 8px;
+  --tcw-radius-lg: 12px;
+
+  /* Body */
+  --tcw-body-font-size: 13px;
+  --tcw-body-line-height: 1.4;
+
+  /* shadcn semantic variables */
+  --background: var(--tcw-white);
+  --foreground: var(--tcw-grey-900);
+  --card: var(--tcw-white);
+  --card-foreground: var(--tcw-grey-900);
+  --primary: var(--tcw-blue);
+  --primary-foreground: var(--tcw-white);
+  --secondary: var(--tcw-grey-200);
+  --secondary-foreground: var(--tcw-grey-900);
+  --muted: var(--tcw-grey-100);
+  --muted-foreground: var(--tcw-grey-600);
+  --accent: var(--tcw-green-100);
+  --accent-foreground: var(--tcw-green);
+  --destructive: var(--tcw-data-red);
+  --border: var(--tcw-grey-300);
+  --input: var(--tcw-grey-300);
+  --ring: var(--tcw-blue);
+}
+
+@theme {
+  --font-sans: var(--tcw-font-sans);
+  --font-mono: var(--tcw-font-mono);
+  --font-tcw-bold: var(--tcw-font-bold);
+  --font-tcw-bold-italic: var(--tcw-font-bold-italic);
+
+  --radius-sm: var(--tcw-radius-sm);
+  --radius-md: var(--tcw-radius-md);
+  --radius-lg: var(--tcw-radius-lg);
+
+  --color-tcw-blue: var(--tcw-blue);
+  --color-tcw-green: var(--tcw-green);
+  --color-tcw-plum: var(--tcw-plum);
+  --color-tcw-gold: var(--tcw-gold);
+  --color-tcw-black: var(--tcw-black);
+  --color-tcw-white: var(--tcw-white);
+
+  --color-grey-100: var(--tcw-grey-100);
+  --color-grey-200: var(--tcw-grey-200);
+  --color-grey-300: var(--tcw-grey-300);
+  --color-grey-400: var(--tcw-grey-400);
+  --color-grey-500: var(--tcw-grey-500);
+  --color-grey-600: var(--tcw-grey-600);
+  --color-grey-700: var(--tcw-grey-700);
+  --color-grey-800: var(--tcw-grey-800);
+  --color-grey-900: var(--tcw-grey-900);
+  --color-grey-1000: var(--tcw-grey-1000);
+
+  --color-data-blue-100: var(--tcw-blue-100);
+  --color-tcw-blue-100: var(--tcw-blue-100);
+  --color-tcw-blue-500: var(--tcw-blue-500);
+  --color-tcw-blue-1000: var(--tcw-blue-1000);
+
+  --color-tcw-data-purple: var(--tcw-data-purple);
+  --color-tcw-data-brown: var(--tcw-data-brown);
+  --color-tcw-data-pink: var(--tcw-data-pink);
+  --color-tcw-data-orange: var(--tcw-data-orange);
+  --color-tcw-data-red: var(--tcw-data-red);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius: var(--tcw-radius);
+}

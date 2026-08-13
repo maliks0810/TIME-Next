@@ -1,5 +1,4 @@
-import React from 'react';
-import { Button, Empty, Space, Tag, Typography, theme } from 'antd';
+import { Button, Empty, Space, Typography, theme } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
 import type { WidgetComponentProps } from '../../../types/widget';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
@@ -11,7 +10,6 @@ type WorkflowItem = {
     label: string;
     description?: string;
     templateId?: string;
-    versionId?: string;
 };
 
 const DEFAULT_ITEMS: WorkflowItem[] = [];
@@ -40,7 +38,6 @@ export default function RecentWorkflowsWidget({ result, uiActions }: WidgetCompo
         action({
             target: {
                 templateId: item.templateId,
-                templateVersionId: item.versionId,
                 title: item.label,
             },
             context: {},
@@ -132,14 +129,6 @@ export default function RecentWorkflowsWidget({ result, uiActions }: WidgetCompo
                                                 {item.description}
                                             </Text>
                                         ) : null}
-
-                                        <div style={{ marginTop: 6 }}>
-                                            {item.versionId ? (
-                                                <Tag style={{ marginInlineEnd: 0 }}>
-                                                    {item.versionId}
-                                                </Tag>
-                                            ) : null}
-                                        </div>
                                     </div>
 
                                     <Button

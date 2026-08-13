@@ -1,75 +1,77 @@
 {
     "id": "cwd_common_counter_tile_01",
-    "name": "Common Counter Tile",
+    "name": "KPI Tile",
     "version": 1,
-    "description": "Reusable counter tile widget. GraphQL resolves the requested counter scenario and returns a numeric result with optional display metadata.",
+    "description": "Reusable KPI tile widget. GraphQL resolves the requested KPI scenario and returns a numeric result with optional display metadata.",
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_common_counter_tile_01",
-    "listensToKeys": [
-        "portfolio.id",
-        "security.ticker",
-        "security.cusip"
-    ],
+    "listensToKeys": ["portfolio.id", "security.ticker", "security.cusip"],
     "emitsKeys": null,
     "configSchema": {
         "properties": {
             "channel": {
+                "category": "Interactions",
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [
-                    1,
-                    2,
-                    3,
-                    4,
-                    5
-                ],
+                "enum": [1, 2, 3, 4, 5],
                 "title": "Communication Channel",
-                "type": "string",
-                "category": "Interactions"
+                "type": "string"
             },
-            "textColor": {
-                "default": "#000000",
-                "title": "Custom Text Color",
-                "type": "string",
-                "withColorPicker": true,
-                "category": "Colors"
+            "clickable": {
+                "category": "Interactions",
+                "default": true,
+                "title": "Tile is clickable",
+                "type": "boolean"
             },
             "customColor": {
+                "category": "Colors",
                 "default": "#ffffff",
                 "title": "Custom Solid Color",
                 "type": "string",
-                "withColorPicker": true,
-                "category": "Colors"
+                "withColorPicker": true
             },
             "customGradientEnd": {
+                "category": "Colors",
                 "default": "#60a5fa",
                 "title": "Gradient End Color",
                 "type": "string",
-                "withColorPicker": true,
-                "category": "Colors"
+                "withColorPicker": true
             },
             "customGradientStart": {
+                "category": "Colors",
                 "default": "#2563eb",
                 "title": "Gradient Start Color",
                 "type": "string",
-                "withColorPicker": true,
-                "category": "Colors"
-            },
-            "clickable": {
-                "default": true,
-                "title": "Tile is clickable",
-                "type": "boolean",
-                "category": "Interactions"
+                "withColorPicker": true
             },
             "emptyStateText": {
+                "category": "View Parameters",
                 "default": "No value",
                 "title": "Empty State Text",
-                "type": "string",
-                "category": "View Parameters"
+                "type": "string"
             },
             "filter": {
+                "category": "System Parameters",
                 "description": "Which value the selected Schema Key should resolve. Valid options are scoped to the chosen Schema Key (arc.status.query -> ARC status values; econ.indicators.heatmap -> indicator metrics).",
+                "enum": [
+                    "ANALYTICS REQUESTED",
+                    "ANALYTICS INPUT PENDING REVIEW",
+                    "ANALYTICS INPUT SENT TO ALADDIN",
+                    "ANALYTICS INPUT VERIFIED IN ALADDIN",
+                    "ANALYTICS CALCULATION IN PROGRESS",
+                    "ANALYTICS PENDING REVIEW",
+                    "ANALYTICS SENT TO ALADDIN",
+                    "ANALYTICS VERIFIED IN ALADDIN",
+                    "MANUAL",
+                    "ABANDONED",
+                    "INVALID REQUEST",
+                    "TOTAL",
+                    "Total Indicators",
+                    "Latest Period",
+                    "Improving Count",
+                    "Deteriorating Count"
+                ],
                 "options": [
                     {
                         "condition": {
@@ -96,7 +98,6 @@
                             "key": "schemaKey",
                             "value": "econ.indicators.heatmap"
                         },
-
                         "options": [
                             "Total Indicators",
                             "Latest Period",
@@ -105,102 +106,69 @@
                         ]
                     }
                 ],
-                "enum": [
-                    "ANALYTICS REQUESTED",
-                    "ANALYTICS INPUT PENDING REVIEW",
-                    "ANALYTICS INPUT SENT TO ALADDIN",
-                    "ANALYTICS INPUT VERIFIED IN ALADDIN",
-                    "ANALYTICS CALCULATION IN PROGRESS",
-                    "ANALYTICS PENDING REVIEW",
-                    "ANALYTICS SENT TO ALADDIN",
-                    "ANALYTICS VERIFIED IN ALADDIN",
-                    "MANUAL",
-                    "ABANDONED",
-                    "INVALID REQUEST",
-                    "TOTAL",
-                    "Total Indicators",
-                    "Latest Period",
-                    "Improving Count",
-                    "Deteriorating Count"
-                ],
                 "title": "Filter",
-                "type": "string",
-                "category": "System Parameters"
+                "type": "string"
             },
             "numberFormat": {
+                "category": "View Parameters",
                 "default": "integer",
-                "enum": [
-                    "integer",
-                    "decimal",
-                    "currency",
-                    "percent"
-                ],
+                "enum": ["integer", "decimal", "currency", "percent"],
                 "title": "Number Format",
-                "type": "string",
-                "category": "View Parameters"
+                "type": "string"
             },
             "prefixText": {
+                "category": "View Parameters",
                 "default": "",
                 "title": "Prefix Text",
-                "type": "string",
-                "category": "View Parameters"
+                "type": "string"
             },
             "schemaKey": {
-                "description": "Logical counter scenario resolved by GraphQL. Each scenario owns its own set of valid Filter values.",
-                "enum": [
-                    "arc.status.query",
-                    "econ.indicators.heatmap"
-                ],
+                "category": "System Parameters",
+                "description": "Logical KPI scenario resolved by GraphQL. Each scenario owns its own set of valid Filter values.",
+                "enum": ["arc.status.query", "econ.indicators.heatmap"],
                 "title": "Schema Key",
-                "type": "string",
-                "category": "System Parameters"
+                "type": "string"
             },
             "suffixText": {
+                "category": "View Parameters",
                 "default": "",
                 "title": "Suffix Text",
+                "type": "string"
+            },
+            "textColor": {
+                "category": "Colors",
+                "default": "#000000",
+                "title": "Custom Text Color",
                 "type": "string",
-                "category": "View Parameters"
+                "withColorPicker": true
             },
             "themeMode": {
+                "category": "Colors",
                 "default": "theme",
-                "enum": [
-                    "theme",
-                    "customSolid",
-                    "customGradient"
-                ],
+                "enum": ["theme", "customSolid", "customGradient"],
                 "title": "Color Mode",
-                "type": "string",
-                "category": "Colors"
+                "type": "string"
             },
             "titlePosition": {
+                "category": "View Parameters",
                 "default": "top",
-                "enum": [
-                    "top",
-                    "bottom"
-                ],
+                "enum": ["top", "bottom"],
                 "title": "Title Position",
-                "type": "string",
-                "category": "View Parameters"
+                "type": "string"
             },
             "titleText": {
+                "category": "View Parameters",
                 "default": "",
                 "title": "Custom Title Text",
-                "type": "string",
-                "category": "View Parameters"
+                "type": "string"
             }
         },
-        "required": [
-            "schemaKey",
-            "filter"
-        ],
+        "required": ["schemaKey", "filter"],
         "type": "object"
     },
     "uiHints": {
         "category": "Common",
-        "visibleIn": [
-            "workflow",
-            "landing"
-        ]
+        "visibleIn": ["workflow", "landing"]
     },
     "variants": [
         {
@@ -211,13 +179,14 @@
                 "width": {
                     "default": 3,
                     "min": 1,
-                    "max": 6
+                    "max": 6,
+                    "step": null
                 },
                 "height": {
-                    "default": 120,
-                    "min": 90,
-                    "max": 240,
-                    "step": 10
+                    "default": 100,
+                    "min": 100,
+                    "max": 200,
+                    "step": 50
                 }
             }
         }

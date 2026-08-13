@@ -2,25 +2,14 @@
 /**
  * Widget sizing — free-resize support driven by the widget definition.
  * --------------------------------------------------------------------
- * Background: historically "variants" were misused as fixed sizes
- * (Small/Medium/Large). The real model is:
- *   - variant  = a genuine presentation mode (Compact, Vertical, …)
- *   - sizing   = how THAT variant may be sized/resized on the grid
+ * `sizing` lives on each VARIANT (`variant.sizing`). The DEFINITION is
+ * authoritative for min/max/resizable. Persisted layout items may carry STALE
+ * constraints from before the rows migration (minH/h in old pixels), so we
+ * derive min/max from the def and clamp the persisted h/w into the def range.
  *
- * `sizing` is a field on each VARIANT (`variant.sizing`). So a widget can have
- * several variants, each with its own size + resize policy: e.g. Deal Details
- * with Compact/Standard/Full (each fixed, resizable:false), or Horizontal/
- * Vertical (each resizable:true with its own range). The active variant for an
- * instance is `instance.variantId`. A variant with no `sizing` stays locked,
- * exactly as before. Runtime is always read-only.
- *
- * Units (kept consistent with the existing grid, which runs rowHeight = 1):
- *   - width  is in GRID COLUMNS (1..12)  -> RGL snaps width to columns natively
- *   - height is in PIXELS                 -> snapped to `height.step` on resize
- *
- * We deliberately do NOT change the grid's global rowHeight: that would
- * rescale every persisted layout. Height snapping is achieved per-item via a
- * react-grid-layout v2 size constraint, so nothing else moves.
+ * Units (legacy react-grid-layout, rowHeight = 10):
+ *   - width  is GRID COLUMNS (1..12) — RGL snaps to columns natively
+ *   - height is GRID ROWS (1 row = 10px) — RGL snaps to rows natively
  */
 
 export type SizingAxis = {
@@ -31,17 +20,11 @@ export type SizingAxis = {
 };
 
 export type WidgetSizing = {
-    resizable?: boolean; // default true when the block is present
+    resizable?: boolean;
     width?: SizingAxis; // columns
-    height?: SizingAxis; // pixels
+    height?: SizingAxis; // rows (10px each)
 };
 
-/**
- * Resolve the active variant for an instance and return ITS sizing.
- * Falls back to the first variant, then to legacy locations
- * (definition.sizing / uiHints.sizing) so partially-migrated Cosmos docs keep
- * working during rollout.
- */
 export function resolveVariant(def: any, variantId?: string): any {
     const variants = def?.variants;
     if (!Array.isArray(variants) || variants.length === 0) return undefined;
@@ -54,38 +37,12 @@ export function getVariantSizing(def: any, variantId?: string): WidgetSizing | u
 }
 
 /**
- * react-grid-layout v2 per-item size constraint that snaps the height to a
- * multiple of `step`. Because the grid runs rowHeight = 1, height grid-units
- * are pixels, so `step = 10` snaps to 10px. Width is left untouched (RGL
- * already snaps it to whole columns).
- */
-const snapCache = new Map<
-    number,
-    { name: string; constrainSize: (i: any, w: number, h: number) => { w: number; h: number } }
->();
-export function snapHeight(step: number) {
-    let cache = snapCache.get(step);
-    if (!cache) {
-        cache = {
-            name: 'snapHeight',
-            constrainSize: (_item: any, w: number, h: number) => ({
-                w,
-                h: Math.max(step, Math.round(h / step) * step),
-            }),
-        };
-        snapCache.set(step, cache);
-    }
-    return cache;
-}
-
-/**
- * Decorate a layout for the designer: items whose definition declares
- * `uiHints.sizing` become resizable (with min/max + height snap); every other
- * item is explicitly locked so enabling grid-level resize never leaks to
- * widgets that haven't opted in.
+ * Decorate a layout with per-item resize policy from each widget's variant
+ * sizing. Opted-in widgets become resizable with def-driven min/max; every
+ * other item is explicitly locked so grid-level resize never leaks to widgets
+ * that haven't opted in. Render-only; stripped via toPersistedLayout before save.
  *
- * The decoration is render-only (re-derived from the definition each load);
- * it is stripped before persisting via {@link toPersistedLayout}.
+ * Height snapping is native (integer rows × rowHeight); no custom snap needed.
  */
 export function applySizing(
     layout: any[],
@@ -95,35 +52,50 @@ export function applySizing(
     return layout.map((item) => {
         const widget = widgetsById[item.i];
         const def = widget ? widgetDefById[widget.widgetDefinitionId] : undefined;
-        // Sizing comes from the instance's ACTIVE variant.
         const sizing = def ? getVariantSizing(def, widget?.variantId) : undefined;
-        // Not opted in -> stay locked (preserve any existing min/max).
+
         if (!sizing) {
             return { ...item, isResizable: false };
         }
 
         const width = sizing.width;
         const height = sizing.height;
-        const constraints = height?.step ? [snapHeight(height.step)] : undefined;
         const resizable = sizing.resizable !== false;
+
+        const minW = width?.min ?? item.minW;
+        const maxW = width?.max ?? item.maxW;
+        const minH = height?.min ?? item.minH;
+        const maxH = height?.max ?? item.maxH;
+
+        // Clamp a possibly-stale persisted size into the def's range.
+        let h = item.h;
+        if (typeof h === 'number') {
+            if (typeof maxH === 'number') h = Math.min(h, maxH);
+            if (typeof minH === 'number') h = Math.max(h, minH);
+        }
+        let w = item.w;
+        if (typeof w === 'number') {
+            if (typeof maxW === 'number') w = Math.min(w, maxW);
+            if (typeof minW === 'number') w = Math.max(w, minW);
+        }
 
         return {
             ...item,
+            w,
+            h,
             isResizable: resizable,
             ...(resizable ? { resizeHandles: ['se'] } : {}),
-            minW: width?.min ?? item.minW,
-            maxW: width?.max ?? item.maxW,
-            minH: height?.min ?? item.minH,
-            maxH: height?.max ?? item.maxH,
-            ...(constraints ? { constraints } : {}),
+            minW,
+            maxW,
+            minH,
+            maxH,
         };
     });
 }
 
 /**
  * Strip render-only decoration before persisting, so saved layouts keep their
- * historical `{ i, x, y, w, h, minW, minH, maxW, maxH }` shape (no
- * `constraints` / `isResizable` leaking into the workflow document).
+ * historical `{ i, x, y, w, h, minW, minH, maxW, maxH }` shape.
  */
 export function toPersistedLayout(item: any) {
     const { i, x, y, w, h, minW, minH, maxW, maxH } = item;

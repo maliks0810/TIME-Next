@@ -86,7 +86,7 @@ export default function PerformanceAnalysisContent() {
 
   // RIGHT mode state
   const [mode, setMode] = React.useState<Mode>("summary");
-  const [summaryView, setSummaryView] = React.useState<SummaryView>("summaryList");
+  const [summaryView, setSummaryView] = React.useState<SummaryView>("summaryReport");
 
   // Summary state
   const [asOfDate, setAsOfDate] = React.useState<Date>(getPreviousMonthEnd());
@@ -356,6 +356,7 @@ React.useEffect(() => {
         please contact the Performance Team .
         For inquiries related to mutual fund performance, please reach out to the Mutual Funds Team .
         For LP performance questions, please contact the Client and Fund Reporting Team.</span>
+        <a rel="noreferrer" href="https://tcw.blackrock.com/apps/explore/?workspace=44004">Aladdin Workspace</a>
       </div>
       <SplitPane leftWidth={300}>
         {/* LEFT PANE */}

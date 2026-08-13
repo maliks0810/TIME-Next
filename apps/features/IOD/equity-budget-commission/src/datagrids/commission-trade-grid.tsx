@@ -136,6 +136,7 @@ export const CommissionTradeGrid = () => {
             <Button type="default" text="Refresh" width={120} className='popup-button' icon="refresh" stylingMode='contained' onClick={handleRefresh}></Button>  
             <Button type="default" text="Batch Update" width={120} visible={selectedRowKeys.length > 1 ? true : false} 
                 className='popup-button' stylingMode='contained' onClick={handleBatchUpdate}></Button>  
+            {/*<div style={{textAlign:'right',alignSelf:'self-end',fontWeight:400}}>{userInfo.name}</div>*/}
         </div>
         { isLoading ?
         <div className='div-loader'>  
@@ -170,7 +171,7 @@ export const CommissionTradeGrid = () => {
                     onSelectionChanged(e.selectedRowKeys as string[])
                 }}  
                 scrolling={{mode:"virtual"}}
-                width="98%%"
+                width="98%"
                 >        
                 <FilterRow visible={true} applyFilter="auto" />
                 
@@ -374,7 +375,7 @@ export const CommissionTradeGrid = () => {
             </Popup>
         }
         </div>
-            {/* Batch update popup */}  
+        {/* Batch update popup */}  
         <div>
         { batchPopupVisible &&
             <Popup  
@@ -383,13 +384,14 @@ export const CommissionTradeGrid = () => {
                 dragEnabled={false}  
                 showTitle={true}  
                 title="Batch Update Trades"  
-                className="custom-popup-class dx-popup-title"  
+                className="modern-trade-popup"  
                 width={400}  
                 height={300}  
             >  
                 {/* Example batch update form or content */}  
                 <div style={{ padding: 20 }}>  
-                    <Form colCount={1} formData={batchFormData} 
+                    <Form colCount={1} width='95%'
+                        formData={batchFormData} 
                         onFieldDataChanged={(e) => {     
                             if(e.dataField === "reason")                      
                                 batchFormData.reason = e.value;

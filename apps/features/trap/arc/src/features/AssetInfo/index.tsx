@@ -5,9 +5,6 @@ import { AssetInfoItem } from './components/AssetInfoItem';
 import { checkIsTimerShown, convertDateToPST } from './lib/helpers';
 import { getModelInputById } from './lib/services';
 import { NewAssetType } from './lib/types';
-import { ClaimAssetPayload } from '../../lib/types';
-import { claimAsset } from '../../lib/services';
-import { useUserInfo } from '@platform/utils';
 import { updateAnalyticsInputOverrides } from '../../lib/services';
 import { PayloadItem } from '../../lib/types';
 import { extractCallable, extractCallDate, extractCollateralType, extractDefaultSpeed, extractDefaultType, extractDelinquency, extractPrepaymentSpeed, extractPrepaymentType, extractSeverity, hasValue, extractCallDateText, extractInfoInterestRateScenarioType, extractInfoModelFamilyOverrideType, extractOriginalAssetSetupId, extractInfoModelFamilyOverrideForAnalyticsInputsType, extractInfoAcceptModelOutputsType } from '../../lib/helpers';
@@ -23,6 +20,7 @@ import { AssetInfoModelFamilyOverrideType } from './components/AssetInfoModelFam
 import { PREPAYMENT_TYPE_OPTIONS_ALL, PREPAYMENT_TYPE_OPTIONS_CMBS } from '../../shared/constants';
 import { AssetInfoSwitchAcceptModelOutputs } from './components/AssetInfoSwitchAcceptModelOutputs';
 import { useLocation } from 'react-router-dom';
+import ClaimButton from './components/ClaimButton';
 
 export const AssetInfo = ({
     latestUpdateTimestamp,
@@ -30,7 +28,6 @@ export const AssetInfo = ({
     latestUpdateTimestamp: number;
 }) => {
     const [assetInfo, setAssetInfo] = useState<NewAssetType | null>(null);
-    const user = useUserInfo();
     const [form] = Form.useForm();
     const [note, setNote] = useState<NoteType | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -82,22 +79,6 @@ export const AssetInfo = ({
         }
     }, [selectedAssetId, latestUpdateTimestamp]);
 
-    const handleClaim = () => {
-        // Generate the Claim Payload
-        const payload: ClaimAssetPayload = {
-            claims: [
-                {
-                    anchorType: 'NAAID',
-                    anchorId: selectedAssetId as number,
-                },
-            ],
-        };
-
-        // Call the Claim
-        claimAsset(payload).catch((e) => {
-            console.warn(e);
-        });
-    };
     useEffect(() => {
         const callableInputVal = extractCallable(assetInfo?.payload);
         const callDateInputVal = callableInputVal === 'Y' ? extractCallDate(assetInfo?.payload) : (callableInputVal === 'C' ? extractCallDateText(assetInfo?.payload) : '');
@@ -204,8 +185,8 @@ export const AssetInfo = ({
                 ...(hasValue(prepaymentSpeedValue) ? { prepaymentSpeed: Number(prepaymentSpeedValue) } : {}),
                 ...(hasValue(defaultTypeValue) ? { defaultType: defaultTypeValue } : {}),
                 ...(hasValue(defaultSpeedValue) ? { defaultSpeed: Number(defaultSpeedValue) } : {}),
-                ...(hasValue(severityValue) ? { severity: Number(severityValue) } : {}),
-                ...(hasValue(delinquencyValue) ? { delinquency: Number(delinquencyValue) } : {}),
+                ...(hasValue(severityValue) ? { severity: Number(severityValue) } : { severity: null }),
+                ...(hasValue(delinquencyValue) ? { delinquency: Number(delinquencyValue) } : { delinquency: null }),
             };
 
             if (Object.keys(speedOverridesParams).length > 0) {
@@ -427,16 +408,7 @@ export const AssetInfo = ({
                         value={convertDateToPST(assetInfo?.claimedAt ?? '')}
                     />
                     <Form.Item noStyle>
-                        <div style={{ display: 'flex', paddingTop: 10, paddingBottom: 4 }}>
-                            <Button
-                                className="claimButton"
-                                onClick={handleClaim}
-                                size="small"
-                                disabled={!selectedAssetId || user.email === assetInfo?.claimedBy}
-                            >
-                                Take Over Claim
-                            </Button>
-                        </div>
+                        <ClaimButton assetInfo={assetInfo} selectedAssetId={selectedAssetId}></ClaimButton>
                     </Form.Item>
                 </div>
                 <Divider type="vertical" style={{ height: '100%', padding: 0 }} />

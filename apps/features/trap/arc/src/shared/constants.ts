@@ -22,6 +22,8 @@ export enum STATUSES_ENUM {
     ANALYTICS_INPUT_VERIFIED_IN_ALADDIN = 'ANALYTICS INPUT VERIFIED IN ALADDIN',
     ABANDONED = 'Abandoned',
     INVALID_REQUEST = 'Invalid Request',
+    MANUAL = 'Manual',
+    CORRECTION = 'Correction'
 }
 
 export const COMMON_COLLATERAL_TYPES = ['NQM', 'CES', 'NPL'];
@@ -51,7 +53,7 @@ export const PREPAYMENT_TYPE_OPTIONS_CMBS = [
 ];
 
 export const PUBLISH_BUTTON_HELPTEXT =
-    'Enabled for call/speed overridable assets in ANALYTICS INPUT PENDING REVIEW status and for collateral type is CES, NPL or NQM.';
+    'Enabled for call/speed overridable/Applied Multiplier assets in ANALYTICS INPUT PENDING REVIEW, MANUAL status.';
 export const PUBLISH_ANALYTICS_BUTTON_HELPTEXT =
     'Enabled for assets whose status is ANALYTICS PENDING REVIEW.';
 export const PUBLISH_TDC_BUTTON_HELPTEXT =

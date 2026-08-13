@@ -69,7 +69,7 @@ const ResearchBudgetGrid: React.FC = () => {
   const [budgetYears, setBudgetYears] = useState<number[]>()
   const [masterBrokers, setMarketBrokers] = useState<MaintenanceMasterBroker[]>([]);  
   const [masterDivisions, setMasterDivisions] = useState<MaintenanceDivision[]>([])
-  const [popupTitle, setPopupTitle] = useState('');
+  //const [popupTitle, setPopupTitle] = useState('');
   const dataGridRef = useRef<DataGridRef>(null)
   const userInfo = useUserInfo();
 
@@ -133,12 +133,18 @@ const ResearchBudgetGrid: React.FC = () => {
   }, []);  
 
   const onEditingStart = () => {
-        setPopupTitle('Edit Budget');
+        //setPopupTitle('Edit Budget');
         // You can also access e.data to get the row data being edited
     };
 
-  const onInitNewRow = () => {
-        setPopupTitle('New Budget');
+  const onInitNewRow = (e:DataGridTypes.InitNewRowEvent) => {
+      //setPopupTitle('New Budget');
+      e.data.budgetYear = selectedYear;
+      e.data.divisionId = selectedDivision !== 0 ? selectedDivision : null;
+      e.data.quarterOne = 0;
+      e.data.quarterTwo = 0;
+      e.data.quarterThree = 0;
+      e.data.quarterFour = 0;
     };
 
   const onEditorPreparing = useCallback(handleEditorPreparing, []);
@@ -227,7 +233,6 @@ const ResearchBudgetGrid: React.FC = () => {
           >
             <Popup
               showTitle={true}
-              title={popupTitle}
               width="30%"
               minWidth="350px"
               height="auto"
@@ -309,11 +314,15 @@ const ResearchBudgetGrid: React.FC = () => {
             <Lookup dataSource={masterDivisions} valueExpr="divisionId" displayExpr="divisionName" />
             <RequiredRule message={ValidationMessage.RequiredField} />
           </Column>
-          <Column dataField="masterBrokerId" caption="Master Broker" allowSorting={true} width="25%">
+          <Column dataField="masterBrokerId" caption="Master Broker" allowSorting width="25%" 
+            calculateSortValue={(rowData) => {
+              const broker = masterBrokers.find(b => b.masterBrokerId === rowData.masterBrokerId);
+              return broker?.masterBrokerName ?? '';
+              }}>
             <Lookup dataSource={masterBrokers} valueExpr="masterBrokerId" displayExpr="masterBrokerName" />
             <RequiredRule message={ValidationMessage.RequiredField} />
           </Column>
-          <Column dataField="mBkrCode" caption="Master Broker Code" allowSorting={true} width="10%" formItem={{ visible: false }} />
+          <Column dataField="mBkrCode" caption="Master Broker Code" allowSorting width="10%" formItem={{ visible: false }} />
           <Column dataField="budgetYear" caption="Budget Year" dataType="number" visible={false} />
           <Column dataField="quarterOne" caption="Q1 Budget" dataType="number" width="10%" alignment="left" format={{ type: "currency", precision: 2 }} />
           <Column dataField="quarterTwo" caption="Q2 Budget" dataType="number" width="10%" alignment="left" format={{ type: "currency", precision: 2 }} />

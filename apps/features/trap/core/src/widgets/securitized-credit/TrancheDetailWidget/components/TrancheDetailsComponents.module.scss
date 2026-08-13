@@ -1,0 +1,140 @@
+/* EXISTING: apps/features/trap/core/src/widgets/securitized-credit/TrancheDetailsWidget/components/TrancheDetailsComponents.module.scss
+ *
+ * Metric cards use the Deal Details left-accent look. .detailBody supports 1/2/3
+ * columns so a full-width panel can spread its rows across up to 3 columns
+ * (fills width + stays short).
+ */
+
+/* ── Metric card — left accent bar, transparent fill (Deal Details style) ── */
+.metricCardContainer {
+    flex: 1;
+    min-width: 0;
+    background: var(--ant-color-fill-alter);
+    border: none;
+    border-left: 3px solid var(--ant-color-border-secondary);
+    border-radius: 0 var(--ant-border-radius) var(--ant-border-radius) 0;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.metricCardAccent {
+    border-left-color: var(--ant-color-primary);
+}
+
+.metricCardHighlight {
+    border-left-color: var(--ant-color-warning);
+}
+
+.metricCardLabel {
+    font-size: 9px;
+    line-height: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ant-color-text-tertiary);
+}
+
+.metricCardValue {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 700;
+    color: var(--ant-color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.metricCardValueAccent {
+    color: var(--ant-color-primary);
+}
+
+.metricCardValueHighlight {
+    color: var(--ant-color-warning);
+}
+
+.metricCardSubText {
+    font-size: 9px;
+    line-height: 12px;
+    color: var(--ant-color-text-tertiary);
+}
+
+/* ── Detail panel ── */
+.detailPanelContainer {
+    background: var(--ant-color-fill-alter);
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: var(--ant-border-radius);
+    padding: 10px 14px;
+    min-width: 0;
+}
+
+.detailBody {
+    display: grid;
+    gap: 0 24px;
+}
+
+.detailBodyOne {
+    grid-template-columns: 1fr;
+}
+
+.detailBodyTwo {
+    grid-template-columns: 1fr 1fr;
+}
+
+.detailBodyThree {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.detailRowContainer {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.detailRowLabel {
+    font-size: 11px;
+    line-height: 16px;
+    color: var(--ant-color-text-secondary);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.detailRowValue {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    color: var(--ant-color-text);
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 260px;
+}
+
+.detailRowValueAccent {
+    color: var(--ant-color-warning);
+}
+
+.fontFamilyMono {
+    font-family: monospace;
+}
+
+.sectionLabelContainer {
+    display: block;
+    font-size: 10px;
+    line-height: 14px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ant-color-text-tertiary);
+    margin-bottom: 6px;
+}

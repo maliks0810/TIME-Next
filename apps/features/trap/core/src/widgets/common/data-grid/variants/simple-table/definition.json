@@ -1,0 +1,36 @@
+{
+    "id": "cwd_simple_grid",
+    "name": "Simple Grid",
+    "version": 1,
+    "description": "",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_simple_grid",
+    "listensToKeys": [],
+    "emitsKeys": null,
+    "configSchema": {
+        "properties": {
+            "schemaKey": {
+                "title": "Schema Key",
+                "enum": ["prism.iint.financial"],
+                "type": "string"
+            }
+        },
+        "required": ["schemaKey"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "common",
+        "visibleIn": ["landing", "workflow"]
+    },
+    "variants": [
+        {
+            "id": "large",
+            "label": "Large",
+            "grid": {
+                "defaultW": 12,
+                "defaultH": 900
+            }
+        }
+    ]
+}

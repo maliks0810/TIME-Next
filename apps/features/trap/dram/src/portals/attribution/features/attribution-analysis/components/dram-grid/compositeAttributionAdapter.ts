@@ -117,6 +117,7 @@ const getLevel = (row: AnalyticResultRow): number => {
     "Level",
     "HierarchyLevel",
     "hierarchy_level",
+    "Hierarchy_level"
   ]);
 
   return value ?? 0;
@@ -125,16 +126,19 @@ const getLevel = (row: AnalyticResultRow): number => {
 const toBps = (value: number | null): number | null => {
   if (value === null) return null;
 
-  // If your backend already returns bps, change this to: return value;
   return Math.round(value * 10000);
 };
 
-const findTotalRow = (rows: AnalyticResultRow[]): AnalyticResultRow | undefined => {
-  return rows.find(
-    (row) =>
-      String(row["SecurityGroup"] ?? row["securityGroup"] ?? "").toLowerCase() ===
-      "total",
-  );
+function getGroup(row: AnalyticResultRow): string {
+  return (row["SecurityGroup"] as string)
+      || (row["SecurityName"] as string)
+      || "";
+}
+
+const findTotalRow = (
+  rows: AnalyticResultRow[],
+): AnalyticResultRow | undefined => {
+  return rows.find((row) => getGroup(row).toLowerCase() === "total");
 };
 
 export const toCompositePeriods = (
@@ -170,7 +174,7 @@ const buildMatrixRows = (
     .map((baseRow, index) => {
       const label = getText(
         baseRow,
-        ["SecurityGroup", "securityGroup"],
+        ["SecurityGroup", "securityGroup","SecurityName","securityName"],
         `Row ${index + 1}`,
       );
 
@@ -182,7 +186,7 @@ const buildMatrixRows = (
 
         const matchingRow = periodRows.find(
           (row) =>
-            getText(row, ["SecurityGroup", "securityGroup"], "") === label,
+            getText(row, ["SecurityGroup", "securityGroup","SecurityName","securityName"], "") === label,
         );
 
         values[period.id] = toBps(getNumber(matchingRow, valueCandidates));
@@ -212,13 +216,13 @@ const buildAttributionRows = (
 
   const rows = baseRows
     .filter((row) => {
-      const label = getText(row, ["SecurityGroup", "securityGroup"], "");
+      const label = getText(row, ["SecurityGroup", "securityGroup","SecurityName","securityName"], "");
       return label !== "";
     })
     .map((baseRow, index) => {
       const label = getText(
         baseRow,
-        ["SecurityGroup", "securityGroup"],
+        ["SecurityGroup", "securityGroup","SecurityName","securityName"],
         `Row ${index + 1}`,
       );
 
@@ -230,7 +234,7 @@ const buildAttributionRows = (
 
         const matchingRow = periodRows.find(
           (row) =>
-            getText(row, ["SecurityGroup", "securityGroup"], "") === label,
+            getText(row, ["SecurityGroup", "securityGroup","SecurityName","securityName"], "") === label,
         );
 
         const alloc = getNumber(matchingRow, [
@@ -325,6 +329,7 @@ export const buildCompositeAttributionData = ({
       [
         "PFContribToRet",
         "PFContTotalReturn",
+        "PFContToRet",
         "PortContTotalReturn",
         "portfolioContributionTotalReturn",
         "PortfolioContributionToReturn",

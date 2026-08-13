@@ -1,4 +1,8 @@
+
 // Re-export the WorkflowConfig domain types defined in the shared src/lib/types.ts so feature
+
+import { AssetType } from '../../../lib/types';
+
 // components can import them from a local barrel.
 export type {
     Callable,
@@ -17,25 +21,6 @@ export type WorkflowConfigHistory = {
     before: string;
     after: string;
 };
-
-export type CollateralType = {
-    collateralTypeId: number;
-    collateralTypeValue: string;
-    collateralTypeDescription: string;
-}
-export type AssetSubType = {
-    assetSubTypeId: number;
-    assetSubTypeValue: string;
-    assetSubTypeDescription: string;
-    collateralTypes: CollateralType[];
-}
-
-export type AssetType = {
-    assetTypeId: number;
-    assetTypeValue: string;
-    assetTypeDescription: string;
-    assetSubTypes: AssetSubType[];
-}
 
 export type MetaDataResponse = {
     assetTypes: AssetType[];

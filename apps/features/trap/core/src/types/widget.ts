@@ -8,7 +8,6 @@ export type WidgetUIActions = {
     openWorkflow?: (input: {
         target?: {
             templateId?: string;
-            templateVersionId?: string;
             title?: string;
             templateVersionStatus?: string;
         };
@@ -32,7 +31,6 @@ export type WidgetUIData = {
 
 export type WidgetUIState = {
     targetTemplateId?: string;
-    targetTemplateVersionId?: string;
 };
 
 export type WidgetInstanceLike = {
@@ -71,6 +69,7 @@ export type WidgetDefinitionLike = {
         };
     }>;
     uiHints?: Record<string, any>;
+    description?: string;
     [k: string]: any;
 };
 
@@ -86,6 +85,7 @@ export type WidgetComponentProps = {
         variables?: Record<string, WidgetValueType>,
         params?: Record<string, string>
     ) => void;
+    subscribe?: () => void;
 };
 
 export type WidgetRegistryEntry = {

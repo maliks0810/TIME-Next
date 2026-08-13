@@ -17,7 +17,7 @@ export const PreviewStaticScenariosButton = ({
 }: PreviewStaticScenariosButtonProps) => {
     const [isScenariosPreviewModalOpen, setIsScenariosPreviewModalOpen] = useState(false);
 
-    const canPublish = !!selectedAladdinId && (extractCallable(selectedPayload) != 'N' || speedOverridesExist(selectedPayload));
+    const canPublish = !!selectedAladdinId && (speedOverridesExist(selectedPayload) || extractCallable(selectedPayload) !== 'N');
 
     const handleToggleScenariosPreviewModal = useCallback(() => {
         setIsScenariosPreviewModalOpen((prevState) => !prevState);

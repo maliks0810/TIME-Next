@@ -285,12 +285,7 @@ export const RequestNewAsset = ({
                 okText="Submit"
                 onCancel={handleCancel}
                 okButtonProps={{ disabled: okDisabled }}
-                styles={{
-                    body: {
-                        minHeight: '40vh',
-                        overflowY: 'auto',
-                    },
-                }}
+                className='newAssetModel'
             >
                 <Form
                     form={form}
@@ -300,13 +295,7 @@ export const RequestNewAsset = ({
                             form.resetFields(['callDateInputNA']);
                         }
                     }}
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: '220px 1fr',
-                        gap: 20,
-                        alignItems: 'center',
-                        padding: '7px 0px 0px 24px',
-                    }}
+                    className='newAssetRequestForm'
                 >
                     <label htmlFor="assetclass">
                         <strong>Asset Class</strong>
@@ -315,13 +304,7 @@ export const RequestNewAsset = ({
                         <Select
                             id="assetClass"
                             defaultValue="DEBT-FI"
-                            style={{
-                                width: '180px',
-                                padding: '4px',
-                                borderRadius: '6px',
-                                border: '1px solid lightgray',
-                                backgroundColor: 'white',
-                            }}
+                            className='mediumSelect'
                             options={[{ label: 'DEBT - Fixed Income', value: 'DEBT-FI' }]}
                         />
                     </Form.Item>
@@ -332,13 +315,7 @@ export const RequestNewAsset = ({
                     <Form.Item name="instrumentType" noStyle>
                         <Select
                             defaultValue="SD"
-                            style={{
-                                width: '180px',
-                                padding: '4px',
-                                borderRadius: '6px',
-                                border: '1px solid lightgray',
-                                backgroundColor: 'white',
-                            }}
+                            className='mediumSelect'
                             options={[{ label: 'Securitized Debt', value: 'SD' }]}
                         />
                     </Form.Item>
@@ -387,12 +364,7 @@ export const RequestNewAsset = ({
                     </label>
                     <Form.Item name="aladdinId" required={true} noStyle>
                         <Input
-                            style={{
-                                width: '140px',
-                                padding: '4px',
-                                borderRadius: '6px',
-                                border: '1px solid lightgray',
-                            }}
+                            className='aladdinTextBox'
                             placeholder="Enter Aladdin Id"
                         />
                     </Form.Item>

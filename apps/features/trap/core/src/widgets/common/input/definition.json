@@ -1,0 +1,50 @@
+{
+    "id": "cwd_input",
+    "name": "Input widget",
+    "version": 1,
+    "description": "Text input widget",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_input",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "emitsKey": {
+                "title": "Emit key",
+                "enum": ["company.id"],
+                "type": "string"
+            },
+            "submitButton": {
+                "type": "boolean",
+                "title": "Show submit button",
+                "default": true
+            }
+        },
+        "required": ["emitsKey"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 1,
+                    "min": 1,
+                    "max": 12
+                },
+                "height": {
+                    "default": 46,
+                    "min": 46,
+                    "max": 150,
+                    "step": 10
+                }
+            }
+        }
+    ]
+}

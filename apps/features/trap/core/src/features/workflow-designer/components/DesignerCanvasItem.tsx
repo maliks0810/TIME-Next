@@ -18,7 +18,6 @@ type DesignerCanvasItemProps = {
     widget: DesignerWidgetInstance;
     widgetDefinition: any;
     templateId: string;
-    versionId: string;
     isPublished: boolean;
     isDraft: boolean;
     isDraftSaved: boolean;
@@ -42,7 +41,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
             widget,
             widgetDefinition,
             templateId,
-            versionId,
             isPublished,
             isDraft,
             isDraftSaved,
@@ -82,10 +80,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                 <div className={styles.container}>
                     <div className={styles.header}>
                         <div className={styles.headerTitle}>
-                            <div
-                                className={styles.headerTitleInner}
-                                title={widgetTitle}
-                            >
+                            <div className={styles.headerTitleInner} title={widgetTitle}>
                                 {widgetTitle}
                             </div>
                         </div>
@@ -93,7 +88,11 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                             <Button
                                 size="small"
                                 disabled={isPublished}
-                                className={clsx("widget-drag-handle", styles.headerBtn, isPublished ? styles.defaultCursor: styles.grabCursor)}
+                                className={clsx(
+                                    'widget-drag-handle',
+                                    styles.headerBtn,
+                                    isPublished ? styles.defaultCursor : styles.grabCursor
+                                )}
                                 title="Move widget"
                             >
                                 ⋮⋮
@@ -102,7 +101,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                         <div className={styles.btnSection}>
                             <WidgetConfigureModal
                                 templateId={templateId}
-                                versionId={versionId}
                                 isOpen={isConfigOpen}
                                 onSave={(widget) => {
                                     onConfigUpdate?.(widget as DesignerWidgetInstance);
@@ -116,7 +114,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                             <Tooltip title={configureDisabledReason ?? 'Configure widget'}>
                                 <span>
                                     <Button
-                                        className={clsx("rgl-no-drag", styles.headerBtn)}
+                                        className={clsx('rgl-no-drag', styles.headerBtn)}
                                         size="small"
                                         disabled={!!configureDisabledReason}
                                         onMouseDown={(e) => e.stopPropagation()}
@@ -133,7 +131,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                 </span>
                             </Tooltip>
                             <Button
-                                className={clsx("rgl-no-drag", styles.headerBtn)}
+                                className={clsx('rgl-no-drag', styles.headerBtn)}
                                 size="small"
                                 danger
                                 disabled={isPublished}

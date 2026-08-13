@@ -10,83 +10,83 @@
     "emitsKeys": null,
     "configSchema": {
         "properties": {
-            "schemaKey": {
-                "description": "Logical heatmap schema resolved by GraphQL",
-                "enum": ["econ.indicators.heatmap"],
-                "default": "econ.indicators.heatmap",
-                "title": "Schema Key",
-                "type": "string",
-                "category": "System Parameters"
-            },
-            "title": {
-                "default": "",
-                "title": "Title",
-                "type": "string",
-                "category": "View Parameters"
-            },
-            "showTitle": {
-                "default": true,
-                "title": "Widget name in the header",
-                "type": "boolean",
-                "category": "View Parameters"
-            },
-            "showGrouping": {
-                "default": true,
-                "title": "Breadcrumb of active row groups",
-                "type": "boolean",
-                "category": "View Parameters"
-            },
-            "showLegend": {
-                "default": true,
-                "title": "Color legend",
-                "type": "boolean",
-                "category": "View Parameters"
-            },
-            "showTooltip": {
-                "default": true,
-                "title": "Hover a cell for detail",
-                "type": "boolean",
-                "category": "View Parameters"
-            },
-            "showExport": {
-                "default": true,
-                "title": "Excel download button",
-                "type": "boolean",
-                "category": "View Parameters"
-            },
-            "showExpand": {
-                "default": true,
-                "title": "Open every group",
-                "type": "boolean",
-                "category": "View Parameters"
-            },
-            "showCollapse": {
-                "default": true,
-                "title": "Close every group",
-                "type": "boolean",
-                "category": "View Parameters"
-            },
-            "settingsView": {
-                "default": "drawer",
-                "enum": ["drawer", "modal"],
-                "title": "Settings Panel View",
-                "type": "string",
-                "category": "View Parameters"
-            },
             "channel": {
+                "category": "Interactions",
                 "default": 1,
                 "description": "Widgets connected to the same channel are able to share data between each other",
                 "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
-                "type": "string",
-                "category": "Interactions"
+                "type": "string"
             },
             "listensToKeys": {
+                "category": "Interactions",
                 "enum": ["asOfDate", "schemaKey", "common.tree.item"],
-                "title": "Listens to keys",
                 "multiselect": true,
-                "type": "string",
-                "category": "Interactions"
+                "title": "Listens to keys",
+                "type": "string"
+            },
+            "schemaKey": {
+                "category": "System Parameters",
+                "default": "econ.indicators.heatmap",
+                "description": "Logical heatmap schema resolved by GraphQL",
+                "enum": ["econ.indicators.heatmap"],
+                "title": "Schema Key",
+                "type": "string"
+            },
+            "settingsView": {
+                "category": "View Parameters",
+                "default": "drawer",
+                "enum": ["drawer", "modal"],
+                "title": "Settings Panel View",
+                "type": "string"
+            },
+            "showCollapse": {
+                "category": "View Parameters",
+                "default": true,
+                "title": "Close every group",
+                "type": "boolean"
+            },
+            "showExpand": {
+                "category": "View Parameters",
+                "default": true,
+                "title": "Open every group",
+                "type": "boolean"
+            },
+            "showExport": {
+                "category": "View Parameters",
+                "default": true,
+                "title": "Excel download button",
+                "type": "boolean"
+            },
+            "showGrouping": {
+                "category": "View Parameters",
+                "default": true,
+                "title": "Breadcrumb of active row groups",
+                "type": "boolean"
+            },
+            "showLegend": {
+                "category": "View Parameters",
+                "default": true,
+                "title": "Color legend",
+                "type": "boolean"
+            },
+            "showTitle": {
+                "category": "View Parameters",
+                "default": true,
+                "title": "Widget name in the header",
+                "type": "boolean"
+            },
+            "showTooltip": {
+                "category": "View Parameters",
+                "default": true,
+                "title": "Hover a cell for detail",
+                "type": "boolean"
+            },
+            "title": {
+                "category": "View Parameters",
+                "default": "",
+                "title": "Title",
+                "type": "string"
             }
         },
         "required": ["schemaKey"],
@@ -106,13 +106,14 @@
                 "width": {
                     "default": 6,
                     "min": 1,
-                    "max": 12
+                    "max": 12,
+                    "step": null
                 },
                 "height": {
-                    "default": 360,
-                    "min": 360,
+                    "default": 350,
+                    "min": 350,
                     "max": 1000,
-                    "step": 10
+                    "step": 50
                 }
             }
         }

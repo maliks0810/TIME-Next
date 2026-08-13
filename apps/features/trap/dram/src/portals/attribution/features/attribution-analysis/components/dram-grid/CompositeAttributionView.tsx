@@ -5,6 +5,7 @@ import { DownloadOutlined } from "@ant-design/icons";
 
 import "./CompositeAttributionView.css";
 import { CompositeAttributionViewData, MultiPeriodAttributionRow, SinglePeriodAttributionRow } from "./compositeAttributionAdapter";
+import { getCompositePeriodLabel } from "./periodUtils";
 
 
 const { Text, Title } = Typography;
@@ -207,7 +208,7 @@ const MultiPeriodCompositeView: React.FC<MultiPeriodCompositeViewProps> = ({ dat
           <tr>
             <th className="composite-label-col" />
             {data.periods.map((period) => (
-              <th key={period.id}>{period.label}</th>
+              <th key={period.id}>{getCompositePeriodLabel(period)}</th>
             ))}
           </tr>
         </thead>
@@ -244,7 +245,7 @@ const MultiPeriodCompositeView: React.FC<MultiPeriodCompositeViewProps> = ({ dat
           <tr>
             <th className="composite-label-col" />
             {data.periods.map((period) => (
-              <th key={period.id}>{period.label}</th>
+              <th key={period.id}>{getCompositePeriodLabel(period)}</th>
             ))}
           </tr>
         </thead>
@@ -274,7 +275,7 @@ const MultiPeriodCompositeView: React.FC<MultiPeriodCompositeViewProps> = ({ dat
           <tr>
             <th className="composite-label-col" />
             {data.periods.map((period) => (
-              <th key={period.id}>{period.short_label}</th>
+              <th key={period.id}>{getCompositePeriodLabel(period)}</th>
             ))}
           </tr>
         </thead>

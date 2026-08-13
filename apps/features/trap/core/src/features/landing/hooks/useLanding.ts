@@ -1,19 +1,11 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-/* eslint-disable  @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import { message } from 'antd';
 
-import {
-    listTemplates,
-    listTemplateVersions,
-    openTemplate,
-    getTemplateVersion,
-    TemplateSummary,
-} from '../../../api/trap';
+import { listTemplates, getTemplateVersion, TemplateSummary } from '../../../api/trap';
 import { type WorkflowContext } from '../../../state/contextBus';
 
-import type { LandingTabProps, TemplateVersion } from '../types/landing.types';
-import { pickBestVersion } from '../utils/landing.utils';
+import type { LandingTabProps } from '../types/landing.types';
 import {
     getDefaultLandingTemplate,
     setDefaultLandingTemplate,
@@ -27,10 +19,8 @@ export function useLanding(props: LandingTabProps) {
     const { claims, ...info } = useUserInfo();
     const [compiledLandingVersion, setCompiledLandingVersion] = React.useState<any>(null);
     const [targetTemplateId, setTargetTemplateId] = React.useState<string>();
-    const [targetTemplateVersionId, setTargetTemplateVersionId] = React.useState<string>();
-    const [loadingLandingVersion, setLoadingLandingVersion] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
-    const hasLanding = Boolean(targetTemplateId && targetTemplateVersionId);
+    const hasLanding = Boolean(targetTemplateId);
     const activeUser = useGetActiveUser();
     const [error, setError] = useState<string | null>(null);
     const initLandingFromActive = (
@@ -38,7 +28,6 @@ export function useLanding(props: LandingTabProps) {
         activeLandingSelection: LandingTabProps['activeLandingSelection']
     ) => {
         const activeTemplateId = activeLandingSelection?.templateId;
-        const activeVersionId = activeLandingSelection?.templateVersionId;
 
         if (activeTemplateId) {
             const activeTemplate = templates.find((template) => template.id === activeTemplateId);
@@ -48,7 +37,6 @@ export function useLanding(props: LandingTabProps) {
                 String(activeTemplate.kind ?? '').toLowerCase() === 'landing'
             ) {
                 setTargetTemplateId(activeTemplate.id);
-                setTargetTemplateVersionId(activeVersionId);
 
                 setIsLoading(false);
                 return;
@@ -60,11 +48,9 @@ export function useLanding(props: LandingTabProps) {
         templates: TemplateSummary[],
         defaultLanding: {
             templateId: string | null;
-            versionId: string | null;
         } | null
     ) => {
         const savedTemplateId = defaultLanding?.templateId ?? undefined;
-        const savedVersionId = defaultLanding?.versionId ?? undefined;
 
         const savedTemplate = savedTemplateId
             ? templates.find((template) => template.id === savedTemplateId)
@@ -72,7 +58,6 @@ export function useLanding(props: LandingTabProps) {
 
         if (savedTemplate?.id) {
             setTargetTemplateId(savedTemplate.id);
-            setTargetTemplateVersionId(savedVersionId);
 
             setIsLoading(false);
             return;
@@ -105,7 +90,6 @@ export function useLanding(props: LandingTabProps) {
     const initDefaultLanding = async (
         defaultLanding: {
             templateId: string | null;
-            versionId: string | null;
         } | null,
         activeLandingSelection: LandingTabProps['activeLandingSelection']
     ) => {
@@ -123,19 +107,13 @@ export function useLanding(props: LandingTabProps) {
 
             const departmentLanding = findSuitableLanding(templates);
             if (departmentLanding) {
-                const versions = await listTemplateVersions(departmentLanding.id);
-
-                const best = pickBestVersion(versions as TemplateVersion[]);
-
                 setTargetTemplateId(departmentLanding.id);
-                setTargetTemplateVersionId(best?.id);
 
-                setDefaultLandingTemplate(departmentLanding.id, best?.id || '');
+                setDefaultLandingTemplate(departmentLanding.id);
                 setIsLoading(false);
                 return;
             }
             setTargetTemplateId(undefined);
-            setTargetTemplateVersionId(undefined);
             setCompiledLandingVersion(null);
 
             setIsLoading(false);
@@ -152,7 +130,7 @@ export function useLanding(props: LandingTabProps) {
     }, [defaultLanding, props.activeLandingSelection, activeUser]);
 
     React.useEffect(() => {
-        if (!targetTemplateId || !targetTemplateVersionId) {
+        if (!targetTemplateId) {
             setCompiledLandingVersion(null);
             return;
         }
@@ -160,10 +138,8 @@ export function useLanding(props: LandingTabProps) {
         let cancelled = false;
 
         (async () => {
-            setLoadingLandingVersion(true);
-
             try {
-                const tv = await getTemplateVersion(targetTemplateId, targetTemplateVersionId);
+                const tv = await getTemplateVersion(targetTemplateId);
 
                 if (!cancelled) {
                     setCompiledLandingVersion(tv ?? null);
@@ -172,62 +148,45 @@ export function useLanding(props: LandingTabProps) {
                 if (!cancelled) {
                     setCompiledLandingVersion(null);
                 }
-            } finally {
-                if (!cancelled) {
-                    setLoadingLandingVersion(false);
-                }
             }
         })();
 
         return () => {
             cancelled = true;
         };
-    }, [targetTemplateId, targetTemplateVersionId]);
+    }, [targetTemplateId]);
 
     const openWorkflowFromRecent = React.useCallback(
         async (input: {
             target?: {
                 templateId?: string;
-                templateVersionId?: string;
                 title?: string;
                 templateVersionStatus?: string;
             };
             context?: Record<string, any>;
         }) => {
             const templateId = input.target?.templateId;
-            const versionId = input.target?.templateVersionId;
 
-            if (!templateId || !versionId) {
+            if (!templateId) {
                 message.error('Selected recent workflow is unavailable');
                 return;
             }
 
             let versionStatus = input.target?.templateVersionStatus ?? 'UNKNOWN';
 
-            if (versionStatus === 'UNKNOWN') {
-                try {
-                    const vs = (await listTemplateVersions(templateId)) as TemplateVersion[];
-                    const selected = vs.find((v) => v.id === versionId);
-                    versionStatus = selected?.status ?? versionStatus;
-                } catch {
-                    // keep UNKNOWN
-                }
-            }
-
             const ctx: WorkflowContext = {
                 ...(input.context ?? {}),
             };
 
-            const resp = await openTemplate(versionId, ctx);
-
             props.onOpenWorkflow({
-                key: resp.workflowId,
-                workflowId: resp.workflowId,
+                key: templateId,
+                workflowId: templateId,
                 templateId,
-                templateVersionId: versionId,
                 templateVersionStatus: versionStatus,
                 title: input.target?.title ?? 'Workflow',
                 initialContext: ctx,
+                // Sending empty ownerUserId, as we don't have access to it here.
+                ownerUserId: ''
             });
         },
         [props]

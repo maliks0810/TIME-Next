@@ -1,8 +1,8 @@
 {
     "id": "cwd_common_data_grid_01",
-    "name": "Common Data Grid",
+    "name": "Data Grid",
     "version": 1,
-    "description": "Reusable DevExtreme-based data grid widget for domain driven tabular data.",
+    "description": "Reusable data grid widget for large datasets.",
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_common_data_grid_01",
@@ -39,7 +39,12 @@
                     "arc.risk.status.grid",
                     "portfolio.gross.history",
                     "portfolio.benchmark.history",
-                    "portfolio.net.history"
+                    "portfolio.net.history",
+                    "prism.comparables.equity",
+                    "prism.comparables.debt",
+                    "prism.issuer.profile",
+                    "prism.issuer.capital_structure",
+                    "prism.issuer.fundamentals"
                 ],
                 "title": "Schema Key",
                 "type": "string",
@@ -47,11 +52,7 @@
             },
             "selectionMode": {
                 "default": "single",
-                "enum": [
-                    "none",
-                    "single",
-                    "multiple"
-                ],
+                "enum": ["none", "single", "multiple"],
                 "title": "Selection Mode",
                 "type": "string",
                 "category": "Interactions"
@@ -61,7 +62,8 @@
                     "asOfDate",
                     "common.data.grid.row",
                     "schemaKey",
-                    "common.tree.item"
+                    "common.tree.item",
+                    "company.id"
                 ],
                 "title": "Listens to keys",
                 "multiselect": true,
@@ -69,18 +71,13 @@
                 "category": "Interactions"
             }
         },
-        "required": [
-            "schemaKey"
-        ],
+        "required": ["schemaKey"],
         "type": "object"
     },
     "uiHints": {
         "category": "Common",
         "library": "DevExtreme",
-        "visibleIn": [
-            "workflow",
-            "landing"
-        ]
+        "visibleIn": ["workflow", "landing"]
     },
     "variants": [
         {

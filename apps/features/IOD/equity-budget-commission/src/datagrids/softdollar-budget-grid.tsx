@@ -508,7 +508,14 @@ const onChildAccountUserDelete = async (userAllocationId: number) => {
 
   try {  
     await removeSoftAccountUserAllocation(userAllocationId);  
+
     showToast('User deleted successfully', 'success');  
+
+    await loadSoftdollarBudgetAccounts(selectedSoftBudgetId);
+
+    const detail: SoftDollarBudgetDetail = await loadSoftDollarBudgetDetails(selectedSoftBudgetId);
+
+    rePopulateBudgetDetails(detail);
   } catch (error) {  
     if (error instanceof Error) {  
       showToast('Delete failed: ' + error.message, 'error');  
@@ -551,7 +558,25 @@ const onChildPopupUserAllocationSave = async () => {
 
     await loadSoftdollarBudgetAccounts(selectedSoftBudgetId);
 
-    const detail = await loadSoftDollarBudgetDetails(selectedSoftBudgetId);
+    const detail: SoftDollarBudgetDetail = await loadSoftDollarBudgetDetails(selectedSoftBudgetId);
+
+    rePopulateBudgetDetails(detail);
+    
+    setUserDataSaving(false);
+  } catch (error) {  
+    if (error instanceof Error) {  
+      showToast('Save failed: ' + error.message, 'error');  
+    }  
+  } 
+  finally{
+    setIsCommentsLoading(false);
+    setIsChangeLogLoading(false);
+    setIsAccountDataLoading(false);
+    setUserDataSaving(false);
+  }
+};
+
+function rePopulateBudgetDetails(detail: SoftDollarBudgetDetail){
     const detailData = (detail?  detail: softBudgetDetails) as SoftDollarBudgetDetail;  
     if(editingData){
       detailData.softDollarBudgetId = editingData.softDollarBudgetId;
@@ -575,19 +600,7 @@ const onChildPopupUserAllocationSave = async () => {
       setIsCommentsLoading(true);
       setCommentsData(comments);
     }
-    setUserDataSaving(false);
-  } catch (error) {  
-    if (error instanceof Error) {  
-      showToast('Save failed: ' + error.message, 'error');  
-    }  
-  } 
-  finally{
-    setIsCommentsLoading(false);
-    setIsChangeLogLoading(false);
-    setIsAccountDataLoading(false);
-    setUserDataSaving(false);
-  }
-};
+}
 
 return (  
   <div>  
@@ -882,7 +895,6 @@ return (
                     </div>
                   )}
                 </TabItem>  
-                <TabItem title="Invoices" />  
                 <TabItem title="Comments" >
                   { isCommentsLoading && commentsData.length > 0 ? (
                     <div className="div-loader">  
