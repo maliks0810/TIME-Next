@@ -221,12 +221,12 @@ export const deleteSecurityRequests = async (
       headers: {
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache',
-        'Expires': '0',
-        'Authorization': 'Bearer ' + parameters.userToken
+        'Expires': '0'
       },
       params: {
         securitySetupRequestId: parameters.securitySetupRequestId ?? "",
-        updatedBy: parameters.updatedBy ?? ""
+        updatedBy: parameters.updatedBy ?? "",
+        canCancelRequestAfterSubmission: parameters.canCancelRequestAfterSubmission ?? false
       }
     }
 
