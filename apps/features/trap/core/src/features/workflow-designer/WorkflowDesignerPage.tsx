@@ -17,9 +17,8 @@ import { ThemeName } from '../../theme/types';
 type WorkflowDesignerPageProps = {
     // Provided when embedded inside a workflow tab (new shell). Omitted on the
     // standalone /designer route, where the hook falls back to query params.
-    templateId?: string;
+    propTemplateId: string;
     versionId?: string;
-    embedded?: boolean;
     active?: boolean;
     // New shell: "Add Widget" opens the drawer's Widgets segment (the concept's library),
     // not the legacy in-designer picker modal.
@@ -28,12 +27,11 @@ type WorkflowDesignerPageProps = {
 };
 
 export default function WorkflowDesignerPage({
-    templateId: propTemplateId,
+    propTemplateId,
     onPublished,
-    embedded,
     active,
     onRequestAddWidget,
-}: WorkflowDesignerPageProps = {}) {
+}: WorkflowDesignerPageProps) {
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const { token } = theme.useToken();
     const { themeName } = useTheme();
@@ -79,11 +77,10 @@ export default function WorkflowDesignerPage({
         onLayoutChange,
         addWidget,
         removeWidget,
-        saveDraft,
         publish,
         updateWidgetConfig,
         contextHolder,
-    } = useWorkflowDesigner(onPublished);
+    } = useWorkflowDesigner({ onPublishedCb: onPublished, templateId: propTemplateId });
 
     useEffect(() => {
         if (layout.length !== 0) {
@@ -92,7 +89,7 @@ export default function WorkflowDesignerPage({
     }, [layout]);
 
     useEffect(() => {
-        if (!embedded || !active) return;
+        if (!active) return;
         setActiveCanvas({
             isDraft,
             widgets: filteredWidgetDefs,
@@ -105,15 +102,7 @@ export default function WorkflowDesignerPage({
             filteredWidgetDefs,
         });
         return () => setActiveCanvas(null);
-    }, [
-        embedded,
-        active,
-        isDraft,
-        filteredWidgetDefs,
-        selectedWidgetParams,
-        loading,
-        selectedWidgetDef,
-    ]);
+    }, [active, isDraft, filteredWidgetDefs, selectedWidgetParams, loading, selectedWidgetDef]);
 
     // Decorate the layout with per-item resize policy derived from each
     // widget's `uiHints.sizing`. Opted-in widgets (e.g. the counter tile)
@@ -166,7 +155,6 @@ export default function WorkflowDesignerPage({
                     saveDisabledReason={saveDisabledReason}
                     publishDisabledReason={publishDisabledReason}
                     onOpenLibrary={onRequestAddWidget as () => void}
-                    onSaveDraft={() => void saveDraft()}
                     onPublish={() => void publish()}
                     onBack={() => nav('/trap')}
                 />

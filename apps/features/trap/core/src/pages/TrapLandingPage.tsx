@@ -80,13 +80,13 @@ export default function TrapLandingPage() {
     const setActiveKey = useSetActiveTab();
     const [isInitialLoading, setIsInitialLoading] = React.useState(true);
 
+    const templateId = searchParams.get('template_id');
+
     const initTemplates = async () => {
         const templates = await getTemplates();
         setAllTemplates(templates);
     };
     useEffect(() => {
-        const templateId = searchParams.get('template_id');
-
         if (templateId && activeUser) {
             setIsInitialLoading(false);
             initWorkflowFromURL(templateId);
@@ -102,6 +102,31 @@ export default function TrapLandingPage() {
     useEffect(() => {
         saveTabsToStorage(workflows);
     }, [workflows]);
+
+    useEffect(() => {
+        if (templateId && templateId !== activeKey && allTemplates.length > 0) {
+            const template = allTemplates.find((el) => el.id === templateId);
+
+            if (template) {
+                const selection: HudWorkflowSelection = {
+                    templateId: templateId,
+                    templateName: template.name,
+                    templateVersionStatus: template.latestPublished.status,
+                    ownerUserId: template.ownerUserId!,
+                    latestPublished: template.latestPublished,
+                };
+                addWorkflowTab({
+                    key: selection.templateId,
+                    workflowId: selection.templateId,
+                    title: selection.templateName,
+                    templateId: selection.templateId,
+                    templateVersionStatus: selection.templateVersionStatus,
+                    ownerUserId: selection.ownerUserId,
+                    latestPublished: selection.latestPublished,
+                });
+            }
+        }
+    }, [templateId]);
 
     useEffect(() => {
         if (activeKey === 'landing' && !isInitialLoading) {
@@ -414,9 +439,8 @@ export default function TrapLandingPage() {
                             >
                                 {isDesignerTab ? (
                                     <WorkflowDesignerPage
-                                        embedded
                                         active={activeKey === ws.workflowId}
-                                        templateId={ws.templateId}
+                                        propTemplateId={ws.templateId}
                                         onRequestAddWidget={() => {
                                             setDrawerState({
                                                 isOpen: true,
