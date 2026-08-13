@@ -32,6 +32,8 @@ export interface SecuritySetupRequest {
     isNewIssue: boolean;
     isEuSecuritizationRequired: boolean;
     euSecuritizationTipEuId: string;
+    dmAnalystName: string;
+    dmAnalystEmail: string;
     callDate: string;
     tranche: string;
     price: number;
@@ -113,6 +115,6 @@ export interface DelSecuritySetupRequest {
 }
 
 export interface DeleteSecuritySetupRequest {
-    securitySetupRequest: DelSecuritySetupRequest;    
+    securitySetupRequest: DelSecuritySetupRequest;
     isCancelled: boolean;
 }

@@ -10,13 +10,17 @@ import { DateRangeBox } from 'devextreme-react/date-range-box'
 import { IDashboardSecuritySetupRequest, IDashboardStats } from '../lib/DashboardSecuritySetupRequest'
 import { getDefaultDashboardSearchParameters, IDashboardSearchParameters, updateDashboardSearchParameter } from '../lib/DashboardSearchParameters';
 import { getSecurityRequestsDashboard } from '../../../services/DashboardService';
+import { useDashboardStore } from '../../../stores/useDashboardStore';
+import { useReferenceData } from '../../../hooks/useReferenceData';
+import { ReferenceDataFieldKey } from '../../security-setup/lib/types/referenceDataTypes';
 import { useVisibilityChange } from '../../../hooks/useVisibilityChange';
+import { useIdentity } from '../../../hooks/useIdentity';
 import { useInterval } from '../../../hooks/useInterval';
 import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
 import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
 import '../lib/dashboard.scss';
 import { DataGridRef } from 'devextreme-react/cjs/data-grid';
-import { useReferenceData } from '../../../pages/security-setup/hooks/useReferenceData';
+import { useUserInfo } from '@platform/utils';
 
 const Dashboard: React.FC = () => {
   const [isRequestDetailsOpen, setIsRequestDetailsOpen] = useState(false);
@@ -32,22 +36,30 @@ const Dashboard: React.FC = () => {
   const [lastRefreshed, setLastRefreshed] = useState<string>("");
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const isPageVisible = useVisibilityChange();
+  const isDmAnalystDropdownOpen = useDashboardStore(s => s.isDmAnalystDropdownOpen);
+  const setDmAnalystAssignments = useDashboardStore(s => s.setDmAnalystAssignments)
   const navigate = useNavigate();
+  const { name: currentUser } = useUserInfo();
   const dashboardGridRef = useRef<DataGridRef<IDashboardSecuritySetupRequest, number>>(null);
 
   // Server state hooks — stay as hooks, not in Zustand
   const { data: referenceData } =
     useReferenceData();
+  const dmAnalystOptions = referenceData?.byKey[ReferenceDataFieldKey.DmAnalyst]?.fieldDropdownValues ?? [];
+
+  // Set user auth permissions to Zustand store
+  useIdentity();
 
   // poll data when page is visible
   useEffect(() => {
-    if (isPageVisible) {
+    // pause polling when user had DM Analyst dropdown open
+    if (isPageVisible && !isDmAnalystDropdownOpen) {
       setPollingInterval(DASHBOARD_POLLING_INTERVAL);
     }
     else {
       setPollingInterval(null);
     }
-  }, [isPageVisible]);
+  }, [isPageVisible, isDmAnalystDropdownOpen]);
 
   // poll data in intervals
   useInterval(() => {
@@ -69,6 +81,9 @@ const Dashboard: React.FC = () => {
       const data = await getSecurityRequestsDashboard(parameters);
       setSecurityRequestsData(data.securityRequests);
       setDashboardStats(data.dashboardStats)
+      setDmAnalystAssignments(
+        (data.securityRequests ?? []).map(r => ({ id: r.id, email: r.dmAnalystEmail })),
+      )
 
       const currentTime = getCurrentLocalTime();
       setLastRefreshed(currentTime);
@@ -79,7 +94,7 @@ const Dashboard: React.FC = () => {
     finally {
       setIsPolling(false);
     }
-  }, [searchParameters, setSecurityRequestsData, setLastRefreshed, setIsPolling]);
+  }, [searchParameters, setSecurityRequestsData, setLastRefreshed, setIsPolling, setDmAnalystAssignments]);
 
   const handleClearGridFilters = () => {
     if (dashboardGridRef.current) {
@@ -343,6 +358,8 @@ const Dashboard: React.FC = () => {
                 securityRequestsData={securityRequestsData}
                 setSelectedSecurityRequest={setSelectedSecurityRequest}
                 setIsRequestDetailsOpen={setIsRequestDetailsOpen}
+                dmAnalystOptions={dmAnalystOptions}
+                currentUser={currentUser || ''}
               />
             </Grid>
           </Grid>

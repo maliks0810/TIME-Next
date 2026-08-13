@@ -24,7 +24,7 @@ import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
 import { ISecuritySetupRequestAttachment, ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 import { SecuritySetupService } from '../../../services/SecuritySetupService';
 import { useReferenceData } from '../hooks/useReferenceData';
-import { useIdentity } from '../hooks/useIdentity';
+import { useIdentity } from '../../../hooks/useIdentity';
 import { getStepNumber } from '../utils/securitySetupApiTransformer';
 import {
   isValidString,
@@ -40,6 +40,7 @@ import { ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { ApiResponseError } from '../../../common/lib/ApiResponseError';
 import { ErrorModal } from '../../../common/components/ErrorModal';
 import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
+import { useIdentityStore } from '../../../stores/useIdentityStore';
 import {
   useWizardNavigation,
   useHasPasswordFlow,
@@ -47,6 +48,7 @@ import {
   useSummary,
   useFileUploadState
 } from '../../../stores/selectors/securitySetupSelectors';
+import { setDmAssignment } from '../../../services/DashboardService';
 
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
@@ -66,7 +68,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const navigate = useNavigate();
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorModalBody, setErrorModalBody] = useState('');
-  const { name: currentUser } = useUserInfo();
+  const { name: currentUser, email: currentUserEmail } = useUserInfo();
 
   // Server state hooks — stay as hooks, not in Zustand
   const { data: referenceData, loading: loadingReferenceData, error: referenceDataError } =
@@ -94,6 +96,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     markStepComplete,
     goToStep,
     setReadOnly,
+    setUserReadOnly,
     openConfirmModal,
     closeConfirmModal,
     setPendingFiles,
@@ -104,7 +107,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   } = useSecuritySetupStore();
 
   // Store state via selectors
-  const { currentStep, completedSteps, isReadOnly, showConfirmModal } = useWizardNavigation();
+  const { currentStep, completedSteps, isReadOnly, isUserReadOnly, showConfirmModal } = useWizardNavigation();
   const hasPasswordFlow = useHasPasswordFlow();
   const validationFields = useValidationFields();
   const step1Summary = useSummary();
@@ -112,6 +115,11 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   const isCancelled =
     initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
+
+  useEffect(() => {
+    const cancelled = initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
+    setReadOnly(cancelled);
+  }, [initialData]);
 
   const [isDirty, setIsDirty] = useState(false);
   const stepBaseLineRef = useRef(validationFields);
@@ -134,6 +142,45 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       hydrateFromPayload(initialData);
     }
   }, [initialRequestId]);
+
+  const userIdentity = useIdentityStore((s) => s.userIdentity);
+
+  // Set to read only if DM Analyst is assigned to a different user
+  useEffect(() => {
+    const canEditAnySecuritySetupRequest = userIdentity?.permissionsAllowed?.edit_any_security_setup_request || false;
+    // Check if user can edit any request regardless of assignment (DM Admin)
+    if (!canEditAnySecuritySetupRequest) {
+      const readOnly = (initialData?.dmAnalystName !== undefined && currentUser !== initialData?.dmAnalystName);
+      setUserReadOnly(readOnly);
+    }
+  }, [initialData])
+
+  useEffect(() => {
+    setDmAnalyst();
+  }, [initialData, referenceData])
+  
+  const setDmAnalyst = useCallback(async () => {
+    if (currentUser && currentUserEmail && initialData) {
+      if (initialData.securitySetupRequestId) {
+        // if a DM Analyst opens the request and no DM Analyst is assigned, then self-assign
+        if (initialData.dmAnalystName === null || initialData.dmAnalystName === undefined) {
+          const dmAnalystOptions = referenceData?.byKey[ReferenceDataFieldKey.DmAnalyst]?.fieldDropdownValues ?? [];
+          if (dmAnalystOptions.length > 0) {
+            const dmAnalystNames = dmAnalystOptions.map(option => option.fieldDropdownDescription ?? '');
+            if (dmAnalystNames.includes(currentUser)){
+              initialData.dmAnalystName = currentUser;
+              await setDmAssignment({
+                securitySetupRequestId: initialData.securitySetupRequestId,
+                name: currentUser,
+                email: currentUserEmail,
+                updatedBy: currentUser
+              });
+            }
+          }
+        }
+      }
+    }
+  }, [currentUser, currentUserEmail, initialData, referenceData])
 
   const saveErrorMessage = saveStatus === "error" ? (saveError?.message ?? "") : "";
   const isInvalidMarketSector = !!saveErrorMessage.includes("Invalid Market Sector");
@@ -175,14 +222,24 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       notesInstructions: s.notesInstructions,
       attachments: s.attachments,
       ...(s.uploadedFile && { uploadedFile: s.uploadedFile, isConfirmed: true }),
+      dmAnalystName: s.dmAnalystName,
+      dmAnalystEmail: s.dmAnalystEmail,
     };
   };
 
   const getAuditFields = useCallback(() => {
     if (securitySetupRequestId == null) {
-      return { createdBy: currentUser, createdDate: new Date().toISOString() };
+      return { 
+        createdBy: currentUser,
+        createdByEmail: currentUserEmail,
+        createdDate: new Date().toISOString() 
+      };
     }
-    return { updatedBy: currentUser, updatedDate: new Date().toISOString() };
+    return {
+      updatedBy: currentUser,
+      updatedByEmail: currentUserEmail,
+      updatedDate: new Date().toISOString() 
+    };
   }, [securitySetupRequestId, currentUser]);
 
   const getNextStep = (current: SecuritySetupStep): SecuritySetupStep | null => {
@@ -716,7 +773,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         {showBackButton &&
           currentStep !== "enter-identifier" &&
           currentStep !== "ssap-confirmation" && (
-            <Button variant="outlined" className="back-button" onClick={handleBack} startIcon={<ArrowBackIcon />}>
+            <Button
+              variant="outlined"
+              className="back-button"
+              onClick={handleBack}
+              disabled={isCancelled || isUserReadOnly}
+              startIcon={<ArrowBackIcon />}>
               Back
             </Button>
           )}
@@ -725,7 +787,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             variant="outlined"
             className="save-button"
             onClick={handleSave}
-            disabled={isCancelled || (currentStep === "enter-identifier" && isReadOnly)}
+            disabled={isCancelled || (currentStep === "enter-identifier" && isReadOnly) || isUserReadOnly}
             startIcon={<SaveIcon />}
           >
             Save
@@ -736,7 +798,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
             variant="contained"
             className="next-button"
             onClick={handleNext}
-            disabled={!canProceed()}
+            disabled={!canProceed() || isCancelled || isUserReadOnly}
             endIcon={
               currentStep === 'confirm-details' ? (
                 <CheckIcon />

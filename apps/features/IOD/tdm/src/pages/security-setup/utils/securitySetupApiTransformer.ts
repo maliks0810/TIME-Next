@@ -156,8 +156,10 @@ export const transformToApiDomain = (
         ReviewedBy: payload.reviewedBy || undefined,
         ReviewedDate: payload.reviewedDate || null,
         CreatedBy: payload.createdBy || undefined,
+        CreatedByEmail: payload.createdByEmail || undefined,
         CreatedDate: payload.createdDate || undefined,
         UpdatedBy: payload.updatedBy || undefined,
+        UpdatedByEmail: payload.updatedByEmail || undefined,
         UpdatedDate: payload.updatedDate || undefined,
 
         // Wizard metadata
@@ -165,6 +167,9 @@ export const transformToApiDomain = (
         CurrentStepNumber: payload.currentStepNumber,
         SaveType: payload.saveType,
         ExternalSecuritySetupRequestId: payload.externalSecuritySetupRequestId,
+
+        DmAnalystName: payload.dmAnalystName,
+        DmAnalystEmail: payload.dmAnalystEmail,
     };
 };
 
@@ -288,5 +293,8 @@ export const transformFromApiPresentation = (
             presentation.attachments && presentation?.attachments?.length > 0
                 ? presentation.attachments
                 : undefined,
+
+        dmAnalystName: presentation.dmAnalystName || undefined,
+        dmAnalystEmail: presentation.dmAnalystEmail || undefined
     };
 };
