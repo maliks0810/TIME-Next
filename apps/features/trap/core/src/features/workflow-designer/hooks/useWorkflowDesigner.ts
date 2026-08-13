@@ -1,7 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { message } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import {
     getTemplateVersion,
@@ -27,9 +27,14 @@ export type AddWidgetOptions = {
     keepPickerOpen?: boolean;
 };
 
-export function useWorkflowDesigner(onPublishedCb?: () => void) {
+export function useWorkflowDesigner({
+    onPublishedCb,
+    templateId,
+}: {
+    onPublishedCb?: () => void;
+    templateId: string;
+}) {
     const nav = useNavigate();
-    const location = useLocation();
 
     const { login } = useUserInfo();
     const [loading, setLoading] = React.useState(false);
@@ -53,10 +58,7 @@ export function useWorkflowDesigner(onPublishedCb?: () => void) {
     const [isDraftSaved, setIsDraftSaved] = React.useState(true);
 
     const removingIdsRef = React.useRef<Set<string>>(new Set());
-    const params = React.useMemo(() => new URLSearchParams(location.search), [location.search]);
-    const routeTemplateId = params.get('template_id') ?? '';
 
-    const [templateId, setTemplateId] = React.useState(routeTemplateId);
     const [messageApi, contextHolder] = message.useMessage();
 
     React.useEffect(() => {
@@ -64,10 +66,6 @@ export function useWorkflowDesigner(onPublishedCb?: () => void) {
             saveDraft();
         }
     }, [isDraftSaved]);
-
-    React.useEffect(() => {
-        setTemplateId(routeTemplateId);
-    }, [routeTemplateId]);
 
     const loadTemplateMeta = React.useCallback(async (tid: string) => {
         const templates = await listTemplates();
@@ -464,7 +462,6 @@ export function useWorkflowDesigner(onPublishedCb?: () => void) {
         onLayoutChange,
         addWidget,
         removeWidget,
-        saveDraft,
         publish,
         updateWidgetConfig,
         contextHolder,
