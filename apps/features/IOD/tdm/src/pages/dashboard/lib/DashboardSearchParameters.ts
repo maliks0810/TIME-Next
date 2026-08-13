@@ -45,11 +45,13 @@ export const defaultDashboardGridFilters : IDashboardGridFilters = {
 export interface IDashboardDetailsDeleteParameters {
   securitySetupRequestId: string;
   updatedBy: string;
+  canCancelRequestAfterSubmission: boolean;
 }
 
 export const defaultDashboardDetailsDeleteParameters : IDashboardDetailsDeleteParameters = {
   securitySetupRequestId: '',
   updatedBy: '',
+  canCancelRequestAfterSubmission: false
 }
 
 export interface IDuplicateSecuritySetupRequestParameters {

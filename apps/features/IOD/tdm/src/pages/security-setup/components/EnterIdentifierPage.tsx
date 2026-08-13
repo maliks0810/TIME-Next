@@ -47,6 +47,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
   }, []);
 
   const isReadOnly = formValues.isReadOnly;
+  const isUserReadOnly = formValues.isUserReadOnly;
   const isUploadingFile = formValues.isUploadingFile;
   const fileUploadError = formValues.fileUploadError;
   const pendingUploadFiles = formValues.pendingUploadFiles;
@@ -260,7 +261,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               value={formValues.dealName || ''}
               onChange={handleTextChange('dealName')}
               variant="outlined"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               placeholder="Sample Deal Name"
             />
           </div>
@@ -277,7 +278,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                   ...(value === 'Not Required' ? { euSecuritizationTipEuId: undefined } : {})
                 })}
                 referenceData={referenceData}
-                disabled={isReadOnly || formValues.isEuSecuritizationRequired === false}
+                disabled={isReadOnly || isUserReadOnly || formValues.isEuSecuritizationRequired === false}
                 fullWidth={false}
                 className='field-input-half'
               />
@@ -291,7 +292,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                 onChange={handleTextChange('euSecuritizationTipEuId')}
                 placeholder="Sample_TIP_ID"
                 variant="outlined"
-                disabled={isReadOnly || formValues.isEuSecuritizationRequired === false || formValues.euSecuritizationStatus === 'Not Required'}
+                disabled={isReadOnly || isUserReadOnly || formValues.isEuSecuritizationRequired === false || formValues.euSecuritizationStatus === 'Not Required'}
               />
             </div>
 
@@ -303,7 +304,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                 value={formValues.erisaStatus}
                 onChange={(value) => updateIdentifierFields({ erisaStatus: value })}
                 referenceData={referenceData}
-                disabled={isReadOnly}
+                disabled={isReadOnly || isUserReadOnly}
                 fullWidth={false}
                 className='field-input-half'
               />
@@ -331,12 +332,12 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             >
               <FormControlLabel
                 value="yes"
-                control={<Radio disabled={isReadOnly} />}
+                control={<Radio disabled={isReadOnly || isUserReadOnly} />}
                 label="Yes"
               />
               <FormControlLabel
                 value="no"
-                control={<Radio disabled={isReadOnly} />}
+                control={<Radio disabled={isReadOnly || isUserReadOnly} />}
                 label="No"
               />
             </RadioGroup>
@@ -352,7 +353,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             onChange={handleTextChange('aladdinCdiId')}
             placeholder="BDL123456"
             variant="outlined"
-            disabled={isReadOnly || effectiveNewIssue.toLowerCase() === 'no'}
+            disabled={isReadOnly || isUserReadOnly || effectiveNewIssue.toLowerCase() === 'no'}
           />
         </div>
 
@@ -364,7 +365,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               value={formValues.intexDealName || ''}
               onChange={handleTextChange('intexDealName')}
               variant="outlined"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
           <div>
@@ -373,7 +374,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               value={formValues.intexPassword || ''}
               onChange={handleTextChange('intexPassword')}
               variant="outlined"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
             />
           </div>
         </div>
@@ -387,7 +388,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             onChange={handleTextChange('ssapIdPassword')}
             placeholder="Sample_Code"
             variant="outlined"
-            disabled={isReadOnly || effectiveNewIssue.toLowerCase() === 'no'}
+            disabled={isReadOnly || isUserReadOnly || effectiveNewIssue.toLowerCase() === 'no'}
           />
         </div>
 
@@ -405,7 +406,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                 })
               }}
               referenceData={referenceData}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               fullWidth={false}
               className='field-input-half'
               errorText={selectFieldErrors[ReferenceDataFieldKey.Identifier] ?? null}
@@ -419,7 +420,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               onChange={handleTextChange('identifierValue')}
               placeholder={handleIdentifierPlaceholder(formValues.identifierType)}
               variant="outlined"
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               slotProps={{ htmlInput: { maxLength: identityMaxLenght } }}
             />
           </div>
@@ -434,7 +435,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               value={formValues.marketSector}
               onChange={(value) => updateIdentifierFields({ marketSector: value })}
               referenceData={referenceData}
-              disabled={isReadOnly}
+              disabled={isReadOnly || isUserReadOnly}
               fullWidth={false}
               className='field-input-half'
               errorText={selectFieldErrors[ReferenceDataFieldKey.MarketSector] ?? null}
@@ -447,7 +448,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                 onChange={handleTextChange('yellowKey')}
                 placeholder="MTGE"
                 variant="outlined"
-                disabled={isReadOnly}
+                disabled={isReadOnly || isUserReadOnly}
               />
             )}
           </div>

@@ -65,5 +65,6 @@ export enum ReferenceDataFieldKey {
     PrepaymentType = 'Prepayment Type',
     DefaultType = 'Default Type',
     EuSecuritizationStatus = 'EU Securitization Status',
-    ErisaStatus = 'ERISA Status'
+    ErisaStatus = 'ERISA Status',
+    DmAnalyst = 'DM Analyst'
 }

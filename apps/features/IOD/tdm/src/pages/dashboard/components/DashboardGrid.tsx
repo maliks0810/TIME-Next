@@ -1,6 +1,7 @@
-import React, { Dispatch, SetStateAction, useCallback } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
-import { Box, Grid } from '@mui/material';
+import { Box, Grid, Menu, MenuItem } from '@mui/material';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { DataGrid } from 'devextreme-react';
 import { Column, DataGridRef, DataGridTypes, HeaderFilter, Pager, Paging, Scrolling, Selection, StateStoring } from 'devextreme-react/data-grid';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
@@ -11,17 +12,96 @@ import {
   EuSecuritizationStatusesRecord,
   ErisaStatusesRecord
 } from '../lib/DashboardSecuritySetupRequestStatuses';
+import { IReferenceDataKeyValue } from '../../security-setup/lib/types/referenceDataTypes';
+import { useDashboardStore } from '../../../stores/useDashboardStore';
+import { useIdentityStore } from '../../../stores/useIdentityStore';
+import { setDmAssignment } from '../../../services/DashboardService';
 import '../lib/dashboard.scss';
 
 type DataGridColumnState = { visibleIndex?: number } & Record<string, unknown>;
 
 type DataGridState = { columns?: DataGridColumnState[] } & Record<string, unknown>;
 
+type DMAnalystMenuState = { requestId: number; position: { top: number; left: number } };
+
 type DashboardGridProps = {
   dashboardGridRef: React.Ref<DataGridRef<IDashboardSecuritySetupRequest, number>>;
   securityRequestsData: IDashboardSecuritySetupRequest[] | undefined;
   setSelectedSecurityRequest: Dispatch<SetStateAction<IDashboardSecuritySetupRequest | undefined>>;
   setIsRequestDetailsOpen: Dispatch<SetStateAction<boolean>>;
+  dmAnalystOptions: IReferenceDataKeyValue[];
+  currentUser: string;
+}
+
+const DmAnalystCell: React.FC<{
+  requestId: number;
+  options: IReferenceDataKeyValue[];
+  onOpen: (requestId: number, position: { top: number; left: number }) => void;
+  allowExplicitAssignment: boolean;
+}> = ({ requestId, options, onOpen, allowExplicitAssignment }) => {
+
+  // selector scoped to this row's assignment so ONLY THIS cell re-renders on change
+  const selectedEmail = useDashboardStore(s => s.dmAnalystAssignments[requestId]);
+  const selectedAnalyst = options.find((a) => a.fieldDropdownValue === selectedEmail);
+
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+
+    // attach dropdown to bottom of clicked element
+    const rect = e.currentTarget.getBoundingClientRect();
+    onOpen(requestId, { top: rect.bottom, left: rect.left });
+  };
+
+  if (!allowExplicitAssignment) {
+    return (
+      <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%'
+      }}
+    >
+      <Box
+        component='span'
+        sx={{
+          flex: 1,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}
+      >
+        {selectedAnalyst?.fieldDropdownDescription || ''}
+      </Box>
+    </Box>
+    )
+  }
+
+  return (
+    <Box
+      onClick={handleClick}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        cursor: 'pointer',
+        width: '100%'
+      }}
+    >
+      <Box
+        component='span'
+        sx={{
+          flex: 1,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}
+      >
+        {selectedAnalyst?.fieldDropdownDescription || ''}
+      </Box>
+      <ArrowDropDownIcon />
+    </Box>
+  )
 }
 
 const DashboardGrid: React.FC<DashboardGridProps> = ({
@@ -29,9 +109,61 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
   securityRequestsData,
   setSelectedSecurityRequest,
   setIsRequestDetailsOpen,
+  dmAnalystOptions,
+  currentUser
 }) => {
+  const navigate = useNavigate();  
 
-  const navigate = useNavigate();
+  // Get user auth permissions by action
+  const userIdentity = useIdentityStore((s) => s.userIdentity);
+
+  const [dmAnalystMenuState, setDmAnalystMenuState] = useState<DMAnalystMenuState | null>(null);
+
+  const dmAnalystAssignments = useDashboardStore((s) => s.dmAnalystAssignments);
+  const setDmAnalyst = useDashboardStore((s) => s.setDmAnalyst);
+  const setDmAnalystDropdownOpen = useDashboardStore((s) => s.setDmAnalystDropdownOpen);
+
+  const openDmAnalystMenu = useCallback((requestId: number, position: { top: number, left: number }) => {
+    setDmAnalystMenuState({ requestId, position });
+    setDmAnalystDropdownOpen(true);
+  }, [setDmAnalystDropdownOpen])
+
+  const closeDmAnalystMenu = useCallback(() => {
+    setDmAnalystMenuState(null);
+    setDmAnalystDropdownOpen(false);
+  }, [setDmAnalystDropdownOpen])
+
+  const handleDmAnalystSelect = useCallback(async (email: string) => {
+    if (!dmAnalystMenuState) {
+      closeDmAnalystMenu();
+      return;
+    }
+
+    const { requestId } = dmAnalystMenuState;
+    const analyst = dmAnalystOptions.find((a) => a.fieldDropdownValue === email);
+
+    const previousEmail = dmAnalystAssignments[requestId];
+    setDmAnalyst(requestId, email);
+    closeDmAnalystMenu();
+
+    try {
+      const { isDmAssignmentUpdated } = await setDmAssignment({
+        securitySetupRequestId: requestId,
+        name: analyst?.fieldDropdownDescription ?? '',
+        email,
+        updatedBy: currentUser
+      });
+
+      // service returns isDmAssignmentUpdated false
+      if (!isDmAssignmentUpdated) {
+        setDmAnalyst(requestId, previousEmail);
+      }
+    } catch (err) {
+      setDmAnalyst(requestId, previousEmail);
+      console.error('Failed to save DM analyst assignment:', err)
+    }
+
+  }, [dmAnalystMenuState, dmAnalystOptions, setDmAnalyst, closeDmAnalystMenu, currentUser])
 
   const cellRenderSetupStatus = (data: DataGridTypes.ColumnCellTemplateData) => {
     const status = data.value;
@@ -188,6 +320,15 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
 
   }, [setSelectedSecurityRequest, setIsRequestDetailsOpen]);
 
+  const cellRenderDmAnalyst = useCallback((data: DataGridTypes.ColumnCellTemplateData) => {         
+    return <DmAnalystCell 
+      requestId={data.data.id}
+      options={dmAnalystOptions}
+      onOpen={openDmAnalystMenu}
+      allowExplicitAssignment={userIdentity?.permissionsAllowed?.explicit_dm_analyst_assignment || false}
+    />
+  }, [dmAnalystOptions, openDmAnalystMenu, userIdentity])
+
   const handleRowDbleClick = (e: DataGridTypes.RowDblClickEvent) => {
 
     // Clear timer so the single click action doesn't fire
@@ -196,6 +337,10 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
     const rowId = e?.data?.id;
     navigate(`/iod/tdm/security-setup?id=${rowId}`)
   }
+
+  const currentSelectedEmail = dmAnalystMenuState
+    ? dmAnalystAssignments[dmAnalystMenuState.requestId]
+    : undefined;
 
   if (!securityRequestsData) {
     return <></>
@@ -261,6 +406,13 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           minWidth={175}
         />
         <Column
+          dataField='dmAnalystName'
+          caption='DM Analyst'
+          alignment='center'
+          minWidth={175}
+          cellRender={cellRenderDmAnalyst}
+        />
+        <Column
           dataField='setupStatus'
           caption='Setup Status'
           alignment='center'
@@ -305,8 +457,26 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
           showPageSizeSelector={true}
           allowedPageSizes={[10, 20, 30]}
         />
-
       </DataGrid>
+      <Menu
+        anchorReference="anchorPosition"
+        anchorPosition={dmAnalystMenuState?.position}
+        open={Boolean(dmAnalystMenuState)}
+        onClose={closeDmAnalystMenu}
+        sx={{ zIndex: 9999 }}
+      >
+        {dmAnalystOptions.length === 0
+          ? <MenuItem disabled>No analysts available</MenuItem>
+          : dmAnalystOptions.map((analyst) => (
+            <MenuItem
+              key={analyst.fieldDropdownValue}
+              selected={analyst.fieldDropdownValue === currentSelectedEmail}
+              onClick={() => handleDmAnalystSelect(analyst.fieldDropdownValue)}
+            >
+              {analyst.fieldDropdownDescription}
+            </MenuItem>
+          ))}
+      </Menu>
     </>
   )
 }

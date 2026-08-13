@@ -45,13 +45,15 @@ const INITIAL_STATE: SecuritySetupState = {
   currentStep: 'enter-identifier',
   completedSteps: [],
   isReadOnly: false,
+  isUserReadOnly: false,
   showConfirmModal: false,
   // file upload
   pendingUploadFiles: [],
   isUploadingFile: false,
   fileUploadError: null,
-  // current user
-  userIdentity: null
+  
+  dmAnalystName: null,
+  dmAnalystEmail: null
 }
 
 const computeCompletedSteps = (
@@ -136,8 +138,9 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
         attachments: initialData.attachments ?? [],
         // navigation
         currentStep: (initialData.currentStep) ?? 'enter-identifier',
-        completedSteps
-
+        completedSteps,
+        dmAnalystName: initialData.dmAnalystName ?? undefined,
+        dmAnalystEmail: initialData.dmAnalystEmail ?? undefined,
       })
      },
 
@@ -167,7 +170,9 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
         tradeFields:  {...prev.tradeFields, ...savedData.tradeFields},
         speedOverrides:  {...prev.speedOverrides, ...savedData.speedOverrides},
         notesInstructions: savedData.notesInstructions ?? prev.notesInstructions,
-        attachments: savedData.attachments?.length ? savedData.attachments : prev.attachments
+        attachments: savedData.attachments?.length ? savedData.attachments : prev.attachments,
+        dmAnalystName: savedData.dmAnalystName ?? prev.dmAnalystName,
+        dmAnalystEmail: savedData.dmAnalystEmail ?? prev.dmAnalystEmail,
       }))
      },
 
@@ -177,6 +182,8 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
       set((prev: SecuritySetupStore)=> prev.completedSteps.includes(step) ? prev : {completedSteps: [...prev.completedSteps, step]}),
 
     setReadOnly: (flag: boolean) => set({ isReadOnly: flag }),
+
+    setUserReadOnly: (flag: boolean) => set({ isUserReadOnly: flag }),
 
     setPendingFiles: (files: File[] | undefined) => set({ pendingUploadFiles: files }),
 
@@ -193,9 +200,7 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
 
     closeConfirmModal: () => set({ showConfirmModal: false }),
 
-    resetWizard: () => set(INITIAL_STATE),
-
-    setUserIdentity: (identity) => set({ userIdentity: identity })
+    resetWizard: () => set(INITIAL_STATE)
   })
 )
 
