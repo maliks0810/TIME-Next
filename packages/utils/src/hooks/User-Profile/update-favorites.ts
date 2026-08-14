@@ -10,7 +10,7 @@ export const addToFavorites = (
     const index = favorites.findIndex((fav) => fav.title == linkBase.title);
 
     if (index < 0) {
-        favorites?.push({ title: linkBase.title, url: linkBase.url, newTab: linkBase.newTab ?? false, clickCount: 1 });
+        favorites?.push({ title: linkBase.title, url: linkBase.url, newTab: linkBase.newTab ?? true, clickCount: 1 });
     } else {
         favorites[index].clickCount++;
     }
