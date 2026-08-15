@@ -58,11 +58,11 @@ export const researchBudgetDataService = (setDataCallback:CallBackDataSetter, us
                 quarter_Two_Id: values["quarter_Two_Id"]!= undefined && values["quarter_Two_Id"] > 0 ? values["quarter_Two_Id"]:0,
                 quarter_Three_Id: values["quarter_Three_Id"]!= undefined && values["quarter_Three_Id"] > 0 ? values["quarter_Three_Id"]:0,
                 quarter_Four_Id: values["quarter_Four_Id"]!= undefined && values["quarter_Four_Id"] > 0 ? values["quarter_Four_Id"]:0,
-                quarterOne: values["quarterOne"]!= undefined && values["quarterOne"] > 0 ? values["quarterOne"]:0,
-                quarterTwo: values["quarterTwo"]!= undefined && values["quarterTwo"] > 0 ? values["quarterTwo"]:0,
-                quarterThree: values["quarterThree"]!= undefined && values["quarterThree"] > 0 ? values["quarterThree"]:0,
-                quarterFour: values["quarterFour"]!= undefined && values["quarterFour"] > 0 ? values["quarterFour"]:0,
-                total: values["total"]!= undefined && values["total"] > 0 ? values["total"]:0,
+                quarterOne: values["quarterOne"]!= undefined && values["quarterOne"] >= 0 ? values["quarterOne"]:0,
+                quarterTwo: values["quarterTwo"]!= undefined && values["quarterTwo"] >= 0 ? values["quarterTwo"]:0,
+                quarterThree: values["quarterThree"]!= undefined && values["quarterThree"] >= 0 ? values["quarterThree"]:0,
+                quarterFour: values["quarterFour"]!= undefined && values["quarterFour"] >= 0 ? values["quarterFour"]:0,
+                total: values["total"]!= undefined && values["total"] >= 0 ? values["total"]:0,
                 lastUpdateBy: userInfo.name??""
             }        
             try {
@@ -96,11 +96,11 @@ export const researchBudgetDataService = (setDataCallback:CallBackDataSetter, us
                 quarter_Two_Id: values["quarter_Two_Id"]!= undefined && values["quarter_Two_Id"] > 0 ? values["quarter_Two_Id"]:originalData?.quarter_Two_Id,
                 quarter_Three_Id: values["quarter_Three_Id"]!= undefined && values["quarter_Three_Id"] > 0 ? values["quarter_Three_Id"]:originalData?.quarter_Three_Id,
                 quarter_Four_Id: values["quarter_Four_Id"]!= undefined && values["quarter_Four_Id"] > 0 ? values["quarter_Four_Id"]:originalData?.quarter_Four_Id,
-                quarterOne: values["quarterOne"]!= undefined && values["quarterOne"] > 0 ? values["quarterOne"]:originalData?.quarterOne,
-                quarterTwo: values["quarterTwo"]!= undefined && values["quarterTwo"] > 0 ? values["quarterTwo"]:originalData?.quarterTwo,
-                quarterThree: values["quarterThree"]!= undefined && values["quarterThree"] > 0 ? values["quarterThree"]:originalData?.quarterThree,
-                quarterFour: values["quarterFour"]!= undefined && values["quarterFour"] > 0 ? values["quarterFour"]:originalData?.quarterFour,
-                total: values["total"]!= undefined && values["total"] > 0 ? values["total"]:originalData?.total,
+                quarterOne: values["quarterOne"]!= undefined && values["quarterOne"] >= 0 ? values["quarterOne"]:originalData?.quarterOne,
+                quarterTwo: values["quarterTwo"]!= undefined && values["quarterTwo"] >= 0 ? values["quarterTwo"]:originalData?.quarterTwo,
+                quarterThree: values["quarterThree"]!= undefined && values["quarterThree"] >= 0 ? values["quarterThree"]:originalData?.quarterThree,
+                quarterFour: values["quarterFour"]!= undefined && values["quarterFour"] >= 0 ? values["quarterFour"]:originalData?.quarterFour,
+                total: values["total"]!= undefined && values["total"] >= 0 ? values["total"]:originalData?.total,
                 lastUpdateBy: userInfo.name??""
             }
             try {

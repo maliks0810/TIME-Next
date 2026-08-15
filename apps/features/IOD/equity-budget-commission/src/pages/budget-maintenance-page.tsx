@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import TabPanel, { Item } from 'devextreme-react/tab-panel';
 import { BlockContainer } from '../components/block-container';
 import MaintenanceDivisionGrid from '../datagrids/maintenance-division-grid';
@@ -9,18 +10,24 @@ import MaintenancePortfolioGrid from '../datagrids/maintenance-portfolio-grid';
 import MaintenancePortfolioGroupGrid from '../datagrids/maintenance-portfolio-group-grid';
 import MaintenanceBrokerGroupGrid from '../datagrids/maintenance-brokergroup-grid';
 import MaintenanceDirectedRulesGrid from '../datagrids/maintenance-directedrules-grid';
-
-
+import { OptionChangedEvent } from 'devextreme/ui/tab_panel';
 
 import 'devextreme/dist/css/dx.light.css';
 import 'devextreme/dist/css/dx.light.compact.css';
 
 export default function BudgetMaintenance () {
+    const [selectedIndex, setSelectedIndex] = useState(0);
     //console.debug('BudgetMaintenance rendering');
+    const onOptionChanged = (e: OptionChangedEvent) => {
+        if (e.name === 'selectedIndex') {
+            setSelectedIndex(e.value);
+        }
+    };
     return (
         <BlockContainer title="Maintenance">
             <div className='custom-tab-panel'>
-            <TabPanel deferRendering={true} >
+            <TabPanel deferRendering={true} selectedIndex={selectedIndex}
+                onOptionChanged={onOptionChanged}>
                 <Item title="Division">
                     <MaintenanceDivisionGrid  />
                 </Item>
@@ -31,7 +38,7 @@ export default function BudgetMaintenance () {
                     <MaintenanceBrokerGrid />
                 </Item>
                 <Item title="Broker Group">
-                    <MaintenanceBrokerGroupGrid />
+                    <MaintenanceBrokerGroupGrid refreshKey={selectedIndex}/>
                 </Item>               
                 <Item title="Master Broker">
                     <MaintenanceMasterBrokerGrid />

@@ -2,7 +2,6 @@ import IdentityWidget from '../widgets/common/identity/IdentityWidget';
 import CapitalStructureWidget from '../widgets/securitized-credit/capital-structure/CapitalStructureWidget';
 
 import type { WidgetRegistryEntry } from '../types/widget';
-import DataGridWidget from '../widgets/common/data-grid/DataGridWidget';
 import ArcDashboardWidget from '../widgets/common/arc-dashboard/ArchDashboardWidget';
 import RecentWorkflowsWidget from '../widgets/landing/recent-workflows/RecentWorkflowsWidget';
 import { CounterTileWidget } from '../widgets/common/counter/CounterTile';
@@ -30,6 +29,8 @@ import { TabsControl } from '../widgets/dram/tabs-control/TabsControl';
 import { PortfolioInfo } from '../widgets/dram/info/PortfolioInfo';
 import AssetStagingWidget from '../widgets/securitized-credit/new-asset/asset-staging/AssetStagingWidget';
 import { HeatGridWidget } from '../widgets/common/heatgrid/HeatGridWidget';
+import { GridRegistry } from '../widgets/common/data-grid/GridRegistry';
+import { Input } from '../widgets/common/input/Input';
 import { SummaryPanelWidget } from '../widgets/common/summary-panel/SummaryPanel';
 import { ChartWidget } from '../widgets/common/chart/ChartWidget';
 
@@ -94,7 +95,7 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     },
     cwd_common_data_grid_01: {
         id: 'cwd_common_data_grid_01',
-        component: DataGridWidget,
+        component: GridRegistry,
         category: 'Common',
         visibleIn: ['workflow'],
         listensToKeys: ['security.cusip'],
@@ -294,6 +295,15 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: [],
         emitsKeys: [],
     },
+    cwd_input: {
+        id: 'cwd_input',
+        component: Input,
+        category: 'View',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+
     cwd_common_summary_panel_01: {
         id: 'cwd_common_summary_panel_01',
         component: SummaryPanelWidget,
@@ -309,6 +319,5 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         visibleIn: ['workflow'],
         listensToKeys: [],
         emitsKeys: [],
-    }
-
+    },
 };

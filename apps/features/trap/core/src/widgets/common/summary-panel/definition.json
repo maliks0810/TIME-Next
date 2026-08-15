@@ -11,63 +11,76 @@
     "configSchema": {
         "properties": {
             "channel": {
+                "category": "Interactions",
                 "default": 1,
                 "description": "Widgets connected to the same channel share data (e.g. the selected deal or portfolio) between each other.",
                 "enum": [1, 2, 3, 4, 5],
                 "title": "Communication Channel",
-                "type": "string",
-                "category": "Interactions"
+                "type": "string"
+            },
+            "emptyStateText": {
+                "category": "View Parameters",
+                "default": "No summary data",
+                "description": "Message shown when the scenario returns no metrics (e.g. nothing selected on the channel yet).",
+                "title": "Empty State Text",
+                "type": "string"
+            },
+            "rowStyle": {
+                "category": "View Parameters",
+                "default": "stacked",
+                "description": "How each metric renders. Stacked = MetricCard style (label above a large value). Inline = MetricList style (label left, value right; denser).",
+                "enum": ["stacked", "inline"],
+                "enumNames": ["Stacked (label over value)", "Inline (label · value)"],
+                "title": "Metric Row Style",
+                "type": "string"
             },
             "schemaKey": {
+                "category": "System Parameters",
                 "description": "Logical summary scenario resolved by GraphQL. Each scenario owns its own metric set and data source.",
                 "enum": ["abf.collateral.summary"],
                 "title": "Schema Key",
-                "type": "string",
-                "category": "System Parameters"
-            },
-            "rowStyle": {
-                "default": "stacked",
-                "enum": ["stacked", "inline"],
-                "enumNames": ["Stacked (label over value)", "Inline (label · value)"],
-                "description": "How each metric renders. Stacked = MetricCard style (label above a large value). Inline = MetricList style (label left, value right; denser).",
-                "title": "Metric Row Style",
-                "type": "string",
-                "category": "View Parameters"
+                "type": "string"
             },
             "showFooter": {
+                "category": "View Parameters",
                 "default": true,
-                "title": "Show ‘as of’ Footer",
                 "description": "Anchor an 'as of <date>' footer when the scenario supplies a date and there is vertical room (>= 240px).",
-                "type": "boolean",
-                "category": "View Parameters"
+                "title": "Show ‘as of’ Footer",
+                "type": "boolean"
             },
             "titleText": {
+                "category": "View Parameters",
                 "default": "",
-                "title": "Custom Title Text",
                 "description": "Overrides the panel eyebrow. Leave blank to use the scenario title from GraphQL.",
-                "type": "string",
-                "category": "View Parameters"
-            },
-            "emptyStateText": {
-                "default": "No summary data",
-                "title": "Empty State Text",
-                "description": "Message shown when the scenario returns no metrics (e.g. nothing selected on the channel yet).",
-                "type": "string",
-                "category": "View Parameters"
+                "title": "Custom Title Text",
+                "type": "string"
             }
         },
         "required": ["schemaKey"],
         "type": "object"
     },
-    "uiHints": { "category": "Common", "visibleIn": ["workflow", "landing"] },
+    "uiHints": {
+        "category": "Common",
+        "visibleIn": ["workflow", "landing"]
+    },
     "variants": [
         {
             "id": "default",
             "label": "Default",
             "sizing": {
                 "resizable": true,
-                "width": { "default": 4, "min": 2, "max": 6 },
-                "height": { "default": 3, "min": 2, "max": 10, "step": 1 }
+                "width": {
+                    "default": 4,
+                    "min": 2,
+                    "max": 6,
+                    "step": null
+                },
+                "height": {
+                    "default": 150,
+                    "min": 100,
+                    "max": 500,
+                    "step": 50
+                }
             }
         }
     ]

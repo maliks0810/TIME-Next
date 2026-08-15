@@ -10,12 +10,13 @@ import {
   Select,
   Space,
   Spin,
+  Tag,
   Tooltip,
   Typography,
   message,
 } from "antd";
 import AttributionPrintView from "../../components/dram-grid/AttributionPrintView";
-import { BarChartOutlined, DownloadOutlined, ReloadOutlined, SettingOutlined } from "@ant-design/icons";
+import { BarChartOutlined, CalendarOutlined, DownloadOutlined, FundOutlined, InfoCircleOutlined, ReloadOutlined, SettingOutlined } from "@ant-design/icons";
 import {
   AnalyticResultRow,
   AnalyticsResponse,
@@ -57,12 +58,79 @@ import { AttributionResultCard } from "./AttributionResultCard";
 import AttributionCompareGrid from "../../components/dram-grid/AttributionCompareGrid";
 import AttributionCompareCombinedChart from "../../components/dram-grid/AttributionCompareCombinedChart";
 const { Title, Text } = Typography;
-
+import "./attributionws.scss"
+import ValidationResponseView, { ValidationResponse } from "../../components/dram-grid/ValidationResponseView";
 /* ----------------------------- helpers ----------------------------- */
 export type ComparePeriodInfo = {
   code: string;
   label: string;
 };
+// Outlined white "context" pill (portfolio / benchmark / date)
+const contextPillStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
+  height: 30,
+  padding: "0 12px",
+  borderRadius: 18,
+  border: "1px solid #dbe3ef",
+  background: "#ffffff",
+  color: "#334155",
+  fontSize: 18,
+  fontWeight: 500,
+};
+
+const contextIconStyle: React.CSSProperties = {
+  color: "#3b82f6",
+  fontSize: 14,
+};
+
+// Light "group" container (Breakdown / Periods)
+const groupPillStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
+  height: 34,
+  padding: "0 12px",
+  borderRadius: 10,
+  border: "1px solid #e5e9f0",
+  background: "#ffffff",
+};
+
+// Light-blue filled period badge
+const periodBadgeBase: React.CSSProperties = {
+  height: 24,
+  padding: "0 12px",
+  borderRadius: 8,
+  fontWeight: 700,
+  fontSize: 13,
+  cursor: "pointer",
+  border: "none",
+  marginInlineEnd: 0,
+};
+// Rounded "segmented" wrapper to match header pills
+const segmentedPillStyle: React.CSSProperties = {
+  padding: 3,
+  borderRadius: 18,
+  border: "1px solid #dbe3ef",
+  background: "#ffffff",
+};
+
+// Primary button styled like a header pill
+const exportPillStyle: React.CSSProperties = {
+  height: 32,
+  borderRadius: 18,
+  fontWeight: 600,
+  paddingInline: 16,
+  background: "#2563eb",
+  borderColor: "#2563eb",
+  boxShadow: "none",
+};
+export /** True when the backend returns a top-level error envelope (e.g. weight validation failure). */
+const isErrorResponse = (
+  resp: AnalyticsResponse | ResponseWithPeriodGrids,
+): boolean =>
+  String((resp as { message?: string })?.message ?? "").toLowerCase() === "error";
 
 /**
  * Extract the canonical period code from a period string.
@@ -324,6 +392,7 @@ const [pendingPrint, setPendingPrint] = useState(false);
     NormalizedColumnConfig[]
   >([]);
   const [loadingConfig, setLoadingConfig] = useState(false);
+  const [validationError, setValidationError] = useState<ValidationResponse | null>(null);
   const [runningAnalysis, setRunningAnalysis] = useState(false);
   const [rawRowsByPeriod, setRawRowsByPeriod] = useState<PeriodGridMap>({});
   const [selectedPeriod, setSelectedPeriod] = useState<string>("");
@@ -377,13 +446,28 @@ const headerInfo = useMemo(() => {
     benchmarkLookup.get(viewBenchmarks)?.label ??
     viewBenchmarks;
 
+  const displayPeriods = viewPeriodIds.filter(
+    (p) => p.toUpperCase(),
+  );
+
+  const breakdown = viewBreakdown == "Type 2" ? "Region Rating Corp" : viewBreakdown;
+
   return {
     portfolio,
     benchmark,
-    periods: viewPeriodIds
-  .filter((p) => p.toUpperCase() !== "1D")
-  .join(", "),
+    breakdown,
 
+    periods:
+      displayPeriods.length > 0
+        ? displayPeriods.join(", ")
+        : "None",
+
+    periodCount: displayPeriods.length,
+
+    periodTooltip:
+      displayPeriods.length > 0
+        ? displayPeriods.join(", ")
+        : "No periods selected",
   };
 }, [
   portfolioLookup,
@@ -391,7 +475,10 @@ const headerInfo = useMemo(() => {
   viewPortfolio,
   viewBenchmarks,
   viewPeriodIds,
+  viewBreakdown,
 ]);
+
+
 const effectiveColumns = useMemo(() => {
   if (!gridConfig) return [];
   return getEffectiveColumns(
@@ -408,7 +495,88 @@ const gridRowsByPeriod = useMemo<PeriodGridMap>(() => {
     () => Object.keys(rawRowsByPeriod),
     [rawRowsByPeriod]
   );
+const displayPeriodCodes = useMemo(() => {
+  const seen = new Set<string>();
 
+  return periodKeys.reduce<string[]>((acc, key) => {
+    const code = getPeriodCode(key);
+
+    // skip empty and any duplicates
+    if (!code || seen.has(code)) {
+      return acc;
+    }
+
+    seen.add(code);
+    acc.push(code);
+    return acc;
+  }, []);
+}, [periodKeys]);
+
+const headerDateLabel = useMemo(() => {
+  if (viewFrequencyMode === "daily" && viewStartDate && viewEndDate) {
+    return `${viewStartDate} to ${viewEndDate}`;
+  }
+  return valueDate || viewAsOfDate || "No date selected";
+}, [viewFrequencyMode, viewStartDate, viewEndDate, valueDate, viewAsOfDate]);
+
+const selectedPeriodCode = useMemo(
+  () => getPeriodCode(selectedPeriod),
+  [selectedPeriod],
+);
+
+const handlePeriodBadgeClick = useCallback(
+  (code: string) => {
+    const matchingPeriodKey = periodKeys.find(
+      (periodKey) => getPeriodCode(periodKey) === code,
+    );
+    if (!matchingPeriodKey) return;
+
+    setSelectedSecurityGroup(null);
+
+    if (isCompareMode) {
+      // toggle into the compare set, keep max 2 (most recent)
+      setComparePeriods((prev) => {
+        if (prev.includes(matchingPeriodKey)) {
+          return prev.filter((p) => p !== matchingPeriodKey);
+        }
+        return [...prev, matchingPeriodKey].slice(-2);
+      });
+      return;
+    }
+
+    if (isCompositeMode) {
+      // toggle into the composite set
+      setCompositePeriods((prev) =>
+        prev.includes(matchingPeriodKey)
+          ? prev.filter((p) => p !== matchingPeriodKey)
+          : [...prev, matchingPeriodKey],
+      );
+      return;
+    }
+
+    // single mode
+    setSelectedPeriod(matchingPeriodKey);
+  },
+  [periodKeys, isCompareMode, isCompositeMode],
+);
+const isPeriodCodeActive = useCallback(
+  (code: string): boolean => {
+    if (isCompareMode) {
+      return comparePeriods.some((p) => getPeriodCode(p) === code);
+    }
+    if (isCompositeMode) {
+      return compositePeriods.some((p) => getPeriodCode(p) === code);
+    }
+    return selectedPeriodCode === code;
+  },
+  [
+    isCompareMode,
+    isCompositeMode,
+    comparePeriods,
+    compositePeriods,
+    selectedPeriodCode,
+  ],
+);
 // FIX: holds string period KEYS (e.g. "MTD" or "MTD: 2026-06-01 to 2026-06-30").
 const comparePeriodPair = useMemo<[string, string] | null>(() => {
   if (!isCompareMode || comparePeriods.length < 2) {
@@ -523,7 +691,7 @@ const compositeViewData = useMemo(() => {
     const asOfDate = payload?.asOfDate ?? viewAsOfDate;
     const startDate = payload?.startDate ?? viewStartDate;
     const endDate = payload?.endDate ?? viewEndDate;
-    const periodIdsCsv = payload?.periodIds?.join(",") ?? "";
+    const periodIdsCsv = payload?.periodIds?.filter((p) => p.toUpperCase()).join(",") ?? "";
     if (!assetClass || !portfolio) {
       message.warning(
         "Please select asset class and portfolio before running analysis."
@@ -531,7 +699,7 @@ const compositeViewData = useMemo(() => {
       return null;
     }
     if (frequencyMode.toLowerCase() !== "daily" && !endDate) {
-      message.warning("Please select at lease end date.");
+      message.warning("Please select at least end date.");
       return null;
     }
     if (
@@ -688,14 +856,25 @@ const executeAttribAnalysis = async (
        : encodeURIComponent(input.breakdownModeId);
       const resp = (input.breakdownModeId === 'MktCap' ||
       input.breakdownModeId === 'PEfwd' ||input.breakdownModeId == "GICS1")  && input.frequencyMode === "daily" && input.assetClass === "EQ" ?
-      (await api.runDailySecurityGrainAnalysis(input.portfolio,inputGrouping,input.startDate,input.endDate,input.periodIdsCsv)) :
+      (await api.runDailySecurityGrainAnalysis(input.portfolio,inputGrouping,input.startDate,input.endDate,input.periodIdsCsv,input.benchmark)) :
       input.frequencyMode === "daily" && input.assetClass === "EQ" ? (await api.runDailySecurityGrainAnalysis(
-        input.portfolio,inputGrouping,input.startDate,input.endDate,input.periodIdsCsv)) :
+        input.portfolio,inputGrouping,input.startDate,input.endDate,input.periodIdsCsv,input.benchmark)) :
         input.frequencyMode === "monthly" && input.assetClass === "EQ" ?  (await api.runSecurityGrainAnalysis(
-          input.assetClass, input.portfolio, input.frequencyMode, inputGrouping, input.startDate,input.endDate,input.periodIdsCsv))
+          input.assetClass, input.portfolio, input.frequencyMode, inputGrouping, input.startDate,input.endDate,input.periodIdsCsv,input.benchmark))
         :  (await api.runSecurityGrainAnalysis(
-        input.assetClass, input.portfolio,input.frequencyMode,inputGrouping,input.startDate, input.endDate,input.periodIdsCsv
+        input.assetClass, input.portfolio,input.frequencyMode,inputGrouping,input.startDate, input.endDate,input.periodIdsCsv,input.benchmark
       )) as ResponseWithPeriodGrids;
+      if (isErrorResponse(resp)) {
+            const meta = extractMetadata(resp);
+            setPageTitle(meta.pageTitle);
+            setValueDate(meta.valueDate);
+            setValidationError(resp as unknown as ValidationResponse);
+            setRawRowsByPeriod({}); // clears any stale grids
+            setSelectedPeriod("");
+            setSelectedSecurityGroup(null);
+            message.error("Analysis returned a validation error.");
+            return;
+            }
       const meta = extractMetadata(resp);
       setPageTitle(meta.pageTitle);
       setValueDate(meta.valueDate);
@@ -974,15 +1153,6 @@ const activeOrderedIds = layoutOrder.filter(
 //main component
   return (
     <div style={{ margin: "16px" }}>
-      <Row justify="end" style={{ marginBottom: 12 }}>
-        <Button
-          icon={<SettingOutlined />}
-          loading={loadingConfig}
-          onClick={() => setConfigOpen(true)}
-        >
-          Configure
-        </Button>
-      </Row>
         <ConfigTabbedCompact
             open={configOpen}
             onClose={() => setConfigOpen(false)}
@@ -1017,6 +1187,7 @@ const activeOrderedIds = layoutOrder.filter(
               setComparePeriods([]);
               setWorkspaceMode("single");
               setCompositePeriods([]);
+              setValidationError(null);
               void loadForAssetClass(nextAsset);
             }}
             onPortfolioChange={(portfolio) => setConfigDraftPortfolio(portfolio)}
@@ -1043,129 +1214,273 @@ const activeOrderedIds = layoutOrder.filter(
             onSetFavoriteView={handleSetFavoriteAttribView}
             filterOptions={filterOptions}
           />
+      {/* Single workspace header — always visible; Configure lives only here */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 12,
+          padding: "14px 18px",
+          marginTop: 16,
+          background: "linear-gradient(180deg, #fbfcff 0%, #f5f8ff 100%)",
+          border: "1px solid #eef1f6",
+          borderRadius: 10,
+        }}
+      >
+        <Title
+          level={4}
+          style={{ margin: 0, fontSize: 18, color: "#0f172a" }}
+        >
+          Attribution Analysis{" "}
+          {viewAssetClass && gridConfig && periodKeys.length > 0 && (
+            <Space wrap size={10}>
+              <span style={contextPillStyle}>
+                <FundOutlined style={contextIconStyle} />
+                {headerInfo.portfolio || "No portfolio selected"}
+              </span>
+
+              <span style={contextPillStyle}>
+                <BarChartOutlined style={contextIconStyle} />
+                vs {headerInfo.benchmark || "No benchmark selected"}
+              </span>
+
+              <span style={contextPillStyle}>
+                <CalendarOutlined style={contextIconStyle} />
+                {viewFrequencyMode === "daily"
+                  ? headerDateLabel
+                  : `as of ${headerDateLabel}`}
+              </span>
+            </Space>
+          )}
+        </Title>
+
+        <Button
+          icon={<SettingOutlined />}
+          loading={loadingConfig || runningAnalysis}
+          onClick={() => setConfigOpen(true)}
+          style={{ flexShrink: 0 }}
+        >
+        </Button>
+      </div>
       {!viewAssetClass ? (
         <Card style={{ marginTop: 16 }}>
           <Empty description="Click Configure to select asset class and run analysis." />
         </Card>
       ) : !gridConfig ? (
-        <Card style={{ marginTop: 16 }}>
-          <Spin />
-        </Card>
-      ) : periodKeys.length === 0 ? (
-        <Card style={{ marginTop: 16 }}>
-          <Empty description="Run analysis to view period grids." />
-        </Card>
-      ) : (
-        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-          {/* workspace header */}
-          <Col span={24}>
-            <Card>
-              <Row justify="space-between" align="middle" gutter={[12, 12]}>
-                <Col>
-                  <div>
-                    <Title level={4} style={{ margin: 0 }}>
-                     {headerInfo.portfolio}  {" - "}  {headerInfo.benchmark}
-                    </Title>
-                    {valueDate && (
-                      <div>
-                        <Text type="secondary">As of Date: {valueDate} ({headerInfo.periods})</Text>
-                      </div>
-                    )}
-                    {isCompareMode && comparePeriodInfo && (
-                      <Text type="secondary">
-                        Comparing: {comparePeriodInfo[0].label} vs {comparePeriodInfo[1].label}
-                      </Text>
-                    )}
-                    {isCompositeMode && compositePeriods.length > 0 && (
-                      <Text type="secondary">
-                        Composite Periods: {compositePeriods.map((p) => getPeriodCode(p)).join(", ")}
-                      </Text>
-                    )}
-                  </div>
-                </Col>
-                <Col>
-                  <Space>
-                  <Segmented
-                    value={screenMode}
-                    onChange={(v) => setScreenMode(v as "view" | "print")}
-                    options={[
-                      { label: "View", value: "view" },
-                      { label: "Print", value: "print" },
-                    ]}
-                  />
-                <Segmented<WorkspaceMode>
-                  value={workspaceMode}
-                  onChange={(value) => {
-                    const nextMode = value as WorkspaceMode;
-                    setWorkspaceMode(nextMode);
-                    setSelectedSecurityGroup(null);
-                    if (nextMode === "single") {
-                      setComparePeriods([]);
-                      setCompositePeriods([]);
-                    }
-                    if (nextMode === "compare") {
-                      setCompositePeriods([]);
-                      if (selectedPeriod) {
-                        setComparePeriods([selectedPeriod]);
+
+              <Card style={{ marginTop: 16 }}>
+
+              <Spin />
+
+              </Card>
+
+              ) : validationError ? (
+
+              <div style={{ marginTop: 16 }}>
+
+              <ValidationResponseView response={validationError} />
+
+              </div>
+
+              ) : periodKeys.length === 0 ? (
+
+              <Card style={{ marginTop: 16 }}>
+
+              <Empty description="Run analysis to view period grids." />
+
+              </Card>
+
+              ) : (
+
+<Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+
+{/* workspace header */}
+<Col span={24}>
+  <Card
+    bodyStyle={{ padding: 0 }}
+    style={{ borderRadius: 10, border: "1px solid #eef1f6", overflow: "hidden" }}
+  >
+    {/* Bottom band: breakdown + periods + controls */}
+    <div style={{ padding: "12px 18px" }}>
+      <Row justify="space-between" align="middle" gutter={[12, 12]}>
+        <Col flex="auto">
+          <Space wrap size={10}>
+            {/* Breakdown group */}
+            <span style={groupPillStyle}>
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                Breakdown
+              </Text>
+              <Text strong style={{ fontSize: 13, color: "#0f172a" }}>
+                {headerInfo.breakdown || "All securities"}
+              </Text>
+            </span>
+
+            {/* Periods group */}
+            <span style={groupPillStyle}>
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                Periods
+              </Text>
+
+          {displayPeriodCodes.length > 0 ? (
+            <Space size={6} wrap>
+              {displayPeriodCodes.map((period) => {
+                const isSelected = isPeriodCodeActive(period);
+
+                return (
+                  <button
+                    key={period}
+                    type="button"
+                    onClick={() => handlePeriodBadgeClick(period)}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.background = "#dbe7ff";
                       }
-                    }
-                    if (nextMode === "composite") {
-                      setComparePeriods([]);
-                      if (compositePeriods.length === 0) {
-                        setCompositePeriods(periodKeys.slice(0, Math.min(periodKeys.length, 6)));
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.background = "#eaf1ff";
                       }
-                    }
-                  }}
-                  options={[
-                    { label: "Single", value: "single" },
-                    { label: "Compare", value: "compare" },
-                    { label: "Composite", value: "composite" },
-                  ]}
-                />
-                {isCompareMode ? (
-                  <Select
-                    mode="multiple"
-                    value={comparePeriods}
-                    maxTagCount={2}
-                    style={{ minWidth: 260 }}
-                    placeholder="Select 2 periods"
-                    options={compositePeriodOptions}
-                    onChange={(values) => {
-                      const next = values.slice(-2);
-                      setComparePeriods(next);
-                      setSelectedSecurityGroup(null);
                     }}
-                  />
-                ) : isCompositeMode ? (
-                  <Select
-                    mode="multiple"
-                    value={compositePeriods}
-                    maxTagCount={4}
-                    style={{ minWidth: 340 }}
-                    placeholder="Select periods for composite view"
-                    options={compositePeriodOptions}
-                    onChange={(values) => {
-                      setCompositePeriods(values);
-                      setSelectedSecurityGroup(null);
+                    style={{
+                      ...periodBadgeBase,
+                      color: isSelected ? "#ffffff" : "#2563eb",
+                      background: isSelected ? "#2563eb" : "#eaf1ff",
+                      transition: "background 0.15s ease",
                     }}
-                  />
-                ) : (
-                  <Segmented
-                    value={selectedPeriod}
-                    onChange={(val) => {
-                      setSelectedPeriod(val as string);
-                      setSelectedSecurityGroup(null);
-                    }}
-                    options={compositePeriodOptions}
-                  />
-                )}
-                <Button type="primary" icon={<DownloadOutlined />} onClick={() => void handleExportAllPeriods()}>
-                  Export All Periods
-                </Button>
-                  </Space>
-                </Col>
-              </Row>
-            </Card>
+                  >
+                    {period}
+                  </button>
+                );
+              })}
+            </Space>
+          ) : (
+            <Tooltip title="No periods selected. Open Configure to select analysis periods.">
+              <span
+                style={{
+                  ...periodBadgeBase,
+                  color: "#64748b",
+                  background: "#f1f5f9",
+                  cursor: "help",
+                }}
+              >
+                None <InfoCircleOutlined style={{ marginLeft: 4 }} />
+              </span>
+            </Tooltip>
+          )}
+            </span>
+
+            {isCompareMode && comparePeriodInfo && (
+              <Tag color="processing" style={{ marginInlineEnd: 0 }}>
+                Comparing: {comparePeriodInfo[0].code} vs{" "}
+                {comparePeriodInfo[1].code}
+              </Tag>
+            )}
+
+            {isCompositeMode && compositePeriods.length > 0 && (
+              <Tag color="processing" style={{ marginInlineEnd: 0 }}>
+                Composite:{" "}
+                {compositePeriods.map((p) => getPeriodCode(p)).join(", ")}
+              </Tag>
+            )}
+          </Space>
+        </Col>
+
+        {/* Right-side controls */}
+        <Col>
+{/* Right-side controls */}
+<Col>
+  <Space wrap size={10}>
+    <Segmented
+      size="small"
+      className="dram-header-segmented"
+      style={segmentedPillStyle}
+      value={screenMode}
+      onChange={(v) => setScreenMode(v as "view" | "print")}
+      options={[
+        { label: "View", value: "view" },
+        { label: "Print", value: "print" },
+      ]}
+    />
+
+    <Segmented<WorkspaceMode>
+      size="small"
+      className="dram-header-segmented"
+      style={segmentedPillStyle}
+      value={workspaceMode}
+      onChange={(value) => {
+        const nextMode = value as WorkspaceMode;
+        setWorkspaceMode(nextMode);
+        setSelectedSecurityGroup(null);
+
+        if (nextMode === "single") {
+          setComparePeriods([]);
+          setCompositePeriods([]);
+        }
+        if (nextMode === "compare") {
+          setCompositePeriods([]);
+          if (selectedPeriod) setComparePeriods([selectedPeriod]);
+        }
+        if (nextMode === "composite") {
+          setComparePeriods([]);
+          if (compositePeriods.length === 0) {
+            setCompositePeriods(
+              periodKeys.slice(0, Math.min(periodKeys.length, 6)),
+            );
+          }
+        }
+      }}
+      options={[
+        { label: "Single", value: "single" },
+        { label: "Compare", value: "compare" },
+        { label: "Composite", value: "composite" },
+      ]}
+    />
+
+    {isCompareMode ? (
+      <Select
+        mode="multiple"
+        size="small"
+        value={comparePeriods}
+        maxTagCount={2}
+        style={{ minWidth: 240 }}
+        placeholder="Select 2 periods"
+        options={compositePeriodOptions}
+        onChange={(values) => {
+          setComparePeriods(values.slice(-2));
+          setSelectedSecurityGroup(null);
+        }}
+      />
+    ) : isCompositeMode ? (
+      <Select
+        mode="multiple"
+        size="small"
+        value={compositePeriods}
+        maxTagCount={4}
+        style={{ minWidth: 300 }}
+        placeholder="Select periods for composite view"
+        options={compositePeriodOptions}
+        onChange={(values) => {
+          setCompositePeriods(values);
+          setSelectedSecurityGroup(null);
+        }}
+      />
+    ) : null}
+
+    <Button
+      type="primary"
+      icon={<DownloadOutlined />}
+      style={exportPillStyle}
+      onClick={() => void handleExportAllPeriods()}
+    >
+      Export All Periods
+    </Button>
+  </Space>
+</Col>
+        </Col>
+      </Row>
+    </div>
+  </Card>
           </Col>
 {/* main content */}
 <Col span={24}>

@@ -69,6 +69,7 @@ export type WidgetDefinitionLike = {
         };
     }>;
     uiHints?: Record<string, any>;
+    description?: string;
     [k: string]: any;
 };
 
@@ -84,6 +85,7 @@ export type WidgetComponentProps = {
         variables?: Record<string, WidgetValueType>,
         params?: Record<string, string>
     ) => void;
+    subscribe?: () => void;
 };
 
 export type WidgetRegistryEntry = {

@@ -4,9 +4,29 @@ import ReactECharts from "echarts-for-react";
 import type { CallbackDataParams } from "echarts/types/dist/shared";
 import type { PrimitiveCellValue } from "../dram-grid/types";
 import { DRAM_CHART_THEME_NAME } from "./dramChartTheme";
+import "./DramDataGrid.css"
+import {
+  DownloadOutlined,
+} from "@ant-design/icons";
 
 const { Text } = Typography;
-
+// Rounded "segmented" wrapper to match header pills
+const segmentedPillStyle: React.CSSProperties = {
+  padding: 3,
+  borderRadius: 18,
+  border: "1px solid #dbe3ef",
+  background: "#ffffff",
+};
+// Primary button styled like a header pill
+const exportPillStyle: React.CSSProperties = {
+  height: 32,
+  borderRadius: 18,
+  fontWeight: 600,
+  paddingInline: 16,
+  background: "#2563eb",
+  borderColor: "#2563eb",
+  boxShadow: "none",
+};
 type Row = Record<string, PrimitiveCellValue>;
 
 type ChartMode = "weight" | "return" | "contribution" | "effects";
@@ -603,9 +623,12 @@ export default function AttributionSingleModeChart({
               : metricConfig.label}
         </Text>
 
+
+
+
         <Space wrap>
           {
-            breakdown === "MktCap" || breakdown === "PEfwd" ? <Segmented
+            breakdown === "MktCap" || breakdown === "PEfwd" ? <Segmented style={segmentedPillStyle}
             value={mode}
             onChange={(value) => setMode(value as ChartMode)}
             options={[
@@ -616,7 +639,7 @@ export default function AttributionSingleModeChart({
             size="middle"
           /> :
             <Segmented
-            value={mode}
+            value={mode} style={segmentedPillStyle}
             onChange={(value) => setMode(value as ChartMode)}
             options={[
               { label: "Weight", value: "weight" },
@@ -629,7 +652,7 @@ export default function AttributionSingleModeChart({
           }
 
           {mode === "weight" ? (
-            <Segmented
+            <Segmented style={segmentedPillStyle}
               value={weightViewMode}
               onChange={(value) => setWeightViewMode(value as WeightViewMode)}
               options={[
@@ -640,7 +663,7 @@ export default function AttributionSingleModeChart({
             />
           ) : null}
 
-          <Button onClick={exportChartAsImage}>Export Chart</Button>
+          <Button type="primary" icon={<DownloadOutlined />} style={exportPillStyle} onClick={exportChartAsImage}>Export Chart</Button>
         </Space>
       </div>
 

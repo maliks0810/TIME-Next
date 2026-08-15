@@ -185,6 +185,8 @@ export function useLanding(props: LandingTabProps) {
                 templateVersionStatus: versionStatus,
                 title: input.target?.title ?? 'Workflow',
                 initialContext: ctx,
+                // Sending empty ownerUserId, as we don't have access to it here.
+                ownerUserId: ''
             });
         },
         [props]

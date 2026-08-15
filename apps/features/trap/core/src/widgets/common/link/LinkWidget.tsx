@@ -28,7 +28,7 @@ export const LinkWidget = ({ widgetInstance, widgetDefinition }: WidgetComponent
             <div className={styles.container}>
                 {title && <Typography.Title level={3}>{title}</Typography.Title>}
                 <a className={styles.link} href={url} target={target}>
-                    {icon && <IconComponent className={styles.icon} />}
+                    {icon && IconComponent && <IconComponent className={styles.icon} />}
                     <div className={styles.info}>
                         <Typography.Text strong>{displayText || url}</Typography.Text>
                         {description && (

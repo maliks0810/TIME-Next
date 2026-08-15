@@ -14,26 +14,22 @@
         "analysis.sessionId",
         "workflow.refresh"
     ],
-    "emitsKeys": [
-        "asset.staged.trancheId",
-        "asset.staged.trancheName",
-        "asset.isNew"
-    ],
+    "emitsKeys": ["asset.staged.trancheId", "asset.staged.trancheName", "asset.isNew"],
     "configSchema": {
         "properties": {
             "showScenarioAction": {
+                "category": "View Parameters",
                 "default": true,
                 "description": "Show Run Scenario Analysis button in header",
                 "title": "Show Scenario Action",
-                "type": "boolean",
-                "category": "View Parameters"
+                "type": "boolean"
             },
             "showStagingAction": {
+                "category": "View Parameters",
                 "default": true,
                 "description": "Show Add to Staging button in header",
                 "title": "Show Staging Action",
-                "type": "boolean",
-                "category": "View Parameters"
+                "type": "boolean"
             }
         },
         "required": [],
@@ -51,12 +47,14 @@
                 "width": {
                     "default": 8,
                     "min": 6,
-                    "max": 12
+                    "max": 12,
+                    "step": null
                 },
                 "height": {
-                    "default": 8,
-                    "min": 6,
-                    "max": 15
+                    "default": 400,
+                    "min": 300,
+                    "max": 750,
+                    "step": null
                 }
             }
         }

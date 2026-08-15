@@ -15,6 +15,7 @@ import { supportApps } from './supportApps';
 import { aiProductsApps } from './aiProductsApps';
 import { productApps } from './productsApps';
 import { coreApps } from './coreApps';
+import { insightsApps } from './insightsApps';
 
 
 
@@ -31,6 +32,7 @@ const apps: (InternalAppMetadata | ExternalAppMetadata)[] = [
     ...complianceApps,
     ...productApps,
     ...aiProductsApps,
+    ...insightsApps,
     ...supportApps,
     ...coreApps
 ];

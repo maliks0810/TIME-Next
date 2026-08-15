@@ -1,0 +1,41 @@
+{
+  "name": "@de/report-catalog-admin",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Report Catalog Admin",
+  "scripts": {
+    "build": "vite build",
+    "build:sandbox": "vite build --mode sandbox",
+    "build:development": "vite build --mode development",
+    "build:qa": "vite build --mode qa",
+    "build:production": "vite build --mode production",
+    "clean": "rm -rf dist .turbo node_modules",
+    "dev": "vite",
+    "sandbox": "vite --mode sandbox",
+    "prod": "vite --mode production",
+    "preview": "vite preview --port ",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@platform/ui": "1.0.0",
+    "@platform/styles": "1.0.0",
+    "@platform/utils": "1.0.0",
+    "@tanstack/react-query": "5.90.20",
+    "@tiptap/core": "3.30.0",
+    "@tiptap/react": "3.30.0",
+    "@tiptap/pm": "3.30.0",
+    "@tiptap/starter-kit": "3.30.0",
+    "@tiptap/extension-heading": "3.30.0",
+    "@tiptap/extension-image": "3.30.0",
+    "@tiptap/extension-table": "3.30.0",
+    "@tiptap/extension-color": "3.30.0",
+    "@tiptap/extension-link": "3.30.0",
+    "@tiptap/extension-text-style": "3.30.0",
+    "@tiptap/extension-underline": "3.30.0",
+    "mui-tiptap": "1.31.0",
+    "react-hook-form": "7.78.0"
+  },
+  "devDependencies": {}
+}

@@ -49,6 +49,7 @@ export interface SecuritySetupState {
   currentStep: SecuritySetupStep;
   completedSteps: SecuritySetupStep[];
   isReadOnly: boolean;
+  isUserReadOnly: boolean;
   showConfirmModal: boolean;
 
   // file upload
@@ -56,8 +57,8 @@ export interface SecuritySetupState {
   isUploadingFile: boolean;
   fileUploadError: string | null;
 
-  // current user identity
-  userIdentity: IUserIdentity | null;
+  dmAnalystName: string | null;
+  dmAnalystEmail: string | null;
 }
 
 export type IdentifierFieldsPatch = Partial<Pick<SecuritySetupState,
@@ -84,6 +85,7 @@ export interface SecuritySetupActions {
   goToStep: (step: SecuritySetupStep) => void;
   markStepComplete: (step: SecuritySetupStep) => void;
   setReadOnly: (flag: boolean) => void;
+  setUserReadOnly: (flag: boolean) => void;
   setPendingFiles: (file: File[] | undefined) => void;
   removePendingFile: (index: number) => void;
   setUploadingFile: (flag: boolean) => void;
@@ -91,5 +93,14 @@ export interface SecuritySetupActions {
   openConfirmModal: () => void;
   closeConfirmModal: () => void;
   resetWizard: () => void;
+}
+
+export interface IdentityState {
+  userIdentity: IUserIdentity | null;
+}
+
+export interface IdentityActions {
   setUserIdentity: (identity: IUserIdentity) => void;
 }
+
+export type IdentityStore = IdentityState & IdentityActions

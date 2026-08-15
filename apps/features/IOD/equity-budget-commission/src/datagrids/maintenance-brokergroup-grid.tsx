@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import DataGrid, {
   Column,
   Editing,
@@ -31,15 +31,21 @@ import { Item as FormItem } from 'devextreme-react/form';
 import './styles.scss';
 import 'devextreme/dist/css/dx.light.css';
 import 'devextreme/dist/css/dx.light.compact.css';
+import PropTypes from 'prop-types';
 
+interface MaintenanceBrokerGroupGridProps {
+  refreshKey: number;
+}
 /* -------------------- Component ------------------------- */
 
-const MaintenanceBrokerGroupGrid = () => {
+const MaintenanceBrokerGroupGrid: React.FC<MaintenanceBrokerGroupGridProps> = 
+({ refreshKey}) => {
   const userInfo = useUserInfo();
   const {
     brokerGroups,
     brokerGroupMembers,
     brokers,
+    reloadBrokers,
     addBrokerGroup,
     removeBrokerGroup,
     modifyBrokerGroup,
@@ -104,11 +110,23 @@ const MaintenanceBrokerGroupGrid = () => {
       try {
         for (const change of e.changes) {
           if (change.type === 'insert') {
-            await addBrokerGroup(change.data);
-            showToast('New Broker Group added successfully!', 'success');
+            const data = change.data;
+            if(brokerGroups.find(b=> b.brokerGroupName?.toLowerCase() === data.brokerGroupName?.toLowerCase())){
+              showToast('Broker Group already exists in the system.', 'error');
+            }
+            else{
+              await addBrokerGroup(data);
+              showToast('New Broker Group added successfully!', 'success');
+            }
           } else if (change.type === 'update') {
-            await modifyBrokerGroup(change.key as number, change.data);
-            showToast('Broker Group updated successfully!', 'success');
+            const data = change.data;
+            if(brokerGroups.find(b=> b.brokerGroupName?.toLowerCase() === data.brokerGroupName?.toLowerCase() && b.brokerGroupId !== data.brokerGroupId)){
+              showToast('Broker Group already exists in the system.', 'error');
+            }
+            else{
+              await modifyBrokerGroup(change.key as number, change.data);
+              showToast('Broker Group updated successfully!', 'success');
+            }
           } else if (change.type === 'remove') {
             await removeBrokerGroup(change.key as number);
             showToast('Broker Group deleted successfully!', 'success');
@@ -128,6 +146,9 @@ const MaintenanceBrokerGroupGrid = () => {
   [addBrokerGroup, modifyBrokerGroup, removeBrokerGroup, reloadGroup, showToast]
   );
 
+  useEffect(() => {
+    reloadBrokers();
+  }, [refreshKey, reloadBrokers]);
 /* ---------------------- Utilities ---------------------- */
 
   /* -------------------- Render ------------------ */
@@ -141,8 +162,14 @@ const MaintenanceBrokerGroupGrid = () => {
     e: DataGridTypes.RowInsertingEvent<MaintenanceBrokerGroupMember>
   ) => {
     try {
-      await addBrokerGroupMember(e.data);
-      showToast('New Broker Group Member added successfully!', 'success');
+      const data = e.data;
+      if(brokerGroupMembers.find(s=> s.brokerGroupId === data.brokerGroupId && s.brokerCode?.toLowerCase() === data.brokerCode?.toLowerCase())) {
+        showToast('Broker Group member with selected Broker is already exists.', 'error');
+      }
+      else{
+        await addBrokerGroupMember(e.data);
+        showToast('New Broker Group Member added successfully!', 'success');
+      }
     } catch (err) {
       showToast(`Insert error: ${(err as Error).message}`, 'error');
       e.cancel = true;
@@ -152,8 +179,14 @@ const MaintenanceBrokerGroupGrid = () => {
     e: DataGridTypes.RowUpdatingEvent<MaintenanceBrokerGroupMember, number>
   ) => {
     try {
-      await modifyBrokerGroupMember(e.key, e.newData);
-      showToast('Broker Group Member updated successfully!', 'success');
+      const data = e.newData;
+      if(brokerGroupMembers.find(s=> s.brokerGroupId === data.brokerGroupId && s.brokerCode?.toLowerCase() === data.brokerCode?.toLowerCase() && s.brokerGroupMemberId !== data.brokerGroupMemberId)) {
+        showToast('Broker Group member with selected Broker is already exists.', 'error');
+      }
+      else{
+        await modifyBrokerGroupMember(e.key, e.newData);
+        showToast('Broker Group Member updated successfully!', 'success');
+      }
     } catch (err) {
       showToast(`Update error: ${(err as Error).message}`, 'error');
       e.cancel = true;
@@ -309,12 +342,12 @@ const MaintenanceBrokerGroupGrid = () => {
                     <FormItem dataField="brokerGroupId" editorType="dxSelectBox" cssClass="dx-common-selectbox-short80"
                     editorOptions={{
                       items: brokerGroups, displayExpr: "brokerGroupName", valueExpr: "brokerGroupId",
-                      searchEnabled: true, searchMode: "contains"
+                      searchEnabled: true, searchMode: "startswith"
                     }} />
                     <FormItem dataField="brokerCode" label={{text:"Broker"}} editorType="dxSelectBox" cssClass="dx-common-selectbox-short80"
                       editorOptions={{
                         items: brokers, displayExpr: "brokerName", valueExpr: "brokerCode",
-                        searchEnabled: true, searchMode: "contains"
+                        searchEnabled: true, searchMode: "startswith", searchExpr: "brokerName",
                       }} />
                   </Form>
                 </Editing>
@@ -359,5 +392,9 @@ const MaintenanceBrokerGroupGrid = () => {
     </div>
   );
 };
+
+MaintenanceBrokerGroupGrid.propTypes = {  
+  refreshKey: PropTypes.number.isRequired,  // mark as required if it must be provided  
+}; 
 
 export default MaintenanceBrokerGroupGrid;

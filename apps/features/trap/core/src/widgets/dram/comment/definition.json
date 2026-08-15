@@ -1,8 +1,8 @@
 {
     "id": "wd_comment_widget",
-    "name": "Comment widget",
+    "name": "Notes",
     "version": 1,
-    "description": "Comment widget with history",
+    "description": "Notes widget with history",
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_dram_comment_widget",
@@ -13,39 +13,25 @@
             "channel": {
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [
-                    1,
-                    2,
-                    3,
-                    4
-                ],
+                "enum": [1, 2, 3, 4],
                 "title": "Communication Channel",
                 "type": "string",
                 "category": "Interactions"
             },
             "schemaKey": {
-                "enum": [
-                    "dram.comment.history"
-                ],
+                "enum": ["dram.comment.history"],
                 "title": "Schema key",
                 "type": "string",
                 "category": "System Parameters"
             },
             "noteType": {
-                "enum": [
-                    "PAGR",
-                    "PABM",
-                    "PANET"
-                ],
+                "enum": ["PAGR", "PABM", "PANET"],
                 "title": "Note type",
                 "type": "string",
                 "category": "View Parameters"
             }
         },
-        "required": [
-            "schemaKey",
-            "noteType"
-        ],
+        "required": ["schemaKey", "noteType"],
         "type": "object"
     },
     "uiHints": {

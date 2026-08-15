@@ -30,7 +30,7 @@ export interface ExternalAppMetadata {
     devUrl?: string;
     qaUrl?: string;
     prodUrl?: string;
-    newTab: boolean;
+    newTab?: boolean;
     disabled: boolean;
     env: HighestEnv;
     httpMethod?: 'GET' | 'POST';

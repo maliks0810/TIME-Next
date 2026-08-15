@@ -210,9 +210,21 @@ const MaintenanceUserGrid: React.FC = () => {
                   <FormItem dataField="firstName" editorType="dxTextBox" cssClass="textInput-popup" />
                   <FormItem dataField="lastName" editorType="dxTextBox" cssClass="textInput-popup" />
                   <FormItem dataField="active" label={{ text: 'Active' }} editorType="dxCheckBox" />
-                  <FormItem dataField="departmentId" editorType="dxSelectBox" cssClass="dx-common-selectbox" />
-                  <FormItem dataField="divisionId" editorType="dxSelectBox" cssClass="dx-common-selectbox" />
-                  <FormItem dataField="locationCode" editorType="dxSelectBox" cssClass="dx-common-selectbox" />
+                  <FormItem dataField="departmentId" editorType="dxSelectBox" cssClass="dx-common-selectbox" 
+                    editorOptions={{
+                      items: departments, displayExpr: "departmentName", valueExpr: "departmentId",
+                      searchEnabled: true, searchMode: "contains", searchExpr: "departmentName"
+                    }}/>
+                  <FormItem dataField="divisionId" editorType="dxSelectBox" cssClass="dx-common-selectbox" 
+                    editorOptions={{
+                      items: divisions, displayExpr: "divisionName", valueExpr: "divisionId",
+                      searchEnabled: true, searchMode: "contains", searchExpr: "divisionName"
+                    }}/>
+                  <FormItem dataField="locationCode" editorType="dxSelectBox" cssClass="dx-common-selectbox" 
+                    editorOptions={{
+                      items: locations, displayExpr: "locationDescription", valueExpr: "locationCode",
+                      searchEnabled: true, searchMode: "contains", searchExpr: "locationDescription"
+                    }}/>
                   <FormItem dataField="startDate" editorType="dxDateBox" cssClass="textInput-popup-date" />
                   <FormItem dataField="endDate" editorType="dxDateBox" cssClass="textInput-popup-date" />
                 </Form>

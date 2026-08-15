@@ -17,20 +17,27 @@ export const NaviLinkContainer = forwardRef((_props, ref) => {
                 return updateUserInfo(updated);
             });
 
-            if (linkBase.newTab) {
-                window.open(linkBase.url, '_blank')?.focus();
-            } else if ((linkBase.url as string).toLowerCase().startsWith('http')) {
-                try {
-                    fetch(linkBase.url).catch(() => {
-                        console.log('fetched url');
-                    });
-                } catch (err) {
-                    console.log('fetched url');
-                }
-            } else {
-                //assume this is an internal route
-                navigate((linkBase.url.startsWith('/') ? '' : '/') + linkBase.url);
+            // if (linkBase.newTab || linkBase.newTab == undefined) {
+            //     window.open(linkBase.url, '_blank')?.focus();
+            // } else if ((linkBase.url as string).toLowerCase().startsWith('http')) {
+            //     try {
+            //         fetch(linkBase.url).catch(() => {
+            //             console.log('fetched url');
+            //         });
+            //     } catch (err) {
+            //         console.log('fetched url');
+            //     }
+            // } else {
+            //     //assume this is an internal route
+            //     navigate((linkBase.url.startsWith('/') ? '' : '/') + linkBase.url);
+            // }
+
+            var url = (linkBase.url as string).toLowerCase();
+            if (!url.startsWith('http')) {                
+                url = window.location.origin + (url.startsWith('/') ? '' : '/') + url;
             }
+
+            window.open(url, '_blank')?.focus();
         },
     }));
     return null;

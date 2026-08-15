@@ -2,60 +2,26 @@
 // src/api/trap.ts
 // UI -> TRAP GraphQL only
 
+import { getIdentityHeaders } from './getIdentityHeaders';
+import { coreGlobalMessage } from '../utils/message';
+
 type GqlResponse<T> = { data?: T; errors?: Array<{ message: string }> };
 
 const GRAPHQL_URL = import.meta.env.VITE_APP_GRAPHQL_URL;
 
-function getBearerToken(): string {
-    const STORAGE_KEY = 'okta-token-storage';
-    const rawData = localStorage.getItem(STORAGE_KEY);
+// Filter out cases for now:
+// 1. Unsuported schemakey
+// 2. No datset key found
+const IGNORED_ERROR_PATTERNS = [
+    'No dataset executor registered for datasetId=',
+    'Unsupported schemaKey:',
+];
 
-    if (!rawData) return '';
-
-    try {
-        const parsed = JSON.parse(rawData);
-        return parsed?.idToken?.idToken || '';
-    } catch (err) {
-        console.error('Error parsing auth token:', err);
-        return '';
-    }
-}
-
-function getIdentityHeaders(): Record<string, string> {
-    const token = getBearerToken();
-    const debugUser = localStorage.getItem('debug-user');
-    const debugLogin = debugUser;
-    const debugUserId = debugUser;
-    const debugEmail = debugUser ? `${debugUser}@test.local` : null;
-    const debugname = debugUser === 'jane' ? 'Jane' : debugUser === 'john' ? 'John' : debugUser;
-    const debugOrg1 = localStorage.getItem('debug-org1');
-    const debugOrg2 = localStorage.getItem('debug-org2');
-    const debugOrg4 = localStorage.getItem('debug-org4');
-    const debugRole = localStorage.getItem('debug-role');
-
-    const login = debugLogin || sessionStorage.getItem('okta-user') || '';
-    const name = debugname || sessionStorage.getItem('okta-name') || '';
-    const userId = debugUserId || sessionStorage.getItem('okta-user') || '';
-    const email = debugEmail || sessionStorage.getItem('okta-email') || '';
-    const org1 = debugOrg1 || sessionStorage.getItem('OrgLevel1') || '';
-    const org2 = debugOrg2 || sessionStorage.getItem('OrgLevel2') || '';
-    const org4 = debugOrg4 || sessionStorage.getItem('OrgLevel4') || '';
-    const role = debugRole || sessionStorage.getItem('okta-role') || 'Analyst';
-
-    return {
-        'content-type': 'application/json',
-        authorization: token ? `Bearer ${token}` : '',
-        'x-user-login': login,
-        'x-user-id': userId,
-        'x-user-email': email,
-        'x-user-name': name,
-        'x-user-org1': org1,
-        'x-user-org2': org2,
-        'x-user-org4': org4,
-        'x-user-role': role,
-    };
-}
-
+const isErrorIgnorable = (error: string) => {
+    return (
+        import.meta.env.PROD || IGNORED_ERROR_PATTERNS.some((message) => error.includes(message))
+    );
+};
 async function gql<T>(
     query: string,
     variables?: Record<string, any>,
@@ -72,9 +38,15 @@ async function gql<T>(
 
     if (!res.ok) {
         const msg = json?.errors?.[0]?.message || `HTTP ${res.status} ${res.statusText}`;
+        if (!isErrorIgnorable(msg)) coreGlobalMessage.error(msg);
         throw new Error(msg);
     }
-    if (json.errors && json.errors.length) throw new Error(json.errors[0].message);
+    if (json.errors && json.errors.length) {
+        if (!isErrorIgnorable(json.errors[0].message))
+            coreGlobalMessage.error(json.errors[0].message);
+        throw new Error(json.errors[0].message);
+    }
+
     if (!json.data) throw new Error('No data returned from GraphQL');
 
     return json.data;
@@ -84,7 +56,7 @@ export type TemplateSummary = {
     id: string;
     name: string;
     kind: string;
-    visibility: 'PRIVATE' | 'PUBLIC';
+    visibility: Visibility;
     ownerUserId?: string;
     createdByUserId?: string;
     updatedByUserId?: string;
@@ -161,10 +133,18 @@ export async function listTemplateVersions(templateId: string): Promise<any[]> {
     return data.templateVersions || [];
 }
 
+export enum Kind {
+    WORKFLOW = 'WORKFLOW',
+    LANDING = 'LANDING',
+}
+export enum Visibility {
+    PRIVATE = 'PRIVATE',
+    PUBLIC = 'PUBLIC',
+}
 export async function createTemplate(input: {
     name: string;
-    kind: 'LANDING' | 'WORKFLOW' | 'landing' | 'workflow';
-    visibility?: 'PRIVATE' | 'PUBLIC';
+    kind: Kind;
+    visibility?: Visibility;
     class1?: string;
     class2?: string;
     class3?: string;
@@ -199,7 +179,7 @@ export async function createTemplate(input: {
 export async function updateTemplate(input: {
     templateId: string;
     name?: string;
-    visibility?: 'PRIVATE' | 'PUBLIC';
+    visibility?: Visibility;
     class1?: string;
     class2?: string;
     class3?: string;
@@ -405,4 +385,87 @@ export async function widgetPreview(input: {
     mode?: 'MOCK' | 'LIVE';
 }): Promise<any> {
     return executeWidget(input);
+}
+
+export type Team = {
+    departmentName: string;
+    groupName: string;
+
+    teamName: string;
+};
+export async function getTeams(): Promise<Team[]> {
+    const data = await gql<{ getTeams: Team[] }>(`query GetTeams { getTeams {
+        departmentName
+        groupName
+        id  
+        teamName }
+    }`);
+    return data.getTeams || [];
+}
+
+// ---- Custom themes -----------------------------------------------------------
+// User-authored themes persisted via the Core API → Cosmos "themes" container. tokens is a
+// JSON blob so new token keys don't require a per-field schema change across the 4 layers.
+export type ThemeRecord = {
+    id: string;
+    name: string;
+    base: string;
+    mode: 'light' | 'dark';
+    tokens: Record<string, string | number>;
+    ownerUserId?: string;
+    scopeType?: 'USER' | 'AUDIENCE';
+    scopeKey?: Record<string, string>;
+};
+
+export async function listThemes(): Promise<ThemeRecord[]> {
+    const data = await gql<{ themes: ThemeRecord[] }>(
+        `query Themes {
+      themes {
+        id
+        name
+        base
+        mode
+        tokens
+        ownerUserId
+        scopeType
+        scopeKey
+      }
+    }`
+    );
+    return data.themes || [];
+}
+
+export async function saveTheme(input: {
+    id: string;
+    name: string;
+    base: string;
+    mode: 'light' | 'dark';
+    tokens: Record<string, string | number>;
+}): Promise<ThemeRecord> {
+    const data = await gql<{ saveTheme: ThemeRecord }>(
+        `mutation SaveTheme($input: ThemeInput!) {
+      saveTheme(input: $input) {
+        id
+        name
+        base
+        mode
+        tokens
+        ownerUserId
+        scopeType
+        scopeKey
+      }
+    }`,
+        { input }
+    );
+    return data.saveTheme;
+}
+
+export async function deleteTheme(id: string): Promise<boolean> {
+    const data = await gql<{ deleteTheme: boolean }>(
+        `mutation DeleteTheme($input: DeleteThemeInput!) {
+      deleteTheme(input: $input)
+    }`,
+        { input: { id } }
+    );
+    return data.deleteTheme;
 }
