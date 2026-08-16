@@ -33,6 +33,9 @@ import { GridRegistry } from '../widgets/common/data-grid/GridRegistry';
 import { Input } from '../widgets/common/input/Input';
 import { SummaryPanelWidget } from '../widgets/common/summary-panel/SummaryPanel';
 import { ChartWidget } from '../widgets/common/chart/ChartWidget';
+import { GeoMapWidget } from '../widgets/common/geo-map/GeoMapWidget';
+import { TitleWidget } from '../widgets/common/title/TitleWidget';
+import { FilterBarWidget } from '../widgets/common/filter-bar/FilterBarWidget';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -303,7 +306,6 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: [],
         emitsKeys: [],
     },
-
     cwd_common_summary_panel_01: {
         id: 'cwd_common_summary_panel_01',
         component: SummaryPanelWidget,
@@ -315,6 +317,30 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_common_chart_01: {
         id: 'cwd_common_chart_01',
         component: ChartWidget,
+        category: 'View',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_common_geo_map_01: {
+        id: 'cwd_common_geo_map_01',
+        component: GeoMapWidget,
+        category: 'View',
+        visibleIn: ['workflow'],
+        listensToKeys: ['deal.name', 'filter.state'],
+        emitsKeys: ['filter.state'],
+    },
+    cwd_common_title_01: {
+        id: 'cwd_common_title_01',
+        component: TitleWidget,
+        category: 'View',
+        visibleIn: ['workflow', 'landing'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_common_filter_bar_01: {
+        id: 'cwd_common_filter_bar_01',
+        component: FilterBarWidget,
         category: 'View',
         visibleIn: ['workflow'],
         listensToKeys: [],

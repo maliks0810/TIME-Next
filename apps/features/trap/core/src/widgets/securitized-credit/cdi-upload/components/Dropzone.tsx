@@ -1,26 +1,108 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import type {
+    ChangeEvent,
+    DragEvent,
+    KeyboardEvent,
+} from 'react';
 import { CloudUploadOutlined } from '@ant-design/icons';
 import { theme } from 'antd';
+import clsx from 'clsx';
+
+import { useTheme } from '../../../../theme/ThemeContext';
 import styles from './Dropzone.module.scss';
 
 type Props = {
-    heightPx: number;      // widget height — drives text adaptation
+    heightPx: number;
     onUpload: (file: File) => void;
 };
 
-export const Dropzone = ({ heightPx, onUpload }: Props) => {
+export const Dropzone = ({
+    heightPx,
+    onUpload,
+}: Props) => {
     const { token } = theme.useToken();
+    const { themeName } = useTheme();
     const fileRef = useRef<HTMLInputElement>(null);
     const [dragOver, setDragOver] = useState(false);
 
-    // Dropzone gets roughly (usable − title − actionRow − gaps). Squashed → minimal text.
-    const dzSlice = heightPx - 24 - 20 - 40 - 20;
-    const squashed = dzSlice < 90;
+    const isWealthTheme =
+        themeName === 'wealthLight' ||
+        themeName === 'wealthDark';
+    const isWealthLight = themeName === 'wealthLight';
+    const isWealthDark = themeName === 'wealthDark';
+
+    // Approximate the vertical space remaining after the title, action row,
+    // and layout gaps. Tight widgets keep the essential format label only.
+    const dropzoneSlice = heightPx - 24 - 20 - 40 - 20;
+    const squashed = dropzoneSlice < 90;
 
     const pick = (files: FileList | null) => {
-        const f = files?.[0];
-        if (f) onUpload(f);
+        const file = files?.[0];
+
+        if (file) {
+            onUpload(file);
+        }
     };
+
+    const openFilePicker = () => {
+        fileRef.current?.click();
+    };
+
+    const handleFileChange = (
+        event: ChangeEvent<HTMLInputElement>,
+    ) => {
+        pick(event.target.files);
+        event.target.value = '';
+    };
+
+    const handleKeyDown = (
+        event: KeyboardEvent<HTMLDivElement>,
+    ) => {
+        if (
+            event.key === 'Enter' ||
+            event.key === ' '
+        ) {
+            event.preventDefault();
+            openFilePicker();
+        }
+    };
+
+    const handleDragOver = (
+        event: DragEvent<HTMLDivElement>,
+    ) => {
+        event.preventDefault();
+        setDragOver(true);
+    };
+
+    const handleDragLeave = () => {
+        setDragOver(false);
+    };
+
+    const handleDrop = (
+        event: DragEvent<HTMLDivElement>,
+    ) => {
+        event.preventDefault();
+        setDragOver(false);
+        pick(event.dataTransfer.files);
+    };
+
+    const idleBorderColor = isWealthLight
+        ? 'rgba(120,84,24,0.24)'
+        : isWealthDark
+          ? 'rgba(230,180,90,0.16)'
+          : token.colorBorderSecondary;
+
+    const idleBackground = isWealthLight
+        ? 'rgba(120,84,24,0.035)'
+        : isWealthDark
+          ? 'rgba(230,180,90,0.025)'
+          : token.colorFillAlter;
+
+    const activeBackground = isWealthLight
+        ? 'rgba(154,107,34,0.10)'
+        : isWealthDark
+          ? 'rgba(230,180,90,0.10)'
+          : token.colorPrimaryBg;
 
     return (
         <>
@@ -28,35 +110,57 @@ export const Dropzone = ({ heightPx, onUpload }: Props) => {
                 ref={fileRef}
                 type="file"
                 accept=".cdi,.zip"
-                style={{ display: 'none' }}
-                onChange={(e) => pick(e.target.files)}
+                className={styles.hiddenFileInput}
+                onChange={handleFileChange}
             />
+
             <div
-                className={styles.drop}
-                onClick={() => fileRef.current?.click()}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={(e) => { e.preventDefault(); setDragOver(false); pick(e.dataTransfer.files); }}
+                role="button"
+                tabIndex={0}
+                aria-label="Upload a CDI or ZIP file"
+                className={clsx(styles.drop, {
+                    [styles.dragOver]: dragOver,
+                    [styles.wealth]: isWealthTheme,
+                    [styles.wealthLight]: isWealthLight,
+                    [styles.wealthDark]: isWealthDark,
+                })}
+                onClick={openFilePicker}
+                onKeyDown={handleKeyDown}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
                 style={{
-                    borderColor: dragOver ? token.colorPrimary : token.colorBorderSecondary,
-                    background: dragOver ? token.colorPrimaryBg : token.colorFillAlter,
+                    borderColor: dragOver
+                        ? token.colorPrimary
+                        : idleBorderColor,
+                    background: dragOver
+                        ? activeBackground
+                        : idleBackground,
                 }}
             >
                 <CloudUploadOutlined
+                    className={styles.icon}
                     style={{
                         fontSize: squashed ? 20 : 28,
-                        color: dragOver ? token.colorPrimary : token.colorTextQuaternary,
-                        transition: 'color .15s',
+                        color: dragOver
+                            ? token.colorPrimary
+                            : token.colorTextQuaternary,
                     }}
                 />
+
                 {squashed ? (
-                    // Even squashed, the dropzone only shows at ≥200px — always name
-                    // the format. Just drop the secondary helper line when tight.
-                    <span className={styles.title}>Drop CDI or ZIP here</span>
+                    <span className={styles.title}>
+                        Drop CDI or ZIP here
+                    </span>
                 ) : (
                     <div className={styles.text}>
-                        <span className={styles.title}>Drop CDI or ZIP here</span>
-                        <span className={styles.sub}>or click to browse · .cdi · .zip</span>
+                        <span className={styles.title}>
+                            Drop CDI or ZIP here
+                        </span>
+
+                        <span className={styles.sub}>
+                            or click to browse · .cdi · .zip
+                        </span>
                     </div>
                 )}
             </div>

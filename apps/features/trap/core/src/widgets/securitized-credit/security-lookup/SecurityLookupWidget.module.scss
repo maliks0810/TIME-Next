@@ -1,26 +1,175 @@
-.root { height: 100%; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+/*
+ * Security Lookup widget layout
+ * -----------------------------
+ * SecurityLookupWidget applies local wealth, wealthLight, and wealthDark
+ * classes directly to root. No global data-theme selector is required.
+ */
 
-.twoPane { display: flex; gap: 20px; min-width: 0; min-height: 0; flex: 1; overflow: hidden; }
+.root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
 
-.leftHalf { flex: 1; min-width: 0; min-height: 0; display: flex; overflow: hidden; }
+.twoPane {
+    display: flex;
+    flex: 1;
+    gap: 20px;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.leftHalf {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
 
 .recentPane {
-    flex: 1; min-width: 0; min-height: 0; overflow: hidden;
-    border-left: 1px solid var(--ant-color-border-secondary); padding-left: 16px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    padding-left: 16px;
+    border-left: 1px solid var(--ant-color-border-secondary);
 }
 
-.main { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; flex: 1; overflow: hidden; justify-content: flex-start; }
+.main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
 
-/* Title — icon carries a quiet brand accent; text stays neutral structure. */
-.title { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.titleIcon { font-size: 12px; color: var(--ant-color-primary); }
+.title {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 6px;
+}
+
+.titleIcon {
+    font-size: 12px;
+    color: var(--ant-color-primary);
+}
+
 .titleText {
-    font-size: 10px; line-height: 14px; font-weight: 700; letter-spacing: 0.07em;
-    text-transform: uppercase; color: var(--ant-color-text-tertiary);
+    font-size: 10px;
+    line-height: 14px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ant-color-text-tertiary);
 }
 
-.inputRow { display: flex; gap: 16px; min-width: 0; flex-shrink: 0; align-items: center; }
-.inputWrap { flex-shrink: 0; }
-.identityWrap { flex: 1; min-width: 0; overflow: hidden; }
+.inputRow {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 16px;
+    min-width: 0;
+}
 
-.recentStacked { flex: 1; min-height: 0; overflow: hidden; border-top: 1px solid var(--ant-color-border-secondary); padding-top: 8px; }
+.inputWrap {
+    flex-shrink: 0;
+}
+
+.identityWrap {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.recentStacked {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding-top: 8px;
+    border-top: 1px solid var(--ant-color-border-secondary);
+}
+
+/* Wealth shared typography */
+.root.wealth {
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .twoPane {
+        gap: 18px;
+    }
+
+    .recentPane {
+        padding-left: 16px;
+    }
+
+    .title {
+        gap: 7px;
+    }
+
+    .titleIcon {
+        font-size: 12px;
+        color: var(--ant-color-primary);
+    }
+
+    .titleText {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 10px;
+        line-height: 14px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .inputRow {
+        gap: 16px;
+    }
+}
+
+/* Wealth Light */
+.root.wealthLight {
+    .titleText {
+        color: #574a32;
+    }
+
+    .recentPane {
+        border-left-color: rgba(120, 84, 24, 0.20);
+    }
+
+    .recentStacked {
+        border-top-color: rgba(120, 84, 24, 0.20);
+    }
+}
+
+/* Wealth Dark */
+.root.wealthDark {
+    .titleText {
+        color: rgba(241, 231, 212, 0.74);
+    }
+
+    .recentPane {
+        border-left-color: rgba(230, 180, 90, 0.16);
+    }
+
+    .recentStacked {
+        border-top-color: rgba(230, 180, 90, 0.16);
+    }
+}

@@ -1,9 +1,5 @@
-// EXISTING: apps/features/trap/core/src/widgets/securitized-credit/TrancheDetailsWidget/components/MetricCard.tsx
-//
-// Restyled to match Deal Details: left accent bar (no full border, no top bar).
-// accent/highlight drive a colored LEFT border + colored value.
-
 import clsx from 'clsx';
+import { useTheme } from '../../../../theme/ThemeContext';
 import styles from './TrancheDetailsComponents.module.scss';
 
 export function MetricCard({
@@ -19,25 +15,68 @@ export function MetricCard({
     accent?: boolean;
     highlight?: boolean;
 }) {
+    const { themeName } = useTheme();
+
+    const isWealthTheme =
+        themeName === 'wealthLight' ||
+        themeName === 'wealthDark';
+
+    const isWealthLight =
+        themeName === 'wealthLight';
+
+    const isWealthDark =
+        themeName === 'wealthDark';
+
     return (
         <div
-            className={clsx(styles.metricCardContainer, {
-                [styles.metricCardAccent]: accent,
-                [styles.metricCardHighlight]: highlight,
-            })}
+            className={clsx(
+                styles.metricCardContainer,
+                {
+                    [styles.metricCardAccent]:
+                        accent,
+
+                    [styles.metricCardHighlight]:
+                        highlight,
+
+                    [styles.wealth]:
+                        isWealthTheme,
+
+                    [styles.wealthLight]:
+                        isWealthLight,
+
+                    [styles.wealthDark]:
+                        isWealthDark,
+                },
+            )}
         >
-            <span className={styles.metricCardLabel}>{label}</span>
+            <span className={styles.metricCardLabel}>
+                {label}
+            </span>
 
             <span
-                className={clsx(styles.metricCardValue, {
-                    [styles.metricCardValueAccent]: accent,
-                    [styles.metricCardValueHighlight]: highlight,
-                })}
+                className={clsx(
+                    styles.metricCardValue,
+                    {
+                        [styles.metricCardValueAccent]:
+                            accent,
+
+                        [styles.metricCardValueHighlight]:
+                            highlight,
+                    },
+                )}
             >
                 {value ?? '—'}
             </span>
 
-            {sub && <span className={styles.metricCardSubText}>{sub}</span>}
+            {sub && (
+                <span
+                    className={
+                        styles.metricCardSubText
+                    }
+                >
+                    {sub}
+                </span>
+            )}
         </div>
     );
 }

@@ -1,0 +1,61 @@
+{
+    "id": "cwd_common_filter_bar_01",
+    "name": "Filter Bar",
+    "version": 1,
+    "description": "Shows and removes the active tape filters as chips. Reads all filter.* selections off the channel.",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_common_ui_noop_01",
+    "listensToKeys": null,
+    "emitsKeys": null,
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "category": "Interactions",
+                "default": 1,
+                "description": "Channel whose filter.* selections this bar shows and clears.",
+                "enum": [1, 2, 3, 4, 5],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+            "dimensionLabels": {
+                "category": "View Parameters",
+                "default": {},
+                "description": "Optional map of channel key to chip label, e.g. { \"filter.state\": \"State\", \"filter.fico\": \"FICO\" }. Falls back to a prettified key.",
+                "title": "Dimension Labels",
+                "type": "object"
+            },
+            "emptyText": {
+                "category": "View Parameters",
+                "default": "No filters — full universe",
+                "description": "Message shown when nothing is filtered.",
+                "title": "Empty Text",
+                "type": "string"
+            },
+            "showClearAll": {
+                "category": "View Parameters",
+                "default": true,
+                "description": "Show the Clear all button when filters are active.",
+                "title": "Show Clear All",
+                "type": "boolean"
+            }
+        },
+        "required": [],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common",
+        "visibleIn": ["workflow", "landing"]
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": { "default": 12, "min": 4, "max": 12, "step": null },
+                "height": { "default": 60, "min": 50, "max": 120, "step": 10 }
+            }
+        }
+    ]
+}

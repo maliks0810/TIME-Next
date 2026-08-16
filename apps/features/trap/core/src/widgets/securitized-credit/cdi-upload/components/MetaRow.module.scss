@@ -1,10 +1,17 @@
+/*
+ * CDI metadata row
+ * ----------------
+ * MetaRow.tsx applies local wealth, wealthLight, and wealthDark classes
+ * directly to wrapper. Existing mono and last-row behavior is preserved.
+ */
+
 .wrapper {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 8px;
-    padding: 5px 0;
     min-width: 0;
+    padding: 5px 0;
 }
 
 .wrapperBordered {
@@ -12,25 +19,115 @@
 }
 
 .label {
+    flex-shrink: 0;
     font-size: 11px;
     line-height: 16px;
     color: var(--ant-color-text-secondary);
-    flex-shrink: 0;
     white-space: nowrap;
 }
 
 .value {
+    min-width: 0;
+    overflow: hidden;
     font-size: 11px;
     line-height: 16px;
     font-weight: 600;
     color: var(--ant-color-text);
     text-align: right;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
-    min-width: 0;
+    text-overflow: ellipsis;
 }
 
 .mono {
-    font-family: monospace;
+    font-family:
+        'IBM Plex Mono',
+        'SFMono-Regular',
+        Consolas,
+        monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Wealth shared typography */
+.wrapper.wealth {
+    padding: 5px 0;
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .label {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 10.5px;
+        line-height: 15px;
+        font-weight: 400;
+    }
+
+    .value {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 10.5px;
+        line-height: 15px;
+        font-weight: 500;
+    }
+
+    .value.mono {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+/* Wealth Light */
+.wrapper.wealthLight {
+    .label {
+        color: #6a5e47;
+    }
+
+    .value {
+        color: #211a0f;
+    }
+
+    .value.mono {
+        color: #6e4a20;
+    }
+}
+
+.wrapperBordered.wealthLight {
+    border-bottom-color: rgba(120, 84, 24, 0.18);
+}
+
+/* Wealth Dark */
+.wrapper.wealthDark {
+    .label {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .value {
+        color: #f1e7d4;
+    }
+
+    .value.mono {
+        color: #f6dda0;
+    }
+}
+
+.wrapperBordered.wealthDark {
+    border-bottom-color: rgba(230, 180, 90, 0.14);
 }

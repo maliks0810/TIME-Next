@@ -1,13 +1,170 @@
+/*
+ * CDI Extraction dropzone
+ * -----------------------
+ * Dropzone.tsx applies local wealth, wealthLight, and wealthDark classes
+ * directly to drop. Drag behavior and compact/full label adaptation remain
+ * unchanged.
+ */
+
 .drop {
-    flex: 1; min-height: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 6px; padding: 12px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 0;
+    padding: 12px;
+    overflow: hidden;
     border: 2px dashed var(--ant-color-border-secondary);
     border-radius: var(--ant-border-radius);
     background: var(--ant-color-fill-alter);
-    cursor: pointer; overflow: hidden;
-    transition: border-color .15s, background .15s;
+    cursor: pointer;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        box-shadow 0.15s ease;
 }
-.text { text-align: center; }
-.title { display: block; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ant-color-text-secondary); }
-.sub { display: block; font-size: 11px; line-height: 15px; color: var(--ant-color-text-tertiary); }
+
+.drop:focus {
+    outline: none;
+}
+
+.drop:focus-visible {
+    border-color: var(--ant-color-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ant-color-primary-bg);
+}
+
+.dragOver {
+    border-style: solid;
+}
+
+.icon {
+    flex-shrink: 0;
+    transition:
+        color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.dragOver .icon {
+    transform: translateY(-1px);
+}
+
+.text {
+    min-width: 0;
+    text-align: center;
+}
+
+.title {
+    display: block;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    color: var(--ant-color-text-secondary);
+    text-align: center;
+}
+
+.sub {
+    display: block;
+    font-size: 11px;
+    line-height: 15px;
+    color: var(--ant-color-text-tertiary);
+}
+
+.hiddenFileInput {
+    display: none;
+}
+
+/* Wealth shared typography and geometry */
+.drop.wealth {
+    border-width: 1px;
+    border-radius: 2px;
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .title {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+    }
+
+    .sub {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 8.5px;
+        line-height: 13px;
+        font-weight: 400;
+        letter-spacing: 0.03em;
+    }
+}
+
+/* Wealth Light */
+.drop.wealthLight {
+    .title {
+        color: #574a32;
+    }
+
+    .sub {
+        color: rgba(33, 26, 15, 0.42);
+    }
+}
+
+.drop.wealthLight:hover,
+.drop.wealthLight:focus-visible,
+.drop.wealthLight.dragOver {
+    border-color: #9a6b22 !important;
+    background: rgba(154, 107, 34, 0.08) !important;
+}
+
+.drop.wealthLight:focus-visible {
+    box-shadow: 0 0 0 2px rgba(154, 107, 34, 0.10);
+}
+
+.drop.wealthLight:hover .icon,
+.drop.wealthLight:focus-visible .icon,
+.drop.wealthLight.dragOver .icon {
+    color: #9a6b22 !important;
+}
+
+/* Wealth Dark */
+.drop.wealthDark {
+    .title {
+        color: rgba(241, 231, 212, 0.74);
+    }
+
+    .sub {
+        color: rgba(241, 231, 212, 0.34);
+    }
+}
+
+.drop.wealthDark:hover,
+.drop.wealthDark:focus-visible,
+.drop.wealthDark.dragOver {
+    border-color: #e6b45a !important;
+    background: rgba(230, 180, 90, 0.08) !important;
+}
+
+.drop.wealthDark:focus-visible {
+    box-shadow: 0 0 0 2px rgba(230, 180, 90, 0.10);
+}
+
+.drop.wealthDark:hover .icon,
+.drop.wealthDark:focus-visible .icon,
+.drop.wealthDark.dragOver .icon {
+    color: #e6b45a !important;
+}
