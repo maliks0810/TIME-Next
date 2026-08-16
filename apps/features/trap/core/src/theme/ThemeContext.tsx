@@ -95,11 +95,11 @@ export type ThemeContextValue = {
 };
 export const ThemeContext = React.createContext<ThemeContextValue>({
     themeName: 'default',
-    setTheme: () => {},
+    setTheme: () => { },
     customThemes: [],
-    upsertCustomTheme: () => {},
-    deleteCustomTheme: () => {},
-    setPreview: () => {},
+    upsertCustomTheme: () => { },
+    deleteCustomTheme: () => { },
+    setPreview: () => { },
 });
 
 export function useTheme() {
@@ -547,8 +547,8 @@ export function getThemeConfig(themeName: ThemeName) {
                     colorWarning: '#c2861a',
                     colorError: '#b23a2e',
 
-                    colorBgBase: '#faf6ea',
-                    colorBgLayout: '#f5efdd',
+                    colorBgBase: '#fdfbf5',
+                    colorBgLayout: '#faf6ea',
                     colorBgContainer: '#fffdf8',
                     colorBgElevated: '#f6f0e0',
 
@@ -567,14 +567,19 @@ export function getThemeConfig(themeName: ThemeName) {
                     fontFamily: WEALTH_FONT,
                 },
                 components: {
-                    Card: { colorBgContainer: '#fffdf8' },
+                    Card: {
+                        colorBgContainer: '#fffdf8',
+                    },
                     Table: {
                         headerBg: '#f6f0e0',
                         headerColor: '#6a5e47',
                         rowHoverBg: 'rgba(120,84,24,0.06)',
                         borderColor: 'rgba(120,84,24,0.20)',
                     },
-                    Layout: { headerBg: 'transparent', bodyBg: 'transparent' },
+                    Layout: {
+                        headerBg: 'transparent',
+                        bodyBg: 'transparent',
+                    },
                 },
             };
 
@@ -582,40 +587,103 @@ export function getThemeConfig(themeName: ThemeName) {
             return {
                 algorithm: antdTheme.darkAlgorithm,
                 token: {
+                    /*
+                     * Exact Wealth Dark identity colors from the original
+                     * ABF Loan Pool Analyzer prototype.
+                     */
                     colorPrimary: '#e6b45a',
                     colorInfo: '#e6b45a',
                     colorSuccess: '#6fae6a',
                     colorWarning: '#e0a93e',
                     colorError: '#d2685a',
 
+                    /*
+                     * Exact dark page and surface colors.
+                     */
                     colorBgBase: '#0b0907',
                     colorBgLayout: '#0b0907',
-                    colorBgContainer: '#14100a',
+                    colorBgContainer: 'rgba(17,13,8,0.66)',
                     colorBgElevated: '#100d09',
 
+                    /*
+                     * Exact Wealth Dark text hierarchy.
+                     */
                     colorTextBase: '#f1e7d4',
                     colorTextSecondary: 'rgba(241,231,212,0.58)',
                     colorTextTertiary: 'rgba(241,231,212,0.34)',
                     colorTextQuaternary: 'rgba(241,231,212,0.22)',
 
-                    colorBorder: 'rgba(230,180,90,0.32)',
+                    /*
+                     * Exact gilt border and fill hierarchy.
+                     */
+                    colorBorder: 'rgba(230,180,90,0.30)',
                     colorBorderSecondary: 'rgba(230,180,90,0.16)',
+                    colorFillAlter: 'rgba(230,180,90,0.025)',
+                    colorFillSecondary: 'rgba(230,180,90,0.04)',
                     colorFillTertiary: 'rgba(230,180,90,0.08)',
                     colorFillQuaternary: 'rgba(230,180,90,0.05)',
 
+                    /*
+                     * Prototype uses tight 2–3px geometry.
+                     */
                     borderRadius: 3,
+
                     ...COMMON_TOKENS,
                     fontFamily: WEALTH_FONT,
                 },
+
                 components: {
-                    Card: { colorBgContainer: '#14100a' },
+                    Card: {
+                        colorBgContainer: 'rgba(17,13,8,0.66)',
+                    },
+
                     Table: {
                         headerBg: '#100d09',
-                        headerColor: 'rgba(241,231,212,0.66)',
+                        headerColor: 'rgba(241,231,212,0.58)',
                         rowHoverBg: 'rgba(230,180,90,0.06)',
                         borderColor: 'rgba(230,180,90,0.16)',
                     },
-                    Layout: { headerBg: 'transparent', bodyBg: 'transparent' },
+
+                    Layout: {
+                        headerBg: 'transparent',
+                        bodyBg: 'transparent',
+                    },
+
+                    Tooltip: {
+                        colorBgSpotlight: '#0b0907',
+                        colorTextLightSolid: '#f1e7d4',
+                    },
+
+                    Popover: {
+                        colorBgElevated: '#100d09',
+                    },
+
+                    Dropdown: {
+                        colorBgElevated: '#100d09',
+                    },
+
+                    Select: {
+                        optionSelectedBg: 'rgba(154,106,38,0.12)',
+                        optionActiveBg: 'rgba(230,180,90,0.06)',
+                    },
+
+                    Button: {
+                        primaryColor: '#120d06',
+                        defaultColor: 'rgba(241,231,212,0.58)',
+                        defaultBorderColor: 'rgba(230,180,90,0.30)',
+                        defaultBg: 'transparent',
+                    },
+
+                    Tag: {
+                        defaultBg: 'rgba(230,180,90,0.06)',
+                        defaultColor: 'rgba(241,231,212,0.58)',
+                    },
+
+                    Input: {
+                        colorBgContainer: 'transparent',
+                        activeBorderColor: '#e6b45a',
+                        hoverBorderColor: 'rgba(230,180,90,0.48)',
+                    },
                 },
             };
 

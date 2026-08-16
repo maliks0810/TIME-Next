@@ -1,0 +1,82 @@
+{
+    "id": "cwd_common_geo_map_01",
+    "name": "Geographic Map",
+    "version": 1,
+    "description": "US choropleth of a tape measure by state; click a state to cross-filter.",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_common_geo_map_01",
+    "listensToKeys": ["deal.name", "security.cusip", "security.ticker", "portfolio.id", "filter.state"],
+    "emitsKeys": ["filter.state"],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "category": "Interactions",
+                "default": 1,
+                "description": "Widgets connected to the same channel share data (the selected deal and the active filters) between each other.",
+                "enum": [1, 2, 3, 4, 5],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+            "contextKey": {
+                "category": "Interactions",
+                "default": "deal.name",
+                "description": "Which channel value selects the universe (deal name today; portfolio id / cusip tomorrow).",
+                "title": "Context Key",
+                "type": "string"
+            },
+            "filterKey": {
+                "category": "Interactions",
+                "default": "filter.state",
+                "description": "Channel key this map publishes when a state is clicked, and reads to reflect the active state selection.",
+                "title": "Filter Key",
+                "type": "string"
+            },
+            "schemaKey": {
+                "category": "System Parameters",
+                "description": "Logical geo scenario resolved by GraphQL. Returns a render-ready ECharts map option (choropleth) with a visualMap.",
+                "enum": ["tape.geo.state"],
+                "title": "Schema Key",
+                "type": "string"
+            },
+            "emptyStateText": {
+                "category": "View Parameters",
+                "default": "No geographic data",
+                "description": "Message shown when the scenario returns no map (e.g. nothing selected on the channel yet).",
+                "title": "Empty State Text",
+                "type": "string"
+            },
+            "showTitle": {
+                "category": "View Parameters",
+                "default": true,
+                "description": "Show the map's title row (icon + label) above the plot.",
+                "title": "Show Title",
+                "type": "boolean"
+            },
+            "titleText": {
+                "category": "View Parameters",
+                "default": "",
+                "description": "Overrides the map title. Leave blank to use the scenario title from GraphQL.",
+                "title": "Custom Title Text",
+                "type": "string"
+            }
+        },
+        "required": ["schemaKey"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common",
+        "visibleIn": ["workflow", "landing"]
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": { "default": 6, "min": 3, "max": 8, "step": null },
+                "height": { "default": 250, "min": 150, "max": 500, "step": 50 }
+            }
+        }
+    ]
+}

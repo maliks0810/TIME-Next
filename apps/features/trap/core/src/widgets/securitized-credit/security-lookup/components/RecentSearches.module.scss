@@ -1,69 +1,450 @@
-.container { display: flex; flex-direction: column; gap: 8px; min-height: 0; height: 100%; overflow: hidden; }
+/*
+ * Recent Searches
+ * ---------------
+ * RecentSearches.tsx applies local wealth, wealthLight, and wealthDark classes
+ * directly to container. Existing behavior and lane layouts are preserved.
+ */
 
-.header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-.headerLeft { display: flex; align-items: center; gap: 6px; }
-.headerIcon { font-size: 11px; color: var(--ant-color-primary); }
-.headerText {
-    font-size: 10px; line-height: 14px; font-weight: 700; letter-spacing: 0.07em;
-    text-transform: uppercase; color: var(--ant-color-text-tertiary);
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
 }
-.clear { font-size: 11px; color: var(--ant-color-text-quaternary); cursor: pointer; transition: color .15s ease; }
-.clear:hover { color: var(--ant-color-text-secondary); }
-.empty { font-size: 11px; color: var(--ant-color-text-quaternary); padding: 4px 0; }
 
-/* Lane modes */
-.grid { display: grid; gap: 8px; min-width: 0; min-height: 0; overflow-x: hidden; overflow-y: auto; align-content: start; }
-.gridTwo { grid-template-columns: 1fr 1fr; }
-.gridOne { grid-template-columns: 1fr; }
-.gridMulti { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
-
-/* Card — native <button> resets + fixed height so clicking (focus) never
-   reveals hidden overflow as a scrollbar, and never shifts the box. */
-.card {
-    appearance: none;
-    -webkit-appearance: none;
-    font: inherit;
-    line-height: 1.2;
-    box-sizing: border-box;
-
+.header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.headerIcon {
+    font-size: 11px;
+    color: var(--ant-color-primary);
+}
+
+.headerText {
+    font-size: 10px;
+    line-height: 14px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ant-color-text-tertiary);
+}
+
+.clearButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--ant-border-radius-sm);
+    background: transparent;
+    color: var(--ant-color-text-quaternary);
+    cursor: pointer;
+    transition:
+        color 0.15s ease,
+        background 0.15s ease;
+}
+
+.clearButton:hover {
+    background: var(--ant-color-fill-tertiary);
+    color: var(--ant-color-text-secondary);
+}
+
+.clearButton:focus-visible {
+    outline: 1px solid var(--ant-color-primary);
+    outline-offset: 1px;
+}
+
+.clear {
+    font-size: 11px;
+    color: inherit;
+}
+
+.empty {
+    padding: 4px 0;
+    font-size: 11px;
+    line-height: 16px;
+    color: var(--ant-color-text-quaternary);
+}
+
+/* Lane modes */
+.grid {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    min-width: 0;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.gridTwo {
+    grid-template-columns: 1fr 1fr;
+}
+
+.gridOne {
+    grid-template-columns: 1fr;
+}
+
+.gridMulti {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+/*
+ * Native button reset and fixed card height prevent focus from changing the
+ * card box or revealing hidden overflow.
+ */
+.card {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
     gap: 8px;
     height: 44px;
-    flex-shrink: 0;
+    min-width: 0;
     padding: 0 10px 0 8px;
+    overflow: hidden;
+    appearance: none;
+    -webkit-appearance: none;
     border: 1px solid var(--ant-color-border-secondary);
     border-left: 2px solid transparent;
     border-radius: var(--ant-border-radius);
     background: var(--ant-color-fill-quaternary);
-    cursor: pointer;
+    color: inherit;
+    font: inherit;
+    line-height: 1.2;
     text-align: left;
-    min-width: 0;
-    overflow: hidden;
+    cursor: pointer;
     scrollbar-width: none;
-    transition: border-color .15s ease, background .15s ease;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease;
 }
-.card::-webkit-scrollbar { display: none; }
 
-.card:focus { outline: none; }
-.card:focus-visible {
+.card::-webkit-scrollbar {
+    display: none;
+}
+
+.card:focus {
     outline: none;
+}
+
+.card:focus-visible {
     border-color: var(--ant-color-primary-border);
     border-left-color: var(--ant-color-primary);
+    outline: none;
 }
+
 .card:hover {
     border-color: var(--ant-color-primary-border);
     border-left-color: var(--ant-color-primary);
     background: var(--ant-color-primary-bg);
 }
 
-.cardMain { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden; }
-.cardName { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ant-color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cardMeta { font-family: monospace; font-size: 10px; line-height: 14px; color: var(--ant-color-text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cardTime { margin-left: 6px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--ant-color-text-quaternary); }
+.cardMain {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+}
 
-.cardRight { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.cardTag { margin: 0; font-size: 9px; line-height: 14px; }
-.cardArrow { font-size: 11px; color: var(--ant-color-text-quaternary); transition: color .15s ease, transform .15s ease; }
-.card:hover .cardArrow { color: var(--ant-color-primary); transform: translateX(2px); }
+.cardName {
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    color: var(--ant-color-text);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cardMeta {
+    overflow: hidden;
+    font-family:
+        'IBM Plex Mono',
+        'SFMono-Regular',
+        Consolas,
+        monospace;
+    font-size: 10px;
+    line-height: 14px;
+    font-variant-numeric: tabular-nums;
+    color: var(--ant-color-text-tertiary);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cardTime {
+    margin-left: 6px;
+    font-family:
+        'ABC-MonumentGrotesk-Regular',
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
+    color: var(--ant-color-text-quaternary);
+}
+
+.cardRight {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 6px;
+}
+
+.cardTag {
+    margin: 0;
+    font-size: 9px;
+    line-height: 14px;
+}
+
+.cardArrow {
+    font-size: 11px;
+    color: var(--ant-color-text-quaternary);
+    transition:
+        color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.card:hover .cardArrow {
+    color: var(--ant-color-primary);
+    transform: translateX(2px);
+}
+
+/* Wealth shared treatment */
+.container.wealth {
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .headerLeft {
+        gap: 7px;
+    }
+
+    .headerIcon {
+        font-size: 11px;
+        color: var(--ant-color-primary);
+    }
+
+    .headerText {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 10px;
+        line-height: 14px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+    }
+
+    .clearButton {
+        border-radius: 2px;
+    }
+
+    .empty {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 10.5px;
+        line-height: 15px;
+        font-weight: 400;
+    }
+
+    .card {
+        height: 44px;
+        border-radius: 2px;
+    }
+
+    .cardName {
+        font-family:
+            'Spectral',
+            'Newsreader',
+            Georgia,
+            serif;
+        font-size: 12.5px;
+        line-height: 16px;
+        font-weight: 300;
+        letter-spacing: -0.005em;
+    }
+
+    .cardMeta {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 9px;
+        line-height: 13px;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .cardTime {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 8.5px;
+        font-weight: 400;
+    }
+
+    .cardTag {
+        padding: 0 6px;
+        border: 1px solid var(--ant-color-border);
+        border-radius: 2px;
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 8px;
+        line-height: 13px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+}
+
+/* Wealth Light */
+.container.wealthLight {
+    .headerText {
+        color: #574a32;
+    }
+
+    .clearButton {
+        color: rgba(33, 26, 15, 0.30);
+    }
+
+    .clearButton:hover {
+        background: rgba(120, 84, 24, 0.07);
+        color: #9a6b22;
+    }
+
+    .empty {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .card {
+        border-color: rgba(120, 84, 24, 0.20);
+        border-left-color: transparent;
+        background: rgba(120, 84, 24, 0.035);
+    }
+
+    .card:focus-visible,
+    .card:hover {
+        border-color: rgba(154, 107, 34, 0.34);
+        border-left-color: #9a6b22;
+        background: rgba(154, 107, 34, 0.08);
+    }
+
+    .cardName {
+        color: #211a0f;
+    }
+
+    .cardMeta {
+        color: #6a5e47;
+    }
+
+    .cardTime {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .cardTag {
+        border-color: rgba(120, 84, 24, 0.24);
+        background: rgba(120, 84, 24, 0.05);
+        color: #9a6b22;
+    }
+
+    .cardArrow {
+        color: rgba(33, 26, 15, 0.30);
+    }
+
+    .card:hover .cardArrow {
+        color: #9a6b22;
+    }
+}
+
+/* Wealth Dark */
+.container.wealthDark {
+    .headerText {
+        color: rgba(241, 231, 212, 0.74);
+    }
+
+    .clearButton {
+        color: rgba(241, 231, 212, 0.22);
+    }
+
+    .clearButton:hover {
+        background: rgba(230, 180, 90, 0.07);
+        color: #e6b45a;
+    }
+
+    .empty {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .card {
+        border-color: rgba(230, 180, 90, 0.14);
+        border-left-color: transparent;
+        background: rgba(230, 180, 90, 0.025);
+    }
+
+    .card:focus-visible,
+    .card:hover {
+        border-color: rgba(230, 180, 90, 0.30);
+        border-left-color: #e6b45a;
+        background: rgba(230, 180, 90, 0.08);
+    }
+
+    .cardName {
+        color: #f1e7d4;
+    }
+
+    .cardMeta {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .cardTime {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .cardTag {
+        border-color: rgba(230, 180, 90, 0.18);
+        background: rgba(230, 180, 90, 0.06);
+        color: #e6b45a;
+    }
+
+    .cardArrow {
+        color: rgba(241, 231, 212, 0.22);
+    }
+
+    .card:hover .cardArrow {
+        color: #e6b45a;
+    }
+}

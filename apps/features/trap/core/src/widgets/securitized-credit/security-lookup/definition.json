@@ -1,49 +1,61 @@
 {
-    "id": "wd_sc_security_lookup_01",
-    "name": "Security Lookup",
-    "version": 1,
-    "description": null,
-    "tags": null,
-    "category": "widgetDefinition",
-    "datasetId": "ds_sc_security_lookup_01",
-    "listensToKeys": null,
-    "emitsKeys": null,
-    "configSchema": {
-        "properties": {
-            "channel": {
-                "category": "Interactions",
-                "default": 1,
-                "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [1, 2, 3, 4],
-                "title": "Communication Channel",
-                "type": "string"
-            }
+  "id": "wd_sc_security_lookup_01",
+  "name": "Security Lookup",
+  "version": 1,
+  "description": "Searches for a security and publishes the resolved deal and tranche context to the selected communication channel.",
+  "tags": null,
+  "category": "widgetDefinition",
+  "datasetId": "ds_sc_security_lookup_01",
+  "listensToKeys": [
+    "deal.name"
+  ],
+  "emitsKeys": [
+    "deal.name",
+    "tranche.name",
+    "asset.isNew"
+  ],
+  "configSchema": {
+    "properties": {
+      "channel": {
+        "category": "Interactions",
+        "default": 1,
+        "description": "Widgets connected to the same channel share the selected security context.",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "title": "Communication Channel",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "type": "object"
+  },
+  "uiHints": {
+    "category": "Securitized Credit"
+  },
+  "variants": [
+    {
+      "id": "default",
+      "label": "Default",
+      "sizing": {
+        "resizable": true,
+        "width": {
+          "default": 6,
+          "min": 3,
+          "max": 12,
+          "step": null
         },
-        "required": [],
-        "type": "object"
-    },
-    "uiHints": {
-        "category": "Securitized Credit"
-    },
-    "variants": [
-        {
-            "id": "default",
-            "label": "Default",
-            "sizing": {
-                "resizable": true,
-                "width": {
-                    "default": 6,
-                    "min": 3,
-                    "max": 12,
-                    "step": null
-                },
-                "height": {
-                    "default": 150,
-                    "min": 100,
-                    "max": 250,
-                    "step": 50
-                }
-            }
+        "height": {
+          "default": 150,
+          "min": 100,
+          "max": 250,
+          "step": 50
         }
-    ]
+      }
+    }
+  ]
 }

@@ -1,0 +1,61 @@
+{
+    "id": "cwd_common_title_01",
+    "name": "Title",
+    "version": 1,
+    "description": "Borderless section header — Title and Subtitle set via configuration.",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_common_ui_noop_01",
+    "listensToKeys": null,
+    "emitsKeys": null,
+    "configSchema": {
+        "properties": {
+            "titleText": {
+                "category": "View Parameters",
+                "default": "Title",
+                "description": "Main heading text.",
+                "title": "Title",
+                "type": "string"
+            },
+            "subtitleText": {
+                "category": "View Parameters",
+                "default": "",
+                "description": "Secondary line under the title. Leave blank to hide.",
+                "title": "Subtitle",
+                "type": "string"
+            },
+            "align": {
+                "category": "View Parameters",
+                "default": "left",
+                "description": "Horizontal alignment of the title and subtitle.",
+                "enum": ["left", "center", "right"],
+                "title": "Alignment",
+                "type": "string"
+            },
+            "titleSize": {
+                "category": "View Parameters",
+                "default": 18,
+                "description": "Title font size in px.",
+                "title": "Title Size",
+                "type": "number"
+            }
+        },
+        "required": [],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common",
+        "visibleIn": ["workflow", "landing"]
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": { "default": 6, "min": 2, "max": 12, "step": null },
+                "height": { "default": 70, "min": 50, "max": 160, "step": 10 }
+            }
+        }
+    ]
+}

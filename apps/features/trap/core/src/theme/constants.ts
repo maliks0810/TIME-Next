@@ -32,4 +32,11 @@ export const COMMON_TOKENS = {
 // aren't bundled yet, so each stack falls back to system fonts until they're loaded.
 export const BRAND_FONT =
     '"Monument Grotesk", Helvetica, Arial, ui-sans-serif, system-ui, sans-serif';
-export const WEALTH_FONT = '"Albert Sans", ui-sans-serif, system-ui, sans-serif';
+export const WEALTH_FONT =
+    '"Hanken Grotesk", "Albert Sans", ui-sans-serif, system-ui, sans-serif';
+
+export const WEALTH_DISPLAY_FONT =
+    '"Spectral", "Newsreader", Georgia, serif';
+
+export const WEALTH_MONO_FONT =
+    '"IBM Plex Mono", "SFMono-Regular", Consolas, monospace';
