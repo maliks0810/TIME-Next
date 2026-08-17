@@ -54,9 +54,7 @@ export default function WidgetHost(props: {
 }) {
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState<string | undefined>(undefined);
-    const [result, setResult] = React.useState<
-        Record<string, unknown> | undefined
-    >(undefined);
+    const [result, setResult] = React.useState<Record<string, unknown> | undefined>(undefined);
 
     const abortControllerRef = React.useRef<AbortController | null>(null);
     const requestSequenceRef = React.useRef(0);
@@ -94,12 +92,7 @@ export default function WidgetHost(props: {
             props.mode === 'designer' ? 'MOCK' : 'LIVE',
             stableStringify(paramsToExecute),
         ].join('::');
-    }, [
-        widgetDefinitionId,
-        variantId,
-        props.mode,
-        paramsToExecute,
-    ]);
+    }, [widgetDefinitionId, variantId, props.mode, paramsToExecute]);
 
     /**
      * Initial/configuration-driven execution.
@@ -110,11 +103,7 @@ export default function WidgetHost(props: {
      * newer result.
      */
     React.useEffect(() => {
-        if (
-            !widgetDefinitionId ||
-            isIdentity ||
-            props.mode === 'preview'
-        ) {
+        if (!widgetDefinitionId || isIdentity || props.mode === 'preview') {
             return;
         }
 
@@ -135,18 +124,12 @@ export default function WidgetHost(props: {
                         widgetDefinitionId,
                         variantId,
                         params: paramsToExecute,
-                        mode:
-                            props.mode === 'designer'
-                                ? 'MOCK'
-                                : 'LIVE',
+                        mode: props.mode === 'designer' ? 'MOCK' : 'LIVE',
                     },
                     controller.signal
                 );
 
-                if (
-                    controller.signal.aborted ||
-                    requestSequence !== requestSequenceRef.current
-                ) {
+                if (controller.signal.aborted || requestSequence !== requestSequenceRef.current) {
                     return;
                 }
 
@@ -160,15 +143,9 @@ export default function WidgetHost(props: {
                     return;
                 }
 
-                setError(
-                    executionError?.message ??
-                        'Widget execution failed'
-                );
+                setError(executionError?.message ?? 'Widget execution failed');
             } finally {
-                if (
-                    !controller.signal.aborted &&
-                    requestSequence === requestSequenceRef.current
-                ) {
+                if (!controller.signal.aborted && requestSequence === requestSequenceRef.current) {
                     setLoading(false);
 
                     if (abortControllerRef.current === controller) {
@@ -183,14 +160,7 @@ export default function WidgetHost(props: {
         return () => {
             controller.abort();
         };
-    }, [
-        requestKey,
-        widgetDefinitionId,
-        variantId,
-        paramsToExecute,
-        props.mode,
-        isIdentity,
-    ]);
+    }, [requestKey, widgetDefinitionId, variantId, paramsToExecute, props.mode, isIdentity]);
 
     /**
      * Context-driven execution used by Chart, Geo, KPI, and other widgets.
@@ -227,18 +197,12 @@ export default function WidgetHost(props: {
                         context: {
                             ...variables,
                         },
-                        mode:
-                            props.mode === 'designer'
-                                ? 'MOCK'
-                                : 'LIVE',
+                        mode: props.mode === 'designer' ? 'MOCK' : 'LIVE',
                     },
                     controller.signal
                 );
 
-                if (
-                    controller.signal.aborted ||
-                    requestSequence !== requestSequenceRef.current
-                ) {
+                if (controller.signal.aborted || requestSequence !== requestSequenceRef.current) {
                     return;
                 }
 
@@ -252,15 +216,9 @@ export default function WidgetHost(props: {
                     return;
                 }
 
-                setError(
-                    executionError?.message ??
-                        'Widget execution failed'
-                );
+                setError(executionError?.message ?? 'Widget execution failed');
             } finally {
-                if (
-                    !controller.signal.aborted &&
-                    requestSequence === requestSequenceRef.current
-                ) {
+                if (!controller.signal.aborted && requestSequence === requestSequenceRef.current) {
                     setLoading(false);
 
                     if (abortControllerRef.current === controller) {
@@ -269,12 +227,7 @@ export default function WidgetHost(props: {
                 }
             }
         },
-        [
-            widgetDefinitionId,
-            variantId,
-            params,
-            props.mode,
-        ]
+        [widgetDefinitionId, variantId, params, props.mode]
     );
 
     const subscribe = React.useCallback(() => {
@@ -296,12 +249,14 @@ export default function WidgetHost(props: {
         );
 
         return dispose;
-    }, [
-        widgetDefinitionId,
-        variantId,
-        params,
-        props.mode,
-    ]);
+    }, [widgetDefinitionId, variantId, params, props.mode]);
+
+    // Subscription example, full integration requires work from Domain API
+    // useEffect(() => {
+    //     const dispose = subscribe?.();
+
+    //     return dispose;
+    // }, []);
 
     React.useEffect(() => {
         return () => {
