@@ -93,7 +93,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                     styles.headerBtn,
                                     isPublished ? styles.defaultCursor : styles.grabCursor
                                 )}
-                                title="Move widget"
                             >
                                 ⋮⋮
                             </Button>
@@ -124,7 +123,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                             if (configureDisabledReason) return;
                                             setIsConfigOpen(true);
                                         }}
-                                        title="Configure"
                                     >
                                         ⚙
                                     </Button>
@@ -141,7 +139,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                     e.stopPropagation();
                                     onRemove(item.i);
                                 }}
-                                title="Remove"
                             >
                                 ✕
                             </Button>
