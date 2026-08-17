@@ -12,7 +12,6 @@ import { KPIComparisonWidget } from '../widgets/equity-research/KPIComparisonWid
 import { ScDealDetailsWidget } from '../widgets/securitized-credit/DealDetailsWidget/ScDealDetailsWidget';
 import { ScTranchesWidget } from '../widgets/securitized-credit/TranchesWidget/ScTranchesWidget';
 import { ScTrancheDetailWidget } from '../widgets/securitized-credit/TrancheDetailWidget/ScTrancheDetailWidget';
-import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
 import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
 import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/PerformanceAnalysis/PerformanceAnalysisLineChartWidget';
 import CDIUploadWidget from '../widgets/securitized-credit/cdi-upload/CDIUploadWidget';
@@ -121,14 +120,6 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     wd_analyst_performance_bar_chart: {
         id: 'wd_analyst_performance_bar_chart',
         component: AnalystPBChartWidget,
-        category: 'Control',
-        visibleIn: ['workflow'],
-        listensToKeys: [],
-        emitsKeys: [],
-    },
-    wd_chart_control_checkbox_group: {
-        id: 'wd_chart_control_checkbox_group',
-        component: ChartControlCheckboxGroup,
         category: 'Control',
         visibleIn: ['workflow'],
         listensToKeys: [],
