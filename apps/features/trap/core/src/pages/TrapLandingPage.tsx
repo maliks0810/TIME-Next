@@ -111,7 +111,7 @@ export default function TrapLandingPage() {
                 const selection: HudWorkflowSelection = {
                     templateId: templateId,
                     templateName: template.name,
-                    templateVersionStatus: template.latestPublished.status,
+                    templateVersionStatus: template?.latestPublished?.status,
                     ownerUserId: template.ownerUserId!,
                     latestPublished: template.latestPublished,
                 };
@@ -293,7 +293,7 @@ export default function TrapLandingPage() {
         const isPublished =
             String(ws.templateVersionStatus ?? '').toUpperCase() === 'PUBLISHED' ||
             allTemplates.find((el) => el.id === ws.templateId)?.latestPublished?.status ===
-            'PUBLISHED';
+                'PUBLISHED';
 
         const menuItems = [
             {
@@ -325,11 +325,7 @@ export default function TrapLandingPage() {
                         type="text"
                         size="small"
                         aria-label={`Actions for ${ws.title}`}
-                        icon={
-                            <EllipsisOutlined
-                                style={{ transform: 'rotate(90deg)' }}
-                            />
-                        }
+                        icon={<EllipsisOutlined style={{ transform: 'rotate(90deg)' }} />}
                         onClick={(e) => e.stopPropagation()}
                         style={{ opacity: 0.72 }}
                     />
@@ -362,7 +358,7 @@ export default function TrapLandingPage() {
             const selection: HudWorkflowSelection = {
                 templateId: templateId,
                 templateName: template.name,
-                templateVersionStatus: template.latestPublished.status,
+                templateVersionStatus: template?.latestPublished?.status,
                 ownerUserId: template.ownerUserId!,
                 latestPublished: template.latestPublished,
             };
@@ -456,10 +452,10 @@ export default function TrapLandingPage() {
                                                 prev.map((w) =>
                                                     w.workflowId === ws.workflowId
                                                         ? {
-                                                            ...w,
-                                                            templateVersionStatus: 'PUBLISHED',
-                                                            designer: false,
-                                                        }
+                                                              ...w,
+                                                              templateVersionStatus: 'PUBLISHED',
+                                                              designer: false,
+                                                          }
                                                         : w
                                                 )
                                             );
