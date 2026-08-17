@@ -87,7 +87,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                         <div className={styles.moveWidgetSection}>
                             <Button
                                 size="small"
-                                disabled={isPublished}
+                                disabled={isPublished || !!configureDisabledReason}
                                 className={clsx(
                                     'widget-drag-handle',
                                     styles.headerBtn,
@@ -134,7 +134,7 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                 className={clsx('rgl-no-drag', styles.headerBtn)}
                                 size="small"
                                 danger
-                                disabled={isPublished}
+                                disabled={isPublished || !!configureDisabledReason}
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onTouchStart={(e) => e.stopPropagation()}
                                 onClick={(e) => {
