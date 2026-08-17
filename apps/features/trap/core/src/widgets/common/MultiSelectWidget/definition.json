@@ -1,11 +1,11 @@
 {
-    "id": "wd_analysts_checkbox_group",
+    "id": "wd_multi_select",
     "name": "Multi-Selection",
     "version": 1,
-    "description": "A checkbox group of analysts",
+    "description": "A checkbox group of selected list",
     "tags": null,
     "category": "widgetDefinition",
-    "datasetId": "ds_analysts_checkbox_group",
+    "datasetId": "ds_multi_select_list",
     "listensToKeys": null,
     "emitsKeys": [],
     "configSchema": {
@@ -20,7 +20,7 @@
             },
             "schemaKey": {
                 "title": "Schema Key",
-                "enum": ["prism.equity.analyst.list"],
+                "enum": ["prism.equity.analyst.list", "prism.equity.chart.control.list"],
                 "type": "string",
                 "category": "System Parameters"
             }

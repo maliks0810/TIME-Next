@@ -140,9 +140,9 @@ export const Drawer = ({
                     value={drawerSeg}
                     onChange={(value) => setDrawerSeg(value as any)}
                     options={[
-                        { label: 'Workspaces', value: 'workspaces' },
-                        { label: 'Widgets', value: 'widgets' },
-                        { label: 'Themes', value: 'themes' },
+                        { label: 'Workspaces', value: 'workspaces', title: '' },
+                        { label: 'Widgets', value: 'widgets', title: '' },
+                        { label: 'Themes', value: 'themes', title: '' },
                     ]}
                 />
             </div>

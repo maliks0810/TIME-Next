@@ -6,7 +6,7 @@ import { WidgetComponentProps } from '../../../types/widget';
 import { ECharts, EChartsOption, init } from 'echarts';
 import { useCallback, useEffect, useRef } from 'react';
 
-import { ANALYSTS_KEY } from '../AnalystsCheckboxGroup/constants';
+import { ANALYSTS_KEY } from '../../constants';
 import { CHART_CONTROL_KEY, PERIOD_RADIO_STORE_KEY } from '../../constants';
 
 export enum DateFormatEnum {

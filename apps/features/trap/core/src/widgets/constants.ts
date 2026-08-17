@@ -29,3 +29,8 @@ export enum DateFormatEnum {
     MONTH = 'month',
     YEAR = 'year',
 }
+
+export const schemaToStateKeyMap: { [key: string]: string } = {
+    'prism.equity.analyst.list': ANALYSTS_KEY,
+    'prism.equity.chart.control.list': CHART_CONTROL_KEY,
+};

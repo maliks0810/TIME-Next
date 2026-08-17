@@ -12,14 +12,13 @@ import { KPIComparisonWidget } from '../widgets/equity-research/KPIComparisonWid
 import { ScDealDetailsWidget } from '../widgets/securitized-credit/DealDetailsWidget/ScDealDetailsWidget';
 import { ScTranchesWidget } from '../widgets/securitized-credit/TranchesWidget/ScTranchesWidget';
 import { ScTrancheDetailWidget } from '../widgets/securitized-credit/TrancheDetailWidget/ScTrancheDetailWidget';
-import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/AnalystsCheckboxGroup/AnalystsCheckboxGroup';
-import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
 import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
 import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/PerformanceAnalysis/PerformanceAnalysisLineChartWidget';
 import CDIUploadWidget from '../widgets/securitized-credit/cdi-upload/CDIUploadWidget';
 import SecurityLookupWidget from '../widgets/securitized-credit/security-lookup/SecurityLookupWidget';
 import { TextWidget } from '../widgets/common/text/Text';
 import { CommentWidget } from '../widgets/dram/comment/CommentWidget';
+import { MultiSelectWidget } from '../widgets/common/MultiSelectWidget/MultiSelectWidget';
 import { DateSelect } from '../widgets/common/date-select/DateSelect';
 import { ButtonWidget } from '../widgets/common/button/Button';
 import { TreeWidget } from '../widgets/common/tree/Tree';
@@ -104,9 +103,9 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: ['security.cusip'],
         emitsKeys: [],
     },
-    wd_analysts_checkbox_group: {
-        id: 'wd_analysts_checkbox_group',
-        component: AnalystsCheckboxGroupWidget,
+    wd_multi_select: {
+        id: 'wd_multi_select',
+        component: MultiSelectWidget,
         category: 'Control',
         visibleIn: ['workflow'],
         listensToKeys: [],
@@ -121,14 +120,6 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     wd_analyst_performance_bar_chart: {
         id: 'wd_analyst_performance_bar_chart',
         component: AnalystPBChartWidget,
-        category: 'Control',
-        visibleIn: ['workflow'],
-        listensToKeys: [],
-        emitsKeys: [],
-    },
-    wd_chart_control_checkbox_group: {
-        id: 'wd_chart_control_checkbox_group',
-        component: ChartControlCheckboxGroup,
         category: 'Control',
         visibleIn: ['workflow'],
         listensToKeys: [],
