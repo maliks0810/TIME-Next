@@ -1,7 +1,6 @@
 import clsx from 'clsx';
-import { useTheme, getThemeSurfaceMeta } from '../../../../theme/ThemeContext';
+import { useTheme } from '../../../../theme/ThemeContext';
 import styles from './DealDetailsComponents.module.scss';
-import { ThemeName } from '../../../../theme/types';
 
 export function MetricCard({
     label,
@@ -17,25 +16,67 @@ export function MetricCard({
     highlight?: boolean;
 }) {
     const { themeName } = useTheme();
-    getThemeSurfaceMeta(themeName as ThemeName); // keep hook parity if used elsewhere
+
+    const isWealthTheme =
+        themeName === 'wealthLight' ||
+        themeName === 'wealthDark';
+
+    const isWealthLight =
+        themeName === 'wealthLight';
+
+    const isWealthDark =
+        themeName === 'wealthDark';
 
     return (
         <div
-            className={clsx(styles.metricCardContainer, {
-                [styles.metricCardAccent]: accent,
-                [styles.metricCardHighlight]: highlight,
-            })}
+            className={clsx(
+                styles.metricCardContainer,
+                {
+                    [styles.metricCardAccent]:
+                        accent,
+
+                    [styles.metricCardHighlight]:
+                        highlight,
+
+                    [styles.wealth]:
+                        isWealthTheme,
+
+                    [styles.wealthLight]:
+                        isWealthLight,
+
+                    [styles.wealthDark]:
+                        isWealthDark,
+                },
+            )}
         >
-            <span className={styles.metricCardLabel}>{label}</span>
+            <span className={styles.metricCardLabel}>
+                {label}
+            </span>
+
             <span
-                className={clsx(styles.metricCardValue, {
-                    [styles.metricCardValueAccent]: accent,
-                    [styles.metricCardValueHighlight]: highlight,
-                })}
+                className={clsx(
+                    styles.metricCardValue,
+                    {
+                        [styles.metricCardValueAccent]:
+                            accent,
+
+                        [styles.metricCardValueHighlight]:
+                            highlight,
+                    },
+                )}
             >
                 {value ?? '—'}
             </span>
-            {sub && <span className={styles.metricCardSubText}>{sub}</span>}
+
+            {sub && (
+                <span
+                    className={
+                        styles.metricCardSubText
+                    }
+                >
+                    {sub}
+                </span>
+            )}
         </div>
     );
 }

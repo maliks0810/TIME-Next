@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { BankOutlined } from '@ant-design/icons';
+import clsx from 'clsx'
 
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import { useWidgetSize, WidgetSizeBands } from '../../../components/layout/useWidgetSize';
@@ -17,6 +18,7 @@ import styles from './CDIUploadWidget.module.scss';
 import { ANALYSIS_SESSION_ID_KEY, DEAL_NAME_KEY } from '../../constants';
 import { useSetWidgetValue, useGetWidgetValue } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
+import { useTheme } from '../../../theme/ThemeContext';
 
 const CDI_BANDS: WidgetSizeBands = {
     width: { wb: 6, wc: 9 },
@@ -31,6 +33,18 @@ export default function CDIUploadWidget({
     execute: baseWidgetExecute,
 }: WidgetComponentProps) {
     const { ref, cols, heightPx } = useWidgetSize(CDI_BANDS);
+    const { themeName } = useTheme();
+
+    const isWealthTheme =
+        themeName === 'wealthLight' ||
+        themeName === 'wealthDark';
+
+    const isWealthLight =
+        themeName === 'wealthLight';
+
+    const isWealthDark =
+        themeName === 'wealthDark';
+
 
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [progress, setProgress] = useState(0);
@@ -325,7 +339,14 @@ export default function CDIUploadWidget({
 
     return (
         <WidgetCardShell overflow="hidden">
-            <div ref={ref} className={styles.root}>
+            <div
+                ref={ref}
+                className={clsx(styles.root, {
+                    [styles.wealth]: isWealthTheme,
+                    [styles.wealthLight]: isWealthLight,
+                    [styles.wealthDark]: isWealthDark,
+                })}
+            >
                 {plan.split ? (
                     <div className={styles.twoPane}>
                         <div className={styles.leftHalf}>{leftPane}</div>

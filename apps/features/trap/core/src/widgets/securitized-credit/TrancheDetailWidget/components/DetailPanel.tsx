@@ -1,9 +1,6 @@
-// EXISTING: apps/features/trap/core/src/widgets/securitized-credit/TrancheDetailsWidget/components/DetailPanel.tsx
-//
-// `bodyColumns` now supports 1 | 2 | 3 so a full-width panel can lay its rows
-// out across up to 3 columns (fills width + stays short).
-
 import React from 'react';
+import clsx from 'clsx';
+import { useTheme } from '../../../../theme/ThemeContext';
 import { SectionLabel } from './SectionLabel';
 import styles from './TrancheDetailsComponents.module.scss';
 
@@ -16,14 +13,48 @@ export function DetailPanel({
     bodyColumns?: 1 | 2 | 3;
     children: React.ReactNode;
 }) {
-    const bodyCls =
-        bodyColumns === 3 ? styles.detailBodyThree
-        : bodyColumns === 2 ? styles.detailBodyTwo
-        : styles.detailBodyOne;
+    const { themeName } = useTheme();
+
+    const isWealthTheme =
+        themeName === 'wealthLight' ||
+        themeName === 'wealthDark';
+
+    const isWealthLight =
+        themeName === 'wealthLight';
+
+    const isWealthDark =
+        themeName === 'wealthDark';
+
+    const bodyClass =
+        bodyColumns === 3
+            ? styles.detailBodyThree
+            : bodyColumns === 2
+              ? styles.detailBodyTwo
+              : styles.detailBodyOne;
+
     return (
-        <div className={styles.detailPanelContainer}>
-            <SectionLabel>{title}</SectionLabel>
-            <div className={`${styles.detailBody} ${bodyCls}`}>{children}</div>
+        <div
+            className={clsx(
+                styles.detailPanelContainer,
+                {
+                    [styles.wealth]: isWealthTheme,
+                    [styles.wealthLight]: isWealthLight,
+                    [styles.wealthDark]: isWealthDark,
+                },
+            )}
+        >
+            <SectionLabel>
+                {title}
+            </SectionLabel>
+
+            <div
+                className={clsx(
+                    styles.detailBody,
+                    bodyClass,
+                )}
+            >
+                {children}
+            </div>
         </div>
     );
 }

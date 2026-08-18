@@ -2,19 +2,19 @@
     "id": "wd_sc_security_lookup_01",
     "name": "Security Lookup",
     "version": 1,
-    "description": null,
+    "description": "Searches for a security and publishes the resolved deal and tranche context to the selected communication channel.",
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_sc_security_lookup_01",
-    "listensToKeys": null,
-    "emitsKeys": null,
+    "listensToKeys": ["deal.name"],
+    "emitsKeys": ["deal.name", "tranche.name", "asset.isNew"],
     "configSchema": {
         "properties": {
             "channel": {
                 "category": "Interactions",
                 "default": 1,
-                "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [1, 2, 3, 4],
+                "description": "Widgets connected to the same channel share the selected security context.",
+                "enum": [1, 2, 3, 4, 5],
                 "title": "Communication Channel",
                 "type": "string"
             }
@@ -23,7 +23,7 @@
         "type": "object"
     },
     "uiHints": {
-        "category": "Securitized Credit"
+        "category": "Common"
     },
     "variants": [
         {

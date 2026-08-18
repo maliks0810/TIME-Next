@@ -1,4 +1,11 @@
 .container {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0;
+    cursor: pointer;
+    container-type: size;
 
     h1,
     h2,
@@ -9,16 +16,46 @@
         font-size: 1em;
     }
 
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-    height: 100%;
-    cursor: pointer;
-    container-type: size;
+    /*
+     * Default title sizing for all themes.
+     *
+     * Compact enough for a six-tile KPI row while preserving long labels such
+     * as "WA Conventional LTV".
+     */
+    .cardTitle {
+        font-size: clamp(0.72rem, 8cqmin, 0.88rem);
+        line-height: 1.2;
+        font-weight: 400;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /*
+     * Default value sizing for all themes.
+     *
+     * The previous 45cqmin rule expanded too aggressively inside short tiles.
+     * The new ceiling keeps values such as 111.63% readable without dominating
+     * the dashboard.
+     */
+    .value {
+        font-size: clamp(1.2rem, 25cqmin, 1.75rem);
+        line-height: 1;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .prefix,
+    .suffix {
+        font-size: clamp(0.85rem, 16cqmin, 1.2rem);
+    }
 }
 
 .cardTitle {
     color: var(--ant-color-text-secondary);
+    font-weight: 400;
 }
 
 .activeTile {
@@ -52,27 +89,140 @@
 .value {
     flex: 1;
     min-width: 0;
+    font-weight: 600;
 }
 
-.container {
+.readOnly {
+    cursor: default;
+}
+
+/*
+ * Wealth KPI typography
+ * ---------------------
+ * CounterTileWidget applies the wealth, wealthLight, and wealthDark classes
+ * directly. These rules do not depend on a data-theme attribute existing
+ * above the widget.
+ *
+ * Typography:
+ * - Hanken Grotesk for base interface typography
+ * - IBM Plex Mono for compact uppercase KPI labels
+ * - Spectral for prominent KPI values
+ */
+
+.container.wealth {
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
     .cardTitle {
-        font-size: clamp(0.85rem, 11cqmin, 1.75rem);
-        line-height: 1.2;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: clamp(0.62rem, 6.5cqmin, 0.74rem);
+        line-height: 1.25;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ant-color-text-tertiary);
     }
 
+    .content {
+        align-items: baseline;
+        gap: 0;
+        color: var(--ant-color-text);
+    }
+
+    /*
+     * Wealth values remain slightly more editorial than default KPIs, but the
+     * size stays appropriate for the same compact six-tile row.
+     */
     .value {
-        font-size: clamp(1.5rem, 45cqmin, 10rem);
-        line-height: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-family:
+            'Spectral',
+            'Newsreader',
+            Georgia,
+            serif;
+
+        font-size: clamp(1.2rem, 24cqmin, 1.8rem);
+        line-height: 0.98;
+        font-weight: 300;
+        letter-spacing: -0.015em;
+        color: var(--ant-color-text);
     }
 
     .prefix,
     .suffix {
-        font-size: clamp(1rem, 24cqmin, 5rem);
+        font-family:
+            'Spectral',
+            'Newsreader',
+            Georgia,
+            serif;
+
+        font-size: clamp(0.78rem, 14cqmin, 1.1rem);
+        line-height: 1;
+        font-weight: 300;
+        color: var(--ant-color-text-secondary);
+    }
+
+    .prefix {
+        margin-right: 0.04em;
+    }
+
+    .suffix {
+        margin-left: 0.08em;
+    }
+
+    .activeTile {
+        border-bottom-color: var(--ant-color-primary);
+    }
+}
+
+/*
+ * Wealth Light
+ * ------------
+ * Main values use warm brown ink. Gold is reserved for interaction and
+ * intentional emphasis rather than being applied to every KPI value.
+ */
+
+.container.wealthLight {
+    .cardTitle {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .value {
+        color: #211a0f;
+    }
+
+    .prefix,
+    .suffix {
+        color: #6a5e47;
+    }
+}
+
+/*
+ * Wealth Dark
+ * -----------
+ * Main values use warm ivory. Labels and units use the prototype's
+ * translucent tertiary and secondary text hierarchy.
+ */
+
+.container.wealthDark {
+    .cardTitle {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .value {
+        color: #f1e7d4;
+    }
+
+    .prefix,
+    .suffix {
+        color: rgba(241, 231, 212, 0.58);
     }
 }

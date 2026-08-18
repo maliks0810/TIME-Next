@@ -1,18 +1,53 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import type { MutableRefObject } from 'react';
 import { theme } from 'antd';
-import { BarChartOutlined, AreaChartOutlined, LineChartOutlined, DotChartOutlined } from '@ant-design/icons';
+import {
+    BarChartOutlined,
+    AreaChartOutlined,
+    LineChartOutlined,
+    DotChartOutlined,
+} from '@ant-design/icons';
 import * as echarts from 'echarts';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingState';
 import type { WidgetComponentProps } from '../../../types/widget';
 import { WidgetConfigProperty } from '../../../features/widget-studio/components/PropertyConfig';
-import { useGetWidgetValue } from '../../../state/Widgets/hooks';
+import {
+    useGetWidgetValue,
+    useGetWidgetValueArray,
+    useSetWidgetValue,
+} from '../../../state/Widgets/hooks';
+import { useGetActiveTab } from '../../../state/Tabs/hooks';
+import { useTheme } from '../../../theme/ThemeContext';
 import { DEAL_NAME_KEY } from '../../constants';
-import { resolveEchartsTokens, EchartsRoleColors } from './utils/resolveEchartsTokens';
+import {
+    resolveEchartsTokens,
+    applyEchartsTypography,
+    EchartsRoleColors,
+    withAnalyticsChartRoles,
+} from './utils/resolveEchartsTokens';
 import styles from './ChartWidget.module.scss';
 
 const DEFAULT_EMPTY_TEXT = 'No chart data';
+
+const COLLATERAL_FILTER_KEYS = [
+    'filter.state',
+    'filter.fico',
+    'filter.dti',
+    'filter.ltv',
+    'filter.coupon',
+    'filter.days_arr',
+    'filter.age',
+    'filter.model_year',
+    'filter.manufacturer',
+    'filter.model',
+    'filter.originator',
+    'filter.servicer',
+    'filter.new_used',
+    'filter.vehicle_type',
+    'filter.zero_balance_reason',
+];
 
 interface ChartResult {
     mode?: string;
@@ -21,30 +56,53 @@ interface ChartResult {
     option?: Record<string, any> | null;
 }
 
+type ChartClickCtx = {
+    option: Record<string, any> | null | undefined;
+    filterKey: string;
+    rowFilterKey: string;
+    colFilterKey: string;
+    onPick: (updates: Record<string, string>) => void;
+};
+
 function isColorDark(color: string): boolean {
     if (!color) return false;
-    let r = 255, g = 255, b = 255;
+
+    let r = 255;
+    let g = 255;
+    let b = 255;
+
     const hex = color.trim();
+
     if (hex.startsWith('#')) {
         const h = hex.slice(1);
-        const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+        const full = h.length === 3
+            ? h.split('').map((c) => c + c).join('')
+            : h;
+
         r = parseInt(full.slice(0, 2), 16);
         g = parseInt(full.slice(2, 4), 16);
         b = parseInt(full.slice(4, 6), 16);
     } else {
         const m = hex.match(/rgba?\(([^)]+)\)/i);
+
         if (m) {
             const parts = m[1].split(',').map((s) => parseFloat(s.trim()));
             [r, g, b] = parts;
         }
     }
+
     return 0.299 * r + 0.587 * g + 0.114 * b < 128;
 }
 
 function ChartIcon({ chartType }: { chartType?: string }) {
     switch (chartType) {
         case 'bar':
-            return <BarChartOutlined className={styles.headerIcon} style={{ transform: 'rotate(90deg)' }} />;
+            return (
+                <BarChartOutlined
+                    className={styles.headerIcon}
+                    style={{ transform: 'rotate(90deg)' }}
+                />
+            );
         case 'area':
             return <AreaChartOutlined className={styles.headerIcon} />;
         case 'line':
@@ -64,7 +122,10 @@ function getWidgetValues(
     const rawTitle = params['titleText'] ?? propDefault('titleText') ?? '';
     const titleOverride = String(rawTitle).trim() || null;
 
-    const rawEmpty = params['emptyStateText'] ?? propDefault('emptyStateText') ?? DEFAULT_EMPTY_TEXT;
+    const rawEmpty =
+        params['emptyStateText'] ??
+        propDefault('emptyStateText') ??
+        DEFAULT_EMPTY_TEXT;
     const emptyText = String(rawEmpty).trim() || DEFAULT_EMPTY_TEXT;
 
     const rawShow = params['showTitle'];
@@ -72,26 +133,119 @@ function getWidgetValues(
         typeof rawShow === 'boolean'
             ? rawShow
             : typeof propDefault('showTitle') === 'boolean'
-              ? Boolean(propDefault('showTitle'))
-              : true;
+                ? Boolean(propDefault('showTitle'))
+                : true;
 
     return { titleOverride, emptyText, showTitle };
 }
 
-function useEchart(option: Record<string, any> | null | undefined, roles: EchartsRoleColors) {
+function firstAxis(
+    option: Record<string, any> | null | undefined,
+    key: 'xAxis' | 'yAxis'
+): Record<string, any> {
+    const axis = option?.[key];
+
+    if (Array.isArray(axis)) return axis[0] ?? {};
+    return axis ?? {};
+}
+
+function valueAtAxis(axis: Record<string, any>, index: number): string | null {
+    const data = axis?.data;
+
+    if (!Array.isArray(data)) return null;
+
+    const value = data[index];
+
+    if (value === null || value === undefined || value === '') return null;
+
+    return String(value);
+}
+
+function resolveChartClick(
+    params: any,
+    ctx: ChartClickCtx
+): Record<string, string> | null {
+    const hasHeatmapKeys = Boolean(ctx.rowFilterKey && ctx.colFilterKey);
+
+    if (hasHeatmapKeys) {
+        const value = params?.value;
+
+        if (!Array.isArray(value) || value.length < 2) return null;
+
+        const colIndex = Number(value[0]);
+        const rowIndex = Number(value[1]);
+
+        if (!Number.isFinite(colIndex) || !Number.isFinite(rowIndex)) {
+            return null;
+        }
+
+        const xAxis = firstAxis(ctx.option, 'xAxis');
+        const yAxis = firstAxis(ctx.option, 'yAxis');
+
+        const colValue = valueAtAxis(xAxis, colIndex);
+        const rowValue = valueAtAxis(yAxis, rowIndex);
+
+        if (!rowValue || !colValue) return null;
+
+        return {
+            [ctx.rowFilterKey]: rowValue,
+            [ctx.colFilterKey]: colValue,
+        };
+    }
+
+    if (ctx.filterKey) {
+        const rawLabel = params?.name ?? params?.data?.name;
+
+        if (rawLabel === null || rawLabel === undefined || rawLabel === '') {
+            return null;
+        }
+
+        const label = String(rawLabel);
+
+        if (label.toLowerCase() === 'other') return null;
+
+        return {
+            [ctx.filterKey]: label,
+        };
+    }
+
+    return null;
+}
+
+function useEchart(
+    option: Record<string, any> | null | undefined,
+    roles: EchartsRoleColors,
+    themeName: string,
+    clickRef: MutableRefObject<ChartClickCtx>
+) {
     const chartRef = useRef<echarts.ECharts | null>(null);
     const hostRef = useRef<HTMLDivElement | null>(null);
     const roRef = useRef<ResizeObserver | null>(null);
     const optionRef = useRef(option);
     const rolesRef = useRef(roles);
+    const themeNameRef = useRef(themeName);
+
     optionRef.current = option;
     rolesRef.current = roles;
+    themeNameRef.current = themeName;
 
     const apply = useCallback(() => {
         const chart = chartRef.current;
         const opt = optionRef.current;
+
         if (!chart || !opt) return;
-        chart.setOption(resolveEchartsTokens(opt, rolesRef.current), true);
+
+        const resolvedOption = resolveEchartsTokens(
+            opt,
+            rolesRef.current,
+        );
+
+        const styledOption = applyEchartsTypography(
+            resolvedOption,
+            themeNameRef.current,
+        );
+
+        chart.setOption(styledOption, true);
     }, []);
 
     const setHost = useCallback(
@@ -100,15 +254,26 @@ function useEchart(option: Record<string, any> | null | undefined, roles: Echart
                 roRef.current.disconnect();
                 roRef.current = null;
             }
+
             if (chartRef.current) {
                 chartRef.current.dispose();
                 chartRef.current = null;
             }
+
             hostRef.current = node;
+
             if (!node) return;
 
             const chart = echarts.init(node);
             chartRef.current = chart;
+
+            chart.on('click', (params: any) => {
+                const updates = resolveChartClick(params, clickRef.current);
+
+                if (!updates) return;
+
+                clickRef.current.onPick(updates);
+            });
 
             const ro = new ResizeObserver(() => chart.resize());
             ro.observe(node);
@@ -116,77 +281,174 @@ function useEchart(option: Record<string, any> | null | undefined, roles: Echart
 
             apply();
         },
-        [apply]
+        [apply, clickRef]
     );
 
     useEffect(() => {
         apply();
-    }, [option, roles, apply]);
+    }, [option, roles, themeName, apply]);
 
     return setHost;
 }
 
 export function ChartWidget(props: WidgetComponentProps) {
-    const { result, loading, execute, widgetInstance, widgetDefinition, mode } = props;
+    const { result, loading, execute, widgetInstance, widgetDefinition, mode } =
+        props;
 
     const config = widgetInstance?.config ?? {};
+    const params = config?.params ?? {};
     const properties = widgetDefinition?.configSchema?.properties ?? {};
-    const { titleOverride, emptyText, showTitle } = getWidgetValues(config, properties);
 
+    const { titleOverride, emptyText, showTitle } = getWidgetValues(
+        config,
+        properties
+    );
+
+    const { themeName } = useTheme();
     const { token } = theme.useToken();
+
     const roleColors: EchartsRoleColors = useMemo(() => {
         const isDark = isColorDark(token.colorBgContainer);
 
-        // BASE tokens only — the resolver derives every "@<name>FadeNN" gradient
-        // stop from these, so we do NOT hardcode fade variants here.
-        return {
+        const baseRoles: EchartsRoleColors = {
             '@primary': token.colorPrimary,
 
-            // Performing / Current — BLUE.
             '@info': token.colorInfo,
 
-            // Severity ramp
-            '@success': isDark ? token.colorSuccessBorder : token.colorSuccess,
-            '@warning': isDark ? token.colorWarningBorder : token.colorWarning,
-            '@warningDark': isDark ? token.colorWarningBorderHover : token.colorWarningActive,
-            '@error': isDark ? token.colorErrorBorder : token.colorError,
-            '@errorDark': isDark ? token.colorErrorBorderHover : token.colorErrorActive,
+            '@success': isDark
+                ? token.colorSuccessBorder
+                : token.colorSuccess,
 
-            // Text + structure
+            '@warning': isDark
+                ? token.colorWarningBorder
+                : token.colorWarning,
+
+            '@warningDark': isDark
+                ? token.colorWarningBorderHover
+                : token.colorWarningActive,
+
+            '@error': isDark
+                ? token.colorErrorBorder
+                : token.colorError,
+
+            '@errorDark': isDark
+                ? token.colorErrorBorderHover
+                : token.colorErrorActive,
+
             '@text': token.colorText,
             '@textSecondary': token.colorTextSecondary,
             '@textTertiary': token.colorTextTertiary,
             '@border': token.colorBorderSecondary,
             '@splitLine': token.colorFillTertiary,
         };
-    }, [token]);
 
-    // ── Context binding (KEY-AGNOSTIC) ──
-    // The widget no longer hardcodes the deal key. `contextKey` says WHICH channel
-    // value to read (deal name today; portfolio id, cusip, etc. tomorrow) and
-    // defaults to DEAL_NAME_KEY for back-compat. The pulled value is passed to
-    // execute both under the neutral `contextValue` field AND under its own key
-    // name, so existing executors that read `dealName` keep working while new
-    // executors can read `contextValue` (or the configured key) generically.
-    const channelId = config?.params?.channel;
-    const contextKey: string = config?.params?.contextKey ?? DEAL_NAME_KEY;
+        return withAnalyticsChartRoles(baseRoles, themeName, isDark);
+    }, [token, themeName]);
+
+    const channelId = params.channel;
+    const schemaKey = String(params.schemaKey ?? '').trim();
+
+    const contextKey: string = params.contextKey ?? DEAL_NAME_KEY;
     const contextValue = useGetWidgetValue({ channelId, key: contextKey });
+
+    const filterKey = String(params.filterKey ?? '').trim();
+    const rowFilterKey = String(params.rowFilterKey ?? '').trim();
+    const colFilterKey = String(params.colFilterKey ?? '').trim();
+
+    const isTapeChart = schemaKey.startsWith('tape.');
+
+    const activeFilterKeys = useMemo(
+        () => (isTapeChart ? COLLATERAL_FILTER_KEYS : []),
+        [isTapeChart]
+    );
+
+    const filterBag = useGetWidgetValueArray({
+        channelId,
+        keys: activeFilterKeys,
+    }) as Record<string, any>;
+
+    const filters = useMemo<Record<string, any>>(() => {
+        const out: Record<string, any> = {};
+
+        for (const fullKey of activeFilterKeys) {
+            const value = filterBag[fullKey];
+
+            if (value !== null && value !== undefined && value !== '') {
+                out[fullKey.replace(/^filter\./, '')] = value;
+            }
+        }
+
+        return out;
+    }, [filterBag, activeFilterKeys.join(',')]);
+
+    const filtersSig = JSON.stringify(filters);
 
     useEffect(() => {
         if (mode === 'preview') return;
         if (contextValue == null || contextValue === '') return;
 
-        // Neutral field + keyed field (e.g. { contextKey: 'dealName',
-        // contextValue: 'exar2502', dealName: 'exar2502' }). Existing deal
-        // executors resolve `dealName`; future ones resolve `contextValue`.
-        execute?.({ contextKey, contextValue, [contextKey]: contextValue });
-    }, [contextKey, contextValue, mode]);
+        const executeContext: Record<string, any> = {
+            contextKey,
+            contextValue,
+            filters,
+            ...filters,
+        };
+
+        executeContext[contextKey] = contextValue;
+
+        execute?.(executeContext);
+
+        // Intentionally exclude execute from deps.
+        // Including execute can cause an execute -> result -> rerender -> execute loop
+        // if parent recreates the execute callback after each result update.
+    }, [contextKey, contextValue, mode, filtersSig, schemaKey]);
 
     const data = (result as ChartResult | undefined) ?? null;
     const option = data?.option ?? null;
     const eyebrow = titleOverride ?? data?.eyebrow ?? 'Chart';
 
-    const setHost = useEchart(option, roleColors);
+    const setValueToChannel = useSetWidgetValue();
+    const activeTab = useGetActiveTab();
+
+    const clickRef = useRef<ChartClickCtx>({
+        option: null,
+        filterKey: '',
+        rowFilterKey: '',
+        colFilterKey: '',
+        onPick: () => undefined,
+    });
+
+    clickRef.current = {
+        option,
+        filterKey,
+        rowFilterKey,
+        colFilterKey,
+        onPick: (updates: Record<string, string>) => {
+            const entries = Object.entries(updates);
+
+            if (entries.length === 0) return;
+
+            const allSame = entries.every(([fullKey, value]) => {
+                return String(filterBag[fullKey] ?? '') === String(value);
+            });
+
+            for (const [fullKey, value] of entries) {
+                setValueToChannel({
+                    key: fullKey,
+                    value: allSame ? null : value,
+                    activeTab,
+                    channelId,
+                });
+            }
+        },
+    };
+
+    const setHost = useEchart(
+        option,
+        roleColors,
+        themeName,
+        clickRef,
+    );
 
     if (loading) {
         return (
@@ -214,7 +476,9 @@ export function ChartWidget(props: WidgetComponentProps) {
                             <div className={styles.emptyCircle}>
                                 <ChartIcon chartType={data?.chartType} />
                             </div>
-                            <span className={styles.emptyText}>{emptyText}</span>
+                            <span className={styles.emptyText}>
+                                {emptyText}
+                            </span>
                         </div>
                     )}
                 </div>

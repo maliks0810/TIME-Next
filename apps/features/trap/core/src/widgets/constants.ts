@@ -20,6 +20,7 @@ export const DRAM_COMMENT_WIDGET_KEY = 'dram.comment';
 export const DRAM_ENTITY_ID_KEY = 'dram.entity.id';
 export const DRAM_NOTE_TYPE_KEY = 'dram.note.type';
 export const DATE_SELECT_KEY = 'common.date';
+export const FILTER_STATE_KEY = 'filter.state';
 export const COMMON_DATE_GRID_ROW_KEY = 'common.data.grid.row';
 export const COMMON_BUTTON_KEY = 'common.button';
 export const COMMON_TREE_KEY = 'common.tree.item';
@@ -28,3 +29,8 @@ export enum DateFormatEnum {
     MONTH = 'month',
     YEAR = 'year',
 }
+
+export const schemaToStateKeyMap: { [key: string]: string } = {
+    'prism.equity.analyst.list': ANALYSTS_KEY,
+    'prism.equity.chart.control.list': CHART_CONTROL_KEY,
+};

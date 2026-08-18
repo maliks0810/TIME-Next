@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+import { useTheme } from '../../../../theme/ThemeContext';
 import styles from './DealDetailsComponents.module.scss';
 
 export type MetricItem = {
@@ -6,17 +8,74 @@ export type MetricItem = {
     mono?: boolean;
 };
 
-export function MetricList({ items, columns }: { items: MetricItem[]; columns: number }) {
-    const cls =
-        columns === 3 ? styles.metricListThree
-        : columns === 2 ? styles.metricListTwo
-        : styles.metricListOne;
+export function MetricList({
+    items,
+    columns,
+}: {
+    items: MetricItem[];
+    columns: number;
+}) {
+    const { themeName } = useTheme();
+
+    const isWealthTheme =
+        themeName === 'wealthLight' ||
+        themeName === 'wealthDark';
+
+    const isWealthLight =
+        themeName === 'wealthLight';
+
+    const isWealthDark =
+        themeName === 'wealthDark';
+
+    const gridClass =
+        columns === 3
+            ? styles.metricListThree
+            : columns === 2
+              ? styles.metricListTwo
+              : styles.metricListOne;
+
     return (
-        <div className={`${styles.metricList} ${cls}`}>
-            {items.map((m) => (
-                <div key={m.label} className={styles.metricListRow}>
-                    <span className={styles.metricListLabel}>{m.label}</span>
-                    <span className={styles.metricListValue}>{m.value ?? '—'}</span>
+        <div
+            className={clsx(
+                styles.metricList,
+                gridClass,
+                {
+                    [styles.wealth]:
+                        isWealthTheme,
+
+                    [styles.wealthLight]:
+                        isWealthLight,
+
+                    [styles.wealthDark]:
+                        isWealthDark,
+                },
+            )}
+        >
+            {items.map((metric) => (
+                <div
+                    key={metric.label}
+                    className={styles.metricListRow}
+                >
+                    <span
+                        className={
+                            styles.metricListLabel
+                        }
+                    >
+                        {metric.label}
+                    </span>
+
+                    <span
+                        className={clsx(
+                            styles.metricListValue,
+                            {
+                                [styles.fontFamilyMono]:
+                                    metric.mono ??
+                                    true,
+                            },
+                        )}
+                    >
+                        {metric.value ?? '—'}
+                    </span>
                 </div>
             ))}
         </div>

@@ -1,17 +1,19 @@
 import { WidgetComponentProps } from '../../../types/widget';
 import { useEffect, useMemo, useState } from 'react';
 import { useGetWidgetValue, useSetWidgetValue } from '../../../state/Widgets/hooks';
-import { CheckboxGroupBase } from '../../common/checkbox-group/CheckboxGroup';
-import { ANALYSTS_KEY } from '../../constants';
+import { CheckboxGroupBase } from '../checkbox-group/CheckboxGroup';
+import { schemaToStateKeyMap } from '../../constants';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
 
-export const AnalystsCheckboxGroupWidget = ({ widgetInstance, result }: WidgetComponentProps) => {
+export const MultiSelectWidget = ({ widgetInstance, result }: WidgetComponentProps) => {
+    const schemaKey = widgetInstance?.config?.params?.schemaKey as string;
+
     const [checked, setChecked] = useState<string[]>([]);
     const setWidgetValueToChannel = useSetWidgetValue();
     const activeTab = useGetActiveTab();
     const storeChecked = useGetWidgetValue({
         channelId: widgetInstance?.config?.params?.channel,
-        key: ANALYSTS_KEY,
+        key: schemaToStateKeyMap[schemaKey],
     });
 
     useEffect(() => {
@@ -30,9 +32,10 @@ export const AnalystsCheckboxGroupWidget = ({ widgetInstance, result }: WidgetCo
             defaultChecked: checked.includes(el.key),
         }));
     }, [result, checked]);
+
     const handleChange = (values: string[]) => {
         setWidgetValueToChannel({
-            key: ANALYSTS_KEY,
+            key: schemaToStateKeyMap[schemaKey],
             channelId: widgetInstance?.config?.params?.channel,
             value: values,
             activeTab,

@@ -12,6 +12,7 @@ import {
     FontSizeOutlined,
     SlidersOutlined,
 } from '@ant-design/icons';
+import { Tooltip } from 'antd';
 import clsx from 'clsx';
 import type { WidgetDefinitionLike } from '../../../../types/widget';
 import styles from './WidgetsPanel.module.scss';
@@ -44,23 +45,24 @@ export const WidgetCard = ({ widgetDef }: { widgetDef: WidgetDefinitionLike }) =
     };
 
     return (
-        <div
-            key={widgetDef?.id}
-            className={clsx(styles.card, [
-                {
-                    [styles.activeCard]: activeCanvas?.selectedWidgetDef?.id === widgetDef?.id,
-                },
-            ])}
-            onClick={() => selectWidget(widgetDef)}
-            title={widgetDef?.description || widgetDef?.name}
-        >
-            <span className={styles.ic}>{iconFor(widgetDef)}</span>
-            <span className={styles.tx}>
-                <div className={styles.name}>{widgetDef?.name}</div>
-                <div className={styles.desc}>
-                    {widgetDef?.description || widgetDef?.uiHints?.category}
-                </div>
-            </span>
-        </div>
+        <Tooltip title={widgetDef?.description} mouseEnterDelay={0.5}>
+            <div
+                key={widgetDef?.id}
+                className={clsx(styles.card, [
+                    {
+                        [styles.activeCard]: activeCanvas?.selectedWidgetDef?.id === widgetDef?.id,
+                    },
+                ])}
+                onClick={() => selectWidget(widgetDef)}
+            >
+                <span className={styles.ic}>{iconFor(widgetDef)}</span>
+                <span className={styles.tx}>
+                    <div className={styles.name}>{widgetDef?.name}</div>
+                    <div className={styles.desc}>
+                        {widgetDef?.description || widgetDef?.uiHints?.category}
+                    </div>
+                </span>
+            </div>
+        </Tooltip>
     );
 };

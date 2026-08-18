@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { RecentSearch } from '../types';
 
 const KEY = 'sc.securityLookup.recents';
-const MAX = 8;
+const MAX = 20;
 
 // localStorage now; swap this hook's body for a User Preference API later.
 export function useRecentSearches() {

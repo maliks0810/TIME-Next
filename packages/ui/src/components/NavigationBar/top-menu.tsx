@@ -1,4 +1,4 @@
-// @ts-nocheck  
+// @ts-nocheck
 import { useEffect, useRef, useState } from 'react';
 import { Menu, Button } from '@mui/material';
 import DownArrowSVG from '../../assets/arrow-down.svg?react';
@@ -11,14 +11,13 @@ import { NaviLinkContainer } from './navi-link-container';
 import { IconButton } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
-
-export const TopMenu = (props: { 
-                            menuData: any,
-                            openMenu: string | null,
-                            setOpenMenu: (menu: string | null) => void,
-                            handleClick: (event: React.MouseEvent<HTMLButtonElement>, menuName: string) => void,
-                            handleClose: () => void 
-                        }) => {
+export const TopMenu = (props: {
+    menuData: any;
+    openMenu: string | null;
+    setOpenMenu: (menu: string | null) => void;
+    handleClick: (event: React.MouseEvent<HTMLButtonElement>, menuName: string) => void;
+    handleClose: () => void;
+}) => {
     const [selectedItem, setSelectedItem] = useState<string>(
         ((props.menuData.subHeaders as any[]) ?? [])[0]?.title ?? ''
     );
@@ -36,55 +35,81 @@ export const TopMenu = (props: {
         setSelectedItem(e.currentTarget.title);
     };
 
-    const handleMenuLinkClick = (link: (ExternalAppMetadata|InternalAppMetadata)) => {
-        if (link.httpMethod !== 'POST' && link.type === 'external') {
-            props.handleClose();
-            popupRef.current.showPopup(link);
-        } else if (link.type === 'internal') {
-            navigate(link.path);
-            fireAndForget(() => {
-                const updated = addToFavorites(link, userInfo);
-                return updateUserInfo(updated);
-            });
-            props.handleClose();
-        } else {
+    const handleMenuLinkClick = (link: ExternalAppMetadata | InternalAppMetadata) => {
+        // if (link.httpMethod !== 'POST' && link.type === 'external') {
+        //     props.handleClose();
+        //     popupRef.current.showPopup(link);
+        //     return;
+        // } else if (link.type === 'internal') {
+        //     navigate(link.path);
+        //     fireAndForget(() => {
+        //         const updated = addToFavorites(link, userInfo);
+        //         return updateUserInfo(updated);
+        //     });
+        //     props.handleClose();
+        // }
+
+        // if (link.httpMethod !== 'POST' && link.type === 'external' && link.url) {
+        //     props.handleClose();
+        //     popupRef.current.showPopup(link);
+        //     return;
+        // }
+
+        if (link.httpMethod === 'POST') {
             props.handleClose();
             fetch(link.url, {
-                method: "POST",
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: link.postBody
+                body: link.postBody,
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error("POST Request failed:", error);
-            });
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('POST Request failed:', error);
+                });
+
+            return;
         }
+        fireAndForget(() => {
+            const updated = addToFavorites(link, userInfo);
+            return updateUserInfo(updated);
+        });
+        var url = (link.path ?? link.url as string).toLowerCase();
+        if (!url.startsWith('http')) {
+            url = window.location.origin + (url.startsWith('/') ? '' : '/') + url;
+        }
+
+        window.open(url, '_blank')?.focus();
+
+        props.handleClose();
     };
 
-    function copyToClipboard(link: (ExternalAppMetadata|InternalAppMetadata)): void {
+    function copyToClipboard(link: ExternalAppMetadata | InternalAppMetadata): void {
         let linkUrl = new String();
         if (link.type === 'internal' && link.path) {
-            const cleanPath = link.path.replace(/\s/g, "");
+            const cleanPath = link.path.replace(/\s/g, '');
             linkUrl = window.location.origin.concat(cleanPath);
         } else if (link.type === 'external') {
             linkUrl = link.url;
         }
-  
-        navigator.clipboard.writeText(linkUrl).then(() => {
-            console.log("Copied to clipboard:", linkUrl);
-        }).catch((err) => {
-            console.error("Failed to copy:", linkUrl);
-        });
+
+        navigator.clipboard
+            .writeText(linkUrl)
+            .then(() => {
+                console.log('Copied to clipboard:', linkUrl);
+            })
+            .catch((err) => {
+                console.error('Failed to copy:', linkUrl);
+            });
     }
 
     useEffect(() => {
@@ -103,16 +128,29 @@ export const TopMenu = (props: {
     return (
         <div className="header-menu-item">
             <NaviLinkContainer ref={popupRef} />
-            <button
-                onClick={(e) => props.handleClick(e, props.menuData.header)}>
-                <div className={'header-menu-item-container' + (props.openMenu === props.menuData.header ? ' current' : '')}>
+            <button onClick={(e) => props.handleClick(e, props.menuData.header)}>
+                <div
+                    className={
+                        'header-menu-item-container' +
+                        (props.openMenu === props.menuData.header ? ' current' : '')
+                    }
+                >
                     {props.menuData.header}
-                    <DownArrowSVG className={'menu-expand-arrow' + (props.openMenu === props.menuData.header ? ' current' : '')} />
+                    <DownArrowSVG
+                        className={
+                            'menu-expand-arrow' +
+                            (props.openMenu === props.menuData.header ? ' current' : '')
+                        }
+                    />
                 </div>
             </button>
             <Menu
                 id="basic-menu"
-                anchorEl={props.openMenu === props.menuData.header ? document.querySelector('.header-menu-item-container.current') : null}
+                anchorEl={
+                    props.openMenu === props.menuData.header
+                        ? document.querySelector('.header-menu-item-container.current')
+                        : null
+                }
                 open={props.openMenu === props.menuData.header}
                 onClose={props.handleClose}
                 MenuListProps={{
@@ -156,31 +194,30 @@ export const TopMenu = (props: {
                         ))}
                     </div>
                     <div className="sub-menu-links-container">
-                        {selectedList?.links?.map((app: (ExternalAppMetadata|InternalAppMetadata), index: number) =>
-                            <div className="sub-menu-link" key={index}>
-                                <Button
-                                    disabled={isLinkDisabled(app)}
-                                    onClick={() => handleMenuLinkClick(app)}
-                                >
-                                    {app.title}
-                                </Button>
-                                <IconButton
-                                    sx={{ display: app.type === 'internal' ? '' : 'none' }}
-                                    aria-label="copy link"
-                                    disabled={isLinkDisabled(app)}
-                                    onClick={() => copyToClipboard(app)}
-                                    size="small" 
-                                >  
-                                    <ContentCopyIcon fontSize="inherit" />
-                                </IconButton>
-                            </div>
-
+                        {selectedList?.links?.map(
+                            (app: ExternalAppMetadata | InternalAppMetadata, index: number) => (
+                                <div className="sub-menu-link" key={index}>
+                                    <Button
+                                        disabled={isLinkDisabled(app)}
+                                        onClick={() => handleMenuLinkClick(app)}
+                                    >
+                                        {app.title}
+                                    </Button>
+                                    <IconButton
+                                        sx={{ display: app.type === 'internal' ? '' : 'none' }}
+                                        aria-label="copy link"
+                                        disabled={isLinkDisabled(app)}
+                                        onClick={() => copyToClipboard(app)}
+                                        size="small"
+                                    >
+                                        <ContentCopyIcon fontSize="inherit" />
+                                    </IconButton>
+                                </div>
+                            )
                         )}
-                         
                     </div>
                 </div>
             </Menu>
         </div>
     );
 };
-              

@@ -1,4 +1,152 @@
-.container { display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
-.head { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.fileName { font-family: monospace; font-size: 12px; font-weight: 500; color: var(--ant-color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.status { font-size: 11px; line-height: 15px; color: var(--ant-color-text-secondary); }
+/*
+ * CDI Extraction uploading state
+ * --------------------------------
+ * Uploading.tsx applies local wealth, wealthLight, and wealthDark classes
+ * directly to container. Progress behavior remains unchanged.
+ */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    gap: 10px;
+}
+
+.head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.icon {
+    flex-shrink: 0;
+    font-size: 15px;
+}
+
+.fileName {
+    min-width: 0;
+    overflow: hidden;
+    font-family:
+        'IBM Plex Mono',
+        'SFMono-Regular',
+        Consolas,
+        monospace;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--ant-color-text);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.progress {
+    width: 100%;
+}
+
+.progress :global(.ant-progress-inner),
+.progress :global(.ant-progress-bg) {
+    border-radius: var(--ant-border-radius-sm);
+}
+
+.progress :global(.ant-progress-text) {
+    font-size: 11px;
+    color: var(--ant-color-text-secondary);
+}
+
+.status {
+    font-size: 11px;
+    line-height: 15px;
+    color: var(--ant-color-text-secondary);
+}
+
+/* Wealth shared typography and geometry */
+.container.wealth {
+    gap: 9px;
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .head {
+        gap: 8px;
+    }
+
+    .icon {
+        font-size: 14px;
+    }
+
+    .fileName {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 11px;
+        line-height: 15px;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .progress :global(.ant-progress-inner),
+    .progress :global(.ant-progress-bg) {
+        border-radius: 1px;
+    }
+
+    .progress :global(.ant-progress-text) {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 9px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .status {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 10.5px;
+        line-height: 15px;
+        font-weight: 400;
+    }
+}
+
+/* Wealth Light */
+.container.wealthLight {
+    .fileName {
+        color: #211a0f;
+    }
+
+    .progress :global(.ant-progress-text) {
+        color: #6a5e47;
+    }
+
+    .status {
+        color: #6a5e47;
+    }
+}
+
+/* Wealth Dark */
+.container.wealthDark {
+    .fileName {
+        color: #f1e7d4;
+    }
+
+    .progress :global(.ant-progress-text) {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .status {
+        color: rgba(241, 231, 212, 0.58);
+    }
+}

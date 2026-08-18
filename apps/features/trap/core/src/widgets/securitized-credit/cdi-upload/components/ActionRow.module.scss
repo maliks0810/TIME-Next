@@ -1,39 +1,295 @@
-.row { display: flex; gap: 8px; align-items: center; flex-shrink: 0; min-width: 0; }
+/*
+ * CDI Extraction action row
+ * -------------------------
+ * ActionRow.tsx applies local wealth, wealthLight, and wealthDark classes
+ * directly to row. Fetch and upload behavior remains unchanged.
+ */
 
-/* Fetch group capped (~26–30 chars) — never sprawls. */
-.fetchGroup { display: flex; min-width: 0; max-width: 420px; flex: 0 1 420px; }
+.row {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 8px;
+    min-width: 0;
+}
 
-.inpDeal, .inpPass, .inpBtn {
+.fetchGroup {
+    display: flex;
+    flex: 0 1 420px;
+    min-width: 0;
+    max-width: 420px;
+}
+
+.inpDeal,
+.inpPass,
+.inpBtn {
     height: 32px;
     border: 1px solid var(--ant-color-border-secondary);
     background: var(--ant-color-bg-container);
-    font-size: 12px;
     color: var(--ant-color-text);
+    font-size: 12px;
     outline: none;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
 }
-.inpDeal {
-    flex: 1; min-width: 0; padding: 0 10px;
-    border-radius: var(--ant-border-radius) 0 0 var(--ant-border-radius);
-    overflow: hidden; text-overflow: ellipsis;
-}
-.inpPass {
-    width: 96px; flex-shrink: 0; padding: 0 10px; border-left: none;
-}
-.inpBtn {
-    width: 34px; flex-shrink: 0; border-left: none;
-    border-radius: 0 var(--ant-border-radius) var(--ant-border-radius) 0;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--ant-color-primary); cursor: pointer; background: var(--ant-color-fill-tertiary);
-}
-.inpBtn:hover { background: var(--ant-color-primary-bg); }
 
-.inpDeal:focus, .inpPass:focus { border-color: var(--ant-color-primary); }
+.inpDeal,
+.inpPass {
+    font-family:
+        'IBM Plex Mono',
+        'SFMono-Regular',
+        Consolas,
+        monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+.inpDeal {
+    flex: 1;
+    min-width: 0;
+    padding: 0 10px;
+    overflow: hidden;
+    border-radius:
+        var(--ant-border-radius)
+        0
+        0
+        var(--ant-border-radius);
+    text-overflow: ellipsis;
+}
+
+.inpPass {
+    flex-shrink: 0;
+    width: 96px;
+    padding: 0 10px;
+    border-left: none;
+}
+
+.inpBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 34px;
+    padding: 0;
+    border-left: none;
+    border-radius:
+        0
+        var(--ant-border-radius)
+        var(--ant-border-radius)
+        0;
+    background: var(--ant-color-fill-tertiary);
+    color: var(--ant-color-primary);
+    cursor: pointer;
+}
+
+.inpBtn:hover {
+    background: var(--ant-color-primary-bg);
+}
+
+.inpBtn:focus-visible {
+    position: relative;
+    z-index: 1;
+    border-color: var(--ant-color-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ant-color-primary-bg);
+}
+
+.inpDeal:focus,
+.inpPass:focus {
+    position: relative;
+    z-index: 1;
+    border-color: var(--ant-color-primary);
+    box-shadow: 0 0 0 2px var(--ant-color-primary-bg);
+}
+
+.inpDeal::placeholder,
+.inpPass::placeholder {
+    color: var(--ant-color-text-quaternary);
+}
 
 .upBtn {
-    display: inline-flex; align-items: center; gap: 6px;
-    height: 32px; padding: 0 14px; flex-shrink: 0;
-    border: none; border-radius: var(--ant-border-radius);
-    background: var(--ant-color-primary); color: #fff;
-    font-size: 13px; font-weight: 600; cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 6px;
+    height: 32px;
+    padding: 0 14px;
+    border: none;
+    border-radius: var(--ant-border-radius);
+    background: var(--ant-color-primary);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
 }
-.upBtn:hover { background: var(--ant-color-primary-hover); }
+
+.upBtn:hover {
+    background: var(--ant-color-primary-hover);
+}
+
+.upBtn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ant-color-primary-bg);
+}
+
+.hiddenFileInput {
+    display: none;
+}
+
+/* Wealth shared typography and geometry */
+.row.wealth {
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .inpDeal,
+    .inpPass,
+    .inpBtn,
+    .upBtn {
+        height: 32px;
+        border-radius: 0;
+    }
+
+    .inpDeal,
+    .inpPass {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 10.5px;
+        line-height: 30px;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .inpDeal {
+        border-radius: 2px 0 0 2px;
+    }
+
+    .inpBtn {
+        border-radius: 0 2px 2px 0;
+        font-size: 12px;
+    }
+
+    .upBtn {
+        border-radius: 2px;
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 11px;
+        line-height: 30px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        box-shadow: none;
+    }
+}
+
+/* Wealth Light */
+.row.wealthLight {
+    .inpDeal,
+    .inpPass,
+    .inpBtn {
+        border-color: rgba(120, 84, 24, 0.24);
+        background: rgba(120, 84, 24, 0.045);
+        color: #211a0f;
+    }
+
+    .inpDeal::placeholder,
+    .inpPass::placeholder {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .inpDeal:focus,
+    .inpPass:focus,
+    .inpBtn:focus-visible {
+        border-color: #9a6b22;
+        box-shadow: 0 0 0 2px rgba(154, 107, 34, 0.10);
+    }
+
+    .inpBtn {
+        color: #9a6b22;
+    }
+
+    .inpBtn:hover {
+        background: rgba(154, 107, 34, 0.10);
+        color: #6e4a20;
+    }
+
+    .upBtn {
+        border: 1px solid #9a6b22;
+        background: #9a6b22;
+        color: #fffdf8;
+    }
+
+    .upBtn:hover {
+        border-color: #6e4a20;
+        background: #6e4a20;
+        color: #fffdf8;
+    }
+
+    .upBtn:focus-visible {
+        box-shadow: 0 0 0 2px rgba(154, 107, 34, 0.12);
+    }
+}
+
+/* Wealth Dark */
+.row.wealthDark {
+    .inpDeal,
+    .inpPass,
+    .inpBtn {
+        border-color: rgba(230, 180, 90, 0.16);
+        background: rgba(230, 180, 90, 0.05);
+        color: #f1e7d4;
+    }
+
+    .inpDeal::placeholder,
+    .inpPass::placeholder {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .inpDeal:focus,
+    .inpPass:focus,
+    .inpBtn:focus-visible {
+        border-color: #e6b45a;
+        box-shadow: 0 0 0 2px rgba(230, 180, 90, 0.10);
+    }
+
+    .inpBtn {
+        color: #e6b45a;
+    }
+
+    .inpBtn:hover {
+        background: rgba(230, 180, 90, 0.10);
+        color: #f6dda0;
+    }
+
+    .upBtn {
+        border: 1px solid #e6b45a;
+        background: #e6b45a;
+        color: #120d06;
+    }
+
+    .upBtn:hover {
+        border-color: #f6dda0;
+        background: #f6dda0;
+        color: #120d06;
+    }
+
+    .upBtn:focus-visible {
+        box-shadow: 0 0 0 2px rgba(230, 180, 90, 0.12);
+    }
+}

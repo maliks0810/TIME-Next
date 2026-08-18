@@ -1,60 +1,642 @@
-/* EXISTING: apps/features/trap/core/src/widgets/securitized-credit/DealDetailsWidget/components/DealDetailsComponents.module.scss
+/*
+ * Deal Details child components
+ * ------------------------------
+ * Layout dimensions remain aligned with the matrix previewer.
  *
- * ALIGNED TO THE MATRIX PREVIEWER. The real leaf components were a few px taller
- * than the previewer mock on every dimension, which compounded to ~39px over
- * budget at 6×650 (Parties clipped) and looked loose at short heights.
- * Every value below now matches the previewer's proven budget 1:1, so all
- * width×height permutations render identically to the previewer.
+ * Wealth classes are applied directly by:
+ * - MetricCard
+ * - MetricList
+ * - AttrPanel
+ * - AttrRow
  *
- * Changes vs. previous:
- *   .metricCardValue   font-size 15→14, line-height 19→18
- *   .metricList        + align-content: start  (never stretch grid rows)
- *   .attrPanelContainer padding 10px 14px → 8px 12px
- *   .attrRowContainer  padding 4px 0 → 3px 0
- *   .attrRowValue      max-width 200px → 180px
+ * No global data-theme selector is required.
  */
 
-/* Metric card — no full border; left accent bar carries color. */
+/* -------------------------------------------------------------------------
+ * Metric cards
+ * ---------------------------------------------------------------------- */
+
 .metricCardContainer {
-    flex: 1; min-width: 0;
-    background: var(--ant-color-fill-alter);
-    border: none;
-    border-left: 3px solid var(--ant-color-border-secondary);
-    border-radius: 0 var(--ant-border-radius) var(--ant-border-radius) 0;
-    padding: 8px 12px;
-    display: flex; flex-direction: column; gap: 2px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
     overflow: hidden;
+    padding: 8px 12px;
+
+    background: var(--ant-color-fill-alter);
+
+    border: none;
+    border-left:
+        3px solid
+        var(--ant-color-border-secondary);
+
+    border-radius:
+        0
+        var(--ant-border-radius)
+        var(--ant-border-radius)
+        0;
 }
-.metricCardAccent { border-left-color: var(--ant-color-primary); }
-.metricCardHighlight { border-left-color: var(--ant-color-warning); }
 
-.metricCardLabel { font-size: 9px; line-height: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ant-color-text-tertiary); }
-.metricCardValue { font-size: 14px; line-height: 18px; font-weight: 700; color: var(--ant-color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.metricCardValueAccent { color: var(--ant-color-primary); }
-.metricCardValueHighlight { color: var(--ant-color-warning); }
-.metricCardSubText { font-size: 9px; line-height: 12px; color: var(--ant-color-text-tertiary); }
+.metricCardAccent {
+    border-left-color: var(--ant-color-primary);
+}
 
-/* Metric LIST (the card↔list transform) */
-.metricList { display: grid; gap: 2px 20px; flex-shrink: 0; align-content: start; }
-.metricListOne { grid-template-columns: 1fr; }
-.metricListTwo { grid-template-columns: 1fr 1fr; }
-.metricListThree { grid-template-columns: 1fr 1fr 1fr; }
-.metricListRow { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px solid var(--ant-color-border-secondary); }
-.metricListLabel { font-size: 11px; line-height: 16px; color: var(--ant-color-text-secondary); white-space: nowrap; }
-.metricListValue { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ant-color-text); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.metricCardHighlight {
+    border-left-color: var(--ant-color-warning);
+}
 
-/* Attribute panel */
-.attrPanelContainer { background: var(--ant-color-fill-alter); border: 1px solid var(--ant-color-border-secondary); border-radius: var(--ant-border-radius); padding: 8px 12px; }
-.attrBody { display: grid; gap: 0 20px; }
-.attrBodyOne { grid-template-columns: 1fr; }
-.attrBodyTwo { grid-template-columns: 1fr 1fr; }
-.attrBodyThree { grid-template-columns: 1fr 1fr 1fr; }
+.metricCardLabel {
+    overflow: hidden;
 
-.attrRowContainer { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px solid var(--ant-color-border-secondary); }
-.attrRowContainer:last-child { border-bottom: none; }
-.attrRowLabel { font-size: 11px; line-height: 16px; color: var(--ant-color-text-secondary); flex-shrink: 0; white-space: nowrap; }
-.attrRowValue { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ant-color-text); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
-.attrRowValueAccent { color: var(--ant-color-warning); }
-.fontFamilyMono { font-family: monospace; }
+    font-size: 9px;
+    line-height: 12px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
 
-.sectionLabelContainer { display: block; font-size: 10px; line-height: 14px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ant-color-text-tertiary); margin-bottom: 6px; }
+    color: var(--ant-color-text-tertiary);
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.metricCardValue {
+    overflow: hidden;
+
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+
+    color: var(--ant-color-text);
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.metricCardValueAccent {
+    color: var(--ant-color-primary);
+}
+
+.metricCardValueHighlight {
+    color: var(--ant-color-warning);
+}
+
+.metricCardSubText {
+    overflow: hidden;
+
+    font-size: 9px;
+    line-height: 12px;
+
+    color: var(--ant-color-text-tertiary);
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* -------------------------------------------------------------------------
+ * Compact metric list
+ * ---------------------------------------------------------------------- */
+
+.metricList {
+    display: grid;
+    flex-shrink: 0;
+    gap: 2px 20px;
+    align-content: start;
+}
+
+.metricListOne {
+    grid-template-columns: 1fr;
+}
+
+.metricListTwo {
+    grid-template-columns: 1fr 1fr;
+}
+
+.metricListThree {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.metricListRow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
+    padding: 3px 0;
+
+    border-bottom:
+        1px solid
+        var(--ant-color-border-secondary);
+}
+
+.metricListLabel {
+    min-width: 0;
+    overflow: hidden;
+
+    font-size: 11px;
+    line-height: 16px;
+
+    color: var(--ant-color-text-secondary);
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.metricListValue {
+    flex: 0 0 auto;
+    min-width: 0;
+    overflow: hidden;
+
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+
+    color: var(--ant-color-text);
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* -------------------------------------------------------------------------
+ * Attribute panels
+ * ---------------------------------------------------------------------- */
+
+.attrPanelContainer {
+    padding: 8px 12px;
+
+    background: var(--ant-color-fill-alter);
+
+    border:
+        1px solid
+        var(--ant-color-border-secondary);
+
+    border-radius: var(--ant-border-radius);
+}
+
+.attrBody {
+    display: grid;
+    gap: 0 20px;
+}
+
+.attrBodyOne {
+    grid-template-columns: 1fr;
+}
+
+.attrBodyTwo {
+    grid-template-columns: 1fr 1fr;
+}
+
+.attrBodyThree {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.sectionLabelContainer {
+    display: block;
+    margin-bottom: 6px;
+
+    font-size: 10px;
+    line-height: 14px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+
+    color: var(--ant-color-text-tertiary);
+}
+
+/* -------------------------------------------------------------------------
+ * Attribute rows
+ * ---------------------------------------------------------------------- */
+
+.attrRowContainer {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
+    padding: 3px 0;
+
+    border-bottom:
+        1px solid
+        var(--ant-color-border-secondary);
+}
+
+.attrRowContainer:last-child {
+    border-bottom: none;
+}
+
+.attrRowLabel {
+    flex-shrink: 0;
+
+    font-size: 11px;
+    line-height: 16px;
+
+    color: var(--ant-color-text-secondary);
+
+    white-space: nowrap;
+}
+
+.attrRowValue {
+    max-width: 180px;
+    overflow: hidden;
+
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+
+    color: var(--ant-color-text);
+
+    text-align: right;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.attrRowValueAccent {
+    color: var(--ant-color-warning);
+}
+
+/*
+ * Generic mono utility
+ *
+ * This remains useful outside Wealth and intentionally retains safe fallbacks.
+ */
+
+.fontFamilyMono {
+    font-family:
+        'IBM Plex Mono',
+        'SFMono-Regular',
+        Consolas,
+        monospace;
+
+    font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+ * Wealth shared typography
+ * ====================================================================== */
+
+/*
+ * Metric Card
+ *
+ * The wealth class is applied directly to metricCardContainer.
+ */
+
+.metricCardContainer.wealth {
+    border-radius: 0 2px 2px 0;
+
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .metricCardLabel {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 8.5px;
+        line-height: 12px;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .metricCardValue {
+        /*
+         * Financial values intentionally use IBM Plex Mono rather than
+         * Spectral. This keeps billions, millions, percentages, and factors
+         * easy to scan and preserves tabular alignment.
+         */
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 13px;
+        line-height: 18px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .metricCardSubText {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 9px;
+        line-height: 12px;
+        font-weight: 400;
+    }
+}
+
+/*
+ * Metric List
+ *
+ * The wealth class is applied directly to metricList.
+ */
+
+.metricList.wealth {
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .metricListRow {
+        padding: 4px 0;
+    }
+
+    .metricListLabel {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 400;
+    }
+
+    .metricListValue {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 11.5px;
+        line-height: 16px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+/*
+ * Attribute Panel
+ *
+ * The wealth class is applied directly to attrPanelContainer.
+ */
+
+.attrPanelContainer.wealth {
+    border-radius: 2px;
+
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .sectionLabelContainer {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 10px;
+        line-height: 14px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+}
+
+/*
+ * Attribute Row
+ *
+ * The wealth class is applied directly to attrRowContainer.
+ */
+
+.attrRowContainer.wealth {
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .attrRowLabel {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 400;
+    }
+
+    .attrRowValue {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 11.5px;
+        line-height: 16px;
+        font-weight: 500;
+    }
+
+    .attrRowValue.fontFamilyMono {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+/* =========================================================================
+ * Wealth Light
+ * ====================================================================== */
+
+.metricCardContainer.wealthLight {
+    background: rgba(120, 84, 24, 0.045);
+    border-left-color: rgba(120, 84, 24, 0.30);
+
+    .metricCardLabel {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .metricCardValue {
+        color: #211a0f;
+    }
+
+    .metricCardSubText {
+        color: #6a5e47;
+    }
+}
+
+.metricCardContainer.wealthLight.metricCardAccent {
+    border-left-color: #9a6b22;
+
+    .metricCardValueAccent {
+        color: #6e4a20;
+    }
+}
+
+.metricCardContainer.wealthLight.metricCardHighlight {
+    border-left-color: #c2861a;
+
+    .metricCardValueHighlight {
+        color: #a96416;
+    }
+}
+
+.metricList.wealthLight {
+    .metricListRow {
+        border-bottom-color:
+            rgba(120, 84, 24, 0.20);
+    }
+
+    .metricListLabel {
+        color: #6a5e47;
+    }
+
+    .metricListValue {
+        color: #211a0f;
+    }
+}
+
+.attrPanelContainer.wealthLight {
+    background: rgba(120, 84, 24, 0.035);
+
+    border-color:
+        rgba(120, 84, 24, 0.24);
+
+    .sectionLabelContainer {
+        color: #574a32;
+    }
+}
+
+.attrRowContainer.wealthLight {
+    border-bottom-color:
+        rgba(120, 84, 24, 0.18);
+
+    .attrRowLabel {
+        color: #6a5e47;
+    }
+
+    .attrRowValue {
+        color: #211a0f;
+    }
+
+    .attrRowValueAccent {
+        color: #9a6b22;
+    }
+
+    .attrRowValue.fontFamilyMono {
+        color: #6e4a20;
+    }
+}
+
+/* =========================================================================
+ * Wealth Dark
+ * ====================================================================== */
+
+.metricCardContainer.wealthDark {
+    background: rgba(230, 180, 90, 0.035);
+    border-left-color: rgba(230, 180, 90, 0.20);
+
+    .metricCardLabel {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .metricCardValue {
+        color: #f1e7d4;
+    }
+
+    .metricCardSubText {
+        color: rgba(241, 231, 212, 0.58);
+    }
+}
+
+.metricCardContainer.wealthDark.metricCardAccent {
+    border-left-color: #e6b45a;
+
+    .metricCardValueAccent {
+        color: #f6dda0;
+    }
+}
+
+.metricCardContainer.wealthDark.metricCardHighlight {
+    border-left-color: #e0a93e;
+
+    .metricCardValueHighlight {
+        color: #e0a93e;
+    }
+}
+
+.metricList.wealthDark {
+    .metricListRow {
+        border-bottom-color:
+            rgba(230, 180, 90, 0.16);
+    }
+
+    .metricListLabel {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .metricListValue {
+        color: #f1e7d4;
+    }
+}
+
+.attrPanelContainer.wealthDark {
+    background: rgba(230, 180, 90, 0.025);
+
+    border-color:
+        rgba(230, 180, 90, 0.16);
+
+    .sectionLabelContainer {
+        color: rgba(241, 231, 212, 0.74);
+    }
+}
+
+.attrRowContainer.wealthDark {
+    border-bottom-color:
+        rgba(230, 180, 90, 0.14);
+
+    .attrRowLabel {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .attrRowValue {
+        color: #f1e7d4;
+    }
+
+    .attrRowValueAccent {
+        color: #e6b45a;
+    }
+
+    .attrRowValue.fontFamilyMono {
+        color: #f6dda0;
+    }
+}

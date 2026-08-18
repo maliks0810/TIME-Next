@@ -12,6 +12,7 @@ import WidgetCardShell from '../../../../components/widget-shell/WidgetCardShell
 import type { WidgetComponentProps } from '../../../../types/widget';
 import { useGetWidgetValue, useSetWidgetValue } from '../../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../../state/Tabs/hooks';
+import { useTheme } from "../../../../theme/ThemeContext";
 import { executeWidget } from '../../../../api/trap';
 
 import { buildAssetStagingLaunchContext } from './utils/buildLaunchContext';
@@ -62,6 +63,18 @@ export default function AssetStagingWidget({
     mode,
 }: WidgetComponentProps) {
     const { token } = theme.useToken();
+
+    const { themeName } = useTheme();
+
+    const isWealthTheme =
+        themeName === 'wealthLight' ||
+        themeName === 'wealthDark';
+
+    const isWealthLight =
+        themeName === 'wealthLight';
+
+    const isWealthDark =
+        themeName === 'wealthDark';
 
     const [extId, setExtId] = React.useState("");
     const [cusipOverride, setCusipOverride] = React.useState("");
@@ -791,7 +804,16 @@ export default function AssetStagingWidget({
 
     return (
         <WidgetCardShell>
-            <div className={styles.widgetBody}>
+            <div
+                className={clsx(
+                    styles.widgetBody,
+                    {
+                        [styles.wealth]: isWealthTheme,
+                        [styles.wealthLight]: isWealthLight,
+                        [styles.wealthDark]: isWealthDark,
+                    },
+                )}
+            >
                 {stagingExplicitlyNA && (
                     <div className={styles.centerState}>
                         <div className={styles.centerIcon}>

@@ -1,0 +1,7 @@
+.bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 12px; min-height: 40px; border-radius: 10px; background: var(--ant-color-fill-quaternary); }
+.icon { font-size: 13px; color: var(--ant-color-text-tertiary); flex: 0 0 auto; }
+.empty { font-size: 12px; color: var(--ant-color-text-tertiary); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 6px 4px 10px; border-radius: 999px; background: var(--ant-color-primary-bg); color: var(--ant-color-primary); }
+.remove { font-size: 10px; cursor: pointer; }
+.clearAll { font-size: 12px; padding: 3px 10px; border-radius: var(--ant-border-radius, 6px); border: 1px solid var(--ant-color-border-secondary); background: transparent; color: var(--ant-color-text); cursor: pointer; }

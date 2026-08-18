@@ -6,36 +6,178 @@
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_common_chart_01",
-    "listensToKeys": ["deal.name", "security.cusip", "security.ticker", "portfolio.id"],
-    "emitsKeys": null,
+    "listensToKeys": [
+        "deal.name",
+        "security.cusip",
+        "security.ticker",
+        "portfolio.id",
+        "filter.state",
+        "filter.fico",
+        "filter.dti",
+        "filter.ltv",
+        "filter.coupon",
+        "filter.days_arr",
+        "filter.age",
+        "filter.model_year",
+        "filter.manufacturer",
+        "filter.model",
+        "filter.originator",
+        "filter.servicer",
+        "filter.new_used",
+        "filter.vehicle_type",
+        "filter.zero_balance_reason"
+    ],
+    "emitsKeys": [
+        "filter.fico",
+        "filter.dti",
+        "filter.ltv",
+        "filter.coupon",
+        "filter.days_arr",
+        "filter.age",
+        "filter.model_year",
+        "filter.manufacturer",
+        "filter.model",
+        "filter.originator",
+        "filter.servicer",
+        "filter.new_used",
+        "filter.vehicle_type",
+        "filter.zero_balance_reason"
+    ],
     "configSchema": {
         "properties": {
             "channel": {
                 "category": "Interactions",
                 "default": 1,
-                "description": "Widgets connected to the same channel share data (e.g. the selected deal or portfolio) between each other.",
-                "enum": [1, 2, 3, 4, 5],
+                "description": "Widgets connected to the same channel share data, such as the selected deal and active filters.",
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ],
                 "title": "Communication Channel",
+                "type": "string"
+            },
+            "contextKey": {
+                "category": "Interactions",
+                "default": "deal.name",
+                "description": "Which channel value selects the universe, such as deal name today or portfolio id tomorrow.",
+                "title": "Context Key",
+                "type": "string"
+            },
+            "filterKey": {
+                "category": "Interactions",
+                "default": "",
+                "description": "Channel filter key this chart publishes when a single bucket is clicked. Use this for facet charts such as FICO, LTV, DTI, make, model, vehicle type, etc. Leave blank for non-filtering charts.",
+                "enum": [
+                    "",
+                    "filter.fico",
+                    "filter.dti",
+                    "filter.ltv",
+                    "filter.coupon",
+                    "filter.days_arr",
+                    "filter.age",
+                    "filter.model_year",
+                    "filter.manufacturer",
+                    "filter.model",
+                    "filter.originator",
+                    "filter.servicer",
+                    "filter.new_used",
+                    "filter.vehicle_type",
+                    "filter.zero_balance_reason"
+                ],
+                "title": "Filter Key",
+                "type": "string"
+            },
+            "rowFilterKey": {
+                "category": "Interactions",
+                "default": "",
+                "description": "For heatmap charts, the channel filter key for the clicked row dimension. Example: filter.fico.",
+                "enum": [
+                    "",
+                    "filter.fico",
+                    "filter.dti",
+                    "filter.ltv",
+                    "filter.coupon",
+                    "filter.days_arr",
+                    "filter.age",
+                    "filter.model_year",
+                    "filter.manufacturer",
+                    "filter.model",
+                    "filter.originator",
+                    "filter.servicer",
+                    "filter.new_used",
+                    "filter.vehicle_type",
+                    "filter.zero_balance_reason"
+                ],
+                "title": "Row Filter Key",
+                "type": "string"
+            },
+            "colFilterKey": {
+                "category": "Interactions",
+                "default": "",
+                "description": "For heatmap charts, the channel filter key for the clicked column dimension. Example: filter.ltv.",
+                "enum": [
+                    "",
+                    "filter.fico",
+                    "filter.dti",
+                    "filter.ltv",
+                    "filter.coupon",
+                    "filter.days_arr",
+                    "filter.age",
+                    "filter.model_year",
+                    "filter.manufacturer",
+                    "filter.model",
+                    "filter.originator",
+                    "filter.servicer",
+                    "filter.new_used",
+                    "filter.vehicle_type",
+                    "filter.zero_balance_reason"
+                ],
+                "title": "Column Filter Key",
                 "type": "string"
             },
             "emptyStateText": {
                 "category": "View Parameters",
                 "default": "No chart data",
-                "description": "Message shown when the scenario returns no chart (e.g. nothing selected on the channel yet).",
+                "description": "Message shown when the scenario returns no chart, for example when nothing is selected on the channel yet.",
                 "title": "Empty State Text",
                 "type": "string"
             },
             "schemaKey": {
                 "category": "System Parameters",
                 "description": "Logical chart scenario resolved by GraphQL. Each scenario owns its own series and data source; GraphQL returns the render-ready ECharts option.",
-                "enum": ["abf.performance.summary", "abf.cgl.trend", "abf.dq.roll"],
+                "enum": [
+                    "abf.performance.summary",
+                    "abf.cgl.trend",
+                    "abf.dq.roll",
+                    "tape.facet.fico",
+                    "tape.facet.dti",
+                    "tape.facet.ltv",
+                    "tape.facet.coupon",
+                    "tape.facet.arrears",
+                    "tape.facet.age",
+                    "tape.facet.vintage",
+                    "tape.facet.make",
+                    "tape.facet.model",
+                    "tape.facet.originator",
+                    "tape.facet.servicer",
+                    "tape.facet.new_used",
+                    "tape.facet.vehicle_type",
+                    "tape.facet.zero_bal",
+                    "tape.heatmap.fico_ltv",
+                    "tape.heatmap.fico_ltv_charged",
+                    "tape.heatmap.vintage_fico",
+                    "tape.heatmap.coupon_fico"
+                ],
                 "title": "Schema Key",
                 "type": "string"
             },
             "showTitle": {
                 "category": "View Parameters",
                 "default": true,
-                "description": "Show the chart's title row (icon + label) above the plot.",
+                "description": "Show the chart's title row, icon, and label above the plot.",
                 "title": "Show Title",
                 "type": "boolean"
             },
@@ -47,12 +189,17 @@
                 "type": "string"
             }
         },
-        "required": ["schemaKey"],
+        "required": [
+            "schemaKey"
+        ],
         "type": "object"
     },
     "uiHints": {
         "category": "Common",
-        "visibleIn": ["workflow", "landing"]
+        "visibleIn": [
+            "workflow",
+            "landing"
+        ]
     },
     "variants": [
         {
@@ -62,7 +209,7 @@
                 "resizable": true,
                 "width": {
                     "default": 4,
-                    "min": 3,
+                    "min": 2,
                     "max": 8,
                     "step": null
                 },

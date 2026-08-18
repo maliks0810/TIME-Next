@@ -525,3 +525,764 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* =========================================================================
+ * Wealth — New Asset Setup
+ * =========================================================================
+ *
+ * AssetStagingWidget applies these classes directly:
+ *
+ * - widgetBody wealth
+ * - widgetBody wealthLight
+ * - widgetBody wealthDark
+ *
+ * Typography:
+ * - Hanken Grotesk: interface text and descriptions
+ * - IBM Plex Mono: identifiers, numeric values, payload fields, status metadata
+ *
+ * No global data-theme selector is required.
+ */
+
+.widgetBody.wealth {
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    /*
+     * Ant Design controls
+     */
+
+    :global(.ant-input),
+    :global(.ant-input-number),
+    :global(.ant-input-number-input),
+    :global(.ant-select-selector),
+    :global(.ant-select-selection-item),
+    :global(.ant-select-selection-placeholder),
+    :global(.ant-picker),
+    :global(.ant-picker-input > input),
+    :global(.ant-segmented) {
+        border-radius: 2px;
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 10.5px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    :global(.ant-input-number-input),
+    :global(.ant-picker-input > input) {
+        font-variant-numeric: tabular-nums;
+    }
+
+    :global(.ant-btn) {
+        border-radius: 2px;
+
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+    }
+
+    :global(.ant-btn-primary) {
+        box-shadow: none;
+    }
+
+    :global(.ant-progress-inner),
+    :global(.ant-progress-bg) {
+        border-radius: 1px;
+    }
+
+    :global(.ant-divider) {
+        border-color: var(--ant-color-border-secondary);
+    }
+
+    /*
+     * Main section headers
+     */
+
+    .headerTitleGroup {
+        gap: 7px;
+    }
+
+    .sectionTitle {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 10px !important;
+        line-height: 14px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .dividerLine {
+        background: var(--ant-color-border-secondary);
+    }
+
+    /*
+     * Empty, loading, and completed states
+     */
+
+    .centerTitle {
+        font-family:
+            'Spectral',
+            'Newsreader',
+            Georgia,
+            serif;
+
+        font-size: 15px;
+        line-height: 19px;
+        font-weight: 300;
+        letter-spacing: -0.01em;
+    }
+
+    .centerDescription,
+    .emptyDescription {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 400;
+    }
+
+    /*
+     * Readiness
+     */
+
+    .readinessLabel {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 11px;
+        font-weight: 400;
+    }
+
+    .readinessValue {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /*
+     * Staged items
+     */
+
+    .stagedPanel {
+        border: 1px solid var(--ant-color-border-secondary);
+        border-radius: 2px;
+    }
+
+    .stagedRow {
+        min-height: 27px;
+    }
+
+    .stagedLabel,
+    .stagedLabelFlexible {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 11px;
+        line-height: 15px;
+        font-weight: 400;
+    }
+
+    .stagedHint,
+    .stagedHintInline,
+    .stagedHintRequired,
+    .stagedAwaiting {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 8.5px;
+        line-height: 13px;
+        font-weight: 400;
+        letter-spacing: 0.05em;
+    }
+
+    .stagedHintRequired {
+        font-style: normal;
+        text-transform: uppercase;
+    }
+
+    .stagedValue,
+    .stagedValueInline,
+    .stagedInput,
+    .omFileName,
+    .omFileSize {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-variant-numeric: tabular-nums;
+    }
+
+    .stagedValue,
+    .stagedValueInline {
+        font-size: 11px;
+        line-height: 15px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+    }
+
+    .stagedInput {
+        font-size: 11px;
+    }
+
+    .omFileName {
+        font-size: 10.5px;
+        font-weight: 500;
+    }
+
+    .omFileSize {
+        font-size: 9px;
+    }
+
+    .statusDot {
+        width: 15px;
+        height: 15px;
+    }
+
+    .statusDotPending {
+        border-width: 1px;
+    }
+
+    /*
+     * Assumption panel
+     */
+
+    .assumptionPanel {
+        border: 1px solid var(--ant-color-border-secondary);
+        border-radius: 2px;
+    }
+
+    .assumptionPanelBody {
+        padding: 5px 10px;
+    }
+
+    .assumptionSectionTitle,
+    .assumptionSectionTitleRequired,
+    .assumptionSectionTitleOptional {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 8.5px;
+        line-height: 12px;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .assumptionSectionTitleOptional {
+        font-style: normal;
+    }
+
+    .assumptionSectionSubTitle {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 8.5px;
+        line-height: 12px;
+        letter-spacing: 0.04em;
+    }
+
+    .assumptionLabel {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 400;
+    }
+
+    .assumptionRequired {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 8.5px;
+        line-height: 12px;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .assumptionSectionDivider {
+        background: var(--ant-color-border-secondary);
+    }
+
+    .callableSegmentedWrapper {
+        border-radius: 2px;
+    }
+
+    .callableSegmentedWrapper :global(.ant-segmented-item-label) {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 9px;
+        font-weight: 500;
+    }
+
+    .callableSegmentedWrapper
+        :global(.ant-segmented-item-selected) {
+        box-shadow: none;
+    }
+
+    .priceInput input,
+    .assumptionNumberInput input {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 10.5px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /*
+     * Validation
+     */
+
+    .fieldError,
+    .fieldErrorInline,
+    .fieldErrorRow {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 9px;
+        line-height: 13px;
+        font-weight: 400;
+    }
+
+    /*
+     * Payload preview
+     */
+
+    .payloadPreviewTitle {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        font-size: 10px;
+        line-height: 14px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .payloadPreviewKey,
+    .payloadPreviewValue {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+
+        font-size: 9.5px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .payloadPreviewValue {
+        font-weight: 500;
+    }
+
+    /*
+     * Launch action
+     */
+
+    .launchContainer :global(.ant-btn-primary) {
+        min-height: 30px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+}
+
+/* =========================================================================
+ * Wealth Light
+ * ========================================================================= */
+
+.widgetBody.wealthLight {
+    .sectionTitle {
+        color: #574a32 !important;
+    }
+
+    .dividerLine,
+    .assumptionSectionDivider {
+        background: rgba(120, 84, 24, 0.20);
+    }
+
+    .centerIcon {
+        background: rgba(120, 84, 24, 0.08);
+    }
+
+    .centerTitle {
+        color: #211a0f;
+    }
+
+    .centerDescription {
+        color: #6a5e47;
+    }
+
+    .emptyDescription {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .readinessLabel {
+        color: #6a5e47;
+    }
+
+    .readinessSuccess {
+        color: #3f7d4f;
+    }
+
+    .readinessWarning {
+        color: #c2861a;
+    }
+
+    .stagedPanel {
+        border-color: rgba(120, 84, 24, 0.24);
+    }
+
+    .stagedRowBordered {
+        border-bottom-color: rgba(120, 84, 24, 0.16);
+    }
+
+    .stagedRowEven {
+        background: #fffdf8;
+    }
+
+    .stagedRowOdd {
+        background: rgba(120, 84, 24, 0.035);
+    }
+
+    .stagedLabel,
+    .stagedLabelFlexible {
+        color: #6a5e47;
+    }
+
+    .stagedHint,
+    .stagedHintInline,
+    .stagedAwaiting {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .stagedHintRequired {
+        color: #9a6b22;
+    }
+
+    .stagedValue,
+    .stagedValueInline,
+    .omFileName {
+        color: #211a0f;
+    }
+
+    .omFileSize {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .statusDotDone {
+        background: #3f7d4f;
+    }
+
+    .statusDotPending {
+        border-color: rgba(120, 84, 24, 0.30);
+    }
+
+    .assumptionPanel {
+        border-color: rgba(120, 84, 24, 0.24);
+        background: rgba(120, 84, 24, 0.035);
+    }
+
+    .assumptionSectionTitle,
+    .assumptionSectionTitleOptional {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .assumptionSectionTitleRequired,
+    .assumptionRequired {
+        color: #9a6b22;
+    }
+
+    .assumptionSectionSubTitle {
+        color: rgba(33, 26, 15, 0.30);
+    }
+
+    .assumptionLabel {
+        color: #6a5e47;
+    }
+
+    .callableSegmentedWrapper {
+        border-color: rgba(120, 84, 24, 0.24);
+        background: #fffdf8;
+    }
+
+    .callableSegmentedWrapper
+        :global(.ant-segmented-item-selected) {
+        background: rgba(154, 107, 34, 0.10) !important;
+        color: #9a6b22 !important;
+    }
+
+    .callableSegmentedWrapper
+        :global(.ant-segmented-item-selected
+        .ant-segmented-item-label) {
+        color: #9a6b22 !important;
+    }
+
+    .requiredBorder {
+        :global(.ant-input),
+        :global(.ant-input-number),
+        :global(.ant-select-selector),
+        :global(.ant-picker) {
+            border-color: #9a6b22 !important;
+        }
+    }
+
+    .fieldError,
+    .fieldErrorInline,
+    .fieldErrorRow {
+        color: #b23a2e;
+    }
+
+    .payloadPreviewTitle {
+        color: #574a32;
+    }
+
+    .launchContainer :global(.ant-btn-primary) {
+        border-color: #9a6b22;
+        background: #9a6b22;
+        color: #fffdf8;
+        box-shadow: none;
+    }
+
+    .launchContainer
+        :global(.ant-btn-primary:not(:disabled):hover) {
+        border-color: #6e4a20;
+        background: #6e4a20;
+    }
+}
+
+/* =========================================================================
+ * Wealth Dark
+ * ========================================================================= */
+
+.widgetBody.wealthDark {
+    .sectionTitle {
+        color: rgba(241, 231, 212, 0.74) !important;
+    }
+
+    .dividerLine,
+    .assumptionSectionDivider {
+        background: rgba(230, 180, 90, 0.16);
+    }
+
+    .centerIcon {
+        background: rgba(230, 180, 90, 0.08);
+    }
+
+    .centerTitle {
+        color: #f1e7d4;
+    }
+
+    .centerDescription {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .emptyDescription {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .readinessLabel {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .readinessSuccess {
+        color: #6fae6a;
+    }
+
+    .readinessWarning {
+        color: #e0a93e;
+    }
+
+    .stagedPanel {
+        border-color: rgba(230, 180, 90, 0.16);
+    }
+
+    .stagedRowBordered {
+        border-bottom-color: rgba(230, 180, 90, 0.12);
+    }
+
+    .stagedRowEven {
+        background: rgba(17, 13, 8, 0.52);
+    }
+
+    .stagedRowOdd {
+        background: rgba(230, 180, 90, 0.025);
+    }
+
+    .stagedLabel,
+    .stagedLabelFlexible {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .stagedHint,
+    .stagedHintInline,
+    .stagedAwaiting {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .stagedHintRequired {
+        color: #e6b45a;
+    }
+
+    .stagedValue,
+    .stagedValueInline,
+    .omFileName {
+        color: #f1e7d4;
+    }
+
+    .omFileSize {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .statusDotDone {
+        background: #6fae6a;
+    }
+
+    .statusDotPending {
+        border-color: rgba(230, 180, 90, 0.24);
+    }
+
+    .assumptionPanel {
+        border-color: rgba(230, 180, 90, 0.16);
+        background: rgba(230, 180, 90, 0.025);
+    }
+
+    .assumptionSectionTitle,
+    .assumptionSectionTitleOptional {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .assumptionSectionTitleRequired,
+    .assumptionRequired {
+        color: #e6b45a;
+    }
+
+    .assumptionSectionSubTitle {
+        color: rgba(241, 231, 212, 0.22);
+    }
+
+    .assumptionLabel {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .callableSegmentedWrapper {
+        border-color: rgba(230, 180, 90, 0.16);
+        background: rgba(17, 13, 8, 0.66);
+    }
+
+    .callableSegmentedWrapper
+        :global(.ant-segmented-item-selected) {
+        background: rgba(230, 180, 90, 0.10) !important;
+        color: #e6b45a !important;
+    }
+
+    .callableSegmentedWrapper
+        :global(.ant-segmented-item-selected
+        .ant-segmented-item-label) {
+        color: #e6b45a !important;
+    }
+
+    .requiredBorder {
+        :global(.ant-input),
+        :global(.ant-input-number),
+        :global(.ant-select-selector),
+        :global(.ant-picker) {
+            border-color: #e6b45a !important;
+        }
+    }
+
+    .fieldError,
+    .fieldErrorInline,
+    .fieldErrorRow {
+        color: #d2685a;
+    }
+
+    .payloadPreviewTitle {
+        color: rgba(241, 231, 212, 0.74);
+    }
+
+    .launchContainer :global(.ant-btn-primary) {
+        border-color: #e6b45a;
+        background: #e6b45a;
+        color: #120d06;
+        box-shadow: none;
+    }
+
+    .launchContainer
+        :global(.ant-btn-primary:not(:disabled):hover) {
+        border-color: #f6dda0;
+        background: #f6dda0;
+        color: #120d06;
+    }
+}
