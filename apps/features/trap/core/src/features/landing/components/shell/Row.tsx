@@ -28,6 +28,7 @@ export const Row = ({
     deleteItem,
     editItem,
     duplicateItem,
+    isDraft,
 }: {
     item: Item;
     renameItem: (item: Item) => void;
@@ -45,6 +46,7 @@ export const Row = ({
     editItem: (item: Item) => void;
     cloneItem: (item: Item) => void;
     onSetHome?: ({ templateId, name }: { templateId: string; name: string }) => void;
+    isDraft?: boolean;
 }) => {
     const rowMenu = useCallback(
         (item: Item) => {
@@ -199,14 +201,14 @@ export const Row = ({
                     Current
                 </Tag>
             ) : null}
-            {/* {!isLandingRow ? (
+            {!isLandingRow && owned && isDraft ? (
                 <Tag
                     color="warning"
                     style={{ margin: 0, fontSize: 10, lineHeight: '16px', padding: '0 6px' }}
                 >
                     Draft
                 </Tag>
-            ) : null} */}
+            ) : null}
             {/* Ownership/visibility glyph — workflows only (a landing's home glyph is its identity). */}
             {!isLandingRow ? (
                 <span
