@@ -1,0 +1,41 @@
+{
+    "id": "cwd_recent_workflows",
+    "name": "Recent Workflows",
+    "version": 1,
+    "description": "Shows recent workflows for landing and allows quick activation/open.",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_landing_recent_workflows_01",
+    "listensToKeys": null,
+    "emitsKeys": null,
+    "configSchema": {
+        "properties": {},
+        "required": [],
+        "title": "Recent Workflows Configuration",
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Landing"
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 2,
+                    "min": 1,
+                    "max": 12,
+                    "step": null
+                },
+                "height": {
+                    "default": 360,
+                    "min": 360,
+                    "max": 1000,
+                    "step": 10
+                }
+            }
+        }
+    ]
+}
