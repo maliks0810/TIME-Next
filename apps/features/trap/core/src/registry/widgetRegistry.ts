@@ -2,7 +2,6 @@ import IdentityWidget from '../widgets/common/identity/IdentityWidget';
 import CapitalStructureWidget from '../widgets/securitized-credit/capital-structure/CapitalStructureWidget';
 
 import type { WidgetRegistryEntry } from '../types/widget';
-import ArcDashboardWidget from '../widgets/common/arc-dashboard/ArchDashboardWidget';
 import RecentWorkflowsWidget from '../widgets/landing/recent-workflows/RecentWorkflowsWidget';
 import { CounterTileWidget } from '../widgets/common/counter/CounterTile';
 import { LinkWidget } from '../widgets/common/link/LinkWidget';
@@ -139,14 +138,6 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         category: 'Control',
         visibleIn: ['workflow', 'landing'],
         listensToKeys: [],
-        emitsKeys: [],
-    },
-    cwd_arc_dashboard: {
-        id: 'cwd_arc_dashboard',
-        component: ArcDashboardWidget,
-        category: 'Common',
-        visibleIn: ['landing', 'workflow'],
-        listensToKeys: ['security.cusip'],
         emitsKeys: [],
     },
 

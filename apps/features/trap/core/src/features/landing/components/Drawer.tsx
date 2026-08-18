@@ -18,6 +18,7 @@ import { Kind, Visibility } from '../../../api/trap';
 import { WorkflowTabModel } from '../types/landing.types';
 import ThemesPanel from './shell/ThemePanel';
 import WidgetsPanelWrapper from './shell/WidgetsPanelWrapper';
+import { getDefaultLandingTemplate } from '../../../utils/userPreferences';
 
 export const Drawer = ({
     onLaunchWorkflow,
@@ -48,6 +49,8 @@ export const Drawer = ({
     const [drawerSeg, setDrawerSeg] = React.useState<'workspaces' | 'widgets' | 'themes'>(
         'workspaces'
     );
+
+    const defaultLanding = getDefaultLandingTemplate();
 
     useEffect(() => {
         if (drawerState.initialDrawerSeg) {
@@ -107,7 +110,7 @@ export const Drawer = ({
                             setDrawerState({ isOpen: false });
                         }}
                         //TODO: implement when removing designer page
-                        currentHomeId={''}
+                        currentHomeId={defaultLanding?.templateId}
                         onCreateWorkspace={onCreateWorkspace}
                         //TODO: implement when removing designer page
                         onTemplateChanged={() => {}}

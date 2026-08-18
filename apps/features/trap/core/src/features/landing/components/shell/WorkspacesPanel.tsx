@@ -31,6 +31,7 @@ export type Item = {
     visibility: Visibility;
     ownerUserId: string | null;
     class3: string | null;
+    status?: 'PUBLISHED' | 'DRAFT';
 };
 
 type Selection = Item & {
@@ -283,6 +284,7 @@ export default function WorkspacesPanel({
                             renameItem={renameItem}
                             key={item.templateId}
                             cloneItem={onCloneTemplate}
+                            isDraft={item.status === 'DRAFT'}
                         />
                     );
                 })}
