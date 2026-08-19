@@ -32,8 +32,8 @@ export const NaviLinkContainer = forwardRef((_props, ref) => {
             //     navigate((linkBase.url.startsWith('/') ? '' : '/') + linkBase.url);
             // }
 
-            var url = (linkBase.url as string).toLowerCase();
-            if (!url.startsWith('http')) {                
+            var url = (linkBase.url as string);
+            if (!url.toLowerCase().startsWith('http')) {                
                 url = window.location.origin + (url.startsWith('/') ? '' : '/') + url;
             }
 
