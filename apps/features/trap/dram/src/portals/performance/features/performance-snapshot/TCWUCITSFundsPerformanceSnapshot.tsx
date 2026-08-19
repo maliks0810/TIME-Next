@@ -535,7 +535,7 @@ const perfPairs: Array<{
       });
 
       const exportUrl = buildDram2UrlNonAttribution(
-        `performance/tcw-ucits-funds-performance-snapshot/export/${kind}/?${query.toString()}`
+        `performance/tcw-ucits-funds-performance-snapshot/${kind}/?${query.toString()}`
       );
       await downloadExport(
         exportUrl,
