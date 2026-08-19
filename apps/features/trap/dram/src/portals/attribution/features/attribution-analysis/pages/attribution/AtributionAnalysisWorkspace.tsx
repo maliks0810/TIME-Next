@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Alert,
   Button,
   Card,
   Col,
@@ -847,6 +848,7 @@ const executeAttribAnalysis = async (
     const input = buildAnalysisInput(payload);
     if (!input) return;
     setRunningAnalysis(true);
+    setValidationError(null);
     try {
 
       const inputGrouping = input.breakdownModeId === "Type_2" ? encodeURIComponent("Type 2")
@@ -864,6 +866,7 @@ const executeAttribAnalysis = async (
         :  (await api.runSecurityGrainAnalysis(
         input.assetClass, input.portfolio,input.frequencyMode,inputGrouping,input.startDate, input.endDate,input.periodIdsCsv,input.benchmark
       )) as ResponseWithPeriodGrids;
+
       if (isErrorResponse(resp)) {
             const meta = extractMetadata(resp);
             setPageTitle(meta.pageTitle);
@@ -875,15 +878,16 @@ const executeAttribAnalysis = async (
             message.error("Analysis returned a validation error.");
             return;
             }
-      const meta = extractMetadata(resp);
-      setPageTitle(meta.pageTitle);
-      setValueDate(meta.valueDate);
-      const rowsByPeriod = extractRowsByPeriod(resp);
-      setRawRowsByPeriod(rowsByPeriod);
-      const firstPeriod = Object.keys(rowsByPeriod)[0] ?? "";
-      setSelectedPeriod(firstPeriod);
-      setSelectedSecurityGroup(null);
-      message.success("Analysis complete");
+          const meta = extractMetadata(resp);
+          setPageTitle(meta.pageTitle);
+          setValueDate(meta.valueDate);
+          const rowsByPeriod = extractRowsByPeriod(resp);
+          setValidationError(null);
+          setRawRowsByPeriod(rowsByPeriod);
+          const firstPeriod = Object.keys(rowsByPeriod)[0] ?? "";
+          setSelectedPeriod(firstPeriod);
+          setSelectedSecurityGroup(null);
+          message.success("Analysis complete");
     } catch (err) {
       console.error("Analysis failed:", err);
       message.error("Analysis failed");
@@ -1263,6 +1267,15 @@ const activeOrderedIds = layoutOrder.filter(
         >
         </Button>
       </div>
+    {runningAnalysis && (
+      <Alert
+        type="info"
+        showIcon
+        message="Refreshing analysis..."
+        style={{ marginBottom: 16 }}
+      />
+    )}
+
       {!viewAssetClass ? (
         <Card style={{ marginTop: 16 }}>
           <Empty description="Click Configure to select asset class and run analysis." />
