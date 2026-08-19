@@ -74,23 +74,51 @@ export type MonitorV2Cashflow = {
   entryDate?: string | null;
   cashModifiedBy?: string | null;
   cashModifiedDate?: string | null;
+  modifiedAt?: string | null;
   notation?: string | null;
   source?: string | null;
   [key: string]: unknown;
 };
 
+export type BenchmarkUniverseType = "RETURNS" | "STATS";
+export type HoldingState =
+  "portfolio-only" | "benchmark-only" | "both" | "historical-only";
+
 export type PortfolioAnalysisContext = {
   portfolioKey: string;
   portfolioName?: string;
   benchmarkCode?: string;
+  legacyBenchmarkCode?: string;
   portfolioGroup?: string;
   rhsGroup?: string;
   futureEligible?: boolean | null;
   comparisonTMinus: number;
   dateLabels: Record<number, string>;
   snapshots: Record<number, Snapshot>;
+  cachedPositions?: PortfolioPositionAnalytics[];
   cachedTrades?: MonitorV2Trade[];
   cachedCashflows?: MonitorV2Cashflow[];
+};
+
+export type BenchmarkPositionAnalytics = {
+  asOfDate: string;
+  benchmarkKey?: string | null;
+  legacyBenchmarkCode?: string | null;
+  universeTypeCode?: string | null;
+  securityKey: string;
+  ticker?: string | null;
+  currentFace: number | null;
+  marketValuePercentage: number | null;
+  usdMarketValue: number | null;
+  durationContribution: number | null;
+  tcwCoreLevel1?: string | null;
+  tcwCoreLevel2?: string | null;
+  tcwCoreLevel3?: string | null;
+  tcwCoreLevel4?: string | null;
+  tcwCoreLevel5?: string | null;
+  tcwCoreLevel6?: string | null;
+  tcwCoreLevel7?: string | null;
+  [key: string]: unknown;
 };
 
 export type PortfolioPositionAnalytics = {
@@ -169,6 +197,10 @@ export type SecurityAnalytics = {
   priceSource: string | null;
   dirtyPrice: number | null;
   localPrice: number | null;
+  unitMultiplier: number | null;
+  securityDescription: string | null;
+  legacyPriceFactor: number | null;
+  issueDate: string | null;
 };
 
 export type PortfolioAnalysisDayAttribution = {
@@ -182,11 +214,30 @@ export type PortfolioAnalysisDayAttribution = {
   trades: number | null;
   cashflows: number | null;
   drift: number | null;
+  benchmarkExposure: number | null;
+  benchmarkMarketValue: number | null;
+  benchmarkPar: number | null;
+  benchmarkDurationContribution: number | null;
+  exposureDelta: number | null;
+  benchmarkExposureDelta: number | null;
+  benchmarkDurationDelta: number | null;
+  activeExposure: number | null;
+  activeExposureDelta: number | null;
+  activeDurationContribution: number | null;
+  activeDurationDelta: number | null;
+  activeDurationDeltaExTrades: number | null;
+  /** @deprecated Use activeExposure. */
+  overUnderExposure?: number | null;
+  /** @deprecated Use activeDurationContribution. */
+  overUnderDurationContribution?: number | null;
 };
 
-export type PortfolioAnalysisTradeMatchStatus = 'same-day-position' | 'bucket-only' | 'trade-only';
+export type PortfolioAnalysisTradeMatchStatus =
+  "same-day-position" | "bucket-only" | "trade-only";
 
-export type PortfolioAnalysisTradeEvent = MonitorV2Trade & { matchStatus?: PortfolioAnalysisTradeMatchStatus };
+export type PortfolioAnalysisTradeEvent = MonitorV2Trade & {
+  matchStatus?: PortfolioAnalysisTradeMatchStatus;
+};
 
 export type PortfolioAnalysisRowDiagnostics = {
   priorSecurity?: SecurityAnalytics | null;
@@ -208,7 +259,8 @@ export type PortfolioAnalysisTreeRow = {
   id: string;
   parentId: string | null;
   label: string;
-  nodeType: 'root' | 'bucket' | 'position' | 'syntheticTrade';
+  labelTooltip?: string;
+  nodeType: "root" | "bucket" | "position" | "syntheticTrade";
   depth: number;
   portfolioKey: string;
   ticker?: string;
@@ -216,6 +268,7 @@ export type PortfolioAnalysisTreeRow = {
   longShortFlag?: string;
   securityGroup?: string;
   securityType?: string;
+  holdingState?: HoldingState;
   day: Record<number, PortfolioAnalysisDayAttribution>;
   total: PortfolioAnalysisDayAttribution;
   diagnostics?: Record<number, PortfolioAnalysisRowDiagnostics>;
