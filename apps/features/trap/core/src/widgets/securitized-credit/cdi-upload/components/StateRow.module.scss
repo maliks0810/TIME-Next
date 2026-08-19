@@ -1,34 +1,363 @@
-/* Compact single-line state */
-.row {
-    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
-    padding: 6px 10px; border-radius: var(--ant-border-radius);
-}
-.ok { background: var(--ant-color-success-bg); border: 1px solid var(--ant-color-success-border); }
-.err { background: var(--ant-color-error-bg); border: 1px solid var(--ant-color-error-border); }
-.rowIcon { font-size: 14px; flex-shrink: 0; }
-.ok .rowIcon { color: var(--ant-color-success); }
-.err .rowIcon { color: var(--ant-color-error); }
-.rowText { flex: 1; min-width: 0; font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ok .rowText { color: var(--ant-color-success); }
-.err .rowText { color: var(--ant-color-error); }
-.iconBtn {
-    flex-shrink: 0; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--ant-color-border-secondary); border-radius: var(--ant-border-radius);
-    background: var(--ant-color-bg-container); cursor: pointer;
-}
-.iconBtn:hover { border-color: var(--ant-color-primary-border); color: var(--ant-color-primary); }
+/*
+ * CDI Extraction success and error states
+ * ---------------------------------------
+ * StateRow.tsx applies local wealth, wealthLight, and wealthDark classes to
+ * both compact rows and rich boxes. State behavior remains unchanged.
+ */
 
-/* Rich box state (button below) */
-.box { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; padding: 12px 14px; border-radius: var(--ant-border-radius); }
-.okBox { background: var(--ant-color-success-bg); border: 1px solid var(--ant-color-success-border); }
-.errBox { background: var(--ant-color-error-bg); border: 1px solid var(--ant-color-error-border); }
-.boxHead { display: flex; align-items: center; gap: 8px; }
-.boxIcon { font-size: 15px; }
-.okBox .boxIcon { color: var(--ant-color-success); }
-.errBox .boxIcon { color: var(--ant-color-error); }
-.boxTitle { font-size: 12px; font-weight: 700; }
-.okBox .boxTitle { color: var(--ant-color-success); }
-.errBox .boxTitle { color: var(--ant-color-error); }
-.boxMsg { font-size: 11px; }
-.okBox .boxMsg { color: var(--ant-color-success); }
-.errBox .boxMsg { color: var(--ant-color-error); }
+/* Compact state */
+.row {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: var(--ant-border-radius);
+}
+
+.ok {
+    border: 1px solid var(--ant-color-success-border);
+    background: var(--ant-color-success-bg);
+}
+
+.err {
+    border: 1px solid var(--ant-color-error-border);
+    background: var(--ant-color-error-bg);
+}
+
+.rowIcon {
+    flex-shrink: 0;
+    font-size: 14px;
+}
+
+.ok .rowIcon {
+    color: var(--ant-color-success);
+}
+
+.err .rowIcon {
+    color: var(--ant-color-error);
+}
+
+.rowText {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.ok .rowText {
+    color: var(--ant-color-success);
+}
+
+.err .rowText {
+    color: var(--ant-color-error);
+}
+
+.iconBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: var(--ant-border-radius);
+    background: var(--ant-color-bg-container);
+    color: var(--ant-color-text-secondary);
+    cursor: pointer;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.iconBtn:hover {
+    border-color: var(--ant-color-primary-border);
+    color: var(--ant-color-primary);
+}
+
+.iconBtn:focus-visible {
+    border-color: var(--ant-color-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ant-color-primary-bg);
+}
+
+/* Rich state */
+.box {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: var(--ant-border-radius);
+}
+
+.okBox {
+    border: 1px solid var(--ant-color-success-border);
+    background: var(--ant-color-success-bg);
+}
+
+.errBox {
+    border: 1px solid var(--ant-color-error-border);
+    background: var(--ant-color-error-bg);
+}
+
+.boxHead {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.boxIcon {
+    flex-shrink: 0;
+    font-size: 15px;
+}
+
+.okBox .boxIcon {
+    color: var(--ant-color-success);
+}
+
+.errBox .boxIcon {
+    color: var(--ant-color-error);
+}
+
+.boxTitle {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+}
+
+.okBox .boxTitle {
+    color: var(--ant-color-success);
+}
+
+.errBox .boxTitle {
+    color: var(--ant-color-error);
+}
+
+.boxMsg {
+    overflow: hidden;
+    font-size: 11px;
+    line-height: 16px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.okBox .boxMsg {
+    color: var(--ant-color-success);
+}
+
+.errBox .boxMsg {
+    color: var(--ant-color-error);
+}
+
+.actionButton {
+    align-self: flex-start;
+}
+
+/* Wealth shared typography and geometry */
+.row.wealth,
+.box.wealth {
+    border-radius: 2px;
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+}
+
+.row.wealth {
+    padding: 6px 10px;
+
+    .rowText {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 600;
+    }
+
+    .iconBtn {
+        width: 24px;
+        height: 24px;
+        border-radius: 2px;
+        font-size: 11px;
+    }
+}
+
+.box.wealth {
+    gap: 7px;
+    padding: 11px 13px;
+
+    .boxTitle {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 600;
+    }
+
+    .boxMsg {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 9px;
+        line-height: 14px;
+        font-weight: 400;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .actionButton {
+        border-radius: 2px;
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 10px;
+        font-weight: 500;
+        box-shadow: none;
+    }
+}
+
+/* Wealth Light */
+.row.wealthLight.ok,
+.box.wealthLight.okBox {
+    border-color: rgba(63, 125, 79, 0.34);
+    background: rgba(63, 125, 79, 0.08);
+}
+
+.row.wealthLight.err,
+.box.wealthLight.errBox {
+    border-color: rgba(178, 58, 46, 0.34);
+    background: rgba(178, 58, 46, 0.08);
+}
+
+.row.wealthLight.ok {
+    .rowIcon,
+    .rowText {
+        color: #3f7d4f;
+    }
+}
+
+.row.wealthLight.err {
+    .rowIcon,
+    .rowText {
+        color: #b23a2e;
+    }
+}
+
+.box.wealthLight.okBox {
+    .boxIcon,
+    .boxTitle,
+    .boxMsg {
+        color: #3f7d4f;
+    }
+}
+
+.box.wealthLight.errBox {
+    .boxIcon,
+    .boxTitle,
+    .boxMsg {
+        color: #b23a2e;
+    }
+}
+
+.row.wealthLight .iconBtn,
+.box.wealthLight .actionButton {
+    border-color: rgba(120, 84, 24, 0.24);
+    background: #fffdf8;
+    color: #6a5e47;
+}
+
+.row.wealthLight .iconBtn:hover,
+.box.wealthLight .actionButton:hover {
+    border-color: #9a6b22;
+    background: rgba(154, 107, 34, 0.08);
+    color: #9a6b22;
+}
+
+.row.wealthLight .iconBtn:focus-visible {
+    border-color: #9a6b22;
+    box-shadow: 0 0 0 2px rgba(154, 107, 34, 0.10);
+}
+
+/* Wealth Dark */
+.row.wealthDark.ok,
+.box.wealthDark.okBox {
+    border-color: rgba(111, 174, 106, 0.38);
+    background: rgba(111, 174, 106, 0.10);
+}
+
+.row.wealthDark.err,
+.box.wealthDark.errBox {
+    border-color: rgba(210, 104, 90, 0.38);
+    background: rgba(210, 104, 90, 0.10);
+}
+
+.row.wealthDark.ok {
+    .rowIcon,
+    .rowText {
+        color: #6fae6a;
+    }
+}
+
+.row.wealthDark.err {
+    .rowIcon,
+    .rowText {
+        color: #d2685a;
+    }
+}
+
+.box.wealthDark.okBox {
+    .boxIcon,
+    .boxTitle,
+    .boxMsg {
+        color: #6fae6a;
+    }
+}
+
+.box.wealthDark.errBox {
+    .boxIcon,
+    .boxTitle,
+    .boxMsg {
+        color: #d2685a;
+    }
+}
+
+.row.wealthDark .iconBtn,
+.box.wealthDark .actionButton {
+    border-color: rgba(230, 180, 90, 0.16);
+    background: rgba(17, 13, 8, 0.66);
+    color: rgba(241, 231, 212, 0.58);
+}
+
+.row.wealthDark .iconBtn:hover,
+.box.wealthDark .actionButton:hover {
+    border-color: #e6b45a;
+    background: rgba(230, 180, 90, 0.08);
+    color: #e6b45a;
+}
+
+.row.wealthDark .iconBtn:focus-visible {
+    border-color: #e6b45a;
+    box-shadow: 0 0 0 2px rgba(230, 180, 90, 0.10);
+}

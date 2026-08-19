@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    height: 100%;          /* was 456px — now fills the widget card so the table sizes to the widget */
+    height: 100%;
     min-height: 0;
     overflow: hidden;
 
@@ -10,16 +10,18 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        flex-shrink: 0;     /* title always visible */
+        flex-shrink: 0;
     }
 
     .headerTitleContainer {
         display: flex;
         align-items: center;
         gap: 8px;
+        min-width: 0;
     }
 
     .headerTitleIcon {
+        flex: 0 0 auto;
         font-size: 13px;
         color: var(--ant-color-primary);
     }
@@ -27,37 +29,41 @@
     .headerTitleText {
         display: inline-flex;
         align-items: center;
+        flex: 0 0 auto;
         font-size: 10px;
         line-height: 14px;
         font-weight: 700;
         letter-spacing: 0.07em;
         text-transform: uppercase;
         color: var(--ant-color-text-tertiary);
-    }
-
-    .counterBadge {
-        font-size: 10px;
-        line-height: 18px;
-        font-weight: 700;
-        padding: 0 6px;
-        border-radius: 999px;
-        background: var(--ant-color-primary-bg);
-        color: var(--ant-color-primary);
-        border: 1px solid var(--ant-color-primary-border);
-    }
-
-    .dealName {
-        font-size: 12px;
-        line-height: 16px;
-        color: var(--ant-color-text-secondary);
-        overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
     }
 
+    .counterBadge {
+        flex: 0 0 auto;
+        padding: 0 6px;
+        border: 1px solid var(--ant-color-primary-border);
+        border-radius: 999px;
+        background: var(--ant-color-primary-bg);
+        color: var(--ant-color-primary);
+        font-size: 10px;
+        line-height: 18px;
+        font-weight: 700;
+    }
+
+    .dealName {
+        min-width: 0;
+        overflow: hidden;
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--ant-color-text-secondary);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
     .loadingContainer {
-        flex: 1;
         display: flex;
+        flex: 1;
         flex-direction: column;
         align-items: center;
         justify-content: center;
@@ -65,13 +71,13 @@
     }
 
     .loadingInnerContainer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 40px;
         height: 40px;
         border-radius: 50%;
         background: var(--ant-color-fill-secondary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
     .loadingIcon {
@@ -85,49 +91,46 @@
         color: var(--ant-color-text-tertiary);
     }
 
-    /* Table now FILLS remaining height; body scrolls, header pinned. */
     .tranchesTable {
-        flex: 1;
-        min-height: 0;
         display: flex;
+        flex: 1;
         flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
         border: 1px solid var(--ant-color-border-secondary);
         border-radius: var(--ant-border-radius-sm);
-        overflow: hidden;
     }
 
     .tranchesTableHeader {
-        display: flex;
-        background: var(--ant-color-fill-alter);
-        border-bottom: 1px solid var(--ant-color-border-secondary);
-        padding: 0 8px;
-        flex-shrink: 0;
-        /* allow the sticky body first-column to slide under nothing here */
         position: relative;
         z-index: 2;
+        display: flex;
+        flex-shrink: 0;
+        padding: 0 8px;
+        background: var(--ant-color-fill-alter);
+        border-bottom: 1px solid var(--ant-color-border-secondary);
     }
 
-    /* NEW: the scrollable body region — fills leftover height */
     .tranchesTableBody {
         flex: 1;
         min-height: 0;
-        overflow-y: auto;
         overflow-x: auto;
+        overflow-y: auto;
     }
 
     .headerColumnText {
         display: flex;
         flex-direction: column;
         justify-content: center;
+        overflow: hidden;
         font-size: 10px;
         line-height: 12px;
         font-weight: 700;
-        color: var(--ant-color-text-tertiary);
-        text-transform: uppercase;
         letter-spacing: 0.05em;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        text-transform: uppercase;
+        color: var(--ant-color-text-tertiary);
         white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     .headerColumnSubText {
@@ -135,8 +138,8 @@
         font-size: 9px;
         line-height: 11px;
         font-weight: 600;
-        color: var(--ant-color-text-quaternary);
         letter-spacing: 0.03em;
+        color: var(--ant-color-text-quaternary);
     }
 
     .tranchesTableRow {
@@ -146,7 +149,7 @@
         cursor: pointer;
         background: var(--ant-color-bg-container);
         border-bottom: 1px solid var(--ant-color-border-secondary);
-        transition: background 0.1s;
+        transition: background 0.1s ease;
 
         &:nth-child(even) {
             background: var(--ant-color-fill-alter);
@@ -165,40 +168,53 @@
         background: var(--ant-color-primary-bg) !important;
     }
 
-    /* NEW: pin the first (Tranche) column on horizontal scroll.
-       background:inherit picks up the row's computed bg (zebra/hover/selected),
-       so the pinned cell always matches its row. */
     .stickyFirstCol {
         position: sticky;
         left: 0;
         z-index: 1;
         background: inherit;
     }
+
     .tranchesTableHeader .stickyFirstCol {
-        background: var(--ant-color-fill-alter);
         z-index: 3;
+        background: var(--ant-color-fill-alter);
+    }
+
+    .defaultColValue,
+    .couponColValue,
+    .zeroableColValue {
+        display: block;
+        overflow: hidden;
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 12px;
+        line-height: 16px;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     .defaultColValue {
-        display: block;
-        font-size: 12px;
-        line-height: 16px;
-        font-family: monospace;
         color: var(--ant-color-text-secondary);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    }
+
+    .couponColValue,
+    .zeroableColValue {
+        color: var(--ant-color-text);
     }
 
     .trancheColumnValue {
         display: block;
+        overflow: hidden;
         font-size: 12px;
         line-height: 16px;
         font-weight: 500;
         color: var(--ant-color-text);
-        overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     .trancheColumnValueSelected {
@@ -206,26 +222,19 @@
         color: var(--ant-color-primary);
     }
 
-    .couponColValue {
-        display: block;
-        font-size: 12px;
-        line-height: 16px;
-        font-family: monospace;
-        color: var(--ant-color-text);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
     .typeColValue {
         display: block;
+        overflow: hidden;
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
         font-size: 10px;
         line-height: 14px;
-        font-family: monospace;
         color: var(--ant-color-primary);
-        overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     .typeColValueMEZ {
@@ -238,23 +247,17 @@
 
     .currencyColValue {
         display: block;
+        overflow: hidden;
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
         font-size: 10px;
         line-height: 14px;
         color: var(--ant-color-text-tertiary);
-        overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    .zeroableColValue {
-        display: block;
-        font-size: 12px;
-        line-height: 16px;
-        font-family: monospace;
-        color: var(--ant-color-text);
-        overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap;
     }
 
     .zeroableColValueZero {
@@ -265,51 +268,460 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 10px;
-        line-height: 14px;
         padding: 1px 5px;
+        border: 1px solid var(--ant-color-border-secondary);
         border-radius: var(--ant-border-radius-sm);
         background: var(--ant-color-fill-tertiary);
         color: var(--ant-color-text-secondary);
-        border: 1px solid var(--ant-color-border-secondary);
-        font-family: monospace;
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 10px;
+        line-height: 14px;
+        font-variant-numeric: tabular-nums;
         white-space: nowrap;
     }
 
     .ratingsColValueSuccess {
-        color: var(--ant-color-success);
+        border-color: var(--ant-color-success-border);
         background: var(--ant-color-success-bg);
-        border: 1px solid var(--ant-color-success-border);
+        color: var(--ant-color-success);
     }
 
     .ratingsColValueInfo {
-        color: var(--ant-color-info);
+        border-color: var(--ant-color-info-border);
         background: var(--ant-color-info-bg);
-        border: 1px solid var(--ant-color-info-border);
+        color: var(--ant-color-info);
     }
 
     .ratingsColValueWarning {
-        color: var(--ant-color-warning);
+        border-color: var(--ant-color-warning-border);
         background: var(--ant-color-warning-bg);
-        border: 1px solid var(--ant-color-warning-border);
+        color: var(--ant-color-warning);
     }
 
     .ratingsColValueError {
-        color: var(--ant-color-error);
+        border-color: var(--ant-color-error-border);
         background: var(--ant-color-error-bg);
-        border: 1px solid var(--ant-color-error-border);
+        color: var(--ant-color-error);
     }
 
     .ratingsColValueTertiary {
-        color: var(--ant-color-text-tertiary);
+        border-color: var(--ant-color-border-secondary);
         background: var(--ant-color-fill-tertiary);
-        border: 1px solid var(--ant-color-border-secondary);
+        color: var(--ant-color-text-tertiary);
     }
 
     .tranchesTableSubInfo {
+        flex-shrink: 0;
         font-size: 10px;
         line-height: 14px;
         color: var(--ant-color-text-tertiary);
-        flex-shrink: 0;
+    }
+}
+
+/* Wealth shared treatment */
+.mainContainer.wealth {
+    gap: 10px;
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .headerTitleContainer {
+        gap: 8px;
+    }
+
+    .headerTitleIcon {
+        font-size: 12px;
+        color: var(--ant-color-primary);
+    }
+
+    .headerTitleText {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 10px;
+        line-height: 14px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+    }
+
+    .counterBadge {
+        padding: 0 6px;
+        border-radius: 999px;
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 9px;
+        line-height: 17px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .dealName {
+        font-family:
+            'Spectral',
+            'Newsreader',
+            Georgia,
+            serif;
+        font-size: 13px;
+        line-height: 16px;
+        font-weight: 300;
+        letter-spacing: -0.01em;
+        text-transform: none;
+    }
+
+    .loadingText {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 11px;
+        font-weight: 400;
+    }
+
+    .tranchesTable {
+        border-radius: 2px;
+    }
+
+    .headerColumnText,
+    .headerColumnSubText {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .headerColumnText {
+        font-size: 9px;
+        line-height: 12px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+    }
+
+    .headerColumnSubText {
+        font-size: 8px;
+        line-height: 10px;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+    }
+
+    .trancheColumnValue {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 11.5px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .trancheColumnValueSelected {
+        font-weight: 600;
+    }
+
+    .defaultColValue,
+    .couponColValue,
+    .zeroableColValue {
+        font-size: 11px;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+    }
+
+    .typeColValue,
+    .currencyColValue,
+    .ratingsColValue {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-weight: 500;
+    }
+
+    .ratingsColValue {
+        border-radius: 2px;
+    }
+
+    .tranchesTableSubInfo {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 8.5px;
+        line-height: 13px;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+}
+
+/* Wealth Light */
+.mainContainer.wealthLight {
+    .headerTitleText {
+        color: #574a32;
+    }
+
+    .counterBadge {
+        border-color: rgba(120, 84, 24, 0.26);
+        background: rgba(120, 84, 24, 0.045);
+        color: #9a6b22;
+    }
+
+    .dealName {
+        color: #211a0f;
+    }
+
+    .loadingInnerContainer {
+        background: rgba(120, 84, 24, 0.08);
+    }
+
+    .loadingIcon {
+        color: rgba(33, 26, 15, 0.30);
+    }
+
+    .loadingText {
+        color: #6a5e47;
+    }
+
+    .tranchesTable {
+        border-color: rgba(120, 84, 24, 0.24);
+    }
+
+    .tranchesTableHeader {
+        border-bottom-color: rgba(120, 84, 24, 0.20);
+        background: #f6f0e0;
+    }
+
+    .tranchesTableHeader .stickyFirstCol {
+        background: #f6f0e0;
+    }
+
+    .headerColumnText {
+        color: #6a5e47;
+    }
+
+    .headerColumnSubText {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .tranchesTableRow {
+        border-bottom-color: rgba(120, 84, 24, 0.16);
+        background: #fffdf8;
+
+        &:nth-child(even) {
+            background: rgba(120, 84, 24, 0.035);
+        }
+
+        &:hover {
+            background: rgba(120, 84, 24, 0.075);
+        }
+    }
+
+    .tranchesTableRowSelected {
+        background: rgba(154, 106, 38, 0.12) !important;
+        box-shadow: inset 3px 0 0 #b07e30;
+    }
+
+    .trancheColumnValue,
+    .couponColValue,
+    .zeroableColValue {
+        color: #211a0f;
+    }
+
+    .defaultColValue {
+        color: #6a5e47;
+    }
+
+    .trancheColumnValueSelected {
+        color: #6e4a20;
+    }
+
+    .currencyColValue,
+    .zeroableColValueZero {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .ratingsColValue {
+        border-color: rgba(120, 84, 24, 0.24);
+        background: rgba(120, 84, 24, 0.06);
+        color: #6a5e47;
+    }
+
+    .ratingsColValueSuccess {
+        border-color: rgba(63, 125, 79, 0.34);
+        background: rgba(63, 125, 79, 0.08);
+        color: #3f7d4f;
+    }
+
+    .ratingsColValueInfo {
+        border-color: rgba(154, 107, 34, 0.32);
+        background: rgba(154, 107, 34, 0.07);
+        color: #9a6b22;
+    }
+
+    .ratingsColValueWarning {
+        border-color: rgba(194, 134, 26, 0.34);
+        background: rgba(194, 134, 26, 0.08);
+        color: #a96416;
+    }
+
+    .ratingsColValueError {
+        border-color: rgba(178, 58, 46, 0.34);
+        background: rgba(178, 58, 46, 0.08);
+        color: #b23a2e;
+    }
+
+    .ratingsColValueTertiary {
+        border-color: rgba(120, 84, 24, 0.20);
+        background: rgba(120, 84, 24, 0.04);
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .tranchesTableSubInfo {
+        color: rgba(33, 26, 15, 0.42);
+    }
+}
+
+/* Wealth Dark */
+.mainContainer.wealthDark {
+    .headerTitleText {
+        color: rgba(241, 231, 212, 0.74);
+    }
+
+    .counterBadge {
+        border-color: rgba(230, 180, 90, 0.28);
+        background: rgba(230, 180, 90, 0.06);
+        color: #e6b45a;
+    }
+
+    .dealName {
+        color: #f1e7d4;
+    }
+
+    .loadingInnerContainer {
+        background: rgba(230, 180, 90, 0.08);
+    }
+
+    .loadingIcon {
+        color: rgba(241, 231, 212, 0.22);
+    }
+
+    .loadingText {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .tranchesTable {
+        border-color: rgba(230, 180, 90, 0.16);
+    }
+
+    .tranchesTableHeader {
+        border-bottom-color: rgba(230, 180, 90, 0.16);
+        background: #100d09;
+    }
+
+    .tranchesTableHeader .stickyFirstCol {
+        background: #100d09;
+    }
+
+    .headerColumnText {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .headerColumnSubText {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .tranchesTableRow {
+        border-bottom-color: rgba(230, 180, 90, 0.12);
+        background: rgba(17, 13, 8, 0.52);
+
+        &:nth-child(even) {
+            background: rgba(230, 180, 90, 0.025);
+        }
+
+        &:hover {
+            background: rgba(230, 180, 90, 0.07);
+        }
+    }
+
+    .tranchesTableRowSelected {
+        background: rgba(154, 106, 38, 0.16) !important;
+        box-shadow: inset 3px 0 0 #e6b45a;
+    }
+
+    .trancheColumnValue,
+    .couponColValue,
+    .zeroableColValue {
+        color: #f1e7d4;
+    }
+
+    .defaultColValue {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .trancheColumnValueSelected {
+        color: #f6dda0;
+    }
+
+    .currencyColValue,
+    .zeroableColValueZero {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .ratingsColValue {
+        border-color: rgba(230, 180, 90, 0.16);
+        background: rgba(230, 180, 90, 0.05);
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .ratingsColValueSuccess {
+        border-color: rgba(111, 174, 106, 0.38);
+        background: rgba(111, 174, 106, 0.10);
+        color: #6fae6a;
+    }
+
+    .ratingsColValueInfo {
+        border-color: rgba(230, 180, 90, 0.34);
+        background: rgba(230, 180, 90, 0.08);
+        color: #e6b45a;
+    }
+
+    .ratingsColValueWarning {
+        border-color: rgba(224, 169, 62, 0.38);
+        background: rgba(224, 169, 62, 0.10);
+        color: #e0a93e;
+    }
+
+    .ratingsColValueError {
+        border-color: rgba(210, 104, 90, 0.38);
+        background: rgba(210, 104, 90, 0.10);
+        color: #d2685a;
+    }
+
+    .ratingsColValueTertiary {
+        border-color: rgba(230, 180, 90, 0.14);
+        background: rgba(230, 180, 90, 0.035);
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .tranchesTableSubInfo {
+        color: rgba(241, 231, 212, 0.34);
     }
 }

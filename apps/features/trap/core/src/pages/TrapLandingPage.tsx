@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
-import { Tabs, Space, Dropdown, Button, message, Tooltip } from 'antd';
+import { Tabs, Space, Dropdown, Button, message } from 'antd';
 import {
     AppstoreOutlined,
     EllipsisOutlined,
@@ -111,7 +111,7 @@ export default function TrapLandingPage() {
                 const selection: HudWorkflowSelection = {
                     templateId: templateId,
                     templateName: template.name,
-                    templateVersionStatus: template.latestPublished.status,
+                    templateVersionStatus: template?.latestPublished?.status,
                     ownerUserId: template.ownerUserId!,
                     latestPublished: template.latestPublished,
                 };
@@ -321,15 +321,14 @@ export default function TrapLandingPage() {
                 <span>{ws.title}</span>
 
                 <Dropdown trigger={['click']} menu={{ items: menuItems as any }}>
-                    <Tooltip title="Actions">
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={<EllipsisOutlined style={{ transform: 'rotate(90deg)' }} />}
-                            onClick={(e) => e.stopPropagation()}
-                            style={{ opacity: 0.72 }}
-                        />
-                    </Tooltip>
+                    <Button
+                        type="text"
+                        size="small"
+                        aria-label={`Actions for ${ws.title}`}
+                        icon={<EllipsisOutlined style={{ transform: 'rotate(90deg)' }} />}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ opacity: 0.72 }}
+                    />
                 </Dropdown>
             </Space>
         );
@@ -359,7 +358,7 @@ export default function TrapLandingPage() {
             const selection: HudWorkflowSelection = {
                 templateId: templateId,
                 templateName: template.name,
-                templateVersionStatus: template.latestPublished.status,
+                templateVersionStatus: template?.latestPublished?.status,
                 ownerUserId: template.ownerUserId!,
                 latestPublished: template.latestPublished,
             };
@@ -375,8 +374,6 @@ export default function TrapLandingPage() {
                 <div
                     style={{
                         zIndex: '99',
-                        backgroundColor: 'var(--ant-color-bg-layout)',
-                        position: 'sticky',
                         height: TAB_BAR_HEIGHT,
                         overflow: 'hidden',
                         display: 'flex',
@@ -402,15 +399,18 @@ export default function TrapLandingPage() {
                         tabBarStyle={{ margin: 0 }}
                         animated={false}
                     />
-                    <Tooltip title="Manage — Workspaces · Widgets · Themes" placement="left">
-                        <Button
-                            style={{ marginLeft: 'auto' }}
-                            size="small"
-                            type={drawerState.isOpen ? 'primary' : 'text'}
-                            icon={<LayoutOutlined />}
-                            onClick={() => setDrawerState(({ isOpen }) => ({ isOpen: !isOpen }))}
-                        />
-                    </Tooltip>
+                    <Button
+                        aria-label="Manage workspaces, widgets, and themes"
+                        style={{ marginLeft: 'auto' }}
+                        size="small"
+                        type={drawerState.isOpen ? 'primary' : 'text'}
+                        icon={<LayoutOutlined />}
+                        onClick={() =>
+                            setDrawerState(({ isOpen }) => ({
+                                isOpen: !isOpen,
+                            }))
+                        }
+                    />
                 </div>
 
                 <div style={{ width: '100%' }}>

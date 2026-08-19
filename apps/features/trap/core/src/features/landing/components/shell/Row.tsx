@@ -6,12 +6,55 @@ import {
     StarFilled,
     StarOutlined,
     TeamOutlined,
+    AppstoreOutlined,
 } from '@ant-design/icons';
 import { Button, Dropdown, Tag, Typography } from 'antd';
 import { Item } from './WorkspacesPanel';
 import styles from './WorkspacesPanel.module.scss';
 import { useCallback } from 'react';
 import { Visibility } from '../../../../api/trap';
+
+const RowICon = ({ visibility, owned }: { visibility: Visibility; owned?: boolean }) => {
+    switch (true) {
+        case visibility === Visibility.PRIVATE:
+            return (
+                <span
+                    className={styles['ws-vis']}
+                    title={`Private · ${owned ? 'yours' : 'shared'}`}
+                    style={{
+                        color: 'var(--ant-color-success)',
+                    }}
+                >
+                    <LockOutlined />
+                </span>
+            );
+        case visibility === Visibility.PUBLIC && owned:
+            return (
+                <span
+                    className={styles['ws-vis']}
+                    title={`Public · yours`}
+                    style={{
+                        color: 'var(--ant-color-success)',
+                    }}
+                >
+                    <TeamOutlined />
+                </span>
+            );
+        default:
+            return (
+                <span
+                    className={styles['ws-vis']}
+                    title={`Public · shared`}
+                    style={{
+                        color: 'var(--ant-color-success)',
+                    }}
+                >
+                    <AppstoreOutlined />
+                </span>
+            );
+    }
+};
+
 export const Row = ({
     item,
     toggleFav,
@@ -28,6 +71,7 @@ export const Row = ({
     deleteItem,
     editItem,
     duplicateItem,
+    isDraft,
 }: {
     item: Item;
     renameItem: (item: Item) => void;
@@ -45,6 +89,7 @@ export const Row = ({
     editItem: (item: Item) => void;
     cloneItem: (item: Item) => void;
     onSetHome?: ({ templateId, name }: { templateId: string; name: string }) => void;
+    isDraft?: boolean;
 }) => {
     const rowMenu = useCallback(
         (item: Item) => {
@@ -199,28 +244,16 @@ export const Row = ({
                     Current
                 </Tag>
             ) : null}
-            {/* {!isLandingRow ? (
+            {!isLandingRow && owned && isDraft ? (
                 <Tag
                     color="warning"
                     style={{ margin: 0, fontSize: 10, lineHeight: '16px', padding: '0 6px' }}
                 >
                     Draft
                 </Tag>
-            ) : null} */}
-            {/* Ownership/visibility glyph — workflows only (a landing's home glyph is its identity). */}
-            {!isLandingRow ? (
-                <span
-                    className={styles['ws-vis']}
-                    title={`${Visibility.PRIVATE ? 'Private' : 'Public'} · ${owned ? 'yours' : 'shared'}`}
-                    style={{
-                        color: owned
-                            ? 'var(--ant-color-success)'
-                            : 'var(--ant-color-text-tertiary)',
-                    }}
-                >
-                    {Visibility.PRIVATE ? <LockOutlined /> : <TeamOutlined />}
-                </span>
             ) : null}
+            {/* Ownership/visibility glyph — workflows only (a landing's home glyph is its identity). */}
+            {!isLandingRow ? <RowICon owned={owned} visibility={item.visibility} /> : null}
             <Dropdown
                 trigger={['click']}
                 // Menu overlay is a React descendant of this row, so item clicks bubble

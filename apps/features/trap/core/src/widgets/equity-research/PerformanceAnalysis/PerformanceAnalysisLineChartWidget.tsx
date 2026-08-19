@@ -7,12 +7,17 @@ import LineChart from './LineChartComponent';
 import { getDateFormat } from '../../utils';
 
 import { useGetWidgetValue } from '../../../state/Widgets/hooks';
-import { ANALYSTS_KEY } from '../AnalystsCheckboxGroup/constants';
+import { ANALYSTS_KEY } from '../../constants';
 import { ChartData } from '../../../state/Widgets/types';
 import { CHART_CONTROL_KEY, PERIOD_RADIO_STORE_KEY } from '../../constants';
 
-export default function PerformanceAnalysisLineChartWidget({ result, widgetInstance, execute, loading, error }: WidgetComponentProps) {
-
+export default function PerformanceAnalysisLineChartWidget({
+    result,
+    widgetInstance,
+    execute,
+    loading,
+    error,
+}: WidgetComponentProps) {
     const chartControlValues = useGetWidgetValue({
         channelId: widgetInstance?.config?.params?.channel,
         key: CHART_CONTROL_KEY,
@@ -32,7 +37,7 @@ export default function PerformanceAnalysisLineChartWidget({ result, widgetInsta
             period: periodControlValue,
             analystNames: analystControlValues,
             chartControls: chartControlValues,
-        })
+        });
     }, [chartControlValues, analystControlValues, periodControlValue]);
 
     if (loading) {
@@ -51,7 +56,10 @@ export default function PerformanceAnalysisLineChartWidget({ result, widgetInsta
         );
     }
 
-    if (!((result?.data as ChartData)?.series?.length) || !((result?.data as ChartData)?.dates?.length)) {
+    if (
+        !(result?.data as ChartData)?.series?.length ||
+        !(result?.data as ChartData)?.dates?.length
+    ) {
         return (
             <WidgetCardShell>
                 <div style={{ padding: 12, fontSize: 12 }}>No chart data available.</div>
@@ -63,7 +71,10 @@ export default function PerformanceAnalysisLineChartWidget({ result, widgetInsta
         <>
             <WidgetCardShell>
                 <h3 style={{ textAlign: 'start' }}>Performance Comparisons</h3>
-                <LineChart chartData={(result?.data ?? []) as ChartData} dateFormat={getDateFormat(periodControlValue as string)} />
+                <LineChart
+                    chartData={(result?.data ?? []) as ChartData}
+                    dateFormat={getDateFormat(periodControlValue as string)}
+                />
             </WidgetCardShell>
         </>
     );

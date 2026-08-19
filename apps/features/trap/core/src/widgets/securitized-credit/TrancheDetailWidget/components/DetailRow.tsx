@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import clsx from 'clsx';
-import { CopyOutlined, CheckOutlined } from '@ant-design/icons';
+import {
+    CopyOutlined,
+    CheckOutlined,
+} from '@ant-design/icons';
 import { theme } from 'antd';
+import { useTheme } from '../../../../theme/ThemeContext';
 import styles from './TrancheDetailsComponents.module.scss';
 
 export function DetailRow({
@@ -18,41 +22,78 @@ export function DetailRow({
     copyable?: boolean;
 }) {
     const { token } = theme.useToken();
+    const { themeName } = useTheme();
+
     const [copied, setCopied] = useState(false);
     const [iconHovered, setIconHovered] = useState(false);
 
-    const canCopy = copyable && value != null && value !== '—' && value !== '';
+    const isWealthTheme =
+        themeName === 'wealthLight' ||
+        themeName === 'wealthDark';
+
+    const isWealthLight =
+        themeName === 'wealthLight';
+
+    const isWealthDark =
+        themeName === 'wealthDark';
+
+    const canCopy =
+        Boolean(copyable) &&
+        value !== null &&
+        value !== undefined &&
+        value !== '—' &&
+        value !== '';
 
     const handleCopy = async () => {
         if (!canCopy) return;
+
         try {
-            await navigator.clipboard.writeText(String(value));
+            await navigator.clipboard.writeText(
+                String(value),
+            );
+
             setCopied(true);
-            setTimeout(() => setCopied(false), 1200);
+
+            window.setTimeout(() => {
+                setCopied(false);
+            }, 1200);
         } catch {
-            // Clipboard API unavailable (non-secure context) — silently no-op.
+            // Clipboard API may be unavailable in a non-secure context.
         }
     };
 
     return (
-        <div className={styles.detailRowContainer}>
+        <div
+            className={clsx(
+                styles.detailRowContainer,
+                {
+                    [styles.wealth]:
+                        isWealthTheme,
+
+                    [styles.wealthLight]:
+                        isWealthLight,
+
+                    [styles.wealthDark]:
+                        isWealthDark,
+                },
+            )}
+        >
             <span className={styles.detailRowLabel}>
                 {label}
             </span>
 
-            <span
-                style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    minWidth: 0,
-                }}
-            >
+            <span className={styles.detailRowValueContainer}>
                 <span
-                    className={clsx(styles.detailRowValue, {
-                        [styles.fontFamilyMono]: mono,
-                        [styles.detailRowValueAccent]: accent,
-                    })}
+                    className={clsx(
+                        styles.detailRowValue,
+                        {
+                            [styles.fontFamilyMono]:
+                                mono,
+
+                            [styles.detailRowValueAccent]:
+                                accent,
+                        },
+                    )}
                 >
                     {value ?? '—'}
                 </span>
@@ -61,13 +102,23 @@ export function DetailRow({
                     <CopyIcon
                         copied={copied}
                         hovered={iconHovered}
-                        successColor={token.colorSuccess}
-                        idleColor={token.colorTextTertiary}
-                        hoverColor={token.colorPrimary}
+                        successColor={
+                            token.colorSuccess
+                        }
+                        idleColor={
+                            token.colorTextTertiary
+                        }
+                        hoverColor={
+                            token.colorPrimary
+                        }
                         label={label}
                         onCopy={handleCopy}
-                        onEnter={() => setIconHovered(true)}
-                        onLeave={() => setIconHovered(false)}
+                        onEnter={() =>
+                            setIconHovered(true)
+                        }
+                        onLeave={() =>
+                            setIconHovered(false)
+                        }
                     />
                 )}
             </span>
@@ -96,30 +147,36 @@ function CopyIcon({
     onEnter: () => void;
     onLeave: () => void;
 }) {
-    const color = copied ? successColor : hovered ? hoverColor : idleColor;
+    const color = copied
+        ? successColor
+        : hovered
+          ? hoverColor
+          : idleColor;
 
     return (
         <span
             role="button"
+            tabIndex={0}
             aria-label={`Copy ${label}`}
             title={copied ? 'Copied' : 'Copy'}
             onClick={onCopy}
+            onKeyDown={(event) => {
+                if (
+                    event.key === 'Enter' ||
+                    event.key === ' '
+                ) {
+                    event.preventDefault();
+                    onCopy();
+                }
+            }}
             onMouseEnter={onEnter}
             onMouseLeave={onLeave}
-            style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                fontSize: 11,
-                lineHeight: 1,
-                width: 14,
-                flexShrink: 0,
-                color,
-                transition: 'color 0.15s ease',
-            }}
+            className={styles.copyIcon}
+            style={{ color }}
         >
-            {copied ? <CheckOutlined /> : <CopyOutlined />}
+            {copied
+                ? <CheckOutlined />
+                : <CopyOutlined />}
         </span>
     );
 }

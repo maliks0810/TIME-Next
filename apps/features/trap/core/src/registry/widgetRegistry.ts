@@ -2,7 +2,6 @@ import IdentityWidget from '../widgets/common/identity/IdentityWidget';
 import CapitalStructureWidget from '../widgets/securitized-credit/capital-structure/CapitalStructureWidget';
 
 import type { WidgetRegistryEntry } from '../types/widget';
-import ArcDashboardWidget from '../widgets/common/arc-dashboard/ArchDashboardWidget';
 import RecentWorkflowsWidget from '../widgets/landing/recent-workflows/RecentWorkflowsWidget';
 import { CounterTileWidget } from '../widgets/common/counter/CounterTile';
 import { LinkWidget } from '../widgets/common/link/LinkWidget';
@@ -12,14 +11,13 @@ import { KPIComparisonWidget } from '../widgets/equity-research/KPIComparisonWid
 import { ScDealDetailsWidget } from '../widgets/securitized-credit/DealDetailsWidget/ScDealDetailsWidget';
 import { ScTranchesWidget } from '../widgets/securitized-credit/TranchesWidget/ScTranchesWidget';
 import { ScTrancheDetailWidget } from '../widgets/securitized-credit/TrancheDetailWidget/ScTrancheDetailWidget';
-import { AnalystsCheckboxGroupWidget } from '../widgets/equity-research/AnalystsCheckboxGroup/AnalystsCheckboxGroup';
-import { ChartControlCheckboxGroup } from '../widgets/equity-research/ChartControlCheckboxGroup/ChartControlCheckboxGroup';
 import { AnalystPBChartWidget } from '../widgets/equity-research/AnalystPBChartWidget/AnalystPBChart';
 import PerformanceAnalysisLineChartWidget from '../widgets/equity-research/PerformanceAnalysis/PerformanceAnalysisLineChartWidget';
 import CDIUploadWidget from '../widgets/securitized-credit/cdi-upload/CDIUploadWidget';
 import SecurityLookupWidget from '../widgets/securitized-credit/security-lookup/SecurityLookupWidget';
 import { TextWidget } from '../widgets/common/text/Text';
 import { CommentWidget } from '../widgets/dram/comment/CommentWidget';
+import { MultiSelectWidget } from '../widgets/common/MultiSelectWidget/MultiSelectWidget';
 import { DateSelect } from '../widgets/common/date-select/DateSelect';
 import { ButtonWidget } from '../widgets/common/button/Button';
 import { TreeWidget } from '../widgets/common/tree/Tree';
@@ -33,6 +31,9 @@ import { GridRegistry } from '../widgets/common/data-grid/GridRegistry';
 import { Input } from '../widgets/common/input/Input';
 import { SummaryPanelWidget } from '../widgets/common/summary-panel/SummaryPanel';
 import { ChartWidget } from '../widgets/common/chart/ChartWidget';
+import { GeoMapWidget } from '../widgets/common/geo-map/GeoMapWidget';
+import { TitleWidget } from '../widgets/common/title/TitleWidget';
+import { FilterBarWidget } from '../widgets/common/filter-bar/FilterBarWidget';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -101,9 +102,9 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: ['security.cusip'],
         emitsKeys: [],
     },
-    wd_analysts_checkbox_group: {
-        id: 'wd_analysts_checkbox_group',
-        component: AnalystsCheckboxGroupWidget,
+    wd_multi_select: {
+        id: 'wd_multi_select',
+        component: MultiSelectWidget,
         category: 'Control',
         visibleIn: ['workflow'],
         listensToKeys: [],
@@ -123,14 +124,6 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: [],
         emitsKeys: [],
     },
-    wd_chart_control_checkbox_group: {
-        id: 'wd_chart_control_checkbox_group',
-        component: ChartControlCheckboxGroup,
-        category: 'Control',
-        visibleIn: ['workflow'],
-        listensToKeys: [],
-        emitsKeys: [],
-    },
     cwd_checkbox: {
         id: 'wd_period_radio_group',
         component: CheckboxWidget,
@@ -145,14 +138,6 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         category: 'Control',
         visibleIn: ['workflow', 'landing'],
         listensToKeys: [],
-        emitsKeys: [],
-    },
-    cwd_arc_dashboard: {
-        id: 'cwd_arc_dashboard',
-        component: ArcDashboardWidget,
-        category: 'Common',
-        visibleIn: ['landing', 'workflow'],
-        listensToKeys: ['security.cusip'],
         emitsKeys: [],
     },
 
@@ -303,7 +288,6 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: [],
         emitsKeys: [],
     },
-
     cwd_common_summary_panel_01: {
         id: 'cwd_common_summary_panel_01',
         component: SummaryPanelWidget,
@@ -315,6 +299,30 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_common_chart_01: {
         id: 'cwd_common_chart_01',
         component: ChartWidget,
+        category: 'View',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_common_geo_map_01: {
+        id: 'cwd_common_geo_map_01',
+        component: GeoMapWidget,
+        category: 'View',
+        visibleIn: ['workflow'],
+        listensToKeys: ['deal.name', 'filter.state'],
+        emitsKeys: ['filter.state'],
+    },
+    cwd_common_title_01: {
+        id: 'cwd_common_title_01',
+        component: TitleWidget,
+        category: 'View',
+        visibleIn: ['workflow', 'landing'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    cwd_common_filter_bar_01: {
+        id: 'cwd_common_filter_bar_01',
+        component: FilterBarWidget,
         category: 'View',
         visibleIn: ['workflow'],
         listensToKeys: [],

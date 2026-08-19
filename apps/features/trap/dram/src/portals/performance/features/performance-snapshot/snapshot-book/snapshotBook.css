@@ -1,0 +1,142 @@
+/* =========================================================================
+   Snapshot Book styles — merged with collapsible nav + smooth toggle.
+   Custom properties are scoped to .snapshot-book-shell (NOT :root) so they
+   never leak into other apps/packages in the monorepo.
+   ========================================================================= */
+.snapshot-book-shell {
+  background: #f5f5f5;
+  min-height: 100%;
+  color: #1a1a1a;
+
+  /* Animation tokens — scoped, prefixed to avoid collisions. */
+  --sb-nav-anim-duration: 0.28s;
+  --sb-nav-anim-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --sb-nav-width: 220px; /* matches your grid column below */
+}
+
+.snapshot-book-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 20px;
+  background: #fff;
+  border-bottom: 1px solid #d9d9d9;
+}
+.snapshot-book-header h2 { margin: 0 0 2px; }
+
+/* ---- Layout: sidebar column animates from var(--sb-nav-width) -> 0 ---- */
+.snapshot-book-layout {
+  display: grid;
+  grid-template-columns: var(--sb-nav-width) minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+  transition: grid-template-columns var(--sb-nav-anim-duration) var(--sb-nav-anim-ease);
+}
+.snapshot-book-layout--nav-collapsed {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+
+/* Outer <aside> = sticky clip container. Visual styling lives on the inner
+   wrapper so the border/background don't leave a sliver when collapsed. */
+.snapshot-book-nav {
+  position: sticky;
+  top: 92px;
+  align-self: start;
+  overflow: hidden;
+  min-width: 0;
+}
+.snapshot-book-nav-inner {
+  width: var(--sb-nav-width);
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    opacity var(--sb-nav-anim-duration) var(--sb-nav-anim-ease),
+    transform var(--sb-nav-anim-duration) var(--sb-nav-anim-ease);
+  will-change: transform, opacity;
+}
+.snapshot-book-layout--nav-collapsed .snapshot-book-nav-inner {
+  opacity: 0;
+  transform: translateX(-12px);
+  pointer-events: none;
+}
+
+.snapshot-book-nav-title {
+  display: block;
+  padding: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #666;
+}
+.snapshot-book-nav .ant-list-item { cursor: pointer; padding: 10px 12px; gap: 8px; }
+.snapshot-book-nav .ant-list-item.is-active { background: #d9e2f3; }
+.snapshot-book-sequence { width: 20px; color: #666; text-align: center; }
+.snapshot-book-nav-label { flex: 1; }
+.status-ready { color: #1e7d32; }
+.status-warning { color: #c69214; }
+
+/* ---- Toolbar: collapse toggle + Report Book / Focus View switch ---- */
+.snapshot-book-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.snapshot-book-nav-toggle .anticon {
+  transition: transform var(--sb-nav-anim-duration) var(--sb-nav-anim-ease);
+}
+.snapshot-book-nav-toggle:hover .anticon { transform: scale(1.08); }
+
+.snapshot-book-main { min-width: 0; }
+.snapshot-book-reports { display: grid; gap: 18px; margin-top: 12px; }
+.snapshot-book-report { scroll-margin-top: 92px; background: #fff; border: 1px solid #d9d9d9; }
+.snapshot-book-report-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: #d9e2f3;
+  border-bottom: 1px solid #d9d9d9;
+}
+.snapshot-book-report-number {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border: 1px solid #bfbfbf;
+  font-weight: 700;
+}
+.snapshot-book-report-bar .ant-typography:last-child { margin-left: auto; }
+
+/* ---- Reduced motion: honor the user preference ---- */
+@media (prefers-reduced-motion: reduce) {
+  .snapshot-book-layout,
+  .snapshot-book-nav-inner,
+  .snapshot-book-nav-toggle .anticon {
+    transition: none;
+  }
+}
+
+/* ---- Responsive: single column; collapse fully hides the nav ---- */
+@media (max-width: 920px) {
+  .snapshot-book-layout { grid-template-columns: 1fr; }
+  .snapshot-book-nav { position: static; }
+  .snapshot-book-layout--nav-collapsed .snapshot-book-nav { display: none; }
+}
+
+/* ---- Print: hide chrome (toolbar now holds the segmented) ---- */
+@media print {
+  .snapshot-book-header,
+  .snapshot-book-nav,
+  .snapshot-book-toolbar,
+  .snapshot-book-report-bar { display: none !important; }
+  .snapshot-book-layout { display: block; padding: 0; }
+  .snapshot-book-report { border: 0; break-before: page; }
+  .snapshot-book-report:first-child { break-before: auto; }
+}

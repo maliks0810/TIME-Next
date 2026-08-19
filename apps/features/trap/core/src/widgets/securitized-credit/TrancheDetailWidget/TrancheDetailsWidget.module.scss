@@ -1,16 +1,17 @@
-/* EXISTING: apps/features/trap/core/src/widgets/securitized-credit/TrancheDetailsWidget/TrancheDetailsWidget.module.scss
+/*
+ * Tranche Detail widget
+ * ---------------------
+ * Fills both the widget card and maximize overlay. The responsive plan renders
+ * only the panels that fit, so the parent remains overflow-free.
  *
- * Fills the widget card (sizes to widget AND maximize overlay). No scrollbars:
- * the plan renders only the panels that fit. Panels are FULL-WIDTH and stacked
- * (each spreads its rows across bodyCols columns), so a lone panel fills the
- * width and stays short — no horizontal gap. .headerContainer reserves a right
- * gutter so the Stage button clears the shell's expand icon (top-right, 26px).
+ * ScTrancheDetailWidget applies local wealth, wealthLight, and wealthDark
+ * classes directly to trancheDetailsContainer.
  */
 
 .fill {
     position: relative;
-    height: 100%;
     width: 100%;
+    height: 100%;
     min-height: 0;
 }
 
@@ -27,9 +28,10 @@
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 8px;
         flex-shrink: 0;
-        padding-right: 30px; /* clear the shell's expand icon (top-right, 26px) */
+        gap: 8px;
+        min-width: 0;
+        padding-right: 30px;
     }
 
     .headerTitleContainer {
@@ -40,14 +42,15 @@
     }
 
     .headerTitleIcon {
+        flex-shrink: 0;
         font-size: 13px;
         color: var(--ant-color-primary);
-        flex-shrink: 0;
     }
 
     .headerTitleText {
         display: inline-flex;
         align-items: center;
+        flex-shrink: 0;
         font-size: 10px;
         line-height: 14px;
         font-weight: 700;
@@ -59,45 +62,57 @@
 
     .headerTitleDataName {
         display: inline-block;
+        max-width: 140px;
+        overflow: hidden;
         font-size: 13px;
         line-height: 17px;
         font-weight: 700;
         color: var(--ant-color-text);
-        overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
-        max-width: 140px;
+        text-overflow: ellipsis;
     }
 
     .headerTitleDataCusip {
         display: inline-flex;
         align-items: center;
-        font-size: 10px;
-        line-height: 14px;
-        font-family: monospace;
+        flex-shrink: 0;
         padding: 1px 6px;
         border-radius: var(--ant-border-radius-sm);
         background: var(--ant-color-fill-secondary);
         color: var(--ant-color-text-secondary);
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 10px;
+        line-height: 14px;
+        font-variant-numeric: tabular-nums;
         white-space: nowrap;
     }
 
     .headerTitleDataType {
         display: inline-flex;
         align-items: center;
-        font-size: 10px;
-        line-height: 14px;
+        flex-shrink: 0;
         padding: 1px 6px;
+        border: 1px solid var(--ant-color-info-border);
         border-radius: var(--ant-border-radius-sm);
         background: var(--ant-color-info-bg);
-        border: 1px solid var(--ant-color-info-border);
         color: var(--ant-color-info);
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 10px;
+        line-height: 14px;
         white-space: nowrap;
     }
 
     .loadingContainer {
-        flex: 1;
         display: flex;
+        flex: 1;
         flex-direction: column;
         align-items: center;
         justify-content: center;
@@ -105,13 +120,13 @@
     }
 
     .loadingInnerContainer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 40px;
         height: 40px;
         border-radius: 50%;
         background: var(--ant-color-fill-secondary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
     .loadingIcon {
@@ -125,19 +140,18 @@
         color: var(--ant-color-text-tertiary);
     }
 
-    /* ── Metric cards (tall) ── */
     .metricCardsContainer {
         display: flex;
-        gap: 8px;
         flex-shrink: 0;
+        gap: 8px;
+        min-width: 0;
     }
 
-    /* ── Compact metric strip (short heights) ── */
     .metricStrip {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 2px 16px;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         flex-shrink: 0;
+        gap: 2px 16px;
     }
 
     .metricStripItem {
@@ -145,40 +159,273 @@
         align-items: baseline;
         justify-content: space-between;
         gap: 8px;
+        min-width: 0;
         padding: 2px 0;
         border-bottom: 1px solid var(--ant-color-border-secondary);
     }
 
     .metricStripLabel {
+        min-width: 0;
+        overflow: hidden;
         font-size: 10px;
         line-height: 14px;
         color: var(--ant-color-text-tertiary);
         white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     .metricStripValue {
+        flex: 0 0 auto;
+        min-width: 0;
+        overflow: hidden;
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
         font-size: 12px;
         line-height: 16px;
         font-weight: 700;
-        color: var(--ant-color-text);
         font-variant-numeric: tabular-nums;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        color: var(--ant-color-text);
         white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
-    /* ── Panels: full-width, stacked. No scroll; plan renders only what fits. ── */
     .attributePanels {
         display: flex;
+        flex: 1;
         flex-direction: column;
         gap: 10px;
         min-height: 0;
-        flex: 1;
         overflow: hidden;
     }
 
     :global(.ant-btn-sm) {
         font-size: 12px;
         line-height: 20px;
+    }
+}
+
+/* Wealth shared typography */
+.trancheDetailsContainer.wealth {
+    gap: 10px;
+    font-family:
+        'Hanken Grotesk',
+        'Albert Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    .headerContainer {
+        gap: 8px;
+    }
+
+    .headerTitleContainer {
+        gap: 8px;
+    }
+
+    .headerTitleIcon {
+        font-size: 12px;
+        color: var(--ant-color-primary);
+    }
+
+    .headerTitleText {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 10px;
+        line-height: 14px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+    }
+
+    .headerTitleDataName {
+        font-family:
+            'Spectral',
+            'Newsreader',
+            Georgia,
+            serif;
+        font-size: 14px;
+        line-height: 17px;
+        font-weight: 300;
+        letter-spacing: -0.01em;
+    }
+
+    .headerTitleDataCusip,
+    .headerTitleDataType {
+        padding: 2px 7px;
+        border: 1px solid var(--ant-color-border);
+        border-radius: 2px;
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 8.5px;
+        line-height: 13px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .headerTitleDataType {
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .loadingText {
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 400;
+    }
+
+    .metricStrip {
+        gap: 2px 18px;
+    }
+
+    .metricStripItem {
+        padding: 3px 0;
+    }
+
+    .metricStripLabel {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 8.5px;
+        line-height: 12px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .metricStripValue {
+        font-family:
+            'IBM Plex Mono',
+            'SFMono-Regular',
+            Consolas,
+            monospace;
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    :global(.ant-btn-sm) {
+        border-radius: 2px;
+        font-family:
+            'Hanken Grotesk',
+            'Albert Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+        font-size: 11px;
+        line-height: 20px;
+    }
+}
+
+/* Wealth Light */
+.trancheDetailsContainer.wealthLight {
+    .headerTitleText {
+        color: #574a32;
+    }
+
+    .headerTitleDataName {
+        color: #211a0f;
+    }
+
+    .headerTitleDataCusip {
+        border-color: rgba(120, 84, 24, 0.26);
+        background: rgba(120, 84, 24, 0.045);
+        color: #6a5e47;
+    }
+
+    .headerTitleDataType {
+        border-color: rgba(154, 107, 34, 0.30);
+        background: rgba(154, 107, 34, 0.07);
+        color: #9a6b22;
+    }
+
+    .loadingInnerContainer {
+        background: rgba(120, 84, 24, 0.08);
+    }
+
+    .loadingIcon {
+        color: rgba(33, 26, 15, 0.30);
+    }
+
+    .loadingText {
+        color: #6a5e47;
+    }
+
+    .metricStripItem {
+        border-bottom-color: rgba(120, 84, 24, 0.20);
+    }
+
+    .metricStripLabel {
+        color: rgba(33, 26, 15, 0.42);
+    }
+
+    .metricStripValue {
+        color: #211a0f;
+    }
+}
+
+/* Wealth Dark */
+.trancheDetailsContainer.wealthDark {
+    .headerTitleText {
+        color: rgba(241, 231, 212, 0.74);
+    }
+
+    .headerTitleDataName {
+        color: #f1e7d4;
+    }
+
+    .headerTitleDataCusip {
+        border-color: rgba(230, 180, 90, 0.22);
+        background: rgba(230, 180, 90, 0.05);
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .headerTitleDataType {
+        border-color: rgba(230, 180, 90, 0.30);
+        background: rgba(230, 180, 90, 0.08);
+        color: #e6b45a;
+    }
+
+    .loadingInnerContainer {
+        background: rgba(230, 180, 90, 0.08);
+    }
+
+    .loadingIcon {
+        color: rgba(241, 231, 212, 0.22);
+    }
+
+    .loadingText {
+        color: rgba(241, 231, 212, 0.58);
+    }
+
+    .metricStripItem {
+        border-bottom-color: rgba(230, 180, 90, 0.16);
+    }
+
+    .metricStripLabel {
+        color: rgba(241, 231, 212, 0.34);
+    }
+
+    .metricStripValue {
+        color: #f1e7d4;
     }
 }

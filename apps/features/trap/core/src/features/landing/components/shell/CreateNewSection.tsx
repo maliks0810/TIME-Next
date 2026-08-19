@@ -1,6 +1,6 @@
-import { EditOutlined, LinkOutlined, LockOutlined } from '@ant-design/icons';
+import { LockOutlined } from '@ant-design/icons';
 import { Button, Input, Select } from 'antd';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import styles from './CreateNewSection.module.scss';
 import { Kind, Team, Visibility } from '../../../../api/trap';
 import clsx from 'clsx';
@@ -27,17 +27,16 @@ export const CreateNewSection = ({
     ) => void | Promise<void>;
     setShowNew: (value: boolean) => void;
 }) => {
-    const [newName, setNewName] = React.useState('');
-    const [newKind, setNewKind] = React.useState<Kind>(Kind.WORKFLOW);
-    const [newVis, setNewVis] = React.useState<Visibility>(Visibility.PRIVATE);
-    const [creating, setCreating] = React.useState(false);
+    const [newName, setNewName] = useState('');
+    const [newKind, setNewKind] = useState<Kind>(Kind.WORKFLOW);
+    const [newVis, setNewVis] = useState<Visibility>(Visibility.PRIVATE);
+    const [creating, setCreating] = useState(false);
 
-    const [entitlment, setEntitlement] = React.useState({
+    const [entitlment, setEntitlement] = useState({
         org1,
         org2,
         myTeam,
     });
-    const [isEditingTeam, setIsEditingTeam] = useState(false);
     const landing = newKind === Kind.LANDING;
     const submitNew = async () => {
         if (!newName.trim()) return;
@@ -67,9 +66,6 @@ export const CreateNewSection = ({
         fontWeight: 600,
         color: 'var(--ant-color-text-secondary)',
         marginBottom: 4,
-    };
-    const handleChangeTeam = () => {
-        setIsEditingTeam((prev) => !prev);
     };
     const renderTeamChange = useCallback(() => {
         const departments = [...(orgTree?.keys() || [])].map((el) => ({ label: el, value: el }));
@@ -122,9 +118,6 @@ export const CreateNewSection = ({
                         setEntitlement((prev) => ({ ...prev, myTeam: value }));
                     }}
                 ></Select>
-                <Button type="dashed" onClick={handleChangeTeam} style={{ marginBottom: 6 }}>
-                    Save
-                </Button>
             </div>
         );
     }, [orgTree, entitlment.org1, entitlment.org2, entitlment.myTeam]);
@@ -219,27 +212,7 @@ export const CreateNewSection = ({
                 <LockOutlined style={{ opacity: 0.65 }} /> Organization — from your profile
             </label>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>
-                {isEditingTeam ? (
-                    renderTeamChange()
-                ) : (
-                    <>
-                        <span className={styles['nf-chip']}>
-                            <LinkOutlined />
-                            {entitlment.org1 || '—'}
-                        </span>
-                        <span className={styles['nf-chip']}>
-                            <LinkOutlined />
-                            {entitlment.org2 || '—'}
-                        </span>
-                        <span className={styles['nf-chip']}>
-                            <LinkOutlined />
-                            {entitlment.myTeam || '—'}
-                        </span>
-                        <Button type="dashed" onClick={handleChangeTeam} style={{ height: '26px' }}>
-                            <EditOutlined /> Change
-                        </Button>
-                    </>
-                )}
+                {renderTeamChange()}
             </div>
 
             <div style={{ display: 'flex', gap: 8 }}>

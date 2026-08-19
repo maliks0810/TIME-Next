@@ -6,23 +6,57 @@
     "tags": null,
     "category": "widgetDefinition",
     "datasetId": "ds_common_counter_tile_01",
-    "listensToKeys": ["portfolio.id", "security.ticker", "security.cusip"],
+    "listensToKeys": [
+        "deal.name",
+        "portfolio.id",
+        "security.ticker",
+        "security.cusip",
+        "filter.state",
+        "filter.fico",
+        "filter.dti",
+        "filter.ltv",
+        "filter.coupon",
+        "filter.days_arr",
+        "filter.age",
+        "filter.model_year",
+        "filter.manufacturer",
+        "filter.model",
+        "filter.originator",
+        "filter.servicer",
+        "filter.new_used",
+        "filter.vehicle_type",
+        "filter.zero_balance_reason"
+    ],
     "emitsKeys": null,
     "configSchema": {
         "properties": {
             "channel": {
                 "category": "Interactions",
                 "default": 1,
-                "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [1, 2, 3, 4, 5],
+                "description": "Widgets connected to the same channel share context and active collateral filters.",
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ],
                 "title": "Communication Channel",
                 "type": "string"
             },
             "clickable": {
                 "category": "Interactions",
-                "default": true,
+                "default": false,
+                "description": "Tape KPI tiles are read-only. Other KPI scenarios may opt into legacy click behavior.",
                 "title": "Tile is clickable",
                 "type": "boolean"
+            },
+            "contextKey": {
+                "category": "Interactions",
+                "default": "deal.name",
+                "description": "Which channel value selects the KPI universe.",
+                "title": "Context Key",
+                "type": "string"
             },
             "customColor": {
                 "category": "Colors",
@@ -53,7 +87,7 @@
             },
             "filter": {
                 "category": "System Parameters",
-                "description": "Which value the selected Schema Key should resolve. Valid options are scoped to the chosen Schema Key (arc.status.query -> ARC status values; econ.indicators.heatmap -> indicator metrics).",
+                "description": "Select the metric resolved by the chosen Schema Key.",
                 "enum": [
                     "ANALYTICS REQUESTED",
                     "ANALYTICS INPUT PENDING REVIEW",
@@ -70,7 +104,13 @@
                     "Total Indicators",
                     "Latest Period",
                     "Improving Count",
-                    "Deteriorating Count"
+                    "Deteriorating Count",
+                    "current balance",
+                    "loan count",
+                    "wa fico",
+                    "wa value / loan",
+                    "wa conventional ltv",
+                    "wac"
                 ],
                 "options": [
                     {
@@ -104,15 +144,34 @@
                             "Improving Count",
                             "Deteriorating Count"
                         ]
+                    },
+                    {
+                        "condition": {
+                            "key": "schemaKey",
+                            "value": "tape.kpi"
+                        },
+                        "options": [
+                            "current balance",
+                            "loan count",
+                            "wa fico",
+                            "wa value / loan",
+                            "wa conventional ltv",
+                            "wac"
+                        ]
                     }
                 ],
-                "title": "Filter",
+                "title": "Metric",
                 "type": "string"
             },
             "numberFormat": {
                 "category": "View Parameters",
                 "default": "integer",
-                "enum": ["integer", "decimal", "currency", "percent"],
+                "enum": [
+                    "integer",
+                    "decimal",
+                    "currency",
+                    "percent"
+                ],
                 "title": "Number Format",
                 "type": "string"
             },
@@ -124,8 +183,12 @@
             },
             "schemaKey": {
                 "category": "System Parameters",
-                "description": "Logical KPI scenario resolved by GraphQL. Each scenario owns its own set of valid Filter values.",
-                "enum": ["arc.status.query", "econ.indicators.heatmap"],
+                "description": "Logical KPI scenario resolved by GraphQL.",
+                "enum": [
+                    "arc.status.query",
+                    "econ.indicators.heatmap",
+                    "tape.kpi"
+                ],
                 "title": "Schema Key",
                 "type": "string"
             },
@@ -145,14 +208,21 @@
             "themeMode": {
                 "category": "Colors",
                 "default": "theme",
-                "enum": ["theme", "customSolid", "customGradient"],
+                "enum": [
+                    "theme",
+                    "customSolid",
+                    "customGradient"
+                ],
                 "title": "Color Mode",
                 "type": "string"
             },
             "titlePosition": {
                 "category": "View Parameters",
                 "default": "top",
-                "enum": ["top", "bottom"],
+                "enum": [
+                    "top",
+                    "bottom"
+                ],
                 "title": "Title Position",
                 "type": "string"
             },
@@ -163,12 +233,18 @@
                 "type": "string"
             }
         },
-        "required": ["schemaKey", "filter"],
+        "required": [
+            "schemaKey",
+            "filter"
+        ],
         "type": "object"
     },
     "uiHints": {
         "category": "Common",
-        "visibleIn": ["workflow", "landing"]
+        "visibleIn": [
+            "workflow",
+            "landing"
+        ]
     },
     "variants": [
         {
@@ -177,7 +253,7 @@
             "sizing": {
                 "resizable": true,
                 "width": {
-                    "default": 3,
+                    "default": 2,
                     "min": 1,
                     "max": 6,
                     "step": null

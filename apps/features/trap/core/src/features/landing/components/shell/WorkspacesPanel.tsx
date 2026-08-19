@@ -31,6 +31,7 @@ export type Item = {
     visibility: Visibility;
     ownerUserId: string | null;
     class3: string | null;
+    isDraft: boolean;
 };
 
 type Selection = Item & {
@@ -102,6 +103,10 @@ export default function WorkspacesPanel({
             templateId: el.id,
             templateName: el.name,
             kind: el.kind as Kind,
+            isDraft:
+                el.latestDraft?.version &&
+                el.latestPublished?.version &&
+                el.latestPublished?.version < el.latestDraft?.version,
         })) || []
     );
     const [loading, setLoading] = React.useState(false);
@@ -264,6 +269,7 @@ export default function WorkspacesPanel({
                 {shown.map((item) => {
                     const isFav = favs.includes(item.templateId);
                     const landingRow = isLanding(item);
+
                     return (
                         <Row
                             item={item}
@@ -283,6 +289,7 @@ export default function WorkspacesPanel({
                             renameItem={renameItem}
                             key={item.templateId}
                             cloneItem={onCloneTemplate}
+                            isDraft={!!item.isDraft}
                         />
                     );
                 })}
@@ -409,6 +416,7 @@ export default function WorkspacesPanel({
                                                     openItem={openItem}
                                                     renameItem={renameItem}
                                                     key={item.templateId}
+                                                    isDraft={!!item.isDraft}
                                                 />
                                             );
                                         })}

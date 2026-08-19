@@ -87,13 +87,12 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                         <div className={styles.moveWidgetSection}>
                             <Button
                                 size="small"
-                                disabled={isPublished}
+                                disabled={isPublished || !isDraftSaved}
                                 className={clsx(
                                     'widget-drag-handle',
                                     styles.headerBtn,
                                     isPublished ? styles.defaultCursor : styles.grabCursor
                                 )}
-                                title="Move widget"
                             >
                                 ⋮⋮
                             </Button>
@@ -124,7 +123,6 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                             if (configureDisabledReason) return;
                                             setIsConfigOpen(true);
                                         }}
-                                        title="Configure"
                                     >
                                         ⚙
                                     </Button>
@@ -134,14 +132,13 @@ const DesignerCanvasItem = React.forwardRef<HTMLDivElement, DesignerCanvasItemPr
                                 className={clsx('rgl-no-drag', styles.headerBtn)}
                                 size="small"
                                 danger
-                                disabled={isPublished}
+                                disabled={isPublished || !isDraftSaved}
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onTouchStart={(e) => e.stopPropagation()}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onRemove(item.i);
                                 }}
-                                title="Remove"
                             >
                                 ✕
                             </Button>
