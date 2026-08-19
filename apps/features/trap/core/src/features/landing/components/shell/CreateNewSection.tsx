@@ -1,6 +1,6 @@
 import { LockOutlined } from '@ant-design/icons';
 import { Button, Input, Select } from 'antd';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import styles from './CreateNewSection.module.scss';
 import { Kind, Team, Visibility } from '../../../../api/trap';
 import clsx from 'clsx';
@@ -27,12 +27,12 @@ export const CreateNewSection = ({
     ) => void | Promise<void>;
     setShowNew: (value: boolean) => void;
 }) => {
-    const [newName, setNewName] = React.useState('');
-    const [newKind, setNewKind] = React.useState<Kind>(Kind.WORKFLOW);
-    const [newVis, setNewVis] = React.useState<Visibility>(Visibility.PRIVATE);
-    const [creating, setCreating] = React.useState(false);
+    const [newName, setNewName] = useState('');
+    const [newKind, setNewKind] = useState<Kind>(Kind.WORKFLOW);
+    const [newVis, setNewVis] = useState<Visibility>(Visibility.PRIVATE);
+    const [creating, setCreating] = useState(false);
 
-    const [entitlment, setEntitlement] = React.useState({
+    const [entitlment, setEntitlement] = useState({
         org1,
         org2,
         myTeam,
