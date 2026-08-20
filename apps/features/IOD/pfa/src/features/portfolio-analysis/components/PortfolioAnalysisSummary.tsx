@@ -51,14 +51,10 @@ export function PortfolioAnalysisSummary({ context }: { context: PortfolioAnalys
           <div className="portfolio-analysis-summary-title">Portfolio Analyzer</div>
         </div>
         <div className="portfolio-analysis-summary-context-strip">
-          <span className="portfolio-analysis-summary-context-badge portfolio-analysis-summary-context-badge--primary">
+          <span className="portfolio-analysis-summary-context-badge portfolio-analysis-summary-context-badge--portfolio-identity">
             {context.portfolioKey}
+            {context.portfolioName ? ` / ${context.portfolioName}` : ''}
           </span>
-          {context.portfolioName ? (
-            <span className="portfolio-analysis-summary-context-badge portfolio-analysis-summary-context-badge--portfolio-name">
-              {context.portfolioName}
-            </span>
-          ) : null}
           <span className="portfolio-analysis-summary-context-badge portfolio-analysis-summary-context-badge--drift">
             Drift {chip(0)} vs {chip(context.comparisonTMinus)}
           </span>

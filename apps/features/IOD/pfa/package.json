@@ -20,9 +20,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@platform/ui": "1.0.0",
     "@platform/styles": "1.0.0",
+    "@platform/ui": "1.0.0",
     "@platform/utils": "1.0.0",
+    "apache-arrow": "21.2.0",
     "clsx": "2.1.1",
     "lucide-react": "1.14.0",
     "tailwind-merge": "3.5.0",

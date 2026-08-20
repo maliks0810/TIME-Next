@@ -47,6 +47,36 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         header: NavbarHeader.RiskPerformance,
         subHeader: NavbarSubHeader.Performance,
         id: '@r2/dram',
+        name: 'time-attribution-analysis',
+        title: 'Attribution Analysis (Beta)',
+        env: HighestEnv.prod,
+
+        path: '/dram/attribution/dashboard',
+        team: 'R2',
+        component: lazy(() => import('@r2/dram/src/portals/attribution/index')),
+        description: '',
+    },
+    {
+        type: 'internal',
+        header: NavbarHeader.RiskPerformance,
+        subHeader: NavbarSubHeader.Performance,
+        id: '@r2/dram',
+        name: 'performance-snapshot',
+        title: 'Daily Performance Snapshot (Beta)',
+        env: HighestEnv.prod,
+
+        path: '/dram/performance/daily-snapshot',
+        team: 'R2',
+        component: lazy(
+            () => import('@r2/dram/src/portals/performance/features/performance-snapshot/index')
+        ),
+        description: '',
+    },
+    {
+        type: 'internal',
+        header: NavbarHeader.RiskPerformance,
+        subHeader: NavbarSubHeader.Performance,
+        id: '@r2/dram',
         name: 'strategy-alert-monitor',
         title: 'Strategy Alerting and Monitoring (Beta)',
         env: HighestEnv.prod,
@@ -56,20 +86,6 @@ export const riskPerformanceApps: (InternalAppMetadata | ExternalAppMetadata)[] 
         component: lazy(
             () => import('@r2/dram/src/portals/performance/features/strategy-performance/index')
         ),
-        description: '',
-    },
-    {
-        type: 'internal',
-        header: NavbarHeader.RiskPerformance,
-        subHeader: NavbarSubHeader.Performance,
-        id: '@r2/dram',
-        name: 'time-attribution-analysis',
-        title: 'Attribution Analysis (Beta)',
-        env: HighestEnv.prod,
-
-        path: '/dram/attribution/dashboard',
-        team: 'R2',
-        component: lazy(() => import('@r2/dram/src/portals/attribution/index')),
         description: '',
     },
     {

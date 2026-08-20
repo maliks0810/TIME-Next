@@ -229,7 +229,7 @@ function getLastMonthDaily(
 
   return (
 	<div style={{ padding: 24 }}>
-	  <Title level={3}>Performance Snapshot</Title>
+	  <Title level={3}>Strategy Performance Snapshot</Title>
 
 	  <Title level={4}>
 		{currentSnapshot.portfolioName} — {currentSnapshot.shareClassKey} — {currentSnapshot.asOfDate}
