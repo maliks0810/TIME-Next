@@ -844,10 +844,7 @@ export default function AssetStagingWidget({
 
                             <Text className={styles.centerDescription}>
                                 {`${selectedTrancheHeld?.trancheName} (${selectedTrancheHeld?.cusip}) is already set up` +
-                                    (selectedTrancheHeld?.portfolios?.length
-                                        ? ` in ${selectedTrancheHeld.portfolios.join(", ")}`
-                                        : "") +
-                                    ". Asset setup is not required — proceed directly to Security Analysis."}
+                                    ". Asset setup is not required."}
                             </Text>
                         </div>
                     </div>
