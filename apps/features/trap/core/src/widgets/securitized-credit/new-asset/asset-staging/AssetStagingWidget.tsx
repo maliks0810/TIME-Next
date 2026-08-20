@@ -87,6 +87,13 @@ export default function AssetStagingWidget({
     const [payloadSnapshot, setPayloadSnapshot] = React.useState<Record<string, unknown>>({});
     const [initializingPayload, setInitializingPayload] = React.useState(false);
 
+    const [heldStatus, setHeldStatus] = React.useState<{
+        anyHeld: boolean;
+        heldCusips: string[];
+        tranches: { cusip: string; trancheName: string | null; held: boolean; portfolios: string[] }[];
+        message: string | null;
+    } | null>(null);
+
     const [callOptions, setCallOptions] = React.useState<{ label: string; value: string }[]>([]);
 
     const [price, setPrice] = React.useState<number | null>(null);
@@ -154,16 +161,11 @@ export default function AssetStagingWidget({
         key: "scenario.selectedResultId",
     }) as string | undefined;
 
-    const assetIsNew = useGetWidgetValue({
-        channelId,
-        key: "asset.isNew",
-    }) as string | undefined;
-
     const setWidgetValueToChannel = useSetWidgetValue();
     const activeTab = useGetActiveTab();
 
     // ─── Step 1: Init payload when deal arrives ───
-    const prevDealNameRef = React.useRef(dealName);
+    const prevDealNameRef = React.useRef<string | undefined>(undefined);
 
     React.useEffect(() => {
         if (dealName && dealName !== prevDealNameRef.current) {
@@ -186,6 +188,7 @@ export default function AssetStagingWidget({
             setSeverity(null);
             setDelinquency(null);
             setValidationErrors({});
+            setHeldStatus(null);
 
             [
                 "asset.staged.trancheId",
@@ -210,6 +213,10 @@ export default function AssetStagingWidget({
                     });
 
                     setPayloadSnapshot(result.fields ?? {});
+
+                    if (result.heldStatus) {
+                        setHeldStatus(result.heldStatus as typeof heldStatus);
+                    }
 
                     if (Array.isArray(result.callOptions)) {
                         setCallOptions(result.callOptions);
@@ -426,13 +433,23 @@ export default function AssetStagingWidget({
         if (trancheId) context["asset.staged.trancheId"] = trancheId;
         if (trancheName) context["asset.staged.trancheName"] = trancheName;
         if (scenarioId) context["scenario.selectedResultId"] = scenarioId;
-        if (assetIsNew) context["asset.isNew"] = assetIsNew;
 
         return context;
-    }, [dealName, trancheId, trancheName, scenarioId, assetIsNew]);
+    }, [dealName, trancheId, trancheName, scenarioId]);
 
-    const stagingApplicable = assetIsNew === "true";
-    const stagingExplicitlyNA = assetIsNew === "false";
+    // Held status is per-tranche. Staging targets ONE tranche, so gate on the
+    // SELECTED tranche's held flag — not the deal-level anyHeld.
+    const selectedTrancheHeld = React.useMemo(() => {
+        if (!heldStatus || !heldStatus.tranches?.length) return null;
+        const match = heldStatus.tranches.find(
+            (t) =>
+                (trancheName && t.trancheName === trancheName) ||
+                (trancheCusip && t.cusip === trancheCusip)
+        );
+        return match?.held ? match : null;
+    }, [heldStatus, trancheName, trancheCusip]);
+
+    const alreadySetUp = !!selectedTrancheHeld;
 
     const effectiveItems = React.useMemo(() =>
         ITEMS.map((item) =>
@@ -814,7 +831,7 @@ export default function AssetStagingWidget({
                     },
                 )}
             >
-                {stagingExplicitlyNA && (
+                {alreadySetUp && (
                     <div className={styles.centerState}>
                         <div className={styles.centerIcon}>
                             <CheckCircleOutlined style={{ fontSize: 20, color: token.colorSuccess }} />
@@ -822,18 +839,21 @@ export default function AssetStagingWidget({
 
                         <div className={styles.centerText}>
                             <Text className={styles.centerTitle}>
-                                Security already in system
+                                Tranche already in system
                             </Text>
 
                             <Text className={styles.centerDescription}>
-                                This bond was found in the system — asset setup staging is not required.
-                                Proceed directly to Security Analysis.
+                                {`${selectedTrancheHeld?.trancheName} (${selectedTrancheHeld?.cusip}) is already set up` +
+                                    (selectedTrancheHeld?.portfolios?.length
+                                        ? ` in ${selectedTrancheHeld.portfolios.join(", ")}`
+                                        : "") +
+                                    ". Asset setup is not required — proceed directly to Security Analysis."}
                             </Text>
                         </div>
                     </div>
                 )}
 
-                {!stagingExplicitlyNA && !stagingApplicable && !dealName && (
+                {!alreadySetUp && !dealName && (
                     <div className={styles.centerStateCompact}>
                         <div className={styles.centerIcon}>
                             <InboxOutlined style={{ fontSize: 20, color: token.colorTextQuaternary }} />
@@ -845,7 +865,7 @@ export default function AssetStagingWidget({
                     </div>
                 )}
 
-                {!loading && (stagingApplicable || dealName) && !stagingExplicitlyNA && (
+                {!loading && dealName && !alreadySetUp && (
                     <>
                         {initializingPayload ? (
                             <div className={styles.centerStateCompact}>
