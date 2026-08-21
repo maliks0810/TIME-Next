@@ -21,6 +21,7 @@ import {
 } from "@ant-design/icons";
 import { downloadExport , } from "./api/download";
 import { buildDram2UrlNonAttribution } from "./api/services";
+import { formatDateOnly } from "./snapshot-book/helper";
 
 const { Title, Text } = Typography;
 
@@ -320,25 +321,15 @@ export default function TCWFundsPerformanceSnapshot() {
     }
   };
 
-  // As-of / prior date labels for the header block.
-  const asOfLabel = data?.asOfDate
-    ? new Date(data.asOfDate)
-        .toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "2-digit",
-        })
-        .toUpperCase()
-    : "";
+const priorLabel = formatDateOnly(
+  data?.priorDate,
+  navigator.language,
+);
 
-  const priorLabel = data?.priorDate
-    ? new Date(data.priorDate).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "2-digit",
-      })
-    : "Not Available";
+const asOfLabel = formatDateOnly(
+  data?.asOfDate,
+  navigator.language,
+).toUpperCase();
 
   return (
     <div className="snapshot-print-container" style={{ padding: 20 }}>
