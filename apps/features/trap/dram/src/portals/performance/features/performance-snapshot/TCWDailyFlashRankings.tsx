@@ -20,6 +20,7 @@ import {
 } from "@ant-design/icons";
 import { downloadExport } from "./api/download";
 import { buildDram2UrlNonAttribution } from "./api/services";
+import { formatDateOnly } from "./snapshot-book/helper";
 
 const { Title, Text } = Typography;
 
@@ -238,16 +239,11 @@ export default function TCWDailyFlashRankings() {
     }
   };
 
-  const asOfLabel = data?.asOfDate
-    ? new Date(data.asOfDate)
-        .toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
-        .toUpperCase()
-    : "";
+
+const asOfLabel = formatDateOnly(
+  data?.asOfDate,
+  navigator.language,
+).toUpperCase();
 
   const disclosures = data?.disclosures ?? [];
 

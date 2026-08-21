@@ -21,6 +21,7 @@ import {
 } from "@ant-design/icons";
 import { downloadExport } from "./api/download";
 import { buildDram2UrlNonAttribution } from "./api/services";
+import { formatDateOnly } from "./snapshot-book/helper";
 
 const { Title, Text } = Typography;
 
@@ -67,6 +68,7 @@ interface UcitsSnapshotResponse {
   subtitle?: string;
   warnings?: string[];
   rows?: UcitsRow[];
+  generatedAt?: string;
 }
 
 interface NormalizedUcitsRow extends Omit<UcitsRow, "id" | "rowType"> {
@@ -102,6 +104,7 @@ interface UcitsSnapshotViewModel {
   warnings: string[];
   sections: UcitsSection[];
   references: FundReference[];
+  generatedAt?: string;
 }
 
 interface GridRow extends NormalizedUcitsRow {
@@ -551,26 +554,15 @@ const perfPairs: Array<{
     }
   };
 
+const priorLabel = formatDateOnly(
+  data?.priorDate,
+  navigator.language,
+).toUpperCase();
 
-
-  const asOfLabel = data?.asOfDate
-    ? new Date(data.asOfDate)
-        .toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "2-digit",
-        })
-        .toUpperCase()
-    : "";
-
-  const priorLabel = data?.priorDate
-    ? new Date(data.priorDate).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "2-digit",
-      })
-    : "Not Available";
+const asOfLabel = formatDateOnly(
+  data?.asOfDate,
+  navigator.language,
+).toUpperCase();
 
   return (
     <div className="snapshot-print-container" style={{ padding: 20 }}>
@@ -753,7 +745,7 @@ const perfPairs: Array<{
       <style>{`
         .snapshot-header {
           display: flex;
-          align-items: flex-end;
+          align-items: flex-start;
           justify-content: space-between;
           gap: 24px;
         }

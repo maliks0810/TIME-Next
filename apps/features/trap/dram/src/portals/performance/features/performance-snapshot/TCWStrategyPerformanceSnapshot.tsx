@@ -21,20 +21,17 @@ import {
 } from "@ant-design/icons";
 import { downloadExport } from "./api/download";
 import { buildDram2UrlNonAttribution } from "./api/services";
+import { formatDateOnly } from "./snapshot-book/helper";
 
 const { Title, Text } = Typography;
 
-type RowKind = "strategy" | "benchmark" | "section";
+type RowKind = "fund" | "benchmark" | "section";
 
 // Numeric fields may arrive as JSON strings (Snowflake NUMBER/Decimal) or as
 // literal "N/A" / "--" placeholders, so values are typed loosely and coerced.
 type Cell = number | string | null | undefined;
 
-interface StrategyRow {
-  id: string;
-  pfNumber?: string;
-  rowType: RowKind;
-  strategyName: string;
+interface StrategyReturnPeriods {
   priorDay?: Cell;
   mtd?: Cell;
   qtd?: Cell;
@@ -42,15 +39,35 @@ interface StrategyRow {
   oneYear?: Cell;
   threeYear?: Cell;
   fiveYear?: Cell;
+}
+interface StrategyRow {
+  key: string;
+  rowType: RowKind;
+
+  portfolioNumber?: string | null;
+  sourcePortfolioNumber?: string | null;
+  parentPortfolioNumber?: string | null;
+
+  displayName: string;
+
+  benchmarkCode?: string | null;
+  benchmarkName?: string | null;
+
+  returns: StrategyReturnPeriods;
+
   portfolioAumMillions?: Cell;
-  inceptionDate?: string;
-  dataWarning?: string;
+  inceptionDate?: string | null;
+  rowOrder?: number;
+  dataWarning?: string | null;
 }
 
 interface StrategySection {
-  sectionName: string;
+  key: string;
+  section_name: string;
+  sectionOrder: number;
   rows: StrategyRow[];
 }
+
 
 interface StrategySnapshotResponse {
   asOfDate: string;
@@ -146,25 +163,33 @@ export default function TCWStrategyPerformanceSnapshot() {
     const out: GridRow[] = [];
 
     data.sections
-      .filter((s) => section === "all" || s.sectionName === section)
+      .filter((s) => section === "all" || s.section_name === section)
       .forEach((s) => {
         const matched = s.rows.filter((r) =>
-          [r.pfNumber, r.strategyName].some((v) =>
-            String(v ?? "").toLowerCase().includes(term)
-          )
+          [r.portfolioNumber, r.displayName]
+            .some((v) =>
+              String(v ?? "")
+                .toLowerCase()
+                .includes(term)
+            )
         );
+
         if (!matched.length) return;
 
         out.push({
-          id: `section-${s.sectionName}`,
-          key: `section-${s.sectionName}`,
+          key: `section-${s.key}`,
           rowType: "section",
-          strategyName: s.sectionName,
-          sectionName: s.sectionName,
-        });
+          displayName: s.section_name,
+          sectionName: s.section_name,
+          returns: {},
+        } as GridRow);
 
         matched.forEach((r) =>
-          out.push({ ...r, key: r.id, sectionName: s.sectionName })
+          out.push({
+            ...r,
+            key: r.key,
+            sectionName: s.section_name,
+          })
         );
       });
 
@@ -175,13 +200,16 @@ export default function TCWStrategyPerformanceSnapshot() {
   const bandCell = (row: GridRow) =>
     row.rowType === "section" ? { colSpan: 0 } : {};
 
-  const returnCol = (title: string, key: keyof StrategyRow) => ({
+  const returnCol = (
+    title: string,
+    field: keyof StrategyReturnPeriods,
+  ) => ({
     title,
-    dataIndex: key as string,
     width: 78,
     align: "right" as const,
     onCell: bandCell,
-    render: (v: Cell) => fmtReturn(v),
+    render: (_: unknown, row: GridRow) =>
+      fmtReturn(row.returns?.[field]),
   });
 
   // Total column count for the section band colSpan.
@@ -190,7 +218,7 @@ export default function TCWStrategyPerformanceSnapshot() {
   const columns: ColumnsType<GridRow> = [
     {
       title: "PF #",
-      dataIndex: "pfNumber",
+      dataIndex: "portfolioNumber",
       width: 60,
       fixed: "left",
       align: "center",
@@ -200,14 +228,14 @@ export default function TCWStrategyPerformanceSnapshot() {
           : {},
       render: (v: string, row) =>
         row.rowType === "section" ? (
-          <span className="section-band-text">{row.strategyName}</span>
+          <span className="section-band-text">{row.displayName}</span>
         ) : (
           v
         ),
     },
     {
       title: "Strategy / Index",
-      dataIndex: "strategyName",
+      dataIndex: "displayName",
       width: 260,
       fixed: "left",
       onCell: bandCell,
@@ -289,16 +317,10 @@ export default function TCWStrategyPerformanceSnapshot() {
       ];
   const disclosuresRight = data?.disclosuresRight ?? [];
 
-  const asOfLabel = data?.asOfDate
-    ? new Date(data.asOfDate)
-        .toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
-        .toUpperCase()
-    : "";
+const asOfLabel = formatDateOnly(
+  data?.asOfDate,
+  navigator.language,
+).toUpperCase();
 
   return (
     <div className="snapshot-print-container" style={{ padding: 20 }}>
@@ -401,8 +423,8 @@ export default function TCWStrategyPerformanceSnapshot() {
             options={[
               { label: "All sections", value: "all" },
               ...(data?.sections.map((s) => ({
-                label: s.sectionName,
-                value: s.sectionName,
+                label: s.section_name,
+                value: s.section_name,
               })) ?? []),
             ]}
           />
@@ -449,7 +471,7 @@ export default function TCWStrategyPerformanceSnapshot() {
       <style>{`
         .snapshot-header {
           display: flex;
-          align-items: flex-end;
+          align-items: flex-start;
           justify-content: space-between;
           gap: 24px;
         }
