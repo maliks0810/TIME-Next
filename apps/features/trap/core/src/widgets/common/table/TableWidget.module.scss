@@ -1,0 +1,19 @@
+.fill { position: relative; height: 100%; width: 100%; min-height: 0; }
+.container { position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden; }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; padding: 0 0 8px; }
+.titleWrap { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.icon { font-size: 13px; color: var(--ant-color-primary); flex: 0 0 auto; }
+.eyebrow { font-size: 11px; line-height: 14px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ant-color-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.count { font-size: 11px; color: var(--ant-color-text-tertiary); white-space: nowrap; }
+.body { flex: 1 1 auto; min-height: 0; }
+.empty { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--ant-color-text-tertiary); }
+
+/* Density — denser than antd "small" */
+.dense :global(.ant-table-cell) { padding: 3px 8px !important; font-size: 11.5px; }
+.dense :global(.ant-table-thead > tr > th) { padding: 4px 8px !important; }
+
+/* Row hover highlight (configurable) */
+.hoverable :global(.ant-table-tbody .ant-table-row:hover .ant-table-cell) { background: var(--ant-color-fill-tertiary); }
+
+/* Alternating (zebra) rows (configurable) — applied per row via rowClassName */
+.zebraRow :global(.ant-table-cell) { background: var(--ant-color-fill-quaternary); }
