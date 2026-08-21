@@ -10,11 +10,10 @@ import type { WidgetComponentProps } from '../../../types/widget';
 import {
     useGetWidgetValue,
     useGetWidgetValueArray,
-    useSetWidgetValue,
 } from '../../../state/Widgets/hooks';
-import { useGetActiveTab } from '../../../state/Tabs/hooks';
 import { useTheme } from '../../../theme/ThemeContext';
-import { DEAL_NAME_KEY, FILTER_STATE_KEY } from '../../constants';
+import { DEAL_NAME_KEY } from '../../constants';
+import { useTapeFilter } from '../../hooks/useTapeFilter';
 import {
     resolveEchartsTokens,
     applyEchartsTypography,
@@ -85,9 +84,44 @@ function isColorDark(color: string): boolean {
  * listener always sees the current channel/filter without re-binding.
  */
 type ClickCtx = {
-    onPick: (code: string | null) => void;
-    current: string | null;
+    onPick: (code: string) => void;
 };
+
+/**
+ * Merge a dashed accent outline onto STAGED (pending, not-yet-applied) states so
+ * clicking the map gives immediate feedback before Apply. Staged states are
+ * always present in the server data (the universe is locked to the applied set,
+ * and everything is present pre-apply), so we only decorate existing items.
+ */
+function decorateStaged(
+    option: Record<string, any> | null | undefined,
+    stagedCodes: string[],
+): Record<string, any> | null {
+    if (!option) return null;
+    if (!Array.isArray(stagedCodes) || stagedCodes.length === 0) {
+        return option;
+    }
+
+    const clone = JSON.parse(JSON.stringify(option)) as Record<string, any>;
+    const series = Array.isArray(clone.series) ? clone.series[0] : null;
+
+    if (!series || !Array.isArray(series.data)) return clone;
+
+    const staged = new Set(stagedCodes);
+
+    for (const item of series.data) {
+        if (item && staged.has(item.code)) {
+            item.itemStyle = {
+                ...(item.itemStyle ?? {}),
+                borderColor: '@primary',
+                borderWidth: 2.5,
+                borderType: 'dashed',
+            };
+        }
+    }
+
+    return clone;
+}
 
 function useGeoEchart(
     option: Record<string, any> | null | undefined,
@@ -146,9 +180,7 @@ function useGeoEchart(
             chart.on('click', (params: any) => {
                 const code = params?.data?.code ?? null;
                 if (!code) return;
-
-                const { onPick, current } = clickRef.current;
-                onPick(current === code ? null : code);
+                clickRef.current.onPick(code);
             });
 
             const ro = new ResizeObserver(() => chart.resize());
@@ -225,12 +257,6 @@ export function GeoMapWidget(props: WidgetComponentProps) {
     const contextKey: string = params.contextKey ?? DEAL_NAME_KEY;
     const contextValue = useGetWidgetValue({ channelId, key: contextKey });
 
-    const filterKey: string = params.filterKey ?? FILTER_STATE_KEY;
-    const currentState = useGetWidgetValue({
-        channelId,
-        key: filterKey,
-    }) as string | null | undefined;
-
     const filterBag = useGetWidgetValueArray({
         channelId,
         keys: COLLATERAL_FILTER_KEYS,
@@ -252,24 +278,13 @@ export function GeoMapWidget(props: WidgetComponentProps) {
 
     const filtersSig = JSON.stringify(filters);
 
-    const setValueToChannel = useSetWidgetValue();
-    const activeTab = useGetActiveTab();
+    const tape = useTapeFilter(channelId);
+    const stagedStates = tape.staged.state;
+    const stagedSig = stagedStates.join(',');
 
-    const clickRef = useRef<ClickCtx>({
-        onPick: () => undefined,
-        current: null,
-    });
-
+    const clickRef = useRef<ClickCtx>({ onPick: () => undefined });
     clickRef.current = {
-        current: (currentState as string) ?? null,
-        onPick: (code) => {
-            setValueToChannel({
-                key: filterKey,
-                value: code,
-                activeTab,
-                channelId,
-            });
-        },
+        onPick: (code) => tape.toggleStage('state', code),
     };
 
     useEffect(() => {
@@ -291,8 +306,13 @@ export function GeoMapWidget(props: WidgetComponentProps) {
     }, [contextKey, contextValue, mode, filtersSig]);
 
     const data = (result as GeoResult | undefined) ?? null;
-    const option = data?.option ?? null;
+    const serverOption = data?.option ?? null;
     const eyebrow = titleOverride ?? data?.eyebrow ?? 'Geographic Concentration';
+
+    const option = useMemo(
+        () => decorateStaged(serverOption, stagedStates),
+        [serverOption, stagedSig],
+    );
 
     const setHost = useGeoEchart(
         option,
