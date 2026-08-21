@@ -2,6 +2,14 @@
 .icon { font-size: 13px; color: var(--ant-color-text-tertiary); flex: 0 0 auto; }
 .empty { font-size: 12px; color: var(--ant-color-text-tertiary); }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.content { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 6px 4px 10px; border-radius: 999px; background: var(--ant-color-primary-bg); color: var(--ant-color-primary); }
 .remove { font-size: 10px; cursor: pointer; }
 .clearAll { font-size: 12px; padding: 3px 10px; border-radius: var(--ant-border-radius, 6px); border: 1px solid var(--ant-color-border-secondary); background: transparent; color: var(--ant-color-text); cursor: pointer; }
+.actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.reset { font-size: 12px; padding: 4px 12px; border-radius: var(--ant-border-radius, 6px); border: 1px solid var(--ant-color-border-secondary); background: transparent; color: var(--ant-color-text); cursor: pointer; transition: background 0.15s ease; }
+.reset:hover { background: var(--ant-color-fill-tertiary); }
+.apply { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; padding: 4px 14px; border-radius: var(--ant-border-radius, 6px); border: none; background: var(--ant-color-primary); color: #fff; cursor: pointer; transition: background 0.15s ease, opacity 0.15s ease; }
+.apply:hover:not(:disabled) { background: var(--ant-color-primary-hover, var(--ant-color-primary)); }
+.apply:disabled { background: var(--ant-color-fill-secondary); color: var(--ant-color-text-quaternary, var(--ant-color-text-tertiary)); cursor: default; }
+.badge { display: inline-flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.28); color: #fff; font-size: 10px; font-weight: 600; line-height: 1; }

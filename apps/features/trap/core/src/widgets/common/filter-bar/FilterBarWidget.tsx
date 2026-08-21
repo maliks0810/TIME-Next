@@ -8,27 +8,10 @@ import {
     useSetWidgetValue,
 } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
-import { DEAL_NAME_KEY } from '../../constants';
+import { DEAL_NAME_KEY, FILTER_PREFIX, STAGE_PREFIX } from '../../constants';
+import { useTapeFilter } from '../../hooks/useTapeFilter';
 import styles from './FilterBarWidget.module.scss';
 
-/**
- * FilterBarWidget
- * ----------------
- * Displays and removes active filter.* channel values.
- *
- * Filters are scoped to the current context value. When the selected deal
- * changes, all filter.* values on the channel are cleared before the new deal
- * is displayed. The scope marker is deliberately not a filter.* key so it
- * never appears as a chip.
- */
-
-const FILTER_PREFIX = 'filter.';
-
-/**
- * Internal channel marker identifying the deal to which the current filters
- * belong. This must not begin with "filter." because FilterBar renders all
- * filter.* keys as visible chips.
- */
 const FILTER_SCOPE_KEY = 'filterScope.deal.name';
 
 function prettify(dimension: string): string {
@@ -37,14 +20,6 @@ function prettify(dimension: string): string {
         .replace(/([a-z])([A-Z])/g, '$1 $2')
         .replace(/\b\w/g, (character) => character.toUpperCase())
         .trim();
-}
-
-function display(value: unknown): string {
-    if (Array.isArray(value)) {
-        return value.join(', ');
-    }
-
-    return String(value);
 }
 
 export function FilterBarWidget({
@@ -57,35 +32,30 @@ export function FilterBarWidget({
         widgetDefinition?.configSchema?.properties ?? {}
     ) as Record<string, any>;
 
-    const getDefault = (key: string) =>
-        properties?.[key]?.['default'];
+    const getDefault = (key: string) => properties?.[key]?.['default'];
 
     const channelId = params.channel;
     const contextKey: string =
-        params.contextKey ??
-        getDefault('contextKey') ??
-        DEAL_NAME_KEY;
+        params.contextKey ?? getDefault('contextKey') ?? DEAL_NAME_KEY;
 
     const activeTab = useGetActiveTab();
     const setValueToChannel = useSetWidgetValue();
 
-    const contextValue = useGetWidgetValue({
-        channelId,
-        key: contextKey,
-    });
-
+    const contextValue = useGetWidgetValue({ channelId, key: contextKey });
     const filterScopeValue = useGetWidgetValue({
         channelId,
         key: FILTER_SCOPE_KEY,
     });
 
-    const bag = (
-        useGetAllContext({ channelId }) ?? {}
-    ) as Record<string, unknown>;
+    const bag = (useGetAllContext({ channelId }) ?? {}) as Record<
+        string,
+        unknown
+    >;
+
+    const tape = useTapeFilter(channelId);
 
     const labels: Record<string, string> = (
-        params.dimensionLabels &&
-        typeof params.dimensionLabels === 'object'
+        params.dimensionLabels && typeof params.dimensionLabels === 'object'
             ? params.dimensionLabels
             : {}
     ) as Record<string, string>;
@@ -93,42 +63,9 @@ export function FilterBarWidget({
     const emptyText = String(
         params.emptyText ??
             getDefault('emptyText') ??
-            'No filters — full universe'
+            'No filters — full universe',
     );
 
-    const showClearAll =
-        params.showClearAll ??
-        getDefault('showClearAll') ??
-        true;
-
-    const active = Object.keys(bag)
-        .filter((key) => key.startsWith(FILTER_PREFIX))
-        .filter((key) => {
-            const value = bag[key];
-
-            return (
-                value !== null &&
-                value !== undefined &&
-                value !== '' &&
-                !(
-                    Array.isArray(value) &&
-                    value.length === 0
-                )
-            );
-        })
-        .map((key) => ({
-            key,
-            dimension: key.slice(FILTER_PREFIX.length),
-            value: bag[key],
-        }));
-
-    /**
-     * Clear stale collateral filters whenever the selected deal changes.
-     *
-     * The channel scope marker makes this robust even if FilterBarWidget is
-     * unmounted and remounted. A simple useRef comparison would lose the
-     * previous deal during a remount and could leave stale filters behind.
-     */
     useEffect(() => {
         if (
             contextValue === null ||
@@ -140,8 +77,7 @@ export function FilterBarWidget({
 
         const currentContext = String(contextValue);
         const storedScope =
-            filterScopeValue === null ||
-            filterScopeValue === undefined
+            filterScopeValue === null || filterScopeValue === undefined
                 ? ''
                 : String(filterScopeValue);
 
@@ -150,7 +86,10 @@ export function FilterBarWidget({
         }
 
         for (const key of Object.keys(bag)) {
-            if (!key.startsWith(FILTER_PREFIX)) {
+            if (
+                !key.startsWith(FILTER_PREFIX) &&
+                !key.startsWith(STAGE_PREFIX)
+            ) {
                 continue;
             }
 
@@ -165,12 +104,7 @@ export function FilterBarWidget({
                 continue;
             }
 
-            setValueToChannel({
-                key,
-                value: null,
-                activeTab,
-                channelId,
-            });
+            setValueToChannel({ key, value: null, activeTab, channelId });
         }
 
         setValueToChannel({
@@ -188,65 +122,60 @@ export function FilterBarWidget({
         setValueToChannel,
     ]);
 
-    const clear = (key: string) => {
-        setValueToChannel({
-            key,
-            value: null,
-            activeTab,
-            channelId,
-        });
-    };
-
-    const clearAll = () => {
-        for (const filter of active) {
-            clear(filter.key);
-        }
-    };
+    const chips = tape.appliedActive;
+    const hasChips = chips.length > 0;
+    const showActions = tape.hasPending || hasChips;
 
     return (
         <div className={styles.bar}>
             <FilterOutlined className={styles.icon} />
 
-            {active.length === 0 ? (
-                <span className={styles.empty}>
-                    {emptyText}
-                </span>
-            ) : (
-                <div className={styles.chips}>
-                    {active.map((filter) => (
-                        <span
-                            key={filter.key}
-                            className={styles.chip}
-                        >
+            <div className={styles.content}>
+                {hasChips ? (
+                    chips.map((chip) => (
+                        <span key={chip.key} className={styles.chip}>
                             <span>
-                                {labels[filter.key] ??
-                                    prettify(
-                                        filter.dimension
-                                    )}
-                                :{' '}
-                                {display(filter.value)}
+                                {(labels[chip.key] ?? prettify(chip.dim)) +
+                                    ': ' +
+                                    chip.values.join(', ')}
                             </span>
 
                             <CloseOutlined
                                 className={styles.remove}
-                                onClick={() =>
-                                    clear(filter.key)
-                                }
-                                aria-label={`Remove ${filter.dimension} filter`}
+                                onClick={() => tape.removeApplied(chip.dim)}
+                                aria-label={`Remove ${chip.dim} filter`}
                             />
                         </span>
-                    ))}
-                </div>
-            )}
+                    ))
+                ) : (
+                    <span className={styles.empty}>{emptyText}</span>
+                )}
+            </div>
 
-            {showClearAll && active.length > 0 && (
-                <button
-                    type="button"
-                    className={styles.clearAll}
-                    onClick={clearAll}
-                >
-                    Clear all
-                </button>
+            {showActions && (
+                <div className={styles.actions}>
+                    <button
+                        type="button"
+                        className={styles.apply}
+                        disabled={!tape.hasPending}
+                        onClick={tape.apply}
+                    >
+                        Apply
+                        {tape.hasPending && (
+                            <span className={styles.badge}>
+                                {tape.pendingCount}
+                            </span>
+                        )}
+                    </button>
+
+                    <button
+                        type="button"
+                        className={styles.reset}
+                        onClick={tape.reset}
+                    >
+                        Reset
+                    </button>
+                </div>
             )}
         </div>
     );

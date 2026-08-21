@@ -16,11 +16,10 @@ import { WidgetConfigProperty } from '../../../features/widget-studio/components
 import {
     useGetWidgetValue,
     useGetWidgetValueArray,
-    useSetWidgetValue,
 } from '../../../state/Widgets/hooks';
-import { useGetActiveTab } from '../../../state/Tabs/hooks';
 import { useTheme } from '../../../theme/ThemeContext';
-import { DEAL_NAME_KEY } from '../../constants';
+import { DEAL_NAME_KEY, FILTER_PREFIX } from '../../constants';
+import { useTapeFilter } from '../../hooks/useTapeFilter';
 import {
     resolveEchartsTokens,
     applyEchartsTypography,
@@ -291,6 +290,91 @@ function useEchart(
     return setHost;
 }
 
+const STAGED_ITEM_STYLE = {
+    borderColor: '@primary',
+    borderWidth: 2,
+    borderType: 'dashed',
+};
+
+function firstCategoryAxis(option: any): any {
+    for (const axisKey of ['xAxis', 'yAxis']) {
+        const axis = option?.[axisKey];
+        if (!axis) continue;
+
+        const list = Array.isArray(axis) ? axis : [axis];
+
+        for (const candidate of list) {
+            if (
+                candidate &&
+                candidate.type === 'category' &&
+                Array.isArray(candidate.data)
+            ) {
+                return candidate;
+            }
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Merge a dashed accent outline onto STAGED (pending, not-yet-applied) bars or
+ * slices, so charts give the same pre-Apply feedback as the geo map. Matches on
+ * the category label — which is exactly the value a click emits (see
+ * resolveChartClick), so the highlighted bar is the one you clicked.
+ */
+function decorateChartStaged(
+    option: Record<string, any> | null | undefined,
+    stagedValues: string[],
+): Record<string, any> | null {
+    if (!option) return null;
+    if (!Array.isArray(stagedValues) || stagedValues.length === 0) {
+        return option;
+    }
+
+    const clone = JSON.parse(JSON.stringify(option)) as Record<string, any>;
+    const series = Array.isArray(clone.series) ? clone.series[0] : null;
+
+    if (!series || !Array.isArray(series.data)) return clone;
+
+    const staged = new Set(stagedValues.map((value) => String(value).toUpperCase()));
+
+    const markItem = (item: any, fallback: number) => {
+        if (item !== null && typeof item === 'object') {
+            item.itemStyle = { ...(item.itemStyle ?? {}), ...STAGED_ITEM_STYLE };
+            return item;
+        }
+        return { value: item ?? fallback, itemStyle: { ...STAGED_ITEM_STYLE } };
+    };
+
+    const axis = firstCategoryAxis(clone);
+    const categories: any[] | null =
+        axis && Array.isArray(axis.data) ? axis.data : null;
+
+    if (categories) {
+        for (let index = 0; index < categories.length; index += 1) {
+            const raw = categories[index];
+            const name = raw && typeof raw === 'object' ? raw.value : raw;
+
+            if (name != null && staged.has(String(name).toUpperCase())) {
+                series.data[index] = markItem(series.data[index], 0);
+            }
+        }
+    } else {
+        series.data = series.data.map((item: any) => {
+            const name = item && typeof item === 'object' ? item.name : null;
+
+            if (name != null && staged.has(String(name).toUpperCase())) {
+                return markItem(item, 0);
+            }
+
+            return item;
+        });
+    }
+
+    return clone;
+}
+
 export function ChartWidget(props: WidgetComponentProps) {
     const { result, loading, execute, widgetInstance, widgetDefinition, mode } =
         props;
@@ -407,8 +491,17 @@ export function ChartWidget(props: WidgetComponentProps) {
     const option = data?.option ?? null;
     const eyebrow = titleOverride ?? data?.eyebrow ?? 'Chart';
 
-    const setValueToChannel = useSetWidgetValue();
-    const activeTab = useGetActiveTab();
+    const tape = useTapeFilter(channelId);
+
+    const stagedDim = filterKey.startsWith(FILTER_PREFIX)
+        ? filterKey.slice(FILTER_PREFIX.length)
+        : filterKey;
+    const stagedValues = tape.staged[stagedDim] ?? [];
+    const stagedSig = stagedValues.join(',');
+    const decoratedOption = useMemo(
+        () => decorateChartStaged(option, stagedValues),
+        [option, stagedSig],
+    );
 
     const clickRef = useRef<ChartClickCtx>({
         option: null,
@@ -423,28 +516,20 @@ export function ChartWidget(props: WidgetComponentProps) {
         filterKey,
         rowFilterKey,
         colFilterKey,
+        // Stage the clicked value(s) as a multi-select toggle instead of firing
+        // filter.* directly. Nothing filters until the FilterBar's Apply commits.
         onPick: (updates: Record<string, string>) => {
-            const entries = Object.entries(updates);
-
-            if (entries.length === 0) return;
-
-            const allSame = entries.every(([fullKey, value]) => {
-                return String(filterBag[fullKey] ?? '') === String(value);
-            });
-
-            for (const [fullKey, value] of entries) {
-                setValueToChannel({
-                    key: fullKey,
-                    value: allSame ? null : value,
-                    activeTab,
-                    channelId,
-                });
+            for (const [fullKey, value] of Object.entries(updates)) {
+                const dimension = fullKey.startsWith(FILTER_PREFIX)
+                    ? fullKey.slice(FILTER_PREFIX.length)
+                    : fullKey;
+                tape.toggleStage(dimension, value);
             }
         },
     };
 
     const setHost = useEchart(
-        option,
+        decoratedOption,
         roleColors,
         themeName,
         clickRef,
