@@ -32,6 +32,7 @@ import { Input } from '../widgets/common/input/Input';
 import { SummaryPanelWidget } from '../widgets/common/summary-panel/SummaryPanel';
 import { ChartWidget } from '../widgets/common/chart/ChartWidget';
 import { GeoMapWidget } from '../widgets/common/geo-map/GeoMapWidget';
+import { TableWidget } from '../widgets/common/table/TableWidget';
 import { TitleWidget } from '../widgets/common/title/TitleWidget';
 import { FilterBarWidget } from '../widgets/common/filter-bar/FilterBarWidget';
 
@@ -311,6 +312,14 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         visibleIn: ['workflow'],
         listensToKeys: ['deal.name', 'filter.state'],
         emitsKeys: ['filter.state'],
+    },
+    cwd_common_table_01: {
+        id: 'cwd_common_table_01',
+        component: TableWidget,
+        category: 'View',
+        visibleIn: ['workflow', 'landing'],
+        listensToKeys: ['deal.name', 'filter.state', 'filter.fico', 'filter.ltv', 'filter.coupon', 'filter.manufacturer', 'filter.new_used'],
+        emitsKeys: [],
     },
     cwd_common_title_01: {
         id: 'cwd_common_title_01',

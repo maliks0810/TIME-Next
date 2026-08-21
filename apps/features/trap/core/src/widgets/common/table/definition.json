@@ -1,0 +1,112 @@
+{
+    "id": "cwd_common_table_01",
+    "name": "Table",
+    "version": 1,
+    "description": "Generic virtualized table of rows (e.g. the loan tape). Listens to filters, exports to Excel. Asset-class / use-case agnostic.",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_common_table_01",
+    "listensToKeys": ["deal.name", "filter.state", "filter.fico", "filter.ltv", "filter.coupon", "filter.manufacturer", "filter.new_used"],
+    "emitsKeys": null,
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "category": "Interactions",
+                "default": 1,
+                "description": "Widgets on the same channel share the selected deal and the active filters.",
+                "enum": [1, 2, 3, 4, 5],
+                "title": "Communication Channel",
+                "type": "string"
+            },
+            "contextKey": {
+                "category": "Interactions",
+                "default": "deal.name",
+                "description": "Which channel value selects the universe (deal name today).",
+                "title": "Context Key",
+                "type": "string"
+            },
+            "schemaKey": {
+                "category": "System Parameters",
+                "description": "Logical table scenario resolved by GraphQL. Returns { columns, rows }.",
+                "enum": ["tape.loans"],
+                "title": "Schema Key",
+                "type": "string"
+            },
+            "listensToKeys": {
+                "category": "Interactions",
+                "default": [],
+                "description": "Filter keys this table re-queries on. Empty uses the collateral tape filters. The table listens only; it never emits filters.",
+                "title": "Filter Keys",
+                "type": "array",
+                "items": { "type": "string" }
+            },
+            "exportEnabled": {
+                "category": "View Parameters",
+                "default": true,
+                "description": "Show the Export to Excel button.",
+                "title": "Enable Export",
+                "type": "boolean"
+            },
+            "exportFileName": {
+                "category": "View Parameters",
+                "default": "loan-tape",
+                "description": "File name (without extension) for the Excel export.",
+                "title": "Export File Name",
+                "type": "string"
+            },
+            "density": {
+                "category": "View Parameters",
+                "default": "compact",
+                "description": "Row density. Compact is denser than the standard small table.",
+                "enum": ["compact", "comfortable"],
+                "title": "Density",
+                "type": "string"
+            },
+            "rowHover": {
+                "category": "View Parameters",
+                "default": true,
+                "description": "Highlight the row under the cursor.",
+                "title": "Row Hover Highlight",
+                "type": "boolean"
+            },
+            "zebra": {
+                "category": "View Parameters",
+                "default": false,
+                "description": "Shade alternating rows for easier scanning.",
+                "title": "Alternating Rows",
+                "type": "boolean"
+            },
+            "showTitle": {
+                "category": "View Parameters",
+                "default": true,
+                "description": "Show the title row (icon + label + row count).",
+                "title": "Show Title",
+                "type": "boolean"
+            },
+            "titleText": {
+                "category": "View Parameters",
+                "default": "",
+                "description": "Overrides the table title. Blank uses the scenario title from GraphQL.",
+                "title": "Custom Title Text",
+                "type": "string"
+            }
+        },
+        "required": ["schemaKey"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common",
+        "visibleIn": ["workflow", "landing"]
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": { "default": 12, "min": 3, "max": 12, "step": null },
+                "height": { "default": 400, "min": 200, "max": 1200, "step": 50 }
+            }
+        }
+    ]
+}
