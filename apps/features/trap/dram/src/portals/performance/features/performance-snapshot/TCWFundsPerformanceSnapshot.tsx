@@ -157,36 +157,53 @@ export default function TCWFundsPerformanceSnapshot() {
 
   // Build grid rows, injecting a section band row before each group.
   const rows = useMemo<GridRow[]>(() => {
-    if (!data) return [];
-    const term = search.trim().toLowerCase();
-    const out: GridRow[] = [];
+  if (!data) return [];
 
-    data.sections
-      .filter((s) => section === "all" || s.sectionName === section)
-      .forEach((s) => {
-        const matched = s.rows.filter((r) =>
-          [r.pfNumber, r.fundName, r.ticker, r.morningstarCategory].some(
-            (v) => String(v ?? "").toLowerCase().includes(term)
-          )
+  const term = search.trim().toLowerCase();
+  const out: GridRow[] = [];
+
+  data.sections
+    .filter((s) => section === "all" || s.sectionName === section)
+    .forEach((s) => {
+      const matched = s.rows
+        .filter((r) =>
+          [
+            r.pfNumber,
+            r.fundName,
+            r.ticker,
+            r.morningstarCategory,
+          ].some((v) =>
+            String(v ?? "").toLowerCase().includes(term),
+          ),
+        )
+        .sort(
+          (a, b) =>
+            (b.fundAumMillions ?? Number.NEGATIVE_INFINITY) -
+            (a.fundAumMillions ?? Number.NEGATIVE_INFINITY),
         );
-        if (!matched.length) return;
 
-        // Section band row.
-        out.push({
-          id: `section-${s.sectionName}`,
-          key: `section-${s.sectionName}`,
-          rowType: "section",
-          fundName: s.sectionName,
-          sectionName: s.sectionName,
-        });
+      if (!matched.length) return;
 
-        matched.forEach((r) =>
-          out.push({ ...r, key: r.id, sectionName: s.sectionName })
-        );
+      // Section band row
+      out.push({
+        id: `section-${s.sectionName}`,
+        key: `section-${s.sectionName}`,
+        rowType: "section",
+        fundName: s.sectionName,
+        sectionName: s.sectionName,
       });
 
-    return out;
-  }, [data, search, section]);
+      matched.forEach((r) =>
+        out.push({
+          ...r,
+          key: r.id,
+          sectionName: s.sectionName,
+        }),
+      );
+    });
+
+  return out;
+}, [data, search, section]);
 
   // Section band rows span all columns; the rest render normally.
   // NOTE: AntD's onCell signature is (record, index?) -> the record is the
