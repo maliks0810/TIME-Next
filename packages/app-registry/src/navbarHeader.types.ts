@@ -6,7 +6,7 @@ export enum NavbarHeader {
     ClientManagement = 'Client Management',
     Products = 'Products',
     AIProducts = 'AI Products',
-    Insights = 'Insights',
+    Insights = 'Report Center',
     Support = 'Support',
     Equity = 'Equity'
 }

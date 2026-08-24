@@ -232,19 +232,19 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
         env: HighestEnv.prod,
         
     },
-    {
-        type: 'external',
-        header: NavbarHeader.ResearchAnalysis,
-        subHeader: NavbarSubHeader.Other,
-        title: 'TIP',
-        sandboxUrl: 'https://tipuat.corp.tcw.com/',
-        devUrl: 'https://tipuat.corp.tcw.com/',
-        qaUrl: 'https://tipuat.corp.tcw.com/',
-        prodUrl: 'https://tip.corp.tcw.com/',
-        newTab: true,
-        disabled: false,
-        env: HighestEnv.prod
-    },
+    // {
+    //     type: 'external',
+    //     header: NavbarHeader.ResearchAnalysis,
+    //     subHeader: NavbarSubHeader.Other,
+    //     title: 'TIP',
+    //     sandboxUrl: 'https://tipuat.corp.tcw.com/',
+    //     devUrl: 'https://tipuat.corp.tcw.com/',
+    //     qaUrl: 'https://tipuat.corp.tcw.com/',
+    //     prodUrl: 'https://tip.corp.tcw.com/',
+    //     newTab: true,
+    //     disabled: false,
+    //     env: HighestEnv.prod
+    // },
     {  
         header: NavbarHeader.ResearchAnalysis,  
         subHeader: NavbarSubHeader.FORGE,  
