@@ -18,6 +18,7 @@ export interface AladdinBasketSecurityResponse {
     isin: string,
     sedol: string,
     orderQuantity: number;
+    proposedQuantity: number | null;
     marketPrice: number;
     aladdinOrderId: string;
     isActive: boolean;

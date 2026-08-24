@@ -1,0 +1,4 @@
+import {BbgBasketOrder} from "./BbgBasketOrder"
+export interface BbgBasketOrderResponse{
+    basketOrder: BbgBasketOrder;
+}

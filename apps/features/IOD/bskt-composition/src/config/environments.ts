@@ -18,6 +18,10 @@ interface RoutesConfig {
   createTestDealerProposal: string;
   healthCheck: string;
   sendToAladdin: string;
+  bbgBasketOrderSnapshots: string;
+  bbgBasketOrder: string;
+  sendToBbg: string;
+  BasketDetails: string;
 }
 
 interface EnvironmentConfig {
@@ -40,7 +44,11 @@ const environmentConfigs: Record<Environment, EnvironmentConfig> = {
       basketNegotiations: "basketnegotiations",
       createTestDealerProposal: "basketnegotiations/createtestdealerproposal",
       healthCheck: "health",
-      sendToAladdin: "basketnegotiations/aladdinbasketsecurities"
+      sendToAladdin: "basketnegotiations/aladdinbasketsecurities",
+      bbgBasketOrderSnapshots: "basketnegotiations/bbgordersnapshots",
+      bbgBasketOrder: "basketnegotiations/bbgbasketorder",
+      sendToBbg: "basketnegotiations/sendtobbg",
+      BasketDetails: "basketnegotiations/details"
     },
   },
 
@@ -52,7 +60,11 @@ const environmentConfigs: Record<Environment, EnvironmentConfig> = {
       basketNegotiations: "basketnegotiations",
       createTestDealerProposal: "basketnegotiations/createtestdealerproposal",
       healthCheck: "health",
-      sendToAladdin: "basketnegotiations/aladdinbasketsecurities"
+      sendToAladdin: "basketnegotiations/aladdinbasketsecurities",
+      bbgBasketOrderSnapshots: "basketnegotiations/bbgordersnapshots",
+      bbgBasketOrder: "basketnegotiations/bbgbasketorder",
+      sendToBbg: "basketnegotiations/sendtobbg",
+      BasketDetails: "basketnegotiations/details"
     },
   },
 
@@ -64,7 +76,11 @@ const environmentConfigs: Record<Environment, EnvironmentConfig> = {
       basketNegotiations: "basketnegotiations",
       createTestDealerProposal: "basketnegotiations/createtestdealerproposal",
       healthCheck: "health",
-      sendToAladdin: "basketnegotiations/aladdinbasketsecurities"
+      sendToAladdin: "basketnegotiations/aladdinbasketsecurities",
+      bbgBasketOrderSnapshots: "basketnegotiations/bbgordersnapshots",
+      bbgBasketOrder: "basketnegotiations/bbgbasketorder",
+      sendToBbg: "basketnegotiations/sendtobbg",
+      BasketDetails: "basketnegotiations/details"
     },
   },
 
@@ -76,7 +92,11 @@ const environmentConfigs: Record<Environment, EnvironmentConfig> = {
       basketNegotiations: "basketnegotiations",
       createTestDealerProposal: "basketnegotiations/createtestdealerproposal",
       healthCheck: "health",
-      sendToAladdin: "basketnegotiations/aladdinbasketsecurities"
+      sendToAladdin: "basketnegotiations/aladdinbasketsecurities",
+      bbgBasketOrderSnapshots: "basketnegotiations/bbgordersnapshots",
+      bbgBasketOrder: "basketnegotiations/bbgbasketorder",
+      sendToBbg: "basketnegotiations/sendtobbg",
+      BasketDetails: "basketnegotiations/details"
     },
   },
 };
@@ -146,4 +166,24 @@ export const getSendToAladdinUrl = (): string => {
 export const getOktaConfig = (): OktaAuthOptions => {
   const env = getCurrentEnvironment();
   return oktaConfigs[env];
+};
+
+export const getBbgBasketOrderSnapshotsUrl = (): string => {
+  const cfg = getEnvironmentConfig();
+  return`${cfg.apiBaseUrl}/${cfg.routes.bbgBasketOrderSnapshots}`;
+};
+
+export const getBbgBasketOrderUrl = (): string => {
+  const cfg = getEnvironmentConfig();
+  return`${cfg.apiBaseUrl}/${cfg.routes.bbgBasketOrder}`;
+};
+
+export const getSendToBbgUrl = (): string => {
+  const cfg = getEnvironmentConfig();
+  return`${cfg.apiBaseUrl}/${cfg.routes.sendToBbg}`;
+};
+
+export const getBasketDetailsUrl = (): string => {
+  const cfg = getEnvironmentConfig();
+  return`${cfg.apiBaseUrl}/${cfg.routes.BasketDetails}`;
 };

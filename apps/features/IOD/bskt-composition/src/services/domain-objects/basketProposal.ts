@@ -3,13 +3,16 @@ import { BasketState } from "./basketState";
 
 export interface BasketInformation {
     basketId: string;
+    bbgTicker: string;
     dealerDesk: string;
     dealerEmail: string;
     totalShares: number;
     securitiesCount: number;
     timestamp: string;
-    unitSize: number;
+    creationUnitSize: number;
     units: number;
+    securitiesMv: number | null;
+    isLoadingMv: boolean;
 };
 
 export interface BasketProposal {
