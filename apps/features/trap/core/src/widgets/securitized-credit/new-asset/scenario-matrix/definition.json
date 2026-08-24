@@ -1,0 +1,70 @@
+{
+    "id": "cwd_scenario_matrix_01",
+    "name": "Scenario Matrix",
+    "version": 1,
+    "description": "Transposed scenario analysis and cash flow for a tranche",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_scenario_matrix_01",
+    "listensToKeys": [
+        "deal.id",
+        "deal.name",
+        "tranche.id",
+        "tranche.name",
+        "analysis.sessionId",
+        "workflow.refresh"
+    ],
+    "emitsKeys": ["scenario.selectedResultId", "scenario.selectedSummary"],
+    "configSchema": {
+        "type": "object",
+        "title": "Scenario Matrix",
+        "required": [],
+        "properties": {
+            "channel": {
+                "type": "string",
+                "default": "1"
+            },
+            "contextKey": {
+                "type": "string",
+                "default": "tranche.id"
+            },
+            "maxScenarioColumns": {
+                "type": "integer",
+                "default": 8,
+                "minimum": 2,
+                "maximum": 8
+            },
+            "cashFlowDefaultView": {
+                "type": "string",
+                "enum": ["chart", "table"],
+                "default": "chart"
+            },
+            "exportFileName": {
+                "type": "string",
+                "default": "scenario-analysis"
+            },
+            "showTitle": {
+                "type": "boolean",
+                "default": true
+            },
+            "titleText": {
+                "type": "string",
+                "default": ""
+            }
+        }
+    },
+    "uiHints": {
+        "category": "Securitized Credit"
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": { "default": 7, "min": 3, "max": 12, "step": null },
+                "height": { "default": 718, "min": 560, "max": 1100, "step": 50 }
+            }
+        }
+    ]
+}
