@@ -42,6 +42,16 @@ function formatCell(value: any, format?: string): any {
             return `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}%`;
         case 'integer':
             return Math.round(value).toLocaleString();
+        case 'percent2':
+            return `${value.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            })}%`;
+        case 'year':
+            return value.toLocaleString(undefined, {
+                useGrouping: false,
+                maximumFractionDigits: 0,
+            });
         default:
             return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
     }
@@ -198,7 +208,7 @@ function TableView(props: TableViewProps) {
                             rowClassName={
                                 zebra
                                     ? (_record: any, index: number) =>
-                                          index % 2 === 1 ? styles.zebraRow : ''
+                                        index % 2 === 1 ? styles.zebraRow : ''
                                     : undefined
                             }
                             pagination={false}
