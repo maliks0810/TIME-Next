@@ -1,20 +1,6 @@
 import { create } from 'zustand';
+import { UserInfo } from './types';
 
-export type UserInfo = {
-    name?: string;
-    id?: string;
-    login?: string;
-    email: string;
-    idToken?: string;
-    accessToken?: string;
-    phone?: string;
-    avatar?: string;
-    claims?: any;
-    isAdmin: boolean;
-    favorites?: any[];
-    authorizations?: any[];
-    TIME_Role?: string;
-};
 const userInfoDefault: UserInfo = {
     idToken: '',
     name: 'Unknown',

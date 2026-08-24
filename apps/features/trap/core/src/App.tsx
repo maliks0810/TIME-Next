@@ -10,7 +10,7 @@ import './styles/datagrid-theme-bridge.scss';
 import './styles/scrollbars.scss';
 
 import { AdminPanel } from './features/AdminPanel';
-import { useGetUserClaims } from './state/User/hooks';
+import { useGetUserClaims, useGetUserRole } from './state/User/hooks';
 import { MessageInitializer } from './components/common/MessageInitializer';
 import {
     CustomTheme,
@@ -73,6 +73,7 @@ export default function App() {
     );
 
     const claims = useGetUserClaims();
+    const userRole = useGetUserRole();
 
     useUserInfo();
 
@@ -84,7 +85,7 @@ export default function App() {
             sessionStorage.setItem('OrgLevel2', claims.OrgLevel2);
             sessionStorage.setItem('OrgLevel4', claims.OrgLevel4);
             sessionStorage.setItem('okta-email', claims.email);
-            sessionStorage.setItem('okta-role', claims.role || 'Analyst');
+            sessionStorage.setItem('okta-role', userRole || 'Analyst');
         }
     }, [claims]);
 

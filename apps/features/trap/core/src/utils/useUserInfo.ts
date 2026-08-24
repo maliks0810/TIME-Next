@@ -1,7 +1,7 @@
 import { useOktaAuth } from '@okta/okta-react';
 import { useEffect } from 'react';
 import { useSetUserInfo } from '../state/User/hooks';
-import { UserInfo } from '../state/User/userInfoStore';
+import { UserInfo } from '../state/User/types';
 
 // might need to rethink this
 const ADMIN_GROUP = 'VelocityPortalAdmins';
