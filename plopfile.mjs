@@ -107,7 +107,7 @@ plop.setGenerator('app', {
             type: 'list',
             name: 'navMenu',
             message: 'Which Menu item would you like your application to be under in the Nav Bar?',
-            choices: ['Portfolio Management', 'Research & Analysis', 'Risk & Performance', 'Compliance', 'Client Management', 'AI Products', 'Insights', 'Support']
+            choices: ['Portfolio Management', 'Research & Analysis', 'Risk & Performance', 'Compliance', 'Client Management', 'Insights', 'Support']
         },
         {
             type: 'list',
@@ -125,8 +125,8 @@ plop.setGenerator('app', {
                             return ['Research', 'Governance', 'Regulations'];
                         case 'Client Management':
                             return ['Research'];
-                        case 'AI Products':
-                            return ['AI Themes', 'AI Upload Tools']
+                        // case 'AI Products':
+                        //     return ['AI Themes', 'AI Upload Tools']
                         case 'Insights':
                             return ['Report Center']
                         case 'Support':
@@ -170,7 +170,7 @@ plop.setGenerator('app', {
             'Risk & Performance': 'riskPerformanceApps',
             'Compliance': 'complianceApps',
             'Client Management': 'clientManagementApps',
-            'AI Products': 'aiProductsApps',
+            // 'AI Products': 'aiProductsApps',
             'Insights': 'insightsApps',
             'Support': 'supportApps',
             'Equity': 'equityApps'
