@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Popup } from "devextreme-react/popup";
 import DataGrid, { Column, DataGridRef, Scrolling, FilterRow, HeaderFilter, DataGridTypes } from "devextreme-react/data-grid";
 import NumberBox from "devextreme-react/number-box";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -13,9 +14,9 @@ import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 
 import { ValueChangedEvent } from "devextreme/ui/number_box";
 
-import { publishToBbg } from "../../services/bsktService";
-import { getAladdinBasketSecurities } from "../../services/basketNegotiationService";
+import { getAladdinBasketSecurities, getBasketDetails, publishToBbg } from "../../services/basketNegotiationService";
 import type { AladdinBasketSecuritiesResponse } from "../../services/domain-objects/response/AladdinBasketSecuritiesResponse";
+import type { BasketDetailsObj } from "../../services/domain-objects/response/BasketDetailsResponse";
 import { useUserInfo } from '@platform/utils';
 
 import { exportDataGrid, } from "devextreme/excel_exporter";
@@ -26,6 +27,7 @@ import "devextreme/dist/css/dx.light.css";
 import styles from "./BsktProposalsGrid.module.css";
 
 import type { BasketProposal } from "../../services/domain-objects/basketProposal";
+import notify from 'devextreme/ui/notify';
 
 interface BsktProposalOverridePopupProps {
   bsktNegotiationId: number;
@@ -40,6 +42,7 @@ type AladdinSecurityRow = {
   aladdinId?: string;
   cusip?: string;
   orderQuantity?: number;
+  proposedQuantity?: number | null;
   marketPrice?: number;
   marketValue?: number;
   isin?: string;
@@ -47,10 +50,41 @@ type AladdinSecurityRow = {
   currency?: string;
 };
 
-function usd(n: number | null | undefined): string {
-  if (typeof n !== "number" || !Number.isFinite(n)) return "N/A";
-  return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+function toNumber(v: unknown): number | null {
+  if (typeof v === "number") {
+    return Number.isFinite(v) ? v : null;
+  }
+
+  if (typeof v === "string" && v.trim() !== "") {
+    const n = Number(v.replace(/,/g, ""));
+    return Number.isFinite(n) ? n : null;
+  }
+
+  return null;
 }
+
+function usd(v: unknown): string {
+  const n = toNumber(v);
+  if (n == null) return "N/A";
+
+  return n.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function wholeNumber(v: unknown): string {
+  const n = toNumber(v);
+  if (n == null) return "";
+
+  return n.toLocaleString("en-US", {
+    maximumFractionDigits: 0,
+  });
+}
+
 
 function toText(v: unknown): string {
   if (v == null) return "";
@@ -67,13 +101,48 @@ export function BsktProposalOverridePopup({
   const { email: currentUser } = useUserInfo();
   const [cashFee, setCashFee] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState<boolean>(false);
+  const cashFeeRef = useRef<React.ComponentRef<typeof NumberBox>>(null);
 
   const [loading, setLoading] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [aladdinData, setAladdinData] = useState<AladdinBasketSecuritiesResponse | null>(null);
+  const [basketDetails, setBasketDetails] = useState<BasketDetailsObj | null>(null);
   
   const dataGridRef = useRef<DataGridRef|null>(null);
+
+  const focusCashFeeInput = () => {
+  window.setTimeout(() => {
+    const numberBoxInstance = cashFeeRef.current?.instance?.();
+
+    if (!numberBoxInstance) return;
+
+    numberBoxInstance.focus();
+
+    const input = numberBoxInstance
+      .element()
+      .querySelector("input.dx-texteditor-input:not([type='hidden'])") as HTMLInputElement | null;
+
+    console.log("visible cashFee input:", input);
+
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  }, 150);
+};
+
+
+
+  // Autofocus Cash Fee when popup is ready
+  useEffect(() => {
+    if (!show) return;
+    if (showDetails) return;
+    if (loading) return;
+    if (loadError) return;
+
+    focusCashFeeInput();
+  }, [show, showDetails, loading, loadError]);
 
   // Reset details state whenever popup opens
   useEffect(() => {
@@ -88,9 +157,17 @@ export function BsktProposalOverridePopup({
     const fetch = async () => {
       setLoading(true);
       setLoadError(null);
+      setBasketDetails(null);
       try {
-        const data = await getAladdinBasketSecurities(bsktNegotiationId, currentUser);
-        if (!cancelled) setAladdinData(data);
+        const [data, detailsResponse] = await Promise.all([
+          getAladdinBasketSecurities(bsktNegotiationId, currentUser),
+          getBasketDetails(bsktNegotiationId),
+        ]);
+
+        if (!cancelled) {
+          setAladdinData(data);
+          setBasketDetails(detailsResponse.basketDetails);
+        }
       } catch (e) {
         if (!cancelled) setLoadError(e instanceof Error ? e.message : "Failed to load basket details.");
       } finally {
@@ -115,14 +192,33 @@ export function BsktProposalOverridePopup({
   }, [aladdinData?.aladdinBasketSecurities]);
 
   const securitiesCount = useMemo(() => {
-    return securitiesRows.length;
-  }, [securitiesRows.length]);
+    return basketDetails?.aladdinSecuritiesCount;
+  }, [basketDetails?.aladdinSecuritiesCount]);
 
-  const totalMvText = useMemo(() => {
-    return usd(aladdinData?.totalMarketValue);
-  }, [aladdinData?.totalMarketValue]);
+  const aladdinSecuritiesMvText = useMemo(() => {
+  return usd(basketDetails?.aladdinSecuritiesMarketValue);
+}, [basketDetails?.aladdinSecuritiesMarketValue]);
 
   const handleSaveAndPublish = async () => {
+    //validation. no empty cash fee
+    if (cashFee == null) 
+      {
+        notify(
+              {
+              message: 'Please enter a Cash Fee value before clicking Save & Publish.',
+              position: {
+                my: 'top center',
+                at: 'top center',
+                of: window
+                        }
+              },
+            'warning',
+            3000
+            );
+        focusCashFeeInput();
+        return;
+      }
+
     setPublishing(true);
     try {
       await publishToBbg(bsktNegotiationId, currentUser, cashFee);
@@ -178,6 +274,11 @@ export function BsktProposalOverridePopup({
     }  
   };
 
+  const onRowPrepared = (e: DataGridTypes.RowPreparedEvent<AladdinSecurityRow> ) => {
+    if (e.rowType === 'data' && e.data.proposedQuantity != null && e.data.orderQuantity != null && (e.data.orderQuantity > e.data.proposedQuantity)) {
+        e.rowElement.classList.add(styles.highlighted);
+    }
+  };
   
   const Header = () => {
     const title = showDetails ? "Basket Details" : "Publish Basket from Aladdin to BSKT";
@@ -224,12 +325,12 @@ export function BsktProposalOverridePopup({
         <div className={styles.summaryLabel}>Basket ID</div>
         <div className={styles.summaryValue}>{basketIdText}</div>
 
-        <div className={styles.summaryLabel}># Securities</div>
+        <div className={styles.summaryLabel}>Aladdin Number of Securities</div>
         <div className={styles.summaryValue}>{securitiesCount}</div>
 
-        <div className={styles.summaryLabel}>Total MV</div>
+        <div className={styles.summaryLabel}>Aladdin Securities MV $</div>
         <div className={styles.summaryValueRow}>
-          <div className={styles.summaryValue}>{totalMvText}</div>
+          <div className={styles.summaryValue}>{aladdinSecuritiesMvText}</div>
           <Button
             variant="contained"
             disableElevation
@@ -256,17 +357,21 @@ export function BsktProposalOverridePopup({
           <div className={styles.overrideCell}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <NumberBox
+                ref = {cashFeeRef}
                 value={cashFee ?? undefined}
                 width={110}
                 height={26}
                 stylingMode="outlined"
+                elementAttr={{class: styles.yellowNumberBox}}
                 format={"#0.00"}
                 min={0}
                 showSpinButtons={false}
                 showClearButton={true}
+                onContentReady={() => {if (show && !showDetails && !loading && !loadError) {focusCashFeeInput();}}}
+                disabled={publishing}
                 onValueChanged={(e: ValueChangedEvent) => {
                   const v = e.value as number | null;
-                  setCashFee(v == null || v === 0 ? null : v);
+                  setCashFee(v == null ? null : v);
                 }}
               />
               <span className={styles.overrideCell}>bps</span>
@@ -283,7 +388,14 @@ export function BsktProposalOverridePopup({
           className={styles.popupPrimaryBtn}
           disabled={publishing}
         >
-          {publishing ? "Publishing..." : "Save & Publish"}
+          {publishing && (
+              <CircularProgress
+              size={14}
+              sx={{
+                color: "white",
+                marginRight: "8px", }}/>
+                         )}
+                {publishing ? "Publishing..." : "Save & Publish"}
         </Button>
 
         <Button
@@ -314,11 +426,11 @@ export function BsktProposalOverridePopup({
 
           <div className={styles.detailsItem}>
             <div className={styles.detailsK}>Total Shares</div>
-            <div className={styles.detailsV}>{toText(info?.totalShares)}</div>
+            <div className={styles.detailsV}>{wholeNumber(info?.totalShares)}</div>
           </div>
 
           <div className={styles.detailsItem}>
-            <div className={styles.detailsK}># Securities</div>
+            <div className={styles.detailsK}>Aladdin Number of Securities</div>
             <div className={styles.detailsV}>{toText(securitiesCount)}</div>
           </div>
 
@@ -333,8 +445,8 @@ export function BsktProposalOverridePopup({
           </div>
 
           <div className={styles.detailsItem}>
-            <div className={styles.detailsK}>Unit Size</div>
-            <div className={styles.detailsV}>{toText(info?.unitSize)}</div>
+            <div className={styles.detailsK}>Creation Unit Size</div>
+            <div className={styles.detailsV}>{wholeNumber(info?.creationUnitSize)}</div>
           </div>
 
           <div className={styles.detailsItem}>
@@ -343,8 +455,8 @@ export function BsktProposalOverridePopup({
           </div>
 
           <div className={styles.detailsItem}>
-            <div className={styles.detailsK}>Total Market Value</div>
-            <div className={styles.detailsV}>{totalMvText}</div>
+            <div className={styles.detailsK}>Aladdin Securities MV $</div>
+            <div className={styles.detailsV}>{aladdinSecuritiesMvText}</div>
           </div>
         </div>
       </div>
@@ -362,17 +474,17 @@ export function BsktProposalOverridePopup({
             allowColumnResizing={false}
             width="95%"
             onCellPrepared={onCellPrepared}
+            onRowPrepared={onRowPrepared}
           >
             <Scrolling mode="standard" />
             <FilterRow visible={false} applyFilter="auto" />
             <HeaderFilter visible={true} />
             
-          <Column dataField="isin" caption="ISIN" alignment="left" width="25%" allowResizing allowFiltering/>
-          <Column dataField="sedol" caption="SEDOL" alignment="left" width="20%" allowResizing allowFiltering/>
-          <Column dataField="currency" caption="Currency" alignment="left" width="15%" allowResizing allowFiltering/>
-          <Column dataField="orderQuantity" caption="Bskt Amt" alignment="left" format="#,##0" width="15%" allowResizing allowFiltering/>
-          <Column dataField="marketValue" caption="MV USD" alignment="left" width="25%" allowResizing allowFiltering 
-              format={{ type: "currency", precision: 2 }} />
+          <Column dataField="isin" caption="ISIN" alignment="left" width="25%" allowResizing allowFiltering />
+          <Column dataField="sedol" caption="SEDOL" alignment="left" width="20%" allowResizing allowFiltering />
+          <Column dataField="currency" caption="Currency" alignment="left" width="15%" allowResizing allowFiltering />
+          <Column dataField="proposedQuantity" caption="Proposed Qty" alignment="left" format="#,##0" width="20%" allowResizing allowFiltering />
+          <Column dataField="orderQuantity" caption="Bskt Amt" alignment="left" format="#,##0" width="20%" allowResizing allowFiltering />
         </DataGrid>
         </div>
       </div>
