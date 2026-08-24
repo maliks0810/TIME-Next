@@ -21,7 +21,7 @@ import {
     uid,
 } from '../utils/workflowDesigner.utils';
 import { createDefaultConfigFromDefinition } from '../../widget-studio/helpers/helpers';
-import { useUserInfo } from '../../../../../../../../packages/utils/src/hooks/Authentication/user-info-context';
+import { useGetUserLogin } from '../../../state/User/hooks';
 
 export type AddWidgetOptions = {
     keepPickerOpen?: boolean;
@@ -36,7 +36,7 @@ export function useWorkflowDesigner({
 }) {
     const nav = useNavigate();
 
-    const { login } = useUserInfo();
+    const login = useGetUserLogin();
     const [loading, setLoading] = React.useState(false);
     const [loaded, setLoaded] = React.useState<any>(null);
 

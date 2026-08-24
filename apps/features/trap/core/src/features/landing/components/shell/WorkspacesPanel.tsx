@@ -8,7 +8,7 @@ import {
     SearchOutlined,
     PlusOutlined,
 } from '@ant-design/icons';
-import { useUserInfo } from '@platform/utils';
+import { useGetUserClaims, useGetUserLogin } from '../../../../state/User/hooks';
 import {
     getTemplates,
     updateTemplate,
@@ -87,7 +87,9 @@ export default function WorkspacesPanel({
     onTemplateChanged,
     onCloneTemplate,
 }: Props) {
-    const { login, claims } = useUserInfo();
+    const login = useGetUserLogin();
+    const claims = useGetUserClaims();
+
     const currentUser =
         (typeof window !== 'undefined' && localStorage.getItem('debug-user')) || login;
     const org1 = String((claims as any)?.OrgLevel1 ?? '').trim();

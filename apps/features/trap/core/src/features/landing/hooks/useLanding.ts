@@ -10,13 +10,13 @@ import {
     getDefaultLandingTemplate,
     setDefaultLandingTemplate,
 } from '../../../utils/userPreferences';
-import { useUserInfo } from '@platform/utils';
-import { useGetActiveUser } from '../../../state/User/hooks';
+import { useGetUserClaims, useGetUserLogin, useGetActiveUser } from '../../../state/User/hooks';
 
 export function useLanding(props: LandingTabProps) {
     const defaultLanding = React.useMemo(() => getDefaultLandingTemplate(), []);
 
-    const { claims, ...info } = useUserInfo();
+    const claims = useGetUserClaims();
+    const login = useGetUserLogin();
     const [compiledLandingVersion, setCompiledLandingVersion] = React.useState<any>(null);
     const [targetTemplateId, setTargetTemplateId] = React.useState<string>();
     const [isLoading, setIsLoading] = React.useState(false);
@@ -81,8 +81,7 @@ export function useLanding(props: LandingTabProps) {
 
         // If there are no department landings to activate, then activate first landing that belongs to user
         const myTemplate = templates.filter(
-            (el) =>
-                el.kind === 'LANDING' && el.scopeType === 'USER' && el.ownerUserId === info.login
+            (el) => el.kind === 'LANDING' && el.scopeType === 'USER' && el.ownerUserId === login
         )[0];
 
         return myTemplate;
@@ -186,7 +185,7 @@ export function useLanding(props: LandingTabProps) {
                 title: input.target?.title ?? 'Workflow',
                 initialContext: ctx,
                 // Sending empty ownerUserId, as we don't have access to it here.
-                ownerUserId: ''
+                ownerUserId: '',
             });
         },
         [props]

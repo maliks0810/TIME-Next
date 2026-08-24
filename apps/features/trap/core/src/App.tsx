@@ -2,7 +2,6 @@
 import React from 'react';
 import { BackTop, ConfigProvider, Layout, App as AntdApp } from 'antd';
 import { Route, Routes } from 'react-router-dom';
-import { useUserInfo } from '@platform/utils';
 
 import TrapLandingPage from './pages/TrapLandingPage';
 import WidgetStudioConfigurePage from './features/widget-studio/WidgetStudioConfigurePage';
@@ -11,7 +10,7 @@ import './styles/datagrid-theme-bridge.scss';
 import './styles/scrollbars.scss';
 
 import { AdminPanel } from './features/AdminPanel';
-import { useSetActiveUser } from './state/User/hooks';
+import { useGetUserClaims } from './state/User/hooks';
 import { MessageInitializer } from './components/common/MessageInitializer';
 import {
     CustomTheme,
@@ -21,6 +20,7 @@ import {
     resolveTheme,
 } from './theme/customThemes';
 import { PreviewTheme, ThemeContext } from './theme/ThemeContext';
+import { useUserInfo } from './utils/useUserInfo';
 
 const { Content } = Layout;
 
@@ -72,8 +72,9 @@ export default function App() {
         [refetchThemes]
     );
 
-    const { claims } = useUserInfo();
-    const setActiveUser = useSetActiveUser();
+    const claims = useGetUserClaims();
+
+    useUserInfo();
 
     React.useEffect(() => {
         if (claims) {
@@ -84,7 +85,6 @@ export default function App() {
             sessionStorage.setItem('OrgLevel4', claims.OrgLevel4);
             sessionStorage.setItem('okta-email', claims.email);
             sessionStorage.setItem('okta-role', claims.role || 'Analyst');
-            setActiveUser(claims.name);
         }
     }, [claims]);
 

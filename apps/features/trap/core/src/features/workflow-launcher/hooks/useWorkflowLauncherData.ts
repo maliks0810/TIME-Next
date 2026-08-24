@@ -12,7 +12,7 @@ import {
     Visibility,
 } from '../../../api/trap';
 
-import { useUserInfo } from '@platform/utils';
+import { useGetUserLogin } from '../../../state/User/hooks';
 import type {
     MineFilter,
     TemplateRecord,
@@ -61,7 +61,7 @@ export function useWorkflowLauncherData(args: Args) {
         closeModal,
     } = args;
 
-    const { login } = useUserInfo();
+    const login = useGetUserLogin();
 
     const [loading, setLoading] = React.useState(false);
     const [items, setItems] = React.useState<WorkflowLauncherItem[]>([]);

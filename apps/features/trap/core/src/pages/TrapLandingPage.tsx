@@ -9,8 +9,6 @@ import {
 } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 
-import { useUserInfo } from '@platform/utils';
-
 import LandingTab from '../features/landing/LandingTab';
 import WorkflowTab from '../features/workflow-runtime/WorkflowTab';
 
@@ -18,7 +16,7 @@ import { cloneTemplate, createDraftVersion, getTemplates, TemplateSummary } from
 
 import { setDefaultLandingTemplate } from '../utils/userPreferences';
 import { useGetActiveTab, useSetActiveTab } from '../state/Tabs/hooks';
-import { useGetActiveUser } from '../state/User/hooks';
+import { useGetActiveUser, useGetUserLogin } from '../state/User/hooks';
 import { TemplateVersionLite } from '../features/workflow-launcher/types/workflowLauncher.types';
 import { Drawer } from '../features/landing/components/Drawer';
 import WorkflowDesignerPage from '../features/workflow-designer/WorkflowDesignerPage';
@@ -74,7 +72,7 @@ export default function TrapLandingPage() {
         initialDrawerSeg?: 'workspaces' | 'widgets' | 'themes';
     }>({ isOpen: false });
 
-    const { login } = useUserInfo();
+    const login = useGetUserLogin();
     const currentUser = localStorage.getItem('debug-user') || login;
 
     const setActiveKey = useSetActiveTab();
