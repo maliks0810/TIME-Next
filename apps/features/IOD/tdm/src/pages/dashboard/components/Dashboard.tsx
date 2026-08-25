@@ -18,6 +18,7 @@ import { useIdentity } from '../../../hooks/useIdentity';
 import { useInterval } from '../../../hooks/useInterval';
 import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
 import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
+import { useSecuritySetupNotifications } from '../../../hooks/useSecuritySetupNotifications';
 import '../lib/dashboard.scss';
 import { DataGridRef } from 'devextreme-react/cjs/data-grid';
 import { useUserInfo } from '@platform/utils';
@@ -41,6 +42,8 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { name: currentUser } = useUserInfo();
   const dashboardGridRef = useRef<DataGridRef<IDashboardSecuritySetupRequest, number>>(null);
+
+  useSecuritySetupNotifications(securityRequestsData);
 
   // Server state hooks — stay as hooks, not in Zustand
   const { data: referenceData } =
