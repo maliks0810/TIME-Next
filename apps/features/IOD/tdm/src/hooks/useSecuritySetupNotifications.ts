@@ -41,7 +41,9 @@ export const useSecuritySetupNotifications = (
 
     const newRequests = securityRequestsData.filter(
       r =>
-        r.setupStatus.toLowerCase() === 'request initiated' &&
+        (r.setupStatus.toLowerCase() === 'request initiated' ||
+         r.setupStatus.toLowerCase() === 'pending dm ssap review' ||
+         r.setupStatus.toLowerCase() === 'pending trader details') &&
         r.createdDate.toDateString() === today() &&
         !notifiedRequestIds.has(r.id)
     );
