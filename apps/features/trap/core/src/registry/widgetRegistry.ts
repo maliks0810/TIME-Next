@@ -36,6 +36,7 @@ import { GeoMapWidget } from '../widgets/common/geo-map/GeoMapWidget';
 import { TableWidget } from '../widgets/common/table/TableWidget';
 import { TitleWidget } from '../widgets/common/title/TitleWidget';
 import { FilterBarWidget } from '../widgets/common/filter-bar/FilterBarWidget';
+import UploaderWidget from '../widgets/common/uploader/UploaderWidget';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -353,4 +354,12 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: [],
         emitsKeys: [],
     },
+    cwd_file_uploader: {
+        id: 'cwd_file_uploader',
+        component: UploaderWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    }
 };

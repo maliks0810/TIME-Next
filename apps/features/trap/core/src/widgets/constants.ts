@@ -55,6 +55,9 @@ export const COLLATERAL_STAGE_KEYS = COLLATERAL_DIMS.map(
 export const COMMON_DATE_GRID_ROW_KEY = 'common.data.grid.row';
 export const COMMON_BUTTON_KEY = 'common.button';
 export const COMMON_TREE_KEY = 'common.tree.item';
+export const CUSIP_KEY = 'cusip';
+export const NAIC_RATINGS_KEY = 'naicRatings';
+
 export enum DateFormatEnum {
     DAY = 'day',
     MONTH = 'month',
@@ -64,4 +67,6 @@ export enum DateFormatEnum {
 export const schemaToStateKeyMap: { [key: string]: string } = {
     'prism.equity.analyst.list': ANALYSTS_KEY,
     'prism.equity.chart.control.list': CHART_CONTROL_KEY,
+    'naic.rbc.ratings': NAIC_RATINGS_KEY,
+    'naic.portfolio.cusip': CUSIP_KEY,
 };
