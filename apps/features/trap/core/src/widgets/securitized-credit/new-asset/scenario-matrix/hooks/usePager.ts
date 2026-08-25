@@ -1,10 +1,13 @@
 /**
  * Scenario Matrix — horizontal pager. Derives the visible scenario slice from the
- * live widget width (one scenario column = COLW.scen), keeps the offset in range,
- * and exposes prev/next. Shared by the widget and the sandbox.
+ * MEASURED matrix container width (one scenario column = COLW.scen), keeps the
+ * offset in range, and exposes prev/next. Shared by the widget and the sandbox.
+ *
+ * `innerWidth` is the ResizeObserver content-box width of `.mxWrap` (NOT the outer
+ * widget width) so padding/border/scrollbar can never skew the fit count.
  */
 import React from "react";
-import { CHROME, COLW } from "../constants";
+import { COLW, SBW } from "../constants";
 import type { Scenario } from "../types";
 
 export type Pager = {
@@ -20,15 +23,22 @@ export type Pager = {
     reset: () => void;
 };
 
-export function usePager(widthPx: number, scenarios: Scenario[], maxColumns: number): Pager {
+/** Fixed lead columns that never scroll: Assumption name + Units. */
+const LEAD = COLW.name + COLW.units; // 236
+
+export function usePager(innerWidth: number, scenarios: Scenario[], maxColumns: number): Pager {
     const [offset, setOffset] = React.useState(0);
 
     const maxCols = Math.min(maxColumns || 8, scenarios.length || 1);
+
     const visibleCount = React.useMemo(() => {
-        if (!widthPx) return Math.min(3, maxCols);
-        const raw = Math.floor((widthPx - CHROME) / COLW.scen);
+        if (!innerWidth) return Math.min(3, maxCols); // pre-measure fallback
+        // Budget for scenario columns = inner content box − lead columns − scrollbar gutter.
+        // The add column + slack live in the leftover, so they are NOT reserved here.
+        const avail = innerWidth - LEAD - SBW;
+        const raw = Math.floor(avail / COLW.scen);
         return Math.max(1, Math.min(maxCols, raw));
-    }, [widthPx, maxCols]);
+    }, [innerWidth, maxCols]);
 
     const total = scenarios.length;
     const maxOffset = Math.max(0, total - visibleCount);

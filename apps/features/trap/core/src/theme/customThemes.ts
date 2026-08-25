@@ -14,6 +14,34 @@ export type CustomTheme = {
     tokens: Record<string, string | number>;
 };
 
+/**
+ * Tokens injected into EVERY resolved theme (built-in + custom) so app-wide
+ * semantics live in one place. `colorSelectedBg` is a soft, theme-aware row/column
+ * selection highlight: a light wash of the theme primary over the container
+ * surface. It intentionally replaces antd's `colorPrimaryBg`, which renders too
+ * dark/saturated for selection slabs in several themes (e.g. the Tranches selected
+ * row and the Scenario Matrix selected column). The value is a color-mix() string
+ * resolved at paint time from each theme's own CSS vars, so it adapts per theme
+ * with no per-theme hardcoding (requires cssVar mode, which the app enables).
+ *
+ * Tune intensity here once: 7% ≈ subtle, 9–10% ≈ stronger, 5% ≈ whisper.
+ */
+const SHARED_TOKENS = {
+    colorSelectedBg:
+        'color-mix(in srgb, var(--ant-color-primary) 7%, var(--ant-color-bg-container))',
+} as const;
+
+/** Merge the shared semantic tokens into a resolved antd config (base tokens first, shared last). */
+function withSharedTokens(config: any): any {
+    return {
+        ...config,
+        token: {
+            ...(config?.token ?? {}),
+            ...SHARED_TOKENS,
+        },
+    };
+}
+
 export async function fetchCustomThemes(): Promise<CustomTheme[]> {
     //TODO: fetch from BE
 
@@ -154,10 +182,14 @@ export type ResolvedTheme = { config: any; appBackground: string };
 export function resolveTheme(themeName: string, customThemes: CustomTheme[]): ResolvedTheme {
     if (isCustomId(themeName)) {
         const c = customThemes.find((x) => x.id === themeName);
-        if (c) return { config: customToConfig(c), appBackground: customAppBackground(c) };
+        if (c)
+            return {
+                config: withSharedTokens(customToConfig(c)),
+                appBackground: customAppBackground(c),
+            };
     }
     return {
-        config: getThemeConfig(themeName as ThemeName),
+        config: withSharedTokens(getThemeConfig(themeName as ThemeName)),
         appBackground: getAppSurfaceBackground(themeName as ThemeName),
     };
 }

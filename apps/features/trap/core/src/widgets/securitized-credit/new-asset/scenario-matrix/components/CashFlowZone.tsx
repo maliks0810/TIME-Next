@@ -2,9 +2,11 @@ import React from "react";
 import clsx from "clsx";
 import { DownloadOutlined } from "@ant-design/icons";
 import styles from "../ScenarioMatrixWidget.module.scss";
-import { pastel } from "../constants";
+import { CF_DUAL_PANE_MIN } from "../constants";
 import { formatMoney } from "../format";
-import type { CashFlowView, CashflowPeriod, Scenario } from "../types";
+import { useElementWidth } from "../hooks/useElementWidth";
+import type { CashFlowView, Scenario } from "../types";
+import CashFlowChart from "./CashFlowChart";
 
 type Props = {
     scenario: Scenario | null;
@@ -13,16 +15,23 @@ type Props = {
     onExport: () => void;
     onSend: () => void;
     canSend: boolean;
-    /** Wide widget: show chart + table side by side, hide the toggle. */
+    /**
+     * Parent hint (from useWidgetPixels). Used only as a pre-measure fallback;
+     * the authoritative decision is the self-measured zone width below, so the
+     * dual-pane switch works even when the size context is stale.
+     */
     dualPane: boolean;
 };
 
-const GHOST_COLS = 12;
 
 export default function CashFlowZone(props: Props) {
     const { scenario, view, onView, onExport, onSend, canSend, dualPane } = props;
     const periods = scenario?.cashflow ?? null;
-    const fill = scenario ? pastel(scenario.color) : "var(--sep)";
+
+    // Self-measured zone width drives the layout switch. Fall back to the parent
+    // hint only until the first measurement lands (selfWidth === 0).
+    const [zoneRef, selfWidth] = useElementWidth<HTMLDivElement>();
+    const isDual = selfWidth ? selfWidth >= CF_DUAL_PANE_MIN : dualPane;
 
     // Sample down to ~14 columns so the chart never overflows horizontally.
     const chartRows = React.useMemo(() => {
@@ -31,53 +40,10 @@ export default function CashFlowZone(props: Props) {
         return periods.filter((_, i) => i % step === 0);
     }, [periods]);
 
-    const maxFlow = React.useMemo(() => {
-        if (!chartRows) return 1;
-        return Math.max(1, ...chartRows.map((p) => p.principal + p.interest));
-    }, [chartRows]);
-
     const chart = (
-        <>
-            <div className={styles.chartZone}>
-                {(chartRows ??
-                    Array.from(
-                        { length: GHOST_COLS },
-                        () => undefined as CashflowPeriod | undefined,
-                    )
-                ).map((p, i) => {
-                    if (!p) {
-                        return (
-                            <div key={i} className={styles.chCol}>
-                                <div className={styles.chStack}>
-                                    <div className={styles.ghBar} style={{ height: 20 }} />
-                                </div>
-                            </div>
-                        );
-                    }
-                    const pH = (p.principal / maxFlow) * 120;
-                    const iH = (p.interest / maxFlow) * 120;
-                    return (
-                        <div key={p.period} className={styles.chCol}>
-                            <div className={styles.chStack}>
-                                <div className={styles.chP} style={{ height: pH, background: fill }} />
-                                <div className={styles.chI} style={{ height: iH, background: fill }} />
-                            </div>
-                            <span className={styles.chLbl}>{p.period}</span>
-                        </div>
-                    );
-                })}
-            </div>
-            <div className={styles.cfLegend}>
-                <span className={styles.lg}>
-                    <span className={styles.sw} style={{ background: fill }} />
-                    {scenario ? `${scenario.name} · Principal` : "Principal"}
-                </span>
-                <span className={styles.lg}>
-                    <span className={styles.sw} style={{ background: fill, opacity: 0.45 }} />
-                    Interest
-                </span>
-            </div>
-        </>
+        <div className={styles.chartZone}>
+            <CashFlowChart scenario={scenario} rows={chartRows} />
+        </div>
     );
 
     const table = (
@@ -112,11 +78,11 @@ export default function CashFlowZone(props: Props) {
     );
 
     return (
-        <div className={styles.cfZone}>
+        <div ref={zoneRef} className={styles.cfZone}>
             <div className={styles.cfHead}>
                 <span className={styles.cfTitle}>Cash Flow</span>
                 <div className={styles.cfActions}>
-                    {!dualPane && (
+                    {!isDual && (
                         <div className={styles.seg}>
                             <button
                                 type="button"
@@ -154,12 +120,12 @@ export default function CashFlowZone(props: Props) {
                 </div>
             </div>
 
-            <div className={clsx(styles.cfBody, { [styles.dual]: dualPane })}>
+            <div className={clsx(styles.cfBody, { [styles.dual]: isDual })}>
                 {!periods && (
                     <div className={styles.cfIdle}>Calc a scenario to generate cash flows</div>
                 )}
 
-                {dualPane ? (
+                {isDual ? (
                     <>
                         <div className={styles.paneChart}>{chart}</div>
                         <div className={styles.paneTable}>{table}</div>

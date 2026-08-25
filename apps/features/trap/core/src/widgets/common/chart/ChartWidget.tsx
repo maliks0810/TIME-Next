@@ -25,6 +25,7 @@ import {
     applyEchartsTypography,
     EchartsRoleColors,
     withAnalyticsChartRoles,
+    ECHARTS_TOOLTIP_CHROME,
 } from './utils/resolveEchartsTokens';
 import styles from './ChartWidget.module.scss';
 
@@ -211,6 +212,44 @@ function resolveChartClick(
     return null;
 }
 
+/**
+ * Force a theme-compliant tooltip onto any server-built option. The GraphQL
+ * option builders don't set tooltip.backgroundColor, so ECharts falls back to
+ * its default near-white panel — unreadable in dark/Wealth/Cyberpunk. We merge
+ * the shared chrome (@role tokens, resolved downstream by resolveEchartsTokens)
+ * UNDER whatever the server set, so chart-specific content (formatter, trigger,
+ * axisPointer, position) still wins — only background/text are guaranteed themed.
+ *
+ * Overloaded so a non-null option in yields a non-null option out; this keeps
+ * echarts setOption happy (it rejects null) without call-site assertions.
+ */
+function withThemedTooltip(option: Record<string, any>): Record<string, any>;
+function withThemedTooltip(option: null | undefined): null;
+function withThemedTooltip(
+    option: Record<string, any> | null | undefined,
+): Record<string, any> | null {
+    if (!option) return null;
+
+    const tips = Array.isArray(option.tooltip)
+        ? option.tooltip
+        : [option.tooltip ?? {}];
+
+    const themed = tips.map((tip: any) => ({
+        ...ECHARTS_TOOLTIP_CHROME, // chrome first…
+        ...(tip ?? {}), // …server content/keys win…
+        backgroundColor: (tip && tip.backgroundColor) ?? '@surface',
+        textStyle: {
+            ...ECHARTS_TOOLTIP_CHROME.textStyle,
+            ...((tip && tip.textStyle) ?? {}),
+        },
+    }));
+
+    return {
+        ...option,
+        tooltip: Array.isArray(option.tooltip) ? themed : themed[0],
+    };
+}
+
 function useEchart(
     option: Record<string, any> | null | undefined,
     roles: EchartsRoleColors,
@@ -234,8 +273,11 @@ function useEchart(
 
         if (!chart || !opt) return;
 
+        // opt is narrowed non-null here, so withThemedTooltip returns non-null.
+        const themedOption = withThemedTooltip(opt);
+
         const resolvedOption = resolveEchartsTokens(
-            opt,
+            themedOption,
             rolesRef.current,
         );
 
@@ -424,6 +466,7 @@ export function ChartWidget(props: WidgetComponentProps) {
             '@textTertiary': token.colorTextTertiary,
             '@border': token.colorBorderSecondary,
             '@splitLine': token.colorFillTertiary,
+            '@surface': token.colorBgElevated,
         };
 
         return withAnalyticsChartRoles(baseRoles, themeName, isDark);

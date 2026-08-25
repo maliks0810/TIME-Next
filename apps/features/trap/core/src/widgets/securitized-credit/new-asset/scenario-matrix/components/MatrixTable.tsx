@@ -218,7 +218,7 @@ export default function MatrixTable(props: Props) {
                 </tr>
 
                 {/* Analytics section + Run */}
-                <tr className={styles.sect}>
+                <tr className={styles.runRow}>
                     <td className={styles.cName} colSpan={2}>
                         <div className={styles.calcWrap}>
                             <button

@@ -30,6 +30,7 @@ import MatrixTable from "./components/MatrixTable";
 import CashFlowZone from "./components/CashFlowZone";
 import PresetBar from "./components/PresetBar";
 import AuditDrawer from "./components/AuditDrawer";
+import { useElementWidth } from "./hooks/useElementWidth";
 
 export default function ScenarioMatrixWidget(props: WidgetComponentProps) {
     const { widgetInstance, widgetDefinition, loading, error, mode } = props;
@@ -42,9 +43,9 @@ export default function ScenarioMatrixWidget(props: WidgetComponentProps) {
     const initialView = (config.cashFlowDefaultView as CashFlowView) ?? "chart";
     const widgetDefId = String(
         widgetInstance?.composedWidgetId ??
-            widgetInstance?.widgetDefinitionId ??
-            widgetDefinition?.id ??
-            "cwd_scenario_matrix_01",
+        widgetInstance?.widgetDefinitionId ??
+        widgetDefinition?.id ??
+        "cwd_scenario_matrix_01",
     );
     const execMode: "MOCK" | "LIVE" = mode === "designer" ? "MOCK" : "LIVE";
 
@@ -94,8 +95,9 @@ export default function ScenarioMatrixWidget(props: WidgetComponentProps) {
     });
 
     // ── View derivations ──
-    const { widthPx } = useWidgetPixels();
-    const pager = usePager(widthPx, state.scenarios, state.maxColumns);
+    const { widthPx } = useWidgetPixels();              // keep: header chrome breakpoints + dual-pane
+    const [mxRef, mxWidth] = useElementWidth<HTMLDivElement>();
+    const pager = usePager(mxWidth, state.scenarios, state.maxColumns); // measured inner box
     const runState = deriveRunState(state);
     const selScenario = state.scenarios.find((s) => s.key === state.sel) ?? null;
     const [cfView, setCfView] = React.useState<CashFlowView>(initialView);
@@ -149,6 +151,7 @@ export default function ScenarioMatrixWidget(props: WidgetComponentProps) {
         <WidgetCardShell overflow="hidden">
             <div className={clsx(styles.root, { [styles.dark]: isDark })}>
                 <MatrixHeader
+                    widthPx={mxWidth}
                     tranche={
                         state.ready
                             ? { options: state.tranches, currentId: effectiveTrancheId, onChange: setTrancheOverride }
@@ -157,13 +160,13 @@ export default function ScenarioMatrixWidget(props: WidgetComponentProps) {
                     pager={
                         state.ready
                             ? {
-                                  total: pager.total,
-                                  visibleCount: pager.visibleCount,
-                                  offset: pager.offset,
-                                  widthPx,
-                                  onPrev: pager.prev,
-                                  onNext: pager.next,
-                              }
+                                total: pager.total,
+                                visibleCount: pager.visibleCount,
+                                offset: pager.offset,
+                                widthPx: mxWidth,
+                                onPrev: pager.prev,
+                                onNext: pager.next,
+                            }
                             : null
                     }
                     onOpenAudit={engine.openAudit}
@@ -186,7 +189,7 @@ export default function ScenarioMatrixWidget(props: WidgetComponentProps) {
                     <div className={styles.center}>Select a deal and tranche to price scenarios</div>
                 ) : (
                     <>
-                        <div className={styles.mxWrap}>
+                        <div ref={mxRef} className={styles.mxWrap}>
                             {state.ready && (
                                 <MatrixTable
                                     rows={state.rows}
