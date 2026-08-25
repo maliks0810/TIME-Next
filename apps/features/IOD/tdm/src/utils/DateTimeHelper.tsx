@@ -47,6 +47,8 @@ export const getLocalDateTimeOffsetIsoString = (date: Date): string => {
   return `${year}-${month}-${day}T${hour}:${minute}:${second}.${ms}${sign}${offsetTimeHour}:${offsetTimeMinutes}`;
 }
 
+export const today = (): string => new Date().toDateString();
+
 export const getDateFromString = (dateString: string): Date | null => {
   if (typeof dateString !== 'string' || dateString.trim() === '') {
     return null;
