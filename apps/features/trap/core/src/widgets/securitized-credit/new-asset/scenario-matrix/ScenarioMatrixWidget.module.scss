@@ -1,30 +1,51 @@
 /**
  * Scenario Matrix — styles.
- * Palette ported from the approved prototype (spec light surface). Dark theme
- * overrides live under `.dark`, toggled from themeName so the widget stays legible
- * on the wealth/dark shells. Colours flow through local CSS custom properties.
+ *
+ * Theming: all colours flow through antd design tokens (CSS-variable mode) so the
+ * widget adapts to EVERY theme — Light, Dark, Wealth, Dark Wealth, Cyberpunk,
+ * Dreamy, Dumpster Fire, etc. — with no per-theme overrides. Each local
+ * `--token` maps to `var(--ant-…, <light-fallback>)`; the fallback is the original
+ * approved light palette, so if antd cssVar mode is ever off the widget still
+ * renders (in light). Requires ConfigProvider theme={{ cssVar: true }}.
+ *
+ * Horizontal grid lines are replaced by subtle alt-row shading on both the matrix
+ * and the cash-flow schedule; vertical column widths are owned by <colgroup> and
+ * are intentionally NOT touched here so the pager snap stays intact.
  */
 
 .root {
-    --value: #1a5db0;
-    --value-hover: #164e94;
-    --calc: #579a7b;
-    --label: #8a94a3;
-    --sub: #9ca5b3;
-    --ink: #1f2733;
-    --ink-2: #46505e;
-    --section: #6b7685;
-    --sep: #e4e9ef;
-    --tile-border: #d9e1ea;
-    --tile-border-hover: #b7c6d8;
-    --panel-bg: #fbfcfd;
-    --surface: #ffffff;
-    --sel-bg: #f0f6fc;
-    --amber: #c79a4b;
-    --amber-text: #7d6220;
-    --amber-bg: #fdf8ea;
-    --amber-border: #e7d6a8;
-    --danger: #c0392b;
+    /* Brand / accent */
+    --value: var(--ant-color-primary, #1a5db0);
+    --value-hover: var(--ant-color-primary-hover, #164e94);
+    --calc: var(--ant-color-success, #579a7b);
+
+    /* Text */
+    --ink: var(--ant-color-text, #1f2733);
+    --ink-2: var(--ant-color-text-secondary, #46505e);
+    --section: var(--ant-color-text-secondary, #6b7685);
+    --label: var(--ant-color-text-tertiary, #8a94a3);
+    --sub: var(--ant-color-text-quaternary, #9ca5b3);
+
+    /* Lines + borders */
+    --sep: var(--ant-color-split, #e4e9ef);
+    --tile-border: var(--ant-color-border, #d9e1ea);
+    --tile-border-hover: var(--ant-color-primary-border-hover, #b7c6d8);
+
+    /* Surfaces */
+    --surface: var(--ant-color-bg-container, #ffffff);
+    --panel-bg: var(--ant-color-bg-layout, #fbfcfd);
+    --sel-bg: var(--ant-color-selected-bg, color-mix(in srgb, var(--value) 7%, var(--surface)));
+    --zebra: var(--ant-color-fill-quaternary, #eef2f7);
+
+    /* Status — amber / danger */
+    --amber: var(--ant-color-warning, #c79a4b);
+    --amber-text: var(--ant-color-warning-text, #7d6220);
+    --amber-bg: var(--ant-color-warning-bg, #fdf8ea);
+    --amber-border: var(--ant-color-warning-border, #e7d6a8);
+    --danger: var(--ant-color-error, #c0392b);
+
+    /* Solid-button ink (text on filled primary/success buttons) */
+    --on-solid: var(--ant-color-text-light-solid, #ffffff);
 
     position: relative;
     height: 100%;
@@ -35,28 +56,6 @@
     color: var(--ink);
     font-size: 12px;
     overflow: hidden;
-}
-
-.dark {
-    --value: #6ea8ea;
-    --value-hover: #8cbcf2;
-    --calc: #74b79a;
-    --label: #8b95a4;
-    --sub: #7c8797;
-    --ink: #e6ecf3;
-    --ink-2: #b3bdca;
-    --section: #97a2b1;
-    --sep: #273140;
-    --tile-border: #2b3542;
-    --tile-border-hover: #3a4655;
-    --panel-bg: #161d27;
-    --surface: #1a222d;
-    --sel-bg: #172637;
-    --amber: #d9b45f;
-    --amber-text: #e0c98a;
-    --amber-bg: #2a2410;
-    --amber-border: #4a3f1c;
-    --danger: #e0736a;
 }
 
 /* ── Header ── */
@@ -88,6 +87,15 @@
     color: var(--label);
     white-space: nowrap;
 }
+
+/* Narrow widths: collapse the wordmark to just the icon (see MatrixHeader ladder). */
+.titleWrap.noTitle {
+    gap: 0;
+}
+.titleWrap.noTitle .title {
+    display: none;
+}
+
 .trSelect {
     font-size: 11px;
     border: 1px solid var(--tile-border);
@@ -227,11 +235,10 @@
 }
 .mx th,
 .mx td {
-    border-right: 1px solid var(--sep);
-    border-bottom: 1px solid var(--sep);
-    /* No blanket padding or text-align: each cell owns both via its class, so
-       results stay right-aligned and the cash-flow View button stays centered.
-       (td already defaults to left, so unclassed cells are unaffected.) */
+    /* Grid lines removed: horizontal rules are replaced by alt-row shading and
+       vertical rules dropped for a cleaner dense look. The frozen label columns
+       keep their box-shadow separator (below), so structure still reads.
+       Each cell owns its own padding/align via its class. */
     vertical-align: middle;
 }
 .stickyHead th {
@@ -239,7 +246,23 @@
     top: 0;
     z-index: 6;
     background: var(--surface);
+    border-bottom: 1px solid var(--sep); /* single header/body divider */
 }
+
+/* Alt-row shading — data rows only (.sect/.grp headers keep panel-bg). The
+   sticky Assumption/Units columns inherit the row background so the stripe runs
+   edge-to-edge; the selected column (.selCol) and disabled state still win. */
+.row {
+    background: var(--surface);
+}
+.row:nth-child(even) {
+    background: var(--zebra);
+}
+.row .cName,
+.row .cUnits {
+    background: inherit;
+}
+
 .cName {
     position: sticky;
     left: 0;
@@ -263,7 +286,7 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--label);
-    padding: 6px 10px;
+    padding: 4px 10px;
 }
 
 /* scenario header */
@@ -352,7 +375,6 @@
 }
 .slack {
     background: var(--panel-bg);
-    border-right: 0;
 }
 
 /* section + group rows */
@@ -363,12 +385,21 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--section);
-    padding: 5px 10px;
+    padding: 4px 10px;
 }
 .grp td {
     background: var(--panel-bg);
-    padding: 4px 10px;
+    padding: 3px 10px;
 }
+
+/* Run / analytics action bar — a banded divider between the assumptions block
+   above and the analytics results below, so it reads as a toolbar not a gap. */
+.runRow td {
+    background: var(--panel-bg);
+    border-top: 1px solid var(--tile-border);
+    border-bottom: 1px solid var(--tile-border);
+}
+
 .gLbl {
     display: inline-flex;
     align-items: center;
@@ -390,7 +421,7 @@
     display: flex;
     align-items: center;
     gap: 7px;
-    padding: 5px 10px;
+    padding: 3px 10px;
 }
 .aChk {
     accent-color: var(--value);
@@ -410,7 +441,7 @@
 
 /* units cell — vertical padding only so the <select> can fill the width flush */
 .uCell {
-    padding: 4px 0;
+    padding: 2px 0;
 }
 .uSel {
     font-size: 10px;
@@ -430,7 +461,7 @@
 
 /* value cell */
 .vCell {
-    padding: 3px 6px;
+    padding: 2px 6px;
     text-align: right;
 }
 .vCell.selCol {
@@ -464,14 +495,14 @@
 .rName {
     font-size: 11px;
     color: var(--ink-2);
-    padding: 6px 10px;
+    padding: 4px 10px;
 }
 .rCell {
     text-align: right;
     font-size: 11px;
     color: var(--ink);
     font-variant-numeric: tabular-nums;
-    padding: 6px 8px;
+    padding: 4px 8px;
 }
 .rCell.selCol {
     background: var(--sel-bg);
@@ -518,7 +549,7 @@
     border: 1px solid transparent;
     border-radius: 5px;
     background: var(--value);
-    color: #fff;
+    color: var(--on-solid);
     font-size: 11px;
     font-weight: 600;
     padding: 5px 12px;
@@ -604,7 +635,7 @@
     color: var(--label);
 }
 .bindBtn.on {
-    color: #fff;
+    color: var(--on-solid);
     border-color: transparent;
 }
 
@@ -638,13 +669,9 @@
     color: var(--ink-2);
 }
 .psChip.def {
-    background: #eef7f2;
-    border-color: #cfe6db;
+    background: var(--ant-color-success-bg, #eef7f2);
+    border-color: var(--ant-color-success-border, #cfe6db);
     color: var(--calc);
-}
-.dark .psChip.def {
-    background: #16241d;
-    border-color: #294a3b;
 }
 .psAlert {
     color: var(--amber);
@@ -673,7 +700,7 @@
 .psBtn.cta {
     background: var(--value);
     border-color: transparent;
-    color: #fff;
+    color: var(--on-solid);
 }
 .psBtn.ok {
     color: var(--calc);
@@ -731,7 +758,7 @@
 }
 .seg button.active {
     background: var(--value);
-    color: #fff;
+    color: var(--on-solid);
 }
 .btnSend {
     appearance: none;
@@ -855,7 +882,7 @@
     color: var(--label);
     font-weight: 600;
     padding: 3px 8px;
-    border-bottom: 1px solid var(--sep);
+    border-bottom: 1px solid var(--sep); /* header divider kept */
     position: sticky;
     top: 0;
     background: var(--surface);
@@ -866,9 +893,13 @@
 }
 .sched td {
     text-align: right;
-    padding: 3px 8px;
-    border-bottom: 1px solid var(--sep);
+    padding: 2px 8px;
     color: var(--ink-2);
+    /* Horizontal grid lines removed — replaced by alt-row shading below. */
+}
+/* Alt-row shading for the cash-flow schedule (data rows only). */
+.sched tbody tr:nth-child(even) {
+    background: var(--zebra);
 }
 
 /* ── Audit drawer ── */
@@ -988,4 +1019,9 @@
     color: var(--sub);
     text-align: center;
     padding: 24px;
+}
+
+.chartZone {
+    height: 100%;
+    min-height: 140px;
 }

@@ -19,6 +19,7 @@ import {
     applyEchartsTypography,
     EchartsRoleColors,
     withAnalyticsChartRoles,
+    ECHARTS_TOOLTIP_CHROME,
 } from '../chart/utils/resolveEchartsTokens';
 import { ensureUsaMap } from './usaMap';
 import styles from './GeoMapWidget.module.scss';
@@ -77,6 +78,44 @@ function isColorDark(color: string): boolean {
     }
 
     return 0.299 * r + 0.587 * g + 0.114 * b < 128;
+}
+
+/**
+ * Force a theme-compliant tooltip onto the server-built geo option. The GraphQL
+ * builder doesn't set tooltip.backgroundColor, so ECharts falls back to its
+ * default near-white panel — unreadable in dark/Wealth/Cyberpunk. We merge the
+ * shared chrome (@role tokens, resolved downstream) UNDER whatever the server
+ * set, so the region formatter/trigger still wins; only background/text are
+ * guaranteed themed.
+ *
+ * Overloaded so a non-null option in yields a non-null option out, keeping
+ * echarts setOption (which rejects null) happy without call-site assertions.
+ */
+function withThemedTooltip(option: Record<string, any>): Record<string, any>;
+function withThemedTooltip(option: null | undefined): null;
+function withThemedTooltip(
+    option: Record<string, any> | null | undefined,
+): Record<string, any> | null {
+    if (!option) return null;
+
+    const tips = Array.isArray(option.tooltip)
+        ? option.tooltip
+        : [option.tooltip ?? {}];
+
+    const themed = tips.map((tip: any) => ({
+        ...ECHARTS_TOOLTIP_CHROME, // chrome first…
+        ...(tip ?? {}), // …server content/keys win…
+        backgroundColor: (tip && tip.backgroundColor) ?? '@surface',
+        textStyle: {
+            ...ECHARTS_TOOLTIP_CHROME.textStyle,
+            ...((tip && tip.textStyle) ?? {}),
+        },
+    }));
+
+    return {
+        ...option,
+        tooltip: Array.isArray(option.tooltip) ? themed : themed[0],
+    };
 }
 
 /**
@@ -145,8 +184,11 @@ function useGeoEchart(
 
         if (!chart || !opt) return;
 
+        // opt is narrowed non-null here, so withThemedTooltip returns non-null.
+        const themedOption = withThemedTooltip(opt);
+
         const resolvedOption = resolveEchartsTokens(
-            opt,
+            themedOption,
             rolesRef.current,
         );
 
@@ -248,6 +290,7 @@ export function GeoMapWidget(props: WidgetComponentProps) {
             '@textTertiary': token.colorTextTertiary,
             '@border': token.colorBorderSecondary,
             '@splitLine': token.colorFillTertiary,
+            '@surface': token.colorBgElevated,
         };
 
         return withAnalyticsChartRoles(baseRoles, themeName, isDark);

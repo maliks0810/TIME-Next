@@ -31,7 +31,7 @@ export const PAGER_BREAKS = { count: 520, label: 640, more: 780 } as const;
  * shows chart (left) + table (right) side by side; below it, the toggle returns.
  * 920px ≈ 6 grid columns at the 1840 canvas (1840/12 × 6).
  */
-export const CF_DUAL_PANE_MIN = 920;
+export const CF_DUAL_PANE_MIN = 650;
 
 /**
  * Scenario identity palette for custom (user-added) scenarios. One stored

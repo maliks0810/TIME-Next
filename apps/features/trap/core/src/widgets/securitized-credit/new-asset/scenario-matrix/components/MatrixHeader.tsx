@@ -22,6 +22,13 @@ type Props = {
     /** The tranche being priced — shown as a labeled selector (local override). */
     tranche?: TrancheControl | null;
     pager: PagerInfo | null;
+    /**
+     * Measured widget width (content box) used to drive header degradation.
+     * Passed in from the parent's self-measured width so the thresholds actually
+     * fire — the old useWidgetPixels context could read 0/stale and never collapse.
+     * Falls back to pager.widthPx when omitted.
+     */
+    widthPx?: number;
     onOpenAudit: () => void;
 };
 
@@ -29,16 +36,33 @@ type Props = {
  * Scenario Matrix header — icon + eyebrow, the tranche-in-scope selector, the
  * scenario pager (degrades by width), and the audit button. Shared by the widget
  * and the standalone sandbox so both stay identical.
+ *
+ * Degradation ladder (measured content-box width, narrow → wide):
+ *   < 560  hide the "Scenario Matrix" wordmark (icon only)
+ *   < 480  hide the page count "n–m of T"
+ *   < 600  hide the "Scenarios" eyebrow
+ *   < 740  hide the "+N hidden" badge
+ * The tranche selector and pager arrows always stay — they're the load-bearing bits.
  */
-export default function MatrixHeader({ title = "Scenario Matrix", tranche, pager, onOpenAudit }: Props) {
+export default function MatrixHeader({
+    title = "Scenario Matrix",
+    tranche,
+    pager,
+    widthPx,
+    onOpenAudit,
+}: Props) {
     const show = !!pager && pager.total > pager.visibleCount;
     const hidden = pager ? pager.total - pager.visibleCount : 0;
     const maxOffset = pager ? Math.max(0, pager.total - pager.visibleCount) : 0;
-    const w = pager?.widthPx ?? 0;
+    // Prefer the explicit measured width; fall back to the pager's for back-compat.
+    const w = widthPx ?? pager?.widthPx ?? 0;
 
     return (
         <div className={styles.head}>
-            <span className={styles.titleWrap}>
+            <span
+                className={clsx(styles.titleWrap, { [styles.noTitle]: w > 0 && w < 560 })}
+                title={title}
+            >
                 <FundProjectionScreenOutlined className={styles.titleIcon} />
                 <span className={styles.title}>{title}</span>
             </span>
@@ -65,9 +89,9 @@ export default function MatrixHeader({ title = "Scenario Matrix", tranche, pager
                 {show && pager && (
                     <div
                         className={clsx(styles.pagerWrap, styles.show, {
-                            [styles.noCount]: w > 0 && w < 520,
-                            [styles.noLabel]: w > 0 && w < 640,
-                            [styles.noMore]: hidden <= 0 || (w > 0 && w < 780),
+                            [styles.noCount]: w > 0 && w < 480,
+                            [styles.noLabel]: w > 0 && w < 600,
+                            [styles.noMore]: hidden <= 0 || (w > 0 && w < 740),
                         })}
                     >
                         <span className={styles.pagerLbl}>Scenarios</span>
