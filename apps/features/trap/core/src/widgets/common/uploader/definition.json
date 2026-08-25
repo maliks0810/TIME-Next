@@ -1,11 +1,11 @@
 {
-    "id": "wd_multi_select",
-    "name": "Multi-Selection",
+    "id": "cwd_file_uploader",
+    "name": "File Uploader",
     "version": 1,
-    "description": "A checkbox group of selected list",
+    "description": "Reusable file uploader widget",
     "tags": null,
     "category": "widgetDefinition",
-    "datasetId": "ds_multi_select_list",
+    "datasetId": "ds_file_uploader",
     "listensToKeys": null,
     "emitsKeys": [],
     "configSchema": {
@@ -13,7 +13,12 @@
             "channel": {
                 "default": 1,
                 "description": "Widgets connected to the same channel able to share data between each other",
-                "enum": [1, 2, 3, 4],
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
                 "title": "Communication Channel",
                 "type": "string",
                 "category": "Interactions"
@@ -21,15 +26,30 @@
             "schemaKey": {
                 "title": "Schema Key",
                 "enum": [
-                    "prism.equity.analyst.list",
-                    "prism.equity.chart.control.list",
-                    "naic.rbc.ratings"
+                    "naic.portfolio.cusip"
                 ],
                 "type": "string",
                 "category": "System Parameters"
+            },
+            "fileFormat":{
+                "title": "File Format",
+                "enum": [
+                    ".csv",
+                    ".xlsx"
+                ],
+                "type": "string",
+                "category": "System Parameters",
+                "default": ".csv"
+
+            },
+            "label": {
+                "title": "Label",
+                "type": "string",
+                "default": "",
+                "category": "View Parameters"
             }
         },
-        "required": ["schemaKey"],
+        "required": ["schemaKey", "fileFormat"],
         "type": "object"
     },
     "uiHints": {
@@ -42,14 +62,14 @@
             "sizing": {
                 "resizable": true,
                 "width": {
-                    "default": 1,
+                    "default": 3,
                     "min": 1,
-                    "max": 12
+                    "max": 6
                 },
                 "height": {
-                    "default": 200,
-                    "min": 200,
-                    "max": 400,
+                    "default": 150,
+                    "min": 100,
+                    "max": 250,
                     "step": 10
                 }
             }

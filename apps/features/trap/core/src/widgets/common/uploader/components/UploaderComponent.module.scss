@@ -1,0 +1,23 @@
+.uploadIcon {
+    font-size: 30px;
+    color: var(--ant-color-text-tertiary);
+}
+
+.uploadHelpText {
+    padding: 0px;
+    .title {
+        margin: 6px 0px 0px;
+        padding: 0px;
+        font-size: 12px;
+        line-height: 16px;
+        font-weight: 600;
+        color: var(--ant-color-text-secondary);
+    }
+    .sub {
+        margin: 2px 0px 0px;
+        padding: 0px;
+        font-size: 11px;
+        line-height: 15px;
+        color: var(--ant-color-text-tertiary);
+    }
+}

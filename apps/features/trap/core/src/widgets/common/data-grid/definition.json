@@ -44,7 +44,8 @@
                     "prism.comparables.debt",
                     "prism.issuer.profile",
                     "prism.issuer.capital_structure",
-                    "prism.issuer.fundamentals"
+                    "prism.issuer.fundamentals",
+                    "naic.rbc.designation"
                 ],
                 "title": "Schema Key",
                 "type": "string",
@@ -63,7 +64,9 @@
                     "common.data.grid.row",
                     "schemaKey",
                     "common.tree.item",
-                    "company.id"
+                    "company.id",
+                    "cusip",
+                    "naicRatings"
                 ],
                 "title": "Listens to keys",
                 "multiselect": true,
