@@ -270,5 +270,18 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         description: '',
         hideFooter: true
     },
+    {
+        type: 'internal',
+        header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.AladdinPortfolioManagement,
+        id: 'dqm',
+        name: 'dqm',
+        title: 'Data Quality Monitor',
+        env: HighestEnv.prod,
+        path: '/de/dqm',
+        team: 'de',
+        component: lazy(() => import('@de/dqm/src/App')),
+        description: '',
+    },
     // PLOP_INJECT_APP
 ]

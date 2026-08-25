@@ -69,6 +69,7 @@ export default defineConfig(({ mode }) => {
                 '@IOD/rates-waterfall-manager': path.resolve(__dirname, '../features/IOD/rates-waterfall-manager'),
                 '@de/tracer': path.resolve(__dirname, '../features/DE/tracer'),
                 '@de/report-catalog': path.resolve(__dirname, '../features/DE/report-catalog'),
+                '@de/dqm': path.resolve(__dirname, '../features/DE/dqm'),
                 '@de/report-catalog-admin': path.resolve(__dirname, '../features/DE/report-catalog-admin'),
                 '@IOD/bskt-composition': path.resolve(__dirname, '../features/IOD/bskt-composition'),
                 '@r2/levered-finance-news': path.resolve(__dirname, '../features/R2/levered-finance-news'),
