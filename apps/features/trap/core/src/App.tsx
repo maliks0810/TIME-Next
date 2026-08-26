@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
+import React, { useEffect } from 'react';
+import { LoginCallback } from '@okta/okta-react';
 import { BackTop, ConfigProvider, Layout, App as AntdApp } from 'antd';
 import { Route, Routes } from 'react-router-dom';
 
@@ -21,6 +22,7 @@ import {
 } from './theme/customThemes';
 import { PreviewTheme, ThemeContext } from './theme/ThemeContext';
 import { useUserInfo } from './utils/useUserInfo';
+import { Authenticator } from './Authenticator';
 
 const { Content } = Layout;
 
@@ -30,10 +32,11 @@ const CONTENT_MAX_WIDTH = 1880;
 const APP_HORIZONTAL_PADDING = 16;
 const APP_TOP_PADDING = 16;
 
-export default function App() {
+export default function App({ oktaAuth }: any) {
     const [themeName, setThemeName] = React.useState<string>(() => {
         return localStorage.getItem(THEME_STORAGE_KEY) ?? 'default';
     });
+
     // User-authored themes (loaded from the Core API → Cosmos, via mocked GraphQL in the harness)
     // + a transient preview the editor pushes while you tweak tokens.
     const [customThemes, setCustomThemes] = React.useState<CustomTheme[]>([]);
@@ -49,6 +52,13 @@ export default function App() {
     React.useEffect(() => {
         refetchThemes();
     }, [refetchThemes]);
+
+    useEffect(() => {
+        return () => {
+            if (oktaAuth?.options?.restoreOriginalUri)
+                oktaAuth.options.restoreOriginalUri = undefined;
+        };
+    }, []);
 
     // Optimistic write-through: update local state immediately, persist via GraphQL, and refetch
     // to reconcile if the mutation fails.
@@ -152,13 +162,17 @@ export default function App() {
                             }}
                         >
                             <Routes>
-                                <Route path="/" element={<TrapLandingPage />} />
+                                <Route
+                                    path="/"
+                                    element={<Authenticator success={<TrapLandingPage />} />}
+                                />
 
                                 <Route path="admin" element={<AdminPanel />} />
                                 <Route
                                     path="studio/configure"
                                     element={<WidgetStudioConfigurePage />}
                                 />
+                                <Route path="/login/callback" element={<LoginCallback />} />
                             </Routes>
                         </Content>
                     </Layout>
