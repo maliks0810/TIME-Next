@@ -13,7 +13,6 @@ import { getSecurityRequestsDashboard } from '../../../services/DashboardService
 import { useDashboardStore } from '../../../stores/useDashboardStore';
 import { useReferenceData } from '../../../hooks/useReferenceData';
 import { ReferenceDataFieldKey } from '../../security-setup/lib/types/referenceDataTypes';
-import { useVisibilityChange } from '../../../hooks/useVisibilityChange';
 import { useIdentity } from '../../../hooks/useIdentity';
 import { useInterval } from '../../../hooks/useInterval';
 import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
@@ -36,7 +35,6 @@ const Dashboard: React.FC = () => {
   const [pollingInterval, setPollingInterval] = useState<number | null>(DASHBOARD_POLLING_INTERVAL)
   const [lastRefreshed, setLastRefreshed] = useState<string>("");
   const [isPolling, setIsPolling] = useState<boolean>(false);
-  const isPageVisible = useVisibilityChange();
   const isDmAnalystDropdownOpen = useDashboardStore(s => s.isDmAnalystDropdownOpen);
   const setDmAnalystAssignments = useDashboardStore(s => s.setDmAnalystAssignments)
   const navigate = useNavigate();
@@ -53,16 +51,14 @@ const Dashboard: React.FC = () => {
   // Set user auth permissions to Zustand store
   useIdentity();
 
-  // poll data when page is visible
+  // pause polling only when DM Analyst dropdown is open
   useEffect(() => {
-    // pause polling when user had DM Analyst dropdown open
-    if (isPageVisible && !isDmAnalystDropdownOpen) {
+    if (!isDmAnalystDropdownOpen) {
       setPollingInterval(DASHBOARD_POLLING_INTERVAL);
-    }
-    else {
+    } else {
       setPollingInterval(null);
     }
-  }, [isPageVisible, isDmAnalystDropdownOpen]);
+  }, [isDmAnalystDropdownOpen]);
 
   // poll data in intervals
   useInterval(() => {
