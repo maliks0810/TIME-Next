@@ -7,6 +7,7 @@ import {
     HomeOutlined,
     SearchOutlined,
     PlusOutlined,
+    ContainerOutlined,
 } from '@ant-design/icons';
 import { useUserInfo } from '@platform/utils';
 import {
@@ -32,6 +33,8 @@ export type Item = {
     ownerUserId: string | null;
     class3: string | null;
     isDraft: boolean;
+    scopeKey?: null | Record<string, string>;
+    scopeType?: 'USER' | 'AUDIENCE' | null;
 };
 
 type Selection = Item & {
@@ -103,6 +106,8 @@ export default function WorkspacesPanel({
             templateId: el.id,
             templateName: el.name,
             kind: el.kind as Kind,
+            scopeKey: el.scopeKey,
+            scopeType: el.scopeType,
             isDraft:
                 el.latestDraft?.version &&
                 el.latestPublished?.version &&
@@ -183,6 +188,9 @@ export default function WorkspacesPanel({
 
     const owned = (item: Item) => item.ownerUserId === currentUser;
     const isLanding = (item: Item) => item.kind === Kind.LANDING;
+    const isDepartmentLanding = (item: Item) =>
+        item?.scopeKey?.['OrgLevel1'] === claims.OrgLevel1 &&
+        item?.scopeKey?.['OrgLevel2'] === claims.OrgLevel2;
 
     const openItem = (item: Item) => {
         if (isLanding(item)) {
@@ -312,7 +320,10 @@ export default function WorkspacesPanel({
         );
     };
 
-    const landings = visible.filter(isLanding);
+    const departmentLandings = visible.filter(
+        (item) => isLanding(item) && isDepartmentLanding(item)
+    );
+    const landings = visible.filter((item) => isLanding(item) && !isDepartmentLanding(item));
     const workflows = visible.filter((item) => !isLanding(item));
     const favItems = visible.filter((item) => favs.includes(item.templateId));
     const yourTeam = workflows.filter((item) => myTeam && item.class3 === myTeam);
@@ -350,6 +361,14 @@ export default function WorkspacesPanel({
             >
                 Create Workspace
             </Button>
+
+            {renderGroup(
+                'Department',
+                departmentLandings,
+                <>
+                    <ContainerOutlined /> Department
+                </>
+            )}
 
             {renderGroup(
                 'home',
