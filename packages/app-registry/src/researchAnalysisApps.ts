@@ -270,5 +270,18 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
         component: lazy(() => import('@r2/prism/src/portals/equity-research/index')),
         description: '',
     },
+    {
+        type: 'external',
+        header: NavbarHeader.ResearchAnalysis,
+        subHeader: NavbarSubHeader.Fundamental,
+        title: 'TickerTalks',
+        sandboxUrl: 'https://tip2-frontend-np.corp.tcw.com/copilots/equityIq',
+        devUrl: 'https://tip2-frontend-np.corp.tcw.com/copilots/equityIq',
+        qaUrl: 'https://tip2-frontend-np.corp.tcw.com/copilots/equityIq',
+        prodUrl: 'https://tip2-frontend-pd.corp.tcw.com/',
+        newTab: true,
+        disabled: false,
+        env: HighestEnv.prod
+    },
     // PLOP_INJECT_APP
 ]
