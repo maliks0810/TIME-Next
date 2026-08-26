@@ -53,8 +53,9 @@ export const useSecuritySetupNotifications = (
     for (const request of newRequests) {
       addNotifiedRequestId(request.id);
 
+      const notificationBody = `${request.description ?? ""}\n${request.identifier ?? ""}` 
       const notification = new Notification('New Security Setup Request', {
-        body: request.description,
+        body: notificationBody,
         icon: tcwLogoUrl,
       });
 
