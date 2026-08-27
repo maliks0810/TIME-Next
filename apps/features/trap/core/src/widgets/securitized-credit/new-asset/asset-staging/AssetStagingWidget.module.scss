@@ -256,6 +256,7 @@
     height: 100%;
     max-height: 260px;
     width: 100%;
+    padding: 48px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -265,7 +266,6 @@
 .assumptionPendingActions {
     display: flex;
     gap: 8px;
-    padding: 8px;
 }
 
 .assumptionPanelBody {
