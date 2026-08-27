@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Divider, Progress, theme, Typography, message } from 'antd';
+import { Button, Divider, Progress, theme, Typography, message, Tag, Card } from 'antd';
 import {
     ArrowRightOutlined,
     CheckCircleOutlined,
@@ -177,7 +177,7 @@ export default function AssetStagingWidget({
     const scenarioRunSummary = useGetWidgetValue({
         channelId,
         key: SCENARIO_SELECTED_SUMMARY,
-    });
+    }) as ScenarioSummary;
 
     useEffect(() => {
         if (assumptionsRunId) {
@@ -188,19 +188,13 @@ export default function AssetStagingWidget({
     const onAssumptionsAccept = () => {
         const summary = scenarioRunSummary as unknown as ScenarioSummary;
 
-        // clear rest of assumptions
-        setCollateralType(undefined);
-        setCallable('N');
-        setCallDate(null);
-        setCallValue(undefined);
-        setDelinquency(null);
-
         setPrice(summary?.price);
         setPrepaymentType(summary?.assumptions?.prepay?.type);
         setPrepaymentValue(summary?.assumptions?.prepay?.value);
         setDefaultType(summary?.assumptions?.default?.type);
         setDefaultValue(summary?.assumptions?.default?.value);
-        setSeverity(summary?.severity || null);
+        setSeverity(summary?.assumptions?.severity?.value || null);
+        setDelinquency(summary?.assumptions?.delinquency?.value);
         setIsAssumptionsPending(false);
         setWidgetValueToChannel({
             channelId,
@@ -1068,30 +1062,41 @@ export default function AssetStagingWidget({
                                             styles.assumptionPendingBody
                                         )}
                                     >
-                                        <div style={{ fontSize: 12 }}>
-                                            Do you want to apply assumptions from selected scenario
-                                            in Scenario Matrix?
-                                        </div>
-                                        <div className={styles.assumptionPendingActions}>
-                                            <Button
-                                                variant="outlined"
-                                                color="geekblue"
-                                                size="small"
-                                                onClick={onAssumptionsAccept}
-                                            >
-                                                Yes
-                                            </Button>
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                color="danger"
-                                                onClick={() => {
-                                                    setIsAssumptionsPending(false);
+                                        <Card style={{ maxWidth: 385 }}>
+                                            <Tag color={scenarioRunSummary?.color}>
+                                                {scenarioRunSummary?.scenario}
+                                            </Tag>
+                                            <div
+                                                style={{
+                                                    fontSize: 12,
+                                                    marginTop: 8,
+                                                    marginBottom: 8,
                                                 }}
                                             >
-                                                No
-                                            </Button>
-                                        </div>
+                                                <b>{scenarioRunSummary?.tranche}</b>·{' '}
+                                                {scenarioRunSummary?.pendingAssumptionsMessage}
+                                            </div>
+                                            <div className={styles.assumptionPendingActions}>
+                                                <Button
+                                                    variant="solid"
+                                                    color="primary"
+                                                    size="small"
+                                                    onClick={onAssumptionsAccept}
+                                                >
+                                                    Accept
+                                                </Button>
+                                                <Button
+                                                    size="small"
+                                                    variant="outlined"
+                                                    color="danger"
+                                                    onClick={() => {
+                                                        setIsAssumptionsPending(false);
+                                                    }}
+                                                >
+                                                    Dismiss
+                                                </Button>
+                                            </div>
+                                        </Card>
                                     </div>
                                 ) : (
                                     <InputAssumptionsPanel

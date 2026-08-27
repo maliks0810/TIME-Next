@@ -46,6 +46,7 @@ export type ScenarioSummary = {
     tranche: string;
     price: number;
     assumptions: { [key: string]: { type: string; value: number } };
+    pendingAssumptionsMessage: string;
     periods: number;
     user: string;
     timestamp: string;
@@ -66,6 +67,7 @@ export function buildScenarioSummary(
         price: scenario.price,
         severity: scenario.results?.severity,
         assumptions: createAssumptionObject(rows, unit, scenario),
+        pendingAssumptionsMessage: assumptionString(rows, unit, scenario),
         periods: scenario.cashflow?.length ?? 0,
         user: SCENARIO_USER,
         timestamp: nowStamp(),
