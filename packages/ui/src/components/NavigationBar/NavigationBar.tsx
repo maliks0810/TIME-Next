@@ -12,6 +12,7 @@ import updatedTcwTime from '../../assets/updated-time-logo.png';
 import HomeSVG from '../../assets/HomeSVG.svg?react';
 import SearchSVG from '../../assets/SearchSVG.svg?react';
 import ProfileSVG from '../../assets/ProfileSVG.svg?react';
+import TextLinkSVG from '../../assets/TextLinkSVG.svg?react';
 import { appRegistry } from '@platform/app-registry';
 import './NavigationBar.scss';
 
@@ -19,7 +20,6 @@ export interface NavigationBarProps {
     appName?: string;
     onNavigate?: (route: string) => void;
 }
-
 
 export const Navbar: React.FC = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -39,7 +39,6 @@ export const Navbar: React.FC = () => {
                 navigate('/prism/equity-research/dashboard', { replace: true });
                 break;
 
-
             default:
                 navigate('/', { replace: true });
                 break;
@@ -58,11 +57,10 @@ export const Navbar: React.FC = () => {
         setOpenMenu(null);
     };
 
-    const transformLinks = (inputArray: (InternalAppMetadata|ExternalAppMetadata)[]) => {
+    const transformLinks = (inputArray: (InternalAppMetadata | ExternalAppMetadata)[]) => {
         const headerMap = new Map();
         const currentEnv = import.meta.env.VITE_APP_ENV;
-        inputArray.forEach(item => {
-
+        inputArray.forEach((item) => {
             if (!item.header || !item.subHeader) return;
 
             if (!headerMap.has(item.header)) {
@@ -70,7 +68,7 @@ export const Navbar: React.FC = () => {
             }
 
             const subHeaderMap = headerMap.get(item.header);
-    
+
             if (!subHeaderMap.has(item.subHeader)) {
                 subHeaderMap.set(item.subHeader, []);
             }
@@ -92,15 +90,15 @@ export const Navbar: React.FC = () => {
             }
 
             links.push({
-                title: item.title,    
-                url: url,    
+                title: item.title,
+                url: url,
                 newTab: item.newTab,
                 disabled: item.disabled,
                 path: item.entryPointUrl ? item.entryPointUrl : item.path,
-                type: item.type
+                type: item.type,
             });
         });
- 
+
         const result = [];
 
         for (const [header, subHeaderMap] of headerMap.entries()) {
@@ -114,8 +112,8 @@ export const Navbar: React.FC = () => {
             }
 
             result.push({
-            header,
-            subHeaders,
+                header,
+                subHeaders,
             });
         }
 
@@ -132,7 +130,7 @@ export const Navbar: React.FC = () => {
     };
 
     return (
-        <div className="header-container" >
+        <div className="header-container">
             <button onClick={handleHomeClick}>
                 {/* <img src={tcwTime} alt="TcwTIME" className="main-logo" /> */}
                 <img src={updatedTcwTime} alt="TcwTIME" className="main-logo" />
@@ -141,18 +139,30 @@ export const Navbar: React.FC = () => {
             {/* New Navbar Loading from App Registry */}
             <div className="menu-container">
                 {transformLinks(appRegistry.getAllApps()).map((header, index) => {
-                    return <TopMenu
-                                key={index}
-                                menuData={header}
-                                openMenu={openMenu}
-                                setOpenMenu={setOpenMenu}
-                                handleClick={handleClick}
-                                handleClose={handleClose}
-                            />;
+                    return (
+                        <TopMenu
+                            key={index}
+                            menuData={header}
+                            openMenu={openMenu}
+                            setOpenMenu={setOpenMenu}
+                            handleClick={handleClick}
+                            handleClose={handleClose}
+                        />
+                    );
                 })}
             </div>
+            <div className="quick-links-menu">
+                <IconButton
+                    className="quick-links-menu-header-button"
+                >
+                    <TextLinkSVG className="quick-links-icon header-icon" title="Quick Links"/>
+                </IconButton>
+            </div>
             <div className="profile-menu">
-                <IconButton className="profile-menu-header-button" onClick={(e) => handleClick(e, 'profile')}>
+                <IconButton
+                    className="profile-menu-header-button"
+                    onClick={(e) => handleClick(e, 'profile')}
+                >
                     <ProfileSVG className="profile-icon header-icon" />
                 </IconButton>
                 <Menu
@@ -163,11 +173,10 @@ export const Navbar: React.FC = () => {
                     MenuListProps={{
                         'aria-labelledby': 'basic-button',
                         disablePadding: true,
-                        
                     }}
                     classes={{ paper: 'menu-paper' }}
-                    slotProps={{ paper: { square: true }}}
-                    anchorOrigin={{vertical: 72, horizontal: "right"}}
+                    slotProps={{ paper: { square: true } }}
+                    anchorOrigin={{ vertical: 72, horizontal: 'right' }}
                 >
                     <div className="profile-dropdown-content">
                         <div className="profile-menu-user-name">{userInfo.name}</div>
@@ -180,7 +189,6 @@ export const Navbar: React.FC = () => {
                     </div>
                 </Menu>
             </div>
-
         </div>
     );
-}
+};

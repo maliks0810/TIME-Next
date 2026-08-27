@@ -1,0 +1,2190 @@
+@font-face {
+  font-family: 'ABC-MonumentGrotesk-Regular';
+  src: url('./fonts/ABCMonumentGrotesk-Regular.TTF') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ABC-MonumentGrotesk-Bold';
+  src: url('./fonts/ABCMonumentGrotesk-Bold.TTF') format('truetype');
+  font-display: swap;
+}
+
+.dq-page {
+  /* Height strategy — cover every host layout without depending on
+     the host to cooperate:
+       1. Standalone (npm start): html/body/#root are height:100%
+          and the "height: 100%" below resolves against them.
+       2. Embedded in a flex-column parent that DOES declare
+          display:flex on the wrapper: "flex: 1 1 auto" plus
+          "min-height: 0" lets us grow inside it.
+       3. Embedded in a parent whose height is content-driven /
+          only sets min-height (TIME-Next's RootLayout wraps
+          <Outlet /> in a <Box sx={{minHeight:'calc(100vh - 70px)'}}>
+          that isn't display:flex): neither CSS lever works, so the
+          JS effect in DqMonitorPage sets an inline height =
+          window.innerHeight - element.top on mount / resize /
+          body-size-change. Inline style wins by specificity, so
+          in that case this CSS block acts only as a fallback until
+          the effect runs.
+     min-height keeps the page usable on very short viewports
+     during the JS-driven flow. */
+  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  background: #f8f9fa;
+  color: #1a1a2e;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.dq-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 16px;
+  flex: none;
+}
+
+.dq-header-left {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-self: start;
+}
+
+.dq-header-brand {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1d4ed8;
+  line-height: 1;
+}
+
+.dq-header-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+/* DM_USER.ROLE badge beside the page title. 12px matches
+   .dq-header-breakdown (the "Total: 6 | New: 3" row) so the two
+   pieces of at-a-glance context read at the same weight — the 18px
+   title stays the only large text in the row. Negative left margin
+   pulls it in from .dq-header-left's 16px flex gap, which is sized
+   for the TCW brand mark and reads as a disconnect here. */
+.dq-header-role {
+  font-size: 12px;
+  color: #111827;
+  margin-left: -8px;
+  white-space: nowrap;
+}
+
+.dq-header-date {
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.dq-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-self: end;
+}
+
+.dq-user {
+  font-size: 13px;
+  color: #0f172a;
+  background: #eef4ff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.dq-logout-btn {
+  /* Same top-row bar height as .dq-export-btn — see the comment
+     there for why 28px matches the grid header. */
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: none;
+  background: #111827;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dq-logout-btn:hover {
+  background: #1f2937;
+}
+
+.dq-export-btn {
+  /* Height matches the Exceptions grid header row — .dq-table th
+     has no explicit height but resolves to ~28px from
+     "font-size: 13px * line-height: 1.2 + padding: 6px 0" — so the
+     top-row action buttons and the grid header line up at the same
+     bar height. */
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid #003e7e;
+  /* Background + font match the Exceptions grid header (see
+     .dq-table th) so the header-row action buttons read as one
+     visual system with the table below. Hover picks up the same
+     darker-navy the sortable headers use on hover. */
+  background: #003e7e;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 450;
+  cursor: pointer;
+  /* Anchor reset: the Swagger link reuses this class as an <a>. Without
+     these an <a> would show its default underline and blue color, and
+     wouldn't vertically center its label like a native button. */
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.dq-export-btn:hover {
+  background: #002d5e;
+  text-decoration: none;
+}
+
+.dq-export-btn:visited {
+  color: #ffffff;
+}
+
+/* Settings gear + dropdown, right of Export to Excel. The wrap is the
+   positioning context for the absolutely-placed menu; the trigger
+   matches .dq-export-btn's 28px bar height and navy treatment so the
+   header row stays level and visually of a piece. */
+.dq-settings-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Bare icon rather than a filled button — the gear is a utility
+   affordance, not a primary action like Export / Bulk Assign, so it
+   reads better unfilled beside them. The glyph carries the navy that
+   the fill used to; the SVG uses fill="currentColor", so `color` is
+   the single lever. Border dropped with the fill: an outlined empty
+   box next to solid buttons looks unfinished. A tinted hover keeps
+   the click affordance and matches the menu items' hover. */
+.dq-settings-btn {
+  height: 28px;
+  width: 28px;
+  padding: 0;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #003e7e;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dq-settings-btn:hover {
+  background: #eef2ff;
+  color: #002d5e;
+}
+
+/* Right-aligned so the menu opens inward from the header's right edge
+   rather than overflowing off-screen. z-index clears the sticky grid
+   header below it. */
+.dq-settings-menu {
+  position: absolute;
+  top: 32px;
+  right: 0;
+  z-index: 30;
+  min-width: 160px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dq-settings-item {
+  appearance: none;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  color: #111827;
+  padding: 7px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dq-settings-item:hover:not(:disabled) {
+  background: #eef2ff;
+  color: #1d4ed8;
+}
+
+/* Disabled when the action has no scope to act on (Reset Column
+   Headers with no rule group selected on the LHS). Greyed rather
+   than hidden so the menu keeps a stable shape as the operator
+   moves around the tree. */
+.dq-settings-item:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.dq-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  gap: 12px;
+}
+
+.dq-sidebar-resizer {
+  flex: 0 0 6px;
+  cursor: col-resize;
+  background: transparent;
+  align-self: stretch;
+  border-radius: 3px;
+  transition: background-color 0.15s ease;
+}
+
+.dq-sidebar-resizer:hover,
+.dq-sidebar-resizer:active {
+  background: #d1d5db;
+}
+
+.dq-main-resizer {
+  flex: 0 0 6px;
+  cursor: row-resize;
+  background: transparent;
+  border-radius: 3px;
+  transition: background-color 0.15s ease;
+}
+
+.dq-main-resizer:hover,
+.dq-main-resizer:active {
+  background: #d1d5db;
+}
+
+.dq-sidebar {
+  flex: 0 0 15%;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Collapse toggle: small chevron button pinned to the top-right of the
+   sidebar. Doesn't take grid space (position:absolute) so existing
+   layout stays put; z-index keeps it above content on hover. */
+.dq-sidebar-toggle {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #4b5563;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.dq-sidebar-toggle:hover {
+  background: #eef2ff;
+  color: #1d4ed8;
+  border-color: #9ca3af;
+}
+
+/* Collapsed state: thin rail, no padding, all children hidden except
+   the toggle button so the inner sidebar tree stays mounted. */
+.dq-sidebar-collapsed {
+  padding: 0;
+  gap: 0;
+  align-items: center;
+}
+
+.dq-sidebar-collapsed > *:not(.dq-sidebar-toggle) {
+  display: none !important;
+}
+
+/* Center the expand button vertically along the collapsed rail. */
+.dq-sidebar-toggle-collapsed {
+  top: 50%;
+  right: auto;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Sidebar bottom region: vertical split between Number of Exceptions
+   (top, default 30%) and the View Exceptions tree section (bottom,
+   default 70%), with a user-draggable horizontal resizer between them. */
+.dq-sidebar-split {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 6px;
+}
+
+.dq-sidebar-tree-wrap {
+  flex: 7 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 8px;
+  overflow: auto;
+}
+
+/* Exceptions section title row: keeps the h2 ("Exceptions") and its
+   contextual subtitle ("— Rule Group: ...") on a single line so the
+   grid below sits as high as possible. The subtitle inherits the h2's
+   font-size so the line height matches the LHS "Number of Exceptions"
+   heading. */
+.dq-section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0 0 8px 0;
+  flex: none;
+  min-width: 0;
+}
+
+.dq-section-header .dq-section-title {
+  margin: 0;
+  flex: none;
+}
+
+.dq-section-header-subtitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  line-height: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Both the LHS Number-of-Exceptions panel and the RHS Exceptions
+   section pin their content to the top of their flex column so the
+   two headers visually align across the page. */
+.dq-section,
+.dq-sidebar-count {
+  justify-content: flex-start;
+}
+
+.dq-sidebar-vresizer {
+  flex: 0 0 6px;
+  cursor: row-resize;
+  background: transparent;
+  border-radius: 3px;
+  transition: background-color 0.15s ease;
+}
+
+.dq-sidebar-vresizer:hover,
+.dq-sidebar-vresizer:active {
+  background: #d1d5db;
+}
+
+.dq-sidebar-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.dq-sidebar-select + .dq-sidebar-title {
+  margin-top: 10px;
+}
+
+.dq-sidebar-row + .dq-sidebar-title {
+  margin-top: 16px;
+}
+
+.dq-sidebar-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+}
+
+/* "Exceptions Date" row sits just above the View Exceptions tree — a bit
+   of breathing room below so the h3 that follows isn't glued to the
+   select. The label overrides .dq-sidebar-row's fixed 70px / wrapping
+   defaults so "Exceptions Date" stays on one line next to the select. */
+.dq-dqm-date-row {
+  margin-bottom: 8px;
+  flex-wrap: nowrap;
+}
+
+/* Chain both classes on the same element (.dq-sidebar-row.dq-dqm-date-row)
+   so this beats the later, equal-specificity ".dq-sidebar-row
+   .dq-sidebar-title" rule that pins the label to 70px + wrapping. */
+.dq-sidebar-row.dq-dqm-date-row .dq-sidebar-title {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
+}
+
+.dq-sidebar-row.dq-dqm-date-row .dq-sidebar-title::after {
+  content: "";
+}
+
+.dq-sidebar-row.dq-dqm-date-row .dq-sidebar-select {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+
+.dq-sidebar-row .dq-sidebar-title {
+  flex: 0 0 70px;
+  width: 70px;
+  line-height: 1.15;
+  white-space: normal;
+}
+
+.dq-sidebar-row .dq-sidebar-title::after {
+  content: ":";
+}
+
+.dq-sidebar-row .dq-sidebar-select {
+  flex: 0 0 auto;
+  width: 140px;
+  min-width: 0;
+}
+
+.dq-sidebar-select {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #111827;
+  cursor: pointer;
+}
+
+/* In-sidebar Number of Exceptions panel. Lives inside .dq-sidebar-split
+   as the top child of the 30/70 vertical split. flex: 3 1 0 yields the
+   default 30% share; the parent flips to a pixel basis when the user
+   drags the .dq-sidebar-vresizer below. */
+.dq-sidebar-count {
+  display: flex;
+  flex-direction: column;
+  flex: 3 1 0;
+  min-height: 0;
+}
+
+/* Panel fills the sidebar on initial load (width: 100%), then the React
+   side pins maxWidth via inline style to the sidebar's measured startup
+   content width — so dragging the sidebar wider leaves blank space to
+   the right of the panel instead of stretching it. */
+.dq-sidebar-count-scroll {
+  flex: 1 1 auto;
+  overflow: auto;
+  min-height: 0;
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.dq-sidebar-count-scroll .dq-table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 0;
+}
+
+.dq-sidebar-count-scroll .dq-table th:nth-child(1),
+.dq-sidebar-count-scroll .dq-table td:nth-child(1) {
+  width: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.dq-sidebar-count-scroll .dq-table th:nth-child(2),
+.dq-sidebar-count-scroll .dq-table td:nth-child(2) {
+  width: 60px;
+  text-align: right;
+}
+
+.dq-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 6px;
+  padding: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  /* Grow into whatever vertical space the sidebar leaves after the
+     other controls, and scroll internally when there isn't enough room
+     (same pattern as the asset/exception grids inside .dq-main). */
+  flex: 1 1 auto;
+  min-height: 80px;
+  overflow: auto;
+}
+
+.dq-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.dq-tree-row-l1 {
+  padding-left: 14px;
+}
+
+.dq-tree-row-l2 {
+  padding-left: 28px;
+}
+
+.dq-tree-toggle {
+  width: 14px;
+  height: 18px;
+  line-height: 14px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  /* Prominence comes mostly from colour and size, not weight: ▸/▾ are
+     geometric glyphs (U+25B8 / U+25BE) that many fonts ship in a
+     single weight, so font-weight alone can render identically.
+     Darkened from #6b7280 to #374151 and bumped 11px -> 13px to match
+     the adjacent .dq-tree-node label; bold is kept for the fonts that
+     do honour it. Width stays 14px — the triangles are ~0.8em wide so
+     13px still fits, and changing it would shift the tree indent. */
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  flex: 0 0 14px;
+  text-align: center;
+}
+
+.dq-tree-toggle:hover {
+  color: #111827;
+}
+
+.dq-tree-toggle-empty {
+  display: inline-block;
+}
+
+.dq-tree-node {
+  flex: 1 1 auto;
+  text-align: left;
+  padding: 3px 6px;
+  border: none;
+  background: transparent;
+  color: #111827;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dq-tree-node:hover {
+  background: #f3f4f6;
+}
+
+.dq-tree-node-selected,
+.dq-tree-node-selected:hover {
+  background: #dbeafe;
+  font-weight: 700;
+}
+
+.dq-tree-empty {
+  font-size: 12px;
+  color: #9ca3af;
+  padding: 2px 8px;
+}
+
+.dq-sidebar-button {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid #9ca3af;
+  border-radius: 6px;
+  background: #f3f4f6;
+  color: #111827;
+  cursor: pointer;
+}
+
+.dq-sidebar-button:hover {
+  background: #e5e7eb;
+}
+
+.dq-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dq-section {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.dq-exception-count {
+  flex: 0 1 auto;
+  max-width: 30%;
+  align-self: flex-start;
+}
+
+.dq-exception-count .dq-table {
+  min-width: 0;
+}
+
+.dq-count-row-header td {
+  background: #e0e7ff;
+  font-weight: 700;
+}
+
+/* Single-line status count summary shown above the Exceptions grid
+   for RULE_GROUP.FLAG_STATUS_VISIBLE=true groups. Status names appear
+   in bold (<strong>) via inline markup; this container just sets the
+   line style. */
+.dq-status-breakdown {
+  padding: 4px 8px;
+  margin: 4px 0 6px 0;
+  font-size: 12px;
+  color: #111827;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+.dq-status-breakdown strong {
+  color: #111827;
+}
+
+/* Middle cell of the top header when a status breakdown is present.
+   Width is auto so the row consumes just what the counts need; the
+   header's grid-template-columns places it starting at the Exceptions
+   grid's left edge (breakdownLeftOffset). Height is pinned to match
+   the Exceptions grid <th> so the two rows read as the same size;
+   background / font stay on the page default (transparent, dark
+   text). */
+.dq-header-breakdown {
+  justify-self: start;
+  align-self: center;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  color: #111827;
+  /* Match the original in-grid status breakdown font (was 12px above
+     the ExceptionsTable before the row moved into the header). The
+     header defaults to browser 16px otherwise. */
+  font-size: 12px;
+  line-height: 1.2;
+  height: 30px;
+  padding: 0 10px;
+  white-space: nowrap;
+  overflow-x: auto;
+  max-width: 100%;
+}
+.dq-header-breakdown strong {
+  color: #111827;
+}
+
+/* Individual status entries whose rows in the Exceptions grid render as
+   "complete" (Accept / Override / Suppress) reuse the same #dcfce7
+   swatch so the top-of-page count reinforces the row coloring below.
+   Only the label + count get the swatch — the surrounding " | "
+   separators stay on the header's plain background. */
+.dq-header-breakdown-complete {
+  background: #dcfce7;
+  padding: 0 6px;
+  border-radius: 3px;
+}
+
+/* Pipe separator between breakdown entries. white-space: pre keeps the
+   leading + trailing spaces inside the span visible — an inline-flex
+   parent otherwise trims boundary whitespace of its flex items, which
+   was making the counts render as "New: 2|Accept: 1" instead of
+   "New: 2 | Accept: 1". */
+.dq-header-breakdown-sep {
+  white-space: pre;
+}
+
+/* Bulk processing panel: card that opens between the Exceptions
+   section header (status filter etc.) and the ExceptionsTable when
+   the user clicks Bulk Assign. Same white card / gray border /
+   rounded-corner styling as the LHS sidebar so it reads as a peer
+   surface, not a modal. */
+.dq-bulk-panel {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 4px 0 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: none;
+}
+.dq-bulk-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.dq-bulk-panel-title {
+  /* Match the Exceptions section title (.dq-section-title +
+     .dq-section-title-bold): 12px / 700 / #111827. */
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+.dq-bulk-panel-close {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #4b5563;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dq-bulk-panel-close:hover {
+  background: #eef2ff;
+  color: #1d4ed8;
+  border-color: #9ca3af;
+}
+.dq-bulk-panel-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dq-bulk-panel-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #111827;
+}
+.dq-bulk-panel-label {
+  font-weight: 700;
+}
+
+/* Stacked variant used by the Bulk Status panel. Fields stack one per
+   row (flex-direction: column) and every label is forced to the same
+   fixed-width column via min-width, so every control (Rules combo,
+   Status select, Comments input, Update Status button) starts at the
+   same X position — the Rules dropdown and the Comments text box read
+   as vertically aligned. Bulk Assign keeps its single-row layout. */
+.dq-bulk-panel-body--stacked {
+  flex-direction: column;
+  align-items: flex-start;
+  row-gap: 8px;
+}
+.dq-bulk-panel-body--stacked .dq-bulk-panel-field {
+  display: flex;
+  width: auto;
+}
+.dq-bulk-panel-body--stacked .dq-bulk-panel-label {
+  min-width: 70px;
+  text-align: left;
+}
+.dq-bulk-panel-body--stacked .dq-bulk-panel-assign-btn {
+  /* Line the Update Status button up with the controls above, not the
+     labels — the label column ate 70px + 6px gap, so shift the button
+     by the same amount when it lives directly under a label-less row. */
+  margin-left: 76px;
+}
+
+/* Horizontal group inside the stacked body — lets Status and Suppress
+   Date share one row while Rules / Comments / Update Status keep their
+   own rows above and below. The group itself becomes one row-item so
+   its left edge stays aligned with the label column above; each child
+   field is a normal flex item (label + control) inside. */
+.dq-bulk-panel-inline-row {
+  display: flex;
+  align-items: center;
+  column-gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Suppress Date input inside the Bulk Status panel. Matches the grid
+   .dq-row-suppress-date-input footprint so the two feel like the same
+   widget rendered in two places. */
+.dq-bulk-panel-suppress-date {
+  width: 160px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #111827;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+.dq-bulk-panel-select {
+  min-width: 200px;
+  max-width: 320px;
+  height: 28px;
+  padding: 2px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 12px;
+}
+
+/* "Clear Comments" checkbox that sits to the right of the Comments
+   text box in the Bulk Status panel. When ticked, the text box goes
+   disabled + blank and the submit sends an explicit empty string to
+   wipe COMMENTS on every matched row. */
+.dq-bulk-panel-clear-comments {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  font-size: 12px;
+  color: #111827;
+  cursor: pointer;
+  user-select: none;
+}
+.dq-bulk-panel-clear-comments input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Bulk Status comments box. Same 320px canvas as the Exceptions grid's
+   Comments column (see INITIAL_WIDTHS.comments in ExceptionsTable) so
+   the two feel like the same widget in two places. Rest of the styling
+   inherits from the sibling .dq-bulk-panel-select for a consistent
+   panel look. */
+.dq-bulk-panel-comments {
+  width: 320px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #111827;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+/* Is Permanent checkbox that sits just left of the Assign button.
+   Inline so the label + box read as a single control; matches the
+   panel's 12px body font. When ticked, the backend writes
+   RULE.ASSIGN_TO_ID directly instead of a soft RULE_ASSIGN_OVERRIDE. */
+.dq-bulk-panel-permanent {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #111827;
+  cursor: pointer;
+  user-select: none;
+}
+.dq-bulk-panel-permanent input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Submit button used by both bulk panels (Bulk Assign's Assign, Bulk
+   Status's Update Status/Comments). Mirrors the top-row .dq-export-btn
+   styling — same navy background + white 450-weight font as the
+   Exceptions grid header — so every action button on the page reads
+   as one visual system. Kept a hair shorter (28px vs 36px) because
+   it lives inside the bulk side panels where vertical space is
+   tighter. */
+.dq-bulk-panel-assign-btn {
+  /* Sized ~15% smaller than .dq-export-btn (height 28 -> 24, padding
+     14 -> 12, font 13 -> 11, radius 8 -> 7) so Assign / Update
+     Status/Comments sit lighter inside the bulk side panels while
+     still matching the header buttons' navy + white 450-weight
+     look. !important guards the visual identity from host-app
+     button resets (TIME-Next's MUI theme + @platform/styles both
+     add generic button rules that otherwise repaint this as
+     transparent / dark text). */
+  height: 24px !important;
+  padding: 0 12px !important;
+  border-radius: 7px !important;
+  border: 1px solid #003e7e !important;
+  background: #003e7e !important;
+  color: #ffffff !important;
+  font-size: 11px !important;
+  font-weight: 450 !important;
+  cursor: pointer !important;
+}
+.dq-bulk-panel-assign-btn:hover:not(:disabled) {
+  background: #002d5e !important;
+}
+.dq-bulk-panel-assign-btn:disabled {
+  background: #d1d5db;
+  border-color: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+/* Ticked-row counter shown immediately left of the Assign / Update
+   button. Muted next to the message text — it is a standing readout,
+   not an outcome. */
+.dq-bulk-panel-selected {
+  font-size: 12px;
+  color: #4b5563;
+  white-space: nowrap;
+  padding-right: 4px;
+}
+
+/* Inline status message next to the Assign button. Neutral color so it
+   works for both success and error surfaces; the text itself carries
+   the outcome. aria-live=polite keeps SR users informed. */
+.dq-bulk-panel-message {
+  font-size: 12px;
+  color: #111827;
+  padding-left: 4px;
+}
+
+/* Inline status message next to the Save Column Order button in the
+   header. Same shape as .dq-bulk-panel-message but sized to sit
+   inside the header row's flex gap. Auto-dismissed by the parent
+   after a few seconds so it never lingers. */
+.dq-header-inline-message {
+  font-size: 12px;
+  color: #111827;
+  padding-left: 4px;
+  align-self: center;
+}
+
+/* Multi-select rule combo inside the Bulk Assign panel. Same shape as
+   .dq-status-combo (trigger button + absolute popover with a checkbox
+   list) but wider so long rule names fit. */
+.dq-bulk-rule-combo {
+  position: relative;
+  min-width: 280px;
+  max-width: 520px;
+}
+.dq-bulk-rule-combo-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  height: 28px;
+  padding: 2px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+}
+.dq-bulk-rule-combo-trigger:hover:not(:disabled) {
+  border-color: #9ca3af;
+}
+.dq-bulk-rule-combo-trigger:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+.dq-bulk-rule-combo-summary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dq-bulk-rule-combo-caret {
+  color: #6b7280;
+  font-size: 10px;
+  margin-left: 4px;
+}
+.dq-bulk-rule-combo-popover {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  max-height: 280px;
+}
+.dq-bulk-rule-combo-actions {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  flex: none;
+}
+.dq-bulk-rule-combo-action {
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  color: #111827;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.dq-bulk-rule-combo-action:hover {
+  background: #eef2ff;
+  border-color: #9ca3af;
+}
+.dq-bulk-rule-combo-list {
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.dq-bulk-rule-combo-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: #111827;
+  cursor: pointer;
+}
+.dq-bulk-rule-combo-item:hover {
+  background: #eff6ff;
+}
+.dq-bulk-rule-combo-check {
+  margin: 0;
+  cursor: pointer;
+  accent-color: #1f2937;
+}
+
+/* Clickable count-panel row — mirrors the tree-view drill-down. Pointer
+   cursor + hover tint make the affordance obvious. Focus outline for
+   keyboard users (Enter/Space activate). */
+.dq-count-row-clickable {
+  cursor: pointer;
+}
+.dq-count-row-clickable:hover td {
+  background: #eef2ff;
+}
+.dq-count-row-clickable:focus {
+  outline: 2px solid #1d4ed8;
+  outline-offset: -2px;
+}
+
+.dq-section-title {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: normal;
+  color: #111827;
+  flex: none;
+}
+
+.dq-section-title-bold {
+  font-weight: 700;
+}
+
+.dq-section-subtitle {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #4b5563;
+  flex: none;
+}
+
+.dq-asset-title {
+  text-align: center;
+  font-weight: 700;
+  color: #111827;
+  font-size: 12.75px;
+}
+
+.dq-table-container {
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+/* Applied while a per-row status commit is round-tripping to the
+   backend + triggering the refetch. Paints a wait cursor over the
+   entire grid area (including selects / inputs — the `!important` +
+   deep selector beat the widget-cell hover rules that would
+   otherwise re-assert their own cursor) so the operator can see the
+   async update actually running instead of an apparently-frozen
+   grid. Cleared by ExceptionsTable when the returned Promise
+   settles. */
+.dq-table-committing,
+.dq-table-committing * {
+  cursor: wait !important;
+}
+
+.dq-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1080px;
+}
+
+.dq-table th,
+.dq-table td {
+  border: 1px solid #9ca3af;
+  padding: 6px 10px;
+  font-size: 13px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.dq-table th {
+  background: #003e7e;
+  font-weight: 450;
+  color: #ffffff;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  /* Above .dq-td-pinned (z-index 1). Both are positioned, and the cells
+     come later in document order, so at equal z-index a pinned column's
+     cells would paint OVER the header as they scroll under it. Pinned
+     headers sit higher still at 3. */
+  z-index: 2;
+}
+
+/* Bulk-selection column. Present only while a Bulk Status / Bulk Assign
+   panel is open, so it is styled as a narrow fixed-width gutter rather
+   than a real data column — no sort affordance, no resize handle, no ⋮
+   menu, and never part of the persisted column layout. */
+.dq-table th.dq-select-th {
+  width: 96px;
+  min-width: 96px;
+  cursor: default;
+  user-select: none;
+}
+
+.dq-select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: 450;
+  white-space: nowrap;
+}
+
+.dq-table td.dq-select-td {
+  width: 96px;
+  min-width: 96px;
+  text-align: center;
+}
+
+.dq-select-box {
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Sort + resize affordances on Exceptions-grid headers. Cursor and hover
+   feedback signal that the header is clickable to sort; the resize handle
+   is a slim column-resize strip pinned to the right edge and only reveals
+   itself on hover so it doesn't visually clutter the header row. */
+/* MUST stay `sticky`, not `relative`. This rule has the same
+   specificity as the base ".dq-table th { position: sticky }" and comes
+   later, so `position: relative` here silently un-stuck every sortable
+   header — i.e. every real column in the Exceptions and Assets grids —
+   and the header row scrolled away with the body. Only pinned columns
+   kept their headers, because .dq-th-pinned re-declares sticky further
+   down.
+
+   `relative` was originally chosen so the absolutely-positioned resize
+   handle and ⋮ menu anchor to the header cell rather than a distant
+   ancestor. `sticky` is equally a positioned element and establishes
+   the same containing block, so it satisfies that requirement too —
+   `top` is inherited from the base rule. The 34px right padding
+   reserves room for the RHS-pinned ⋮ menu button + the 8px resize
+   strip beyond it. */
+.dq-table th.dq-th-sortable {
+  position: sticky;
+  cursor: pointer;
+  user-select: none;
+  padding-right: 34px;
+}
+
+.dq-table th.dq-th-sortable:hover {
+  background: #002d5e;
+}
+
+.dq-th-inner {
+  display: inline-block;
+}
+
+.dq-th-arrow {
+  margin-left: 4px;
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+/* Wider grabbable strip with a faint default tint so users can see where
+   to click; hover/active brighten it further. z-index over the th keeps
+   the click landing on the handle, not the header sort area. */
+.dq-col-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  z-index: 3;
+  user-select: none;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.dq-col-resize-handle:hover,
+.dq-col-resize-handle:active {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Column ⋮ overflow menu: pinned to the RHS of each header cell, just
+   inside the 8px resize handle. Absolute positioning so it doesn't push
+   the header label around and stays flush right regardless of the label
+   length. The popover mirrors the ColumnFilterHeader popover chrome. */
+.dq-th-menu-wrap {
+  position: absolute;
+  right: 12px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  z-index: 4;
+}
+
+.dq-th-menu-btn {
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  opacity: 0.75;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 4px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.dq-th-menu-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dq-th-menu-popover {
+  position: absolute;
+  top: calc(100% + 2px);
+  right: 0;
+  z-index: 10;
+  min-width: 160px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  padding: 4px 0;
+}
+
+/* Leftmost column: flipping the popover so it opens rightward keeps
+   the menu inside the .dq-table-container's overflow-x boundary.
+   Without this the ⋮ menu on the first column falls off the left
+   edge and the pin / hide / sort options are visually clipped. */
+.dq-table thead th:first-child .dq-th-menu-popover {
+  right: auto;
+  left: 0;
+}
+
+.dq-th-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #111827;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dq-th-menu-item:hover {
+  background: #f3f4f6;
+}
+
+.dq-th-menu-icon {
+  display: inline-block;
+  width: 14px;
+  text-align: center;
+  color: #4b5563;
+  font-size: 11px;
+}
+
+/* Pinned columns stay glued to the left edge as the table scrolls
+   horizontally. The base ".dq-table th { position: sticky }" already
+   handles top-sticky; pinning adds left:0 with a higher z-index so
+   pinned headers sit above their unpinned peers when both stack. */
+/* Multi-pin: `left` is set inline by the React layer (accumulated width
+   of previously-pinned columns), so all pinned columns stack side-by-
+   side at the left edge without overlap. No default `left` here — the
+   React caller always supplies it. */
+.dq-table th.dq-th-pinned {
+  position: sticky;
+  z-index: 3;
+}
+
+.dq-table td.dq-td-pinned {
+  position: sticky;
+  z-index: 1;
+  background: #ffffff;
+  /* Paint containment gives the compositor a fixed clip box for
+     each sticky cell — hover repaints on unrelated rows can't leak
+     into the pinned-column paint region, cutting cascading style-
+     recalc + paint work on wide grids. paint is the safe subset
+     (no size/layout coupling); the sticky positioning stays intact. */
+  contain: paint;
+}
+
+/* Drag-to-reorder: while a column is being dragged over another, the
+   target TH glows so the drop position is obvious. */
+.dq-table th.dq-th-drop-target {
+  outline: 2px solid #1d4ed8;
+  outline-offset: -2px;
+}
+
+/* Draggable header cells get a subtle grab cursor to hint at the affordance. */
+.dq-th-sortable[draggable="true"] {
+  cursor: grab;
+}
+.dq-th-sortable[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.dq-table-row-complete td.dq-td-pinned {
+  background: #dcfce7;
+}
+
+.dq-table-row-even td.dq-td-pinned {
+  background: #ffffff;
+}
+
+.dq-table-row-odd td.dq-td-pinned {
+  background: #f9fafb;
+}
+
+/* Restore-hidden-columns bar shown above the grid when hiddenCols > 0. */
+.dq-exceptions-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Status multi-select filter shown above the Exceptions grid when the
+   currently-scoped rule group has RULE_GROUP.FLAG_STATUS_VISIBLE = true. */
+.dq-status-filter {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex: none;
+}
+
+.dq-status-filter-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  padding-top: 4px;
+}
+
+.dq-status-filter-select {
+  min-width: 160px;
+  height: 96px;
+  font-size: 12px;
+  padding: 2px 4px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #111827;
+}
+
+.dq-status-combo {
+  position: relative;
+  min-width: 180px;
+}
+
+.dq-status-combo-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  min-width: 180px;
+  height: 26px;
+  padding: 2px 6px;
+  font-size: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #111827;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dq-status-combo-trigger:hover {
+  border-color: #9ca3af;
+}
+
+.dq-status-combo-summary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dq-status-combo-caret {
+  color: #6b7280;
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+.dq-status-combo-popover {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  max-height: 220px;
+  overflow-y: auto;
+  font-size: 12px;
+  color: #111827;
+  padding: 2px 0;
+}
+
+.dq-status-combo-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.dq-status-combo-item:hover {
+  background: #eff6ff;
+}
+
+.dq-status-combo-check {
+  margin: 0;
+  cursor: pointer;
+  accent-color: #1f2937;
+}
+
+/* Per-row STATUS <select> that lives as the first column of the
+   Exceptions grid in view-exception mode when the STATUS filter is
+   enabled. Compact so it doesn't distort row height. */
+.dq-row-status-select {
+  width: 100%;
+  min-width: 100px;
+  font-size: 12px;
+  padding: 2px 4px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background: #ffffff;
+  color: #111827;
+}
+
+/* RESULT_DATA (extraKeys) TDs. The actual width clamp lives on the inner
+   <div> below — TDs in table-layout:auto silently ignore max-width, but
+   a plain block-level child respects it. Vertical-align:top keeps the
+   header baseline consistent when one column wraps to multiple lines. */
+.dq-td-rd {
+  vertical-align: top;
+}
+
+/* Default: single-line, no wrap — every column opens wide enough to show
+   its value on one line, and the .dq-table-container scrolls horizontally
+   if the total exceeds the viewport. */
+.dq-td-rd-inner {
+  white-space: nowrap;
+}
+
+/* Applied only when the user resizes the column via the drag handle (the
+   TD carries an inline maxWidth). Flipping on wrap lets the shrunk width
+   actually take effect. */
+.dq-td-rd-inner-wrap {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* In-app alert dialog. Replaces window.alert so the message doesn't get
+   the browser's "<origin> says" prefix. Modal overlay + centered dialog
+   with a single OK button; clicking outside the dialog dismisses it. */
+.dq-alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dq-alert-dialog {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  padding: 20px 24px 16px;
+  min-width: 320px;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dq-alert-dialog-msg {
+  font-size: 14px;
+  color: #111827;
+  line-height: 1.4;
+}
+
+.dq-alert-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dq-alert-dialog-ok {
+  height: 32px;
+  padding: 0 18px;
+  border-radius: 6px;
+  border: none;
+  background: #1d4ed8;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dq-alert-dialog-ok:hover {
+  background: #1e40af;
+}
+
+.dq-alert-dialog-ok:focus {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+/* Suppress-date cell: native date input fills the column, no padding on
+   the TD so the input hugs the border like the comments cell. */
+.dq-td-suppress-date {
+  padding: 0;
+  vertical-align: middle;
+}
+
+.dq-row-suppress-date-input {
+  width: 100%;
+  font-size: 12px;
+  padding: 2px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background: #ffffff;
+  color: #111827;
+  box-sizing: border-box;
+}
+
+.dq-row-suppress-date-input:focus {
+  outline: none;
+  border-color: #1d4ed8;
+}
+
+/* Hide the browser's "mm/dd/yyyy" format hint on empty <input type="date">
+   cells. When the input has no value, an is-empty class is applied so
+   the datetime-edit sub-fields render transparent — the calendar icon
+   stays visible so the user can still open the picker. On focus the
+   text is restored so typed input is legible while editing. */
+.dq-row-suppress-date-input.dq-row-suppress-date-input-empty:not(:focus)::-webkit-datetime-edit {
+  color: transparent;
+}
+
+/* Comments cell: input fills the full column width. Zero padding on the
+   TD means the input's left/right edges hug the cell border. */
+.dq-td-comments {
+  padding: 0;
+  vertical-align: middle;
+}
+
+.dq-td-comments-inner {
+  width: 100%;
+}
+
+.dq-row-comments-input {
+  width: 100%;
+  font-size: 12px;
+  padding: 2px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background: #ffffff;
+  color: #111827;
+  box-sizing: border-box;
+}
+
+.dq-row-comments-input:focus {
+  outline: none;
+  border-color: #1d4ed8;
+}
+
+.dq-hidden-cols-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #4b5563;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  flex: none;
+}
+
+.dq-hidden-cols-restore {
+  border: none;
+  background: transparent;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.dq-hidden-cols-restore:hover {
+  color: #1e3a8a;
+}
+
+.dq-table-row {
+  cursor: pointer;
+  /* Row background-color transition removed — a 0.15s transition on
+     every visible row meant sweeping the mouse across a 2000-row
+     grid queued thousands of concurrent transitions (each with a
+     compositor tick), on top of the widget-hover repaints below.
+     Instant swatch swap on hover looks the same to the user and
+     lets the compositor breathe. */
+}
+
+.dq-table-row:hover,
+.dq-table-row:hover td,
+.dq-table-row-just-changed,
+.dq-table-row-just-changed td {
+  background: #eff6ff;
+}
+
+/* Widget cells inherit the row hover swatch so inputs / selects don't
+   punch a white hole through the row on hover. background-color +
+   !important is used (rather than the shorthand `background`) so
+   browser-default rendering on <select> / <input type="date"> can't
+   silently retain white — the shorthand override was insufficient in
+   Chrome and Edge. Hover color #eff6ff (Tailwind blue-50) pairs with
+   the existing #dbeafe (blue-100) selected-row swatch. */
+.dq-table-row:hover .dq-row-status-select,
+.dq-table-row:hover .dq-assign-select,
+.dq-table-row:hover .dq-row-comments-input,
+.dq-table-row:hover .dq-row-suppress-date-input,
+.dq-table-row-just-changed .dq-row-status-select,
+.dq-table-row-just-changed .dq-assign-select,
+.dq-table-row-just-changed .dq-row-comments-input,
+.dq-table-row-just-changed .dq-row-suppress-date-input {
+  background-color: #eff6ff !important;
+}
+/* <input type="date"> renders its own internal date-edit fields
+   (WebKit pseudo-elements) whose background sits on top of the input's
+   own background. Paint them explicitly so the whole cell shifts to
+   the hover swatch, not just the padding around the edit fields. */
+.dq-table-row:hover .dq-row-suppress-date-input::-webkit-datetime-edit,
+.dq-table-row:hover .dq-row-suppress-date-input::-webkit-datetime-edit-fields-wrapper,
+.dq-table-row-just-changed .dq-row-suppress-date-input::-webkit-datetime-edit,
+.dq-table-row-just-changed .dq-row-suppress-date-input::-webkit-datetime-edit-fields-wrapper {
+  background-color: #eff6ff !important;
+}
+
+.dq-table-row-even {
+  background: #ffffff;
+}
+
+.dq-table-row-odd {
+  background: #f9fafb;
+}
+
+.dq-table-row-selected {
+  background: #dbeafe;
+}
+
+.dq-table-row-blinking td {
+  background: #fee2e2;
+}
+
+.dq-table-row-complete td {
+  background: #dcfce7;
+}
+
+/* Widget cells on a completed row inherit the row's green swatch so
+   inputs/selects don't punch white holes through the coloring. Includes
+   the Status / Assign To dropdowns and the Comments + Suppress Date
+   inputs. Uses background-color + !important for the same reason as
+   the hover rule above (see .dq-table-row:hover widget rule). */
+.dq-table-row-complete .dq-row-status-select,
+.dq-table-row-complete .dq-assign-select,
+.dq-table-row-complete .dq-row-comments-input,
+.dq-table-row-complete .dq-row-suppress-date-input {
+  background-color: #dcfce7 !important;
+}
+.dq-table-row-complete .dq-row-suppress-date-input::-webkit-datetime-edit,
+.dq-table-row-complete .dq-row-suppress-date-input::-webkit-datetime-edit-fields-wrapper {
+  background-color: #dcfce7 !important;
+}
+
+.dq-table-row-high td {
+  background: #fecaca;
+}
+
+.dq-run-rules-btn {
+  width: 100%;
+  min-width: 120px;
+  padding: 2px 6px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #111827;
+  cursor: pointer;
+}
+
+.dq-action-wrap {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.dq-action-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  text-align: left;
+}
+
+.dq-action-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dq-action-arrow {
+  font-size: 9px;
+  color: #6b7280;
+  flex: 0 0 auto;
+}
+
+.dq-action-popover {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: #111827;
+  padding: 2px 0;
+}
+
+.dq-action-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.dq-action-item:hover {
+  background: #f3f4f6;
+}
+
+.dq-col-filter-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* DevExtreme-style filter glyph on the header — bare icon, no box.
+   Muted white/gray when inactive, bright when active, no hover chrome. */
+.dq-col-filter-btn {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  font-size: 11px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dq-col-filter-btn:hover {
+  color: #ffffff;
+}
+
+/* Filter-applied state — gold funnel so it's visible against the dark
+   header row and reads as "this column is filtered right now" at a
+   glance. currentColor drives the SVG fill, so the icon inherits this
+   color without touching the SVG markup. */
+.dq-col-filter-btn-active,
+.dq-col-filter-btn-active:hover {
+  color: #fbbf24;
+}
+
+.dq-col-filter-popover {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  z-index: 50;
+}
+
+/* When rendered via portal under document.body, anchor in screen
+   coordinates so the popover escapes the grid's overflow:auto clip
+   and overlays the Exceptions grid below. The inline style sets the
+   computed top/left. */
+.dq-col-filter-popover-portal {
+  position: fixed;
+  top: auto;
+  left: auto;
+  z-index: 1000;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  min-width: 220px;
+  font-weight: normal;
+  font-size: 12px;
+  color: #111827;
+}
+
+.dq-col-filter-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.dq-col-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 2px;
+  cursor: pointer;
+}
+
+.dq-col-filter-row:hover {
+  background: #f3f4f6;
+}
+
+.dq-col-filter-row-all {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 4px;
+  padding-bottom: 5px;
+  font-weight: 600;
+}
+
+.dq-col-filter-list {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.dq-col-filter-empty {
+  color: #6b7280;
+  padding: 4px 2px;
+  font-style: italic;
+}
+
+.dq-col-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.dq-col-filter-actions button {
+  border: 1px solid #9ca3af;
+  background: #f3f4f6;
+  color: #111827;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dq-col-filter-actions button:hover {
+  background: #e5e7eb;
+}
+
+.dq-combo {
+  position: relative;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.dq-combo-popover {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  max-height: 220px;
+  overflow-y: auto;
+  font-size: 12px;
+  color: #111827;
+}
+
+.dq-combo-item {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  cursor: pointer;
+  text-align: left;
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+}
+
+.dq-combo-item:hover {
+  background: #eff6ff;
+}
+
+.dq-combo-empty {
+  padding: 5px 8px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.dq-col-filter-apply {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+  border-color: #1f2937 !important;
+}
+
+.dq-col-filter-apply:hover {
+  background: #111827 !important;
+}
+
+.dq-status-bar {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  padding: 6px 12px;
+  background: #f3f4f6;
+  color: #111827;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  border-top-right-radius: 6px;
+  z-index: 10;
+  max-width: 60vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: default;
+}
+
+@keyframes dq-status-bar-flash {
+  0%, 100% {
+    background: #fee2e2;
+    color: #7f1d1d;
+  }
+  50% {
+    background: #f3f4f6;
+    color: #111827;
+  }
+}
+
+/* Version badge, pinned bottom-right opposite the status bar (which
+   is bottom-left, capped at 60vw, so the two cannot collide). Muted
+   grey and non-interactive — it is a build stamp, not an action, and
+   shouldn't pull attention from the event text on the left. Left
+   selectable so the version can be copied into a bug report. */
+.dq-version-badge {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  /* Bare text, no chip: the tinted background read as a floating
+     badge over the grid. Legibility survives the change because
+     .dq-page carries 16px of padding, so this corner is page
+     background rather than scrolling rows. Radius went with the
+     fill — nothing left to round. The 16px right padding lines the
+     text's right edge up with the grid's, so it reads as placed
+     rather than merely pinned to the corner. */
+  padding: 4px 16px;
+  color: #9ca3af;
+  font-size: 11px;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.4;
+  z-index: 10;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.dq-status-bar-blinking {
+  animation: dq-status-bar-flash 0.9s ease-in-out infinite;
+  cursor: pointer;
+}
+
+.dq-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dq-badge-red {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.dq-badge-yellow {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.dq-badge-green {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.dq-badge-gray {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.dq-badge-blue {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.dq-badge-purple {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.dq-assign-select {
+  width: 100%;
+  min-width: 120px;
+  padding: 2px 6px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #111827;
+  cursor: pointer;
+}
+
+.dq-empty-state {
+  padding: 24px;
+  text-align: center;
+  color: #6b7280;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+@media (max-width: 900px) {
+  .dq-page {
+    padding: 16px;
+  }
+
+  .dq-header {
+    grid-template-columns: 1fr;
+  }
+
+  .dq-header-left,
+  .dq-header-right {
+    justify-self: stretch;
+  }
+
+  .dq-header-right {
+    justify-content: space-between;
+  }
+
+  .dq-body {
+    flex-direction: column;
+  }
+
+  .dq-sidebar {
+    flex: 0 0 auto;
+  }
+}

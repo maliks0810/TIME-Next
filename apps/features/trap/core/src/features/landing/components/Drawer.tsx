@@ -12,7 +12,7 @@ import {
     Team,
     TemplateSummary,
 } from '../../../api/trap';
-import { useUserInfo } from '@platform/utils';
+import { useGetUserClaims } from '../../../state/User/hooks';
 
 import { Kind, Visibility } from '../../../api/trap';
 import { WorkflowTabModel } from '../types/landing.types';
@@ -45,7 +45,7 @@ export const Drawer = ({
     }) => void;
     onActivateLanding: (selection: HudLandingSelection) => void;
 }) => {
-    const { claims } = useUserInfo();
+    const claims = useGetUserClaims();
     const [drawerSeg, setDrawerSeg] = React.useState<'workspaces' | 'widgets' | 'themes'>(
         'workspaces'
     );

@@ -1,0 +1,1027 @@
+/**
+ * Scenario Matrix — styles.
+ *
+ * Theming: all colours flow through antd design tokens (CSS-variable mode) so the
+ * widget adapts to EVERY theme — Light, Dark, Wealth, Dark Wealth, Cyberpunk,
+ * Dreamy, Dumpster Fire, etc. — with no per-theme overrides. Each local
+ * `--token` maps to `var(--ant-…, <light-fallback>)`; the fallback is the original
+ * approved light palette, so if antd cssVar mode is ever off the widget still
+ * renders (in light). Requires ConfigProvider theme={{ cssVar: true }}.
+ *
+ * Horizontal grid lines are replaced by subtle alt-row shading on both the matrix
+ * and the cash-flow schedule; vertical column widths are owned by <colgroup> and
+ * are intentionally NOT touched here so the pager snap stays intact.
+ */
+
+.root {
+    /* Brand / accent */
+    --value: var(--ant-color-primary, #1a5db0);
+    --value-hover: var(--ant-color-primary-hover, #164e94);
+    --calc: var(--ant-color-success, #579a7b);
+
+    /* Text */
+    --ink: var(--ant-color-text, #1f2733);
+    --ink-2: var(--ant-color-text-secondary, #46505e);
+    --section: var(--ant-color-text-secondary, #6b7685);
+    --label: var(--ant-color-text-tertiary, #8a94a3);
+    --sub: var(--ant-color-text-quaternary, #9ca5b3);
+
+    /* Lines + borders */
+    --sep: var(--ant-color-split, #e4e9ef);
+    --tile-border: var(--ant-color-border, #d9e1ea);
+    --tile-border-hover: var(--ant-color-primary-border-hover, #b7c6d8);
+
+    /* Surfaces */
+    --surface: var(--ant-color-bg-container, #ffffff);
+    --panel-bg: var(--ant-color-bg-layout, #fbfcfd);
+    --sel-bg: var(--ant-color-selected-bg, color-mix(in srgb, var(--value) 7%, var(--surface)));
+    --zebra: var(--ant-color-fill-quaternary, #eef2f7);
+
+    /* Status — amber / danger */
+    --amber: var(--ant-color-warning, #c79a4b);
+    --amber-text: var(--ant-color-warning-text, #7d6220);
+    --amber-bg: var(--ant-color-warning-bg, #fdf8ea);
+    --amber-border: var(--ant-color-warning-border, #e7d6a8);
+    --danger: var(--ant-color-error, #c0392b);
+
+    /* Solid-button ink (text on filled primary/success buttons) */
+    --on-solid: var(--ant-color-text-light-solid, #ffffff);
+
+    position: relative;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    color: var(--ink);
+    font-size: 12px;
+    overflow: hidden;
+}
+
+/* ── Header ── */
+.head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+    padding: 0 0 8px;
+    overflow: hidden;
+}
+.titleWrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+}
+.titleIcon {
+    color: var(--value);
+    font-size: 13px;
+    display: inline-flex;
+    flex: 0 0 auto;
+}
+.title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--label);
+    white-space: nowrap;
+}
+
+/* Narrow widths: collapse the wordmark to just the icon (see MatrixHeader ladder). */
+.titleWrap.noTitle {
+    gap: 0;
+}
+.titleWrap.noTitle .title {
+    display: none;
+}
+
+.trSelect {
+    font-size: 11px;
+    border: 1px solid var(--tile-border);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--ink);
+    padding: 2px 6px;
+    max-width: 200px;
+}
+.trancheWrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 4px 2px 8px;
+    border: 1px solid var(--tile-border);
+    border-radius: 5px;
+    background: var(--panel-bg);
+}
+.trancheLbl {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--label);
+}
+.trancheSel {
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    max-width: 130px;
+}
+.actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+/* ── Pager ── */
+.pagerWrap {
+    display: none;
+    align-items: center;
+    gap: 6px;
+}
+.pagerWrap.show {
+    display: flex;
+}
+.pagerLbl {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--label);
+}
+.pagerWrap.noLabel .pagerLbl {
+    display: none;
+}
+.pager {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--tile-border);
+    border-radius: 5px;
+    overflow: hidden;
+}
+.pager button {
+    appearance: none;
+    border: 0;
+    background: var(--surface);
+    color: var(--ink-2);
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    padding: 3px 8px;
+}
+.pager button:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+.mxCount {
+    font-size: 10px;
+    color: var(--ink-2);
+    padding: 0 6px;
+    font-variant-numeric: tabular-nums;
+    border-left: 1px solid var(--tile-border);
+    border-right: 1px solid var(--tile-border);
+}
+.pagerWrap.noCount .mxCount {
+    display: none;
+}
+.pagerMore {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--amber-text);
+    background: var(--amber-bg);
+    border: 1px solid var(--amber-border);
+    border-radius: 4px;
+    padding: 1px 5px;
+}
+.pagerWrap.noMore .pagerMore {
+    display: none;
+}
+.iconBtn {
+    appearance: none;
+    border: 1px solid var(--tile-border);
+    background: var(--surface);
+    color: var(--ink-2);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    padding: 4px 7px;
+}
+.iconBtn:hover {
+    border-color: var(--tile-border-hover);
+}
+
+/* ── Matrix ── */
+.mxWrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    border: 1px solid var(--tile-border);
+    border-radius: 6px;
+    background: var(--panel-bg);
+}
+.mx {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+}
+.mx th,
+.mx td {
+    /* Grid lines removed: horizontal rules are replaced by alt-row shading and
+       vertical rules dropped for a cleaner dense look. The frozen label columns
+       keep their box-shadow separator (below), so structure still reads.
+       Each cell owns its own padding/align via its class. */
+    vertical-align: middle;
+}
+.stickyHead th {
+    position: sticky;
+    top: 0;
+    z-index: 6;
+    background: var(--surface);
+    border-bottom: 1px solid var(--sep); /* single header/body divider */
+}
+
+/* Alt-row shading — data rows only (.sect/.grp headers keep panel-bg). The
+   sticky Assumption/Units columns inherit the row background so the stripe runs
+   edge-to-edge; the selected column (.selCol) and disabled state still win. */
+.row {
+    background: var(--surface);
+}
+.row:nth-child(even) {
+    background: var(--zebra);
+}
+.row .cName,
+.row .cUnits {
+    background: inherit;
+}
+
+.cName {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: var(--surface);
+    box-shadow: 1px 0 0 var(--sep);
+}
+.cUnits {
+    position: sticky;
+    z-index: 5;
+    background: var(--surface);
+    box-shadow: 1px 0 0 var(--sep);
+}
+.stickyHead .cName,
+.stickyHead .cUnits {
+    z-index: 7;
+}
+.hdLbl {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--label);
+    padding: 4px 10px;
+}
+
+/* scenario header */
+.scTh {
+    position: relative;
+    background: var(--surface);
+    padding: 6px 8px 7px;
+    vertical-align: bottom;
+}
+.scTh.sel {
+    background: var(--sel-bg);
+}
+.scTh.dimmed {
+    opacity: 0.5;
+}
+.thAccent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+}
+.thRow {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.thName {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0;
+    outline: none;
+}
+.thStale {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--amber);
+    flex: 0 0 auto;
+}
+.thX {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--label);
+    cursor: pointer;
+    font-size: 11px;
+    opacity: 0;
+    padding: 0 2px;
+}
+.scTh:hover .thX {
+    opacity: 1;
+}
+.thX:hover {
+    color: var(--danger);
+}
+.tog {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+.tog input {
+    accent-color: var(--value);
+}
+.addCol {
+    text-align: center;
+    color: var(--value);
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--panel-bg);
+}
+.addCol button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--value);
+    cursor: pointer;
+    font-size: 15px;
+    width: 100%;
+    padding: 6px 0;
+}
+.slack {
+    background: var(--panel-bg);
+}
+
+/* section + group rows */
+.sect td {
+    background: var(--panel-bg);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--section);
+    padding: 4px 10px;
+}
+.grp td {
+    background: var(--panel-bg);
+    padding: 3px 10px;
+}
+
+/* Run / analytics action bar — a banded divider between the assumptions block
+   above and the analytics results below, so it reads as a toolbar not a gap. */
+.runRow td {
+    background: var(--panel-bg);
+    border-top: 1px solid var(--tile-border);
+    border-bottom: 1px solid var(--tile-border);
+}
+
+.gLbl {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--section);
+}
+.gDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+/* assumption name cell */
+.aName {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 3px 10px;
+}
+.aChk {
+    accent-color: var(--value);
+}
+.aLbl {
+    font-size: 11px;
+    color: var(--ink-2);
+}
+.aSub {
+    font-size: 9px;
+    color: var(--sub);
+    margin-left: 4px;
+}
+.row.off .aLbl {
+    color: var(--sub);
+}
+
+/* units cell — vertical padding only so the <select> can fill the width flush */
+.uCell {
+    padding: 2px 0;
+}
+.uSel {
+    font-size: 10px;
+    border: 1px solid var(--tile-border);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--ink);
+    padding: 1px 4px;
+    width: 100%;
+}
+.uStatic {
+    font-size: 10px;
+    color: var(--label);
+    /* Cell padding is reset to 0; pad the static unit text to align under "Units". */
+    padding-left: 10px;
+}
+
+/* value cell */
+.vCell {
+    padding: 2px 6px;
+    text-align: right;
+}
+.vCell.selCol {
+    background: var(--sel-bg);
+}
+.vIn {
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+    text-align: right;
+    font-size: 11px;
+    color: var(--value);
+    font-variant-numeric: tabular-nums;
+    padding: 2px 4px;
+    border-radius: 3px;
+    outline: none;
+}
+.vIn:hover {
+    border-color: var(--tile-border);
+}
+.vIn:focus {
+    border-color: var(--value);
+    background: var(--surface);
+}
+.vIn:disabled {
+    color: var(--sub);
+    background: transparent;
+}
+
+/* result cell */
+.rName {
+    font-size: 11px;
+    color: var(--ink-2);
+    padding: 4px 10px;
+}
+.rCell {
+    text-align: right;
+    font-size: 11px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    padding: 4px 8px;
+}
+.rCell.selCol {
+    background: var(--sel-bg);
+}
+.rCell.dimRes {
+    opacity: 0.45;
+}
+.rDash {
+    color: var(--sub);
+}
+.runQ {
+    color: var(--sub);
+    text-align: center;
+}
+.runSpin {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: sm-spin 0.7s linear infinite;
+}
+@keyframes sm-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .runSpin {
+        animation: none;
+    }
+}
+
+/* analytics run cell */
+.calcWrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px;
+}
+.runBtn {
+    appearance: none;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: var(--value);
+    color: var(--on-solid);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.runBtn:disabled {
+    background: var(--tile-border);
+    color: var(--sub);
+    cursor: default;
+}
+/* All-current state: same footprint, green — never a separate pill (constant height). */
+.runBtn.current {
+    background: transparent;
+    color: var(--calc);
+    border-color: var(--calc);
+    cursor: default;
+}
+.runStatus {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--calc);
+}
+
+/* run sweep bar */
+.runBar {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--value), transparent);
+    background-size: 40% 100%;
+    animation: sm-sweep 1.1s linear infinite;
+}
+@keyframes sm-sweep {
+    from {
+        background-position: -40% 0;
+    }
+    to {
+        background-position: 140% 0;
+    }
+}
+
+/* docked cash flow bind row */
+.bindRow td {
+    position: sticky;
+    bottom: 0;
+    z-index: 7;
+    background: var(--surface);
+    box-shadow: 0 -1px 0 var(--tile-border);
+}
+.bindLbl {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--label);
+    padding: 6px 10px;
+}
+.bindCell {
+    text-align: center;
+    padding: 4px;
+}
+.bindBtn {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: 1px solid var(--tile-border);
+    background: var(--surface);
+    color: var(--value);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 1;
+    padding: 3px 8px;
+}
+.bindText {
+    font-size: 10px;
+    font-weight: 600;
+}
+.bindBtn:disabled {
+    opacity: 0.4;
+    cursor: default;
+    color: var(--label);
+}
+.bindBtn.on {
+    color: var(--on-solid);
+    border-color: transparent;
+}
+
+/* ── Preset bar ── */
+.presetBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    padding: 6px 2px;
+}
+.presetBar.pending {
+    background: var(--amber-bg);
+    border-radius: 5px;
+    box-shadow: inset 3px 0 0 var(--amber);
+    padding: 6px 10px;
+}
+.psLbl {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--label);
+}
+.psChip {
+    font-size: 10px;
+    border-radius: 10px;
+    padding: 2px 8px;
+    background: var(--panel-bg);
+    border: 1px solid var(--tile-border);
+    color: var(--ink-2);
+}
+.psChip.def {
+    background: var(--ant-color-success-bg, #eef7f2);
+    border-color: var(--ant-color-success-border, #cfe6db);
+    color: var(--calc);
+}
+.psAlert {
+    color: var(--amber);
+    font-weight: 700;
+}
+.psMsg {
+    font-size: 11px;
+    color: var(--amber-text);
+}
+.psBtns {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+}
+.psBtn {
+    appearance: none;
+    border: 1px solid var(--tile-border);
+    background: var(--surface);
+    color: var(--ink-2);
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+.psBtn.cta {
+    background: var(--value);
+    border-color: transparent;
+    color: var(--on-solid);
+}
+.psBtn.ok {
+    color: var(--calc);
+    border-color: var(--calc);
+}
+
+/* ── Cash flow zone ── */
+.cfZone {
+    flex: 0 0 auto;
+    border: 1px solid var(--tile-border);
+    border-top: 0;
+    border-radius: 0 0 6px 6px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+}
+.cfHead {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--sep);
+}
+.cfTitle {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--label);
+}
+.cfActions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.seg {
+    display: inline-flex;
+    border: 1px solid var(--tile-border);
+    border-radius: 5px;
+    overflow: hidden;
+}
+.seg button {
+    appearance: none;
+    border: 0;
+    background: var(--surface);
+    color: var(--ink-2);
+    font-size: 11px;
+    padding: 3px 10px;
+    cursor: pointer;
+    border-right: 1px solid var(--tile-border);
+}
+.seg button:last-child {
+    border-right: 0;
+}
+.seg button.active {
+    background: var(--value);
+    color: var(--on-solid);
+}
+.btnSend {
+    appearance: none;
+    border: 1px solid var(--value);
+    background: var(--surface);
+    color: var(--value);
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+.btnSend:disabled {
+    border-color: var(--tile-border);
+    color: var(--sub);
+    cursor: default;
+}
+.cfBody {
+    height: 200px;
+    position: relative;
+    overflow: auto;
+    padding: 10px;
+}
+.cfBody.dual {
+    display: flex;
+    gap: 14px;
+    align-items: stretch;
+    overflow: hidden;
+}
+.paneChart {
+    flex: 1 1 44%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+.paneTable {
+    flex: 1 1 56%;
+    min-width: 0;
+    overflow: auto;
+    border-left: 1px solid var(--sep);
+    padding-left: 12px;
+}
+.cfIdle {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--sub);
+}
+.chartZone {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 140px;
+}
+.chCol {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 0;
+}
+.chStack {
+    width: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: stretch;
+}
+.chP {
+    width: 100%;
+}
+.chI {
+    width: 100%;
+    opacity: 0.45;
+}
+.ghBar {
+    width: 100%;
+    background: var(--sep);
+}
+.chLbl {
+    font-size: 8px;
+    color: var(--sub);
+    font-variant-numeric: tabular-nums;
+}
+.cfLegend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 8px;
+    font-size: 10px;
+    color: var(--ink-2);
+}
+.lg {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.sw {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+}
+.cfNote {
+    color: var(--sub);
+}
+.schedWrap {
+    overflow: auto;
+    max-height: 100%;
+}
+.sched {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+}
+.sched th {
+    text-align: right;
+    color: var(--label);
+    font-weight: 600;
+    padding: 3px 8px;
+    border-bottom: 1px solid var(--sep); /* header divider kept */
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+}
+.sched th:first-child,
+.sched td:first-child {
+    text-align: left;
+}
+.sched td {
+    text-align: right;
+    padding: 2px 8px;
+    color: var(--ink-2);
+    /* Horizontal grid lines removed — replaced by alt-row shading below. */
+}
+/* Alt-row shading for the cash-flow schedule (data rows only). */
+.sched tbody tr:nth-child(even) {
+    background: var(--zebra);
+}
+
+/* ── Audit drawer ── */
+.drawer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -380px;
+    width: 360px;
+    background: var(--surface);
+    border-left: 1px solid var(--tile-border);
+    box-shadow: -8px 0 24px rgba(20, 40, 70, 0.12);
+    transition: right 0.2s ease;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+}
+.drawer.open {
+    right: 0;
+}
+.drHead {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--sep);
+    background: color-mix(in srgb, var(--value) 6%, var(--surface));
+}
+.drIcon {
+    color: var(--value);
+    font-size: 12px;
+    flex: 0 0 auto;
+}
+.drTitle {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--value);
+}
+.drDeal {
+    font-size: 10px;
+    color: var(--sub);
+}
+.drX {
+    margin-left: auto;
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--label);
+    cursor: pointer;
+    font-size: 13px;
+}
+.drBody {
+    flex: 1 1 auto;
+    overflow: auto;
+    padding: 8px 12px;
+}
+.drEntry {
+    border-bottom: 1px solid var(--sep);
+    border-left: 3px solid var(--tile-border);
+    padding: 8px 0 8px 10px;
+}
+.drL1 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.drChip {
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 1px 8px;
+    border: 1px solid var(--tile-border);
+    color: var(--ink-2);
+}
+.drTr {
+    font-size: 11px;
+    color: var(--ink);
+    font-weight: 600;
+}
+.drTime {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--sub);
+}
+.drAssump {
+    font-size: 10px;
+    color: var(--ink-2);
+    margin-top: 3px;
+}
+.drRes {
+    font-size: 10px;
+    color: var(--value);
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+}
+.drUser {
+    font-size: 9px;
+    color: var(--sub);
+    margin-top: 2px;
+}
+.drEmpty {
+    font-size: 11px;
+    color: var(--sub);
+    padding: 16px 0;
+    text-align: center;
+}
+
+/* ── Empty / loading ── */
+.center {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--sub);
+    text-align: center;
+    padding: 24px;
+}
+
+.chartZone {
+    height: 100%;
+    min-height: 140px;
+}

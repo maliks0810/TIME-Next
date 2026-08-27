@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
+import React, { useEffect } from 'react';
+import { LoginCallback } from '@okta/okta-react';
 import { BackTop, ConfigProvider, Layout, App as AntdApp } from 'antd';
 import { Route, Routes } from 'react-router-dom';
-import { useUserInfo } from '@platform/utils';
 
 import TrapLandingPage from './pages/TrapLandingPage';
 import WidgetStudioConfigurePage from './features/widget-studio/WidgetStudioConfigurePage';
@@ -11,7 +11,7 @@ import './styles/datagrid-theme-bridge.scss';
 import './styles/scrollbars.scss';
 
 import { AdminPanel } from './features/AdminPanel';
-import { useSetActiveUser } from './state/User/hooks';
+import { useGetUserClaims, useGetUserRole } from './state/User/hooks';
 import { MessageInitializer } from './components/common/MessageInitializer';
 import {
     CustomTheme,
@@ -21,6 +21,8 @@ import {
     resolveTheme,
 } from './theme/customThemes';
 import { PreviewTheme, ThemeContext } from './theme/ThemeContext';
+import { useUserInfo } from './utils/useUserInfo';
+import { Authenticator } from './Authenticator';
 
 const { Content } = Layout;
 
@@ -30,10 +32,11 @@ const CONTENT_MAX_WIDTH = 1880;
 const APP_HORIZONTAL_PADDING = 16;
 const APP_TOP_PADDING = 16;
 
-export default function App() {
+export default function App({ oktaAuth }: any) {
     const [themeName, setThemeName] = React.useState<string>(() => {
         return localStorage.getItem(THEME_STORAGE_KEY) ?? 'default';
     });
+
     // User-authored themes (loaded from the Core API → Cosmos, via mocked GraphQL in the harness)
     // + a transient preview the editor pushes while you tweak tokens.
     const [customThemes, setCustomThemes] = React.useState<CustomTheme[]>([]);
@@ -49,6 +52,13 @@ export default function App() {
     React.useEffect(() => {
         refetchThemes();
     }, [refetchThemes]);
+
+    useEffect(() => {
+        return () => {
+            if (oktaAuth?.options?.restoreOriginalUri)
+                oktaAuth.options.restoreOriginalUri = undefined;
+        };
+    }, []);
 
     // Optimistic write-through: update local state immediately, persist via GraphQL, and refetch
     // to reconcile if the mutation fails.
@@ -72,8 +82,10 @@ export default function App() {
         [refetchThemes]
     );
 
-    const { claims } = useUserInfo();
-    const setActiveUser = useSetActiveUser();
+    const claims = useGetUserClaims();
+    const userRole = useGetUserRole();
+
+    useUserInfo();
 
     React.useEffect(() => {
         if (claims) {
@@ -83,8 +95,7 @@ export default function App() {
             sessionStorage.setItem('OrgLevel2', claims.OrgLevel2);
             sessionStorage.setItem('OrgLevel4', claims.OrgLevel4);
             sessionStorage.setItem('okta-email', claims.email);
-            sessionStorage.setItem('okta-role', claims.role || 'Analyst');
-            setActiveUser(claims.name);
+            sessionStorage.setItem('okta-role', userRole || 'Analyst');
         }
     }, [claims]);
 
@@ -151,13 +162,17 @@ export default function App() {
                             }}
                         >
                             <Routes>
-                                <Route path="/" element={<TrapLandingPage />} />
+                                <Route
+                                    path="/"
+                                    element={<Authenticator success={<TrapLandingPage />} />}
+                                />
 
                                 <Route path="admin" element={<AdminPanel />} />
                                 <Route
                                     path="studio/configure"
                                     element={<WidgetStudioConfigurePage />}
                                 />
+                                <Route path="/login/callback" element={<LoginCallback />} />
                             </Routes>
                         </Content>
                     </Layout>

@@ -46,7 +46,7 @@ export function OktaRoleRedirector() {
 
 
 			case 'EquityResearch':
-				navigate('/prism/equity-research/dashboard', { replace: true });
+				navigate('/trap', { replace: true });
 				break;
 
 			default:

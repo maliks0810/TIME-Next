@@ -232,19 +232,19 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
         env: HighestEnv.prod,
         
     },
-    {
-        type: 'external',
-        header: NavbarHeader.ResearchAnalysis,
-        subHeader: NavbarSubHeader.Other,
-        title: 'TIP',
-        sandboxUrl: 'https://tipuat.corp.tcw.com/',
-        devUrl: 'https://tipuat.corp.tcw.com/',
-        qaUrl: 'https://tipuat.corp.tcw.com/',
-        prodUrl: 'https://tip.corp.tcw.com/',
-        newTab: true,
-        disabled: false,
-        env: HighestEnv.prod
-    },
+    // {
+    //     type: 'external',
+    //     header: NavbarHeader.ResearchAnalysis,
+    //     subHeader: NavbarSubHeader.Other,
+    //     title: 'TIP',
+    //     sandboxUrl: 'https://tipuat.corp.tcw.com/',
+    //     devUrl: 'https://tipuat.corp.tcw.com/',
+    //     qaUrl: 'https://tipuat.corp.tcw.com/',
+    //     prodUrl: 'https://tip.corp.tcw.com/',
+    //     newTab: true,
+    //     disabled: false,
+    //     env: HighestEnv.prod
+    // },
     {  
         header: NavbarHeader.ResearchAnalysis,  
         subHeader: NavbarSubHeader.FORGE,  
@@ -269,6 +269,19 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
         team: 'R2',
         component: lazy(() => import('@r2/prism/src/portals/equity-research/index')),
         description: '',
+    },
+    {
+        type: 'external',
+        header: NavbarHeader.ResearchAnalysis,
+        subHeader: NavbarSubHeader.Fundamental,
+        title: 'TickerTalks',
+        sandboxUrl: 'https://tip2-frontend-np.corp.tcw.com/copilots/equityIq',
+        devUrl: 'https://tip2-frontend-np.corp.tcw.com/copilots/equityIq',
+        qaUrl: 'https://tip2-frontend-np.corp.tcw.com/copilots/equityIq',
+        prodUrl: 'https://tip2-frontend-pd.corp.tcw.com/',
+        newTab: true,
+        disabled: false,
+        env: HighestEnv.prod
     },
     // PLOP_INJECT_APP
 ]

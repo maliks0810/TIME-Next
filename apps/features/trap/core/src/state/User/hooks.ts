@@ -1,4 +1,9 @@
-import { useActiveUserStore } from './activeUserStore';
+import { useUserInfoStore } from './userInfoStore';
 
-export const useSetActiveUser = () => useActiveUserStore((store) => store.setActiveUser);
-export const useGetActiveUser = () => useActiveUserStore((store) => store.activeUser);
+export const useSetUserInfo = () => useUserInfoStore((store) => store.setUserInfo);
+export const useGetActiveUser = () => useUserInfoStore((store) => store.userInfo.name);
+
+export const useGetUserEmail = () => useUserInfoStore((store) => store.userInfo.email);
+export const useGetUserClaims = () => useUserInfoStore((store) => store.userInfo.claims);
+export const useGetUserLogin = () => useUserInfoStore((store) => store.userInfo.login);
+export const useGetUserRole = () => useUserInfoStore((store) => store.userInfo.TIME_Role);

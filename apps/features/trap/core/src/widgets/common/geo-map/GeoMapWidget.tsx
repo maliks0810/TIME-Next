@@ -10,16 +10,16 @@ import type { WidgetComponentProps } from '../../../types/widget';
 import {
     useGetWidgetValue,
     useGetWidgetValueArray,
-    useSetWidgetValue,
 } from '../../../state/Widgets/hooks';
-import { useGetActiveTab } from '../../../state/Tabs/hooks';
 import { useTheme } from '../../../theme/ThemeContext';
-import { DEAL_NAME_KEY, FILTER_STATE_KEY } from '../../constants';
+import { DEAL_NAME_KEY } from '../../constants';
+import { useTapeFilter } from '../../hooks/useTapeFilter';
 import {
     resolveEchartsTokens,
     applyEchartsTypography,
     EchartsRoleColors,
     withAnalyticsChartRoles,
+    ECHARTS_TOOLTIP_CHROME,
 } from '../chart/utils/resolveEchartsTokens';
 import { ensureUsaMap } from './usaMap';
 import styles from './GeoMapWidget.module.scss';
@@ -81,13 +81,86 @@ function isColorDark(color: string): boolean {
 }
 
 /**
+ * Force a theme-compliant tooltip onto the server-built geo option. The GraphQL
+ * builder doesn't set tooltip.backgroundColor, so ECharts falls back to its
+ * default near-white panel — unreadable in dark/Wealth/Cyberpunk. We merge the
+ * shared chrome (@role tokens, resolved downstream) UNDER whatever the server
+ * set, so the region formatter/trigger still wins; only background/text are
+ * guaranteed themed.
+ *
+ * Overloaded so a non-null option in yields a non-null option out, keeping
+ * echarts setOption (which rejects null) happy without call-site assertions.
+ */
+function withThemedTooltip(option: Record<string, any>): Record<string, any>;
+function withThemedTooltip(option: null | undefined): null;
+function withThemedTooltip(
+    option: Record<string, any> | null | undefined,
+): Record<string, any> | null {
+    if (!option) return null;
+
+    const tips = Array.isArray(option.tooltip)
+        ? option.tooltip
+        : [option.tooltip ?? {}];
+
+    const themed = tips.map((tip: any) => ({
+        ...ECHARTS_TOOLTIP_CHROME, // chrome first…
+        ...(tip ?? {}), // …server content/keys win…
+        backgroundColor: (tip && tip.backgroundColor) ?? '@surface',
+        textStyle: {
+            ...ECHARTS_TOOLTIP_CHROME.textStyle,
+            ...((tip && tip.textStyle) ?? {}),
+        },
+    }));
+
+    return {
+        ...option,
+        tooltip: Array.isArray(option.tooltip) ? themed : themed[0],
+    };
+}
+
+/**
  * Region-click handler payload. Kept in a ref so ECharts' persistent click
  * listener always sees the current channel/filter without re-binding.
  */
 type ClickCtx = {
-    onPick: (code: string | null) => void;
-    current: string | null;
+    onPick: (code: string) => void;
 };
+
+/**
+ * Merge a dashed accent outline onto STAGED (pending, not-yet-applied) states so
+ * clicking the map gives immediate feedback before Apply. Staged states are
+ * always present in the server data (the universe is locked to the applied set,
+ * and everything is present pre-apply), so we only decorate existing items.
+ */
+function decorateStaged(
+    option: Record<string, any> | null | undefined,
+    stagedCodes: string[],
+): Record<string, any> | null {
+    if (!option) return null;
+    if (!Array.isArray(stagedCodes) || stagedCodes.length === 0) {
+        return option;
+    }
+
+    const clone = JSON.parse(JSON.stringify(option)) as Record<string, any>;
+    const series = Array.isArray(clone.series) ? clone.series[0] : null;
+
+    if (!series || !Array.isArray(series.data)) return clone;
+
+    const staged = new Set(stagedCodes);
+
+    for (const item of series.data) {
+        if (item && staged.has(item.code)) {
+            item.itemStyle = {
+                ...(item.itemStyle ?? {}),
+                borderColor: '@primary',
+                borderWidth: 2.5,
+                borderType: 'dashed',
+            };
+        }
+    }
+
+    return clone;
+}
 
 function useGeoEchart(
     option: Record<string, any> | null | undefined,
@@ -111,8 +184,11 @@ function useGeoEchart(
 
         if (!chart || !opt) return;
 
+        // opt is narrowed non-null here, so withThemedTooltip returns non-null.
+        const themedOption = withThemedTooltip(opt);
+
         const resolvedOption = resolveEchartsTokens(
-            opt,
+            themedOption,
             rolesRef.current,
         );
 
@@ -146,9 +222,7 @@ function useGeoEchart(
             chart.on('click', (params: any) => {
                 const code = params?.data?.code ?? null;
                 if (!code) return;
-
-                const { onPick, current } = clickRef.current;
-                onPick(current === code ? null : code);
+                clickRef.current.onPick(code);
             });
 
             const ro = new ResizeObserver(() => chart.resize());
@@ -216,6 +290,7 @@ export function GeoMapWidget(props: WidgetComponentProps) {
             '@textTertiary': token.colorTextTertiary,
             '@border': token.colorBorderSecondary,
             '@splitLine': token.colorFillTertiary,
+            '@surface': token.colorBgElevated,
         };
 
         return withAnalyticsChartRoles(baseRoles, themeName, isDark);
@@ -224,12 +299,6 @@ export function GeoMapWidget(props: WidgetComponentProps) {
     const channelId = params.channel;
     const contextKey: string = params.contextKey ?? DEAL_NAME_KEY;
     const contextValue = useGetWidgetValue({ channelId, key: contextKey });
-
-    const filterKey: string = params.filterKey ?? FILTER_STATE_KEY;
-    const currentState = useGetWidgetValue({
-        channelId,
-        key: filterKey,
-    }) as string | null | undefined;
 
     const filterBag = useGetWidgetValueArray({
         channelId,
@@ -252,24 +321,13 @@ export function GeoMapWidget(props: WidgetComponentProps) {
 
     const filtersSig = JSON.stringify(filters);
 
-    const setValueToChannel = useSetWidgetValue();
-    const activeTab = useGetActiveTab();
+    const tape = useTapeFilter(channelId);
+    const stagedStates = tape.staged.state;
+    const stagedSig = stagedStates.join(',');
 
-    const clickRef = useRef<ClickCtx>({
-        onPick: () => undefined,
-        current: null,
-    });
-
+    const clickRef = useRef<ClickCtx>({ onPick: () => undefined });
     clickRef.current = {
-        current: (currentState as string) ?? null,
-        onPick: (code) => {
-            setValueToChannel({
-                key: filterKey,
-                value: code,
-                activeTab,
-                channelId,
-            });
-        },
+        onPick: (code) => tape.toggleStage('state', code),
     };
 
     useEffect(() => {
@@ -291,8 +349,13 @@ export function GeoMapWidget(props: WidgetComponentProps) {
     }, [contextKey, contextValue, mode, filtersSig]);
 
     const data = (result as GeoResult | undefined) ?? null;
-    const option = data?.option ?? null;
+    const serverOption = data?.option ?? null;
     const eyebrow = titleOverride ?? data?.eyebrow ?? 'Geographic Concentration';
+
+    const option = useMemo(
+        () => decorateStaged(serverOption, stagedStates),
+        [serverOption, stagedSig],
+    );
 
     const setHost = useGeoEchart(
         option,

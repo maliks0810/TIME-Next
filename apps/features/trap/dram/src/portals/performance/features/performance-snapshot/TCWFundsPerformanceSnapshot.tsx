@@ -21,6 +21,7 @@ import {
 } from "@ant-design/icons";
 import { downloadExport , } from "./api/download";
 import { buildDram2UrlNonAttribution } from "./api/services";
+import { formatDateOnly } from "./snapshot-book/helper";
 
 const { Title, Text } = Typography;
 
@@ -156,36 +157,53 @@ export default function TCWFundsPerformanceSnapshot() {
 
   // Build grid rows, injecting a section band row before each group.
   const rows = useMemo<GridRow[]>(() => {
-    if (!data) return [];
-    const term = search.trim().toLowerCase();
-    const out: GridRow[] = [];
+  if (!data) return [];
 
-    data.sections
-      .filter((s) => section === "all" || s.sectionName === section)
-      .forEach((s) => {
-        const matched = s.rows.filter((r) =>
-          [r.pfNumber, r.fundName, r.ticker, r.morningstarCategory].some(
-            (v) => String(v ?? "").toLowerCase().includes(term)
-          )
+  const term = search.trim().toLowerCase();
+  const out: GridRow[] = [];
+
+  data.sections
+    .filter((s) => section === "all" || s.sectionName === section)
+    .forEach((s) => {
+      const matched = s.rows
+        .filter((r) =>
+          [
+            r.pfNumber,
+            r.fundName,
+            r.ticker,
+            r.morningstarCategory,
+          ].some((v) =>
+            String(v ?? "").toLowerCase().includes(term),
+          ),
+        )
+        .sort(
+          (a, b) =>
+            (b.fundAumMillions ?? Number.NEGATIVE_INFINITY) -
+            (a.fundAumMillions ?? Number.NEGATIVE_INFINITY),
         );
-        if (!matched.length) return;
 
-        // Section band row.
-        out.push({
-          id: `section-${s.sectionName}`,
-          key: `section-${s.sectionName}`,
-          rowType: "section",
-          fundName: s.sectionName,
-          sectionName: s.sectionName,
-        });
+      if (!matched.length) return;
 
-        matched.forEach((r) =>
-          out.push({ ...r, key: r.id, sectionName: s.sectionName })
-        );
+      // Section band row
+      out.push({
+        id: `section-${s.sectionName}`,
+        key: `section-${s.sectionName}`,
+        rowType: "section",
+        fundName: s.sectionName,
+        sectionName: s.sectionName,
       });
 
-    return out;
-  }, [data, search, section]);
+      matched.forEach((r) =>
+        out.push({
+          ...r,
+          key: r.id,
+          sectionName: s.sectionName,
+        }),
+      );
+    });
+
+  return out;
+}, [data, search, section]);
 
   // Section band rows span all columns; the rest render normally.
   // NOTE: AntD's onCell signature is (record, index?) -> the record is the
@@ -320,25 +338,15 @@ export default function TCWFundsPerformanceSnapshot() {
     }
   };
 
-  // As-of / prior date labels for the header block.
-  const asOfLabel = data?.asOfDate
-    ? new Date(data.asOfDate)
-        .toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "2-digit",
-        })
-        .toUpperCase()
-    : "";
+const priorLabel = formatDateOnly(
+  data?.priorDate,
+  navigator.language,
+);
 
-  const priorLabel = data?.priorDate
-    ? new Date(data.priorDate).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "2-digit",
-      })
-    : "Not Available";
+const asOfLabel = formatDateOnly(
+  data?.asOfDate,
+  navigator.language,
+).toUpperCase();
 
   return (
     <div className="snapshot-print-container" style={{ padding: 20 }}>

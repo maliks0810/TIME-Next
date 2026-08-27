@@ -1,0 +1,17 @@
+.dropzoneWrapper {
+    padding: 2px;
+    color: var(--ant-color-text-tertiary);
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .title {
+        font-size: 10px;
+        line-height: 14px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        padding: 0px 0px 2px;
+    }
+}

@@ -55,6 +55,23 @@ export const ECHARTS_ROLE_COLORS_DARK: EchartsRoleColors = {
     "@splitLine": "#30363d",
 };
 
+/**
+ * Shared tooltip chrome for ALL analytics charts (ChartWidget, GeoMap, CashFlow).
+ * Chrome only — never sets `formatter`/`trigger`, so each chart keeps its own
+ * content. @role tokens resolve downstream via resolveEchartsTokens, so it themes
+ * for Light/Dark/Wealth/Cyberpunk/etc. Merge this UNDER a chart's own tooltip so
+ * chart-specific keys (trigger, formatter, axisPointer, position) win.
+ */
+export const ECHARTS_TOOLTIP_CHROME = {
+    backgroundColor: "@surface",
+    borderColor: "@border",
+    borderWidth: 1,
+    padding: [8, 10],
+    textStyle: { color: "@text", fontSize: 11, lineHeight: 16 },
+    extraCssText:
+        "box-shadow: 0 4px 16px rgba(0,0,0,0.16); border-radius: 6px; backdrop-filter: none;",
+} as const;
+
 export function getEchartsRoleColors(
     theme: "light" | "dark" = "light",
 ): EchartsRoleColors {

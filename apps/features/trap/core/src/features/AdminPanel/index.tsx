@@ -10,7 +10,7 @@ import {
     type Container,
 } from './lib/api';
 import { CodeEditor } from './components/CodeEditor';
-import { useUserInfo } from '@platform/utils';
+import { useGetUserEmail } from '../../state/User/hooks';
 import { IS_PROD, ALLOWED_USERS_LIST } from '../../utils/constants';
 import { QueryEditor } from './components/QueryEditor';
 import styles from './styles.module.scss';
@@ -18,7 +18,7 @@ import styles from './styles.module.scss';
 export const AdminPanel = () => {
     const [messageApi, contextHolder] = message.useMessage();
     const nav = useNavigate();
-    const { email } = useUserInfo();
+    const email = useGetUserEmail();
     const [form] = Form.useForm();
     const containerId = Form.useWatch('containerId', form);
 

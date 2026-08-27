@@ -1,0 +1,126 @@
+.popupNoScroll :global(.dx-popup-content) {
+  padding: 0 !important;
+  overflow: visible !important;
+  border-top: none !important;
+}
+
+.popupRoot {
+  font-family: Roboto, Arial, sans-serif;
+  background: #ffffff;
+}
+
+.popupHeaderWrap {
+  width: 100%;
+}
+
+.popupHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+}
+
+.popupHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.popupHeaderGradientBar {
+  height: 6px;
+  width: 97%;
+  margin-left: 1%;
+  margin-right: 1%;
+  /* ✅ light → dark (fixed) */
+  background: linear-gradient(90deg, #a3c0c7 0%, #23425c 55%, #0d0d0d 100%);
+}
+
+.popupBody {
+  padding: 18px 20px 16px;
+}
+
+.parametersGrid {
+  display: grid;
+  grid-template-columns: 110px auto;
+  row-gap: 10px;
+  column-gap: 8px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.parametersLabel {
+  /* ✅ slightly larger + strong like mock */
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 18px;
+}
+
+.parametersInput {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  line-height: 18px;
+}
+
+.parametersInputActionRow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.cbxStyle {
+    margin-right: 8;
+}
+
+.actionBtn {
+  height: 30px !important;
+  padding: 0 14px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  background: #013d7d !important;
+  box-shadow: none !important;
+}
+
+.contentBlock {
+  margin-top: 6px;
+}
+
+.popupFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 18px;
+}
+
+.popupCloseBtn {
+  height: 34px !important;
+  min-width: 110px !important;
+  border-radius: 6px !important;
+  text-transform: none !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #111827 !important;
+  border-color: #d1d5db !important;
+}
+
+.resultAreaStyle {
+    margin-top: 10;
+}
+
+.resultBoxStyle {
+    margin-top: 8;
+    padding: 10;
+    border-radius: 6;
+    background: #fafafa;
+    border: 1px solid #eee;
+    max-height: 250;
+    overflow: auto;
+}
+
+.errorBlock {
+    color: crimson;
+    white-space: pre-wrap;
+}

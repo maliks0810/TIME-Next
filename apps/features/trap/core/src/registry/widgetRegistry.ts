@@ -26,14 +26,17 @@ import { DynamicText } from '../widgets/common/dynamic-text/DynamicText';
 import { TabsControl } from '../widgets/dram/tabs-control/TabsControl';
 import { PortfolioInfo } from '../widgets/dram/info/PortfolioInfo';
 import AssetStagingWidget from '../widgets/securitized-credit/new-asset/asset-staging/AssetStagingWidget';
+import ScenarioMatrixWidget from '../widgets/securitized-credit/new-asset/scenario-matrix/ScenarioMatrixWidget';
 import { HeatGridWidget } from '../widgets/common/heatgrid/HeatGridWidget';
 import { GridRegistry } from '../widgets/common/data-grid/GridRegistry';
 import { Input } from '../widgets/common/input/Input';
 import { SummaryPanelWidget } from '../widgets/common/summary-panel/SummaryPanel';
 import { ChartWidget } from '../widgets/common/chart/ChartWidget';
 import { GeoMapWidget } from '../widgets/common/geo-map/GeoMapWidget';
+import { TableWidget } from '../widgets/common/table/TableWidget';
 import { TitleWidget } from '../widgets/common/title/TitleWidget';
 import { FilterBarWidget } from '../widgets/common/filter-bar/FilterBarWidget';
+import UploaderWidget from '../widgets/common/uploader/UploaderWidget';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
     cwd_identity: {
@@ -93,6 +96,21 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
             'workflow.refresh',
         ],
         emitsKeys: [],
+    },
+    cwd_scenario_matrix_01: {
+        id: 'cwd_scenario_matrix_01',
+        component: ScenarioMatrixWidget,
+        category: 'SecuritizedCredit',
+        visibleIn: ['workflow'],
+        listensToKeys: [
+            'deal.id',
+            'deal.name',
+            'tranche.id',
+            'tranche.name',
+            'analysis.sessionId',
+            'workflow.refresh',
+        ],
+        emitsKeys: ['scenario.selectedResultId', 'scenario.selectedSummary'],
     },
     cwd_common_data_grid_01: {
         id: 'cwd_common_data_grid_01',
@@ -312,6 +330,14 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: ['deal.name', 'filter.state'],
         emitsKeys: ['filter.state'],
     },
+    cwd_common_table_01: {
+        id: 'cwd_common_table_01',
+        component: TableWidget,
+        category: 'View',
+        visibleIn: ['workflow', 'landing'],
+        listensToKeys: ['deal.name', 'filter.state', 'filter.fico', 'filter.ltv', 'filter.coupon', 'filter.manufacturer', 'filter.new_used'],
+        emitsKeys: [],
+    },
     cwd_common_title_01: {
         id: 'cwd_common_title_01',
         component: TitleWidget,
@@ -328,4 +354,12 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: [],
         emitsKeys: [],
     },
+    cwd_file_uploader: {
+        id: 'cwd_file_uploader',
+        component: UploaderWidget,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    }
 };

@@ -1,0 +1,78 @@
+{
+    "id": "cwd_file_uploader",
+    "name": "File Uploader",
+    "version": 1,
+    "description": "Reusable file uploader widget",
+    "tags": null,
+    "category": "widgetDefinition",
+    "datasetId": "ds_file_uploader",
+    "listensToKeys": null,
+    "emitsKeys": [],
+    "configSchema": {
+        "properties": {
+            "channel": {
+                "default": 1,
+                "description": "Widgets connected to the same channel able to share data between each other",
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "title": "Communication Channel",
+                "type": "string",
+                "category": "Interactions"
+            },
+            "schemaKey": {
+                "title": "Schema Key",
+                "enum": [
+                    "naic.portfolio.cusip"
+                ],
+                "type": "string",
+                "category": "System Parameters"
+            },
+            "fileFormat":{
+                "title": "File Format",
+                "enum": [
+                    ".csv",
+                    ".xlsx"
+                ],
+                "type": "string",
+                "category": "System Parameters",
+                "default": ".csv"
+
+            },
+            "label": {
+                "title": "Label",
+                "type": "string",
+                "default": "",
+                "category": "View Parameters"
+            }
+        },
+        "required": ["schemaKey", "fileFormat"],
+        "type": "object"
+    },
+    "uiHints": {
+        "category": "Common"
+    },
+    "variants": [
+        {
+            "id": "default",
+            "label": "Default",
+            "sizing": {
+                "resizable": true,
+                "width": {
+                    "default": 3,
+                    "min": 1,
+                    "max": 6
+                },
+                "height": {
+                    "default": 150,
+                    "min": 100,
+                    "max": 250,
+                    "step": 10
+                }
+            }
+        }
+    ]
+}
