@@ -5,7 +5,7 @@ import { Button, Modal } from 'antd';
 import styles from './CommentWidget.module.scss';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useUserInfo } from '../../../../../../../../packages/utils/src/hooks/Authentication/user-info-context';
+import { useGetActiveUser } from '../../../state/User/hooks';
 import { useGetWidgetValue } from '../../../state/Widgets/hooks';
 import { COMMON_TREE_KEY } from '../../constants';
 const EMPTY_EDITOR = `<p></p>`;
@@ -64,7 +64,7 @@ export const CommentWidget = ({ mode, result, execute, widgetInstance }: WidgetC
         }
     }, [result]);
 
-    const { name } = useUserInfo();
+    const name = useGetActiveUser();
     const editorRef = useRef<EditorCommands | null>(null);
     const [content, setContent] = useState<string>('');
     const handleChange = (value: string) => {
