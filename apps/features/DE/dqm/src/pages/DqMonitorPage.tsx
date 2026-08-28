@@ -1478,6 +1478,30 @@ export default function DqMonitorPage() {
     });
   }, [bulkSelectionMode, tableExceptions]);
 
+  // Is Permanent makes the assignment a property of the RULE, so it
+  // necessarily reaches every exception of that rule — there is no such
+  // thing as a permanent assignment that applies to only some rows.
+  // Rather than let the operator tick three rows and be surprised when
+  // the whole grid changes, the checkbox column is force-selected and
+  // frozen for as long as Is Permanent is on: what gets written is
+  // exactly what is shown as selected.
+  //
+  // Keeping the selection genuinely full also matters on the backend:
+  // every row is sent, so every row gets an explicit
+  // EXCEPTION.ASSIGN_TO_ID and none is left resolving through the RULE
+  // fallback, which is what made the old behaviour look retroactive.
+  const bulkSelectionLocked = bulkPanelOpen && bulkIsPermanent;
+  useEffect(() => {
+    if (!bulkSelectionLocked) return;
+    setBulkSelectedExceptionIds((prev) => {
+      if (prev.size === tableExceptions.length &&
+          tableExceptions.every((r) => prev.has(r.exceptionId))) {
+        return prev;
+      }
+      return new Set(tableExceptions.map((r) => r.exceptionId));
+    });
+  }, [bulkSelectionLocked, tableExceptions]);
+
   // Save Column Order surfaces next to Bulk Status in the header when
   // the operator has drag-reordered the Exceptions grid inside one of
   // the Security-Master-family rule groups (or anything drilled into
@@ -3430,6 +3454,7 @@ export default function DqMonitorPage() {
               selectionMode={bulkSelectionMode}
               selectedIds={bulkSelectedExceptionIds}
               onSelectedIdsChange={setBulkSelectedExceptionIds}
+              selectionLocked={bulkSelectionLocked}
               onVisibleRowsChange={setVisibleExceptions}
               onColumnLayoutChange={setColumnLayout}
               statusOptions={
