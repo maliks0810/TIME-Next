@@ -273,7 +273,7 @@ export const researchAnalysisApps: (InternalAppMetadata | ExternalAppMetadata)[]
     {
         type: 'external',
         header: NavbarHeader.ResearchAnalysis,
-        subHeader: NavbarSubHeader.Fundamental,
+        subHeader: NavbarSubHeader.Market,
         title: 'TickerTalks',
         sandboxUrl: 'https://tip2-frontend-np.corp.tcw.com/copilots/equityIq',
         devUrl: 'https://tip2-frontend-np.corp.tcw.com/copilots/equityIq',
