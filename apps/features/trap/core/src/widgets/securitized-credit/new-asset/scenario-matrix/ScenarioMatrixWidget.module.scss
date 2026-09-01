@@ -902,6 +902,15 @@
     background: var(--zebra);
 }
 
+.schedTotal td {
+    font-weight: 700;
+    color: var(--ink);
+    border-bottom: 2px solid var(--sep);
+    background: var(--panel-bg);
+    position: sticky;
+    top: 18px; /* sits just under the sticky header row */
+}
+
 /* ── Audit drawer ── */
 .drawer {
     position: absolute;

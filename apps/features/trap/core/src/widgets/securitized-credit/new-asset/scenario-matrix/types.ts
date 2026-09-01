@@ -75,14 +75,31 @@ export type BootstrapResult = {
 };
 
 // ── Dataset contract (run) ────────────────────────────────────────────────────
+/**
+ * One amortization period. Mirrors the INTEX/desk cash-flow schedule columns:
+ * Period · Date · Principal · Interest · Cashflow · Balance, plus the extra
+ * default/recovery detail retained for the tooltip and export.
+ *
+ *   cashflow = principal + interest   (total remittance for the period)
+ *   balance  = ending pool/tranche balance after the period (== endBal)
+ *
+ * `date` is a preformatted display string ("Sep 15, 2026") produced by the
+ * Compute/mock layer — the UI never parses or reformats it.
+ */
 export type CashflowPeriod = {
     period: number;
+    /** Preformatted payment date, e.g. "Sep 15, 2026". */
+    date: string;
     beginBal: number;
     principal: number;
     interest: number;
+    /** Derived: principal + interest. */
+    cashflow: number;
     defaults: number;
     recovery: number;
     endBal: number;
+    /** Ending balance for charting/table (alias of endBal for clarity). */
+    balance: number;
 };
 
 export type ScenarioResult = {
