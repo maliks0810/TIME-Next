@@ -62,6 +62,7 @@ export interface SecuritySetupRequest {
     delinquency: number;
     documents: SecuritySetupRequestAttachment[];
     noteInstructions: string;
+    arcAnalyticsRequestedDates: string[];
 }
 
 export interface DelSecuritySetupRequest {

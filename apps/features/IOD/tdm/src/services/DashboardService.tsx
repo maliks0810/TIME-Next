@@ -155,6 +155,7 @@ export const transformDashboardSecuritySetupRequest = (apiData: SecuritySetupReq
     },
     securityRequestDocuments: apiData.documents.map(transformDashboardSecuritySetupRequestDocument),
     noteInstructions: apiData.noteInstructions,
+    arcAnalyticsRequestedDates: (apiData.arcAnalyticsRequestedDates ?? []).map(d => new Date(d)),
   };
 };
 
