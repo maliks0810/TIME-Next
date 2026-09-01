@@ -8,7 +8,7 @@ const userInfoDefault: UserInfo = {
     login: '',
     phone: '',
     isAdmin: false,
-    claims: [],
+    claims: {},
     TIME_Role: '',
 };
 

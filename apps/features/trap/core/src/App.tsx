@@ -88,7 +88,7 @@ export default function App({ oktaAuth }: any) {
     useUserInfo();
 
     React.useEffect(() => {
-        if (claims) {
+        if (Object.keys(claims).length > 0) {
             sessionStorage.setItem('okta-user', claims.ad_samaccountname);
             sessionStorage.setItem('okta-name', claims.name);
             sessionStorage.setItem('OrgLevel1', claims.OrgLevel1);
