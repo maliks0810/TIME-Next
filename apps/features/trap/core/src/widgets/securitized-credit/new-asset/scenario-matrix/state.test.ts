@@ -45,7 +45,22 @@ function runResultFor(keys: string[]): RunResult {
             scenarioId: k,
             resultId: `run_1:${k}`,
             analytics: { price: 100 },
-            cashflow: { periods: [{ period: 1, beginBal: 100, principal: 5, interest: 1, defaults: 0, recovery: 0, endBal: 95 }] },
+            cashflow: {
+                periods: [
+                    {
+                        period: 1,
+                        date: "Sep 15, 2026",
+                        beginBal: 100,
+                        principal: 5,
+                        interest: 1,
+                        cashflow: 6, // principal + interest
+                        defaults: 0,
+                        recovery: 0,
+                        endBal: 95,
+                        balance: 95, // == endBal
+                    },
+                ],
+            },
             summary: {},
         })),
     };
