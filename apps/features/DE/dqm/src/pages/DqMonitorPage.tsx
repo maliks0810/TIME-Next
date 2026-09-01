@@ -49,6 +49,19 @@ const EXCEPTION_LIMIT: number = (() => {
   return Number.isFinite(n) && n > 0 ? n : 5000;
 })();
 
+// Separate, higher cap for the tree's "All" scope, which unions every
+// rule group the operator is authorised for and so legitimately returns
+// more than any single-group view. Configured via
+// REACT_APP_EXCEPTION_LIMIT_ALL with a 7000 fallback. Kept as its own
+// knob rather than raising EXCEPTION_LIMIT for everyone: a single rule
+// returning 6000 rows is still a sign the operator should narrow down,
+// whereas All returning 6000 is just All doing its job.
+const EXCEPTION_LIMIT_ALL: number = (() => {
+  const raw = import.meta.env.VITE_EXCEPTION_LIMIT_ALL;
+  const n = raw ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : 7000;
+})();
+
 // App version for the footer badge. Read from REACT_APP_VERSION, which
 // .env wires to $npm_package_version — so it tracks package.json
 // automatically at build time. Deliberately NOT `import pkg from
@@ -65,6 +78,33 @@ const APP_VERSION: string = import.meta.env.VITE_VERSION ?? "";
 // canonicalKeys's dep list, re-running the apply-preferred-order and
 // reconcile effects on every DqMonitorPage state flip.
 const EXCEPTIONS_TABLE_PRIORITY_RD_KEYS: readonly string[] = ["RULE_NAME"];
+
+// The only columns the Exceptions grid shows at tree 'All' for DM_USER
+// and DM_ADMIN. Everything else the rules project is hidden there,
+// because 'All' unions several groups whose RESULT_DATA shapes differ
+// and the union is unreadable.
+//
+// Entries are matched against BOTH the grid's static column keys and
+// the RESULT_DATA column names behind its rd:* keys, so this reads as
+// the operator's column list rather than as grid internals: RULE_NAME,
+// ALADDIN_ID and friends arrive as rd:* in view-exception mode, while
+// Status / Comments / Suppress Date / Assign To / Priority / Open Date
+// / Close Date are statics. Names absent from a given row set simply
+// do not appear.
+const ALL_SCOPE_COLUMN_KEYS: readonly string[] = [
+  "status",
+  "comments",
+  "suppressDate",
+  "assignTo",
+  "priority",
+  "openDate",
+  "closeDate",
+  "RULE_NAME",
+  "ALADDIN_ID",
+  "ISSUE_DESCRIPTION",
+  "ALADDIN_VALUE",
+  "BBG_VALUE",
+];
 
 // Today's date in ISO YYYY-MM-DD (UTC). Matches how the backend
 // stamps OPEN_DATE / CLOSE_DATE inside SP_UPDATE_EXCEPTION_STATUS
@@ -575,10 +615,6 @@ export default function DqMonitorPage() {
   // These previously carried a `viewMode !== "security" &&` guard, which
   // silently stripped Status / Comments / Suppress Date / Assign To off
   // the grid the moment an asset was clicked.
-  const showStatusPanel = statusVisibleGroups.has(viewByGroup);
-  const showCommentsColumn = commentsVisibleGroups.has(viewByGroup);
-  const showSuppressDateColumn = suppressDateVisibleGroups.has(viewByGroup);
-  const showAssignToColumn = assignToVisibleGroups.has(viewByGroup);
   // Status filter starts empty and gets seeded with EVERY status
   // returned by SP_GET_EXCEPTION_STATUS as soon as that fetch lands
   // (see the seed effect right below the fetchExceptionStatus
@@ -597,6 +633,65 @@ export default function DqMonitorPage() {
   const statusComboRef = useRef<HTMLDivElement | null>(null);
   const [viewByRuleCatalog, setViewByRuleCatalog] = useState<string>("All");
   const [viewByRule, setViewByRule] = useState<string>("All");
+
+  // Tree 'All': nothing narrowed on the LHS. Shared by the fetch
+  // fan-out and the column gates below so the two can never disagree
+  // about what "All" means.
+  const isAllScope =
+    viewMode !== "security" &&
+    viewByGroup === "All" &&
+    viewByRuleCatalog === "All" &&
+    viewByRule === "All";
+
+  // DM_USER and DM_ADMIN get a deliberately narrow 'All': rows limited
+  // to the Security-Master-family groups, and a fixed column set (see
+  // ALL_SCOPE_COLUMN_KEYS). Every other role sees All unrestricted -
+  // every group they can access, every column. Note this pairs the
+  // least-privileged role with the primary admin one; that is the
+  // stated rule, not an oversight about isPrivilegedRole, which groups
+  // DM_ADMIN with IT_SUPPORT / IT_USER for a different purpose.
+  //
+  // Scoped to All only: drilling into a group or catalog behaves
+  // exactly as before for every role.
+  const allScopeRestricted =
+    isAllScope && (dmRole === "DM_USER" || dmRole === "DM_ADMIN");
+
+  // The editable statics — Status, Comments, Suppress Date, Assign To —
+  // appear at 'All' only for the four known DM roles: DM_USER,
+  // DM_ADMIN, IT_SUPPORT, IT_USER. Any other role (and the unknown /
+  // empty one) sees All without them: it still gets every exception in
+  // every group it can access, and every RESULT_DATA column, just none
+  // of the triage widgets.
+  //
+  // A wider set than allScopeRestricted on purpose: IT_SUPPORT and
+  // IT_USER get the statics but NOT the narrowed row set or the fixed
+  // column list, so the two flags cannot be collapsed into one.
+  const allScopeStaticColumns =
+    isAllScope && (dmRole === "DM_USER" || isPrivilegedRole(dmRole));
+
+  // Keyed purely off the selected rule group's FLAG_* visibility, with
+  // no view-mode condition. View by Security shows the same Exceptions
+  // grid as View Exceptions and the tree keeps driving viewByGroup while
+  // in that mode (selectGroupTree preserves viewMode === "security"), so
+  // the same LHS selection has to yield the same columns. Only the row
+  // set differs — the security view narrows it to the selected asset.
+  //
+  // These previously carried a `viewMode !== "security" &&` guard, which
+  // silently stripped Status / Comments / Suppress Date / Assign To off
+  // the grid the moment an asset was clicked.
+  //
+  // 'All' is not a real group name, so every flag lookup misses there
+  // and these columns would not exist at all. The four known DM roles
+  // switch them on explicitly at that scope; every other role is left
+  // with the flag lookup alone, so All shows them no triage widgets.
+  const showStatusPanel =
+    statusVisibleGroups.has(viewByGroup) || allScopeStaticColumns;
+  const showCommentsColumn =
+    commentsVisibleGroups.has(viewByGroup) || allScopeStaticColumns;
+  const showSuppressDateColumn =
+    suppressDateVisibleGroups.has(viewByGroup) || allScopeStaticColumns;
+  const showAssignToColumn =
+    assignToVisibleGroups.has(viewByGroup) || allScopeStaticColumns;
   // Display label for the currently-selected rule (RULE_DESCRIPTION when
   // present, RULE_NAME otherwise) — surfaced in the Exceptions header
   // subtitle when viewMode === "rule". Empty when no specific rule is in
@@ -903,28 +998,67 @@ export default function DqMonitorPage() {
     return () => document.removeEventListener("mousedown", handler);
   }, [statusComboOpen]);
 
+  // Options behind "Pick a rule or type a pattern". Follows whatever
+  // the LHS tree currently has selected, so the combo always offers
+  // exactly the rules in scope:
+  //   - a catalog selected → that catalog's rules
+  //   - a group selected   → every rule under that group
+  //   - 'All'              → every rule under every authorised group
+  //
+  // Only the first case used to be implemented; the other two left
+  // ruleOptions empty, so at group or All level the combo offered
+  // nothing to pick and the typeahead produced no suggestions. Worse
+  // for exact selection: commitRuleQuery looks for the typed text in
+  // ruleOptions, and against an empty list it could never match, so
+  // even a fully-typed rule name degraded to a %pattern% search
+  // instead of selecting that rule.
   useEffect(() => {
-    if (!viewByRuleCatalog || viewByRuleCatalog === "All") {
-      setRuleOptions([]);
-      setViewByRule("All");
-      setRuleQuery("");
-      setRuleNameSearchApplied("");
-      return;
-    }
     const controller = new AbortController();
-    fetchRuleNames(viewByRuleCatalog, controller.signal)
-      .then((rules) => {
-        const names = rules.map((r) => r.rule_name);
-        setRuleOptions(names);
-        setViewByRule((current) =>
-          names.includes(current) ? current : "All"
-        );
+    const ignoreAbort = (e: unknown) => {
+      if (e instanceof Error && e.name === "AbortError") return;
+      console.error("rule options lookup failed", e);
+    };
+    // Keep whatever rule is selected only if it still exists in the
+    // new scope — same reconcile the catalog branch always did.
+    const applyNames = (names: string[]) => {
+      setRuleOptions(names);
+      setViewByRule((current) => (names.includes(current) ? current : "All"));
+    };
+
+    if (viewByRuleCatalog && viewByRuleCatalog !== "All") {
+      fetchRuleNames(viewByRuleCatalog, controller.signal)
+        .then((rules) => applyNames(rules.map((r) => r.rule_name)))
+        .catch(ignoreAbort);
+      return () => controller.abort();
+    }
+
+    // Group scope, or All across every authorised group. Same fan-out
+    // shape as the exceptions fetch, and bounded the same way: naming
+    // the groups explicitly is what keeps 'All' to the operator's own
+    // groups rather than every rule in the database.
+    const groups =
+      viewByGroup && viewByGroup !== "All" ? [viewByGroup] : ruleGroupOptions;
+    if (groups.length === 0) {
+      setRuleOptions([]);
+      return () => controller.abort();
+    }
+    Promise.all(
+      groups.map((g) => fetchRulesForGroup(g, controller.signal))
+    )
+      .then((batches) => {
+        const names = Array.from(
+          new Set(
+            batches
+              .flat()
+              .map((r) => r.rule_name)
+              .filter(Boolean)
+          )
+        ).sort((a, b) => a.localeCompare(b));
+        applyNames(names);
       })
-      .catch((e: unknown) => {
-        if (e instanceof Error && e.name === "AbortError") return;
-      });
+      .catch(ignoreAbort);
     return () => controller.abort();
-  }, [viewByRuleCatalog]);
+  }, [viewByRuleCatalog, viewByGroup, ruleGroupOptions]);
 
   useEffect(() => {
     return subscribeToEvents((event) => {
@@ -1091,16 +1225,30 @@ export default function DqMonitorPage() {
       setExceptionsLimitExceeded(false);
       return;
     }
-    if (
+    // No group or catalog picked on the tree. The grid used to stay
+    // deliberately empty here; it now loads every exception across the
+    // rule groups the operator is authorised for.
+    //
+    // Deliberately does NOT require viewByRule === "All": picking a
+    // single rule from the combo at this scope must still fan out over
+    // the authorised groups. Falling through to the single-call path
+    // would send rule_group="All", which the service drops, querying
+    // every group in the database including unauthorised ones. The
+    // rule filter rides along on each per-group call instead, so only
+    // the group that owns the rule returns anything.
+    //
+    // The component-level isAllScope, which gates the restricted
+    // columns, keeps the stricter definition: picking a rule is a
+    // narrowing, and the operator should see that rule's full column
+    // set.
+    const isAllFetchScope =
       !usesAsset &&
       viewByGroup === "All" &&
-      viewByRuleCatalog === "All" &&
-      viewByRule === "All" &&
-      !ruleNameSearchApplied
-    ) {
-      // Tree 'All' selected — RHS exceptions grid stays empty; the LHS
-      // Number of Exceptions panel populates from per-group counts in a
-      // separate effect.
+      viewByRuleCatalog === "All";
+    if (isAllFetchScope && ruleGroupOptions.length === 0) {
+      // Authorised-group list hasn't landed yet (or the operator has
+      // none). Fetching with no rule_group would query every group in
+      // the database, including ones they cannot see, so wait instead.
       setExceptions([]);
       setExceptionsError(null);
       setExceptionsLoading(false);
@@ -1117,41 +1265,80 @@ export default function DqMonitorPage() {
     const ruleCatalogArg = inGroupMode ? undefined : viewByRuleCatalog;
     // Empty dqmDate → live EXCEPTION table. Non-empty ISO date → the
     // LATEST BATCH_ID for that day from EXCEPTION_HIST, scoped by tree.
-    const fetcher = dqmDate
-      ? fetchExceptionsHist(
-          dqmDate,
-          assetArg,
-          controller.signal,
-          dqmType,
-          severity,
-          priority,
-          ruleCatalogArg,
-          viewByRule,
-          ruleGroupArg,
-          exceptionState,
-          assignToFilter,
-          ruleNameSearchApplied
-        )
-      : fetchExceptions(
-          assetArg,
-          controller.signal,
-          dqmType,
-          severity,
-          priority,
-          ruleCatalogArg,
-          viewByRule,
-          ruleGroupArg,
-          exceptionState,
-          assignToFilter,
-          ruleNameSearchApplied,
-          // See the latestExceptionDate declaration above the
-          // effect for why we pass the LHS-dropdown latest date
-          // instead of relying on the server's today-UTC default.
-          latestExceptionDate
-        );
+    // One request per authorised group, merged. The endpoint takes a
+    // single rule_group and has no user parameter, so it cannot scope
+    // to RULE_GROUP_AUTHORIZATION on its own; naming each group
+    // explicitly is what keeps 'All' to the operator's own groups
+    // rather than the whole database.
+    // At restricted All the row set is limited to the Security-Master
+    // family, intersected with what the operator is authorised for -
+    // authorisation still wins, this only narrows further. The LHS tree
+    // and the Number of Exceptions panel are untouched and keep
+    // covering every group, as specified.
+    const allScopeGroups = allScopeRestricted
+      ? ruleGroupOptions.filter((g) => inSecurityMasterFamily(g))
+      : ruleGroupOptions;
+    const groupsToFetch = isAllFetchScope ? allScopeGroups : [ruleGroupArg];
+    const fetchForGroup = (g: string | undefined) =>
+      dqmDate
+        ? fetchExceptionsHist(
+            dqmDate,
+            assetArg,
+            controller.signal,
+            dqmType,
+            severity,
+            priority,
+            ruleCatalogArg,
+            viewByRule,
+            g,
+            exceptionState,
+            assignToFilter,
+            ruleNameSearchApplied
+          )
+        : fetchExceptions(
+            assetArg,
+            controller.signal,
+            dqmType,
+            severity,
+            priority,
+            ruleCatalogArg,
+            viewByRule,
+            g,
+            exceptionState,
+            assignToFilter,
+            ruleNameSearchApplied,
+            latestExceptionDate
+          );
+
+    // Merged results need re-sorting: each call returns its own group
+    // newest-first, and concatenating them would interleave by
+    // completion order. Same total ordering the services apply, so the
+    // grid reads identically whether one group or five were queried.
+    const mergeSorted = (batches: ExceptionRow[][]): ExceptionRow[] => {
+      const seen = new Set<number>();
+      const merged: ExceptionRow[] = [];
+      for (const batch of batches) {
+        for (const row of batch) {
+          if (seen.has(row.exceptionId)) continue;
+          seen.add(row.exceptionId);
+          merged.push(row);
+        }
+      }
+      return merged.sort((a, b) => {
+        const ta = a.dateTimeIso ?? a.dateTime;
+        const tb = b.dateTimeIso ?? b.dateTime;
+        if (ta !== tb) return ta < tb ? 1 : -1;
+        return a.exceptionId - b.exceptionId;
+      });
+    };
+
+    const limit = isAllFetchScope ? EXCEPTION_LIMIT_ALL : EXCEPTION_LIMIT;
+    const fetcher: Promise<ExceptionRow[]> = isAllFetchScope
+      ? Promise.all(groupsToFetch.map(fetchForGroup)).then(mergeSorted)
+      : fetchForGroup(ruleGroupArg);
     fetcher
       .then((rows) => {
-        if (rows.length > EXCEPTION_LIMIT) {
+        if (rows.length > limit) {
           setExceptions([]);
           setExceptionsLimitExceeded(true);
         } else {
@@ -1181,6 +1368,16 @@ export default function DqMonitorPage() {
     ruleNameSearchApplied,
     treeSelected,
     dqmDate,
+    // The All-scope fan-out reads this, and it arrives asynchronously
+    // from getRuleGroupsForUser - without it here the first render at
+    // All scope bails on the empty-list guard and never retries once
+    // the groups land. Set once per operator, so it does not churn.
+    ruleGroupOptions,
+    // Decides which groups the All fan-out covers. Derived from dmRole,
+    // which also arrives asynchronously, so the fetch has to re-run
+    // when it resolves - otherwise a DM_USER's first All load queries
+    // every authorised group instead of the Security-Master family.
+    allScopeRestricted,
     // Track the LHS-dropdown latest date so a late-arriving
     // MAX(EXCEPTION_DATE) (e.g. on holidays when histDates resolves
     // after the initial exceptions fetch) triggers a re-fetch with
@@ -1828,6 +2025,7 @@ export default function DqMonitorPage() {
     setViewByRule("All");
     setViewByRuleLabel("");
     setRuleNameSearchApplied("");
+    setRuleQuery("");
     setTreeSelected(true);
   }, []);
   const selectGroupTree = useCallback((g: string) => {
@@ -1837,6 +2035,7 @@ export default function DqMonitorPage() {
     setViewByRule("All");
     setViewByRuleLabel("");
     setRuleNameSearchApplied("");
+    setRuleQuery("");
     setTreeSelected(true);
   }, []);
   const selectTypeTree = useCallback((g: string, t: string) => {
@@ -3447,7 +3646,18 @@ export default function DqMonitorPage() {
               // despite being intended to. Corrected here.
               showLifecycleColumns={
                 viewByGroup === "Security Master" ||
-                viewByGroup === "Security Master Benchmark"
+                viewByGroup === "Security Master Benchmark" ||
+                // Open / Close Date are part of the restricted All
+                // column list, and canonicalKeys only emits them when
+                // this is on.
+                allScopeRestricted
+              }
+              // Non-null only for the restricted All view; every other
+              // scope and role passes undefined and keeps every column.
+              allowedColumnKeys={
+                allScopeRestricted
+                  ? (ALL_SCOPE_COLUMN_KEYS as string[])
+                  : undefined
               }
               // Checkbox column: on only while a bulk panel is open,
               // gone the moment the last one closes.
