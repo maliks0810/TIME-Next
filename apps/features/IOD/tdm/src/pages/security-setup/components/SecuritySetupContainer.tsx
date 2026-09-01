@@ -97,6 +97,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     goToStep,
     setReadOnly,
     setUserReadOnly,
+    setSecuritySetupStatusId,
     openConfirmModal,
     closeConfirmModal,
     setPendingFiles,
@@ -119,6 +120,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   useEffect(() => {
     const cancelled = initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
     setReadOnly(cancelled);
+    setSecuritySetupStatusId(initialData?.securitySetupStatusId ?? null);
   }, [initialData]);
 
   const [isDirty, setIsDirty] = useState(false);
