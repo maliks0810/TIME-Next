@@ -30,25 +30,29 @@ type Cell = number | string | null | undefined;
 interface SnapshotRow {
   id: string;
   pfNumber?: string;
+  parentPfNumber?: string;
+  benchmarkCode?: string;
+  benchmarkName?: string;
+  rowOrder?: number;
   rowType: RowKind;
   fundName: string;
   ticker?: string;
-  priorDay?: number;
-  priorDayPercentile?: number;
-  mtd?: number;
-  mtdPercentile?: number;
-  qtd?: number;
-  qtdPercentile?: number;
-  ytd?: number;
-  ytdPercentile?: number;
-  oneYear?: number;
-  oneYearPercentile?: number;
-  threeYear?: number;
-  threeYearPercentile?: number;
-  fiveYear?: number;
-  fiveYearPercentile?: number;
-  fundAumMillions?: number;
-  morningstarRating?: number;
+  priorDay?: Cell;
+  priorDayPercentile?: Cell;
+  mtd?: Cell;
+  mtdPercentile?: Cell;
+  qtd?: Cell;
+  qtdPercentile?: Cell;
+  ytd?: Cell;
+  ytdPercentile?: Cell;
+  oneYear?: Cell;
+  oneYearPercentile?: Cell;
+  threeYear?: Cell;
+  threeYearPercentile?: Cell;
+  fiveYear?: Cell;
+  fiveYearPercentile?: Cell;
+  fundAumMillions?: Cell;
+  morningstarRating?: Cell;
   morningstarCategory?: string;
   dataWarning?: string;
 }
@@ -79,18 +83,43 @@ const GREEN = "#1e7d32";
 const GRAY = "#666666";
 const BLACK = "#1a1a1a";
 const GOLD = "#c69214";
-const toNum = (v: unknown): number | null => {
-  if (v == null || v === "") return null;
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : null;
+
+const toNum = (value: unknown): number | null => {
+  if (value == null || value === "") {
+    return null;
+  }
+
+  const numberValue =
+    typeof value === "number"
+      ? value
+      : Number(value);
+
+  return Number.isFinite(numberValue)
+    ? numberValue
+    : null;
 };
 
-const fmtReturn = (v?: number | string, benchmark = false): React.ReactNode => {
-  const n = toNum(v);
-  if (n == null) return <span style={{ color: GRAY }}>-</span>;
-  const color = benchmark ? GRAY : n < 0 ? RED : BLACK;
-  return <span style={{ color }}>{n.toFixed(2)}</span>;
+const fmtReturn = (
+  value: Cell
+): React.ReactNode => {
+  const numberValue = toNum(value);
+
+  if (numberValue == null) {
+    return <span style={{ color: GRAY }}>-</span>;
+  }
+
+  return (
+    <span
+      style={{
+        color: numberValue < 0 ? RED : BLACK,
+      }}
+    >
+      {numberValue.toFixed(2)}
+    </span>
+  );
 };
+
+
 
 const fmtPercentile = (v?: number, benchmark = false): React.ReactNode => {
   if (v == null) return <span style={{ color: GRAY }} />;
@@ -165,22 +194,27 @@ export default function TCWFundsPerformanceSnapshot() {
   data.sections
     .filter((s) => section === "all" || s.sectionName === section)
     .forEach((s) => {
-      const matched = s.rows
-        .filter((r) =>
-          [
-            r.pfNumber,
-            r.fundName,
-            r.ticker,
-            r.morningstarCategory,
-          ].some((v) =>
-            String(v ?? "").toLowerCase().includes(term),
-          ),
-        )
-        .sort(
-          (a, b) =>
-            (b.fundAumMillions ?? Number.NEGATIVE_INFINITY) -
-            (a.fundAumMillions ?? Number.NEGATIVE_INFINITY),
-        );
+      const matchingParents = new Set(
+        s.rows
+          .filter(
+            (r) =>
+              r.rowType === "fund" &&
+              [r.pfNumber, r.fundName, r.ticker, r.morningstarCategory].some(
+                (v) => String(v ?? "").toLowerCase().includes(term),
+              ),
+          )
+          .map((r) => r.pfNumber ?? ""),
+      );
+
+      // ROW_ORDER already represents fund -> primary -> secondary and keeps
+      // each portfolio block together. Never sort benchmark rows by AUM.
+      const matched = [...s.rows]
+        .sort((a, b) => (a.rowOrder ?? 999999) - (b.rowOrder ?? 999999))
+        .filter((r) => {
+          if (!term) return true;
+          if (r.rowType === "fund") return matchingParents.has(r.pfNumber ?? "");
+          return matchingParents.has(r.parentPfNumber ?? "");
+        });
 
       if (!matched.length) return;
 
@@ -239,8 +273,10 @@ export default function TCWFundsPerformanceSnapshot() {
       render: (v: string, row) =>
         row.rowType === "section" ? (
           <span className="section-band-text">{row.fundName}</span>
+        ) : row.rowType === "fund" ? (
+          <Text strong>{v}</Text>
         ) : (
-          <Text strong={row.rowType === "fund"}>{v}</Text>
+          ""
         ),
     },
     {
@@ -254,7 +290,8 @@ export default function TCWFundsPerformanceSnapshot() {
           strong={row.rowType === "fund"}
           italic={row.rowType === "benchmark"}
           style={{
-            color: row.rowType === "benchmark" ? GRAY : BLACK,
+            color: BLACK,
+            paddingLeft: row.rowType === "benchmark" ? 14 : 0,
           }}
         >
           {v}
@@ -267,6 +304,7 @@ export default function TCWFundsPerformanceSnapshot() {
       width: 85,
       align: "center",
       onCell: bandCell,
+      render: (v: string, row) => (row.rowType === "fund" ? v : ""),
     },
     ...perfPairs.flatMap((p): ColumnsType<GridRow> => {
       const isBench = (row: GridRow) => row.rowType === "benchmark";
@@ -277,7 +315,7 @@ export default function TCWFundsPerformanceSnapshot() {
           width: 78,
           align: "right",
           onCell: bandCell,
-          render: (v: number, row) => fmtReturn(v, isBench(row)),
+          render: (v: Cell) => fmtReturn(v),
         },
         {
           title: "Percentile",
@@ -301,7 +339,8 @@ export default function TCWFundsPerformanceSnapshot() {
       width: 100,
       align: "right",
       onCell: bandCell,
-      render: (v: number) => fmtAum(v),
+      render: (v: Cell, row) =>
+        row.rowType === "fund" ? fmtAum(v) : "",
     },
     {
       title: (
@@ -315,8 +354,8 @@ export default function TCWFundsPerformanceSnapshot() {
       width: 120,
       align: "center",
       onCell: bandCell,
-      render: (v: number, row) =>
-        fmtRating(v, row.rowType === "benchmark"),
+      render: (v: Cell, row) =>
+        row.rowType === "fund" ? fmtRating(toNum(v) ?? undefined, false) : null,
     },
   ];
 
@@ -483,6 +522,7 @@ const asOfLabel = formatDateOnly(
         </Spin>
 
 
+        <div className="snapshot-ytd-note">YTD represents ITD for TPAY</div>
         <div className="snapshot-footnote">
           Morningstar Ratings: Within Morningstar Category, the top 10% of
           funds receive 5 stars and the bottom 10% receive 1 star. Funds are
@@ -543,6 +583,11 @@ const asOfLabel = formatDateOnly(
           font-style: italic;
         }
 
+        .snapshot-ytd-note {
+          margin-top: 16px;
+          font-size: 10px;
+          color: #17365d;
+        }
         .snapshot-footnote {
           margin-top: 8px;
           padding-top: 6px;

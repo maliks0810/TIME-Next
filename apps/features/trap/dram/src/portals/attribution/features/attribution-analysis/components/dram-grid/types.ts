@@ -110,7 +110,7 @@ export interface GridConfigResponse {
     all: ApiColumnConfig[];
   };
   metrics: MetricConfig[];
-  periods: PeriodConfig[][];
+  periods: PeriodConfig[];
   breakdownMode: BreakdownMode[];
   frequencyMode: BackendFrequencyMode[];
 

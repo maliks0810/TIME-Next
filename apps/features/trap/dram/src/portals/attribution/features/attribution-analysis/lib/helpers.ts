@@ -95,10 +95,10 @@ export function buildBenchmarkOptions(
     };
 
     add(r.PORTFOLIO_BENCHMARK_CODE, r.PORTFOLIO_BENCHMARK_NAME);
-    add(
-      r.PORTFOLIO_SECONDARY_BENCHMARK_CODE,
-      r.PORTFOLIO_SECONDARY_BENCHMARK_NAME
-    );
+    // add(
+    //   r.PORTFOLIO_SECONDARY_BENCHMARK_CODE,
+    //   r.PORTFOLIO_SECONDARY_BENCHMARK_NAME
+    // );
   }
 
   return Array.from(map.values()).sort((a, b) =>
