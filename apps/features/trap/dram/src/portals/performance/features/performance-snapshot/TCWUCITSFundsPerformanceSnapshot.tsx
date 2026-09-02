@@ -36,11 +36,15 @@ interface UcitsRow {
   id?: string;
   rowType?: ApiRowKind;
   pfNumber?: string;
+  parentPfNumber?: string;
+  benchmarkCode?: string;
+  benchmarkName?: string;
+  rowOrder?: number;
   snapshotSection?: string;
   fundName: string;
   isin?: string;
+  shareClassSuffix?: string;
   inceptionDate?: string;
-
   priorDayReturn?: Num;
   priorDayPercentile?: Num;
   mtdReturn?: Num;
@@ -55,12 +59,12 @@ interface UcitsRow {
   threeYearPercentile?: Num;
   fiveYearReturn?: Num;
   fiveYearPercentile?: Num;
-
   fundAumMillions?: Num;
   morningstarOverallRating?: Num;
   morningstarCategory?: string;
   dataWarning?: string;
 }
+
 interface UcitsSnapshotResponse {
   asOfDate: string;
   previousAvailableDate?: string;
@@ -74,7 +78,6 @@ interface UcitsSnapshotResponse {
 interface NormalizedUcitsRow extends Omit<UcitsRow, "id" | "rowType"> {
   id: string;
   rowType: RowKind;
-
   priorDay?: Num;
   mtd?: Num;
   qtd?: Num;
@@ -82,7 +85,6 @@ interface NormalizedUcitsRow extends Omit<UcitsRow, "id" | "rowType"> {
   oneYear?: Num;
   threeYear?: Num;
   fiveYear?: Num;
-
   morningstarRating?: Num;
 }
 
@@ -95,6 +97,8 @@ interface FundReference {
   fundName: string;
   morningstarCategory?: string;
   inceptionDate?: string;
+  shareClassSuffix?: string;
+  pfNumber?: string;
 }
 
 interface UcitsSnapshotViewModel {
@@ -115,6 +119,7 @@ interface GridRow extends NormalizedUcitsRow {
 // =====================================================================
 // Safe numeric coercion + value formatters / colorers
 // =====================================================================
+
 const RED = "#cf1322";
 const GREEN = "#1e7d32";
 const GRAY = "#666666";
@@ -127,10 +132,11 @@ const toNum = (v: unknown): number | null => {
   return Number.isFinite(n) ? n : null;
 };
 
-const fmtReturn = (v?: Num, benchmark = false): React.ReactNode => {
+const fmtReturn = (v?: Num): React.ReactNode => {
   const n = toNum(v);
   if (n == null) return <span style={{ color: GRAY }}>-</span>;
-  const color = benchmark ? GRAY : n < 0 ? RED : BLACK;
+  // Golden report: red negatives / black positives for BOTH fund and index rows.
+  const color = n < 0 ? RED : BLACK;
   return <span style={{ color }}>{n.toFixed(2)}</span>;
 };
 
@@ -161,6 +167,26 @@ const fmtRating = (v?: Num, benchmark = false): React.ReactNode => {
     </span>
   );
 };
+
+// Date-only formatter that avoids the UTC parse off-by-one.
+const fmtRefDate = (v?: string): string => {
+  if (!v) return "";
+  const iso = String(v).slice(0, 10);
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return "";
+  return new Date(y, m - 1, d).toLocaleDateString("en-US");
+};
+
+const getShareClassSuffix = (
+  row: Pick<UcitsRow, "shareClassSuffix" | "fundName">
+): string => {
+  const suppliedSuffix = row.shareClassSuffix?.trim().toUpperCase();
+  if (suppliedSuffix) return suppliedSuffix;
+
+  const match = row.fundName?.trim().match(/\b(AEHE|IEHE|IU|I)$/i);
+  return match?.[1]?.toUpperCase() ?? "";
+};
+
 interface Props {
   embedded?: boolean;
   allowStandaloneExport?: boolean;
@@ -169,23 +195,26 @@ interface Props {
 
 function normalizeUcitsResponse(
   response: UcitsSnapshotResponse,
-  requestedCurrency: "USD" | "EUR",
+  requestedCurrency: "USD" | "EUR"
 ): UcitsSnapshotViewModel {
   const grouped = new Map<string, NormalizedUcitsRow[]>();
-
   for (const [index, source] of (response.rows ?? []).entries()) {
-    const sectionName =
-      source.snapshotSection?.trim() || "Unclassified";
+    const sectionName = source.snapshotSection?.trim() || "Unclassified";
+    // ISIN is the reliable fallback for legacy payloads that mark
+    // benchmark rows as funds.
+    const isFund =
+      source.rowType === "benchmark" ? false : Boolean(source.isin?.trim());
 
     const normalizedRow: NormalizedUcitsRow = {
       ...source,
-
       id:
         source.id ??
         `${requestedCurrency}-${source.pfNumber ?? "row"}-${source.isin ?? index}`,
-
-      rowType: source.rowType ?? "fund",
-
+      rowType: isFund ? "fund" : "benchmark",
+      parentPfNumber: !isFund
+        ? source.parentPfNumber ?? source.pfNumber
+        : source.parentPfNumber,
+      shareClassSuffix: isFund ? getShareClassSuffix(source) : undefined,
       priorDay: source.priorDayReturn,
       mtd: source.mtdReturn,
       qtd: source.qtdReturn,
@@ -193,11 +222,8 @@ function normalizeUcitsResponse(
       oneYear: source.oneYearReturn,
       threeYear: source.threeYearReturn,
       fiveYear: source.fiveYearReturn,
-
-      morningstarRating:
-        source.morningstarOverallRating,
+      morningstarRating: source.morningstarOverallRating,
     };
-
     const existingRows = grouped.get(sectionName) ?? [];
     existingRows.push(normalizedRow);
     grouped.set(sectionName, existingRows);
@@ -205,19 +231,33 @@ function normalizeUcitsResponse(
 
   const sections: UcitsSection[] = Array.from(
     grouped.entries(),
-    ([sectionName, rows]) => ({
-      sectionName,
-      rows,
-    }),
+    ([sectionName, rows]) => ({ sectionName, rows })
   );
 
-  const references: FundReference[] = (response.rows ?? []).map(
-    (row) => ({
-      fundName: row.fundName,
+  // Keep each EUR share class independently while excluding index rows.
+  const seen = new Set<string>();
+  const references: FundReference[] = [];
+  for (const row of response.rows ?? []) {
+    const isFund =
+      row.rowType === "benchmark" ? false : Boolean(row.isin?.trim());
+    if (!isFund) continue;
+
+    const name = row.fundName?.trim();
+    if (!name) continue;
+
+    const suffix = getShareClassSuffix(row);
+    const identity = [row.pfNumber ?? "", row.isin ?? "", suffix, name].join("|");
+    if (seen.has(identity)) continue;
+
+    seen.add(identity);
+    references.push({
+      fundName: name,
       morningstarCategory: row.morningstarCategory,
       inceptionDate: row.inceptionDate,
-    }),
-  );
+      shareClassSuffix: suffix,
+      pfNumber: row.pfNumber,
+    });
+  }
 
   return {
     asOfDate: response.asOfDate,
@@ -228,141 +268,138 @@ function normalizeUcitsResponse(
     references,
   };
 }
+
 // =====================================================================
 // Component
 // =====================================================================
+
 export default function TCWUCITSFundsPerformanceSnapshot({
   currency = "USD",
 }: Props) {
-const [data, setData] =
-  useState<UcitsSnapshotViewModel | null>(null);
-
-const [error, setError] =
-  useState<string | null>(null);
+  const [data, setData] = useState<UcitsSnapshotViewModel | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [section, setSection] = useState("all");
   const [exporting, setExporting] = useState<"" | "excel" | "pdf">("");
 
-  const currencyLabel =
-  currency === "EUR"
-    ? "Euros"
-    : "U.S. Dollar";
+  const currencyLabel = currency === "EUR" ? "Euros" : "U.S. Dollar";
 
-
-const load = async (): Promise<void> => {
-  setLoading(true);
-  setError(null);
-
-  try {
-    const query = new URLSearchParams({
-      currency,
-    });
-
-    const url = buildDram2UrlNonAttribution(
-      `performance/tcw-ucits-funds-performance-snapshot/?${query.toString()}`,
-    );
-
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      let message = `Failed to load UCITS ${currency}`;
-
-      try {
-        const body = (await response.json()) as {
-          detail?: string;
-        };
-
-        message = body.detail ?? message;
-      } catch {
-        // Keep the default error message.
-      }
-
-      throw new Error(message);
-    }
-
-    const apiData =
-      (await response.json()) as UcitsSnapshotResponse;
-
-    const viewModel = normalizeUcitsResponse(
-      apiData,
-      currency,
-    );
-
-    setData(viewModel);
-  } catch (loadError) {
-    setData(null);
-    setError(
-      loadError instanceof Error
-        ? loadError.message
-        : `Failed to load UCITS ${currency}`,
-    );
-  } finally {
-    setLoading(false);
-  }
-};
-
-useEffect(() => {
-  void load();
-}, [currency]);
-
-const rows = useMemo<GridRow[]>(() => {
-  if (!data) {
-    return [];
-  }
-
-  const term = search.trim().toLowerCase();
-  const output: GridRow[] = [];
-
-  data.sections
-    .filter(
-      (item) =>
-        section === "all" ||
-        item.sectionName === section,
-    )
-    .forEach((item) => {
-      const matchedRows = item.rows.filter((row) =>
-        [
-          row.pfNumber,
-          row.fundName,
-          row.isin,
-          row.morningstarCategory,
-        ].some((value) =>
-          String(value ?? "")
-            .toLowerCase()
-            .includes(term),
-        ),
+  const load = async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const query = new URLSearchParams({ currency });
+      const url = buildDram2UrlNonAttribution(
+        `performance/tcw-ucits-funds-performance-snapshot/?${query.toString()}`
       );
-
-      if (matchedRows.length === 0) {
-        return;
+      const response = await fetch(url);
+      if (!response.ok) {
+        let msg = `Failed to load UCITS ${currency}`;
+        try {
+          const body = (await response.json()) as { detail?: string };
+          msg = body.detail ?? msg;
+        } catch {
+          // Keep the default error message.
+        }
+        throw new Error(msg);
       }
+      const apiData = (await response.json()) as UcitsSnapshotResponse;
+      setData(normalizeUcitsResponse(apiData, currency));
+    } catch (loadError) {
+      setData(null);
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : `Failed to load UCITS ${currency}`
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      output.push({
-        id: `${currency}-section-${item.sectionName}`,
-        key: `${currency}-section-${item.sectionName}`,
-        rowType: "section",
-        fundName: item.sectionName,
-        sectionName: item.sectionName,
-      });
+  useEffect(() => {
+    void load();
+  }, [currency]);
 
-      matchedRows.forEach((row, index) => {
+  const rows = useMemo<GridRow[]>(() => {
+    if (!data) return [];
+    const term = search.trim().toLowerCase();
+    const output: GridRow[] = [];
+
+    data.sections
+      .filter((item) => section === "all" || item.sectionName === section)
+      .forEach((item) => {
+        // First, find which FUNDS match the search (by pf/name/isin/category).
+        const fundMatches = (row: NormalizedUcitsRow) =>
+          [row.pfNumber, row.fundName, row.isin, row.morningstarCategory].some(
+            (value) => String(value ?? "").toLowerCase().includes(term)
+          );
+
+        const matchedFundPfs = new Set(
+          item.rows
+            .filter((r) => r.rowType === "fund" && (term === "" || fundMatches(r)))
+            .map((r) => r.pfNumber ?? "")
+        );
+
+        // Keep a row if: it's a matching fund, OR it's a benchmark whose parent
+        // fund matched (so indices always travel with their fund), OR (no term)
+        // a benchmark that itself matched.
+        const matchedRows = item.rows.filter((row) => {
+          if (row.rowType === "fund") {
+            return term === "" || fundMatches(row);
+          }
+          // benchmark
+          const parentMatched =
+            row.parentPfNumber != null &&
+            matchedFundPfs.has(row.parentPfNumber);
+          return term === "" || parentMatched || fundMatches(row);
+        });
+
+        if (matchedRows.length === 0) return;
+
         output.push({
-          ...row,
-          key:
-            `${currency}-${item.sectionName}-` +
-            `${row.id ?? row.pfNumber ?? index}`,
+          id: `${currency}-section-${item.sectionName}`,
+          key: `${currency}-section-${item.sectionName}`,
+          rowType: "section",
+          fundName: item.sectionName,
           sectionName: item.sectionName,
         });
+
+        matchedRows.forEach((row, index) => {
+          output.push({
+            ...row,
+            key:
+              `${currency}-${item.sectionName}-` +
+              `${row.id ?? row.pfNumber ?? index}`,
+            sectionName: item.sectionName,
+          });
+        });
       });
-    });
 
-  return output;
-}, [currency, data, search, section]);
+    return output;
+  }, [currency, data, search, section]);
 
-  // Split references into two balanced columns for the footer.
-  const referenceColumns = useMemo(() => {
+  // EUR matches the report: AEHE on the left and IEHE on the right.
+  // Other currencies retain a balanced two-column layout.
+  const referenceColumns = useMemo<[FundReference[], FundReference[]]>(() => {
     const refs = data?.references ?? [];
+
+    if (data?.currencyCode === "EUR") {
+      const aehe: FundReference[] = [];
+      const iehe: FundReference[] = [];
+      const other: FundReference[] = [];
+
+      refs.forEach((ref) => {
+        const suffix = ref.shareClassSuffix?.toUpperCase() ?? "";
+        if (suffix === "AEHE") aehe.push(ref);
+        else if (suffix === "IEHE") iehe.push(ref);
+        else other.push(ref);
+      });
+
+      return [[...aehe, ...other], iehe];
+    }
+
     const mid = Math.ceil(refs.length / 2);
     return [refs.slice(0, mid), refs.slice(mid)];
   }, [data]);
@@ -370,92 +407,96 @@ const rows = useMemo<GridRow[]>(() => {
   // AntD onCell: record is the FIRST argument; index is optional/unused.
   const bandCell = (row: GridRow) =>
     row.rowType === "section" ? { colSpan: 0 } : {};
-
   const isBench = (row: GridRow) => row.rowType === "benchmark";
 
-type PerformanceValueKey =
-  | "priorDay"
-  | "mtd"
-  | "qtd"
-  | "ytd"
-  | "oneYear"
-  | "threeYear"
-  | "fiveYear";
+  type PerformanceValueKey =
+    | "priorDay"
+    | "mtd"
+    | "qtd"
+    | "ytd"
+    | "oneYear"
+    | "threeYear"
+    | "fiveYear";
+  type PerformancePercentileKey =
+    | "priorDayPercentile"
+    | "mtdPercentile"
+    | "qtdPercentile"
+    | "ytdPercentile"
+    | "oneYearPercentile"
+    | "threeYearPercentile"
+    | "fiveYearPercentile";
 
-type PerformancePercentileKey =
-  | "priorDayPercentile"
-  | "mtdPercentile"
-  | "qtdPercentile"
-  | "ytdPercentile"
-  | "oneYearPercentile"
-  | "threeYearPercentile"
-  | "fiveYearPercentile";
+  const perfPairs: Array<{
+    key: PerformanceValueKey;
+    pct: PerformancePercentileKey;
+    title: string;
+  }> = [
+    { key: "priorDay", pct: "priorDayPercentile", title: "Prior Day" },
+    { key: "mtd", pct: "mtdPercentile", title: "MTD" },
+    { key: "qtd", pct: "qtdPercentile", title: "QTD" },
+    { key: "ytd", pct: "ytdPercentile", title: "YTD" },
+    { key: "oneYear", pct: "oneYearPercentile", title: "1 Year" },
+    { key: "threeYear", pct: "threeYearPercentile", title: "3 Years" },
+    { key: "fiveYear", pct: "fiveYearPercentile", title: "5 Years" },
+  ];
 
-const perfPairs: Array<{
-  key: PerformanceValueKey;
-  pct: PerformancePercentileKey;
-  title: string;
-}> = [
-  {
-    key: "priorDay",
-    pct: "priorDayPercentile",
-    title: "Prior Day",
-  },
-  {
-    key: "mtd",
-    pct: "mtdPercentile",
-    title: "MTD",
-  },
-  {
-    key: "qtd",
-    pct: "qtdPercentile",
-    title: "QTD",
-  },
-  {
-    key: "ytd",
-    pct: "ytdPercentile",
-    title: "YTD",
-  },
-  {
-    key: "oneYear",
-    pct: "oneYearPercentile",
-    title: "1 Year",
-  },
-  {
-    key: "threeYear",
-    pct: "threeYearPercentile",
-    title: "3 Years",
-  },
-  {
-    key: "fiveYear",
-    pct: "fiveYearPercentile",
-    title: "5 Years",
-  },
-];
+  const repeatedFundPfNumbers = useMemo(() => {
+    const repeatedKeys = new Set<string>();
+    let previousSection = "";
+    let previousFundPf = "";
+
+    rows.forEach((row) => {
+      if (row.rowType === "section") {
+        previousSection = row.sectionName;
+        previousFundPf = "";
+        return;
+      }
+      if (row.rowType !== "fund") return;
+
+      const currentPf = row.pfNumber ?? "";
+      if (
+        row.sectionName === previousSection &&
+        currentPf !== "" &&
+        currentPf === previousFundPf
+      ) {
+        repeatedKeys.add(row.key);
+      }
+
+      previousSection = row.sectionName;
+      previousFundPf = currentPf;
+    });
+
+    return repeatedKeys;
+  }, [rows]);
 
   const columns: ColumnsType<GridRow> = [
     {
       title: "PF #",
       dataIndex: "pfNumber",
       width: 60,
-      fixed: "left",
       align: "center",
       onCell: (row) =>
         row.rowType === "section"
           ? { colSpan: 19, className: "section-band" }
           : {},
-      render: (v: string, row) =>
-        row.rowType === "section" ? (
-          <span className="section-band-text">{row.fundName}</span>
-        ) : (
-          <Text strong={row.rowType === "fund"}>{v}</Text>
-        ),
+      // PF # shows on the FUND row only; benchmark rows leave it blank.
+      render: (v: string, row) => {
+        if (row.rowType === "section") {
+          return <span className="section-band-text">{row.fundName}</span>;
+        }
+        if (row.rowType !== "fund") return "";
+
+        return (
+          <Text strong>
+            {repeatedFundPfNumbers.has(row.key) ? "--" : v}
+          </Text>
+        );
+      },
     },
     {
       title: "Fund / Index",
       dataIndex: "fundName",
       width: 260,
-      fixed: "left",
       onCell: bandCell,
       render: (v: string, row) => (
         <Text
@@ -473,32 +514,35 @@ const perfPairs: Array<{
       width: 120,
       align: "center",
       onCell: bandCell,
-      render: (v: string) => <span style={{ color: GRAY }}>{v}</span>,
+      // ISIN shows on fund rows only (benchmarks have none in the golden report).
+      render: (v: string, row) =>
+        row.rowType === "fund" ? (
+          <span style={{ color: GRAY }}>{v}</span>
+        ) : (
+          ""
+        ),
     },
-    ...perfPairs.flatMap(
-  (pair): ColumnsType<GridRow> => [
-    {
-      title: pair.title,
-      dataIndex: pair.key,
-      key: pair.key,
-      width: 76,
-      align: "right",
-      onCell: bandCell,
-      render: (value: Num, row: GridRow) =>
-        fmtReturn(value, isBench(row)),
-    },
-    {
-      title: "Percentile",
-      dataIndex: pair.pct,
-      key: pair.pct,
-      width: 80,
-      align: "center",
-      onCell: bandCell,
-      render: (value: Num, row: GridRow) =>
-        fmtPercentile(value, isBench(row)),
-    },
-  ],
-),
+    ...perfPairs.flatMap((pair): ColumnsType<GridRow> => [
+      {
+        title: pair.title,
+        dataIndex: pair.key,
+        key: pair.key,
+        width: 76,
+        align: "right",
+        onCell: bandCell,
+        render: (value: Num) => fmtReturn(value),
+      },
+      {
+        title: "Percentile",
+        dataIndex: pair.pct,
+        key: pair.pct,
+        width: 80,
+        align: "center",
+        onCell: bandCell,
+        render: (value: Num, row: GridRow) =>
+          fmtPercentile(value, isBench(row)),
+      },
+    ]),
     {
       title: (
         <>
@@ -511,7 +555,8 @@ const perfPairs: Array<{
       width: 90,
       align: "right",
       onCell: bandCell,
-      render: (v: Num) => fmtAum(v),
+      // AUM shows on fund rows only.
+      render: (v: Num, row) => (row.rowType === "fund" ? fmtAum(v) : ""),
     },
     {
       title: (
@@ -525,7 +570,8 @@ const perfPairs: Array<{
       width: 110,
       align: "center",
       onCell: bandCell,
-      render: (v: Num, row) => fmtRating(v, isBench(row)),
+      render: (v: Num, row) =>
+        row.rowType === "fund" ? fmtRating(v, isBench(row)) : "",
     },
   ];
 
@@ -536,9 +582,8 @@ const perfPairs: Array<{
         currency,
         as_of_date: data?.asOfDate ?? "",
       });
-
       const exportUrl = buildDram2UrlNonAttribution(
-        `performance/tcw-ucits-funds-performance-snapshot/${kind}/?${query.toString()}`
+        `performance/tcw-ucits-funds-performance-snapshot/export/${kind}/?${query.toString()}`
       );
       await downloadExport(
         exportUrl,
@@ -554,15 +599,14 @@ const perfPairs: Array<{
     }
   };
 
-const priorLabel = formatDateOnly(
-  data?.priorDate,
-  navigator.language,
-).toUpperCase();
-
-const asOfLabel = formatDateOnly(
-  data?.asOfDate,
-  navigator.language,
-).toUpperCase();
+  const priorLabel = formatDateOnly(
+    data?.priorDate,
+    navigator.language
+  ).toUpperCase();
+  const asOfLabel = formatDateOnly(
+    data?.asOfDate,
+    navigator.language
+  ).toUpperCase();
 
   return (
     <div className="snapshot-print-container" style={{ padding: 20 }}>
@@ -582,12 +626,10 @@ const asOfLabel = formatDateOnly(
             {data && (
               <div className="snapshot-disclosure">
                 <div className="asof">
-                  AS OF {asOfLabel} &nbsp;|&nbsp; ESTIMATES ONLY &ndash;
-                  FOR INTERNAL USE ONLY
+                  AS OF {asOfLabel} &nbsp;|&nbsp; ESTIMATES ONLY &ndash; FOR
+                  INTERNAL USE ONLY
                 </div>
-                <div className="prior">
-                  PRIOR SOURCE DATE: {priorLabel}
-                </div>
+                <div className="prior">PRIOR SOURCE DATE: {priorLabel}</div>
               </div>
             )}
           </div>
@@ -597,10 +639,7 @@ const asOfLabel = formatDateOnly(
             <Button icon={<ReloadOutlined />} onClick={() => void load()}>
               Refresh
             </Button>
-            <Button
-              icon={<PrinterOutlined />}
-              onClick={() => window.print()}
-            >
+            <Button icon={<PrinterOutlined />} onClick={() => window.print()}>
               Print
             </Button>
             <Button
@@ -635,7 +674,6 @@ const asOfLabel = formatDateOnly(
             }
           />
         )}
-
         {data?.warnings?.length ? (
           <Alert
             type="warning"
@@ -653,7 +691,6 @@ const asOfLabel = formatDateOnly(
             }
           />
         ) : null}
-
         <Space className="snapshot-no-print" style={{ marginBottom: 16 }}>
           <Input.Search
             allowClear
@@ -674,7 +711,6 @@ const asOfLabel = formatDateOnly(
             ]}
           />
         </Space>
-
         <Spin spinning={loading}>
           {rows.length ? (
             <Table<GridRow>
@@ -697,12 +733,16 @@ const asOfLabel = formatDateOnly(
             !loading && <Empty />
           )}
         </Spin>
-
-        {/* Fund reference footer: category + inception date, two columns */}
+        {/* Fund reference footer: AEHE left and IEHE right for EUR */}
         {data?.references?.length ? (
           <div className="reference-block">
-            {referenceColumns.map((col, colIndex) => (
-              <table className="reference-table" key={colIndex}>
+            {referenceColumns.map((columnReferences, columnIndex) => (
+              <table className="reference-table" key={columnIndex}>
+                <colgroup>
+                  <col className="ref-name-column" />
+                  <col className="ref-category-column" />
+                  <col className="ref-date-column" />
+                </colgroup>
                 <thead>
                   <tr>
                     <th className="ref-name">TCW UCITS Fund</th>
@@ -711,37 +751,44 @@ const asOfLabel = formatDateOnly(
                   </tr>
                 </thead>
                 <tbody>
-                  {col.map((ref, i) => (
-                    <tr key={i}>
-                      <td className="ref-name">{ref.fundName}</td>
-                      <td className="ref-cat">
-                        {ref.morningstarCategory ?? ""}
-                      </td>
-                      <td className="ref-date">
-                        {ref.inceptionDate
-                          ? new Date(ref.inceptionDate).toLocaleDateString(
-                              "en-US"
-                            )
-                          : ""}
-                      </td>
-                    </tr>
-                  ))}
+                  {columnReferences.map((ref) => {
+                    const key = [
+                      ref.pfNumber ?? "",
+                      ref.shareClassSuffix ?? "",
+                      ref.fundName,
+                    ].join("-");
+
+                    return (
+                      <tr key={key}>
+                        <td className="ref-name" title={ref.fundName}>
+                          {ref.fundName}
+                        </td>
+                        <td
+                          className="ref-cat"
+                          title={ref.morningstarCategory ?? ""}
+                        >
+                          {ref.morningstarCategory ?? ""}
+                        </td>
+                        <td className="ref-date">
+                          {fmtRefDate(ref.inceptionDate)}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             ))}
           </div>
         ) : null}
-
         <div className="snapshot-footnote">
-          Morningstar Ratings: Within Morningstar Category, the top 10% of
-          funds receive 5 stars and the bottom 10% receive 1 star. Funds are
-          rated for up to three time periods, three-, five-, and 10-years and
-          these ratings are combined to produce an overall rating. Quartile
-          rankings based on Fund&rsquo;s assigned Morningstar category.
-          &nbsp;|&nbsp; Source: Morningstar, TCW Portfolio Analytics
+          Morningstar Ratings: Within Morningstar Category, the top 10% of funds
+          receive 5 stars and the bottom 10% receive 1 star. Funds are rated for
+          up to three time periods, three-, five-, and 10-years and these
+          ratings are combined to produce an overall rating. Quartile rankings
+          based on Fund&rsquo;s assigned Morningstar category. &nbsp;|&nbsp;
+          Source: Morningstar, TCW Portfolio Analytics
         </div>
       </Card>
-
       <style>{`
         .snapshot-header {
           display: flex;
@@ -780,55 +827,84 @@ const asOfLabel = formatDateOnly(
         .section-row td { background: #dce6f1 !important; }
         .benchmark-row td {
           background: #fafafa !important;
-          color: ${GRAY};
           font-style: italic;
         }
-
         /* Reference footer */
         .reference-block {
-          display: flex;
-          gap: 32px;
-          margin-top: 20px;
-          flex-wrap: wrap;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          align-items: start;
+          column-gap: 64px;
+          margin-top: 48px;
+          width: 100%;
         }
         .reference-table {
-          flex: 1 1 45%;
+          width: 100%;
+          min-width: 0;
+          table-layout: fixed;
           border-collapse: collapse;
-          font-size: 10px;
-          min-width: 320px;
+          font-size: 11px;
         }
+        .reference-table .ref-name-column { width: 36%; }
+        .reference-table .ref-category-column { width: 46%; }
+        .reference-table .ref-date-column { width: 18%; }
         .reference-table th {
+          height: 24px;
+          padding: 2px 6px 4px;
           color: #17365d;
           font-weight: 700;
+          line-height: 1.2;
           text-align: left;
-          padding: 3px 6px;
           border-bottom: 1px solid #17365d;
+          white-space: nowrap;
         }
         .reference-table td {
-          padding: 2px 6px;
+          height: 20px;
+          padding: 1px 6px;
           color: #1a1a1a;
-          border-bottom: 1px solid #f0f0f0;
+          line-height: 1.3;
+          vertical-align: middle;
+          border-bottom: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
         .reference-table td.ref-cat,
         .reference-table th.ref-cat { color: #1f4e78; }
         .reference-table td.ref-date,
         .reference-table th.ref-date {
-          text-align: right; white-space: nowrap;
+          text-align: right;
+          white-space: nowrap;
         }
-
         .snapshot-footnote {
-          margin-top: 16px;
+          margin-top: 24px;
+          min-height: 30px;
           padding-top: 6px;
           border-top: 1px solid #17365d;
           font-size: 10px;
           color: ${GRAY};
-          line-height: 1.4;
+          line-height: 1.5;
+          white-space: normal;
         }
         @media print {
           .snapshot-no-print { display: none !important; }
           .ant-table-content { overflow: visible !important; }
-          .ant-table-cell-fix-left,
-          .ant-table-cell-fix-right { position: static !important; }
+          .reference-block {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            column-gap: 48px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          .reference-table,
+          .snapshot-footnote {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          .reference-table td {
+            overflow: visible;
+            text-overflow: clip;
+          }
           @page { size: legal landscape; margin: .25in; }
         }
       `}</style>

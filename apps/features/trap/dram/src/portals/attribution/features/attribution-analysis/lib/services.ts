@@ -116,8 +116,12 @@ export type OptionsResponse = {
     AllocEffect: number;
     SelectEffect: number;
     InterEffect: number;
-    [key: string]: string | number | null; // dynamic GICSx
-  }
+    Select_InterEffect: number;
+    [key: string]: string | number | null;
+    Hierarchy_level: number;
+    Hierarchy: string;
+}
+
  export interface AnalyticsApiGrid {
   title: string;
   rows: AnalyticResultRow[];

@@ -40,21 +40,17 @@ interface StrategyReturnPeriods {
   threeYear?: Cell;
   fiveYear?: Cell;
 }
+
 interface StrategyRow {
   key: string;
   rowType: RowKind;
-
   portfolioNumber?: string | null;
   sourcePortfolioNumber?: string | null;
   parentPortfolioNumber?: string | null;
-
   displayName: string;
-
   benchmarkCode?: string | null;
   benchmarkName?: string | null;
-
   returns: StrategyReturnPeriods;
-
   portfolioAumMillions?: Cell;
   inceptionDate?: string | null;
   rowOrder?: number;
@@ -63,22 +59,28 @@ interface StrategyRow {
 
 interface StrategySection {
   key: string;
-  section_name: string;
+  // Backend may serialize either snake_case (original builder) or camelCase
+  // (newer builder); accept both so section names never come back blank.
+  section_name?: string;
+  sectionName?: string;
   sectionOrder: number;
   rows: StrategyRow[];
 }
 
-
 interface StrategySnapshotResponse {
   asOfDate: string;
-  priorMonthEndDate?: string;
+  longTermAsOfDate?: string;
+  aumAsOfDate?: string;
+  subtitle?: string;
+  currency?: string; // e.g. "USD"
   currencyLabel?: string; // e.g. "U.S. Dollar"
   feeBasis?: string; // e.g. "Gross of Fees"
-  // Two-column disclosure footnote (left column, right column). When both are
-  // empty, the component falls back to a single default sentence.
+  // Two-column disclosure footnote (left column, right column).
   disclosuresLeft?: string[];
   disclosuresRight?: string[];
-  warnings: string[];
+  // Backend serializes `dataWarnings`; older payloads used `warnings`.
+  dataWarnings?: string[];
+  warnings?: string[];
   sections: StrategySection[];
 }
 
@@ -88,11 +90,16 @@ interface GridRow extends StrategyRow {
 }
 
 // =====================================================================
-// Safe numeric coercion + formatters
+// Safe accessors + numeric coercion + formatters
 // =====================================================================
+
 const RED = "#cf1322";
 const GRAY = "#666666";
 const BLACK = "#1a1a1a";
+
+// Section name works regardless of snake_case / camelCase serialization.
+const sectionNameOf = (s: StrategySection): string =>
+  s.section_name ?? s.sectionName ?? "";
 
 // Coerce numbers or numeric strings; returns null for "N/A", "--", "", etc.
 const toNum = (v: unknown): number | null => {
@@ -123,12 +130,20 @@ const fmtAum = (v?: Cell): React.ReactNode => {
       });
 };
 
-const fmtDate = (v?: string): React.ReactNode =>
-  v ? new Date(v).toLocaleDateString("en-US") : "";
+// Date-only formatter that avoids the UTC-parse off-by-one (e.g. an ISO
+// "2011-11-01" rendering as 10/31 in negative time zones).
+const fmtDate = (v?: string | null): React.ReactNode => {
+  if (!v) return "";
+  const iso = String(v).slice(0, 10);
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return "";
+  return new Date(y, m - 1, d).toLocaleDateString("en-US");
+};
 
 // =====================================================================
 // Component
 // =====================================================================
+
 export default function TCWStrategyPerformanceSnapshot() {
   const [data, setData] = useState<StrategySnapshotResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -161,38 +176,33 @@ export default function TCWStrategyPerformanceSnapshot() {
     if (!data) return [];
     const term = search.trim().toLowerCase();
     const out: GridRow[] = [];
-
     data.sections
-      .filter((s) => section === "all" || s.section_name === section)
+      .filter((s) => section === "all" || sectionNameOf(s) === section)
       .forEach((s) => {
+        const name = sectionNameOf(s);
         const matched = s.rows.filter((r) =>
-          [r.portfolioNumber, r.displayName]
-            .some((v) =>
-              String(v ?? "")
-                .toLowerCase()
-                .includes(term)
-            )
+          [r.portfolioNumber, r.displayName].some((v) =>
+            String(v ?? "")
+              .toLowerCase()
+              .includes(term)
+          )
         );
-
         if (!matched.length) return;
-
         out.push({
           key: `section-${s.key}`,
           rowType: "section",
-          displayName: s.section_name,
-          sectionName: s.section_name,
+          displayName: name,
+          sectionName: name,
           returns: {},
         } as GridRow);
-
         matched.forEach((r) =>
           out.push({
             ...r,
             key: r.key,
-            sectionName: s.section_name,
+            sectionName: name,
           })
         );
       });
-
     return out;
   }, [data, search, section]);
 
@@ -200,19 +210,16 @@ export default function TCWStrategyPerformanceSnapshot() {
   const bandCell = (row: GridRow) =>
     row.rowType === "section" ? { colSpan: 0 } : {};
 
-  const returnCol = (
-    title: string,
-    field: keyof StrategyReturnPeriods,
-  ) => ({
+  const returnCol = (title: string, field: keyof StrategyReturnPeriods) => ({
     title,
     width: 78,
     align: "right" as const,
     onCell: bandCell,
-    render: (_: unknown, row: GridRow) =>
-      fmtReturn(row.returns?.[field]),
+    render: (_: unknown, row: GridRow) => fmtReturn(row.returns?.[field]),
   });
 
-  // Total column count for the section band colSpan.
+  // Total LEAF column count for the section band colSpan
+  // (PF#, Strategy, PriorDay, MTD, QTD, YTD, 1Y, 3Y, 5Y, AUM, Inception = 11).
   const COLUMN_COUNT = 11;
 
   const columns: ColumnsType<GridRow> = [
@@ -220,24 +227,25 @@ export default function TCWStrategyPerformanceSnapshot() {
       title: "PF #",
       dataIndex: "portfolioNumber",
       width: 60,
-      fixed: "left",
       align: "center",
       onCell: (row) =>
         row.rowType === "section"
           ? { colSpan: COLUMN_COUNT, className: "section-band" }
           : {},
+      // PF # shows on the FUND row only; benchmark rows leave it blank.
       render: (v: string, row) =>
         row.rowType === "section" ? (
           <span className="section-band-text">{row.displayName}</span>
+        ) : row.rowType === "fund" ? (
+          v ?? row.parentPortfolioNumber ?? ""
         ) : (
-          v
+          ""
         ),
     },
     {
       title: "Strategy / Index",
       dataIndex: "displayName",
       width: 260,
-      fixed: "left",
       onCell: bandCell,
       render: (v: string) => <span style={{ color: BLACK }}>{v}</span>,
     },
@@ -280,9 +288,7 @@ export default function TCWStrategyPerformanceSnapshot() {
       width: 100,
       align: "center",
       onCell: bandCell,
-      render: (v: string) => (
-        <span style={{ color: GRAY }}>{fmtDate(v)}</span>
-      ),
+      render: (v: string) => <span style={{ color: GRAY }}>{fmtDate(v)}</span>,
     },
   ];
 
@@ -290,11 +296,11 @@ export default function TCWStrategyPerformanceSnapshot() {
     setExporting(kind);
     try {
       await downloadExport(
-        buildDram2UrlNonAttribution(`performance/tcw-strategy-performance-snapshot/export/${kind}/` +
-          `?as_of_date=${data?.asOfDate ?? ""}`),
-        `TCW_Strategy_Performance_Snapshot.${
-          kind === "excel" ? "xlsx" : "pdf"
-        }`
+        buildDram2UrlNonAttribution(
+          `performance/tcw-strategy-performance-snapshot/export/${kind}/` +
+            `?as_of_date=${data?.asOfDate ?? ""}`
+        ),
+        `TCW_Strategy_Performance_Snapshot.${kind === "excel" ? "xlsx" : "pdf"}`
       );
       message.success(`${kind.toUpperCase()} export completed`);
     } catch (e) {
@@ -307,8 +313,7 @@ export default function TCWStrategyPerformanceSnapshot() {
   const currencyLabel = data?.currencyLabel ?? "U.S. Dollar";
   const feeBasis = data?.feeBasis ?? "Gross of Fees";
 
-  // Two-column footnote, driven by the response. Falls back to a single
-  // default line if the payload carries no disclosures.
+  // Two-column footnote, driven by the response.
   const disclosuresLeft = data?.disclosuresLeft?.length
     ? data.disclosuresLeft
     : [
@@ -317,10 +322,13 @@ export default function TCWStrategyPerformanceSnapshot() {
       ];
   const disclosuresRight = data?.disclosuresRight ?? [];
 
-const asOfLabel = formatDateOnly(
-  data?.asOfDate,
-  navigator.language,
-).toUpperCase();
+  // Backend serializes `dataWarnings`; tolerate the older `warnings` name too.
+  const warnings = data?.dataWarnings ?? data?.warnings ?? [];
+
+  const asOfLabel = formatDateOnly(
+    data?.asOfDate,
+    navigator.language
+  ).toUpperCase();
 
   return (
     <div className="snapshot-print-container" style={{ padding: 20 }}>
@@ -334,14 +342,14 @@ const asOfLabel = formatDateOnly(
                 TCW Strategy Performance Snapshot (non-Mutual Funds)
               </Title>
               <Text strong style={{ color: "#1f4e78" }}>
-                All data in {currencyLabel}, {feeBasis}
+                {data?.subtitle ?? `All data in ${currencyLabel}, ${feeBasis}`}
               </Text>
             </div>
             {data && (
               <div className="snapshot-disclosure">
                 <div className="asof">
-                  AS OF {asOfLabel} &nbsp;|&nbsp; ESTIMATES ONLY &ndash;
-                  FOR INTERNAL USE ONLY
+                  AS OF {asOfLabel} &nbsp;|&nbsp; ESTIMATES ONLY &ndash; FOR
+                  INTERNAL USE ONLY
                 </div>
               </div>
             )}
@@ -352,10 +360,7 @@ const asOfLabel = formatDateOnly(
             <Button icon={<ReloadOutlined />} onClick={() => void load()}>
               Refresh
             </Button>
-            <Button
-              icon={<PrinterOutlined />}
-              onClick={() => window.print()}
-            >
+            <Button icon={<PrinterOutlined />} onClick={() => window.print()}>
               Print
             </Button>
             <Button
@@ -390,25 +395,23 @@ const asOfLabel = formatDateOnly(
             }
           />
         )}
-
-        {data?.warnings?.length ? (
+        {warnings.length ? (
           <Alert
             type="warning"
             showIcon
             closable
             style={{ marginBottom: 12 }}
             className="snapshot-no-print"
-            message={`${data.warnings.length} data-quality warning(s)`}
+            message={`${warnings.length} data-quality warning(s)`}
             description={
               <ul style={{ margin: 0, paddingLeft: 18 }}>
-                {data.warnings.map((w, i) => (
+                {warnings.map((w, i) => (
                   <li key={i}>{w}</li>
                 ))}
               </ul>
             }
           />
         ) : null}
-
         <Space className="snapshot-no-print" style={{ marginBottom: 16 }}>
           <Input.Search
             allowClear
@@ -422,14 +425,13 @@ const asOfLabel = formatDateOnly(
             onChange={setSection}
             options={[
               { label: "All sections", value: "all" },
-              ...(data?.sections.map((s) => ({
-                label: s.section_name,
-                value: s.section_name,
-              })) ?? []),
+              ...(data?.sections.map((s) => {
+                const name = sectionNameOf(s);
+                return { label: name, value: name };
+              }) ?? []),
             ]}
           />
         </Space>
-
         <Spin spinning={loading}>
           {rows.length ? (
             <Table<GridRow>
@@ -452,7 +454,6 @@ const asOfLabel = formatDateOnly(
             !loading && <Empty />
           )}
         </Spin>
-
         {/* Two-column, data-driven disclosure footnote */}
         <div className="snapshot-footnote">
           <div className="footnote-col">
@@ -467,7 +468,6 @@ const asOfLabel = formatDateOnly(
           </div>
         </div>
       </Card>
-
       <style>{`
         .snapshot-header {
           display: flex;
@@ -507,7 +507,6 @@ const asOfLabel = formatDateOnly(
         .section-band-text { color: #17365d; font-weight: 700; }
         .section-row td { background: #dce6f1 !important; }
         .benchmark-row td { background: #fafafa !important; }
-
         /* Two-column footnote */
         .snapshot-footnote {
           display: flex;
@@ -520,12 +519,9 @@ const asOfLabel = formatDateOnly(
           line-height: 1.5;
         }
         .snapshot-footnote .footnote-col { flex: 1; }
-
         @media print {
           .snapshot-no-print { display: none !important; }
           .ant-table-content { overflow: visible !important; }
-          .ant-table-cell-fix-left,
-          .ant-table-cell-fix-right { position: static !important; }
           @page { size: legal landscape; margin: .25in; }
         }
       `}</style>

@@ -605,11 +605,19 @@ useEffect(() => {
   }));
 }, [state.assetClass, state.breakdownChain]);
 
-  const periods = useMemo(() => {
-    return (config.periods[0] ?? [])
-      .filter((p) => p.visible && p.frequency_mode === state.frequencyMode)
-      .sort((a, b) => a.sort_order - b.sort_order);
-  }, [config, state.frequencyMode]);
+const periods = useMemo(() => {
+  if (!Array.isArray(config.periods)) {
+    return [];
+  }
+
+  return config.periods
+    .filter(
+      (period) =>
+        period.visible &&
+        period.frequency_mode === state.frequencyMode
+    )
+    .sort((a, b) => a.sort_order - b.sort_order);
+}, [config.periods, state.frequencyMode]);
 
   const configuredColumns = useMemo(() => {
     return buildConfiguredColumns(config, state.selectedColumnIds);
@@ -768,35 +776,35 @@ useEffect(() => {
       ? state.portfolio
       : undefined;
 
-  const handleFrequencyChange = (frequencyMode: string) => {
-    setState((prev) => {
-      const availablePeriodIds = new Set(
-        (config.periods[0] ?? [])
-          .filter((p) => p.frequency_mode === frequencyMode)
-          .map((p) => p.id),
-      );
+const handleFrequencyChange = (frequencyMode: string) => {
+  setState((prev) => {
+    const availablePeriodIds = new Set(
+      (config.periods ?? [])
+        .filter((p) => p.frequency_mode === frequencyMode)
+        .map((p) => p.id),
+    );
 
-      // Keep any currently selected periods that are valid
-      const preservedPeriods = prev.periodIds.filter((periodId) =>
-        availablePeriodIds.has(periodId),
-      );
+    // Keep any currently selected periods that are valid
+    const preservedPeriods = prev.periodIds.filter((periodId) =>
+      availablePeriodIds.has(periodId),
+    );
 
-      return {
-        ...prev,
-        frequencyMode,
+    return {
+      ...prev,
+      frequencyMode,
 
-        // Clear dates because Monthly/Daily use different date controls
-        asOfDate: "",
-        startDate: "",
-        endDate: "",
+      // Clear dates because Monthly/Daily use different date controls
+      asOfDate: "",
+      startDate: "",
+      endDate: "",
 
-        periodIds:
-          preservedPeriods.length > 0
-            ? preservedPeriods
-            : getDefaultPeriodsForFrequency(frequencyMode),
-      };
-    });
-  };
+      periodIds:
+        preservedPeriods.length > 0
+          ? preservedPeriods
+          : getDefaultPeriodsForFrequency(frequencyMode),
+    };
+  });
+};
 
   // ---------- Section content ----------
 

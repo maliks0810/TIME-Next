@@ -231,7 +231,7 @@ const EMPTY_CONFIG: GridConfigResponse = {
       group: "",
     },
   ],
-  periods: [[]],
+  periods: [],
   metrics: [],
   holidays: new Set(new Set<string>())
 };
@@ -247,13 +247,19 @@ const toRowId = (
 
 const extractRowsByPeriod = (resp: ResponseWithPeriodGrids): PeriodGridMap => {
   const grids = Array.isArray(resp.data?.grids) ? resp.data.grids : [];
+
   return grids.reduce<PeriodGridMap>((acc, grid, gridIndex) => {
     const period = String(grid.title ?? `grid_${gridIndex}`);
     const rows = Array.isArray(grid.rows) ? grid.rows : [];
+
     acc[period] = rows.map((row, idx) => ({
       id: toRowId(period, idx, row),
       ...row,
+      Select_InterEffect:
+        (Number(row.SelectEffect) || 0) +
+        (Number(row.InterEffect) || 0),
     })) as AnalyticResultRow[];
+
     return acc;
   }, {});
 };
