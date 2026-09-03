@@ -27,6 +27,7 @@ export enum SecuritySetupStatus {
     SecuritySetupComplete = 6,
     ReadyForTrading = 7,
     Cancelled = 8,
+    SecurityReviewInProgress = 9,
 }
 
 // Enter Identifier

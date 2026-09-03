@@ -13,7 +13,6 @@ import { getSecurityRequestsDashboard } from '../../../services/DashboardService
 import { useDashboardStore } from '../../../stores/useDashboardStore';
 import { useReferenceData } from '../../../hooks/useReferenceData';
 import { ReferenceDataFieldKey } from '../../security-setup/lib/types/referenceDataTypes';
-import { useIdentity } from '../../../hooks/useIdentity';
 import { useInterval } from '../../../hooks/useInterval';
 import { getCurrentLocalTime } from '../../../utils/DateTimeHelper';
 import { DASHBOARD_POLLING_INTERVAL } from '../../../constants/environmentConstants';
@@ -47,9 +46,6 @@ const Dashboard: React.FC = () => {
   const { data: referenceData } =
     useReferenceData();
   const dmAnalystOptions = referenceData?.byKey[ReferenceDataFieldKey.DmAnalyst]?.fieldDropdownValues ?? [];
-
-  // Set user auth permissions to Zustand store
-  useIdentity();
 
   // pause polling only when DM Analyst dropdown is open
   useEffect(() => {

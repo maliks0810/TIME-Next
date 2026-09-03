@@ -99,10 +99,12 @@ export interface SecuritySetupActions {
 
 export interface IdentityState {
   userIdentity: IUserIdentity | null;
+  isIdentityLoaded: boolean;
 }
 
 export interface IdentityActions {
   setUserIdentity: (identity: IUserIdentity) => void;
+  setIdentityLoaded: (loaded: boolean) => void;
 }
 
 export type IdentityStore = IdentityState & IdentityActions
