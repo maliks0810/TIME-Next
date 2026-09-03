@@ -1,19 +1,21 @@
-import React from "react";
-import clsx from "clsx";
-import { DownloadOutlined } from "@ant-design/icons";
-import styles from "../ScenarioMatrixWidget.module.scss";
-import { CF_DUAL_PANE_MIN } from "../constants";
-import { formatMoney } from "../format";
-import { useElementWidth } from "../hooks/useElementWidth";
-import type { CashFlowView, CashflowPeriod, Scenario } from "../types";
-import CashFlowChart from "./CashFlowChart";
+import React from 'react';
+import clsx from 'clsx';
+import { Dropdown } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
+import styles from '../ScenarioMatrixWidget.module.scss';
+import { CF_DUAL_PANE_MIN } from '../constants';
+import { formatMoney } from '../format';
+import { useElementWidth } from '../hooks/useElementWidth';
+import type { CashFlowView, CashflowPeriod, Scenario } from '../types';
+import CashFlowChart from './CashFlowChart';
 
 type Props = {
     scenario: Scenario | null;
     view: CashFlowView;
     onView: (v: CashFlowView) => void;
     onExport: () => void;
-    onSend: () => void;
+    onSendAssumptions: () => void;
+    onSendCashFlows: () => void;
     canSend: boolean;
     /**
      * Parent hint (from useWidgetPixels). Used only as a pre-measure fallback;
@@ -42,7 +44,16 @@ function totalsOf(periods: CashflowPeriod[] | null) {
 }
 
 export default function CashFlowZone(props: Props) {
-    const { scenario, view, onView, onExport, onSend, canSend, dualPane } = props;
+    const {
+        scenario,
+        view,
+        onView,
+        onExport,
+        onSendAssumptions,
+        onSendCashFlows,
+        canSend,
+        dualPane,
+    } = props;
     const periods = scenario?.cashflow ?? null;
 
     // Self-measured zone width drives the layout switch. Fall back to the parent
@@ -64,6 +75,42 @@ export default function CashFlowZone(props: Props) {
             <CashFlowChart scenario={scenario} rows={chartRows} />
         </div>
     );
+
+    const menuItems = [
+        {
+            key: 'assumptions',
+            label: 'Assumptions',
+            disabled: !scenario,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onClick: (e: any) => {
+                e?.domEvent?.stopPropagation?.();
+                onSendAssumptions();
+            },
+        },
+        {
+            key: 'cashflows',
+            label: 'Cashflows',
+            title: canSend ? '' : 'Run Scenarios to generate cash flow first',
+            disabled: !canSend,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onClick: async (e: any) => {
+                e?.domEvent?.stopPropagation?.();
+                onSendCashFlows();
+            },
+        },
+        {
+            key: 'all',
+            label: 'Assumptions & Cashflows',
+            title: canSend ? '' : 'Run Scenarios to generate cash flow first',
+            disabled: !canSend,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onClick: async (e: any) => {
+                e?.domEvent?.stopPropagation?.();
+                onSendAssumptions();
+                onSendCashFlows();
+            },
+        },
+    ];
 
     const table = (
         <div className={styles.schedWrap}>
@@ -113,15 +160,15 @@ export default function CashFlowZone(props: Props) {
                         <div className={styles.seg}>
                             <button
                                 type="button"
-                                className={clsx({ [styles.active]: view === "chart" })}
-                                onClick={() => onView("chart")}
+                                className={clsx({ [styles.active]: view === 'chart' })}
+                                onClick={() => onView('chart')}
                             >
                                 Chart
                             </button>
                             <button
                                 type="button"
-                                className={clsx({ [styles.active]: view === "table" })}
-                                onClick={() => onView("table")}
+                                className={clsx({ [styles.active]: view === 'table' })}
+                                onClick={() => onView('table')}
                             >
                                 Table
                             </button>
@@ -136,14 +183,19 @@ export default function CashFlowZone(props: Props) {
                     >
                         <DownloadOutlined />
                     </button>
-                    <button
-                        type="button"
-                        className={styles.btnSend}
-                        onClick={onSend}
-                        disabled={!canSend}
-                    >
-                        Send to Staging →
-                    </button>
+                    <Dropdown trigger={['click']} menu={{ items: menuItems }}>
+                        <button
+                            type="button"
+                            className={styles.btnSend}
+                            disabled={!scenario}
+                            title={scenario ? '' : 'Select Scenario first'}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                            }}
+                        >
+                            Send to Staging →
+                        </button>
+                    </Dropdown>
                 </div>
             </div>
 
@@ -157,7 +209,7 @@ export default function CashFlowZone(props: Props) {
                         <div className={styles.paneChart}>{chart}</div>
                         <div className={styles.paneTable}>{table}</div>
                     </>
-                ) : view === "chart" ? (
+                ) : view === 'chart' ? (
                     chart
                 ) : (
                     table

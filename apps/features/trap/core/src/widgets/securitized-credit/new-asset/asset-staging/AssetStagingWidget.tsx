@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { Button, Divider, Progress, theme, Typography, message, Tag, Card } from 'antd';
+import { Button, Divider, Progress, theme, Typography, message } from 'antd';
 import {
     ArrowRightOutlined,
     CheckCircleOutlined,
     FileTextOutlined,
     InboxOutlined,
+    CloseOutlined,
 } from '@ant-design/icons';
 import clsx from 'clsx';
 
@@ -29,10 +30,12 @@ import type { CallableType, InputAssumptionsState, StagingItem } from './types';
 import type { Dayjs } from 'dayjs';
 import styles from './AssetStagingWidget.module.scss';
 import {
-    SCENARIO_SELECTED_RESULT_ID,
+    SCENARIO_MATRIX_UPDATE_TIMESTAMP,
     SCENARIO_SELECTED_SUMMARY,
+    SELECTED_SCENARIO_CASHFLOWS,
 } from '../scenario-matrix/constants';
 import { ScenarioSummary } from '../scenario-matrix/utils/scenarioSummary';
+import { PendingInputDialogue } from './components/PendingInputDialogue';
 
 const { Text } = Typography;
 
@@ -133,7 +136,10 @@ export default function AssetStagingWidget({
 
     const [status, setStatus] = React.useState<StatusState | null>(null);
 
-    const [isAssumptionsPending, setIsAssumptionsPending] = React.useState(false);
+    const [isScenarioMatrixPending, setIsScenarioMatrixPending] = React.useState(false);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [acceptedCashflows, setAcceptedCashflows] = React.useState<any>(null);
 
     const channelId = widgetInstance?.config?.params?.channel;
     const isDesigner = mode === 'designer';
@@ -170,38 +176,67 @@ export default function AssetStagingWidget({
         key: 'tranche.name',
     }) as string | undefined;
 
-    const assumptionsRunId = useGetWidgetValue({
-        channelId,
-        key: SCENARIO_SELECTED_RESULT_ID,
-    });
     const scenarioRunSummary = useGetWidgetValue({
         channelId,
         key: SCENARIO_SELECTED_SUMMARY,
     }) as ScenarioSummary;
+    const scenarioMatrixUpdate = useGetWidgetValue({
+        channelId,
+        key: SCENARIO_MATRIX_UPDATE_TIMESTAMP,
+    });
+    const scenarioCashflows = useGetWidgetValue({
+        channelId,
+        key: SELECTED_SCENARIO_CASHFLOWS,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }) as any;
 
     useEffect(() => {
-        if (assumptionsRunId) {
-            setIsAssumptionsPending(true);
+        if (scenarioMatrixUpdate) {
+            setIsScenarioMatrixPending(true);
         }
-    }, [assumptionsRunId]);
+    }, [scenarioMatrixUpdate]);
+
+    const closePendingModal = () => {
+        setIsScenarioMatrixPending(false);
+        // clear all staging items
+        setWidgetValueToChannel({
+            channelId,
+            key: SCENARIO_MATRIX_UPDATE_TIMESTAMP,
+            value: null,
+            activeTab,
+        });
+        setWidgetValueToChannel({
+            channelId,
+            key: SCENARIO_SELECTED_SUMMARY,
+            value: null,
+            activeTab,
+        });
+        setWidgetValueToChannel({
+            channelId,
+            key: SELECTED_SCENARIO_CASHFLOWS,
+            value: null,
+            activeTab,
+        });
+    };
 
     const onAssumptionsAccept = () => {
         const summary = scenarioRunSummary as unknown as ScenarioSummary;
 
-        setPrice(summary?.price);
-        setPrepaymentType(summary?.assumptions?.prepay?.type);
-        setPrepaymentValue(summary?.assumptions?.prepay?.value);
-        setDefaultType(summary?.assumptions?.default?.type);
-        setDefaultValue(summary?.assumptions?.default?.value);
-        setSeverity(summary?.assumptions?.severity?.value || null);
-        setDelinquency(summary?.assumptions?.delinquency?.value);
-        setIsAssumptionsPending(false);
-        setWidgetValueToChannel({
-            channelId,
-            key: SCENARIO_SELECTED_RESULT_ID,
-            value: null,
-            activeTab,
-        });
+        if (summary) {
+            setPrice(summary?.price);
+            setPrepaymentType(summary?.assumptions?.prepay?.type);
+            setPrepaymentValue(summary?.assumptions?.prepay?.value);
+            setDefaultType(summary?.assumptions?.default?.type);
+            setDefaultValue(summary?.assumptions?.default?.value);
+            setSeverity(summary?.assumptions?.severity?.value || null);
+            setDelinquency(summary?.assumptions?.delinquency?.value);
+        }
+
+        if (scenarioCashflows) {
+            setAcceptedCashflows(scenarioCashflows);
+        }
+
+        closePendingModal();
     };
 
     const trancheName = stagedTrancheName ?? liveTrancheName;
@@ -1052,60 +1087,54 @@ export default function AssetStagingWidget({
 
                                 <Divider className={styles.inputAssumptionsDivider} />
 
-                                <div className={styles.inputAssumptionsTitle}>
+                                <div className={styles.headerRow}>
                                     <SectionHeader
                                         icon={
                                             <FileTextOutlined
-                                                style={{ fontSize: 12, color: token.colorPrimary }}
+                                                style={{
+                                                    fontSize: 12,
+                                                    color: token.colorPrimary,
+                                                }}
                                             />
                                         }
                                         title="Input Assumptions"
                                     />
+                                    {acceptedCashflows && (
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                gap: 8,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                fontSize: 12,
+                                                fontWeight: 600,
+                                            }}
+                                        >
+                                            <div style={{ color: acceptedCashflows?.color }}>
+                                                Cashflows Attached
+                                            </div>
+                                            <div>
+                                                <CloseOutlined
+                                                    style={{
+                                                        color: token.colorError,
+                                                        cursor: 'pointer',
+                                                    }}
+                                                    onClick={() => {
+                                                        setAcceptedCashflows(null);
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
-                                {isAssumptionsPending ? (
-                                    <div
-                                        className={clsx(
-                                            styles.assumptionPanel,
-                                            styles.assumptionPendingBody
-                                        )}
-                                    >
-                                        <Card style={{ maxWidth: 385 }}>
-                                            <Tag color={scenarioRunSummary?.color}>
-                                                {scenarioRunSummary?.scenario}
-                                            </Tag>
-                                            <div
-                                                style={{
-                                                    fontSize: 12,
-                                                    marginTop: 8,
-                                                    marginBottom: 8,
-                                                }}
-                                            >
-                                                <b>{scenarioRunSummary?.tranche}</b>·{' '}
-                                                {scenarioRunSummary?.pendingAssumptionsMessage}
-                                            </div>
-                                            <div className={styles.assumptionPendingActions}>
-                                                <Button
-                                                    variant="solid"
-                                                    color="primary"
-                                                    size="small"
-                                                    onClick={onAssumptionsAccept}
-                                                >
-                                                    Accept
-                                                </Button>
-                                                <Button
-                                                    size="small"
-                                                    variant="outlined"
-                                                    color="danger"
-                                                    onClick={() => {
-                                                        setIsAssumptionsPending(false);
-                                                    }}
-                                                >
-                                                    Dismiss
-                                                </Button>
-                                            </div>
-                                        </Card>
-                                    </div>
+                                {isScenarioMatrixPending ? (
+                                    <PendingInputDialogue
+                                        scenarioRunSummary={scenarioRunSummary}
+                                        cashflow={scenarioCashflows}
+                                        onPendingInputAccept={onAssumptionsAccept}
+                                        onPendingInputDismiss={closePendingModal}
+                                    />
                                 ) : (
                                     <InputAssumptionsPanel
                                         price={price}

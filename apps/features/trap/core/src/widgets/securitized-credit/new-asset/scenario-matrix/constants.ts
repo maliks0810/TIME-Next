@@ -37,17 +37,11 @@ export const CF_DUAL_PANE_MIN = 650;
  * Scenario identity palette for custom (user-added) scenarios. One stored
  * mid-tone colour each; the pastel chart fill is derived client-side.
  */
-export const SCENARIO_PALETTE = [
-    "#9B8EC4",
-    "#7FB3B5",
-    "#8FA3C8",
-    "#B58E7F",
-    "#93A1AD",
-] as const;
+export const SCENARIO_PALETTE = ['#9B8EC4', '#7FB3B5', '#8FA3C8', '#B58E7F', '#93A1AD'] as const;
 
 /** Blend a mid-tone scenario colour 50% toward white for chart fills. */
 export function pastel(hex: string, factor = 0.5): string {
-    const clean = hex.replace("#", "");
+    const clean = hex.replace('#', '');
     const r = parseInt(clean.slice(0, 2), 16);
     const g = parseInt(clean.slice(2, 4), 16);
     const b = parseInt(clean.slice(4, 6), 16);
@@ -56,5 +50,7 @@ export function pastel(hex: string, factor = 0.5): string {
 }
 
 /** Context channel keys (see widgets/constants.ts for shared keys). */
-export const SCENARIO_SELECTED_RESULT_ID = "scenario.selectedResultId";
-export const SCENARIO_SELECTED_SUMMARY = "scenario.selectedSummary";
+export const SCENARIO_SELECTED_RESULT_ID = 'scenario.selectedResultId';
+export const SCENARIO_MATRIX_UPDATE_TIMESTAMP = 'scenario.matrix.update.timestamp';
+export const SCENARIO_SELECTED_SUMMARY = 'scenario.selectedSummary';
+export const SELECTED_SCENARIO_CASHFLOWS = 'scenario.selected.cashflows';
