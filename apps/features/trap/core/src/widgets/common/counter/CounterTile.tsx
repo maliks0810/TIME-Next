@@ -54,15 +54,8 @@ const getWidgetValues = (
 };
 
 export const CounterTileWidget = (props: WidgetComponentProps) => {
-    const {
-        widgetInstance: { config = {} },
-        widgetDefinition,
-        result,
-        loading,
-        execute,
-        mode,
-    } = props;
-
+    const { widgetInstance, widgetDefinition, result, loading, execute, mode } = props;
+    const { config = {} } = widgetInstance;
     const params = config.params ?? {};
     const channelId = params.channel;
     const schemaKey = String(params.schemaKey ?? '').trim();
@@ -78,10 +71,7 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
     const contextKey: string = params.contextKey ?? DEAL_NAME_KEY;
     const contextValue = useGetWidgetValue({ channelId, key: contextKey });
 
-    const activeFilterKeys = useMemo(
-        () => (isTapeKpi ? COLLATERAL_FILTER_KEYS : []),
-        [isTapeKpi]
-    );
+    const activeFilterKeys = useMemo(() => (isTapeKpi ? COLLATERAL_FILTER_KEYS : []), [isTapeKpi]);
 
     const filterBag = useGetWidgetValueArray({
         channelId,
@@ -149,6 +139,7 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
             channelId,
             value: counterTileValue === metricValue ? null : metricValue,
             activeTab,
+            widgetId: widgetInstance.id,
         });
     };
 

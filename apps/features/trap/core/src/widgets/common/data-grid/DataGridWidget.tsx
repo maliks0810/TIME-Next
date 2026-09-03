@@ -26,13 +26,14 @@ import { widgetPreviewResult } from './widgetPreviewResult';
 import clsx from 'clsx';
 
 export default function DataGridWidget({
-    widgetInstance: { config = {} },
+    widgetInstance,
     loading,
     error,
     result,
     execute,
     mode,
 }: WidgetComponentProps) {
+    const { config = {} } = widgetInstance;
     const activeTab = useGetActiveTab();
     const gridRef = useRef<any>(null);
     const listensToKeys = useMemo(
@@ -79,6 +80,7 @@ export default function DataGridWidget({
             value: emitValue,
             key: COMMON_DATE_GRID_ROW_KEY,
             activeTab,
+            widgetId: widgetInstance.id,
         });
     };
 

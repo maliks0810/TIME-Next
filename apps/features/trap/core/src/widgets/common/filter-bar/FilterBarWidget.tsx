@@ -22,21 +22,15 @@ function prettify(dimension: string): string {
         .trim();
 }
 
-export function FilterBarWidget({
-    widgetInstance,
-    widgetDefinition,
-}: WidgetComponentProps) {
+export function FilterBarWidget({ widgetInstance, widgetDefinition }: WidgetComponentProps) {
     const params = widgetInstance?.config?.params ?? {};
 
-    const properties = (
-        widgetDefinition?.configSchema?.properties ?? {}
-    ) as Record<string, any>;
+    const properties = (widgetDefinition?.configSchema?.properties ?? {}) as Record<string, any>;
 
     const getDefault = (key: string) => properties?.[key]?.['default'];
 
     const channelId = params.channel;
-    const contextKey: string =
-        params.contextKey ?? getDefault('contextKey') ?? DEAL_NAME_KEY;
+    const contextKey: string = params.contextKey ?? getDefault('contextKey') ?? DEAL_NAME_KEY;
 
     const activeTab = useGetActiveTab();
     const setValueToChannel = useSetWidgetValue();
@@ -47,10 +41,7 @@ export function FilterBarWidget({
         key: FILTER_SCOPE_KEY,
     });
 
-    const bag = (useGetAllContext({ channelId }) ?? {}) as Record<
-        string,
-        unknown
-    >;
+    const bag = (useGetAllContext({ channelId }) ?? {}) as Record<string, unknown>;
 
     const tape = useTapeFilter(channelId);
 
@@ -61,17 +52,11 @@ export function FilterBarWidget({
     ) as Record<string, string>;
 
     const emptyText = String(
-        params.emptyText ??
-            getDefault('emptyText') ??
-            'No filters — full universe',
+        params.emptyText ?? getDefault('emptyText') ?? 'No filters — full universe'
     );
 
     useEffect(() => {
-        if (
-            contextValue === null ||
-            contextValue === undefined ||
-            contextValue === ''
-        ) {
+        if (contextValue === null || contextValue === undefined || contextValue === '') {
             return;
         }
 
@@ -86,10 +71,7 @@ export function FilterBarWidget({
         }
 
         for (const key of Object.keys(bag)) {
-            if (
-                !key.startsWith(FILTER_PREFIX) &&
-                !key.startsWith(STAGE_PREFIX)
-            ) {
+            if (!key.startsWith(FILTER_PREFIX) && !key.startsWith(STAGE_PREFIX)) {
                 continue;
             }
 
@@ -104,7 +86,13 @@ export function FilterBarWidget({
                 continue;
             }
 
-            setValueToChannel({ key, value: null, activeTab, channelId });
+            setValueToChannel({
+                key,
+                value: null,
+                activeTab,
+                channelId,
+                widgetId: widgetInstance.id,
+            });
         }
 
         setValueToChannel({
@@ -112,15 +100,9 @@ export function FilterBarWidget({
             value: currentContext,
             activeTab,
             channelId,
+            widgetId: widgetInstance.id,
         });
-    }, [
-        contextValue,
-        filterScopeValue,
-        activeTab,
-        channelId,
-        bag,
-        setValueToChannel,
-    ]);
+    }, [contextValue, filterScopeValue, activeTab, channelId, bag, setValueToChannel]);
 
     const chips = tape.appliedActive;
     const hasChips = chips.length > 0;
@@ -162,17 +144,11 @@ export function FilterBarWidget({
                     >
                         Apply
                         {tape.hasPending && (
-                            <span className={styles.badge}>
-                                {tape.pendingCount}
-                            </span>
+                            <span className={styles.badge}>{tape.pendingCount}</span>
                         )}
                     </button>
 
-                    <button
-                        type="button"
-                        className={styles.reset}
-                        onClick={tape.reset}
-                    >
+                    <button type="button" className={styles.reset} onClick={tape.reset}>
                         Reset
                     </button>
                 </div>

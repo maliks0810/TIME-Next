@@ -41,6 +41,7 @@ export const PeriodRadioGroup = ({ widgetInstance }: WidgetComponentProps) => {
             channelId: widgetInstance?.config?.params?.channel,
             value: value.target.value,
             activeTab,
+            widgetId: widgetInstance.id,
         });
         setSelectedValue(value.target.value);
     };

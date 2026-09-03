@@ -246,7 +246,15 @@ export default function AssetStagingWidget({
                 'asset.staged.trancheId',
                 'asset.staged.trancheName',
                 'scenario.selectedResultId',
-            ].forEach((key) => setWidgetValueToChannel({ channelId, key, value: null, activeTab }));
+            ].forEach((key) =>
+                setWidgetValueToChannel({
+                    channelId,
+                    key,
+                    value: null,
+                    activeTab,
+                    widgetId: widgetInstance.id,
+                })
+            );
 
             const init = async () => {
                 setInitializingPayload(true);

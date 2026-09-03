@@ -13,8 +13,23 @@ function getBearerToken(): string {
     }
 }
 
+function getAccessToken(): string {
+    const STORAGE_KEY = 'okta-token-storage';
+    const rawData = localStorage.getItem(STORAGE_KEY);
+
+    if (!rawData) return '';
+
+    try {
+        const parsed = JSON.parse(rawData);
+        return parsed?.accessToken?.accessToken || '';
+    } catch (err) {
+        console.error('Error parsing auth token:', err);
+        return '';
+    }
+}
 export function getIdentityHeaders(): Record<string, string> {
     const token = getBearerToken();
+    const accessToken = getAccessToken();
     const debugUser = localStorage.getItem('debug-user');
     const debugLogin = debugUser;
     const debugUserId = debugUser;
@@ -45,5 +60,6 @@ export function getIdentityHeaders(): Record<string, string> {
         'x-user-org2': org2,
         'x-user-org4': org4,
         'x-user-role': role,
+        'x-access-token': `Bearer ${accessToken}`,
     };
 }

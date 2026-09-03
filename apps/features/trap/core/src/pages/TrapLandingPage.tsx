@@ -1,5 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Tabs, Space, Dropdown, Button, message } from 'antd';
 import {
     AppstoreOutlined,
@@ -14,12 +14,13 @@ import WorkflowTab from '../features/workflow-runtime/WorkflowTab';
 
 import { cloneTemplate, createDraftVersion, getTemplates, TemplateSummary } from '../api/trap';
 
-import { setDefaultLandingTemplate } from '../utils/userPreferences';
-import { useGetActiveTab, useSetActiveTab } from '../state/Tabs/hooks';
+import { useGetActiveTab, useSetActiveTab, useSetTabs } from '../state/Tabs/hooks';
 import { useGetActiveUser, useGetUserLogin } from '../state/User/hooks';
 import { TemplateVersionLite } from '../features/workflow-launcher/types/workflowLauncher.types';
 import { Drawer } from '../features/landing/components/Drawer';
 import WorkflowDesignerPage from '../features/workflow-designer/WorkflowDesignerPage';
+import { useUserProfile } from '../context/UserPreferenceContext';
+import { PROFILE_KEYS } from '../context/constants';
 
 type WorkflowTabModel = {
     key: string;
@@ -48,22 +49,21 @@ export type HudLandingSelection = {
 };
 
 const TAB_BAR_HEIGHT = 48;
-const WORKFLOWS_STORAGE_KEY = 'activeWorkflows';
-
-const saveTabsToStorage = (workflows: WorkflowTabModel[]) => {
-    localStorage.setItem(WORKFLOWS_STORAGE_KEY, JSON.stringify(workflows));
-};
-const loadTabsFromStorage = () => {
-    try {
-        return JSON.parse(localStorage.getItem(WORKFLOWS_STORAGE_KEY) as string) ?? [];
-    } catch {
-        return [];
-    }
-};
 
 export default function TrapLandingPage() {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [workflows, setWorkflows] = React.useState<WorkflowTabModel[]>(loadTabsFromStorage());
+
+    const { updateProfile, profile } = useUserProfile();
+    const [workflows, setWorkflows] = React.useState<WorkflowTabModel[]>([]);
+
+    const filteredWorkflows = useMemo(() => {
+        const seen = new Set();
+        return workflows.filter((item) => {
+            if (seen.has(item.workflowId)) return false;
+            seen.add(item.workflowId);
+            return true;
+        });
+    }, [workflows]);
     const [allTemplates, setAllTemplates] = React.useState<TemplateSummary[]>([]);
     const activeKey = useGetActiveTab();
     const activeUser = useGetActiveUser();
@@ -72,10 +72,14 @@ export default function TrapLandingPage() {
         initialDrawerSeg?: 'workspaces' | 'widgets' | 'themes';
     }>({ isOpen: false });
 
+    const setTabs = useSetTabs();
     const login = useGetUserLogin();
     const currentUser = localStorage.getItem('debug-user') || login;
 
-    const setActiveKey = useSetActiveTab();
+    const setActiveKeyToState = useSetActiveTab();
+    const setActiveKey = (key: string) => {
+        setActiveKeyToState(key);
+    };
     const [isInitialLoading, setIsInitialLoading] = React.useState(true);
 
     const templateId = searchParams.get('template_id');
@@ -84,6 +88,12 @@ export default function TrapLandingPage() {
         const templates = await getTemplates();
         setAllTemplates(templates);
     };
+
+    useEffect(() => {
+        if (!profile) return;
+        setWorkflows(profile[PROFILE_KEYS.ACTIVE_WORKFLOWS] || []);
+    }, [profile]);
+
     useEffect(() => {
         if (templateId && activeUser) {
             setIsInitialLoading(false);
@@ -97,9 +107,10 @@ export default function TrapLandingPage() {
         HudLandingSelection | undefined
     >();
 
-    useEffect(() => {
-        saveTabsToStorage(workflows);
-    }, [workflows]);
+    const saveWorkflowsToState = (workflows: WorkflowTabModel[]) => {
+        setTabs(workflows);
+        updateProfile(PROFILE_KEYS.ACTIVE_WORKFLOWS, workflows);
+    };
 
     useEffect(() => {
         if (templateId && templateId !== activeKey && allTemplates.length > 0) {
@@ -141,46 +152,40 @@ export default function TrapLandingPage() {
 
     const addWorkflowTab = React.useCallback(
         (ws: OpenWorkflowRequest) => {
-            const existing = workflows.find((x) => x.templateId === ws.templateId);
+            const existing = workflows.find((x) => x.workflowId === ws.workflowId);
             if (existing) {
                 setActiveKey(existing.workflowId);
             } else {
-                setWorkflows((prev) => {
-                    const existingWorkflow = prev.find((p) => p.title === ws.title);
-                    if (existingWorkflow) {
-                        setActiveKey(existingWorkflow.workflowId);
-                        return [...prev];
-                    }
-                    setActiveKey(ws.workflowId);
-                    return [...prev, ws];
-                });
+                //TODO: this is run too many times
+                setActiveKey(ws.workflowId);
+                setWorkflows((prev) => [...prev, ws]);
+                saveWorkflowsToState([...workflows, ws]);
             }
         },
         [workflows]
     );
 
     const closeWorkflowTab = React.useCallback((workflow: string) => {
-        setWorkflows((prev) => {
-            const next = prev.filter((x) => x.workflowId !== workflow);
+        const newWorkflows = workflows.filter((x) => x.workflowId !== workflow);
 
-            let newActiveKey;
+        let newActiveKey;
 
-            if (activeKey !== workflow) {
-                newActiveKey = activeKey;
-            } else if (next.length === 0) {
-                newActiveKey = 'landing';
-            } else {
-                const closedIdx = prev.findIndex((x) => x.workflowId === workflow);
-                const fallback =
-                    next[Math.min(closedIdx, next.length - 1)] ?? next[next.length - 1];
+        if (activeKey !== workflow) {
+            newActiveKey = activeKey;
+        } else if (workflows.length === 0) {
+            newActiveKey = 'landing';
+        } else {
+            const closedIdx = workflows.findIndex((x) => x.workflowId === workflow);
+            const fallback =
+                workflows[Math.min(closedIdx, workflows.length - 1)] ??
+                workflows[workflows.length - 1];
 
-                newActiveKey = fallback?.workflowId ?? 'landing';
-            }
+            newActiveKey = fallback?.workflowId ?? 'landing';
+        }
 
-            setActiveKey(newActiveKey);
-
-            return next;
-        });
+        setActiveKey(newActiveKey);
+        setWorkflows(newWorkflows);
+        saveWorkflowsToState(newWorkflows);
     }, []);
 
     // Open (or in-place convert) a tab to an editable DRAFT. Forking your own published
@@ -189,35 +194,34 @@ export default function TrapLandingPage() {
         (templateId: string, versionId: string, title?: string) => {
             const existing = workflows.find((x) => x.templateId === templateId);
             const workflowId = existing ? existing.workflowId : `wf_${templateId}_${versionId}`;
+            let newWorkflows;
+            const idx = workflows.findIndex((x) => x.templateId === templateId);
+            if (idx >= 0) {
+                const next = [...workflows];
+                next[idx] = {
+                    ...next[idx],
+                    templateVersionStatus: 'DRAFT',
+                    title: title ?? next[idx].title,
+                    ownerUserId: login || '',
+                    designer: true,
+                };
+                newWorkflows = next;
+            }
+            newWorkflows = [
+                ...workflows,
+                {
+                    key: workflowId,
+                    ownerUserId: login || '',
+                    workflowId: workflowId,
+                    title: title ?? 'Draft',
+                    templateId,
+                    templateVersionStatus: 'DRAFT',
+                    designer: true,
+                },
+            ];
 
-            setWorkflows((prev) => {
-                const idx = prev.findIndex((x) => x.templateId === templateId);
-                if (idx >= 0) {
-                    const next = [...prev];
-                    next[idx] = {
-                        ...next[idx],
-                        templateVersionStatus: 'DRAFT',
-                        title: title ?? next[idx].title,
-                        ownerUserId: login || '',
-                        designer: true,
-                    };
-                    return next;
-                }
-                return [
-                    ...prev,
-                    {
-                        key: workflowId,
-                        ownerUserId: login || '',
-                        workflowId: workflowId,
-                        title: title ?? 'Draft',
-                        templateId,
-                        templateVersionId: versionId,
-                        templateVersionStatus: 'DRAFT',
-                        designer: true,
-                    },
-                ];
-            });
-
+            setWorkflows(newWorkflows);
+            saveWorkflowsToState(newWorkflows);
             setActiveKey(workflowId);
         },
         [workflows, setActiveKey]
@@ -277,8 +281,7 @@ export default function TrapLandingPage() {
     );
 
     const onActivateHudLanding = React.useCallback((selection: HudLandingSelection) => {
-        setDefaultLandingTemplate(selection.templateId);
-
+        updateProfile(PROFILE_KEYS.ACTIVE_LANDING, selection.templateId);
         setLandingSelection({
             templateId: selection.templateId,
             ownerUserId: selection.ownerUserId,
@@ -339,7 +342,7 @@ export default function TrapLandingPage() {
             closable: false,
             children: null,
         },
-        ...workflows.map((ws) => ({
+        ...filteredWorkflows.map((ws) => ({
             key: ws.workflowId,
             label: tabLabel(ws),
             closable: true,
@@ -423,7 +426,7 @@ export default function TrapLandingPage() {
                             activeLandingSelection={landingSelection}
                         />
                     </div>
-                    {workflows.map((ws) => {
+                    {filteredWorkflows.map((ws) => {
                         // New shell: a Draft tab IS the editable canvas (designer embedded in place);
                         // a Published tab is the read-only runtime. No separate Designer route.
                         const isDesignerTab = !!ws.designer;
