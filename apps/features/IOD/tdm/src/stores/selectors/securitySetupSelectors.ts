@@ -123,6 +123,7 @@ export const useHasDmRole = () => {
 
 const SUBMITTED_STATUSES = new Set<number>([
   SecuritySetupStatus.RequestSubmitted,
+  SecuritySetupStatus.SecurityReviewInProgress,
   SecuritySetupStatus.SecurityReviewComplete,
   SecuritySetupStatus.SecuritySetupComplete,
 ]);
