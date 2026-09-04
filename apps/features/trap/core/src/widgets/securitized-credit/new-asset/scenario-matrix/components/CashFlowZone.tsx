@@ -7,6 +7,7 @@ import { formatMoney } from '../format';
 import { useElementWidth } from '../hooks/useElementWidth';
 import type { CashFlowView, CashflowPeriod, Scenario } from '../types';
 import CashFlowChart from './CashFlowChart';
+import { Button } from 'antd';
 
 type Props = {
     scenario: Scenario | null;
@@ -139,36 +140,32 @@ export default function CashFlowZone(props: Props) {
                             </button>
                         </div>
                     )}
-                    <button
-                        type="button"
-                        className={styles.iconBtn}
+                    <Button
+                        size="small"
                         title="Export cash flow"
                         onClick={onExport}
                         disabled={!periods}
                     >
                         <DownloadOutlined />
-                    </button>
-                    <button
-                        type="button"
-                        className={styles.iconBtn}
+                    </Button>
+                    <Button
+                        size="small"
                         title="Send to Staging Input Assumptions"
                         onClick={onSendAssumptions}
                         disabled={!scenario}
                     >
                         <CalculatorOutlined />
-                    </button>
-                    <button
-                        type="button"
-                        className={styles.iconBtn}
+                    </Button>
+                    <Button
+                        size="small"
                         title="Send to Staging Cash Flow"
                         onClick={onSendCashFlows}
                         disabled={!canSend}
                     >
                         <DollarOutlined />
-                    </button>
-                    <button
-                        type="button"
-                        className={styles.iconBtn}
+                    </Button>
+                    <Button
+                        size="small"
                         title="Send to Staging Input Assumptions and Cash Flow"
                         onClick={() => {
                             onSendCashFlows();
@@ -177,7 +174,7 @@ export default function CashFlowZone(props: Props) {
                         disabled={!canSend}
                     >
                         <CalculatorOutlined /> + <DollarOutlined />
-                    </button>
+                    </Button>
                 </div>
             </div>
 
