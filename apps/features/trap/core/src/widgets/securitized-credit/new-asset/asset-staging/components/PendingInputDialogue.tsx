@@ -10,7 +10,7 @@ export const PendingInputDialogue = ({
     onPendingInputDismiss,
     cashflow,
 }: {
-    scenarioRunSummary: ScenarioSummary;
+    scenarioRunSummary: ScenarioSummary | null;
     onPendingInputAccept: () => void;
     onPendingInputDismiss: () => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,8 +21,10 @@ export const PendingInputDialogue = ({
     const tranche = scenarioRunSummary?.tranche || cashflow?.tranche;
     return (
         <div className={clsx(styles.assumptionPanel, styles.assumptionPendingBody)}>
-            <Card style={{ maxWidth: 385 }}>
-                <Tag color={tagColor}>{scenario}</Tag>
+            <Card style={{ width: 385 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Tag color={tagColor}>{scenario}</Tag>
+                </div>
                 <div
                     style={{
                         fontSize: 12,
@@ -31,6 +33,11 @@ export const PendingInputDialogue = ({
                     }}
                 >
                     <b>{tranche}</b>
+                    {!!cashflow && !scenarioRunSummary && (
+                        <span className={styles.cashflowOverrideWarning}>
+                            Input Assumptions wouldn't be overriden!
+                        </span>
+                    )}
                     {scenarioRunSummary && ` · ${scenarioRunSummary?.pendingAssumptionsMessage}`}
                     {!!cashflow && (
                         <div className={styles.cashflowAttachedContainer}>Cash flow attached</div>
