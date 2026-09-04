@@ -35,7 +35,7 @@ export const PendingInputDialogue = ({
                     <b>{tranche}</b>
                     {!!cashflow && !scenarioRunSummary && (
                         <span className={styles.cashflowOverrideWarning}>
-                            Input Assumptions wouldn't be overriden!
+                            Input Assumptions would not be overriden!
                         </span>
                     )}
                     {scenarioRunSummary && ` · ${scenarioRunSummary?.pendingAssumptionsMessage}`}
