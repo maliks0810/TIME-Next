@@ -7,7 +7,7 @@ import { type WorkflowContext } from '../../../state/contextBus';
 
 import type { LandingTabProps } from '../types/landing.types';
 
-import { useGetUserClaims, useGetUserLogin, useGetActiveUser } from '../../../state/User/hooks';
+import { useGetUserClaims, useGetUserLogin } from '../../../state/User/hooks';
 import { useUserProfile } from '../../../context/UserPreferenceContext';
 import { PROFILE_KEYS } from '../../../context/constants';
 
@@ -24,7 +24,7 @@ export function useLanding(props: LandingTabProps) {
     const [targetTemplateId, setTargetTemplateId] = React.useState<string>();
     const [isLoading, setIsLoading] = React.useState(false);
     const hasLanding = Boolean(targetTemplateId);
-    const activeUser = useGetActiveUser();
+    const activeUser = sessionStorage.getItem('okta-name');
     const [error, setError] = useState<string | null>(null);
     const initLandingFromActive = (
         templates: TemplateSummary[],

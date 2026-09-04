@@ -15,7 +15,7 @@ import WorkflowTab from '../features/workflow-runtime/WorkflowTab';
 import { cloneTemplate, createDraftVersion, getTemplates, TemplateSummary } from '../api/trap';
 
 import { useGetActiveTab, useSetActiveTab, useSetTabs } from '../state/Tabs/hooks';
-import { useGetActiveUser, useGetUserLogin } from '../state/User/hooks';
+import { useGetUserLogin } from '../state/User/hooks';
 import { TemplateVersionLite } from '../features/workflow-launcher/types/workflowLauncher.types';
 import { Drawer } from '../features/landing/components/Drawer';
 import WorkflowDesignerPage from '../features/workflow-designer/WorkflowDesignerPage';
@@ -66,7 +66,7 @@ export default function TrapLandingPage() {
     }, [workflows]);
     const [allTemplates, setAllTemplates] = React.useState<TemplateSummary[]>([]);
     const activeKey = useGetActiveTab();
-    const activeUser = useGetActiveUser();
+    const activeUser = sessionStorage.getItem('okta-name');
     const [drawerState, setDrawerState] = useState<{
         isOpen: boolean;
         initialDrawerSeg?: 'workspaces' | 'widgets' | 'themes';
@@ -95,11 +95,13 @@ export default function TrapLandingPage() {
     }, [profile]);
 
     useEffect(() => {
-        if (templateId && activeUser) {
-            setIsInitialLoading(false);
-            initWorkflowFromURL(templateId);
-        } else {
-            initTemplates();
+        if (activeUser) {
+            if (templateId) {
+                setIsInitialLoading(false);
+                initWorkflowFromURL(templateId);
+            } else {
+                initTemplates();
+            }
         }
     }, [activeUser]);
 
