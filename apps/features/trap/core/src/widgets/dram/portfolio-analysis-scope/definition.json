@@ -1,0 +1,72 @@
+{
+  "id": "ds_common_port_analysis_scope_01",
+  "name": "Portfolio Analysis Scope",
+  "version": 1,
+  "description": "A portfolio analysis scope widget",
+  "tags": null,
+  "category": "widgetDefinition",
+  "datasetId": "ds_common_port_analysis_scope_01",
+  "listensToKeys": null,
+  "emitsKeys": null,
+  "configSchema": {
+    "properties": {
+      "channel": {
+        "default": 1,
+        "description": "Widgets connected to the same channel able to share data between each other",
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "title": "Communication Channel",
+        "type": "string",
+        "category": "Interactions"
+      },
+      "emitsKeys": {
+        "enum": [
+          "pacInputs"
+        ],
+        "title": "Emits Keys",
+        "type": "string",
+        "category": "Interactions"
+      },
+      "schemaKey": {
+          "description": "Portfolio data resolved by GraphQL",
+          "enum": [
+            "dram.portfolio.analysis.scope"
+          ],
+          "title": "Schema Key",
+          "type": "string",
+          "category": "System Parameters"
+      }
+    },
+    "required": [
+      "schemaKey"
+    ],
+    "type": "object"
+  },
+  "uiHints": {
+    "category": "Common"
+  },
+  "variants": [
+    {
+      "id": "default",
+      "label": "Default",
+      "sizing": {
+        "resizable": true,
+        "width": {
+          "default": 8,
+          "min": 1,
+          "max": 12
+        },
+       "height": {
+          "default": 100,
+          "min": 80,
+          "max": 150,
+          "step": 10
+        }
+      }
+    }
+  ]
+}

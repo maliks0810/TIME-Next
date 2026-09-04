@@ -1,0 +1,85 @@
+.modelsInfo {
+  display: flex;
+  flex-direction: column;
+  min-height: 0; 
+
+  .modelsHeader {
+    display: flex;
+    justify-content: space-between;
+  }  
+}
+
+:global(.ant-divider-horizontal) {
+  height: auto;
+  margin: 12px 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  .nameSection, .weightsSection, .securitySection {
+    .title {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
+  .weightsSection, .securitySection {
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 12px;
+  }
+
+  .weightsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .config {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+  }
+
+  .securitySection {
+    .secDetailSection {
+      display: flex;
+      gap: 4px;
+      justify-content: space-between;
+      padding: 6px 12px;
+
+      .labelInfo {
+        display: flex;
+        gap: 4px;
+      }
+
+      .actionInfo {
+        display: flex;
+        gap: 4px;
+      }
+    }
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid black;
+  padding: 12px 0;
+
+  .targetInfo, .actionBtns {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+}
+

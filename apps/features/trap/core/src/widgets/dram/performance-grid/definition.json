@@ -1,0 +1,90 @@
+{
+  "id": "ds_common_performance_grid_01",
+  "name": "Performance Grid",
+  "version": 1,
+  "description": "A portfolio performance grid widget",
+  "tags": null,
+  "category": "widgetDefinition",
+  "datasetId": "ds_common_performance_grid_01",
+  "listensToKeys": null,
+  "emitsKeys": null,
+  "configSchema": {
+    "properties": {
+      "channel": {
+        "default": 1,
+        "description": "Widgets connected to the same channel able to share data between each other",
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "title": "Communication Channel",
+        "type": "string",
+        "category": "Interactions"
+      },
+      "emitsKeys": {
+        "enum": [
+        ],
+        "title": "Emits Keys",
+        "type": "string",
+        "category": "Interactions"
+      },
+      "schemaKey": {
+        "description": "Performance Grid data resolved by GraphQL",
+        "enum": [
+          "performance.attribution"
+        ],
+        "title": "Schema Key",
+        "type": "string",
+        "category": "System Parameters"
+      },
+      "operation": {
+        "description": "Operation",
+        "enum": [
+          "breakdown",
+          "periods",
+          "attribution"
+        ],
+        "title": "Operation",
+        "type": "string",
+        "category": "System Parameters"
+      },
+      "listensToKeys": {
+        "enum": [
+          "pacInputs"
+        ],
+        "title": "Listens to keys",
+        "type": "string",
+        "category": "Interactions"
+      }
+    },
+    "required": [
+      "schemaKey", "operation"
+    ],
+    "type": "object"
+  },
+  "uiHints": {
+    "category": "Common"
+  },
+  "variants": [
+    {
+      "id": "default",
+      "label": "Default",
+      "sizing": {
+        "resizable": true,
+        "width": {
+          "default": 8,
+          "min": 1,
+          "max": 12
+        },
+       "height": {
+          "default": 600,
+          "min": 600,
+          "max": 1000,
+          "step": 10
+        }
+      }
+    }
+  ]
+}

@@ -36,6 +36,7 @@ import { GeoMapWidget } from '../widgets/common/geo-map/GeoMapWidget';
 import { TableWidget } from '../widgets/common/table/TableWidget';
 import { TitleWidget } from '../widgets/common/title/TitleWidget';
 import { FilterBarWidget } from '../widgets/common/filter-bar/FilterBarWidget';
+import { PortfolioAnalysisScope } from '../widgets/dram/portfolio-analysis-scope/PortfolioAnalysisScope';
 import UploaderWidget from '../widgets/common/uploader/UploaderWidget';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
@@ -361,5 +362,22 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         visibleIn: ['workflow'],
         listensToKeys: [],
         emitsKeys: [],
-    }
+    },
+    ds_common_port_analysis_scope_01: {
+        id: 'ds_common_port_analysis_scope_01',
+        component: PortfolioAnalysisScope,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    // Currently Not deploying below functionality to production. Skip code review
+    // ds_common_performance_grid_01: {
+    //     id: 'ds_common_performance_grid_01',
+    //     component: PerformanceGrid,
+    //     category: 'Control',
+    //     visibleIn: ['workflow'],
+    //     listensToKeys: [],
+    //     emitsKeys: [],
+    // }
 };

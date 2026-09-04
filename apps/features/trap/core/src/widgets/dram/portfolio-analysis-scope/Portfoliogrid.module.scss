@@ -1,0 +1,56 @@
+.gridContainer {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  margin-top: 12px;
+
+  .portfolioCell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 55px;
+    padding: 6px 10px;
+    box-sizing: border-box;
+  }
+
+  .portfolioContent {
+    min-width: 0;
+  }
+
+  .portfolioTitle {
+    font-weight: 600;
+    line-height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .portfolioDetails {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+    font-size: 12px;
+    line-height: 18px;
+
+    .strategy {
+      font-size: 10px;
+      background: var(--ant-color-bg-container);
+      border: 1px solid var(--ant-color-border-secondary);
+      box-shadow: 0 2px 8px var(--ant-color-border-secondary);
+      border-radius: 5px;
+      padding: 2px 6px;
+    }
+  }
+
+  .mineBadge {
+    margin-left: 4px;
+    padding: 1px 5px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #16803c;
+    background: #e8f5e9;
+    border-radius: 4px;
+  }
+}
