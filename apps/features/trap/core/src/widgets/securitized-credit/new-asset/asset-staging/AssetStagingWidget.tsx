@@ -3,9 +3,9 @@ import { Button, Divider, Progress, theme, Typography, message } from 'antd';
 import {
     ArrowRightOutlined,
     CheckCircleOutlined,
-    FileTextOutlined,
     InboxOutlined,
     CloseOutlined,
+    CalculatorOutlined,
 } from '@ant-design/icons';
 import clsx from 'clsx';
 
@@ -1090,7 +1090,7 @@ export default function AssetStagingWidget({
                                 <div className={styles.headerRow}>
                                     <SectionHeader
                                         icon={
-                                            <FileTextOutlined
+                                            <CalculatorOutlined
                                                 style={{
                                                     fontSize: 12,
                                                     color: token.colorPrimary,

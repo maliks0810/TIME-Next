@@ -1,7 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Dropdown } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, CalculatorOutlined, DollarOutlined } from '@ant-design/icons';
 import styles from '../ScenarioMatrixWidget.module.scss';
 import { CF_DUAL_PANE_MIN } from '../constants';
 import { formatMoney } from '../format';
@@ -76,42 +75,6 @@ export default function CashFlowZone(props: Props) {
         </div>
     );
 
-    const menuItems = [
-        {
-            key: 'assumptions',
-            label: 'Assumptions',
-            disabled: !scenario,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onClick: (e: any) => {
-                e?.domEvent?.stopPropagation?.();
-                onSendAssumptions();
-            },
-        },
-        {
-            key: 'cashflows',
-            label: 'Cashflows',
-            title: canSend ? '' : 'Run Scenarios to generate cash flow first',
-            disabled: !canSend,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onClick: async (e: any) => {
-                e?.domEvent?.stopPropagation?.();
-                onSendCashFlows();
-            },
-        },
-        {
-            key: 'all',
-            label: 'Assumptions & Cashflows',
-            title: canSend ? '' : 'Run Scenarios to generate cash flow first',
-            disabled: !canSend,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onClick: async (e: any) => {
-                e?.domEvent?.stopPropagation?.();
-                onSendAssumptions();
-                onSendCashFlows();
-            },
-        },
-    ];
-
     const table = (
         <div className={styles.schedWrap}>
             <table className={styles.sched}>
@@ -154,7 +117,9 @@ export default function CashFlowZone(props: Props) {
     return (
         <div ref={zoneRef} className={styles.cfZone}>
             <div className={styles.cfHead}>
-                <span className={styles.cfTitle}>Cash Flow</span>
+                <span className={styles.cfTitle}>
+                    <DollarOutlined /> Cash Flow
+                </span>
                 <div className={styles.cfActions}>
                     {!isDual && (
                         <div className={styles.seg}>
@@ -183,19 +148,36 @@ export default function CashFlowZone(props: Props) {
                     >
                         <DownloadOutlined />
                     </button>
-                    <Dropdown trigger={['click']} menu={{ items: menuItems }}>
-                        <button
-                            type="button"
-                            className={styles.btnSend}
-                            disabled={!scenario}
-                            title={scenario ? '' : 'Select Scenario first'}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                            }}
-                        >
-                            Send to Staging →
-                        </button>
-                    </Dropdown>
+                    <button
+                        type="button"
+                        className={styles.iconBtn}
+                        title="Send to Staging Input Assumptions"
+                        onClick={onSendAssumptions}
+                        disabled={!scenario}
+                    >
+                        <CalculatorOutlined />
+                    </button>
+                    <button
+                        type="button"
+                        className={styles.iconBtn}
+                        title="Send to Staging Cash Flow"
+                        onClick={onSendCashFlows}
+                        disabled={!canSend}
+                    >
+                        <DollarOutlined />
+                    </button>
+                    <button
+                        type="button"
+                        className={styles.iconBtn}
+                        title="Send to Staging Input Assumptions and Cash Flow"
+                        onClick={() => {
+                            onSendCashFlows();
+                            onSendAssumptions();
+                        }}
+                        disabled={!canSend}
+                    >
+                        <CalculatorOutlined /> + <DollarOutlined />
+                    </button>
                 </div>
             </div>
 
