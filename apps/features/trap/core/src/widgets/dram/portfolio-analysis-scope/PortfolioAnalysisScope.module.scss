@@ -1,0 +1,245 @@
+.portfolioAnalysisScope {
+  .header {
+    display: flex;
+    justify-content: space-between;
+
+    .leftSection {
+      display: flex;
+    }
+
+    .headerItem {
+      display: flex;
+      flex-direction: column;
+      padding-right: 4px;
+    }
+
+    div > label {
+      text-transform: uppercase;
+      font-weight: 500;
+      min-height: 16px;
+      line-height: 16px;
+    }
+  }
+}
+
+.portfolioContainer, .portfolioPanel, .portfolioGroups, .mainSection {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.portfolioContainer {
+  position: fixed;
+  top: 105px;
+  left: 24px;
+  right: 24px;
+  height: 600px !important;
+  overflow: hidden;
+  background: var(--ant-color-bg-container);
+  border: 1px solid var(--ant-color-border-secondary);
+  border-radius: 6px;
+  padding: 2px 4px;
+  box-shadow: 0 2px 8px var(--ant-color-border-secondary);
+
+  .portfolioPanel {    
+    border-radius: 12px;
+    padding: 14px 18px;
+    min-height: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    .emptyState {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      text-align: center;
+    }
+
+    .icon {
+      width: 70px;
+      height: 80px;
+      border-radius: 12px;
+      border: 1px solid var(--ant-color-border-secondary);
+      box-shadow: 0 2px 8px var(--ant-color-border-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      color: #1677ff;
+    }
+
+    .emptyState h3 {
+      margin: 0;
+    }
+
+    .emptyState a {
+      color: #1677ff;
+    }
+
+    .panelHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .portfolioGroups {
+      display: flex;
+
+      .sideSection {
+        width: 20%;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        .groupsInfo {
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+
+          .groupCnt {
+            margin-bottom: 8px;
+          }
+
+          .groupsHeader {
+            display: flex;
+            gap: 8px;
+
+            .newBtn {
+              box-shadow: none;
+            }
+          }
+
+          .groupsList {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding: 10px 0px;
+          }
+
+          .groupBtn {
+            justify-content: space-between !important;
+            justify-content: start;
+            background: transparent;
+            margin-bottom: 3px;
+            border-radius: 9px;
+            border-left-width: 3px;
+            transition: background .13s, border-color .13s;
+            border: 1px solid var(--ant-color-border-secondary);
+          }
+
+          .activeGroup {
+            border-left-color: dodgerblue;
+            box-shadow: none;
+          }
+
+          .groupInfo {
+            display: flex;
+            gap: 4px;
+
+            .groupLength {
+              border: 1px solid var(--ant-color-border-secondary);
+              box-shadow: 0 2px 8px var(--ant-color-border-secondary);
+              border-radius: 18px;
+              height: 18px;
+              width: 18px;
+            }
+          }
+        }        
+
+        div > span {
+          font-size: 14px;
+          font-weight: bold;
+        }
+      }
+
+      .mainSection {
+        width: 80%;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+
+        .mainSectionHeader {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 8px;
+
+          groupNameInput {
+            width: 30%;
+          }
+
+          label {
+            font-size: 10px;
+            border: 1px solid var(--ant-color-border-secondary);
+            box-shadow: 0 2px 8px var(--ant-color-border-secondary);
+            border-radius: 5px;
+            padding: 4px;
+            display: flex;
+            gap: 4px
+          }
+        }
+
+        .infoHeader {
+          display: flex;
+          gap: 8px;
+          padding: 4px;
+          font-size: 12px;
+        }
+
+        .subHeader {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 14px !important;
+          height: 24px;
+
+          .subHeaderLabel {
+            width: 60%;
+          }
+
+          .confirmDeleteMsg {
+            display: flex;
+            justify-content: space-around;
+            gap: 12px;
+            align-items: center;
+          }
+        }
+
+        .gridHelper {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          vertical-align: middle;
+
+          .gridInfo {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.portfolioContainer :global(.ant-divider-vertical) {
+  height: auto;
+  margin: 0 12px;
+}
+
+.portfolioContainer :global(.ant-divider-horizontal) {
+  height: auto;
+  margin: 12px 0;
+}
+
+
