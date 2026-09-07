@@ -86,6 +86,7 @@ export default function HeatMapGrid({
     showTooltip = true,
     loading = false,
 }: Props) {
+    console.log(showTooltip);
     const renderCols = useMemo(() => renderColumns(columns), [columns]);
     const header = useMemo(() => buildHeaderModel(renderCols), [renderCols]);
     const { depth, leaves, boundaries } = header;
@@ -138,6 +139,7 @@ export default function HeatMapGrid({
 
     const onCellOver = (e: React.MouseEvent) => {
         const tip = tipRef.current;
+        console.log(tip);
         if (!tip) return;
         if (!showTooltip) {
             tip.classList.remove('show');
@@ -463,7 +465,7 @@ export default function HeatMapGrid({
             {typeof document !== 'undefined' &&
                 createPortal(
                     <div className="hg-tip" ref={tipRef} role="tooltip" aria-hidden="true" />,
-                    document.getElementById("canvasWrapper") || document.body
+                    document.body
                 )}
         </>
     );

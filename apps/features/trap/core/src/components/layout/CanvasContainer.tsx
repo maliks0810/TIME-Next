@@ -63,7 +63,6 @@ export default function CanvasContainer({
 
     return (
         <div
-            id="canvasWrapper"
             style={{
                 maxWidth: CANVAS_SHELL_WIDTH,
                 width: '100%',
