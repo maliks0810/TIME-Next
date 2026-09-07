@@ -363,8 +363,8 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: [],
         emitsKeys: [],
     },
-    ds_common_port_analysis_scope_01: {
-        id: 'ds_common_port_analysis_scope_01',
+    ds_common_portfolio_analysis_scope_01: {
+        id: 'ds_common_portfolio_analysis_scope_01',
         component: PortfolioAnalysisScope,
         category: 'Control',
         visibleIn: ['workflow'],
