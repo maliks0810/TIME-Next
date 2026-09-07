@@ -1,11 +1,11 @@
 {
-  "id": "ds_common_port_analysis_scope_01",
+  "id": "ds_common_portfolio_analysis_scope_01",
   "name": "Portfolio Analysis Scope",
   "version": 1,
-  "description": "A portfolio analysis scope widget",
+  "description": "Common portfolio analysis scope widget",
   "tags": null,
   "category": "widgetDefinition",
-  "datasetId": "ds_common_port_analysis_scope_01",
+  "datasetId": "ds_common_portfolio_analysis_scope_01",
   "listensToKeys": null,
   "emitsKeys": null,
   "configSchema": {
