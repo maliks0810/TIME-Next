@@ -87,7 +87,7 @@ export default function App({ oktaAuth }: any) {
             });
             // saveCustomThemeRemote(theme).catch(() => refetchThemes());
         },
-        [refetchThemes]
+        [refetchThemes, themeName, customThemes]
     );
     const deleteCustomTheme = React.useCallback(
         (id: string) => {

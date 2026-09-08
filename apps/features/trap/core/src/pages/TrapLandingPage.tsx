@@ -170,28 +170,31 @@ export default function TrapLandingPage() {
         [workflows]
     );
 
-    const closeWorkflowTab = React.useCallback((workflow: string) => {
-        const newWorkflows = workflows.filter((x) => x.workflowId !== workflow);
+    const closeWorkflowTab = React.useCallback(
+        (workflow: string) => {
+            const newWorkflows = workflows.filter((x) => x.workflowId !== workflow);
 
-        let newActiveKey;
+            let newActiveKey;
 
-        if (activeKey !== workflow) {
-            newActiveKey = activeKey;
-        } else if (workflows.length === 0) {
-            newActiveKey = 'landing';
-        } else {
-            const closedIdx = workflows.findIndex((x) => x.workflowId === workflow);
-            const fallback =
-                workflows[Math.min(closedIdx, workflows.length - 1)] ??
-                workflows[workflows.length - 1];
+            if (activeKey !== workflow) {
+                newActiveKey = activeKey;
+            } else if (workflows.length === 0) {
+                newActiveKey = 'landing';
+            } else {
+                const closedIdx = workflows.findIndex((x) => x.workflowId === workflow);
+                const fallback =
+                    workflows[Math.min(closedIdx, workflows.length - 1)] ??
+                    workflows[workflows.length - 1];
 
-            newActiveKey = fallback?.workflowId ?? 'landing';
-        }
+                newActiveKey = fallback?.workflowId ?? 'landing';
+            }
 
-        setActiveKey(newActiveKey);
-        setWorkflows(newWorkflows);
-        saveWorkflowsToState(newWorkflows);
-    }, []);
+            setActiveKey(newActiveKey);
+            setWorkflows(newWorkflows);
+            saveWorkflowsToState(newWorkflows);
+        },
+        [workflows]
+    );
 
     // Open (or in-place convert) a tab to an editable DRAFT. Forking your own published
     // reuses the same workflow tab (same templateId → update it); a clone is a new tab.
@@ -199,22 +202,16 @@ export default function TrapLandingPage() {
         (templateId: string, versionId: string, title?: string) => {
             const existing = workflows.find((x) => x.templateId === templateId);
             const workflowId = existing ? existing.workflowId : `wf_${templateId}_${versionId}`;
-            let newWorkflows;
-            const idx = workflows.findIndex((x) => x.templateId === templateId);
-            if (idx >= 0) {
-                const next = [...workflows];
-                next[idx] = {
-                    ...next[idx],
-                    templateVersionStatus: 'DRAFT',
-                    title: title ?? next[idx].title,
-                    ownerUserId: login || '',
-                    designer: true,
-                };
-                newWorkflows = next;
-            }
-            newWorkflows = [
-                ...workflows,
-                {
+            if (existing) {
+                const newWorkflows = workflows.map((el) =>
+                    el.title === title ? { ...el, designer: true } : el
+                );
+
+                setWorkflows(newWorkflows);
+                saveWorkflowsToState(newWorkflows);
+                setActiveKey(workflowId);
+            } else {
+                const newWorfklowTab = {
                     key: workflowId,
                     ownerUserId: login || '',
                     workflowId: workflowId,
@@ -222,12 +219,13 @@ export default function TrapLandingPage() {
                     templateId,
                     templateVersionStatus: 'DRAFT',
                     designer: true,
-                },
-            ];
+                };
 
-            setWorkflows(newWorkflows);
-            saveWorkflowsToState(newWorkflows);
-            setActiveKey(workflowId);
+                const newWorkflows = [...workflows, newWorfklowTab];
+                setWorkflows(newWorkflows);
+                saveWorkflowsToState(newWorkflows);
+                setActiveKey(workflowId);
+            }
         },
         [workflows, setActiveKey]
     );
