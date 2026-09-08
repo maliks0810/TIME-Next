@@ -126,6 +126,7 @@ export default function TrapLandingPage() {
                     ownerUserId: template.ownerUserId!,
                     latestPublished: template.latestPublished,
                 };
+                console.log('useEffect');
                 addWorkflowTab({
                     key: selection.templateId,
                     workflowId: selection.templateId,
@@ -153,7 +154,7 @@ export default function TrapLandingPage() {
     }, [activeKey]);
 
     const addWorkflowTab = React.useCallback(
-        (ws: OpenWorkflowRequest) => {
+        (ws: OpenWorkflowRequest, saveToProfile = true) => {
             const existing = workflows.find((x) => x.workflowId === ws.workflowId);
             if (existing) {
                 setActiveKey(existing.workflowId);
@@ -161,7 +162,9 @@ export default function TrapLandingPage() {
                 //TODO: this is run too many times
                 setActiveKey(ws.workflowId);
                 setWorkflows((prev) => [...prev, ws]);
-                saveWorkflowsToState([...workflows, ws]);
+                if (saveToProfile) {
+                    saveWorkflowsToState([...workflows, ws]);
+                }
             }
         },
         [workflows]
@@ -260,17 +263,20 @@ export default function TrapLandingPage() {
     );
 
     const onLaunchHudWorkflow = React.useCallback(
-        async (selection: HudWorkflowSelection) => {
+        async (selection: HudWorkflowSelection, saveToProfile = true) => {
             try {
-                addWorkflowTab({
-                    key: selection.templateId,
-                    workflowId: selection.templateId,
-                    title: selection.templateName,
-                    templateId: selection.templateId,
-                    templateVersionStatus: selection.templateVersionStatus,
-                    ownerUserId: selection.ownerUserId,
-                    latestPublished: selection.latestPublished,
-                });
+                addWorkflowTab(
+                    {
+                        key: selection.templateId,
+                        workflowId: selection.templateId,
+                        title: selection.templateName,
+                        templateId: selection.templateId,
+                        templateVersionStatus: selection.templateVersionStatus,
+                        ownerUserId: selection.ownerUserId,
+                        latestPublished: selection.latestPublished,
+                    },
+                    saveToProfile
+                );
 
                 const newParams = new URLSearchParams();
                 newParams.set('template_id', selection.templateId);
@@ -365,7 +371,7 @@ export default function TrapLandingPage() {
                 ownerUserId: template.ownerUserId!,
                 latestPublished: template.latestPublished,
             };
-            onLaunchHudWorkflow(selection);
+            onLaunchHudWorkflow(selection, false);
         } else {
             setSearchParams({}, { replace: true });
         }
@@ -424,7 +430,9 @@ export default function TrapLandingPage() {
                         }}
                     >
                         <LandingTab
-                            onOpenWorkflow={(ws) => addWorkflowTab(ws)}
+                            onOpenWorkflow={(ws) => {
+                                addWorkflowTab(ws);
+                            }}
                             activeLandingSelection={landingSelection}
                         />
                     </div>
@@ -481,7 +489,7 @@ export default function TrapLandingPage() {
                     templates={allTemplates}
                     drawerState={drawerState}
                     setDrawerState={setDrawerState}
-                    onLaunchWorkflow={onLaunchHudWorkflow}
+                    onLaunchWorkflow={(props) => onLaunchHudWorkflow(props, true)}
                     onEditWorkflow={onEditWorkspace}
                     onActivateLanding={onActivateHudLanding}
                     onCloneTemplate={onEditWorkspace}

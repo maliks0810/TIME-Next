@@ -18,6 +18,7 @@ export function useLanding(props: LandingTabProps) {
         () => profile?.[PROFILE_KEYS.ACTIVE_LANDING] || '',
         [profile?.[PROFILE_KEYS.ACTIVE_LANDING]]
     );
+
     const claims = useGetUserClaims();
     const login = useGetUserLogin();
     const [compiledLandingVersion, setCompiledLandingVersion] = React.useState<any>(null);
@@ -134,7 +135,6 @@ export function useLanding(props: LandingTabProps) {
         (async () => {
             try {
                 const tv = await getTemplateVersion(targetTemplateId);
-
                 if (!cancelled) {
                     setCompiledLandingVersion(tv ?? null);
                 }

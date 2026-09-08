@@ -38,7 +38,8 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
         });
     };
     const updateProfile = (key: string, value: unknown) => {
-        console.log(key, value);
+        // This logger is needed for testing
+        console.info('UPDATE', key, value);
         upsertPreference({
             application: APPLICATION_KEYS.SETTINGS,
             profile: { ...profile, [key]: value },
