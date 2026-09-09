@@ -112,16 +112,25 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const { pendingUploadFiles, isUploadingFile } = useFileUploadState();
 
   const isCancelled =
-    initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
+    initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;  
+  const [isDirty, setIsDirty] = useState(false);
+  const stepBaseLineRef = useRef(validationFields);  
+  const initialRequestId = initialData?.securitySetupRequestId ?? null;
+  useEffect(() => {
+    resetWizard();
+    if (initialData) {
+      hydrateFromPayload(initialData);
+    }
+  }, [initialRequestId]);
+
+  const userIdentity = useIdentityStore((s) => s.userIdentity);
 
   useEffect(() => {
-    const cancelled = initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
-    setReadOnly(cancelled);
-    setSecuritySetupStatusId(initialData?.securitySetupStatusId ?? null);
-  }, [initialData]);
+      const cancelled = initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
+      setReadOnly(cancelled);
+      setSecuritySetupStatusId(initialData?.securitySetupStatusId ?? null);
+    }, [initialData]);
 
-  const [isDirty, setIsDirty] = useState(false);
-  const stepBaseLineRef = useRef(validationFields);
 
   useEffect(() => {
     setIsDirty(false);
@@ -133,16 +142,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       setIsDirty(true);
     }
   }, [validationFields]);
-
-  const initialRequestId = initialData?.securitySetupRequestId ?? null;
-  useEffect(() => {
-    resetWizard();
-    if (initialData) {
-      hydrateFromPayload(initialData);
-    }
-  }, [initialRequestId]);
-
-  const userIdentity = useIdentityStore((s) => s.userIdentity);
 
   // Set to read only if DM Analyst is assigned to a different user
   useEffect(() => {

@@ -142,6 +142,7 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
         completedSteps,
         dmAnalystName: initialData.dmAnalystName ?? undefined,
         dmAnalystEmail: initialData.dmAnalystEmail ?? undefined,
+        securitySetupStatusId: initialData.securitySetupStatusId ?? undefined
       })
      },
 
