@@ -208,6 +208,11 @@ type ExceptionsTableProps = {
   // so a name absent from the current row set simply never appears
   // rather than erroring.
   allowedColumnKeys?: string[];
+  // Rule name -> RULE_DESCRIPTION lookup. When present, the RULE_NAME
+  // cell renders its description as an HTML title tooltip on hover —
+  // same behaviour as the LHS tree leaves. A missing / blank entry
+  // just leaves the cell tooltip-less.
+  ruleDescriptionByName?: Record<string, string>;
 };
 
 // Blank cells fold into a visible "(none)" sentinel for the column
@@ -422,6 +427,7 @@ export default function ExceptionsTable({
   onSelectedIdsChange,
   selectionLocked = false,
   allowedColumnKeys,
+  ruleDescriptionByName,
 }: ExceptionsTableProps) {
   const showStatusColumn =
     showResultDataColumns && Array.isArray(statusOptions);
@@ -1713,8 +1719,21 @@ export default function ExceptionsTable({
       const tdCls = ("dq-td-rd" + tdPinnedClass(key)).trim();
       const innerCls =
         "dq-td-rd-inner" + (w ? " dq-td-rd-inner-wrap" : "");
+      // RULE_NAME is hoisted into RESULT_DATA as rd:RULE_NAME on every
+      // Security-Master-family scope, so the visible RULE_NAME cell is
+      // this rd:* one, not the static "ruleName" case below. Attach
+      // the RULE_DESCRIPTION tooltip here so hover works. Look up by
+      // row.ruleName (EXCEPTION.RULE_NAME) — that's the key
+      // fetchRulesForGroup populates the map with.
+      const desc =
+        k === "RULE_NAME" ? ruleDescriptionByName?.[row.ruleName] : undefined;
       return (
-        <td key={key} className={tdCls} style={tdPinnedStyle(key)}>
+        <td
+          key={key}
+          className={tdCls}
+          style={tdPinnedStyle(key)}
+          title={desc && desc.trim() !== "" ? desc : undefined}
+        >
           <div
             className={innerCls}
             style={w ? { maxWidth: w } : undefined}
@@ -1899,16 +1918,19 @@ export default function ExceptionsTable({
             {row.priority}
           </td>
         );
-      case "ruleName":
+      case "ruleName": {
+        const desc = ruleDescriptionByName?.[row.ruleName];
         return (
           <td
             key={key}
             className={tdPinnedClass("ruleName").trim()}
             style={tdPinnedStyle("ruleName")}
+            title={desc && desc.trim() !== "" ? desc : undefined}
           >
             {row.ruleName}
           </td>
         );
+      }
       case "issue":
         return (
           <td
