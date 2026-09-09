@@ -139,7 +139,31 @@ const fmtDate = (v?: string | null): React.ReactNode => {
   if (!y || !m || !d) return "";
   return new Date(y, m - 1, d).toLocaleDateString("en-US");
 };
+const fmtLongTermHeader = (
+  value?: string | null
+): string => {
+  if (!value) {
+    return "As Of Prior Month End";
+  }
 
+  const iso = String(value).slice(0, 10);
+  const [y, m, d] = iso.split("-").map(Number);
+
+  if (!y || !m || !d) {
+    return "As Of Prior Month End";
+  }
+
+  const dt = new Date(y, m - 1, d);
+
+  return `As Of ${dt.toLocaleDateString(
+    "en-US",
+    {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }
+  )}`;
+};
 // =====================================================================
 // Component
 // =====================================================================
@@ -221,7 +245,9 @@ export default function TCWStrategyPerformanceSnapshot() {
   // Total LEAF column count for the section band colSpan
   // (PF#, Strategy, PriorDay, MTD, QTD, YTD, 1Y, 3Y, 5Y, AUM, Inception = 11).
   const COLUMN_COUNT = 11;
-
+  const longTermHeaderLabel = fmtLongTermHeader(
+    data?.longTermAsOfDate
+  );
   const columns: ColumnsType<GridRow> = [
     {
       title: "PF #",
@@ -254,7 +280,7 @@ export default function TCWStrategyPerformanceSnapshot() {
     returnCol("QTD", "qtd"),
     returnCol("YTD", "ytd"),
     {
-      title: "As of Prior Month End",
+      title: longTermHeaderLabel,
       className: "group-head",
       children: [
         returnCol("1 Year", "oneYear"),
