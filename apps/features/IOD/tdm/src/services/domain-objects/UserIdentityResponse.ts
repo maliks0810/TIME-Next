@@ -42,4 +42,5 @@ export interface IUserAuthPermissions {
   edit_field_after_request_submitted_eu_securitization_status?: boolean;
   edit_field_after_request_submitted_eu_securitization_tip_eu_id?: boolean;
   edit_field_after_request_submitted_erisa_status?: boolean;
+  edit_any_security_setup_request_before_request_submitted?: boolean;
 }

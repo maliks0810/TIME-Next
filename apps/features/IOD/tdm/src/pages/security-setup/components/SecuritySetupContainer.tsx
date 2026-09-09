@@ -146,9 +146,16 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
 
   // Set to read only if DM Analyst is assigned to a different user
   useEffect(() => {
-    const canEditAnySecuritySetupRequest = userIdentity?.permissionsAllowed?.edit_any_security_setup_request || false;
+    const canEditAnySecuritySetupRequest = 
+      userIdentity?.permissionsAllowed?.edit_any_security_setup_request || 
+      false;
+          
+    const canEditAnySecuritySetupRequestBeforeSubmission = 
+      userIdentity?.permissionsAllowed?.edit_any_security_setup_request_before_request_submitted || 
+      false;  
+
     // Check if user can edit any request regardless of assignment (DM Admin)
-    if (!canEditAnySecuritySetupRequest) {
+    if (!canEditAnySecuritySetupRequest && !canEditAnySecuritySetupRequestBeforeSubmission) {
       const readOnly = (initialData?.dmAnalystName !== undefined && currentUser !== initialData?.dmAnalystName);
       setUserReadOnly(readOnly);
     }
