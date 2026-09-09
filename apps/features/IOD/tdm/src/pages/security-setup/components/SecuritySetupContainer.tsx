@@ -611,6 +611,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       if (step1Summary.euSecuritizationTipEuId) {
         messages.push({ message: `EU Securitization TIP EU ID: ${step1Summary.euSecuritizationTipEuId}` });
       }
+      if (step1Summary.intexDealName) {
+        messages.push({ message: `Intex Deal Name: ${step1Summary.intexDealName}` });
+      }
+      if (step1Summary.intexPassword) {
+        messages.push({ message: `Intex Password: ${step1Summary.intexPassword}` });
+      }
       if (messages.length === 0) return null;
       return (
         <div className="success-messages-box">
@@ -631,6 +637,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         messages.push({
           message: `Identifier: ${step1Summary.identifierType || "FIGI"} ${step1Summary.identifierValue}`,
         });
+      }
+      if (step1Summary.intexDealName) {
+        messages.push({ message: `Intex Deal Name: ${step1Summary.intexDealName}` });
+      }
+      if (step1Summary.intexPassword) {
+        messages.push({ message: `Intex Password: ${step1Summary.intexPassword}` });
       }
       if (messages.length === 0) return null;
       return (

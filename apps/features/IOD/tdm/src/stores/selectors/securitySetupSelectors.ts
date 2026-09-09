@@ -177,6 +177,8 @@ export const useSummary = () =>
       identifierValue: s.identifierValue,
       marketSector: s.marketSector,
       isEuSecuritizationRequired: s.isEuSecuritizationRequired,
-      euSecuritizationTipEuId: s.euSecuritizationTipEuId
+      euSecuritizationTipEuId: s.euSecuritizationTipEuId,
+      intexDealName: s.intexDealName,
+      intexPassword: s.intexPassword
     }))
   )
