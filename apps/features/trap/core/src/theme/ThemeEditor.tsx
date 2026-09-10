@@ -36,7 +36,7 @@ const BASE_BY_MODE: Record<'light' | 'dark', ThemeName> = { light: 'default', da
 // Rendered INLINE inside the Manage drawer's Themes panel (not a modal). Returns to the list
 // via onClose. Pushes a live preview to the app while editing; clears it on unmount.
 export default function ThemeEditor({ editId, onClose }: { editId?: string; onClose: () => void }) {
-    const { customThemes, upsertCustomTheme, deleteCustomTheme, setPreview, setTheme } = useTheme();
+    const { customThemes, upsertCustomTheme, deleteCustomTheme, setPreview } = useTheme();
     const [draft, setDraft] = React.useState<CustomTheme | null>(() => {
         const existing = editId ? customThemes.find((c) => c.id === editId) : null;
         return existing
@@ -78,11 +78,11 @@ export default function ThemeEditor({ editId, onClose }: { editId?: string; onCl
     const nameOk = draft.name.trim().length > 0;
     const canSave = nameOk && (!enforceAA || failing.length === 0);
 
-    const save = () => {
+    const save = async () => {
         if (!canSave) return;
-        const t = { ...draft, name: draft.name.trim() };
-        upsertCustomTheme(t);
-        setTheme(t.id);
+        const theme = { ...draft, name: draft.name.trim() };
+        await upsertCustomTheme(theme);
+
         onClose();
     };
     const remove = () => {

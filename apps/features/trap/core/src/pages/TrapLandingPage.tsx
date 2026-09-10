@@ -66,6 +66,7 @@ export default function TrapLandingPage() {
     }, [workflows]);
     const [allTemplates, setAllTemplates] = React.useState<TemplateSummary[]>([]);
     const activeKey = useGetActiveTab();
+    const setActiveTab = useSetActiveTab();
     const activeUser = sessionStorage.getItem('okta-name');
     const [drawerState, setDrawerState] = useState<{
         isOpen: boolean;
@@ -78,6 +79,7 @@ export default function TrapLandingPage() {
 
     const setActiveKeyToState = useSetActiveTab();
     const setActiveKey = (key: string) => {
+        setActiveTab(key);
         setActiveKeyToState(key);
     };
     const [isInitialLoading, setIsInitialLoading] = React.useState(true);
@@ -178,22 +180,21 @@ export default function TrapLandingPage() {
 
             if (activeKey !== workflow) {
                 newActiveKey = activeKey;
-            } else if (workflows.length === 0) {
+            } else if (newWorkflows.length === 0) {
                 newActiveKey = 'landing';
             } else {
-                const closedIdx = workflows.findIndex((x) => x.workflowId === workflow);
-                const fallback =
-                    workflows[Math.min(closedIdx, workflows.length - 1)] ??
-                    workflows[workflows.length - 1];
-
-                newActiveKey = fallback?.workflowId ?? 'landing';
+                const oldIdx = workflows.findIndex((el) => el.workflowId === workflow);
+                if (oldIdx === 0) {
+                    newActiveKey = 'landing';
+                }
+                newActiveKey = newWorkflows[oldIdx - 1].workflowId;
             }
 
             setActiveKey(newActiveKey);
             setWorkflows(newWorkflows);
             saveWorkflowsToState(newWorkflows);
         },
-        [workflows]
+        [workflows, activeKey]
     );
 
     // Open (or in-place convert) a tab to an editable DRAFT. Forking your own published

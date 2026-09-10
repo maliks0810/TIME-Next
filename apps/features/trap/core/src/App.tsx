@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { LoginCallback } from '@okta/okta-react';
 import { BackTop, ConfigProvider, Layout, App as AntdApp } from 'antd';
 import { Route, Routes } from 'react-router-dom';
@@ -38,12 +38,7 @@ export default function App({ oktaAuth }: any) {
     useUserInfo();
     const refetchThemes = React.useCallback(async () => {
         const themeProfile = await getUserPreferenceByApplication(APPLICATION_KEYS.THEME);
-        setCustomThemes(themeProfile?.[THEME_KEYS.CUSTOM_THEMES]);
-        // fetchCustomThemes()
-        //     .then(setCustomThemes)
-        //     .catch(() => {
-        //         /* leave current list on transient errors */
-        //     });
+        setCustomThemes(themeProfile?.[THEME_KEYS.CUSTOM_THEMES] || []);
     }, []);
     React.useEffect(() => {
         refetchThemes();
@@ -56,36 +51,27 @@ export default function App({ oktaAuth }: any) {
         };
     }, []);
 
-    useEffect(() => {
-        return () => {
-            if (oktaAuth?.options?.restoreOriginalUri)
-                oktaAuth.options.restoreOriginalUri = undefined;
-        };
-    }, []);
-
     React.useEffect(() => {
         getUserPreferenceByApplication(APPLICATION_KEYS.THEME).then(({ profile }) => {
-            setCustomThemes(profile?.[THEME_KEYS.CUSTOM_THEMES]);
+            setCustomThemes(profile?.[THEME_KEYS.CUSTOM_THEMES] || []);
             setThemeName(profile?.[THEME_KEYS.ACTIVE_THEME]);
         });
     }, []);
-    // Optimistic write-through: update local state immediately, persist via GraphQL, and refetch
-    // to reconcile if the mutation fails.
+
     const upsertCustomTheme = React.useCallback(
-        (theme: CustomTheme) => {
-            const newThemes = customThemes.some((custom) => custom.id === theme.id)
-                ? customThemes.map((custom) => (custom.id === theme.id ? theme : custom))
+        async (theme: CustomTheme) => {
+            const newThemes = customThemes?.some((custom) => custom.id === theme.id)
+                ? customThemes?.map((custom) => (custom.id === theme.id ? theme : custom))
                 : [...customThemes, theme];
 
             setCustomThemes(newThemes);
-            upsertPreference({
+            await upsertPreference({
                 application: APPLICATION_KEYS.THEME,
                 profile: {
                     [THEME_KEYS.ACTIVE_THEME]: themeName,
                     [THEME_KEYS.CUSTOM_THEMES]: newThemes,
                 },
             });
-            // saveCustomThemeRemote(theme).catch(() => refetchThemes());
         },
         [refetchThemes, themeName, customThemes]
     );
@@ -103,9 +89,8 @@ export default function App({ oktaAuth }: any) {
                     [THEME_KEYS.CUSTOM_THEMES]: newThemes,
                 },
             });
-            // deleteCustomThemeRemote(id).catch(() => refetchThemes());
         },
-        [refetchThemes]
+        [refetchThemes, customThemes]
     );
 
     const claims = useGetUserClaims();
@@ -145,17 +130,19 @@ export default function App({ oktaAuth }: any) {
     // dark-HUD) uses the draft's identity — never the previously-active theme's.
     const effectiveThemeName = preview ? preview.themeName : themeName;
 
-    const setTheme = (name: string) => {
-        setThemeName(name);
-
-        upsertPreference({
-            application: APPLICATION_KEYS.THEME,
-            profile: {
-                [THEME_KEYS.ACTIVE_THEME]: name,
-                [THEME_KEYS.CUSTOM_THEMES]: customThemes,
-            },
-        });
-    };
+    const setTheme = useCallback(
+        (name: string) => {
+            setThemeName(name);
+            upsertPreference({
+                application: APPLICATION_KEYS.THEME,
+                profile: {
+                    [THEME_KEYS.ACTIVE_THEME]: name,
+                    [THEME_KEYS.CUSTOM_THEMES]: customThemes,
+                },
+            });
+        },
+        [customThemes]
+    );
     return (
         <ThemeContext.Provider
             value={{
