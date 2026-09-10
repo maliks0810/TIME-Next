@@ -356,7 +356,7 @@ const AllocationForm: React.FC = () => {
           <Tooltip title="Back to forms">
             <IconButton
               size="small"
-              onClick={() => navigateWithPrompt("/de/etfrikform")}
+              onClick={() => navigateWithPrompt("/de/redemption-in-kind")}
               sx={{ mt: "2px" }} // slight alignment polish
             >
               <ArrowBackIcon fontSize="small" />
@@ -410,7 +410,7 @@ const AllocationForm: React.FC = () => {
             component="button"
             variant="inherit"
             underline="hover"
-            onClick={() => navigateWithPrompt("/de/etfrikform")}
+            onClick={() => navigateWithPrompt("/de/redemption-in-kind")}
           >
             Return to Dashboard
           </Link>
@@ -441,7 +441,7 @@ const AllocationForm: React.FC = () => {
                 fontSize: "inherit",
                 verticalAlign: "baseline",
               }}
-              onClick={() => navigateWithPrompt("/de/etfrikform")}
+              onClick={() => navigateWithPrompt("/de/redemption-in-kind")}
             >
               Return to Dashboard
             </Button>
@@ -591,7 +591,7 @@ const AllocationForm: React.FC = () => {
                       variant="outlined"
                       size="small"
                       color="secondary"
-                      onClick={() => navigateWithPrompt("/de/etfrikform")}
+                      onClick={() => navigateWithPrompt("/de/redemption-in-kind")}
                     >
                       {"Cancel"}
                     </Button>

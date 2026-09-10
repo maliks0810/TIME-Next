@@ -291,7 +291,7 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         name: 'redemption-in-kind',
         title: 'Redemption In-Kind',
         env: HighestEnv.prod,
-        path: '/de/redemption-in-kind/',
+        path: '/de/redemption-in-kind/*',
         team: 'DE',
         component: lazy(() => import('@de/etf-rik-form/src/App')),
         description: '',
