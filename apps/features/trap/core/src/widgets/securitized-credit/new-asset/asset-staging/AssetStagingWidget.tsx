@@ -231,7 +231,6 @@ export default function AssetStagingWidget({
             setSeverity(summary?.assumptions?.severity?.value || null);
             setDelinquency(summary?.assumptions?.delinquency?.value);
         }
-
         if (scenarioCashflows) {
             setAcceptedCashflows(scenarioCashflows);
         }
@@ -502,6 +501,7 @@ export default function AssetStagingWidget({
 
             slicerTypeValue: payloadSnapshot.slicerTypeValue ?? undefined,
             mbsTypeValue: payloadSnapshot.mbsTypeValue ?? undefined,
+            cashflows: acceptedCashflows?.cashflow ?? undefined,
         };
 
         if (callable === 'C' && callValue) {
@@ -530,6 +530,7 @@ export default function AssetStagingWidget({
         severity,
         delinquency,
         callValue,
+        acceptedCashflows?.cashflow,
     ]);
 
     const cusipRequired = isInvalidCusip(trancheCusip);
