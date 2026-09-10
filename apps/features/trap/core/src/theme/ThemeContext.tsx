@@ -589,7 +589,6 @@ export function getThemeConfig(themeName: ThemeName) {
                 token: {
                     /*
                      * Exact Wealth Dark identity colors from the original
-                     * ABF Loan Pool Analyzer prototype.
                      */
                     colorPrimary: '#e6b45a',
                     colorInfo: '#e6b45a',
