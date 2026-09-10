@@ -283,5 +283,18 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
         component: lazy(() => import('@de/dqm/src/App')),
         description: '',
     },
+       {
+        type: 'internal',
+        header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.AladdinPortfolioManagement,
+        id: '@de/etf-rik-form',
+        name: 'redemption-in-kind',
+        title: 'Redemption In-Kind',
+        env: HighestEnv.prod,
+        path: '/de/redemption-in-kind/',
+        team: 'DE',
+        component: lazy(() => import('@de/etf-rik-form/src/App')),
+        description: '',
+    }
     // PLOP_INJECT_APP
 ]
