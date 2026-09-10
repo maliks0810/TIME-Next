@@ -61,7 +61,7 @@ export type PresetDoc = {
     lastRun: PresetSnapshot | null;
 };
 
-export type TrancheOption = { id: string; name: string };
+export type TrancheOption = { id: string; name: string ; disabled:boolean};
 
 export type BootstrapResult = {
     assetClass: string;
