@@ -54,7 +54,7 @@ const FormTable: React.FC<Props> = ({ data, email }: Props) => {
     const isFetching = useIsFetching({ queryKey: ["etf-transfer-requests"] })
     const [deletingId, setDeletingId] = useState<string | null | undefined>(null);
     const handleEdit = (id?: string) => {
-        navigate(`/de/etfrikform/detail/${id}`); // ✅ relative navigation
+        navigate(`/de/redemption-in-kind/detail/${id}`); // ✅ relative navigation
     };
 
     const handleDelete = (id?: string) => {

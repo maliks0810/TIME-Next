@@ -97,7 +97,7 @@ const FormListPage: React.FC = () => {
                         onClick={() =>
                             createForm.mutate(userInfo.email, {
                                 onSuccess: (data) => {
-                                    navigate(`/de/etfrikform/detail/${data.id}`);
+                                    navigate(`/de/redemption-in-kind/detail/${data.id}`);
                                 }
                             })
                         }
