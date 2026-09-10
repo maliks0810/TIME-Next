@@ -249,9 +249,9 @@ export default function TrapLandingPage() {
                     message.success('Draft created — you can edit it now');
                 } else {
                     const cloneName = `${ws.title} (copy)`;
-                    const cloneId = await cloneTemplate(ws.templateId, cloneName);
-                    const draft = await createDraftVersion(cloneId);
-                    openDraftTab(cloneId, draft.id, cloneName);
+                    const cloned = await cloneTemplate(ws.templateId, cloneName);
+                    const draft = await createDraftVersion(cloned.version.templateId);
+                    openDraftTab(cloned.version.templateId, draft.id, cloneName);
                     message.success('Cloned to a new draft');
                 }
             } catch (e: any) {
