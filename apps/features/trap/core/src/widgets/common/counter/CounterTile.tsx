@@ -4,6 +4,8 @@ import { Typography, Skeleton } from 'antd';
 import clsx from 'clsx';
 import type { WidgetComponentProps } from '../../../types/widget';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
+import { MethodologyPopover } from '../../../components/methodology/MethodologyPopover';
+import type { WidgetMethodology } from '../../../components/methodology/types';
 import { WidgetConfigProperty } from '../../../features/widget-studio/components/PropertyConfig';
 import {
     useGetWidgetValue,
@@ -69,10 +71,7 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
 
     const { themeName } = useTheme();
 
-    const isWealthTheme =
-        themeName === 'wealthLight' ||
-        themeName === 'wealthDark';
-
+    const isWealthTheme = themeName === 'wealthLight' || themeName === 'wealthDark';
     const isWealthLight = themeName === 'wealthLight';
     const isWealthDark = themeName === 'wealthDark';
 
@@ -100,7 +99,7 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
         }
 
         return out;
-    }, [filterBag, activeFilterKeys.join(',')]);
+    }, [filterBag, activeFilterKeys]);
 
     const filtersSig = JSON.stringify(filters);
 
@@ -137,13 +136,9 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
         emptyText,
         textColor,
         themeMode,
-    } = useMemo(
-        () => getWidgetValues(config, properties),
-        [config, properties]
-    );
+    } = useMemo(() => getWidgetValues(config, properties), [config, properties]);
 
     const handleClick = () => {
-        // Tape KPIs are read-only summaries and must not modify channel context.
         if (isTapeKpi) return;
 
         const clickable = params.clickable ?? true;
@@ -193,6 +188,23 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
         return result?.['title'] ?? '';
     }, [text, result]);
 
+    const methodology = useMemo<WidgetMethodology | undefined>(() => {
+        const value = result?.['methodology'];
+
+        if (!value || typeof value !== 'object' || Array.isArray(value)) {
+            return undefined;
+        }
+
+        return value as WidgetMethodology;
+    }, [result]);
+
+    const hasDisplayData =
+        !loading &&
+        content !== emptyText &&
+        content !== '-' &&
+        content !== '—' &&
+        content !== '';
+
     const customTextColor = useMemo(
         () => (themeMode === 'theme' ? {} : { color: textColor }),
         [themeMode, textColor]
@@ -209,15 +221,22 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
                 })}
                 onClick={handleClick}
             >
-                <Typography.Title
-                    level={5}
-                    className={clsx(widgetStyles.titlePosition, styles.cardTitle, {
-                        [styles.activeTile]: !isTapeKpi && metricValue === counterTileValue,
-                    })}
-                    style={customTextColor}
-                >
-                    {widgetTextTitle}
-                </Typography.Title>
+                <div className={styles.titleRow}>
+                    <Typography.Title
+                        level={5}
+                        className={clsx(widgetStyles.titlePosition, styles.cardTitle, {
+                            [styles.activeTile]:
+                                !isTapeKpi && metricValue === counterTileValue,
+                        })}
+                        style={customTextColor}
+                    >
+                        {widgetTextTitle}
+                    </Typography.Title>
+
+                    {methodology && hasDisplayData ? (
+                        <MethodologyPopover methodology={methodology} />
+                    ) : null}
+                </div>
 
                 <div className={styles.content}>
                     {loading ? (

@@ -53,6 +53,20 @@
     }
 }
 
+.titleRow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+
+    .cardTitle {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+}
+
 .cardTitle {
     color: var(--ant-color-text-secondary);
     font-weight: 400;
@@ -124,10 +138,10 @@
             Consolas,
             monospace;
 
-        font-size: clamp(0.62rem, 6.5cqmin, 0.74rem);
+        font-size: clamp(0.75rem, 8cqmin, 0.9rem);
         line-height: 1.25;
         font-weight: 500;
-        letter-spacing: 0.14em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--ant-color-text-tertiary);
     }
