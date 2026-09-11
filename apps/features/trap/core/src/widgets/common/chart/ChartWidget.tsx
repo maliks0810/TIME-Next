@@ -228,6 +228,8 @@ function withThemedTooltip(
 
     const themed = tips.map((tip: any) => ({
         ...ECHARTS_TOOLTIP_CHROME,
+        appendToBody: true,
+        confine: false,
         ...(tip ?? {}),
         backgroundColor: (tip && tip.backgroundColor) ?? '@surface',
         textStyle: {
