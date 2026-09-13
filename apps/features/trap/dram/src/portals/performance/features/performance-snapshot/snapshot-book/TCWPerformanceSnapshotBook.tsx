@@ -1,37 +1,102 @@
 import { FilePdfOutlined, MenuFoldOutlined, MenuUnfoldOutlined, ReloadOutlined } from "@ant-design/icons";
 import { Button, Segmented, Space, Tooltip, Typography, message } from "antd";
 import dayjs from "dayjs";
-import React, { useMemo, useState } from "react";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import React, { useMemo, useState, useCallback, useEffect} from "react";
 import SnapshotBookExportDrawer from "./SnapshotBookExportDrawer";
 import SnapshotBookNavigator from "./SnapshotBookNavigator";
 import { REPORT_ORDER, SNAPSHOT_REPORTS, getReport } from "./reportManifest";
 import { exportSnapshotBookPdf } from "./snapshotBookApi";
-import type { SnapshotBookMode, SnapshotBookPdfRequest, SnapshotReportId, SnapshotReportStatus } from "./types";
+import type { SnapshotBookMode, SnapshotReportId, SnapshotReportStatus } from "./types";
 import "./snapshotBook.css";
 
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 const { Title, Text } = Typography;
 
 interface Props {
   asOfDate?: string;
 }
 
-export default function TCWPerformanceSnapshotBook({ asOfDate = dayjs().format("YYYY-MM-DD") }: Props): React.ReactElement {
+export default function TCWPerformanceSnapshotBook({
+  asOfDate = dayjs().format("YYYY-MM-DD"),
+}: Props): React.ReactElement {
   const [mode, setMode] = useState<SnapshotBookMode>("book");
-  const [activeReport, setActiveReport] = useState<SnapshotReportId>("daily-flash");
-  const [selectedReports, setSelectedReports] = useState<SnapshotReportId[]>([...REPORT_ORDER]);
+  const [activeReport, setActiveReport] =
+    useState<SnapshotReportId>("daily-flash");
+  const [selectedReports, setSelectedReports] =
+    useState<SnapshotReportId[]>([...REPORT_ORDER]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [navCollapsed, setNavCollapsed] = useState(false);
 
-  // Replace with aggregated child status callbacks if the existing views expose them.
-  const statuses = useMemo<Partial<Record<SnapshotReportId, SnapshotReportStatus>>>(() => ({}), []);
-  const visibleReports = mode === "book" ? SNAPSHOT_REPORTS : [getReport(activeReport)];
+  const refreshAll = useCallback(() => {
+    console.log(
+      `Refreshing Snapshot Book at ${dayjs().format(
+        "YYYY-MM-DD HH:mm:ss"
+      )}`
+    );
 
-  async function exportAll(request: SnapshotBookPdfRequest): Promise<void> {
+    setRefreshKey((value) => value + 1);
+  }, []);
+
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const scheduleNextRefresh = () => {
+      const nowLA = dayjs().tz("America/Los_Angeles");
+
+      let nextRunLA = nowLA
+        .hour(6)
+        .minute(45)
+        .second(0)
+        .millisecond(0);
+
+      if (nowLA.isAfter(nextRunLA)) {
+        nextRunLA = nextRunLA.add(1, "day");
+      }
+
+      const delayMs = nextRunLA.diff(nowLA);
+
+      console.log(
+        `Next snapshot refresh scheduled for ${nextRunLA.format(
+          "YYYY-MM-DD HH:mm:ss z"
+        )}`
+      );
+
+      timeoutId = setTimeout(() => {
+        refreshAll();
+
+        // Schedule the following day
+        scheduleNextRefresh();
+      }, delayMs);
+    };
+
+    scheduleNextRefresh();
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [refreshAll]);
+
+  const statuses = useMemo<
+    Partial<Record<SnapshotReportId, SnapshotReportStatus>>
+  >(() => ({}), []);
+
+  const visibleReports =
+    mode === "book"
+      ? SNAPSHOT_REPORTS
+      : [getReport(activeReport)];
+
+  async function exportAll(): Promise<void> {
     setExporting(true);
     try {
-      await exportSnapshotBookPdf(request);
+      await exportSnapshotBookPdf();
       message.success("Snapshot Book PDF export completed");
       setDrawerOpen(false);
     } catch (error) {
@@ -54,7 +119,9 @@ export default function TCWPerformanceSnapshotBook({ asOfDate = dayjs().format("
           <Text>As of {dayjs(asOfDate).format("MMMM D, YYYY")}</Text>
         </div>
         <Space wrap>
-          <Button icon={<ReloadOutlined />} onClick={() => setRefreshKey((value) => value + 1)}>Refresh All</Button>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={refreshAll}>Refresh All</Button>
           <Button type="primary" icon={<FilePdfOutlined />} onClick={() => setDrawerOpen(true)}>Export Snapshot Book PDF</Button>
         </Space>
       </header>
