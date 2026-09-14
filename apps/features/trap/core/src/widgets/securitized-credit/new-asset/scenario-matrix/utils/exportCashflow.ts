@@ -17,6 +17,7 @@ type ExportInput = {
 
 export async function exportCashflowXlsx(input: ExportInput): Promise<void> {
     const { scenario, dealName, trancheName, rows, unit, fileName } = input;
+
     if (!scenario.cashflow) return;
 
     const wb = new Workbook();
@@ -45,8 +46,8 @@ export async function exportCashflowXlsx(input: ExportInput): Promise<void> {
             p.date,
             p.principal,
             p.interest,
-            p.cashflow,
-            p.balance,
+            p.principal+p.interest,
+            p.endBal,
         ]);
     });
 
