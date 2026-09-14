@@ -24,6 +24,7 @@ export function useUserProfile() {
 export function UserProfileProvider({ children }: { children: ReactNode }) {
     const [profile, setProfile] = useState<Record<string, unknown> | undefined>();
     const [widgetsProfile, setWidgetsProfile] = useState<Record<string, unknown> | undefined>();
+    const [isLoading, setIsLoading] = useState(true);
     const login = useGetUserLogin();
 
     const updateWidgetValue = (workflow: string, widget: string, payload: unknown) => {
@@ -51,9 +52,12 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
         const widgetProfile = await getUserPreferenceByApplication(APPLICATION_KEYS.WIDGETS);
         setWidgetsProfile(widgetProfile?.profile);
         setProfile(applicationProfile?.profile);
+
+        setIsLoading(false);
     };
     useEffect(() => {
         if (login && login !== 'Unknown') {
+            setIsLoading(true);
             initValues();
         }
     }, [login]);
@@ -67,7 +71,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
                 widgetsProfile,
             }}
         >
-            {children}
+            {isLoading ? null : children}
         </UserProfileContext.Provider>
     );
 }

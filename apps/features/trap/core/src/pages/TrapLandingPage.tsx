@@ -128,7 +128,6 @@ export default function TrapLandingPage() {
                     ownerUserId: template.ownerUserId!,
                     latestPublished: template.latestPublished,
                 };
-                console.log('useEffect');
                 addWorkflowTab({
                     key: selection.templateId,
                     workflowId: selection.templateId,
@@ -202,7 +201,7 @@ export default function TrapLandingPage() {
     const openDraftTab = React.useCallback(
         (templateId: string, versionId: string, title?: string) => {
             const existing = workflows.find((x) => x.templateId === templateId);
-            const workflowId = existing ? existing.workflowId : `wf_${templateId}_${versionId}`;
+            const workflowId = existing ? existing.workflowId : templateId;
             if (existing) {
                 const newWorkflows = workflows.map((el) =>
                     el.title === title ? { ...el, designer: true } : el
@@ -218,13 +217,14 @@ export default function TrapLandingPage() {
                     workflowId: workflowId,
                     title: title ?? 'Draft',
                     templateId,
+                    versionId,
                     templateVersionStatus: 'DRAFT',
                     designer: true,
                 };
 
                 const newWorkflows = [...workflows, newWorfklowTab];
                 setWorkflows(newWorkflows);
-                saveWorkflowsToState(newWorkflows);
+                // saveWorkflowsToState(newWorkflows);
                 setActiveKey(workflowId);
             }
         },
@@ -357,6 +357,21 @@ export default function TrapLandingPage() {
         })),
     ];
 
+    const onPublished = (ws: WorkflowTabModel) => {
+        const newWorkflows = workflows.map((workflow) =>
+            workflow.workflowId === ws.workflowId
+                ? {
+                      ...workflow,
+                      templateVersionStatus: 'PUBLISHED',
+                      designer: false,
+                  }
+                : workflow
+        );
+
+        saveWorkflowsToState(newWorkflows);
+        setWorkflows(newWorkflows);
+    };
+
     const initWorkflowFromURL = async (templateId: string) => {
         const templates = await getTemplates();
         setAllTemplates(templates);
@@ -457,19 +472,7 @@ export default function TrapLandingPage() {
                                                 initialDrawerSeg: 'widgets',
                                             });
                                         }}
-                                        onPublished={() => {
-                                            setWorkflows((prev) =>
-                                                prev.map((w) =>
-                                                    w.workflowId === ws.workflowId
-                                                        ? {
-                                                              ...w,
-                                                              templateVersionStatus: 'PUBLISHED',
-                                                              designer: false,
-                                                          }
-                                                        : w
-                                                )
-                                            );
-                                        }}
+                                        onPublished={() => onPublished(ws)}
                                     />
                                 ) : (
                                     <WorkflowTab

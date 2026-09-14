@@ -35,6 +35,7 @@ export default function App({ oktaAuth }: any) {
     const [customThemes, setCustomThemes] = React.useState<CustomTheme[]>([]);
     const [preview, setPreview] = React.useState<PreviewTheme>(null);
 
+    const [isLoading, setIsLoading] = React.useState<boolean>(true);
     useUserInfo();
     const refetchThemes = React.useCallback(async () => {
         const themeProfile = await getUserPreferenceByApplication(APPLICATION_KEYS.THEME);
@@ -52,10 +53,15 @@ export default function App({ oktaAuth }: any) {
     }, []);
 
     React.useEffect(() => {
-        getUserPreferenceByApplication(APPLICATION_KEYS.THEME).then(({ profile }) => {
-            setCustomThemes(profile?.[THEME_KEYS.CUSTOM_THEMES] || []);
-            setThemeName(profile?.[THEME_KEYS.ACTIVE_THEME]);
-        });
+        setIsLoading(true);
+        getUserPreferenceByApplication(APPLICATION_KEYS.THEME)
+            .then(({ profile }) => {
+                setCustomThemes(profile?.[THEME_KEYS.CUSTOM_THEMES] || []);
+                setThemeName(profile?.[THEME_KEYS.ACTIVE_THEME]);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
     }, []);
 
     const upsertCustomTheme = React.useCallback(
@@ -143,6 +149,7 @@ export default function App({ oktaAuth }: any) {
         },
         [customThemes]
     );
+    if (isLoading) return null;
     return (
         <ThemeContext.Provider
             value={{
