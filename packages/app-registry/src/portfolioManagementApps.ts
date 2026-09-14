@@ -57,6 +57,19 @@ export const portfolioManagementApps: (InternalAppMetadata | ExternalAppMetadata
     },
     {
         header: NavbarHeader.PortfolioManagement,
+        subHeader: NavbarSubHeader.IM_Credit,
+        type: 'external',
+        title: 'Portfolio Trade Tool',
+        sandboxUrl: 'https://portfolio-trade-tool-qa.np.tcw.com',
+        devUrl: 'https://portfolio-trade-tool-qa.np.tcw.com',
+        qaUrl: 'https://portfolio-trade-tool-qa.np.tcw.com',
+        prodUrl: 'https://portfolio-trade-tool.pd.tcw.com',
+        newTab: true,
+        disabled: false,
+        env: HighestEnv.prod
+    },
+    {
+        header: NavbarHeader.PortfolioManagement,
         subHeader: NavbarSubHeader.IM_Rates,
         type: 'external',
         title: 'Order Hedge',
