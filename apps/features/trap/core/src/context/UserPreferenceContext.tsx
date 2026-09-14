@@ -48,12 +48,18 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
     };
 
     const initValues = async () => {
-        const applicationProfile = await getUserPreferenceByApplication(APPLICATION_KEYS.SETTINGS);
-        const widgetProfile = await getUserPreferenceByApplication(APPLICATION_KEYS.WIDGETS);
-        setWidgetsProfile(widgetProfile?.profile);
-        setProfile(applicationProfile?.profile);
-
-        setIsLoading(false);
+        try {
+            const applicationProfile = await getUserPreferenceByApplication(
+                APPLICATION_KEYS.SETTINGS
+            );
+            const widgetProfile = await getUserPreferenceByApplication(APPLICATION_KEYS.WIDGETS);
+            setWidgetsProfile(widgetProfile?.profile);
+            setProfile(applicationProfile?.profile);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsLoading(false);
+        }
     };
     useEffect(() => {
         if (login && login !== 'Unknown') {
