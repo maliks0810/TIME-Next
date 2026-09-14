@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChannelId } from './types';
 import { useWidgetsStore } from './store';
 import { useGetActiveTab } from '../Tabs/hooks';
 import { useShallow } from 'zustand/shallow';
+import { useUserProfile } from '../../context/UserPreferenceContext';
 export const useGetAllContext = ({ channelId = '1' }: { channelId?: ChannelId }) => {
     const activeTab = useGetActiveTab();
 
@@ -22,7 +24,11 @@ export const useGetWidgetValue = ({
 export const useSetWidgetValue = () => {
     const setValueToChannel = useWidgetsStore((store) => store.setValueToChannel);
 
-    return setValueToChannel;
+    const { updateWidgetValue } = useUserProfile();
+    return (value: any) => {
+        setValueToChannel(value);
+        updateWidgetValue(value.activeTab, value.widgetId, { [value.key]: value });
+    };
 };
 
 export const useGetWidgetValueArray = ({

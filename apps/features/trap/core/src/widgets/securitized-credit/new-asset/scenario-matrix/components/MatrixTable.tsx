@@ -1,10 +1,10 @@
-import React from "react";
-import clsx from "clsx";
-import { LineChartOutlined } from "@ant-design/icons";
-import styles from "../ScenarioMatrixWidget.module.scss";
-import { COLW } from "../constants";
-import { formatMetric } from "../format";
-import type { AnalyticsGroup, AssumptionRow, Scenario } from "../types";
+import React from 'react';
+import clsx from 'clsx';
+import { LineChartOutlined } from '@ant-design/icons';
+import styles from '../ScenarioMatrixWidget.module.scss';
+import { COLW } from '../constants';
+import { formatMetric } from '../format';
+import type { AnalyticsGroup, AssumptionRow, Scenario } from '../types';
 
 type Props = {
     rows: Array<AssumptionRow & { on: boolean }>;
@@ -36,10 +36,26 @@ function num(value: string): number {
 
 export default function MatrixTable(props: Props) {
     const {
-        rows, unit, groups, scenarios, sel, addShown, running,
-        runLabel, runDisabled, allCurrent,
-        onEditCell, onEditPrice, onSetUnit, onToggleRow, onToggleScenario,
-        onRename, onRemove, onAdd, onBindCF, onRun,
+        rows,
+        unit,
+        groups,
+        scenarios,
+        sel,
+        addShown,
+        running,
+        runLabel,
+        runDisabled,
+        allCurrent,
+        onEditCell,
+        onEditPrice,
+        onSetUnit,
+        onToggleRow,
+        onToggleScenario,
+        onRename,
+        onRemove,
+        onAdd,
+        onBindCF,
+        onRun,
     } = props;
 
     // Trailing empty cells so every row shares identical column geometry.
@@ -102,7 +118,8 @@ export default function MatrixTable(props: Props) {
                                     key={`${s.key}:${s.name}`}
                                     onBlur={(e) => onRename(s.key, e.target.value)}
                                     onKeyDown={(e) => {
-                                        if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                                        if (e.key === 'Enter')
+                                            (e.target as HTMLInputElement).blur();
                                     }}
                                 />
                                 {s.stale && (
@@ -145,11 +162,16 @@ export default function MatrixTable(props: Props) {
                                 />
                                 <span className={styles.aLbl}>
                                     {r.label}
-                                    {r.sublabel && <span className={styles.aSub}>{r.sublabel}</span>}
+                                    {r.sublabel && (
+                                        <span className={styles.aSub}>{r.sublabel}</span>
+                                    )}
                                 </span>
                             </div>
                         </td>
-                        <td className={clsx(styles.cUnits, styles.uCell)} style={{ left: COLW.name }}>
+                        <td
+                            className={clsx(styles.cUnits, styles.uCell)}
+                            style={{ left: COLW.name }}
+                        >
                             {r.units.length > 1 ? (
                                 <select
                                     className={styles.uSel}
@@ -175,7 +197,7 @@ export default function MatrixTable(props: Props) {
                                     className={styles.vIn}
                                     type="number"
                                     disabled={!r.on}
-                                    value={Number.isFinite(s.vals[r.id]) ? s.vals[r.id] : ""}
+                                    value={Number.isFinite(s.vals[r.id]) ? s.vals[r.id] : ''}
                                     onChange={(e) => {
                                         const v = num(e.target.value);
                                         if (!Number.isNaN(v)) onEditCell(s.key, r.id, v);
@@ -206,7 +228,7 @@ export default function MatrixTable(props: Props) {
                                 className={styles.vIn}
                                 type="number"
                                 step="0.01"
-                                value={Number.isFinite(s.price) ? s.price : ""}
+                                value={Number.isFinite(s.price) ? s.price : ''}
                                 onChange={(e) => {
                                     const v = num(e.target.value);
                                     if (!Number.isNaN(v)) onEditPrice(s.key, v);
@@ -223,19 +245,21 @@ export default function MatrixTable(props: Props) {
                         <div className={styles.calcWrap}>
                             <button
                                 type="button"
-                                className={clsx(styles.runBtn, { [styles.current]: allCurrent && !running })}
+                                className={clsx(styles.runBtn, {
+                                    [styles.current]: allCurrent && !running,
+                                })}
                                 disabled={runDisabled || running}
                                 onClick={onRun}
                             >
-                                {running ? "Running…" : runLabel}
+                                {running ? 'Running…' : runLabel}
                             </button>
                         </div>
                     </td>
                     {scenarios.map((s) => (
-                        <td key={s.key} className={styles.rCell} style={{ textAlign: "center" }}>
-                            {s.status === "running" ? (
+                        <td key={s.key} className={styles.rCell} style={{ textAlign: 'center' }}>
+                            {s.status === 'running' ? (
                                 <span className={styles.runSpin} style={{ color: s.color }} />
-                            ) : s.status === "queued" ? (
+                            ) : s.status === 'queued' ? (
                                 <span className={styles.runQ}>…</span>
                             ) : null}
                         </td>
@@ -273,7 +297,7 @@ export default function MatrixTable(props: Props) {
                                             [styles.dimRes]: s.stale,
                                         })}
                                     >
-                                        {s.status === "running" || s.status === "queued" ? (
+                                        {s.status === 'running' || s.status === 'queued' ? (
                                             <span className={styles.rDash}>…</span>
                                         ) : s.results ? (
                                             formatMetric(s.results[m.key], m)
@@ -308,12 +332,16 @@ export default function MatrixTable(props: Props) {
                                 type="button"
                                 className={clsx(styles.bindBtn, { [styles.on]: isSel(s.key) })}
                                 style={isSel(s.key) ? { background: s.color } : undefined}
-                                disabled={!s.cashflow}
-                                title={s.cashflow ? "View cash flow" : "Run to view cash flow"}
+                                // disabled={!s.cashflow}
+                                title={
+                                    s.cashflow
+                                        ? 'Select Scenario'
+                                        : 'Run Scenarios to view cash flow'
+                                }
                                 onClick={() => onBindCF(s.key)}
                             >
                                 <LineChartOutlined />
-                                <span className={styles.bindText}>View</span>
+                                <span className={styles.bindText}>Select</span>
                             </button>
                         </td>
                     ))}

@@ -213,7 +213,7 @@ export default function WorkspacesPanel({
 
     const editItem = (item: Item) => {
         onEdit({
-            workflowId: `wf_${item.templateId}`,
+            workflowId: item.templateId,
             title: item.templateName,
             templateId: item.templateId,
         });

@@ -1,8 +1,5 @@
 import { useMemo } from 'react';
-import {
-    useGetWidgetValueArray,
-    useSetWidgetValue,
-} from '../../state/Widgets/hooks';
+import { useGetWidgetValueArray, useSetWidgetValue } from '../../state/Widgets/hooks';
 import type { ChannelId } from '../../state/Widgets/types';
 import { useGetActiveTab } from '../../state/Tabs/hooks';
 import {
@@ -60,15 +57,9 @@ export function useTapeFilter(channelId: ChannelId = '1'): TapeFilter {
     const activeTab = useGetActiveTab();
     const setValueToChannel = useSetWidgetValue();
 
-    const keys = useMemo(
-        () => [...COLLATERAL_FILTER_KEYS, ...COLLATERAL_STAGE_KEYS],
-        [],
-    );
+    const keys = useMemo(() => [...COLLATERAL_FILTER_KEYS, ...COLLATERAL_STAGE_KEYS], []);
 
-    const bag = useGetWidgetValueArray({ channelId, keys }) as Record<
-        string,
-        unknown
-    >;
+    const bag = useGetWidgetValueArray({ channelId, keys }) as Record<string, unknown>;
 
     const applied = useMemo(() => {
         const out: Record<string, StringArray> = {};
@@ -88,22 +79,21 @@ export function useTapeFilter(channelId: ChannelId = '1'): TapeFilter {
 
     const pendingCount = useMemo(
         () =>
-            COLLATERAL_DIMS.filter(
-                (dimension) => !sameSet(staged[dimension], applied[dimension]),
-            ).length,
-        [staged, applied],
+            COLLATERAL_DIMS.filter((dimension) => !sameSet(staged[dimension], applied[dimension]))
+                .length,
+        [staged, applied]
     );
 
     const appliedActive = useMemo(
         () =>
-            COLLATERAL_DIMS.filter(
-                (dimension) => applied[dimension].length > 0,
-            ).map((dimension) => ({
-                dim: dimension,
-                key: `${FILTER_PREFIX}${dimension}`,
-                values: applied[dimension],
-            })),
-        [applied],
+            COLLATERAL_DIMS.filter((dimension) => applied[dimension].length > 0).map(
+                (dimension) => ({
+                    dim: dimension,
+                    key: `${FILTER_PREFIX}${dimension}`,
+                    values: applied[dimension],
+                })
+            ),
+        [applied]
     );
 
     const setChannel = (key: string, value: StringArray | null) =>
@@ -137,7 +127,7 @@ export function useTapeFilter(channelId: ChannelId = '1'): TapeFilter {
             if (sameSet(staged[dimension], applied[dimension])) continue;
             setChannel(
                 `${FILTER_PREFIX}${dimension}`,
-                staged[dimension].length ? staged[dimension] : null,
+                staged[dimension].length ? staged[dimension] : null
             );
         }
     };

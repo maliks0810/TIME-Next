@@ -29,6 +29,7 @@ export const ButtonWidget = ({ widgetInstance }: WidgetComponentProps) => {
                     channelId,
                     key: emitsKeys,
                     value: emitValue,
+                    widgetId: widgetInstance.id,
                 });
                 return null;
             }

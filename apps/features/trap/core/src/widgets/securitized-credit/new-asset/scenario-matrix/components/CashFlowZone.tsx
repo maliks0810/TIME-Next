@@ -1,19 +1,21 @@
-import React from "react";
-import clsx from "clsx";
-import { DownloadOutlined } from "@ant-design/icons";
-import styles from "../ScenarioMatrixWidget.module.scss";
-import { CF_DUAL_PANE_MIN } from "../constants";
-import { formatMoney } from "../format";
-import { useElementWidth } from "../hooks/useElementWidth";
-import type { CashFlowView, CashflowPeriod, Scenario } from "../types";
-import CashFlowChart from "./CashFlowChart";
+import React from 'react';
+import clsx from 'clsx';
+import { DownloadOutlined, CalculatorOutlined, DollarOutlined } from '@ant-design/icons';
+import styles from '../ScenarioMatrixWidget.module.scss';
+import { CF_DUAL_PANE_MIN } from '../constants';
+import { formatMoney } from '../format';
+import { useElementWidth } from '../hooks/useElementWidth';
+import type { CashFlowView, CashflowPeriod, Scenario } from '../types';
+import CashFlowChart from './CashFlowChart';
+import { Button } from 'antd';
 
 type Props = {
     scenario: Scenario | null;
     view: CashFlowView;
     onView: (v: CashFlowView) => void;
     onExport: () => void;
-    onSend: () => void;
+    onSendAssumptions: () => void;
+    onSendCashFlows: () => void;
     canSend: boolean;
     /**
      * Parent hint (from useWidgetPixels). Used only as a pre-measure fallback;
@@ -42,7 +44,16 @@ function totalsOf(periods: CashflowPeriod[] | null) {
 }
 
 export default function CashFlowZone(props: Props) {
-    const { scenario, view, onView, onExport, onSend, canSend, dualPane } = props;
+    const {
+        scenario,
+        view,
+        onView,
+        onExport,
+        onSendAssumptions,
+        onSendCashFlows,
+        canSend,
+        dualPane,
+    } = props;
     const periods = scenario?.cashflow ?? null;
 
     // Self-measured zone width drives the layout switch. Fall back to the parent
@@ -107,43 +118,63 @@ export default function CashFlowZone(props: Props) {
     return (
         <div ref={zoneRef} className={styles.cfZone}>
             <div className={styles.cfHead}>
-                <span className={styles.cfTitle}>Cash Flow</span>
+                <span className={styles.cfTitle}>
+                    <DollarOutlined /> Cash Flow
+                </span>
                 <div className={styles.cfActions}>
                     {!isDual && (
                         <div className={styles.seg}>
                             <button
                                 type="button"
-                                className={clsx({ [styles.active]: view === "chart" })}
-                                onClick={() => onView("chart")}
+                                className={clsx({ [styles.active]: view === 'chart' })}
+                                onClick={() => onView('chart')}
                             >
                                 Chart
                             </button>
                             <button
                                 type="button"
-                                className={clsx({ [styles.active]: view === "table" })}
-                                onClick={() => onView("table")}
+                                className={clsx({ [styles.active]: view === 'table' })}
+                                onClick={() => onView('table')}
                             >
                                 Table
                             </button>
                         </div>
                     )}
-                    <button
-                        type="button"
-                        className={styles.iconBtn}
+                    <Button
+                        size="small"
                         title="Export cash flow"
                         onClick={onExport}
                         disabled={!periods}
                     >
                         <DownloadOutlined />
-                    </button>
-                    <button
-                        type="button"
-                        className={styles.btnSend}
-                        onClick={onSend}
+                    </Button>
+                    <Button
+                        size="small"
+                        title="Send to Staging Input Assumptions"
+                        onClick={onSendAssumptions}
+                        disabled={!scenario}
+                    >
+                        <CalculatorOutlined />
+                    </Button>
+                    <Button
+                        size="small"
+                        title="Send to Staging Cash Flow"
+                        onClick={onSendCashFlows}
                         disabled={!canSend}
                     >
-                        Send to Staging →
-                    </button>
+                        <DollarOutlined />
+                    </Button>
+                    <Button
+                        size="small"
+                        title="Send to Staging Input Assumptions and Cash Flow"
+                        onClick={() => {
+                            onSendCashFlows();
+                            onSendAssumptions();
+                        }}
+                        disabled={!canSend}
+                    >
+                        <CalculatorOutlined /> + <DollarOutlined />
+                    </Button>
                 </div>
             </div>
 
@@ -157,7 +188,7 @@ export default function CashFlowZone(props: Props) {
                         <div className={styles.paneChart}>{chart}</div>
                         <div className={styles.paneTable}>{table}</div>
                     </>
-                ) : view === "chart" ? (
+                ) : view === 'chart' ? (
                     chart
                 ) : (
                     table

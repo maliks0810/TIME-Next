@@ -39,6 +39,7 @@ export const MultiSelectWidget = ({ widgetInstance, result }: WidgetComponentPro
             channelId: widgetInstance?.config?.params?.channel,
             value: values,
             activeTab,
+            widgetId: widgetInstance.id,
         });
         setChecked(values);
     };

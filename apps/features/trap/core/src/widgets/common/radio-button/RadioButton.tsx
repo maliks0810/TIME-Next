@@ -53,6 +53,7 @@ export const RadioButton = ({ widgetInstance, widgetDefinition }: WidgetComponen
             channelId: widgetInstance?.config?.params?.channel,
             value: value.target.checked,
             activeTab,
+            widgetId: widgetInstance.id,
         });
         setChecked(value.target.checked);
     };

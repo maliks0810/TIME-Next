@@ -48,6 +48,7 @@ export const DateSelect = ({ widgetInstance }: WidgetComponentProps) => {
                 key,
                 activeTab,
                 value: date?.format(dateFormat) || null,
+                widgetId: widgetInstance.id,
             });
         },
         [key, dateFormat]
@@ -62,6 +63,7 @@ export const DateSelect = ({ widgetInstance }: WidgetComponentProps) => {
             key,
             activeTab,
             value: dateValue.format(dateFormat),
+            widgetId: widgetInstance.id,
         });
     }, []);
 

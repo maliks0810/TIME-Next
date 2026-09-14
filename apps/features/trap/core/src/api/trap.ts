@@ -469,3 +469,63 @@ export async function deleteTheme(id: string): Promise<boolean> {
     );
     return data.deleteTheme;
 }
+
+export type UserPreferences = {
+    id: string;
+    category: string;
+    userId: string;
+    application: string;
+    profile: Record<string, any>;
+};
+
+export async function getUserPreferenceByApplication(
+    application: string
+): Promise<Record<string, any>> {
+    const data = await gql<{ profileByApplication: any }>(
+        `query profileByApplication($application: String!) { profileByApplication(application: $application) {
+        id, 
+        category,
+        userId,
+        application,
+        profile }
+    }`,
+        { application }
+    );
+
+    return data.profileByApplication || {};
+}
+
+export async function getUserPreferenceById(userId: string): Promise<UserPreferences[]> {
+    const data = await gql<{ profiles: any[] }>(
+        `query Profiles($userId: String!) { profiles(userId: $userId) {
+        id, 
+        category,
+        userId,
+        application,
+        profile }
+    }`,
+        { userId }
+    );
+
+    return data.profiles || [];
+}
+
+export async function upsertPreference(input: any): Promise<boolean> {
+    await gql<{ preferences: any[] }>(
+        `mutation UpsertProfile($input: CreateProfile!) { upsertProfile(input: $input) 
+    }`,
+        { input }
+    );
+
+    return true;
+}
+
+export async function overridePreference(input: any, userId: string): Promise<boolean> {
+    await gql<{ preferences: any[] }>(
+        `mutation UpdatePreference($input: UpdatePreference!, $userId: String!) { updatePreference(input: $input, userId: $userId)
+    }`,
+        { input, userId }
+    );
+
+    return true;
+}

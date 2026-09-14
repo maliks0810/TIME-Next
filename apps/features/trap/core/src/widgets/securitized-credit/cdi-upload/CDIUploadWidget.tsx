@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { BankOutlined } from '@ant-design/icons';
-import clsx from 'clsx'
+import clsx from 'clsx';
 
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import { useWidgetSize, WidgetSizeBands } from '../../../components/layout/useWidgetSize';
@@ -35,16 +35,11 @@ export default function CDIUploadWidget({
     const { ref, cols, heightPx } = useWidgetSize(CDI_BANDS);
     const { themeName } = useTheme();
 
-    const isWealthTheme =
-        themeName === 'wealthLight' ||
-        themeName === 'wealthDark';
+    const isWealthTheme = themeName === 'wealthLight' || themeName === 'wealthDark';
 
-    const isWealthLight =
-        themeName === 'wealthLight';
+    const isWealthLight = themeName === 'wealthLight';
 
-    const isWealthDark =
-        themeName === 'wealthDark';
-
+    const isWealthDark = themeName === 'wealthDark';
 
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [progress, setProgress] = useState(0);
@@ -60,9 +55,9 @@ export default function CDIUploadWidget({
 
     const widgetDefId = String(
         widgetInstance?.composedWidgetId ??
-        widgetInstance?.widgetDefinitionId ??
-        widgetDefinition?.id ??
-        ''
+            widgetInstance?.widgetDefinitionId ??
+            widgetDefinition?.id ??
+            ''
     );
 
     const isDesigner = mode === 'designer';
@@ -70,11 +65,17 @@ export default function CDIUploadWidget({
     const activeTab = useGetActiveTab();
     const setWidgetValueToChannel = useSetWidgetValue();
 
-    const channelDealName = useGetWidgetValue({ channelId, key: DEAL_NAME_KEY }) as string | undefined;
+    const channelDealName = useGetWidgetValue({ channelId, key: DEAL_NAME_KEY }) as
+        | string
+        | undefined;
     const lastPublishedDealRef = useRef<string | null>(null);
 
     useEffect(() => {
-        if (channelDealName && lastPublishedDealRef.current && channelDealName !== lastPublishedDealRef.current) {
+        if (
+            channelDealName &&
+            lastPublishedDealRef.current &&
+            channelDealName !== lastPublishedDealRef.current
+        ) {
             setUploadState('idle');
             setFileName('');
             setProgress(0);
@@ -113,8 +114,20 @@ export default function CDIUploadWidget({
 
     const publishDeal = (deal: { dealName: string; sessionId: string }) => {
         lastPublishedDealRef.current = deal.dealName;
-        setWidgetValueToChannel({ channelId, key: DEAL_NAME_KEY, value: deal.dealName, activeTab });
-        setWidgetValueToChannel({ channelId, key: ANALYSIS_SESSION_ID_KEY, value: deal.sessionId, activeTab });
+        setWidgetValueToChannel({
+            channelId,
+            key: DEAL_NAME_KEY,
+            value: deal.dealName,
+            activeTab,
+            widgetId: widgetInstance.id,
+        });
+        setWidgetValueToChannel({
+            channelId,
+            key: ANALYSIS_SESSION_ID_KEY,
+            value: deal.sessionId,
+            activeTab,
+            widgetId: widgetInstance.id,
+        });
     };
 
     const handleFetch = async ({ dealName, passcode }: { dealName: string; passcode: string }) => {
@@ -185,7 +198,8 @@ export default function CDIUploadWidget({
                 });
                 setProgress(100);
                 const deal = out?.result as any;
-                if (!deal?.dealName) throw new Error('Upload succeeded but no deal metadata returned');
+                if (!deal?.dealName)
+                    throw new Error('Upload succeeded but no deal metadata returned');
                 const newDeal: RecentDeal = {
                     dealId: `r_${deal.dealName}`,
                     dealName: deal.dealName,
@@ -223,9 +237,12 @@ export default function CDIUploadWidget({
         });
         const byteCharacters = atob(result.base64);
         const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i);
+        for (let i = 0; i < byteCharacters.length; i++)
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
         const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: result.contentType || 'application/octet-stream' });
+        const blob = new Blob([byteArray], {
+            type: result.contentType || 'application/octet-stream',
+        });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;

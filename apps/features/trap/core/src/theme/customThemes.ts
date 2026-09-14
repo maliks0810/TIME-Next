@@ -181,11 +181,11 @@ export type ResolvedTheme = { config: any; appBackground: string };
 /** Resolve any theme id (built-in name or custom id) to its antd config + app background. */
 export function resolveTheme(themeName: string, customThemes: CustomTheme[]): ResolvedTheme {
     if (isCustomId(themeName)) {
-        const c = customThemes.find((x) => x.id === themeName);
-        if (c)
+        const custom = customThemes?.find((x) => x.id === themeName);
+        if (custom)
             return {
-                config: withSharedTokens(customToConfig(c)),
-                appBackground: customAppBackground(c),
+                config: withSharedTokens(customToConfig(custom)),
+                appBackground: customAppBackground(custom),
             };
     }
     return {

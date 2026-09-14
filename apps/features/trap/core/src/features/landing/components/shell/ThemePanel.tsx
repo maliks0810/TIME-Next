@@ -145,10 +145,10 @@ export default function ThemesPanel() {
                     ) : null}
 
                     <div className={styles['tsec']}>
-                        My themes{customThemes.length ? ` · ${customThemes.length}` : ''}
+                        My themes{customThemes?.length ? ` · ${customThemes?.length}` : ''}
                     </div>
-                    {customThemes.length ? (
-                        customThemes.map(CustomRow)
+                    {customThemes?.length ? (
+                        customThemes?.map(CustomRow)
                     ) : (
                         <Typography.Text
                             type="secondary"

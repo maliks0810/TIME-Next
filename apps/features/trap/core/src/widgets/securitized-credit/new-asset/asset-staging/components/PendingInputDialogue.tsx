@@ -1,0 +1,67 @@
+import { Button, Tag, Card } from 'antd';
+import clsx from 'clsx';
+
+import styles from '../AssetStagingWidget.module.scss';
+import { ScenarioSummary } from '../../scenario-matrix/utils/scenarioSummary';
+
+export const PendingInputDialogue = ({
+    scenarioRunSummary,
+    onPendingInputAccept,
+    onPendingInputDismiss,
+    cashflow,
+}: {
+    scenarioRunSummary: ScenarioSummary | null;
+    onPendingInputAccept: () => void;
+    onPendingInputDismiss: () => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cashflow: any;
+}) => {
+    const tagColor = scenarioRunSummary?.color || cashflow?.color;
+    const scenario = scenarioRunSummary?.scenario || cashflow?.scenario;
+    const tranche = scenarioRunSummary?.tranche || cashflow?.tranche;
+    return (
+        <div className={clsx(styles.assumptionPanel, styles.assumptionPendingBody)}>
+            <Card style={{ width: 385 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Tag color={tagColor}>{scenario}</Tag>
+                </div>
+                <div
+                    style={{
+                        fontSize: 12,
+                        marginTop: 8,
+                        marginBottom: 8,
+                    }}
+                >
+                    <b>{tranche}</b>
+                    {!!cashflow && !scenarioRunSummary && (
+                        <span className={styles.cashflowOverrideWarning}>
+                            Input Assumptions would not be overriden!
+                        </span>
+                    )}
+                    {scenarioRunSummary && ` · ${scenarioRunSummary?.pendingAssumptionsMessage}`}
+                    {!!cashflow && (
+                        <div className={styles.cashflowAttachedContainer}>Cash flow attached</div>
+                    )}
+                </div>
+                <div className={styles.assumptionPendingActions}>
+                    <Button
+                        variant="solid"
+                        color="primary"
+                        size="small"
+                        onClick={onPendingInputAccept}
+                    >
+                        Accept
+                    </Button>
+                    <Button
+                        size="small"
+                        variant="outlined"
+                        color="danger"
+                        onClick={onPendingInputDismiss}
+                    >
+                        Dismiss
+                    </Button>
+                </div>
+            </Card>
+        </div>
+    );
+};

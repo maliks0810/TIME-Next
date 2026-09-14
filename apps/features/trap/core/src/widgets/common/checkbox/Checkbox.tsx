@@ -52,6 +52,7 @@ export const CheckboxWidget = ({ widgetInstance, widgetDefinition }: WidgetCompo
             channelId: widgetInstance?.config?.params?.channel,
             value: value.target.checked,
             activeTab,
+            widgetId: widgetInstance.id,
         });
         setChecked(value.target.checked);
     };
