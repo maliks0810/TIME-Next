@@ -16,13 +16,13 @@ import type { ColumnsType } from "antd/es/table";
 import {
   DownloadOutlined,
   FilePdfOutlined,
+  GlobalOutlined,
   PrinterOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
 import { downloadExport } from "./api/download";
 import { buildDram2UrlNonAttribution } from "./api/services";
 import { formatDateOnly } from "./snapshot-book/helper";
-
 const { Title, Text } = Typography;
 
 // Numeric fields may arrive as JSON strings (Snowflake NUMBER/Decimal),
@@ -63,6 +63,9 @@ interface UcitsRow {
   morningstarOverallRating?: Num;
   morningstarCategory?: string;
   dataWarning?: string;
+  morningstarMedalistRating?: number;
+  morningstarSustainabilityRating?: string;
+  morningstarSustainabilityGlobe?: number;
 }
 
 interface UcitsSnapshotResponse {
@@ -99,6 +102,10 @@ interface FundReference {
   inceptionDate?: string;
   shareClassSuffix?: string;
   pfNumber?: string;
+
+  morningstarMedalistRating?: string;
+  morningstarSustainabilityRating?: string;
+  morningstarSustainabilityGlobe?: number;
 }
 
 interface UcitsSnapshotViewModel {
@@ -168,6 +175,55 @@ const fmtRating = (v?: Num, benchmark = false): React.ReactNode => {
   );
 };
 
+
+const fmtGlobes = (
+  globes?: number
+): React.ReactNode => {
+  const count = Number(globes ?? 0);
+
+  if (count <= 0) {
+    return null;
+  }
+
+  const globeCount = Math.floor(count / 2);
+
+  return (
+    <>
+      {Array.from({ length: globeCount }).map((_, index) => (
+        <GlobalOutlined
+          key={index}
+          style={{
+            color: "#666",
+            marginRight: 2,
+            fontSize: 11,
+          }}
+        />
+      ))}
+    </>
+  );
+};
+
+const getSustainabilityRating = (
+  value?: number | string | null
+): string => {
+  if(value === null)
+    return "";
+  const score = Number(value);
+
+  if (!Number.isFinite(score)) {
+    return "";
+  }
+  const final = Math.floor(score / 2);
+  if (final < 3) {
+    return "Below Average";
+  }
+
+  if (final === 3) {
+    return "Average";
+  }
+
+  return "Above Average";
+};
 // Date-only formatter that avoids the UTC parse off-by-one.
 const fmtRefDate = (v?: string): string => {
   if (!v) return "";
@@ -256,6 +312,15 @@ function normalizeUcitsResponse(
       inceptionDate: row.inceptionDate,
       shareClassSuffix: suffix,
       pfNumber: row.pfNumber,
+
+      morningstarMedalistRating:
+        getSustainabilityRating(row.morningstarMedalistRating),
+
+      morningstarSustainabilityRating:
+        row.morningstarSustainabilityRating,
+
+      morningstarSustainabilityGlobe:
+        row.morningstarMedalistRating,
     });
   }
 
@@ -733,8 +798,49 @@ export default function TCWUCITSFundsPerformanceSnapshot({
             !loading && <Empty />
           )}
         </Spin>
-        {/* Fund reference footer: AEHE left and IEHE right for EUR */}
-        {data?.references?.length ? (
+{data?.references?.length ? (
+  data.currencyCode === "USD" ? (
+    <table className="reference-table-usd">
+      <thead>
+        <tr>
+          <th>TCW UCITS Fund</th>
+          <th>Morningstar Category</th>
+          <th>Inception Date</th>
+          <th>Morningstar Medalist Rating</th>
+          <th>Morningstar Sustainability Rating</th>
+          <th>PF #</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {data.references.map((ref) => (
+          <tr key={ref.pfNumber}>
+            <td>{ref.fundName}</td>
+
+            <td>{ref.morningstarCategory}</td>
+
+            <td>{fmtRefDate(ref.inceptionDate)}</td>
+
+            <td>{ref.morningstarSustainabilityRating}</td>
+
+            <td>
+              <Space size={8}>
+                <span>
+                  {ref.morningstarMedalistRating}
+                </span>
+
+                {fmtGlobes(
+                  ref.morningstarSustainabilityGlobe
+                )}
+              </Space>
+            </td>
+
+            <td>{ref.pfNumber}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : (
           <div className="reference-block">
             {referenceColumns.map((columnReferences, columnIndex) => (
               <table className="reference-table" key={columnIndex}>
@@ -779,7 +885,8 @@ export default function TCWUCITSFundsPerformanceSnapshot({
               </table>
             ))}
           </div>
-        ) : null}
+  )
+) : null}
         <div className="snapshot-footnote">
           Morningstar Ratings: Within Morningstar Category, the top 10% of funds
           receive 5 stars and the bottom 10% receive 1 star. Funds are rated for
@@ -885,6 +992,50 @@ export default function TCWUCITSFundsPerformanceSnapshot({
           color: ${GRAY};
           line-height: 1.5;
           white-space: normal;
+        }
+        .reference-table-usd {
+          width: 100%;
+          margin-top: 48px;
+          border-collapse: collapse;
+          table-layout: fixed;
+          font-size: 11px;
+        }
+
+        .reference-table-usd th {
+          color: #17365d;
+          text-align: left;
+          font-weight: 700;
+          border-bottom: 1px solid #17365d;
+          padding: 4px 6px;
+        }
+
+        .reference-table-usd td {
+          padding: 2px 6px;
+          vertical-align: middle;
+        }
+
+        .reference-table-usd th:nth-child(1) {
+          width: 18%;
+        }
+
+        .reference-table-usd th:nth-child(2) {
+          width: 28%;
+        }
+
+        .reference-table-usd th:nth-child(3) {
+          width: 10%;
+        }
+
+        .reference-table-usd th:nth-child(4) {
+          width: 16%;
+        }
+
+        .reference-table-usd th:nth-child(5) {
+          width: 18%;
+        }
+
+        .reference-table-usd th:nth-child(6) {
+          width: 10%;
         }
         @media print {
           .snapshot-no-print { display: none !important; }
