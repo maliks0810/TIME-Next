@@ -78,7 +78,7 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
             'analysis.sessionId',
             'workflow.refresh',
         ],
-        emitsKeys: ['asset.staged.trancheId', 'asset.staged.trancheName', 'asset.isNew'],
+        emitsKeys: ['tranche.id', 'tranche.name', 'asset.isNew'],
     },
     cwd_new_asset_staging_01: {
         id: 'cwd_new_asset_staging_01',
@@ -88,8 +88,8 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: [
             'deal.id',
             'deal.name',
-            'asset.staged.trancheId',
-            'asset.staged.trancheName',
+            'tranche.id',
+            'tranche.name',
             'analysis.sessionId',
             'scenario.selectedResultId',
             'scenario.selectedSummary',
@@ -336,7 +336,15 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         component: TableWidget,
         category: 'View',
         visibleIn: ['workflow', 'landing'],
-        listensToKeys: ['deal.name', 'filter.state', 'filter.fico', 'filter.ltv', 'filter.coupon', 'filter.manufacturer', 'filter.new_used'],
+        listensToKeys: [
+            'deal.name',
+            'filter.state',
+            'filter.fico',
+            'filter.ltv',
+            'filter.coupon',
+            'filter.manufacturer',
+            'filter.new_used',
+        ],
         emitsKeys: [],
     },
     cwd_common_title_01: {

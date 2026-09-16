@@ -338,7 +338,7 @@ export function ScTrancheDetailWidget({
 
         // execute is intentionally excluded because some widget runtimes
         // recreate it after each result update, which would cause a loop.
-    }, [dealName, trancheName, requestKey, channelId, activeTab, setWidgetValueToChannel]);
+    }, [dealName, trancheName, requestKey, channelId, activeTab]);
 
     React.useEffect(() => {
         if (loading) {

@@ -104,7 +104,7 @@ export default function SecurityLookupWidget({
                 });
             }
         },
-        [setWidgetValueToChannel, activeTab, channelId]
+        [activeTab, channelId]
     );
 
     const handleExecute = React.useCallback(() => {

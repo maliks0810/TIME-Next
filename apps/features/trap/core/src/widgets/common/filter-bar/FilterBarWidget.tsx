@@ -102,7 +102,7 @@ export function FilterBarWidget({ widgetInstance, widgetDefinition }: WidgetComp
             channelId,
             widgetId: widgetInstance.id,
         });
-    }, [contextValue, filterScopeValue, activeTab, channelId, bag, setValueToChannel]);
+    }, [contextValue, filterScopeValue, activeTab, channelId, bag]);
 
     const chips = tape.appliedActive;
     const hasChips = chips.length > 0;

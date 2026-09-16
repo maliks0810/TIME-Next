@@ -31,11 +31,13 @@ import type { Dayjs } from 'dayjs';
 import styles from './AssetStagingWidget.module.scss';
 import {
     SCENARIO_MATRIX_UPDATE_TIMESTAMP,
+    SCENARIO_SELECTED_RESULT_ID,
     SCENARIO_SELECTED_SUMMARY,
     SELECTED_SCENARIO_CASHFLOWS,
 } from '../scenario-matrix/constants';
 import { ScenarioSummary } from '../scenario-matrix/utils/scenarioSummary';
 import { PendingInputDialogue } from './components/PendingInputDialogue';
+import { TRANCHE_NAME_KEY, TRANCHE_ID_KEY, DEAL_NAME_KEY } from '../../../constants';
 
 const { Text } = Typography;
 
@@ -50,8 +52,8 @@ type StatusState = {
 };
 
 const ITEMS: StagingItem[] = [
-    { label: 'Deal', ctxKey: 'deal.name', required: true },
-    { label: 'Tranche', ctxKey: 'asset.staged.trancheId', required: true },
+    { label: 'Deal', ctxKey: DEAL_NAME_KEY, required: true },
+    { label: 'Tranche', ctxKey: TRANCHE_ID_KEY, required: true },
     {
         label: 'CUSIP',
         ctxKey: '__cusipOverride__',
@@ -153,17 +155,17 @@ export default function AssetStagingWidget({
 
     const dealName = useGetWidgetValue({
         channelId,
-        key: 'deal.name',
+        key: DEAL_NAME_KEY,
     }) as string | undefined;
 
     const stagedTrancheId = useGetWidgetValue({
         channelId,
-        key: 'asset.staged.trancheId',
+        key: TRANCHE_ID_KEY,
     }) as string | undefined;
 
     const stagedTrancheName = useGetWidgetValue({
         channelId,
-        key: 'asset.staged.trancheName',
+        key: TRANCHE_NAME_KEY,
     }) as string | undefined;
 
     const liveTrancheId = useGetWidgetValue({
@@ -244,7 +246,7 @@ export default function AssetStagingWidget({
 
     const scenarioId = useGetWidgetValue({
         channelId,
-        key: 'scenario.selectedResultId',
+        key: SCENARIO_SELECTED_RESULT_ID,
     }) as string | undefined;
 
     const setWidgetValueToChannel = useSetWidgetValue();
@@ -276,11 +278,7 @@ export default function AssetStagingWidget({
             setValidationErrors({});
             setHeldStatus(null);
 
-            [
-                'asset.staged.trancheId',
-                'asset.staged.trancheName',
-                'scenario.selectedResultId',
-            ].forEach((key) =>
+            [TRANCHE_ID_KEY, TRANCHE_NAME_KEY, SCENARIO_SELECTED_RESULT_ID].forEach((key) =>
                 setWidgetValueToChannel({
                     channelId,
                     key,
@@ -328,7 +326,7 @@ export default function AssetStagingWidget({
         }
 
         prevDealNameRef.current = dealName;
-    }, [dealName, channelId, activeTab, setWidgetValueToChannel, widgetDefId, isDesigner]);
+    }, [dealName, channelId, activeTab, widgetDefId, isDesigner]);
 
     // ─── Step 2: Prefill when tranche is selected (keyed on NAME) ───
     const prevTrancheNameRef = React.useRef(trancheName);
@@ -538,10 +536,10 @@ export default function AssetStagingWidget({
     const baseLaunchContext = React.useMemo<Record<string, unknown>>(() => {
         const context: Record<string, unknown> = {};
 
-        if (dealName) context['deal.name'] = dealName;
-        if (trancheId) context['asset.staged.trancheId'] = trancheId;
-        if (trancheName) context['asset.staged.trancheName'] = trancheName;
-        if (scenarioId) context['scenario.selectedResultId'] = scenarioId;
+        if (dealName) context[DEAL_NAME_KEY] = dealName;
+        if (trancheId) context[TRANCHE_ID_KEY] = trancheId;
+        if (trancheName) context[TRANCHE_NAME_KEY] = trancheName;
+        if (scenarioId) context[SCENARIO_SELECTED_RESULT_ID] = scenarioId;
 
         return context;
     }, [dealName, trancheId, trancheName, scenarioId]);
@@ -569,8 +567,8 @@ export default function AssetStagingWidget({
     );
 
     const doneMap: Record<string, boolean> = {
-        'deal.name': !!dealName,
-        'asset.staged.trancheId': !!trancheName,
+        DEAL_NAME_KEY: !!dealName,
+        TRANCHE_ID_KEY: !!trancheName,
         __cusipOverride__: cusipRequired
             ? cusipOverride.trim().length === 9 &&
               isValidCusip(cusipOverride.trim().toUpperCase()) &&
@@ -590,10 +588,10 @@ export default function AssetStagingWidget({
         (payloadSnapshot.ssdDealName as string | undefined);
 
     const displayVal: Record<string, string | undefined> = {
-        'deal.name': bloombergDealName || dealName,
-        'asset.staged.trancheId': trancheName ?? trancheId,
+        DEAL_NAME_KEY: bloombergDealName || dealName,
+        TRANCHE_ID_KEY: trancheName ?? trancheId,
         __cusipOverride__: cusipOverride.trim() || trancheCusip,
-        'scenario.selectedResultId': scenarioId,
+        SCENARIO_SELECTED_RESULT_ID: scenarioId,
         __extId__: extId.trim() || undefined,
     };
 
