@@ -115,7 +115,7 @@ export function ScTranchesWidget({
             activeTab,
             widgetId: widgetInstance.id,
         });
-    }, [dealId, setWidgetValueToChannel, channelId, activeTab]);
+    }, [dealId, channelId, activeTab]);
 
     // Name-driven selection and auto-scroll. The selection is applied only
     // when the loaded tranche list belongs to the active deal.
@@ -154,7 +154,7 @@ export function ScTranchesWidget({
                 widgetId: widgetInstance.id,
             });
         }
-    }, [trancheName, tranches, dealMatches, setWidgetValueToChannel, channelId, activeTab]);
+    }, [trancheName, tranches, dealMatches, channelId, activeTab]);
 
     // Legacy id-driven selection and auto-scroll.
     React.useEffect(() => {

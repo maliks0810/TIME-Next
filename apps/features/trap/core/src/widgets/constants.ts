@@ -1,6 +1,4 @@
 export const COUNTER_TILE_STORE_KEY = 'counterTile';
-export const ASSET_STAGED_TRANCHE_ID = 'asset.staged.trancheId';
-export const ASSET_STAGED_TRANCHE_NAME = 'asset.staged.trancheName';
 export const ANALYSTS_KEY = 'analystsControl';
 export const CHART_CONTROL_KEY = 'chartControl';
 export const PERIOD_RADIO_STORE_KEY = 'period';
@@ -47,10 +45,10 @@ export const COLLATERAL_DIMS = [
     'zero_balance_reason',
 ];
 export const COLLATERAL_FILTER_KEYS = COLLATERAL_DIMS.map(
-    (dimension) => `${FILTER_PREFIX}${dimension}`,
+    (dimension) => `${FILTER_PREFIX}${dimension}`
 );
 export const COLLATERAL_STAGE_KEYS = COLLATERAL_DIMS.map(
-    (dimension) => `${STAGE_PREFIX}${dimension}`,
+    (dimension) => `${STAGE_PREFIX}${dimension}`
 );
 export const COMMON_DATE_GRID_ROW_KEY = 'common.data.grid.row';
 export const COMMON_BUTTON_KEY = 'common.button';

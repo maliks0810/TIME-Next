@@ -14,7 +14,7 @@
         "analysis.sessionId",
         "workflow.refresh"
     ],
-    "emitsKeys": ["asset.staged.trancheId", "asset.staged.trancheName", "asset.isNew"],
+    "emitsKeys": ["tranche.id", "tranche.name", "asset.isNew"],
     "configSchema": {
         "properties": {
             "showScenarioAction": {
