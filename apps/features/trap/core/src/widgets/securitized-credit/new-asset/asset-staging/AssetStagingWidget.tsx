@@ -567,8 +567,8 @@ export default function AssetStagingWidget({
     );
 
     const doneMap: Record<string, boolean> = {
-        DEAL_NAME_KEY: !!dealName,
-        TRANCHE_ID_KEY: !!trancheName,
+        'deal.name': !!dealName,
+        'tranche.id': !!trancheName,
         __cusipOverride__: cusipRequired
             ? cusipOverride.trim().length === 9 &&
               isValidCusip(cusipOverride.trim().toUpperCase()) &&
@@ -588,10 +588,10 @@ export default function AssetStagingWidget({
         (payloadSnapshot.ssdDealName as string | undefined);
 
     const displayVal: Record<string, string | undefined> = {
-        DEAL_NAME_KEY: bloombergDealName || dealName,
-        TRANCHE_ID_KEY: trancheName ?? trancheId,
+        'deal.name': bloombergDealName || dealName,
+        'tranche.id': trancheName ?? trancheId,
         __cusipOverride__: cusipOverride.trim() || trancheCusip,
-        SCENARIO_SELECTED_RESULT_ID: scenarioId,
+        'scenario.selectedResultId': scenarioId,
         __extId__: extId.trim() || undefined,
     };
 
