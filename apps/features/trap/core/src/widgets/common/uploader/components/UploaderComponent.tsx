@@ -1,6 +1,7 @@
 import { InboxOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
-import { message, Upload } from 'antd';
+import { Upload } from 'antd';
+import { UploadState } from '../../../securitized-credit/types';
 
 import styles from './UploaderComponent.module.scss';
 
@@ -10,6 +11,7 @@ type UploaderProps = {
     onRemoveFile?: () => void;
     showUploadList?: boolean;
     isRemoveFileAllowed?: boolean;
+    setProgressStatus: (progressIndex: number, state: UploadState, errMsg: string) => void;
 };
 
 const { Dragger } = Upload;
@@ -20,9 +22,9 @@ export const Uploader = ({
     onRemoveFile = () => { },
     showUploadList = true,
     isRemoveFileAllowed = true,
+    setProgressStatus
+    
 }: UploaderProps) => {
-    const [messageApi, contextHolder] = message.useMessage();
-
     const props: UploadProps = {
         name: 'file',
         accept: accept,
@@ -36,7 +38,7 @@ export const Uploader = ({
         beforeUpload(file) {
             const isValidFormat = file.name.endsWith(accept);
             if (!isValidFormat) {
-                messageApi.error(`File format is not supported. Please upload ${accept} format file only!`);
+                setProgressStatus(0, 'error', `File format is not supported. Please upload ${accept} format file only!`);
                 return false;
             }
             onUpload(file);
@@ -46,7 +48,6 @@ export const Uploader = ({
 
     return (
         <>
-            {contextHolder}
             <Dragger {...props}>
                 <InboxOutlined className={styles.uploadIcon} />
                 <div className={styles.uploadHelpText}>

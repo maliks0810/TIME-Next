@@ -45,7 +45,8 @@
                     "prism.issuer.profile",
                     "prism.issuer.capital_structure",
                     "prism.issuer.fundamentals",
-                    "naic.rbc.designation"
+                    "naic.rbc.designation",
+                    "naic.portfolio.report.summary"
                 ],
                 "title": "Schema Key",
                 "type": "string",
@@ -66,7 +67,8 @@
                     "common.tree.item",
                     "company.id",
                     "cusip",
-                    "naicRatings"
+                    "naic.ratings",
+                    "naic.portfolio.report"
                 ],
                 "title": "Listens to keys",
                 "multiselect": true,
