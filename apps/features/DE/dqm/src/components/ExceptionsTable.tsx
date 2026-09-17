@@ -1,4 +1,13 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  cloneElement,
+  isValidElement,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { ExceptionRow } from "./types";
 import ColumnFilterHeader, { useColumnFilter } from "./ColumnFilter";
 import SortableTh, {
@@ -542,6 +551,16 @@ export default function ExceptionsTable({
       ),
     [data]
   );
+  // Comments is free-form so this list can be long; the popover's
+  // built-in search box handles that — typing narrows Excel-style, and
+  // the caller can then just hit OK for a wildcard "contains" filter.
+  const allComments = useMemo(
+    () =>
+      Array.from(new Set(data.map((r) => blankKey(r.comments)))).sort(
+        (a, b) => a.localeCompare(b)
+      ),
+    [data]
+  );
   const [ruleNameFilter, setRuleNameFilter] = useColumnFilter(allRuleNames);
   const [priorityFilter, setPriorityFilter] = useColumnFilter(allPriorities);
   const [assetIdFilter, setAssetIdFilter] = useColumnFilter(allAssetIds);
@@ -552,6 +571,7 @@ export default function ExceptionsTable({
     useColumnFilter(allSuppressDates);
   const [openDateFilter, setOpenDateFilter] = useColumnFilter(allOpenDates);
   const [closeDateFilter, setCloseDateFilter] = useColumnFilter(allCloseDates);
+  const [commentsFilter, setCommentsFilter] = useColumnFilter(allComments);
   const [openFilterId, setOpenFilterId] = useState<string | null>(null);
 
   // Per-RESULT_DATA-key filters keyed by the JSON key.
@@ -641,6 +661,8 @@ export default function ExceptionsTable({
           return false;
         if (closeDateFilter && !closeDateFilter.has(dateKey(row.closeDate)))
           return false;
+        if (commentsFilter && !commentsFilter.has(blankKey(row.comments)))
+          return false;
         for (const [k, f] of Object.entries(resultDataFilters)) {
           if (!f) continue;
           if (!f.has(blankKey(formatCell(row.resultData?.[k])))) return false;
@@ -658,6 +680,7 @@ export default function ExceptionsTable({
       suppressDateFilter,
       openDateFilter,
       closeDateFilter,
+      commentsFilter,
       resultDataFilters,
     ]
   );
@@ -1122,6 +1145,223 @@ export default function ExceptionsTable({
       return compareValues(getSortValue(a, key), getSortValue(b, key)) * factor;
     });
   }, [visibleRows, sort]);
+
+  // Excel-style rectangular cell selection. Drag from any cell to any
+  // other cell (across rows AND columns) to select the rectangle
+  // between them; Shift+Click extends from the anchor; Ctrl/Cmd+C
+  // copies the selection to the clipboard as TSV (tabs between
+  // columns, newlines between rows — the format Excel and Google
+  // Sheets paste from); Escape clears. Every cell participates, but
+  // clicks that land inside form widgets (input/select/textarea/
+  // button) are ignored so editable cells keep their edit flow.
+  type CellPos = { rowId: number; column: string };
+  const [selAnchor, setSelAnchor] = useState<CellPos | null>(null);
+  const [selTarget, setSelTarget] = useState<CellPos | null>(null);
+  const draggingRef = useRef<boolean>(false);
+  // visibleKeys is computed lower in the render body (columnOrder minus
+  // hidden). Both the keyboard handler and colIndexMap need the current
+  // column order without pulling those into the effect's deps, so the
+  // render body sets this ref after every render.
+  const visibleKeysRef = useRef<string[]>([]);
+  const rowIndexMap = useMemo(() => {
+    const m = new Map<number, number>();
+    sortedRows.forEach((r, i) => m.set(r.exceptionId, i));
+    return m;
+  }, [sortedRows]);
+  // colIndexMap depends on visibleKeys, which is only computed lower.
+  // Rebuild it inside a ref that the render body refreshes; the
+  // membership test below (selectableCellAttrs) reads through the ref.
+  const colIndexMapRef = useRef<Map<string, number>>(new Map());
+  // Precomputed rectangle bounds — the render loop just does two Map
+  // lookups per cell against these to decide "am I selected".
+  const selBounds = useMemo(() => {
+    if (!selAnchor || !selTarget) return null;
+    const iRowA = rowIndexMap.get(selAnchor.rowId) ?? -1;
+    const iRowT = rowIndexMap.get(selTarget.rowId) ?? -1;
+    const iColA = colIndexMapRef.current.get(selAnchor.column) ?? -1;
+    const iColT = colIndexMapRef.current.get(selTarget.column) ?? -1;
+    if (iRowA < 0 || iRowT < 0 || iColA < 0 || iColT < 0) return null;
+    return {
+      rowLo: Math.min(iRowA, iRowT),
+      rowHi: Math.max(iRowA, iRowT),
+      colLo: Math.min(iColA, iColT),
+      colHi: Math.max(iColA, iColT),
+    };
+    // colIndexMapRef is a ref, so it's intentionally absent from the
+    // dep list — the rule already knows refs never trigger recomputes,
+    // so no disable directive is needed.
+  }, [selAnchor, selTarget, rowIndexMap]);
+  const startCellSelection = useCallback(
+    (row: ExceptionRow, column: string, shift: boolean) => {
+      const pos: CellPos = { rowId: row.exceptionId, column };
+      if (shift && selAnchor) {
+        setSelTarget(pos);
+      } else {
+        setSelAnchor(pos);
+        setSelTarget(pos);
+      }
+      draggingRef.current = true;
+    },
+    [selAnchor]
+  );
+  const extendCellSelection = useCallback(
+    (row: ExceptionRow, column: string) => {
+      if (!draggingRef.current) return;
+      if (!selAnchor) return;
+      setSelTarget({ rowId: row.exceptionId, column });
+    },
+    [selAnchor]
+  );
+  useEffect(() => {
+    const onUp = () => {
+      draggingRef.current = false;
+    };
+    window.addEventListener("mouseup", onUp);
+    return () => window.removeEventListener("mouseup", onUp);
+  }, []);
+  // Display value for a cell — mirrors what the grid renders (dates as
+  // MM/DD/YYYY, rd:* via formatCell, etc.) so what the operator sees is
+  // exactly what lands on the clipboard.
+  const cellDisplayValue = useCallback(
+    (row: ExceptionRow, column: string): string => {
+      if (column.startsWith("rd:")) {
+        return formatCell(row.resultData?.[column.slice(3)]);
+      }
+      switch (column) {
+        case "status":
+          return row.status ?? "";
+        case "comments":
+          return row.comments ?? "";
+        case "assignTo":
+          return row.assignTo ?? "";
+        case "priority":
+          return row.priority ?? "";
+        case "ruleName":
+          return row.ruleName ?? "";
+        case "issue":
+          return row.issue ?? "";
+        case "aladdin":
+          return row.aladdin ?? "";
+        case "idBbGlobal":
+          return row.idBbGlobal ?? "";
+        case "vendor":
+          return row.vendor ?? "";
+        case "action":
+          return row.action ?? "";
+        case "state":
+          return row.state ?? "";
+        case "dateTime":
+          return row.dateTime ?? "";
+        case "suppressDate":
+          return formatMdyDate(row.suppressDate ?? "");
+        case "openDate":
+          return formatMdyDate(row.openDate ?? "");
+        case "closeDate":
+          return formatMdyDate(row.closeDate ?? "");
+        default:
+          return "";
+      }
+    },
+    []
+  );
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (selAnchor || selTarget) {
+          setSelAnchor(null);
+          setSelTarget(null);
+        }
+        return;
+      }
+      if (!(e.ctrlKey || e.metaKey)) return;
+      if (e.key.toLowerCase() !== "c") return;
+      if (!selBounds) return;
+      const el = document.activeElement as HTMLElement | null;
+      const tag = el?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      const cols = visibleKeysRef.current;
+      const rowSlice = sortedRows.slice(selBounds.rowLo, selBounds.rowHi + 1);
+      const colSlice = cols.slice(selBounds.colLo, selBounds.colHi + 1);
+      const text = rowSlice
+        .map((r) => colSlice.map((c) => cellDisplayValue(r, c)).join("\t"))
+        .join("\n");
+      if (!text) return;
+      navigator.clipboard.writeText(text).catch(() => {});
+      e.preventDefault();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [selAnchor, selTarget, selBounds, sortedRows, cellDisplayValue]);
+  const isCellSelected = useCallback(
+    (row: ExceptionRow, column: string): boolean => {
+      if (!selBounds) return false;
+      const iRow = rowIndexMap.get(row.exceptionId) ?? -1;
+      const iCol = colIndexMapRef.current.get(column) ?? -1;
+      if (iRow < 0 || iCol < 0) return false;
+      return (
+        iRow >= selBounds.rowLo &&
+        iRow <= selBounds.rowHi &&
+        iCol >= selBounds.colLo &&
+        iCol <= selBounds.colHi
+      );
+    },
+    [selBounds, rowIndexMap]
+  );
+  // Wrapper that spreads range-selection handlers onto whatever <td>
+  // renderCell returned. Applied uniformly at the tr.map callsite so
+  // every cell — static or rd:*, editable widget or plain text —
+  // participates without each case block having to opt in.
+  const wrapCellForSelection = useCallback(
+    (
+      cell: React.ReactNode,
+      row: ExceptionRow,
+      column: string
+    ): React.ReactNode => {
+      if (!isValidElement(cell)) return cell;
+      const el = cell as React.ReactElement<
+        React.HTMLAttributes<HTMLTableCellElement>
+      >;
+      const {
+        className: existingClassName,
+        onMouseDown: existingMouseDown,
+        onMouseEnter: existingMouseEnter,
+      } = el.props;
+      const selected = isCellSelected(row, column);
+      const cls = (
+        (existingClassName ?? "") +
+        " dq-cell-selectable" +
+        (selected ? " dq-cell-selected" : "")
+      ).trim();
+      return cloneElement(el, {
+        className: cls,
+        onMouseDown: (e: React.MouseEvent<HTMLTableCellElement>) => {
+          existingMouseDown?.(e);
+          if (e.defaultPrevented) return;
+          // Skip if the click landed on a form widget — its own
+          // focus / edit behaviour has to win. Clicks on the td's
+          // padding or the plain text still start a selection.
+          const t = e.target as HTMLElement;
+          const tag = t.tagName;
+          if (
+            tag === "INPUT" ||
+            tag === "SELECT" ||
+            tag === "TEXTAREA" ||
+            tag === "BUTTON" ||
+            tag === "OPTION"
+          )
+            return;
+          startCellSelection(row, column, e.shiftKey);
+        },
+        onMouseEnter: (e: React.MouseEvent<HTMLTableCellElement>) => {
+          existingMouseEnter?.(e);
+          if (e.defaultPrevented) return;
+          if (e.buttons !== 1) return;
+          extendCellSelection(row, column);
+        },
+      });
+    },
+    [isCellSelected, startCellSelection, extendCellSelection]
+  );
 
   // ---- Bulk-selection column -------------------------------------
   // "Select All" deliberately spans every row the grid is currently
@@ -1597,7 +1837,14 @@ export default function ExceptionsTable({
       case "comments":
         return (
           <SortableTh key={key} {...commonThProps("comments")}>
-            Comments
+            <ColumnFilterHeader
+              label="Comments"
+              allValues={allComments}
+              filter={commentsFilter}
+              onChange={setCommentsFilter}
+              isOpen={openFilterId === "comments"}
+              onToggle={(open) => setOpenFilterId(open ? "comments" : null)}
+            />
           </SortableTh>
         );
       case "dateTime":
@@ -2007,6 +2254,17 @@ export default function ExceptionsTable({
   };
 
   const visibleKeys = columnOrder.filter((k) => !isHidden(k));
+  // Sync the range-selection refs with the current column order so
+  // the keyboard / mouse handlers upstream see the same visibleKeys
+  // the JSX renders. Rebuilt in-render (before the map callsite that
+  // uses them) — refs never trigger re-renders, so this is cheap and
+  // avoids the effect-timing gap a useEffect would introduce.
+  visibleKeysRef.current = visibleKeys;
+  {
+    const nextMap = new Map<string, number>();
+    visibleKeys.forEach((k, i) => nextMap.set(k, i));
+    colIndexMapRef.current = nextMap;
+  }
 
   // Spacer rows must span the checkbox column too, or the virtualized
   // padding <tr>s come up one cell short and the browser collapses the
@@ -2181,7 +2439,9 @@ export default function ExceptionsTable({
                       />
                     </td>
                   )}
-                  {visibleKeys.map((k) => renderCell(k, row))}
+                  {visibleKeys.map((k) =>
+                    wrapCellForSelection(renderCell(k, row), row, k)
+                  )}
                 </tr>
               );
             })}
