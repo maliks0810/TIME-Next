@@ -9,6 +9,7 @@ export type WidgetValueType =
     | number
     | boolean
     | string
+    | FormData
     | null;
 
 export type ChartData = {

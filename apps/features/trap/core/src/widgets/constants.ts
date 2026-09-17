@@ -54,7 +54,8 @@ export const COMMON_DATE_GRID_ROW_KEY = 'common.data.grid.row';
 export const COMMON_BUTTON_KEY = 'common.button';
 export const COMMON_TREE_KEY = 'common.tree.item';
 export const CUSIP_KEY = 'cusip';
-export const NAIC_RATINGS_KEY = 'naicRatings';
+export const NAIC_RATINGS_KEY = 'naic.ratings';
+export const NAIC_PORTFOLIO_REPORT_KEY = 'naic.portfolio.report';
 
 export enum DateFormatEnum {
     DAY = 'day',
@@ -67,4 +68,10 @@ export const schemaToStateKeyMap: { [key: string]: string } = {
     'prism.equity.chart.control.list': CHART_CONTROL_KEY,
     'naic.rbc.ratings': NAIC_RATINGS_KEY,
     'naic.portfolio.cusip': CUSIP_KEY,
+    'naic.portfolio.report': NAIC_PORTFOLIO_REPORT_KEY,
+};
+
+export const fileUploaderMandatoryColumnMap: { [key: string]: string } = {
+    'naic.portfolio.cusip': CUSIP_KEY,
+    'naic.portfolio.report': CUSIP_KEY,
 };

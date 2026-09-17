@@ -79,7 +79,7 @@ export const PropertyConfig = ({
                 <Select
                     className={styles.select}
                     options={selectOptions}
-                    defaultValue={currentValue || property.default}
+                    defaultValue={currentValue ?? property.default}
                     onChange={(e) => setField(propertyKey, e)}
                 />
             </>

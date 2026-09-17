@@ -26,7 +26,8 @@
             "schemaKey": {
                 "title": "Schema Key",
                 "enum": [
-                    "naic.portfolio.cusip"
+                    "naic.portfolio.cusip",
+                    "naic.portfolio.report"
                 ],
                 "type": "string",
                 "category": "System Parameters"
