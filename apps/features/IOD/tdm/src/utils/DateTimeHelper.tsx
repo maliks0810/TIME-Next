@@ -24,6 +24,24 @@ export const formatDate = (date: Date | null): string | null => {
   return new Intl.DateTimeFormat('en-US', options).format(date);
 }
 
+export const formatDateTime = (date: Date | null): string | null => {
+  if (!date) {
+    return '';
+  }
+
+  const options: Intl.DateTimeFormatOptions = {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  };
+
+  return new Intl.DateTimeFormat('en-US', options).format(date);
+}
+
 export const getLocalDateTimeOffsetIsoString = (date: Date): string => {
   // Get local timezone offset
   const now = new Date();

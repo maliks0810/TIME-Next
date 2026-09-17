@@ -59,6 +59,7 @@ export interface SecuritySetupState {
 
   dmAnalystName: string | null;
   dmAnalystEmail: string | null;
+  securitySetupStatusId: number | null;
 }
 
 export type IdentifierFieldsPatch = Partial<Pick<SecuritySetupState,
@@ -93,14 +94,17 @@ export interface SecuritySetupActions {
   openConfirmModal: () => void;
   closeConfirmModal: () => void;
   resetWizard: () => void;
+  setSecuritySetupStatusId: (id: number | null) => void;
 }
 
 export interface IdentityState {
   userIdentity: IUserIdentity | null;
+  isIdentityLoaded: boolean;
 }
 
 export interface IdentityActions {
   setUserIdentity: (identity: IUserIdentity) => void;
+  setIdentityLoaded: (loaded: boolean) => void;
 }
 
 export type IdentityStore = IdentityState & IdentityActions

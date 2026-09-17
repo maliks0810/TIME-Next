@@ -24,7 +24,6 @@ import { useSecuritySetupSave } from '../hooks/useSecuritySetupSave';
 import { ISecuritySetupRequestAttachment, ISecuritySetupWizardPayload } from '../../../services/domain-objects/SecuritySetupRequestPayload';
 import { SecuritySetupService } from '../../../services/SecuritySetupService';
 import { useReferenceData } from '../hooks/useReferenceData';
-import { useIdentity } from '../../../hooks/useIdentity';
 import { getStepNumber } from '../utils/securitySetupApiTransformer';
 import {
   isValidString,
@@ -74,8 +73,6 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const { data: referenceData, loading: loadingReferenceData, error: referenceDataError } =
     useReferenceData();
 
-  useIdentity();
-
   const {
     saveStatus,
     queueWizardSave,
@@ -97,6 +94,7 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     goToStep,
     setReadOnly,
     setUserReadOnly,
+    setSecuritySetupStatusId,
     openConfirmModal,
     closeConfirmModal,
     setPendingFiles,
@@ -114,15 +112,25 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
   const { pendingUploadFiles, isUploadingFile } = useFileUploadState();
 
   const isCancelled =
-    initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
+    initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;  
+  const [isDirty, setIsDirty] = useState(false);
+  const stepBaseLineRef = useRef(validationFields);  
+  const initialRequestId = initialData?.securitySetupRequestId ?? null;
+  useEffect(() => {
+    resetWizard();
+    if (initialData) {
+      hydrateFromPayload(initialData);
+    }
+  }, [initialRequestId]);
+
+  const userIdentity = useIdentityStore((s) => s.userIdentity);
 
   useEffect(() => {
-    const cancelled = initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
-    setReadOnly(cancelled);
-  }, [initialData]);
+      const cancelled = initialData?.securitySetupStatusId === SecuritySetupStatus.Cancelled;
+      setReadOnly(cancelled);
+      setSecuritySetupStatusId(initialData?.securitySetupStatusId ?? null);
+    }, [initialData]);
 
-  const [isDirty, setIsDirty] = useState(false);
-  const stepBaseLineRef = useRef(validationFields);
 
   useEffect(() => {
     setIsDirty(false);
@@ -135,21 +143,18 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
     }
   }, [validationFields]);
 
-  const initialRequestId = initialData?.securitySetupRequestId ?? null;
-  useEffect(() => {
-    resetWizard();
-    if (initialData) {
-      hydrateFromPayload(initialData);
-    }
-  }, [initialRequestId]);
-
-  const userIdentity = useIdentityStore((s) => s.userIdentity);
-
   // Set to read only if DM Analyst is assigned to a different user
   useEffect(() => {
-    const canEditAnySecuritySetupRequest = userIdentity?.permissionsAllowed?.edit_any_security_setup_request || false;
+    const canEditAnySecuritySetupRequest = 
+      userIdentity?.permissionsAllowed?.edit_any_security_setup_request || 
+      false;
+          
+    const canEditAnySecuritySetupRequestBeforeSubmission = 
+      userIdentity?.permissionsAllowed?.edit_any_security_setup_request_before_request_submitted || 
+      false;  
+
     // Check if user can edit any request regardless of assignment (DM Admin)
-    if (!canEditAnySecuritySetupRequest) {
+    if (!canEditAnySecuritySetupRequest && !canEditAnySecuritySetupRequestBeforeSubmission) {
       const readOnly = (initialData?.dmAnalystName !== undefined && currentUser !== initialData?.dmAnalystName);
       setUserReadOnly(readOnly);
     }
@@ -606,6 +611,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
       if (step1Summary.euSecuritizationTipEuId) {
         messages.push({ message: `EU Securitization TIP EU ID: ${step1Summary.euSecuritizationTipEuId}` });
       }
+      if (step1Summary.intexDealName) {
+        messages.push({ message: `Intex Deal Name: ${step1Summary.intexDealName}` });
+      }
+      if (step1Summary.intexPassword) {
+        messages.push({ message: `Intex Password: ${step1Summary.intexPassword}` });
+      }
       if (messages.length === 0) return null;
       return (
         <div className="success-messages-box">
@@ -626,6 +637,12 @@ export const SecuritySetupContainer: React.FC<SecuritySetupContainerProps> = ({
         messages.push({
           message: `Identifier: ${step1Summary.identifierType || "FIGI"} ${step1Summary.identifierValue}`,
         });
+      }
+      if (step1Summary.intexDealName) {
+        messages.push({ message: `Intex Deal Name: ${step1Summary.intexDealName}` });
+      }
+      if (step1Summary.intexPassword) {
+        messages.push({ message: `Intex Password: ${step1Summary.intexPassword}` });
       }
       if (messages.length === 0) return null;
       return (

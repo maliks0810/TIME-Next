@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Card, CardMedia, Typography, Button, Grid, Box, Divider, Link } from '@mui/material';
 import { CloseSharp, FileCopy, Delete, DescriptionOutlined } from '@mui/icons-material';
 import { IDashboardSecuritySetupRequest } from '../lib/DashboardSecuritySetupRequest'
-import { formatDate } from '../../../utils/DateTimeHelper';
+import { formatDate, formatDateTime } from '../../../utils/DateTimeHelper';
 import '../lib/dashboard.scss';
 import { IDashboardDetailsDeleteParameters, IDuplicateSecuritySetupRequestParameters } from '../lib/DashboardSearchParameters';
 import { deleteSecurityRequests, duplicateSecuritySetupRequest } from '../../../services/DashboardService';
@@ -282,6 +282,12 @@ const DashboardRequestDetails: React.FC<DashboardRequestDetailsProps> = ({
             <Typography variant="subtitle2" sx={{ wordBreak: "break-word" }}>
               <b>Requested By:</b> {securityRequest.createdBy}
             </Typography>
+            {securityRequest.arcAnalyticsRequestedDates?.map((date, index) => (
+              <Typography key={index} variant="subtitle2" sx={{ wordBreak: "break-word" }}>
+                <b>{index === 0 ? 'Risk Analytics Requested:' : 'Risk Analytics Re-submission:'}</b>{' '}
+                {formatDateTime(date)}
+              </Typography>
+            ))}
           </Grid>
 
           <Divider flexItem />

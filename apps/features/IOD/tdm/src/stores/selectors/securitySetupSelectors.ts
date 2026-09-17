@@ -2,6 +2,8 @@ import { useShallow } from 'zustand/react/shallow';
 import { useSecuritySetupStore } from '../useSecuritySetupStore';
 import { IdentityStore, SecuritySetupStore } from '../types';
 import { useIdentityStore } from '../useIdentityStore';
+import { SecuritySetupStatus } from '../../pages/security-setup/lib/types/securitySetupTypes';
+import { IUserAuthPermissions } from '../../services/domain-objects/UserIdentityResponse';
 
 /** SELECTORS
  *
@@ -119,6 +121,25 @@ export const useHasDmRole = () => {
   return userIdentity?.permissionsAllowed?.ssap_release || false;
 };
 
+const SUBMITTED_STATUSES = new Set<number>([
+  SecuritySetupStatus.RequestSubmitted,
+  SecuritySetupStatus.SecurityReviewInProgress,
+  SecuritySetupStatus.SecurityReviewComplete,
+  SecuritySetupStatus.SecuritySetupComplete,
+]);
+
+export const useFieldEditPermissions = () => {
+  const securitySetupStatusId = useSecuritySetupStore((s: SecuritySetupStore) => s.securitySetupStatusId);
+  const permissions = useIdentityStore((s: IdentityStore) => s.userIdentity?.permissionsAllowed);
+
+  return (key: keyof IUserAuthPermissions): boolean => {
+    if (!securitySetupStatusId || !SUBMITTED_STATUSES.has(securitySetupStatusId)) {
+      return true;
+    }
+    return permissions?.[key] ?? false;
+  };
+};
+
 // canProceed validation
 export const useValidationFields = () =>
   useSecuritySetupStore(
@@ -156,6 +177,8 @@ export const useSummary = () =>
       identifierValue: s.identifierValue,
       marketSector: s.marketSector,
       isEuSecuritizationRequired: s.isEuSecuritizationRequired,
-      euSecuritizationTipEuId: s.euSecuritizationTipEuId
+      euSecuritizationTipEuId: s.euSecuritizationTipEuId,
+      intexDealName: s.intexDealName,
+      intexPassword: s.intexPassword
     }))
   )
