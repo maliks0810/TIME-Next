@@ -16,7 +16,13 @@ export const Input = ({ widgetInstance }: WidgetComponentProps) => {
     const activeTab = useGetActiveTab();
     const setWidgetValue = useSetWidgetValue();
     const handleSubmit = () => {
-        setWidgetValue({ activeTab, value: inputValue, key: emitsKey, channelId });
+        setWidgetValue({
+            activeTab,
+            value: inputValue,
+            key: emitsKey,
+            channelId,
+            widgetId: widgetInstance.id,
+        });
     };
     return (
         <WidgetCardShell>

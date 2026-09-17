@@ -17,6 +17,7 @@ type ExportInput = {
 
 export async function exportCashflowXlsx(input: ExportInput): Promise<void> {
     const { scenario, dealName, trancheName, rows, unit, fileName } = input;
+
     if (!scenario.cashflow) return;
 
     const wb = new Workbook();
@@ -30,9 +31,24 @@ export async function exportCashflowXlsx(input: ExportInput): Promise<void> {
     sheet.addRow(["Exported", nowStamp()]);
     sheet.addRow(["User", SCENARIO_USER]);
     sheet.addRow([]);
-    sheet.addRow(["Period", "Beg Bal", "Principal", "Interest", "Defaults", "Recovery", "End Bal"]);
+    sheet.addRow([
+        "Period",
+        "Date",
+        "Principal",
+        "Interest",
+        "Cashflow",
+        "Balance",
+    ]);
+
     scenario.cashflow.forEach((p) => {
-        sheet.addRow([p.period, p.beginBal, p.principal, p.interest, p.defaults, p.recovery, p.endBal]);
+        sheet.addRow([
+            p.period,
+            p.date,
+            p.principal,
+            p.interest,
+            p.principal+p.interest,
+            p.endBal,
+        ]);
     });
 
     const buffer = await wb.xlsx.writeBuffer();

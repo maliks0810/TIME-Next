@@ -13,7 +13,6 @@ import {
   Tooltip,
   Typography,
   Collapse,
-  Divider,
   List,
   Input,
   Tag,
@@ -28,12 +27,11 @@ import {
   SlidersOutlined,
   UnorderedListOutlined,
   AppstoreOutlined,
-  FilterOutlined,
   StarFilled,
   StarOutlined,
   DeleteOutlined,
-  DollarOutlined,
-  GlobalOutlined,
+  CheckCircleFilled,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -55,7 +53,6 @@ import "../../lib/styles.css";
 import "./styles.scss";
 import { CheckableTagGroup } from "../CheckableTagGroup";
 import {
-  FilterOption,
   GridConfigResponse,
   normalizeColumns,
   NormalizedColumnConfig,
@@ -68,23 +65,14 @@ import { DriverColumnConfigState } from "../driver-analysis-config/columnConfigT
 import { fromColumnConfigState, toColumnConfigStateFromGrid } from "./hooks/columnConfigAdapters";
 import { BREAKDOWN_PRESETS } from "./breakdownPresets";
 import { BreakdownChainBuilder } from "./BreakdownChainBuilder";
-import { UniversalFilterSearch } from "./UniversalFilterSearch";
-import { FilterChipBar } from "./FilterChipBar";
-import { FilterGroupSection } from "./FilterGroupSection";
 import { filterDimensionsForAssetClass, isChainValidForAssetClass } from "./breakdownScoping";
 import { getDefaultPeriodsForFrequency } from "../../lib/helpers";
 
 const { Text, Title } = Typography;
 
-type FilterGroupId = keyof AttribFilterState;
+const compactCardStyle: React.CSSProperties = {};
 
-const compactCardStyle: React.CSSProperties = {
-  marginBottom: 10,
-  borderRadius: 8,
-  border: "1px solid #d8dee9",
-};
-
-const compactCardBodyStyle: React.CSSProperties = { padding: 10 };
+const compactCardBodyStyle: React.CSSProperties = {};
 export interface BreakdownLevel {
   /** Stable ID matching a dimension in the config catalog. */
   dimensionId: string;
@@ -197,8 +185,7 @@ type ControlSectionId =
   | "dateRange"
   | "periods"
   | "breakdown"
-  | "columns"
-  | "filters";
+  | "columns";
 
 interface ControlSectionDefinition {
   id: ControlSectionId;
@@ -216,7 +203,6 @@ const defaultSectionOrder: ControlSectionId[] = [
   "periods",
   "breakdown",
   "columns",
-  "filters",
 ];
 
 const defaultExpandedSections: ControlSectionId[] = [
@@ -261,33 +247,31 @@ function SortableControlSection({
           {
             key: section.id,
             label: (
-              <Space size={8}>
+              <div className="driver-section-heading">
                 <Tooltip title="Drag to rearrange this section">
                   <span
                     {...attributes}
                     {...listeners}
-                    style={{
-                      cursor: "grab",
-                      display: "inline-flex",
-                      color: "#64748b",
-                    }}
+                    className="driver-section-drag-handle"
                     onClick={(event) => event.stopPropagation()}
                   >
                     <HolderOutlined />
                   </span>
                 </Tooltip>
-                {section.icon}
-                <span>{section.title}</span>
-                <Text type="secondary" style={{ fontSize: 11 }}>
-                  {section.description}
-                </Text>
-              </Space>
+                <span className="driver-section-icon">{section.icon}</span>
+                <span className="driver-section-copy">
+                  <span className="driver-section-title">{section.title}</span>
+                  <span className="driver-section-description">
+                    {section.description}
+                  </span>
+                </span>
+              </div>
             ),
             children: section.content,
           },
         ]}
         className="driver-control-section"
-        style={{ marginBottom: 10 }}
+        style={{ marginBottom: 12 }}
       />
     </div>
   );
@@ -503,7 +487,6 @@ export default function ConfigTabbedCompact({
   onLoadView,
   onDeleteView,
   onSetFavoriteView,
-  filterOptions,
 }: Props) {
   const [state, setState] = useState<AttribAnalysisSelectionState>(() =>
     createDefaultState(config, initialValues),
@@ -557,7 +540,7 @@ const availableBreakdownDimensions = useMemo<BreakdownLevel[]>(
 );
 
 const breakdownContent = (
-  <Card size="small" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
+  <Card size="small" className="driver-config-card" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
     <BreakdownChainBuilder
       value={state.breakdownChain}
       onChange={(next) => {
@@ -605,11 +588,19 @@ useEffect(() => {
   }));
 }, [state.assetClass, state.breakdownChain]);
 
-  const periods = useMemo(() => {
-    return (config.periods[0] ?? [])
-      .filter((p) => p.visible && p.frequency_mode === state.frequencyMode)
-      .sort((a, b) => a.sort_order - b.sort_order);
-  }, [config, state.frequencyMode]);
+const periods = useMemo(() => {
+  if (!Array.isArray(config.periods)) {
+    return [];
+  }
+
+  return config.periods
+    .filter(
+      (period) =>
+        period.visible &&
+        period.frequency_mode === state.frequencyMode
+    )
+    .sort((a, b) => a.sort_order - b.sort_order);
+}, [config.periods, state.frequencyMode]);
 
   const configuredColumns = useMemo(() => {
     return buildConfiguredColumns(config, state.selectedColumnIds);
@@ -768,40 +759,40 @@ useEffect(() => {
       ? state.portfolio
       : undefined;
 
-  const handleFrequencyChange = (frequencyMode: string) => {
-    setState((prev) => {
-      const availablePeriodIds = new Set(
-        (config.periods[0] ?? [])
-          .filter((p) => p.frequency_mode === frequencyMode)
-          .map((p) => p.id),
-      );
+const handleFrequencyChange = (frequencyMode: string) => {
+  setState((prev) => {
+    const availablePeriodIds = new Set(
+      (config.periods ?? [])
+        .filter((p) => p.frequency_mode === frequencyMode)
+        .map((p) => p.id),
+    );
 
-      // Keep any currently selected periods that are valid
-      const preservedPeriods = prev.periodIds.filter((periodId) =>
-        availablePeriodIds.has(periodId),
-      );
+    // Keep any currently selected periods that are valid
+    const preservedPeriods = prev.periodIds.filter((periodId) =>
+      availablePeriodIds.has(periodId),
+    );
 
-      return {
-        ...prev,
-        frequencyMode,
+    return {
+      ...prev,
+      frequencyMode,
 
-        // Clear dates because Monthly/Daily use different date controls
-        asOfDate: "",
-        startDate: "",
-        endDate: "",
+      // Clear dates because Monthly/Daily use different date controls
+      asOfDate: "",
+      startDate: "",
+      endDate: "",
 
-        periodIds:
-          preservedPeriods.length > 0
-            ? preservedPeriods
-            : getDefaultPeriodsForFrequency(frequencyMode),
-      };
-    });
-  };
+      periodIds:
+        preservedPeriods.length > 0
+          ? preservedPeriods
+          : getDefaultPeriodsForFrequency(frequencyMode),
+    };
+  });
+};
 
   // ---------- Section content ----------
 
   const analysisScopeContent = (
-    <Card size="small" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
+    <Card size="small" className="driver-config-card" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
       <Form layout="vertical">
         <Row gutter={10}>
           <Col span={24}>
@@ -865,7 +856,7 @@ useEffect(() => {
   );
 
   const dateRangeContent = (
-    <Card size="small" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
+    <Card size="small" className="driver-config-card" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
       <Form layout="vertical">
         <Row gutter={10}>
           <Col span={8}>
@@ -956,7 +947,7 @@ useEffect(() => {
   );
 
   const periodsContent = (
-    <Card size="small" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
+    <Card size="small" className="driver-config-card" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
       <Form layout="vertical">
         <Form.Item label="Periods" style={{ marginBottom: 0 }}>
           <CheckableTagGroup
@@ -995,7 +986,7 @@ function buildDefaultSavedViewName(state: AttribAnalysisSelectionState): string 
 }
 // ...in the section content:
 const columnsContent = (
-  <Card size="small" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
+  <Card size="small" className="driver-config-card" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
     <ColumnConfigurator
       value={columnConfiguratorValue}
       onChange={handleColumnConfigChange}
@@ -1015,7 +1006,7 @@ const handleQuickSaveView = () => {
 };
 
 const savedViewsContent = (
-  <Card size="small" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
+  <Card size="small" className="driver-config-card" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
     <Space direction="vertical" size={8} style={{ width: "100%" }}>
       <Space size={6} style={{ width: "100%" }}>
         <Input
@@ -1139,156 +1130,49 @@ const savedViewsContent = (
   </Card>
 );
 
-// ---------- Filters content ----------
 
-const filterCatalog = filterOptions ?? {
-  currency: [],
-  country: [],
-  sector: [],
-  rating: [],
-};
-const [filterGroupsCollapsed, setFilterGroupsCollapsed] = useState<
-  Record<FilterGroupId, boolean>
->({
-  currency: false,
-  country: false,
-  sector: true,   // collapse less-used ones by default
-  rating: true,
-});
 
-const handleToggleFilterGroup = (groupId: string) => {
-  const id = groupId as FilterGroupId;
-  const next = { ...filterGroupsCollapsed };
-  next[id] = !next[id];
-  setFilterGroupsCollapsed(next);
-};
-const filterOptionLookup = useMemo(() => {
-  const build = (opts: FilterOption[]) =>
-    new Map(opts.map((o) => [o.value, o.label]));
-  return {
-    currency: build(filterCatalog.currency ?? []),
-    country: build(filterCatalog.country ?? []),
-    sector: build(filterCatalog.sector ?? []),
-    rating: build(filterCatalog.rating ?? []),
-  };
-}, [filterCatalog]);
+const configuredScopeSummary = [
+  state.assetClass,
+  state.portfolio,
+  state.benchmark,
+]
+  .filter(Boolean)
+  .join(" • ");
 
-const optionsByGroup = useMemo(
-  () => ({
-    currency: filterCatalog.currency ?? [],
-    country: filterCatalog.country ?? [],
-    sector: filterCatalog.sector ?? [],
-    rating: filterCatalog.rating ?? [],
-  }),
-  [filterCatalog],
-);
-const handleFilterGroupChange = (group: FilterGroupId, values: string[]) => {
-  setState((prev) => {
-    const nextFilters: AttribFilterState = { ...prev.filters };
-    nextFilters[group] = values;
-    return { ...prev, filters: nextFilters };
-  });
-};
+const dateSummary =
+  state.frequencyMode === "monthly"
+    ? ["Monthly", state.asOfDate]
+        .filter(Boolean)
+        .join(" • ")
+    : [
+        "Daily",
+        state.startDate && state.endDate
+          ? `${state.startDate} → ${state.endDate}`
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" • ");
 
-const handleRemoveOneFilter = (group: FilterGroupId, value: string) => {
-  setState((prev) => {
-    const nextFilters: AttribFilterState = { ...prev.filters };
-    nextFilters[group] = prev.filters[group].filter((v) => v !== value);
-    return { ...prev, filters: nextFilters };
-  });
-};
+const periodSummary =
+  state.periodIds.length > 0
+    ? [
+        ...state.periodIds.slice(0, 4),
+        state.periodIds.length > 4
+          ? `+${state.periodIds.length - 4}`
+          : undefined,
+      ]
+        .filter(Boolean)
+        .join(" • ")
+    : "No periods selected";
 
-const handleClearFilterGroup = (group: FilterGroupId) => {
-  setState((prev) => {
-    const nextFilters: AttribFilterState = { ...prev.filters };
-    nextFilters[group] = [];
-    return { ...prev, filters: nextFilters };
-  });
-};
+const breakdownSummary =
+  state.breakdownChain.levels.length > 0
+    ? state.breakdownChain.levels
+        .map(level => level.label)
+        .join(" → ")
+    : "Flat grouping";
 
-const handleClearAllFilters = () => {
-  setState((prev) => ({
-    ...prev,
-    filters: { currency: [], country: [], sector: [], rating: [] },
-  }));
-};
-
-const handleAddFilterFromSearch = (group: FilterGroupId, value: string) => {
-  setState((prev) => {
-    if (prev.filters[group].includes(value)) return prev; // already present
-    const nextFilters: AttribFilterState = { ...prev.filters };
-    nextFilters[group] = [...prev.filters[group], value];
-    return { ...prev, filters: nextFilters };
-  });
-};
-
-const filtersContent = (
-  <Card size="small" style={compactCardStyle} bodyStyle={compactCardBodyStyle}>
-    <Space direction="vertical" size={10} style={{ width: "100%" }}>
-      {/* Universal search */}
-      <UniversalFilterSearch
-        optionsByGroup={optionsByGroup}
-        selectedByGroup={state.filters}
-        onAdd={handleAddFilterFromSearch}
-      />
-
-      {/* Active-filter chips */}
-      <FilterChipBar
-        filters={state.filters}
-        optionLookup={filterOptionLookup}
-        onRemoveOne={handleRemoveOneFilter}
-        onClearGroup={handleClearFilterGroup}
-        onClearAll={handleClearAllFilters}
-      />
-
-      <Divider style={{ margin: "0" }} />
-
-      {/* Collapsible group sections */}
-      <div>
-        <FilterGroupSection
-          groupId="currency"
-          title="Currency"
-          icon={<DollarOutlined style={{ color: "#f59e0b" }} />}
-          options={optionsByGroup.currency}
-          selectedValues={state.filters.currency}
-          collapsed={filterGroupsCollapsed.currency}
-          onToggleCollapsed={handleToggleFilterGroup}
-          onChange={(values) => handleFilterGroupChange("currency", values)}
-        />
-        <FilterGroupSection
-          groupId="country"
-          title="Country"
-          icon={<GlobalOutlined style={{ color: "#10b981" }} />}
-          options={optionsByGroup.country}
-          selectedValues={state.filters.country}
-          collapsed={filterGroupsCollapsed.country}
-          onToggleCollapsed={handleToggleFilterGroup}
-          onChange={(values) => handleFilterGroupChange("country", values)}
-        />
-        <FilterGroupSection
-          groupId="sector"
-          title="Sector"
-          icon={<ApartmentOutlined style={{ color: "#3b82f6" }} />}
-          options={optionsByGroup.sector}
-          selectedValues={state.filters.sector}
-          collapsed={filterGroupsCollapsed.sector}
-          onToggleCollapsed={handleToggleFilterGroup}
-          onChange={(values) => handleFilterGroupChange("sector", values)}
-        />
-        <FilterGroupSection
-          groupId="rating"
-          title="Rating"
-          icon={<StarOutlined style={{ color: "#8b5cf6" }} />}
-          options={optionsByGroup.rating}
-          selectedValues={state.filters.rating}
-          collapsed={filterGroupsCollapsed.rating}
-          onToggleCollapsed={handleToggleFilterGroup}
-          onChange={(values) => handleFilterGroupChange("rating", values)}
-        />
-      </div>
-    </Space>
-  </Card>
-);
   // ---------- Section registry ----------
  const sectionsById: Record<ControlSectionId, ControlSectionDefinition> = {
   savedViews: {
@@ -1301,45 +1185,38 @@ const filtersContent = (
     analysisScope: {
       id: "analysisScope",
       title: "Portfolio Selection",
-      description: "Asset class, portfolio, and benchmark",
+      description: configuredScopeSummary || "Choose asset class, portfolio, and benchmark",
       icon: <SlidersOutlined />,
       content: analysisScopeContent,
     },
     dateRange: {
       id: "dateRange",
       title: "Frequency & Date",
-      description: "Frequency mode and as-of / range dates",
+      description: dateSummary || "Choose frequency and analysis date",
       icon: <CalendarOutlined />,
       content: dateRangeContent,
     },
     periods: {
       id: "periods",
       title: "Periods",
-      description: "MTD, QTD, YTD, ITD, and rolling periods",
+      description: periodSummary,
       icon: <AppstoreOutlined />,
       content: periodsContent,
     },
     breakdown: {
       id: "breakdown",
       title: "Breakdown",
-      description: "Grouping mode for attribution breakdown",
+      description: breakdownSummary,
       icon: <ApartmentOutlined />,
       content: breakdownContent,
     },
     columns: {
       id: "columns",
       title: `Columns (${state.selectedColumnIds.length})`,
-      description: "Visible columns and display order",
+      description: `${state.selectedColumnIds.length} selected`,
       icon: <UnorderedListOutlined />,
       content: columnsContent,
     },
-  filters: {
-    id: "filters",
-    title: "Filters",
-    description: "Currency, country, sector, and rating",
-    icon: <FilterOutlined />,
-    content: filtersContent,
-  },
 };
 
   const handleSectionDragEnd = (event: DragEndEvent) => {
@@ -1356,75 +1233,161 @@ const filtersContent = (
   };
 
   return (
-    <Drawer
-      open={open}
-      onClose={onClose}
-      width={720}
-      destroyOnClose={false}
-      style={{ marginTop: 65, marginBottom: 40 }}
-      title={
-        <Space direction="vertical" size={0}>
-          <Space size={6}>
-            <SlidersOutlined style={{ color: "#1d4ed8" }} />
-            <Title level={5} style={{ margin: 0 }}>
-              Configure Attribution Analysis
-            </Title>
-          </Space>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            Expand, collapse, and drag sections to personalize your workflow.
-          </Text>
-        </Space>
-      }
-      extra={
-        <Space size={6}>
-          <Button
-            size="small"
-            onClick={() => setExpandedSections(sectionOrder)}
+  <Drawer
+    open={open}
+    onClose={onClose}
+    width={760}
+    destroyOnClose={false}
+    className="attribution-config-drawer"
+    style={{
+      marginTop: 65,
+      height: "calc(100vh - 85px)",
+    }}
+    title={
+      <div className="attribution-config-title">
+        <span className="attribution-config-title-icon">
+          <SlidersOutlined />
+        </span>
+
+        <span className="attribution-config-title-copy">
+          <Title level={5} style={{ margin: 0 }}>
+            Configure Attribution Analysis
+          </Title>
+
+          <Text
+            type="secondary"
+            className="attribution-config-subtitle"
           >
-            Expand All
+            Build the analysis scope, periods, breakdown, columns, and filters.
+          </Text>
+        </span>
+      </div>
+    }
+    extra={
+      <Space size={6}>
+        <Button
+          size="small"
+          onClick={() => setExpandedSections(sectionOrder)}
+        >
+          Expand All
+        </Button>
+
+        <Button
+          size="small"
+          onClick={() => setExpandedSections([])}
+        >
+          Collapse All
+        </Button>
+      </Space>
+    }
+    styles={{
+      header: {
+        flex: "0 0 auto",
+        padding: "10px 14px",
+      },
+      body: {
+        flex: "1 1 auto",
+        minHeight: 0,
+        padding: 0,
+        overflowX: "hidden",
+        overflowY: "auto",
+      },
+    }}
+  >
+    <div className="attribution-config-content">
+      <div className="attribution-config-summary">
+        <div>
+          <Text type="secondary">Portfolio</Text>
+
+          <strong title={configuredScopeSummary}>
+            {configuredScopeSummary || "Not configured"}
+          </strong>
+        </div>
+
+        <div>
+          <Text type="secondary">Frequency</Text>
+
+          <strong>
+            {state.frequencyMode === "monthly" ? "Monthly" : "Daily"}
+          </strong>
+        </div>
+
+        <div>
+          <Text type="secondary">Periods</Text>
+
+          <strong>{state.periodIds.length} selected</strong>
+        </div>
+
+        <div>
+          <Text type="secondary">Columns</Text>
+
+          <strong>{state.selectedColumnIds.length} selected</strong>
+        </div>
+      </div>
+
+      <div className="attribution-config-sections">
+        <DndContext
+          sensors={sectionSensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleSectionDragEnd}
+        >
+          <SortableContext
+            items={sectionOrder}
+            strategy={verticalListSortingStrategy}
+          >
+            {sectionOrder.map((sectionId) => (
+              <SortableControlSection
+                key={sectionId}
+                section={sectionsById[sectionId]}
+                expandedKeys={expandedSections}
+                onExpandedKeysChange={setExpandedSections}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
+      </div>
+
+      <Card
+        size="small"
+        className="attribution-action-bar"
+      >
+        <div className="attribution-config-footer-status">
+          {canApply ? (
+            <>
+              <CheckCircleFilled className="is-ready" />
+              <span>Configuration ready</span>
+            </>
+          ) : (
+            <>
+              <InfoCircleOutlined />
+              <span>Complete required selections</span>
+            </>
+          )}
+        </div>
+
+        <Space size={8} wrap>
+          <Button onClick={onClose}>
+            Cancel
           </Button>
-          <Button size="small" onClick={() => setExpandedSections([])}>
-            Collapse All
-          </Button>
-          <Button size="small" icon={<SaveOutlined />} onClick={handleSave}>
-            Save
-          </Button>
+
           <Button
-            size="small"
+            icon={<SaveOutlined />}
+            onClick={handleSave}
+          >
+            Save View
+          </Button>
+
+          <Button
             type="primary"
             icon={<PlayCircleOutlined />}
             disabled={!canApply}
             onClick={handleApply}
           >
-            Apply
+            Run Analysis
           </Button>
         </Space>
-      }
-      styles={{
-        header: { padding: "10px 14px", borderBottom: "1px solid #d8dee9" },
-        body: { background: "#f3f6fb", padding: 12 },
-        footer: { padding: "8px 12px" },
-      }}
-    >
-      <DndContext
-        sensors={sectionSensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleSectionDragEnd}
-      >
-        <SortableContext
-          items={sectionOrder}
-          strategy={verticalListSortingStrategy}
-        >
-          {sectionOrder.map((sectionId) => (
-            <SortableControlSection
-              key={sectionId}
-              section={sectionsById[sectionId]}
-              expandedKeys={expandedSections}
-              onExpandedKeysChange={setExpandedSections}
-            />
-          ))}
-        </SortableContext>
-      </DndContext>
-    </Drawer>
-  );
+      </Card>
+    </div>
+  </Drawer>
+);
 }

@@ -26,6 +26,7 @@ export const TabsControl = ({ widgetInstance }: WidgetComponentProps) => {
             channelId,
             value: checked,
             activeTab,
+            widgetId: widgetInstance.id,
         });
     };
 
@@ -58,6 +59,7 @@ export const TabsControl = ({ widgetInstance }: WidgetComponentProps) => {
                 channelId,
                 key: COMMON_TREE_KEY,
                 value: selectedPortfolioGrid.portfolioNumber,
+                widgetId: widgetInstance.id,
             });
         }
     }, [selectedPortfolioGrid]);
@@ -69,6 +71,7 @@ export const TabsControl = ({ widgetInstance }: WidgetComponentProps) => {
             channelId,
             key: 'schemaKey',
             value: 'portfolio.summary',
+            widgetId: widgetInstance.id,
         });
     }, []);
 
@@ -83,6 +86,7 @@ export const TabsControl = ({ widgetInstance }: WidgetComponentProps) => {
                     channelId,
                     key: COMMON_DATE_GRID_ROW_KEY,
                     value: null,
+                    widgetId: widgetInstance.id,
                 });
                 return;
             } else {
@@ -93,6 +97,7 @@ export const TabsControl = ({ widgetInstance }: WidgetComponentProps) => {
                     channelId,
                     key: 'schemaKey',
                     value: DEFAULT_SELECTED,
+                    widgetId: widgetInstance.id,
                 });
                 return;
             }

@@ -36,6 +36,7 @@ import { GeoMapWidget } from '../widgets/common/geo-map/GeoMapWidget';
 import { TableWidget } from '../widgets/common/table/TableWidget';
 import { TitleWidget } from '../widgets/common/title/TitleWidget';
 import { FilterBarWidget } from '../widgets/common/filter-bar/FilterBarWidget';
+import { PortfolioAnalysisScope } from '../widgets/dram/portfolio-analysis-scope/PortfolioAnalysisScope';
 import UploaderWidget from '../widgets/common/uploader/UploaderWidget';
 
 export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
@@ -77,7 +78,7 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
             'analysis.sessionId',
             'workflow.refresh',
         ],
-        emitsKeys: ['asset.staged.trancheId', 'asset.staged.trancheName', 'asset.isNew'],
+        emitsKeys: ['tranche.id', 'tranche.name', 'asset.isNew'],
     },
     cwd_new_asset_staging_01: {
         id: 'cwd_new_asset_staging_01',
@@ -87,8 +88,8 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         listensToKeys: [
             'deal.id',
             'deal.name',
-            'asset.staged.trancheId',
-            'asset.staged.trancheName',
+            'tranche.id',
+            'tranche.name',
             'analysis.sessionId',
             'scenario.selectedResultId',
             'scenario.selectedSummary',
@@ -335,7 +336,15 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         component: TableWidget,
         category: 'View',
         visibleIn: ['workflow', 'landing'],
-        listensToKeys: ['deal.name', 'filter.state', 'filter.fico', 'filter.ltv', 'filter.coupon', 'filter.manufacturer', 'filter.new_used'],
+        listensToKeys: [
+            'deal.name',
+            'filter.state',
+            'filter.fico',
+            'filter.ltv',
+            'filter.coupon',
+            'filter.manufacturer',
+            'filter.new_used',
+        ],
         emitsKeys: [],
     },
     cwd_common_title_01: {
@@ -361,5 +370,22 @@ export const widgetRegistry: Record<string, WidgetRegistryEntry> = {
         visibleIn: ['workflow'],
         listensToKeys: [],
         emitsKeys: [],
-    }
+    },
+    ds_common_portfolio_analysis_scope_01: {
+        id: 'ds_common_portfolio_analysis_scope_01',
+        component: PortfolioAnalysisScope,
+        category: 'Control',
+        visibleIn: ['workflow'],
+        listensToKeys: [],
+        emitsKeys: [],
+    },
+    // Currently Not deploying below functionality to production. Skip code review
+    // ds_common_performance_grid_01: {
+    //     id: 'ds_common_performance_grid_01',
+    //     component: PerformanceGrid,
+    //     category: 'Control',
+    //     visibleIn: ['workflow'],
+    //     listensToKeys: [],
+    //     emitsKeys: [],
+    // }
 };

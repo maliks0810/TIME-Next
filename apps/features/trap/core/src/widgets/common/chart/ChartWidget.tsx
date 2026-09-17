@@ -11,6 +11,8 @@ import {
 import * as echarts from 'echarts';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingState';
+import { MethodologyPopover } from '../../../components/methodology/MethodologyPopover';
+import type { WidgetMethodology } from '../../../components/methodology/types';
 import type { WidgetComponentProps } from '../../../types/widget';
 import { WidgetConfigProperty } from '../../../features/widget-studio/components/PropertyConfig';
 import {
@@ -54,6 +56,7 @@ interface ChartResult {
     eyebrow?: string;
     chartType?: 'bar' | 'area' | 'line' | string;
     option?: Record<string, any> | null;
+    methodology?: WidgetMethodology;
 }
 
 type ChartClickCtx = {
@@ -212,17 +215,6 @@ function resolveChartClick(
     return null;
 }
 
-/**
- * Force a theme-compliant tooltip onto any server-built option. The GraphQL
- * option builders don't set tooltip.backgroundColor, so ECharts falls back to
- * its default near-white panel — unreadable in dark/Wealth/Cyberpunk. We merge
- * the shared chrome (@role tokens, resolved downstream by resolveEchartsTokens)
- * UNDER whatever the server set, so chart-specific content (formatter, trigger,
- * axisPointer, position) still wins — only background/text are guaranteed themed.
- *
- * Overloaded so a non-null option in yields a non-null option out; this keeps
- * echarts setOption happy (it rejects null) without call-site assertions.
- */
 function withThemedTooltip(option: Record<string, any>): Record<string, any>;
 function withThemedTooltip(option: null | undefined): null;
 function withThemedTooltip(
@@ -235,8 +227,10 @@ function withThemedTooltip(
         : [option.tooltip ?? {}];
 
     const themed = tips.map((tip: any) => ({
-        ...ECHARTS_TOOLTIP_CHROME, // chrome first…
-        ...(tip ?? {}), // …server content/keys win…
+        ...ECHARTS_TOOLTIP_CHROME,
+        appendToBody: true,
+        confine: false,
+        ...(tip ?? {}),
         backgroundColor: (tip && tip.backgroundColor) ?? '@surface',
         textStyle: {
             ...ECHARTS_TOOLTIP_CHROME.textStyle,
@@ -273,14 +267,8 @@ function useEchart(
 
         if (!chart || !opt) return;
 
-        // opt is narrowed non-null here, so withThemedTooltip returns non-null.
         const themedOption = withThemedTooltip(opt);
-
-        const resolvedOption = resolveEchartsTokens(
-            themedOption,
-            rolesRef.current,
-        );
-
+        const resolvedOption = resolveEchartsTokens(themedOption, rolesRef.current);
         const styledOption = applyEchartsTypography(
             resolvedOption,
             themeNameRef.current,
@@ -359,12 +347,6 @@ function firstCategoryAxis(option: any): any {
     return null;
 }
 
-/**
- * Merge a dashed accent outline onto STAGED (pending, not-yet-applied) bars or
- * slices, so charts give the same pre-Apply feedback as the geo map. Matches on
- * the category label — which is exactly the value a click emits (see
- * resolveChartClick), so the highlighted bar is the one you clicked.
- */
 function decorateChartStaged(
     option: Record<string, any> | null | undefined,
     stagedValues: string[],
@@ -438,29 +420,16 @@ export function ChartWidget(props: WidgetComponentProps) {
 
         const baseRoles: EchartsRoleColors = {
             '@primary': token.colorPrimary,
-
             '@info': token.colorInfo,
-
-            '@success': isDark
-                ? token.colorSuccessBorder
-                : token.colorSuccess,
-
-            '@warning': isDark
-                ? token.colorWarningBorder
-                : token.colorWarning,
-
+            '@success': isDark ? token.colorSuccessBorder : token.colorSuccess,
+            '@warning': isDark ? token.colorWarningBorder : token.colorWarning,
             '@warningDark': isDark
                 ? token.colorWarningBorderHover
                 : token.colorWarningActive,
-
-            '@error': isDark
-                ? token.colorErrorBorder
-                : token.colorError,
-
+            '@error': isDark ? token.colorErrorBorder : token.colorError,
             '@errorDark': isDark
                 ? token.colorErrorBorderHover
                 : token.colorErrorActive,
-
             '@text': token.colorText,
             '@textSecondary': token.colorTextSecondary,
             '@textTertiary': token.colorTextTertiary,
@@ -506,7 +475,7 @@ export function ChartWidget(props: WidgetComponentProps) {
         }
 
         return out;
-    }, [filterBag, activeFilterKeys.join(',')]);
+    }, [filterBag, activeFilterKeys]);
 
     const filtersSig = JSON.stringify(filters);
 
@@ -522,17 +491,13 @@ export function ChartWidget(props: WidgetComponentProps) {
         };
 
         executeContext[contextKey] = contextValue;
-
         execute?.(executeContext);
-
-        // Intentionally exclude execute from deps.
-        // Including execute can cause an execute -> result -> rerender -> execute loop
-        // if parent recreates the execute callback after each result update.
     }, [contextKey, contextValue, mode, filtersSig, schemaKey]);
 
     const data = (result as ChartResult | undefined) ?? null;
     const option = data?.option ?? null;
     const eyebrow = titleOverride ?? data?.eyebrow ?? 'Chart';
+    const methodology = option ? data?.methodology : undefined;
 
     const tape = useTapeFilter(channelId);
 
@@ -559,8 +524,6 @@ export function ChartWidget(props: WidgetComponentProps) {
         filterKey,
         rowFilterKey,
         colFilterKey,
-        // Stage the clicked value(s) as a multi-select toggle instead of firing
-        // filter.* directly. Nothing filters until the FilterBar's Apply commits.
         onPick: (updates: Record<string, string>) => {
             for (const [fullKey, value] of Object.entries(updates)) {
                 const dimension = fullKey.startsWith(FILTER_PREFIX)
@@ -594,6 +557,17 @@ export function ChartWidget(props: WidgetComponentProps) {
                         <div className={styles.header}>
                             <ChartIcon chartType={data?.chartType} />
                             <span className={styles.eyebrow}>{eyebrow}</span>
+                            {methodology ? (
+                                <span
+                                    style={{
+                                        display: 'inline-flex',
+                                        marginLeft: 'auto',
+                                        flex: '0 0 auto',
+                                    }}
+                                >
+                                    <MethodologyPopover methodology={methodology} />
+                                </span>
+                            ) : null}
                         </div>
                     )}
 
@@ -604,9 +578,7 @@ export function ChartWidget(props: WidgetComponentProps) {
                             <div className={styles.emptyCircle}>
                                 <ChartIcon chartType={data?.chartType} />
                             </div>
-                            <span className={styles.emptyText}>
-                                {emptyText}
-                            </span>
+                            <span className={styles.emptyText}>{emptyText}</span>
                         </div>
                     )}
                 </div>

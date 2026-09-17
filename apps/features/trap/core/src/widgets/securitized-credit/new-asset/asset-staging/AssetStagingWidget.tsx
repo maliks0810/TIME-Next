@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { Button, Divider, Progress, theme, Typography, message, Tag, Card } from 'antd';
+import { Button, Divider, Progress, theme, Typography, message } from 'antd';
 import {
     ArrowRightOutlined,
     CheckCircleOutlined,
-    FileTextOutlined,
     InboxOutlined,
+    CloseOutlined,
+    CalculatorOutlined,
 } from '@ant-design/icons';
 import clsx from 'clsx';
 
@@ -29,10 +30,14 @@ import type { CallableType, InputAssumptionsState, StagingItem } from './types';
 import type { Dayjs } from 'dayjs';
 import styles from './AssetStagingWidget.module.scss';
 import {
+    SCENARIO_MATRIX_UPDATE_TIMESTAMP,
     SCENARIO_SELECTED_RESULT_ID,
     SCENARIO_SELECTED_SUMMARY,
+    SELECTED_SCENARIO_CASHFLOWS,
 } from '../scenario-matrix/constants';
 import { ScenarioSummary } from '../scenario-matrix/utils/scenarioSummary';
+import { PendingInputDialogue } from './components/PendingInputDialogue';
+import { TRANCHE_NAME_KEY, TRANCHE_ID_KEY, DEAL_NAME_KEY } from '../../../constants';
 
 const { Text } = Typography;
 
@@ -47,8 +52,8 @@ type StatusState = {
 };
 
 const ITEMS: StagingItem[] = [
-    { label: 'Deal', ctxKey: 'deal.name', required: true },
-    { label: 'Tranche', ctxKey: 'asset.staged.trancheId', required: true },
+    { label: 'Deal', ctxKey: DEAL_NAME_KEY, required: true },
+    { label: 'Tranche', ctxKey: TRANCHE_ID_KEY, required: true },
     {
         label: 'CUSIP',
         ctxKey: '__cusipOverride__',
@@ -133,7 +138,10 @@ export default function AssetStagingWidget({
 
     const [status, setStatus] = React.useState<StatusState | null>(null);
 
-    const [isAssumptionsPending, setIsAssumptionsPending] = React.useState(false);
+    const [isScenarioMatrixPending, setIsScenarioMatrixPending] = React.useState(false);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [acceptedCashflows, setAcceptedCashflows] = React.useState<any>(null);
 
     const channelId = widgetInstance?.config?.params?.channel;
     const isDesigner = mode === 'designer';
@@ -147,17 +155,17 @@ export default function AssetStagingWidget({
 
     const dealName = useGetWidgetValue({
         channelId,
-        key: 'deal.name',
+        key: DEAL_NAME_KEY,
     }) as string | undefined;
 
     const stagedTrancheId = useGetWidgetValue({
         channelId,
-        key: 'asset.staged.trancheId',
+        key: TRANCHE_ID_KEY,
     }) as string | undefined;
 
     const stagedTrancheName = useGetWidgetValue({
         channelId,
-        key: 'asset.staged.trancheName',
+        key: TRANCHE_NAME_KEY,
     }) as string | undefined;
 
     const liveTrancheId = useGetWidgetValue({
@@ -170,38 +178,66 @@ export default function AssetStagingWidget({
         key: 'tranche.name',
     }) as string | undefined;
 
-    const assumptionsRunId = useGetWidgetValue({
-        channelId,
-        key: SCENARIO_SELECTED_RESULT_ID,
-    });
     const scenarioRunSummary = useGetWidgetValue({
         channelId,
         key: SCENARIO_SELECTED_SUMMARY,
     }) as ScenarioSummary;
+    const scenarioMatrixUpdate = useGetWidgetValue({
+        channelId,
+        key: SCENARIO_MATRIX_UPDATE_TIMESTAMP,
+    });
+    const scenarioCashflows = useGetWidgetValue({
+        channelId,
+        key: SELECTED_SCENARIO_CASHFLOWS,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }) as any;
 
     useEffect(() => {
-        if (assumptionsRunId) {
-            setIsAssumptionsPending(true);
+        if (scenarioMatrixUpdate) {
+            setIsScenarioMatrixPending(true);
         }
-    }, [assumptionsRunId]);
+    }, [scenarioMatrixUpdate]);
+
+    const closePendingModal = () => {
+        setIsScenarioMatrixPending(false);
+        // clear all staging items
+        setWidgetValueToChannel({
+            channelId,
+            key: SCENARIO_MATRIX_UPDATE_TIMESTAMP,
+            value: null,
+            activeTab,
+        });
+        setWidgetValueToChannel({
+            channelId,
+            key: SCENARIO_SELECTED_SUMMARY,
+            value: null,
+            activeTab,
+        });
+        setWidgetValueToChannel({
+            channelId,
+            key: SELECTED_SCENARIO_CASHFLOWS,
+            value: null,
+            activeTab,
+        });
+    };
 
     const onAssumptionsAccept = () => {
         const summary = scenarioRunSummary as unknown as ScenarioSummary;
 
-        setPrice(summary?.price);
-        setPrepaymentType(summary?.assumptions?.prepay?.type);
-        setPrepaymentValue(summary?.assumptions?.prepay?.value);
-        setDefaultType(summary?.assumptions?.default?.type);
-        setDefaultValue(summary?.assumptions?.default?.value);
-        setSeverity(summary?.assumptions?.severity?.value || null);
-        setDelinquency(summary?.assumptions?.delinquency?.value);
-        setIsAssumptionsPending(false);
-        setWidgetValueToChannel({
-            channelId,
-            key: SCENARIO_SELECTED_RESULT_ID,
-            value: null,
-            activeTab,
-        });
+        if (summary) {
+            setPrice(summary?.price);
+            setPrepaymentType(summary?.assumptions?.prepay?.type);
+            setPrepaymentValue(summary?.assumptions?.prepay?.value);
+            setDefaultType(summary?.assumptions?.default?.type);
+            setDefaultValue(summary?.assumptions?.default?.value);
+            setSeverity(summary?.assumptions?.severity?.value || null);
+            setDelinquency(summary?.assumptions?.delinquency?.value);
+        }
+        if (scenarioCashflows) {
+            setAcceptedCashflows(scenarioCashflows);
+        }
+
+        closePendingModal();
     };
 
     const trancheName = stagedTrancheName ?? liveTrancheName;
@@ -210,7 +246,7 @@ export default function AssetStagingWidget({
 
     const scenarioId = useGetWidgetValue({
         channelId,
-        key: 'scenario.selectedResultId',
+        key: SCENARIO_SELECTED_RESULT_ID,
     }) as string | undefined;
 
     const setWidgetValueToChannel = useSetWidgetValue();
@@ -242,11 +278,15 @@ export default function AssetStagingWidget({
             setValidationErrors({});
             setHeldStatus(null);
 
-            [
-                'asset.staged.trancheId',
-                'asset.staged.trancheName',
-                'scenario.selectedResultId',
-            ].forEach((key) => setWidgetValueToChannel({ channelId, key, value: null, activeTab }));
+            [TRANCHE_ID_KEY, TRANCHE_NAME_KEY, SCENARIO_SELECTED_RESULT_ID].forEach((key) =>
+                setWidgetValueToChannel({
+                    channelId,
+                    key,
+                    value: null,
+                    activeTab,
+                    widgetId: widgetInstance.id,
+                })
+            );
 
             const init = async () => {
                 setInitializingPayload(true);
@@ -286,7 +326,7 @@ export default function AssetStagingWidget({
         }
 
         prevDealNameRef.current = dealName;
-    }, [dealName, channelId, activeTab, setWidgetValueToChannel, widgetDefId, isDesigner]);
+    }, [dealName, channelId, activeTab, widgetDefId, isDesigner]);
 
     // ─── Step 2: Prefill when tranche is selected (keyed on NAME) ───
     const prevTrancheNameRef = React.useRef(trancheName);
@@ -459,6 +499,7 @@ export default function AssetStagingWidget({
 
             slicerTypeValue: payloadSnapshot.slicerTypeValue ?? undefined,
             mbsTypeValue: payloadSnapshot.mbsTypeValue ?? undefined,
+            cashflows: acceptedCashflows?.cashflow ?? undefined,
         };
 
         if (callable === 'C' && callValue) {
@@ -487,6 +528,7 @@ export default function AssetStagingWidget({
         severity,
         delinquency,
         callValue,
+        acceptedCashflows?.cashflow,
     ]);
 
     const cusipRequired = isInvalidCusip(trancheCusip);
@@ -494,10 +536,10 @@ export default function AssetStagingWidget({
     const baseLaunchContext = React.useMemo<Record<string, unknown>>(() => {
         const context: Record<string, unknown> = {};
 
-        if (dealName) context['deal.name'] = dealName;
-        if (trancheId) context['asset.staged.trancheId'] = trancheId;
-        if (trancheName) context['asset.staged.trancheName'] = trancheName;
-        if (scenarioId) context['scenario.selectedResultId'] = scenarioId;
+        if (dealName) context[DEAL_NAME_KEY] = dealName;
+        if (trancheId) context[TRANCHE_ID_KEY] = trancheId;
+        if (trancheName) context[TRANCHE_NAME_KEY] = trancheName;
+        if (scenarioId) context[SCENARIO_SELECTED_RESULT_ID] = scenarioId;
 
         return context;
     }, [dealName, trancheId, trancheName, scenarioId]);
@@ -526,7 +568,7 @@ export default function AssetStagingWidget({
 
     const doneMap: Record<string, boolean> = {
         'deal.name': !!dealName,
-        'asset.staged.trancheId': !!trancheName,
+        'tranche.id': !!trancheName,
         __cusipOverride__: cusipRequired
             ? cusipOverride.trim().length === 9 &&
               isValidCusip(cusipOverride.trim().toUpperCase()) &&
@@ -547,7 +589,7 @@ export default function AssetStagingWidget({
 
     const displayVal: Record<string, string | undefined> = {
         'deal.name': bloombergDealName || dealName,
-        'asset.staged.trancheId': trancheName ?? trancheId,
+        'tranche.id': trancheName ?? trancheId,
         __cusipOverride__: cusipOverride.trim() || trancheCusip,
         'scenario.selectedResultId': scenarioId,
         __extId__: extId.trim() || undefined,
@@ -1044,60 +1086,54 @@ export default function AssetStagingWidget({
 
                                 <Divider className={styles.inputAssumptionsDivider} />
 
-                                <div className={styles.inputAssumptionsTitle}>
+                                <div className={styles.headerRow}>
                                     <SectionHeader
                                         icon={
-                                            <FileTextOutlined
-                                                style={{ fontSize: 12, color: token.colorPrimary }}
+                                            <CalculatorOutlined
+                                                style={{
+                                                    fontSize: 12,
+                                                    color: token.colorPrimary,
+                                                }}
                                             />
                                         }
                                         title="Input Assumptions"
                                     />
+                                    {acceptedCashflows && (
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                gap: 8,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                fontSize: 12,
+                                                fontWeight: 600,
+                                            }}
+                                        >
+                                            <div style={{ color: acceptedCashflows?.color }}>
+                                                Cashflows Attached
+                                            </div>
+                                            <div>
+                                                <CloseOutlined
+                                                    style={{
+                                                        color: token.colorError,
+                                                        cursor: 'pointer',
+                                                    }}
+                                                    onClick={() => {
+                                                        setAcceptedCashflows(null);
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
-                                {isAssumptionsPending ? (
-                                    <div
-                                        className={clsx(
-                                            styles.assumptionPanel,
-                                            styles.assumptionPendingBody
-                                        )}
-                                    >
-                                        <Card style={{ maxWidth: 385 }}>
-                                            <Tag color={scenarioRunSummary?.color}>
-                                                {scenarioRunSummary?.scenario}
-                                            </Tag>
-                                            <div
-                                                style={{
-                                                    fontSize: 12,
-                                                    marginTop: 8,
-                                                    marginBottom: 8,
-                                                }}
-                                            >
-                                                <b>{scenarioRunSummary?.tranche}</b>·{' '}
-                                                {scenarioRunSummary?.pendingAssumptionsMessage}
-                                            </div>
-                                            <div className={styles.assumptionPendingActions}>
-                                                <Button
-                                                    variant="solid"
-                                                    color="primary"
-                                                    size="small"
-                                                    onClick={onAssumptionsAccept}
-                                                >
-                                                    Accept
-                                                </Button>
-                                                <Button
-                                                    size="small"
-                                                    variant="outlined"
-                                                    color="danger"
-                                                    onClick={() => {
-                                                        setIsAssumptionsPending(false);
-                                                    }}
-                                                >
-                                                    Dismiss
-                                                </Button>
-                                            </div>
-                                        </Card>
-                                    </div>
+                                {isScenarioMatrixPending ? (
+                                    <PendingInputDialogue
+                                        scenarioRunSummary={scenarioRunSummary}
+                                        cashflow={scenarioCashflows}
+                                        onPendingInputAccept={onAssumptionsAccept}
+                                        onPendingInputDismiss={closePendingModal}
+                                    />
                                 ) : (
                                     <InputAssumptionsPanel
                                         price={price}

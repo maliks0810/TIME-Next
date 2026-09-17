@@ -5,28 +5,16 @@ import { ApartmentOutlined } from '@ant-design/icons';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
 import WidgetLoadingState from '../../../components/widget-shell/WidgetLoadingState';
 import { useIsMaximized } from '../../../components/widget-shell/WidgetMaximizeContext';
-import {
-    useWidgetSize,
-    WidgetSizeBands,
-} from '../../../components/layout/useWidgetSize';
+import { useWidgetSize, WidgetSizeBands } from '../../../components/layout/useWidgetSize';
 import type { WidgetComponentProps } from '../../../types/widget';
 import { useTheme } from '../../../theme/ThemeContext';
 import { TrancheDetail } from './utils/mockData';
 import { MetricCard } from './components/MetricCard';
 import { DetailRow } from './components/DetailRow';
 import { DetailPanel } from './components/DetailPanel';
-import {
-    planTrancheDetail,
-    PanelName,
-} from './components/planLayout';
-import {
-    TRANCHE_NAME_KEY,
-    DEAL_NAME_KEY,
-} from '../../constants';
-import {
-    useGetWidgetValue,
-    useSetWidgetValue,
-} from '../../../state/Widgets/hooks';
+import { planTrancheDetail, PanelName } from './components/planLayout';
+import { TRANCHE_NAME_KEY, DEAL_NAME_KEY } from '../../constants';
+import { useGetWidgetValue, useSetWidgetValue } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
 import styles from './TrancheDetailsWidget.module.scss';
 
@@ -41,20 +29,12 @@ const formatNumber = (value: number) =>
         maximumFractionDigits: 2,
     });
 
-function TrancheDetailContent({
-    data,
-    error,
-}: {
-    data: TrancheDetail | null;
-    error: unknown;
-}) {
+function TrancheDetailContent({ data, error }: { data: TrancheDetail | null; error: unknown }) {
     const { ref, cols, heightPx } = useWidgetSize(TD_BANDS);
     const maximized = useIsMaximized();
     const { themeName } = useTheme();
 
-    const isWealthTheme =
-        themeName === 'wealthLight' ||
-        themeName === 'wealthDark';
+    const isWealthTheme = themeName === 'wealthLight' || themeName === 'wealthDark';
     const isWealthLight = themeName === 'wealthLight';
     const isWealthDark = themeName === 'wealthDark';
 
@@ -81,13 +61,8 @@ function TrancheDetailContent({
               },
               {
                   label: 'Coupon',
-                  value:
-                      data.coupon != null
-                          ? `${data.coupon.toFixed(4)}%`
-                          : null,
-                  sub: data.reportedCoupon
-                      ? `Reported: ${data.reportedCoupon}`
-                      : 'Reported: —',
+                  value: data.coupon != null ? `${data.coupon.toFixed(4)}%` : null,
+                  sub: data.reportedCoupon ? `Reported: ${data.reportedCoupon}` : 'Reported: —',
                   accent: true,
               },
               {
@@ -106,11 +81,7 @@ function TrancheDetailContent({
         switch (name) {
             case 'Tranche info':
                 return (
-                    <DetailPanel
-                        key="tranche-info"
-                        title="Tranche info"
-                        bodyColumns={bodyColumns}
-                    >
+                    <DetailPanel key="tranche-info" title="Tranche info" bodyColumns={bodyColumns}>
                         <DetailRow label="Tranche" value={data.name} mono />
                         <DetailRow label="CUSIP" value={data.cusip} mono copyable />
                         <DetailRow label="ISIN" value={data.isin} mono copyable />
@@ -132,11 +103,7 @@ function TrancheDetailContent({
 
             case 'Cash flow':
                 return (
-                    <DetailPanel
-                        key="cash-flow"
-                        title="Cash flow"
-                        bodyColumns={bodyColumns}
-                    >
+                    <DetailPanel key="cash-flow" title="Cash flow" bodyColumns={bodyColumns}>
                         <DetailRow label="Coupon" value={data.coupon?.toFixed(4)} mono />
                         <DetailRow label="Reported coupon" value={data.reportedCoupon} mono />
                         <DetailRow label="Frequency" value={data.frequency} />
@@ -151,19 +118,10 @@ function TrancheDetailContent({
 
             case 'Floater info':
                 return (
-                    <DetailPanel
-                        key="floater-info"
-                        title="Floater info"
-                        bodyColumns={bodyColumns}
-                    >
+                    <DetailPanel key="floater-info" title="Floater info" bodyColumns={bodyColumns}>
                         <DetailRow label="Floater formula" value={data.floaterFormula} mono />
                         <DetailRow label="Floater index" value={data.floaterIndex} mono />
-                        <DetailRow
-                            label="Floater spread"
-                            value={data.floaterSpread}
-                            mono
-                            accent
-                        />
+                        <DetailRow label="Floater spread" value={data.floaterSpread} mono accent />
                         <DetailRow label="Floater index CSA" value={data.floaterIndexCSA} mono />
                         <DetailRow label="Floater floor" value={data.floaterFloor} mono />
                         <DetailRow label="Floater cap" value={data.floaterCap} mono />
@@ -183,9 +141,7 @@ function TrancheDetailContent({
                         <DetailRow
                             label="Target enhancement"
                             value={
-                                data.targetEnhancement != null
-                                    ? `${data.targetEnhancement}%`
-                                    : null
+                                data.targetEnhancement != null ? `${data.targetEnhancement}%` : null
                             }
                             mono
                             accent
@@ -203,12 +159,12 @@ function TrancheDetailContent({
 
             case 'Accumulators':
                 return (
-                    <DetailPanel
-                        key="accumulators"
-                        title="Accumulators"
-                        bodyColumns={bodyColumns}
-                    >
-                        <DetailRow label="Accum int shortfall" value={data.accumIntShortfall} mono />
+                    <DetailPanel key="accumulators" title="Accumulators" bodyColumns={bodyColumns}>
+                        <DetailRow
+                            label="Accum int shortfall"
+                            value={data.accumIntShortfall}
+                            mono
+                        />
                         <DetailRow label="Accum writedown" value={data.accumWritedown} mono />
                         <DetailRow
                             label="Accum unreal WD"
@@ -264,9 +220,7 @@ function TrancheDetailContent({
                         <div className={styles.loadingInnerContainer}>
                             <ApartmentOutlined className={styles.loadingIcon} />
                         </div>
-                        <span className={styles.loadingText}>
-                            Select a tranche to view detail
-                        </span>
+                        <span className={styles.loadingText}>Select a tranche to view detail</span>
                     </div>
                 )}
 
@@ -288,7 +242,9 @@ function TrancheDetailContent({
                             <div className={styles.metricStrip}>
                                 {cards.map((card) => (
                                     <div key={card.label} className={styles.metricStripItem}>
-                                        <span className={styles.metricStripLabel}>{card.label}</span>
+                                        <span className={styles.metricStripLabel}>
+                                            {card.label}
+                                        </span>
                                         <span className={styles.metricStripValue}>
                                             {card.value ?? '—'}
                                         </span>
@@ -332,13 +288,10 @@ export function ScTrancheDetailWidget({
 
     const requestKey =
         dealName && trancheName
-            ? `${String(dealName).toLowerCase()}::${String(
-                  trancheName,
-              ).toLowerCase()}`
+            ? `${String(dealName).toLowerCase()}::${String(trancheName).toLowerCase()}`
             : null;
 
-    const [visibleResultKey, setVisibleResultKey] =
-        React.useState<string | null>(null);
+    const [visibleResultKey, setVisibleResultKey] = React.useState<string | null>(null);
 
     const previousDealNameRef = React.useRef<string | undefined>(dealName);
     const pendingRequestKeyRef = React.useRef<string | null>(null);
@@ -360,6 +313,7 @@ export function ScTrancheDetailWidget({
                 key: TRANCHE_NAME_KEY,
                 value: null,
                 activeTab,
+                widgetId: widgetInstance.id,
             });
 
             return;
@@ -384,14 +338,7 @@ export function ScTrancheDetailWidget({
 
         // execute is intentionally excluded because some widget runtimes
         // recreate it after each result update, which would cause a loop.
-    }, [
-        dealName,
-        trancheName,
-        requestKey,
-        channelId,
-        activeTab,
-        setWidgetValueToChannel,
-    ]);
+    }, [dealName, trancheName, requestKey, channelId, activeTab]);
 
     React.useEffect(() => {
         if (loading) {
@@ -405,8 +352,7 @@ export function ScTrancheDetailWidget({
 
         const resultChanged = result !== resultAtRequestRef.current;
         const requestCompleted = requestSawLoadingRef.current || resultChanged;
-        const hasResult =
-            Boolean(result) && Object.keys(result as object).length > 0;
+        const hasResult = Boolean(result) && Object.keys(result as object).length > 0;
 
         if (requestCompleted && hasResult && !error) {
             setVisibleResultKey(requestKey);
@@ -431,11 +377,7 @@ export function ScTrancheDetailWidget({
     const content = <TrancheDetailContent data={data} error={error} />;
 
     return (
-        <WidgetCardShell
-            overflow="hidden"
-            expandable
-            maximizedChildren={content}
-        >
+        <WidgetCardShell overflow="hidden" expandable maximizedChildren={content}>
             {content}
         </WidgetCardShell>
     );

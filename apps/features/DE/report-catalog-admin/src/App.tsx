@@ -5,6 +5,8 @@ import { queryClient } from "./services/query-client";
 import CatalogAdminPage from "./pages/catalog-admin/CatalogAdminPage";
 import { useOktaUserInfo } from "../../../../../packages/utils/src/hooks/Authentication/user-info-from-token";
 import { AuthGuard } from './guards/auth';
+import { useDocumentTitle } from './hooks/useDocumentTitle';
+
 type AppUser = {
     email: string;
     login: string;
@@ -12,12 +14,14 @@ type AppUser = {
 };
 
 export default function App() {
+
     const [user, setUser] = useState<AppUser | null>(null);
     const [loading, setLoading] = useState(true);
 
     const oktaUserInfo = useOktaUserInfo();
     const hasLoadedRef = useRef(false);
 
+    useDocumentTitle('Report Catalog - Admin | TIME');
 
     useEffect(() => {
         if (hasLoadedRef.current) return;

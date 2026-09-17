@@ -83,8 +83,9 @@ export const TopMenu = (props: {
             const updated = addToFavorites(link, userInfo);
             return updateUserInfo(updated);
         });
-        var url = (link.path ?? link.url as string).toLowerCase();
-        if (!url.startsWith('http')) {
+        
+        var url = link.path ?? (link.url as string);
+        if (!url.toLowerCase().startsWith('http')) {
             url = window.location.origin + (url.startsWith('/') ? '' : '/') + url;
         }
 

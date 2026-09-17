@@ -1,6 +1,4 @@
 export const COUNTER_TILE_STORE_KEY = 'counterTile';
-export const ASSET_STAGED_TRANCHE_ID = 'asset.staged.trancheId';
-export const ASSET_STAGED_TRANCHE_NAME = 'asset.staged.trancheName';
 export const ANALYSTS_KEY = 'analystsControl';
 export const CHART_CONTROL_KEY = 'chartControl';
 export const PERIOD_RADIO_STORE_KEY = 'period';
@@ -47,16 +45,17 @@ export const COLLATERAL_DIMS = [
     'zero_balance_reason',
 ];
 export const COLLATERAL_FILTER_KEYS = COLLATERAL_DIMS.map(
-    (dimension) => `${FILTER_PREFIX}${dimension}`,
+    (dimension) => `${FILTER_PREFIX}${dimension}`
 );
 export const COLLATERAL_STAGE_KEYS = COLLATERAL_DIMS.map(
-    (dimension) => `${STAGE_PREFIX}${dimension}`,
+    (dimension) => `${STAGE_PREFIX}${dimension}`
 );
 export const COMMON_DATE_GRID_ROW_KEY = 'common.data.grid.row';
 export const COMMON_BUTTON_KEY = 'common.button';
 export const COMMON_TREE_KEY = 'common.tree.item';
 export const CUSIP_KEY = 'cusip';
-export const NAIC_RATINGS_KEY = 'naicRatings';
+export const NAIC_RATINGS_KEY = 'naic.ratings';
+export const NAIC_PORTFOLIO_REPORT_KEY = 'naic.portfolio.report';
 
 export enum DateFormatEnum {
     DAY = 'day',
@@ -69,4 +68,10 @@ export const schemaToStateKeyMap: { [key: string]: string } = {
     'prism.equity.chart.control.list': CHART_CONTROL_KEY,
     'naic.rbc.ratings': NAIC_RATINGS_KEY,
     'naic.portfolio.cusip': CUSIP_KEY,
+    'naic.portfolio.report': NAIC_PORTFOLIO_REPORT_KEY,
+};
+
+export const fileUploaderMandatoryColumnMap: { [key: string]: string } = {
+    'naic.portfolio.cusip': CUSIP_KEY,
+    'naic.portfolio.report': CUSIP_KEY,
 };

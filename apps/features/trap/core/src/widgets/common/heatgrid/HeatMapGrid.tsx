@@ -463,7 +463,7 @@ export default function HeatMapGrid({
             {typeof document !== 'undefined' &&
                 createPortal(
                     <div className="hg-tip" ref={tipRef} role="tooltip" aria-hidden="true" />,
-                    document.getElementById("canvasWrapper") || document.body
+                    document.body
                 )}
         </>
     );

@@ -41,12 +41,29 @@ function isColorDark(color: string): boolean {
     return 0.299 * r + 0.587 * g + 0.114 * b < 128;
 }
 
+/** Compact axis label: 1.2M / 340k / 900. */
+function compact(v: number): string {
+    const a = Math.abs(v);
+    if (a >= 1_000_000) return `${round1(v / 1_000_000)}M`;
+    if (a >= 1_000) return `${Math.round(v / 1_000)}k`;
+    return `${Math.round(v)}`;
+}
+function round1(n: number): number {
+    return Math.round(n * 10) / 10;
+}
+
 /**
- * Cash-flow chart — stacked Principal/Interest bars per period, rendered through
- * the shared analytics ECharts pipeline (resolveEchartsTokens + typography) so it
- * themes identically to the CGL/collateral charts. The bar fill uses the live
- * scenario identity color (a literal, so it passes the token resolver untouched);
- * everything else uses @role tokens.
+ * Cash-flow chart — an amortization combo:
+ *   • Stacked bars per period: Principal (bottom) + Interest (top); the stack
+ *     height equals the period Cashflow (principal + interest), so no separate
+ *     Cashflow series is drawn.
+ *   • Balance as a line on a SECOND (right) Y axis — the declining pool/tranche
+ *     balance sweeping to zero.
+ *
+ * Rendered through the shared analytics ECharts pipeline (resolveEchartsTokens +
+ * typography) so it themes identically to the CGL/collateral charts. Bars use the
+ * live scenario identity color (a literal, passed through the resolver untouched);
+ * the balance line and all chrome use @role tokens.
  */
 export default function CashFlowChart({ scenario, rows }: Props) {
     const { themeName } = useTheme();
@@ -80,7 +97,7 @@ export default function CashFlowChart({ scenario, rows }: Props) {
         const periods = rows ?? [];
         return {
             animationDuration: 250,
-            grid: { top: 12, right: 10, bottom: 28, left: 10, containLabel: true },
+            grid: { top: 14, right: 14, bottom: 30, left: 12, containLabel: true },
             tooltip: {
                 trigger: "axis",
                 axisPointer: { type: "shadow" },
@@ -99,32 +116,40 @@ export default function CashFlowChart({ scenario, rows }: Props) {
                 itemWidth: 10,
                 itemHeight: 10,
                 textStyle: { color: "@textTertiary", fontSize: 10 },
-                data: ["Principal", "Interest"],
+                data: ["Principal", "Interest", "Balance"],
             },
             xAxis: {
                 type: "category",
-                data: periods.map((p) => p.period),
+                data: periods.map((p) => p.date ?? String(p.period)),
                 axisTick: { show: false },
                 axisLine: { lineStyle: { color: "@splitLine" } },
-                axisLabel: { color: "@textTertiary", fontSize: 8, interval: "auto" },
+                axisLabel: { color: "@textTertiary", fontSize: 8, interval: "auto", hideOverlap: true },
             },
-            yAxis: {
-                type: "value",
-                splitLine: { lineStyle: { color: "@splitLine" } },
-                axisLine: { show: false },
-                axisTick: { show: false },
-                axisLabel: {
-                    color: "@textTertiary",
-                    fontSize: 9,
-                    formatter: (v: number) =>
-                        Math.abs(v) >= 1000 ? `${Math.round(v / 1000)}k` : `${v}`,
+            yAxis: [
+                {
+                    // Left: period cash flows (bars).
+                    type: "value",
+                    splitLine: { lineStyle: { color: "@splitLine" } },
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { color: "@textTertiary", fontSize: 9, formatter: (v: number) => compact(v) },
                 },
-            },
+                {
+                    // Right: remaining balance (line).
+                    type: "value",
+                    position: "right",
+                    splitLine: { show: false },
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { color: "@textTertiary", fontSize: 9, formatter: (v: number) => compact(v) },
+                },
+            ],
             series: [
                 {
                     name: "Principal",
                     type: "bar",
                     stack: "cf",
+                    yAxisIndex: 0,
                     barMaxWidth: 22,
                     emphasis: { focus: "series" },
                     itemStyle: { color: fill },
@@ -134,10 +159,23 @@ export default function CashFlowChart({ scenario, rows }: Props) {
                     name: "Interest",
                     type: "bar",
                     stack: "cf",
+                    yAxisIndex: 0,
                     barMaxWidth: 22,
                     emphasis: { focus: "series" },
                     itemStyle: { color: fill, opacity: 0.45 },
                     data: periods.map((p) => p.interest),
+                },
+                {
+                    name: "Balance",
+                    type: "line",
+                    yAxisIndex: 1,
+                    smooth: true,
+                    symbol: "none",
+                    z: 3,
+                    lineStyle: { width: 2, color: "@primary" },
+                    itemStyle: { color: "@primary" },
+                    emphasis: { focus: "series" },
+                    data: periods.map((p) => p.balance ?? p.endBal),
                 },
             ],
         };

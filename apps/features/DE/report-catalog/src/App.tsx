@@ -5,8 +5,11 @@ import { queryClient } from "./services/query-client";
 import { useSearchParams } from "react-router-dom"
 import CatalogAdminPage from "./pages/catalog-admin/CatalogAdminPage";
 import { useUserInfo } from "@platform/utils";
+import { useDocumentTitle } from './hooks/useDocumentTitle';
 
 export default function App() {
+
+  useDocumentTitle('Report Catalog | TIME');
 
   const user = useUserInfo();
 

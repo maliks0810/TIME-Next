@@ -1,19 +1,23 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { message } from 'antd';
 
 import { listTemplates, getTemplateVersion, TemplateSummary } from '../../../api/trap';
 import { type WorkflowContext } from '../../../state/contextBus';
 
 import type { LandingTabProps } from '../types/landing.types';
-import {
-    getDefaultLandingTemplate,
-    setDefaultLandingTemplate,
-} from '../../../utils/userPreferences';
-import { useGetUserClaims, useGetUserLogin, useGetActiveUser } from '../../../state/User/hooks';
+
+import { useGetUserClaims, useGetUserLogin } from '../../../state/User/hooks';
+import { useUserProfile } from '../../../context/UserPreferenceContext';
+import { PROFILE_KEYS } from '../../../context/constants';
 
 export function useLanding(props: LandingTabProps) {
-    const defaultLanding = React.useMemo(() => getDefaultLandingTemplate(), []);
+    const { profile } = useUserProfile();
+
+    const defaultLanding = useMemo(
+        () => profile?.[PROFILE_KEYS.ACTIVE_LANDING] || '',
+        [profile?.[PROFILE_KEYS.ACTIVE_LANDING]]
+    );
 
     const claims = useGetUserClaims();
     const login = useGetUserLogin();
@@ -21,7 +25,7 @@ export function useLanding(props: LandingTabProps) {
     const [targetTemplateId, setTargetTemplateId] = React.useState<string>();
     const [isLoading, setIsLoading] = React.useState(false);
     const hasLanding = Boolean(targetTemplateId);
-    const activeUser = useGetActiveUser();
+    const activeUser = sessionStorage.getItem('okta-name');
     const [error, setError] = useState<string | null>(null);
     const initLandingFromActive = (
         templates: TemplateSummary[],
@@ -44,13 +48,8 @@ export function useLanding(props: LandingTabProps) {
         }
     };
 
-    const initFromSaved = (
-        templates: TemplateSummary[],
-        defaultLanding: {
-            templateId: string | null;
-        } | null
-    ) => {
-        const savedTemplateId = defaultLanding?.templateId ?? undefined;
+    const initFromSaved = (templates: TemplateSummary[], defaultLanding: string | null) => {
+        const savedTemplateId = defaultLanding ?? undefined;
 
         const savedTemplate = savedTemplateId
             ? templates.find((template) => template.id === savedTemplateId)
@@ -87,9 +86,7 @@ export function useLanding(props: LandingTabProps) {
         return myTemplate;
     };
     const initDefaultLanding = async (
-        defaultLanding: {
-            templateId: string | null;
-        } | null,
+        defaultLanding: string | null,
         activeLandingSelection: LandingTabProps['activeLandingSelection']
     ) => {
         try {
@@ -99,7 +96,7 @@ export function useLanding(props: LandingTabProps) {
                 initLandingFromActive(templates, activeLandingSelection);
                 return;
             }
-            if (defaultLanding?.templateId) {
+            if (defaultLanding) {
                 initFromSaved(templates, defaultLanding);
                 return;
             }
@@ -108,7 +105,6 @@ export function useLanding(props: LandingTabProps) {
             if (departmentLanding) {
                 setTargetTemplateId(departmentLanding.id);
 
-                setDefaultLandingTemplate(departmentLanding.id);
                 setIsLoading(false);
                 return;
             }
@@ -139,7 +135,6 @@ export function useLanding(props: LandingTabProps) {
         (async () => {
             try {
                 const tv = await getTemplateVersion(targetTemplateId);
-
                 if (!cancelled) {
                     setCompiledLandingVersion(tv ?? null);
                 }

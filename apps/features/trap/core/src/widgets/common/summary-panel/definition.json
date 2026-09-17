@@ -37,7 +37,7 @@
             "schemaKey": {
                 "category": "System Parameters",
                 "description": "Logical summary scenario resolved by GraphQL. Each scenario owns its own metric set and data source.",
-                "enum": ["abf.collateral.summary"],
+                "enum": ["deal.collateral.summary"],
                 "title": "Schema Key",
                 "type": "string"
             },

@@ -39,6 +39,7 @@ export const TreeWidget = ({
             channelId,
             key: COMMON_TREE_KEY,
             value: selected.node.key as string,
+            widgetId: widgetInstance.id,
         });
     };
 

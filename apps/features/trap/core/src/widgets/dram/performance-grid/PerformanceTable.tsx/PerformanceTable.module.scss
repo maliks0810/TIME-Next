@@ -1,0 +1,133 @@
+// Currently Not deploying this functionality to production. Skip code review
+
+.performanceTable {
+  width: 100%;
+  min-width: 0;
+  background: #ffffff;
+
+  &Grid {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  :global(.dx-treelist) {
+    font-size: 11px;
+    color: #24292f
+  }
+
+  // Header
+  :global(.dx-treelist-headers) {
+    border-bottom: 1px solid #d9dde5
+  }
+
+  :global(.dx-header-row) {
+    td {
+      padding: 7px 8px;
+      background: #fff;
+      border-color: #e7e9ed;
+
+      font-size: 10px;
+      font-weight: 600;
+      color: #5d6673;
+
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    &:first-child {
+      td {
+        font-weight: 700;
+      }
+    }
+  }
+
+  // Data rows
+  :global(.dx-data-row) {
+    td {
+      height: 30px;
+      padding: 5px 8px;
+      border-color: #eef0f3;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+  }
+
+  // Fixed column
+  :global(.dx-treelist-content-fixed) {
+    background: #fff;
+  }
+
+  // :global(.dx-treelist-content) {
+  //   overflow-x: auto;
+  // }
+
+  // Tree indentation
+  :global(.dx-treelist-icon-container) {
+    padding-right: 5px;
+  }
+
+  // Hover
+  :global(.dx-data-row.dx-state-hover) {
+    td {
+      background: #f7f9fb;
+    }
+  }
+
+  :global(.dx-data-row) {
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  // Row styles
+  // .performanceRow {
+  //   :global(td) {
+  //     transition: background-color 0.15s ease;
+  //   }
+  // }
+
+  // Parent / Breakdown rows
+  .performanceRowBreakdown {
+    :global(td) {
+      font-weight: 600 !important;
+      background: #fbfcfd;
+    }
+
+    &:hover {
+      td {
+        background: #f6f8fa !important;
+      }
+    }
+  }
+
+  // Security child rows
+  .performanceRowSecurity {
+    :global(td) {
+      font-weight: 400;
+      background: #fff;
+    }
+  }
+
+  // Total row
+  .performanceRowTotal {
+    :global(td) {
+      font-weight: 700 !important;
+      border-top: 1px solid #cfd5dd !important;
+      background: #fff;
+    }
+  }
+
+  // Financial values
+  .cellPositive {
+    // color: #1f7a45 !important;
+  }
+  
+  .cellNegative {
+    // color: #bf3b3b !important;
+  }
+
+  Scrollbar
+  .performace-table__grid {
+    .dx-scrollable-scrollbar {
+      opacity: 1;
+    }
+  }
+}

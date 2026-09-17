@@ -1,21 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 
-// TIME-Next port of tcw-dqm's src/features/dq-monitor/components/Header.tsx.
-//
-// The ONLY intentional difference is that the Okta block is gone:
-//   import { useOktaAuth } from "@okta/okta-react";
-//   import { USE_OKTA } from "../../../services/auth-mode";
-// Neither resolves in this workspace — @okta is not a declared
-// dependency here and there is no src/services/auth-mode.ts — because
-// TIME-Next authenticates at the platform-shell level and renders the
-// signed-in user in its own Navbar. The user badge and Logout button
-// that block guarded are dropped with it; duplicating them beneath the
-// shell's navbar would be redundant. The TCW brand mark goes for the
-// same reason (in tcw-dqm it only renders when USE_OKTA is on).
-//
-// Everything else is byte-identical to tcw-dqm so future copy-overs
-// stay mechanical: re-copy the file, then re-apply exactly that one
-// removal.
 
 type HeaderProps = {
   onExportClick?: () => void;
@@ -87,6 +71,10 @@ export default function Header({
   breakdown,
   breakdownLeftOffset,
 }: HeaderProps = {}) {
+ 
+
+
+
   // Settings dropdown. Closes on outside click and on Escape — same
   // affordances as the grid's per-column ⋮ menu, so the two behave
   // consistently.
@@ -110,38 +98,28 @@ export default function Header({
     };
   }, [settingsOpen]);
 
-  // When a breakdown row is supplied, the left column is sized so the
-  // breakdown starts at the horizontal position where the Exceptions
-  // grid begins (sidebar width + resizer + gaps computed by the
-  // caller). Right column keeps its buttons flush right via
-  // .dq-header-right's justify-self: end.
-  //
-  // minmax(offset, auto) rather than a fixed `offset px`: the offset
-  // is the *preferred* start, not a cap. With the sidebar collapsed
-  // it shrinks to roughly the rail width, which is far narrower than
-  // the 18px bold title — a fixed track left the title overflowing
-  // into the breakdown's column and the two overlapped. The `auto`
-  // max lets the column grow to fit the title (plus the role badge)
-  // whenever the offset would be too small, so the breakdown gets
-  // pushed clear instead of overwritten, while still aligning to the
-  // grid edge whenever there is room.
-  const headerStyle: React.CSSProperties | undefined =
-    breakdown != null && breakdownLeftOffset != null
-      ? { gridTemplateColumns: `minmax(${breakdownLeftOffset}px, auto) auto 1fr` }
+
+
+  // Breakdown (Total: | New: | ...) rides on its own row below the
+  // title/buttons row so a narrow laptop can't push the right-hand
+  // buttons off the screen. breakdownLeftOffset lines the breakdown
+  // up with the Exceptions grid's left edge; the caller resolves the
+  // sidebar + gap arithmetic so this component stays layout-agnostic.
+  const breakdownStyle: React.CSSProperties | undefined =
+    breakdownLeftOffset != null
+      ? { paddingLeft: breakdownLeftOffset }
       : undefined;
 
   return (
-    <div className="dq-header" style={headerStyle}>
-      <div className="dq-header-left">
-        <h1 className="dq-header-title">DATA QUALITY MONITOR</h1>
-        {dmRole && <span className="dq-header-role">{dmRole}</span>}
-      </div>
+    <div className="dq-header">
+      <div className="dq-header-row">
+        <div className="dq-header-left">
+         
+          <h1 className="dq-header-title">DATA QUALITY MONITOR</h1>
+          {dmRole && <span className="dq-header-role">{dmRole}</span>}
+        </div>
 
-      {breakdown != null && (
-        <div className="dq-header-breakdown">{breakdown}</div>
-      )}
-
-      <div className="dq-header-right">
+        <div className="dq-header-right">
         {onBulkStatusClick && (
           <button
             className="dq-export-btn"
@@ -290,8 +268,15 @@ export default function Header({
             )}
           </div>
         )}
+       
+        </div>
       </div>
+
+      {breakdown != null && (
+        <div className="dq-header-breakdown" style={breakdownStyle}>
+          {breakdown}
+        </div>
+      )}
     </div>
   );
 }
-

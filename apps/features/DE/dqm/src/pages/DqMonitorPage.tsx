@@ -14,10 +14,10 @@ import { fetchExceptionStatus } from "../services/get-exception-status";
 import { fetchDMUsers } from "../services/get-dm-users";
 import { fetchDMRole } from "../services/get-dm-role";
 import { fetchRuleGroupsForUser } from "../services/get-rule-groups-for-user";
+import { fetchSecurityGroups } from "../services/get-security-groups";
 import { fetchRuleCatalogs } from "../services/get-rule-catalogs";
 import { fetchRuleNames, ruleDisplayLabel } from "../services/get-rule-names";
 import { fetchRulesForGroup } from "../services/get-rules-for-group";
-import { fetchExceptionCountsByGroup } from "../services/get-exception-counts-by-group";
 import { subscribeToEvents } from "../services/stream-events";
 import {
   exportAssetsToExcel,
@@ -49,6 +49,19 @@ const EXCEPTION_LIMIT: number = (() => {
   return Number.isFinite(n) && n > 0 ? n : 5000;
 })();
 
+// Separate, higher cap for the tree's "All" scope, which unions every
+// rule group the operator is authorised for and so legitimately returns
+// more than any single-group view. Configured via
+// REACT_APP_EXCEPTION_LIMIT_ALL with a 7000 fallback. Kept as its own
+// knob rather than raising EXCEPTION_LIMIT for everyone: a single rule
+// returning 6000 rows is still a sign the operator should narrow down,
+// whereas All returning 6000 is just All doing its job.
+const EXCEPTION_LIMIT_ALL: number = (() => {
+  const raw = import.meta.env.VITE_EXCEPTION_LIMIT_ALL;
+  const n = raw ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : 7000;
+})();
+
 // App version for the footer badge. Read from REACT_APP_VERSION, which
 // .env wires to $npm_package_version — so it tracks package.json
 // automatically at build time. Deliberately NOT `import pkg from
@@ -66,11 +79,59 @@ const APP_VERSION: string = import.meta.env.VITE_VERSION ?? "";
 // reconcile effects on every DqMonitorPage state flip.
 const EXCEPTIONS_TABLE_PRIORITY_RD_KEYS: readonly string[] = ["RULE_NAME"];
 
+// The only columns the Exceptions grid shows at tree 'All' for DM_USER
+// and DM_ADMIN. Everything else the rules project is hidden there,
+// because 'All' unions several groups whose RESULT_DATA shapes differ
+// and the union is unreadable.
+//
+// Entries are matched against BOTH the grid's static column keys and
+// the RESULT_DATA column names behind its rd:* keys, so this reads as
+// the operator's column list rather than as grid internals: RULE_NAME,
+// ALADDIN_ID and friends arrive as rd:* in view-exception mode, while
+// Status / Comments / Suppress Date / Assign To / Priority / Open Date
+// / Close Date are statics. Names absent from a given row set simply
+// do not appear.
+const ALL_SCOPE_COLUMN_KEYS: readonly string[] = [
+  "status",
+  "comments",
+  "suppressDate",
+  "assignTo",
+  "priority",
+  "openDate",
+  "closeDate",
+  "RULE_NAME",
+  "ALADDIN_ID",
+  "ISSUE_DESCRIPTION",
+  "ALADDIN_VALUE",
+  "BBG_VALUE",
+];
+
 // Today's date in ISO YYYY-MM-DD (UTC). Matches how the backend
 // stamps OPEN_DATE / CLOSE_DATE inside SP_UPDATE_EXCEPTION_STATUS
 // (CURRENT_DATE at UTC via CONVERT_TIMEZONE). Module-scope so the
 // four per-row write-back callbacks below can be useCallback'd
 // with empty dep lists.
+// 2 business days on from today, UTC, weekends only. Mirrors the
+// identical CASE in SP_UPDATE_EXCEPTION_STATUS / SP_UPDATE_BULK_STATUS
+// so the optimistic patch below shows the same Suppress Date the server
+// just wrote for a Hold. Offsets by ISO weekday: Mon/Tue/Wed +2,
+// Thu/Fri +4 (skipping the weekend), Sat +3, Sun +2 - a Friday hold
+// runs to Tuesday.
+//
+// The SERVER is authoritative; this only avoids a blank cell until the
+// next refetch. If the two ever disagree the refetch wins.
+function isoHoldSuppressDateUtc(): string {
+  const d = new Date();
+  const utc = new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
+  );
+  // getUTCDay: 0=Sun..6=Sat. ISO weekday: Mon=1..Sun=7.
+  const iso = utc.getUTCDay() === 0 ? 7 : utc.getUTCDay();
+  const add = iso === 4 || iso === 5 ? 4 : iso === 6 ? 3 : 2;
+  utc.setUTCDate(utc.getUTCDate() + add);
+  return utc.toISOString().slice(0, 10);
+}
+
 function isoTodayUtc(): string {
   const d = new Date();
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(
@@ -106,13 +167,6 @@ const SECURITY_MASTER_FAMILY_GROUPS = [
 function inSecurityMasterFamily(group: string): boolean {
   return SECURITY_MASTER_FAMILY_GROUPS.includes(group);
 }
-
-// .dq-header's grid column-gap, which sits between the title column and
-// the status-breakdown column. Must be subtracted when sizing the title
-// column to a target x-position, since the gap pushes the breakdown that
-// much further right. Keep in sync with `gap` on .dq-header in
-// dq-monitor.css.
-const HEADER_COLUMN_GAP = 16;
 
 export default function DqMonitorPage() {
   const [assets, setAssets] = useState<SecurityRow[]>([]);
@@ -250,6 +304,16 @@ export default function DqMonitorPage() {
 
   const [exceptions, setExceptions] = useState<ExceptionRow[]>([]);
 
+  // Mirror `exceptions` into a ref so stable useCallback handlers can
+  // read the current row (status, dates) without pulling the state into
+  // their dep array — that would recreate them on every data change and
+  // defeat the memoized per-cell components that shallow-compare their
+  // onCommit prop.
+  const exceptionsRef = useRef<ExceptionRow[]>(exceptions);
+  useEffect(() => {
+    exceptionsRef.current = exceptions;
+  }, [exceptions]);
+
   // Optimistic patch: after a successful per-row update (STATUS / ASSIGN
   // TO / COMMENTS / SUPPRESS DATE), merge the fields we know changed
   // straight into local state — no SP_GET_EXCEPTIONS refetch, no
@@ -286,27 +350,35 @@ export default function DqMonitorPage() {
         .then(() => {
           // Optimistic patch — no full-grid refetch. Replicates
           // SP_UPDATE_EXCEPTION_STATUS's derived-column logic:
-          //   SUPPRESS_DATE — kept when new status is Suppress,
-          //     blanked otherwise.
-          //   OPEN_DATE — ratchets to today on transition INTO New;
-          //     else preserved.
+          //   SUPPRESS_DATE — kept when new status is Suppress;
+          //     computed 2 business days out for Hold (the operator
+          //     does not choose it); blanked otherwise.
+          //   OPEN_DATE — ratchets to today on transition INTO New or
+          //     Hold (the hold clock runs from OPEN_DATE); else
+          //     preserved.
           //   CLOSE_DATE — set to today for Accept / Research;
-          //     cleared for New / Suppress / Challenge; else
-          //     preserved (Override, Hold, Complete keep prior).
+          //     cleared for New / Suppress / Challenge / Hold; else
+          //     preserved (Override, Complete keep prior).
           setExceptions((prev) =>
             prev.map((r) => {
               if (r.exceptionId !== exceptionId) return r;
               const today = isoTodayUtc();
               const nextSuppress =
-                status === "Suppress" ? suppressDate : "";
-              const nextOpen = status === "New" ? today : r.openDate;
+                status === "Hold"
+                  ? isoHoldSuppressDateUtc()
+                  : status === "Suppress"
+                  ? suppressDate
+                  : "";
+              const nextOpen =
+                status === "New" || status === "Hold" ? today : r.openDate;
               let nextClose = r.closeDate;
               if (status === "Accept" || status === "Research") {
                 nextClose = today;
               } else if (
                 status === "New" ||
                 status === "Suppress" ||
-                status === "Challenge"
+                status === "Challenge" ||
+                status === "Hold"
               ) {
                 nextClose = "";
               }
@@ -347,16 +419,30 @@ export default function DqMonitorPage() {
 
   const handleExceptionSuppressDateChange = useCallback(
     (exceptionId: number, suppressDate: string) => {
-      // Setting a suppress date implies suppression — flip status
-      // to "Suppress" in the same commit. Clearing the date leaves
-      // status alone.
+      // Setting a suppress date normally implies suppression — flip
+      // status to "Suppress" in the same commit. Two carve-outs:
+      //   1. Clearing the date: leave status alone.
+      //   2. Row is currently "Hold" AND the new date is on or before
+      //      the Hold boundary (2 business days out, matching the SP).
+      //      A date inside the hold window is just an adjustment to the
+      //      hold; only a date past the boundary means the operator is
+      //      converting the row into a proper suppression.
+      const row = exceptionsRef.current.find(
+        (r) => r.exceptionId === exceptionId
+      );
+      const stayHold =
+        !!suppressDate &&
+        row?.status === "Hold" &&
+        suppressDate <= isoHoldSuppressDateUtc();
+      const flipToSuppress = !!suppressDate && !stayHold;
+
       const p1 = updateExceptionSuppressDate(exceptionId, suppressDate);
-      const p2 = suppressDate
+      const p2 = flipToSuppress
         ? updateExceptionStatus(exceptionId, "Suppress")
         : Promise.resolve(0);
       return Promise.all([p1, p2])
         .then(() => {
-          if (suppressDate) {
+          if (flipToSuppress) {
             patchExceptionRow(exceptionId, {
               suppressDate,
               status: "Suppress",
@@ -575,10 +661,6 @@ export default function DqMonitorPage() {
   // These previously carried a `viewMode !== "security" &&` guard, which
   // silently stripped Status / Comments / Suppress Date / Assign To off
   // the grid the moment an asset was clicked.
-  const showStatusPanel = statusVisibleGroups.has(viewByGroup);
-  const showCommentsColumn = commentsVisibleGroups.has(viewByGroup);
-  const showSuppressDateColumn = suppressDateVisibleGroups.has(viewByGroup);
-  const showAssignToColumn = assignToVisibleGroups.has(viewByGroup);
   // Status filter starts empty and gets seeded with EVERY status
   // returned by SP_GET_EXCEPTION_STATUS as soon as that fetch lands
   // (see the seed effect right below the fetchExceptionStatus
@@ -589,14 +671,77 @@ export default function DqMonitorPage() {
   const [statusFilter, setStatusFilter] = useState<Set<string>>(
     () => new Set<string>()
   );
-  // Set true once the "seed statusFilter from exceptionStatusOptions"
-  // effect has run so it never re-fires after the user has customized
-  // the filter (e.g., deliberately unticked everything).
-  const statusFilterSeededRef = useRef<boolean>(false);
+  // Tracks which viewByGroup scopes the seed effect has already fired
+  // for, so the default filter is applied ONCE per scope. Any later
+  // customization on a scope persists — re-selecting the same scope
+  // does not reseed. Switching to a scope the user hasn't visited yet
+  // reseeds using that scope's rule (see the seed effect below).
+  const statusFilterSeededScopesRef = useRef<Set<string>>(
+    new Set<string>()
+  );
   const [statusComboOpen, setStatusComboOpen] = useState<boolean>(false);
   const statusComboRef = useRef<HTMLDivElement | null>(null);
   const [viewByRuleCatalog, setViewByRuleCatalog] = useState<string>("All");
   const [viewByRule, setViewByRule] = useState<string>("All");
+
+  // Tree 'All': nothing narrowed on the LHS. Shared by the fetch
+  // fan-out and the column gates below so the two can never disagree
+  // about what "All" means.
+  const isAllScope =
+    viewMode !== "security" &&
+    viewByGroup === "All" &&
+    viewByRuleCatalog === "All" &&
+    viewByRule === "All";
+
+  // DM_USER and DM_ADMIN get a deliberately narrow 'All': rows limited
+  // to the Security-Master-family groups, and a fixed column set (see
+  // ALL_SCOPE_COLUMN_KEYS). Every other role sees All unrestricted -
+  // every group they can access, every column. Note this pairs the
+  // least-privileged role with the primary admin one; that is the
+  // stated rule, not an oversight about isPrivilegedRole, which groups
+  // DM_ADMIN with IT_SUPPORT / IT_USER for a different purpose.
+  //
+  // Scoped to All only: drilling into a group or catalog behaves
+  // exactly as before for every role.
+  const allScopeRestricted =
+    isAllScope && (dmRole === "DM_USER" || dmRole === "DM_ADMIN");
+
+  // The editable statics — Status, Comments, Suppress Date, Assign To —
+  // appear at 'All' only for the four known DM roles: DM_USER,
+  // DM_ADMIN, IT_SUPPORT, IT_USER. Any other role (and the unknown /
+  // empty one) sees All without them: it still gets every exception in
+  // every group it can access, and every RESULT_DATA column, just none
+  // of the triage widgets.
+  //
+  // A wider set than allScopeRestricted on purpose: IT_SUPPORT and
+  // IT_USER get the statics but NOT the narrowed row set or the fixed
+  // column list, so the two flags cannot be collapsed into one.
+  const allScopeStaticColumns =
+    isAllScope && (dmRole === "DM_USER" || isPrivilegedRole(dmRole));
+
+  // Keyed purely off the selected rule group's FLAG_* visibility, with
+  // no view-mode condition. View by Security shows the same Exceptions
+  // grid as View Exceptions and the tree keeps driving viewByGroup while
+  // in that mode (selectGroupTree preserves viewMode === "security"), so
+  // the same LHS selection has to yield the same columns. Only the row
+  // set differs — the security view narrows it to the selected asset.
+  //
+  // These previously carried a `viewMode !== "security" &&` guard, which
+  // silently stripped Status / Comments / Suppress Date / Assign To off
+  // the grid the moment an asset was clicked.
+  //
+  // 'All' is not a real group name, so every flag lookup misses there
+  // and these columns would not exist at all. The four known DM roles
+  // switch them on explicitly at that scope; every other role is left
+  // with the flag lookup alone, so All shows them no triage widgets.
+  const showStatusPanel =
+    statusVisibleGroups.has(viewByGroup) || allScopeStaticColumns;
+  const showCommentsColumn =
+    commentsVisibleGroups.has(viewByGroup) || allScopeStaticColumns;
+  const showSuppressDateColumn =
+    suppressDateVisibleGroups.has(viewByGroup) || allScopeStaticColumns;
+  const showAssignToColumn =
+    assignToVisibleGroups.has(viewByGroup) || allScopeStaticColumns;
   // Display label for the currently-selected rule (RULE_DESCRIPTION when
   // present, RULE_NAME otherwise) — surfaced in the Exceptions header
   // subtitle when viewMode === "rule". Empty when no specific rule is in
@@ -657,6 +802,35 @@ export default function DqMonitorPage() {
   const [bulkIsPermanent, setBulkIsPermanent] = useState<boolean>(false);
   const [bulkSubmitting, setBulkSubmitting] = useState<boolean>(false);
   const [bulkMessage, setBulkMessage] = useState<string>("");
+  // Security Group dropdown on the Bulk Assign panel. Options come from
+  // SP_GET_SECURITY_GROUPS (distinct SECURITY_GROUP in
+  // SECURITY_CURRENT_VW). "" is the no-selection sentinel and renders
+  // as a blank entry - deliberately not labelled "All", since 'All'
+  // could itself be a real security group and the SP does not treat
+  // that string as a wildcard.
+  const [securityGroupOptions, setSecurityGroupOptions] = useState<string[]>(
+    []
+  );
+  const [bulkSecurityGroup, setBulkSecurityGroup] = useState<string>("");
+  // Rules and Security Group are mutually exclusive ways of naming what
+  // the Bulk Assign panel acts on, so choosing either locks the other
+  // out. Locking rather than silently clearing: an operator who picked
+  // five rules and then reached for the wrong control gets a disabled
+  // dropdown to explain itself, not a vanished selection.
+  //
+  // Both start empty, so neither can lock the other before the operator
+  // has chosen anything, and clearing one frees the other immediately.
+  const bulkRulesLocked = bulkSecurityGroup !== "";
+  const bulkSecurityGroupLocked = bulkSelectedRules.size > 0;
+
+  // Closing the panel clears the security group. It filters the grid
+  // server-side, so leaving it set would keep the grid narrowed by a
+  // control the operator can no longer see - the same trap the Rules
+  // combo avoids by living inside the panel that scopes it.
+  useEffect(() => {
+    if (bulkPanelOpen) return;
+    setBulkSecurityGroup((prev) => (prev === "" ? prev : ""));
+  }, [bulkPanelOpen]);
   // Rows ticked in the Exceptions grid's bulk-selection column, keyed
   // by EXCEPTION_ID. One set shared by both panels — there is only one
   // checkbox column, so Bulk Status and Bulk Assign both act on
@@ -729,16 +903,29 @@ export default function DqMonitorPage() {
     return () => controller.abort();
   }, []);
 
-  // Seed the status filter with EVERY status the backend returned,
-  // one time only. Runs the first time exceptionStatusOptions
-  // becomes non-empty; the seededRef gate prevents this from ever
-  // wiping a user's later customization (e.g., unticking rows).
+  // Seed the status filter per viewByGroup scope, once each. Every
+  // Security-Master-family group (Security Master, Security Master
+  // Benchmark, TOD SOD) and the tree "All" scope default to "every
+  // status except Accept, Suppress, and Research" — those three are
+  // resolved states and clutter the working queue there. Every other
+  // scope defaults to every status ticked. A scope only reseeds the
+  // first time the user visits it, so any later customization
+  // survives navigating away and back.
   useEffect(() => {
-    if (statusFilterSeededRef.current) return;
     if (exceptionStatusOptions.length === 0) return;
-    setStatusFilter(new Set(exceptionStatusOptions));
-    statusFilterSeededRef.current = true;
-  }, [exceptionStatusOptions]);
+    if (!viewByGroup) return;
+    if (statusFilterSeededScopesRef.current.has(viewByGroup)) return;
+    const excluded =
+      inSecurityMasterFamily(viewByGroup) || viewByGroup === "All"
+        ? new Set<string>(["Accept", "Suppress", "Research"])
+        : new Set<string>();
+    setStatusFilter(
+      new Set<string>(
+        exceptionStatusOptions.filter((s) => !excluded.has(s))
+      )
+    );
+    statusFilterSeededScopesRef.current.add(viewByGroup);
+  }, [exceptionStatusOptions, viewByGroup]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -771,6 +958,19 @@ export default function DqMonitorPage() {
       });
     return () => controller.abort();
   }, [currentDmUser]);
+
+  // Reference data, fetched once: the list changes only when
+  // DIM_SECURITY does.
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchSecurityGroups(controller.signal)
+      .then(setSecurityGroupOptions)
+      .catch((e: unknown) => {
+        if (e instanceof Error && e.name === "AbortError") return;
+        console.error("securityGroups fetch failed", e);
+      });
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -903,28 +1103,67 @@ export default function DqMonitorPage() {
     return () => document.removeEventListener("mousedown", handler);
   }, [statusComboOpen]);
 
+  // Options behind "Pick a rule or type a pattern". Follows whatever
+  // the LHS tree currently has selected, so the combo always offers
+  // exactly the rules in scope:
+  //   - a catalog selected → that catalog's rules
+  //   - a group selected   → every rule under that group
+  //   - 'All'              → every rule under every authorised group
+  //
+  // Only the first case used to be implemented; the other two left
+  // ruleOptions empty, so at group or All level the combo offered
+  // nothing to pick and the typeahead produced no suggestions. Worse
+  // for exact selection: commitRuleQuery looks for the typed text in
+  // ruleOptions, and against an empty list it could never match, so
+  // even a fully-typed rule name degraded to a %pattern% search
+  // instead of selecting that rule.
   useEffect(() => {
-    if (!viewByRuleCatalog || viewByRuleCatalog === "All") {
-      setRuleOptions([]);
-      setViewByRule("All");
-      setRuleQuery("");
-      setRuleNameSearchApplied("");
-      return;
-    }
     const controller = new AbortController();
-    fetchRuleNames(viewByRuleCatalog, controller.signal)
-      .then((rules) => {
-        const names = rules.map((r) => r.rule_name);
-        setRuleOptions(names);
-        setViewByRule((current) =>
-          names.includes(current) ? current : "All"
-        );
+    const ignoreAbort = (e: unknown) => {
+      if (e instanceof Error && e.name === "AbortError") return;
+      console.error("rule options lookup failed", e);
+    };
+    // Keep whatever rule is selected only if it still exists in the
+    // new scope — same reconcile the catalog branch always did.
+    const applyNames = (names: string[]) => {
+      setRuleOptions(names);
+      setViewByRule((current) => (names.includes(current) ? current : "All"));
+    };
+
+    if (viewByRuleCatalog && viewByRuleCatalog !== "All") {
+      fetchRuleNames(viewByRuleCatalog, controller.signal)
+        .then((rules) => applyNames(rules.map((r) => r.rule_name)))
+        .catch(ignoreAbort);
+      return () => controller.abort();
+    }
+
+    // Group scope, or All across every authorised group. Same fan-out
+    // shape as the exceptions fetch, and bounded the same way: naming
+    // the groups explicitly is what keeps 'All' to the operator's own
+    // groups rather than every rule in the database.
+    const groups =
+      viewByGroup && viewByGroup !== "All" ? [viewByGroup] : ruleGroupOptions;
+    if (groups.length === 0) {
+      setRuleOptions([]);
+      return () => controller.abort();
+    }
+    Promise.all(
+      groups.map((g) => fetchRulesForGroup(g, controller.signal))
+    )
+      .then((batches) => {
+        const names = Array.from(
+          new Set(
+            batches
+              .flat()
+              .map((r) => r.rule_name)
+              .filter(Boolean)
+          )
+        ).sort((a, b) => a.localeCompare(b));
+        applyNames(names);
       })
-      .catch((e: unknown) => {
-        if (e instanceof Error && e.name === "AbortError") return;
-      });
+      .catch(ignoreAbort);
     return () => controller.abort();
-  }, [viewByRuleCatalog]);
+  }, [viewByRuleCatalog, viewByGroup, ruleGroupOptions]);
 
   useEffect(() => {
     return subscribeToEvents((event) => {
@@ -1091,16 +1330,30 @@ export default function DqMonitorPage() {
       setExceptionsLimitExceeded(false);
       return;
     }
-    if (
+    // No group or catalog picked on the tree. The grid used to stay
+    // deliberately empty here; it now loads every exception across the
+    // rule groups the operator is authorised for.
+    //
+    // Deliberately does NOT require viewByRule === "All": picking a
+    // single rule from the combo at this scope must still fan out over
+    // the authorised groups. Falling through to the single-call path
+    // would send rule_group="All", which the service drops, querying
+    // every group in the database including unauthorised ones. The
+    // rule filter rides along on each per-group call instead, so only
+    // the group that owns the rule returns anything.
+    //
+    // The component-level isAllScope, which gates the restricted
+    // columns, keeps the stricter definition: picking a rule is a
+    // narrowing, and the operator should see that rule's full column
+    // set.
+    const isAllFetchScope =
       !usesAsset &&
       viewByGroup === "All" &&
-      viewByRuleCatalog === "All" &&
-      viewByRule === "All" &&
-      !ruleNameSearchApplied
-    ) {
-      // Tree 'All' selected — RHS exceptions grid stays empty; the LHS
-      // Number of Exceptions panel populates from per-group counts in a
-      // separate effect.
+      viewByRuleCatalog === "All";
+    if (isAllFetchScope && ruleGroupOptions.length === 0) {
+      // Authorised-group list hasn't landed yet (or the operator has
+      // none). Fetching with no rule_group would query every group in
+      // the database, including ones they cannot see, so wait instead.
       setExceptions([]);
       setExceptionsError(null);
       setExceptionsLoading(false);
@@ -1117,41 +1370,95 @@ export default function DqMonitorPage() {
     const ruleCatalogArg = inGroupMode ? undefined : viewByRuleCatalog;
     // Empty dqmDate → live EXCEPTION table. Non-empty ISO date → the
     // LATEST BATCH_ID for that day from EXCEPTION_HIST, scoped by tree.
-    const fetcher = dqmDate
-      ? fetchExceptionsHist(
-          dqmDate,
-          assetArg,
-          controller.signal,
-          dqmType,
-          severity,
-          priority,
-          ruleCatalogArg,
-          viewByRule,
-          ruleGroupArg,
-          exceptionState,
-          assignToFilter,
-          ruleNameSearchApplied
-        )
-      : fetchExceptions(
-          assetArg,
-          controller.signal,
-          dqmType,
-          severity,
-          priority,
-          ruleCatalogArg,
-          viewByRule,
-          ruleGroupArg,
-          exceptionState,
-          assignToFilter,
-          ruleNameSearchApplied,
-          // See the latestExceptionDate declaration above the
-          // effect for why we pass the LHS-dropdown latest date
-          // instead of relying on the server's today-UTC default.
-          latestExceptionDate
-        );
+    // One request per authorised group, merged. The endpoint takes a
+    // single rule_group and has no user parameter, so it cannot scope
+    // to RULE_GROUP_AUTHORIZATION on its own; naming each group
+    // explicitly is what keeps 'All' to the operator's own groups
+    // rather than the whole database.
+    // At restricted All the row set is limited to the Security-Master
+    // family, intersected with what the operator is authorised for -
+    // authorisation still wins, this only narrows further. The LHS tree
+    // and the Number of Exceptions panel are untouched and keep
+    // covering every group, as specified.
+    const allScopeGroups = allScopeRestricted
+      ? ruleGroupOptions.filter((g) => inSecurityMasterFamily(g))
+      : ruleGroupOptions;
+    const groupsToFetch = isAllFetchScope ? allScopeGroups : [ruleGroupArg];
+    const fetchForGroup = (g: string | undefined) =>
+      dqmDate
+        ? fetchExceptionsHist(
+            dqmDate,
+            assetArg,
+            controller.signal,
+            dqmType,
+            severity,
+            priority,
+            ruleCatalogArg,
+            viewByRule,
+            g,
+            exceptionState,
+            assignToFilter,
+            ruleNameSearchApplied
+          )
+        : fetchExceptions(
+            assetArg,
+            controller.signal,
+            dqmType,
+            severity,
+            priority,
+            ruleCatalogArg,
+            viewByRule,
+            g,
+            exceptionState,
+            assignToFilter,
+            ruleNameSearchApplied,
+            latestExceptionDate,
+            // Only ever set while the Bulk Assign panel is open; the
+            // panel clears it on close, so the grid returns to the
+            // unfiltered query on its own.
+            bulkSecurityGroup
+          );
+
+    // Merged results need re-sorting: each call returns its own group
+    // newest-first, and concatenating them would interleave by
+    // completion order. Same total ordering the services apply, so the
+    // grid reads identically whether one group or five were queried.
+    const mergeSorted = (batches: ExceptionRow[][]): ExceptionRow[] => {
+      const seen = new Set<number>();
+      const merged: ExceptionRow[] = [];
+      for (const batch of batches) {
+        for (const row of batch) {
+          if (seen.has(row.exceptionId)) continue;
+          seen.add(row.exceptionId);
+          merged.push(row);
+        }
+      }
+      return merged.sort((a, b) => {
+        const ta = a.dateTimeIso ?? a.dateTime;
+        const tb = b.dateTimeIso ?? b.dateTime;
+        if (ta !== tb) return ta < tb ? 1 : -1;
+        return a.exceptionId - b.exceptionId;
+      });
+    };
+
+    const limit = isAllFetchScope ? EXCEPTION_LIMIT_ALL : EXCEPTION_LIMIT;
+    // Stamp each row with the group it came from. Only the All fan-out
+    // needs it — the exceptionCountRows "All" branch reads it to
+    // compute per-group counts client-side so the panel tracks the
+    // Status filter. Single-group scopes leave it undefined; nothing
+    // downstream depends on it there.
+    const stampGroup =
+      (g: string | undefined) =>
+      (rows: ExceptionRow[]): ExceptionRow[] =>
+        g ? rows.map((r) => ({ ...r, ruleGroup: g })) : rows;
+    const fetcher: Promise<ExceptionRow[]> = isAllFetchScope
+      ? Promise.all(
+          groupsToFetch.map((g) => fetchForGroup(g).then(stampGroup(g)))
+        ).then(mergeSorted)
+      : fetchForGroup(ruleGroupArg);
     fetcher
       .then((rows) => {
-        if (rows.length > EXCEPTION_LIMIT) {
+        if (rows.length > limit) {
           setExceptions([]);
           setExceptionsLimitExceeded(true);
         } else {
@@ -1181,6 +1488,20 @@ export default function DqMonitorPage() {
     ruleNameSearchApplied,
     treeSelected,
     dqmDate,
+    // Picking a security group has to refetch: the filter is applied
+    // server-side by a different query, not by narrowing rows already
+    // in the browser.
+    bulkSecurityGroup,
+    // The All-scope fan-out reads this, and it arrives asynchronously
+    // from getRuleGroupsForUser - without it here the first render at
+    // All scope bails on the empty-list guard and never retries once
+    // the groups land. Set once per operator, so it does not churn.
+    ruleGroupOptions,
+    // Decides which groups the All fan-out covers. Derived from dmRole,
+    // which also arrives asynchronously, so the fetch has to re-run
+    // when it resolves - otherwise a DM_USER's first All load queries
+    // every authorised group instead of the Security-Master family.
+    allScopeRestricted,
     // Track the LHS-dropdown latest date so a late-arriving
     // MAX(EXCEPTION_DATE) (e.g. on holidays when histDates resolves
     // after the initial exceptions fetch) triggers a re-fetch with
@@ -1188,96 +1509,13 @@ export default function DqMonitorPage() {
     latestExceptionDate,
   ]);
 
-  // When 'All' is selected on the tree, the Number of Exceptions panel
-  // shows one row per rule group. ExceptionRow does not carry rule_group,
-  // so we hit GET_EXCEPTIONS once per group (rule_group=<name>) and just
-  // count the rows. Refresh on the same triggers as the main exceptions
-  // fetch so SSE-driven refreshes and filter changes flow through.
-  const [groupCounts, setGroupCounts] = useState<Record<string, number>>({});
-  useEffect(() => {
-    const inAllMode =
-      viewMode !== "security" &&
-      treeSelected &&
-      viewByGroup === "All" &&
-      viewByRuleCatalog === "All" &&
-      viewByRule === "All" &&
-      !ruleNameSearchApplied;
-    // countsDate must be resolved before calling — the endpoint requires
-    // exception_date and 400s without it. histDates arrives async, so on
-    // a cold load this effect runs once with an empty date and bails,
-    // then re-runs for real when the date lands.
-    const countsDate = dqmDate || latestExceptionDate;
-    if (!inAllMode || ruleGroupOptions.length === 0 || !countsDate) {
-      setGroupCounts({});
-      return;
-    }
-    let cancelled = false;
-    const controller = new AbortController();
-    (async () => {
-      try {
-        // Single aggregation call replaces the earlier per-group
-        // fetchExceptions fanout — server groups by RULE_GROUP.NAME
-        // and returns counts in one round-trip. Status filter is
-        // intentionally not passed (see the "unfiltered summary"
-        // comment above).
-        //
-        // countsDate scopes this to one day, matching the exceptions
-        // fetch. Previously omitted, which counted every date in
-        // EXCEPTION and made the panel read several times higher than
-        // the grid it summarises.
-        const rows = await fetchExceptionCountsByGroup(
-          {
-            exceptionType: dqmType,
-            severity,
-            priority,
-            exceptionState,
-            assignTo: assignToFilter,
-          },
-          countsDate,
-          controller.signal
-        );
-        if (!cancelled) {
-          const next: Record<string, number> = {};
-          // Seed authorized groups to 0 so a group with zero rows
-          // still shows in the panel (SP returns nothing for empty
-          // groups since it aggregates over EXCEPTION).
-          for (const g of ruleGroupOptions) next[g] = 0;
-          for (const { ruleGroup, count } of rows) {
-            if (ruleGroup) next[ruleGroup] = count;
-          }
-          setGroupCounts(next);
-        }
-      } catch (e) {
-        if (e instanceof Error && e.name === "AbortError") return;
-
-        console.error("groupCounts fetch failed", e);
-      }
-    })();
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
-  }, [
-    viewMode,
-    treeSelected,
-    viewByGroup,
-    viewByRuleCatalog,
-    viewByRule,
-    ruleNameSearchApplied,
-    ruleGroupOptions,
-    refreshTick,
-    dqmType,
-    severity,
-    priority,
-    exceptionState,
-    assignToFilter,
-    // Both feed countsDate. latestExceptionDate resolves after the first
-    // render, so it has to be here or the panel would stay empty on a
-    // cold load; dqmDate keeps the counts in step with the back-in-time
-    // selector.
-    dqmDate,
-    latestExceptionDate,
-  ]);
+  // Number of Exceptions counts at 'All' are computed client-side from
+  // statusFilteredExceptions (see exceptionCountRows below). The All
+  // fan-out stamps each row with its ruleGroup so per-group tallies
+  // reflect whatever Status subset is currently visible — the earlier
+  // fetchExceptionCountsByGroup path aggregated server-side and could
+  // not follow the Status filter, so the panel disagreed with the
+  // grid.
 
   // When in group mode, we break the count down by rule type — but the
   // ExceptionRow only carries ruleName, so we need a ruleName -> ruleCatalog
@@ -1369,7 +1607,10 @@ export default function DqMonitorPage() {
     // doesn't flash empty for the ~200 ms window before seeding.
     // Once seeded, an empty set is a legitimate user choice ("hide
     // all") which we honor.
-    if (statusFilter.size === 0 && !statusFilterSeededRef.current) {
+    if (
+      statusFilter.size === 0 &&
+      statusFilterSeededScopesRef.current.size === 0
+    ) {
       return exceptions;
     }
     return exceptions.filter((r) => statusFilter.has(r.status));
@@ -1427,30 +1668,41 @@ export default function DqMonitorPage() {
   // Master, Security Master Benchmark, and TOD SOD rule groups, in
   // the exception view (not the "View by Security" grid), AND against
   // the current-day EXCEPTION table — historical EXCEPTION_HIST days
-  // must stay read-only (see ExceptionsTable readOnly wiring). On
-  // top of all that, both buttons are gated to privileged roles
-  // (DM_ADMIN + IT_SUPPORT via isPrivilegedRole): operators with
-  // any other role (or unknown) never see them regardless of scope.
-  // Any failing criterion hides both buttons and forces both panels
-  // closed.
-  const showBulkAssign =
-    isPrivilegedRole(dmRole) &&
+  // must stay read-only (see ExceptionsTable readOnly wiring). Any
+  // failing criterion hides the button and forces its panel closed.
+  const bulkScopeAllowed =
     inSecurityMasterFamily(viewByGroup) &&
     viewMode !== "security" &&
     dqmDate === "";
+
+  // Bulk Assign stays restricted to privileged roles (DM_ADMIN,
+  // IT_SUPPORT, IT_USER via isPrivilegedRole): reassigning other
+  // people's work is an elevated action.
+  const showBulkAssign = isPrivilegedRole(dmRole) && bulkScopeAllowed;
+
+  // Bulk Status additionally admits DM_USER. Triaging exceptions —
+  // setting a status and a comment on rows you can already edit
+  // one at a time in the grid — is ordinary operator work, so the
+  // bulk affordance for it does not need elevation. Deliberately a
+  // separate gate rather than a widened isPrivilegedRole, which also
+  // governs per-row Assign To editability and the Bulk Assign button.
+  const showBulkStatus =
+    (isPrivilegedRole(dmRole) || dmRole === "DM_USER") && bulkScopeAllowed;
+
   useEffect(() => {
     if (!showBulkAssign && bulkPanelOpen) setBulkPanelOpen(false);
   }, [showBulkAssign, bulkPanelOpen]);
   useEffect(() => {
-    if (!showBulkAssign && bulkStatusPanelOpen) setBulkStatusPanelOpen(false);
-  }, [showBulkAssign, bulkStatusPanelOpen]);
+    if (!showBulkStatus && bulkStatusPanelOpen) setBulkStatusPanelOpen(false);
+  }, [showBulkStatus, bulkStatusPanelOpen]);
 
   // The checkbox column exists only while a bulk panel is open. Both
   // panels share it, so it stays up if either is open and drops the
   // moment the last one closes — which is also when the selection is
   // discarded, so reopening a panel always starts from nothing ticked.
   const bulkSelectionMode =
-    showBulkAssign && (bulkPanelOpen || bulkStatusPanelOpen);
+    (showBulkAssign && bulkPanelOpen) ||
+    (showBulkStatus && bulkStatusPanelOpen);
   useEffect(() => {
     if (bulkSelectionMode) return;
     setBulkSelectedExceptionIds((prev) =>
@@ -1477,6 +1729,30 @@ export default function DqMonitorPage() {
       return next.size === prev.size ? prev : next;
     });
   }, [bulkSelectionMode, tableExceptions]);
+
+  // Is Permanent makes the assignment a property of the RULE, so it
+  // necessarily reaches every exception of that rule — there is no such
+  // thing as a permanent assignment that applies to only some rows.
+  // Rather than let the operator tick three rows and be surprised when
+  // the whole grid changes, the checkbox column is force-selected and
+  // frozen for as long as Is Permanent is on: what gets written is
+  // exactly what is shown as selected.
+  //
+  // Keeping the selection genuinely full also matters on the backend:
+  // every row is sent, so every row gets an explicit
+  // EXCEPTION.ASSIGN_TO_ID and none is left resolving through the RULE
+  // fallback, which is what made the old behaviour look retroactive.
+  const bulkSelectionLocked = bulkPanelOpen && bulkIsPermanent;
+  useEffect(() => {
+    if (!bulkSelectionLocked) return;
+    setBulkSelectedExceptionIds((prev) => {
+      if (prev.size === tableExceptions.length &&
+          tableExceptions.every((r) => prev.has(r.exceptionId))) {
+        return prev;
+      }
+      return new Set(tableExceptions.map((r) => r.exceptionId));
+    });
+  }, [bulkSelectionLocked, tableExceptions]);
 
   // Save Column Order surfaces next to Bulk Status in the header when
   // the operator has drag-reordered the Exceptions grid inside one of
@@ -1716,12 +1992,13 @@ export default function DqMonitorPage() {
   // cleared — so the dropdown listed rules from previously-viewed groups
   // and only ever grew as the operator moved around the tree.
   const bulkRuleOptions = useMemo<string[]>(() => {
-    if (!showBulkAssign) return [];
+    if (!showBulkAssign && !showBulkStatus) return [];
     if (viewByRule && viewByRule !== "All") return [viewByRule];
     if (viewByRuleCatalog && viewByRuleCatalog !== "All") return ruleOptions;
     return rulesByGroup[viewByGroup] ?? [];
   }, [
     showBulkAssign,
+    showBulkStatus,
     viewByRule,
     viewByRuleCatalog,
     ruleOptions,
@@ -1804,6 +2081,7 @@ export default function DqMonitorPage() {
     setViewByRule("All");
     setViewByRuleLabel("");
     setRuleNameSearchApplied("");
+    setRuleQuery("");
     setTreeSelected(true);
   }, []);
   const selectGroupTree = useCallback((g: string) => {
@@ -1813,6 +2091,7 @@ export default function DqMonitorPage() {
     setViewByRule("All");
     setViewByRuleLabel("");
     setRuleNameSearchApplied("");
+    setRuleQuery("");
     setTreeSelected(true);
   }, []);
   const selectTypeTree = useCallback((g: string, t: string) => {
@@ -1929,19 +2208,28 @@ export default function DqMonitorPage() {
       return rows;
     }
 
-    // 'All' selected on the tree (nothing scoped yet) — one row per rule
-    // group, populated from the per-group fetch in the groupCounts effect.
-    // groupCounts is fetched per-group without status context, so it
-    // stays unfiltered here; the panel labels this as an "All" summary
-    // and doesn't claim to reflect the status subset.
+    // 'All' selected on the tree (nothing scoped yet) — one row per
+    // rule group. Counts come from statusFilteredExceptions (which the
+    // All fan-out stamps with ruleGroup) so the panel tracks whatever
+    // Status subset is currently visible in the grid below. Groups the
+    // operator is authorised for but that have no matching rows still
+    // appear at 0 — seeded from ruleGroupOptions so an empty group is
+    // legible rather than absent.
     if (
       viewByGroup === "All" &&
       viewByRuleCatalog === "All" &&
       viewByRule === "All" &&
       !ruleNameSearchApplied
     ) {
+      const counts: Record<string, number> = {};
+      for (const g of ruleGroupOptions) counts[g] = 0;
+      for (const e of statusFilteredExceptions) {
+        const g = e.ruleGroup;
+        if (!g) continue;
+        counts[g] = (counts[g] ?? 0) + 1;
+      }
       return ruleGroupOptions
-        .map((g) => ({ name: g, count: groupCounts[g] ?? 0 }))
+        .map((g) => ({ name: g, count: counts[g] ?? 0 }))
         .sort((a, b) => b.count - a.count);
     }
 
@@ -1963,7 +2251,6 @@ export default function DqMonitorPage() {
     statusFilteredExceptions,
     ruleCatalogByRuleName,
     ruleGroupOptions,
-    groupCounts,
   ]);
 
   // Guarantee the page fills the visible viewport from its top edge
@@ -2014,7 +2301,7 @@ export default function DqMonitorPage() {
               )
         }
         onBulkStatusClick={
-          showBulkAssign
+          showBulkStatus
             ? () => setBulkStatusPanelOpen((v) => !v)
             : undefined
         }
@@ -2092,20 +2379,18 @@ export default function DqMonitorPage() {
             </>
           ) : undefined
         }
-        // Width to give the header's title column so the breakdown that
-        // follows it starts exactly at the Exceptions grid's left edge.
+        // Padding-left for the breakdown row so its counts start at the
+        // Exceptions grid's left edge.
         //
         // .dq-body is a flex row with a 12px gap: sidebar, then a 6px
         // resizer (expanded only), then the grid. So the grid's left
         // edge is sidebar + 12 + 6 + 12 when expanded and sidebar + 12
-        // when collapsed. The header then adds its own 16px column gap
-        // between title and breakdown, which has to come back off or the
-        // breakdown lands 16px right of the grid — which is exactly
-        // where it used to sit.
+        // when collapsed. The breakdown now flows on its own row inside
+        // .dq-header (a flex column), so no extra column-gap
+        // compensation is needed — the offset lines up directly.
         breakdownLeftOffset={
           (sidebarCollapsed ? COLLAPSED_WIDTH : sidebarWidth) +
-          (sidebarCollapsed ? 12 : 30) -
-          HEADER_COLUMN_GAP
+          (sidebarCollapsed ? 12 : 30)
         }
       />
 
@@ -2654,6 +2939,8 @@ export default function DqMonitorPage() {
                     <span className="dq-status-combo-summary">
                       {statusFilter.size === 0
                         ? "None"
+                        : statusFilter.size === exceptionStatusOptions.length
+                        ? "All"
                         : Array.from(statusFilter).join(", ")}
                     </span>
                     <span className="dq-status-combo-caret">▾</span>
@@ -2664,6 +2951,30 @@ export default function DqMonitorPage() {
                       role="group"
                       aria-labelledby="dq-status-combo-label"
                     >
+                      {/* "All" is derived: checked iff every status is
+                          ticked. Toggling it seeds every status or clears
+                          them all in one shot. Ticking / unticking any
+                          individual status naturally flips "All" on or
+                          off with no extra bookkeeping. */}
+                      <label className="dq-status-combo-item">
+                        <input
+                          type="checkbox"
+                          className="dq-status-combo-check"
+                          checked={
+                            exceptionStatusOptions.length > 0 &&
+                            statusFilter.size ===
+                              exceptionStatusOptions.length
+                          }
+                          onChange={() => {
+                            setStatusFilter((prev) =>
+                              prev.size === exceptionStatusOptions.length
+                                ? new Set<string>()
+                                : new Set<string>(exceptionStatusOptions)
+                            );
+                          }}
+                        />
+                        <span>All</span>
+                      </label>
                       {exceptionStatusOptions.map((code) => {
                         const checked = statusFilter.has(code);
                         return (
@@ -2726,11 +3037,18 @@ export default function DqMonitorPage() {
                         aria-haspopup="listbox"
                         aria-expanded={bulkRuleComboOpen}
                         aria-labelledby="dq-bulk-rule-combo-label"
-                        disabled={bulkRuleOptions.length === 0}
+                        disabled={bulkRuleOptions.length === 0 || bulkRulesLocked}
+                        title={
+                          bulkRulesLocked
+                            ? "Clear the Security Group to pick rules"
+                            : undefined
+                        }
                         onClick={() => setBulkRuleComboOpen((v) => !v)}
                       >
                         <span className="dq-bulk-rule-combo-summary">
-                          {bulkRuleOptions.length === 0
+                          {bulkRulesLocked
+                            ? "Security Group selected"
+                            : bulkRuleOptions.length === 0
                             ? "No rules available"
                             : bulkSelectedRules.size === 0
                             ? "None"
@@ -2797,6 +3115,47 @@ export default function DqMonitorPage() {
                         </div>
                       )}
                     </div>
+                  </div>
+                  {/* Security Group sits directly below Rules. Options
+                      come from SP_GET_SECURITY_GROUPS. It is a selector
+                      only at this point: nothing downstream reads it,
+                      so picking a group does not yet narrow the rows or
+                      change what Assign writes. */}
+                  <div className="dq-bulk-panel-field">
+                    <label
+                      className="dq-bulk-panel-label"
+                      htmlFor="dq-bulk-security-group-select"
+                    >
+                      Security Group:
+                    </label>
+                    <select
+                      id="dq-bulk-security-group-select"
+                      className="dq-bulk-panel-select"
+                      value={bulkSecurityGroup}
+                      disabled={
+                        securityGroupOptions.length === 0 ||
+                        bulkSecurityGroupLocked
+                      }
+                      title={
+                        bulkSecurityGroupLocked
+                          ? "Clear the selected rules to pick a Security Group"
+                          : undefined
+                      }
+                      onChange={(e) => setBulkSecurityGroup(e.target.value)}
+                    >
+                      <option value="">
+                        {bulkSecurityGroupLocked
+                          ? "Rules selected"
+                          : securityGroupOptions.length === 0
+                          ? "No security groups available"
+                          : ""}
+                      </option>
+                      {securityGroupOptions.map((g) => (
+                        <option key={g} value={g}>
+                          {g}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="dq-bulk-panel-field">
                     <label
@@ -2946,7 +3305,7 @@ export default function DqMonitorPage() {
               </div>
             )}
 
-            {bulkStatusPanelOpen && showBulkAssign && (
+            {bulkStatusPanelOpen && showBulkStatus && (
               <div className="dq-bulk-panel">
                 <div className="dq-bulk-panel-header">
                   <h3 className="dq-bulk-panel-title">Bulk Status</h3>
@@ -3423,13 +3782,32 @@ export default function DqMonitorPage() {
               // despite being intended to. Corrected here.
               showLifecycleColumns={
                 viewByGroup === "Security Master" ||
-                viewByGroup === "Security Master Benchmark"
+                viewByGroup === "Security Master Benchmark" ||
+                // Open / Close Date are part of the restricted All
+                // column list, and canonicalKeys only emits them when
+                // this is on.
+                allScopeRestricted
               }
+              // Non-null only for the restricted All view; every other
+              // scope and role passes undefined and keeps every column.
+              allowedColumnKeys={
+                allScopeRestricted
+                  ? (ALL_SCOPE_COLUMN_KEYS as string[])
+                  : undefined
+              }
+              // RULE_NAME cell hover tooltip mirrors the LHS tree leaves:
+              // shows RULE_DESCRIPTION when known, nothing otherwise.
+              // The map is populated by fetchRulesForGroup (see the
+              // rules-for-group effect above) so descriptions are only
+              // available for scopes whose rules have been fetched — a
+              // miss just renders the cell tooltip-less.
+              ruleDescriptionByName={ruleDescByName}
               // Checkbox column: on only while a bulk panel is open,
               // gone the moment the last one closes.
               selectionMode={bulkSelectionMode}
               selectedIds={bulkSelectedExceptionIds}
               onSelectedIdsChange={setBulkSelectedExceptionIds}
+              selectionLocked={bulkSelectionLocked}
               onVisibleRowsChange={setVisibleExceptions}
               onColumnLayoutChange={setColumnLayout}
               statusOptions={

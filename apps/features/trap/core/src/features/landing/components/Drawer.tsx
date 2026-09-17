@@ -18,7 +18,8 @@ import { Kind, Visibility } from '../../../api/trap';
 import { WorkflowTabModel } from '../types/landing.types';
 import ThemesPanel from './shell/ThemePanel';
 import WidgetsPanelWrapper from './shell/WidgetsPanelWrapper';
-import { getDefaultLandingTemplate } from '../../../utils/userPreferences';
+import { useUserProfile } from '../../../context/UserPreferenceContext';
+import { PROFILE_KEYS } from '../../../context/constants';
 
 export const Drawer = ({
     onLaunchWorkflow,
@@ -49,9 +50,8 @@ export const Drawer = ({
     const [drawerSeg, setDrawerSeg] = React.useState<'workspaces' | 'widgets' | 'themes'>(
         'workspaces'
     );
-
-    const defaultLanding = getDefaultLandingTemplate();
-
+    const { profile } = useUserProfile();
+    const defaultLanding = { templateId: profile?.[PROFILE_KEYS.ACTIVE_LANDING] || '' };
     useEffect(() => {
         if (drawerState.initialDrawerSeg) {
             setDrawerSeg(drawerState.initialDrawerSeg);

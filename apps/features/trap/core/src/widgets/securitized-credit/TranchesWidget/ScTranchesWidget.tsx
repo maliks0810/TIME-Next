@@ -9,16 +9,8 @@ import { useTheme } from '../../../theme/ThemeContext';
 import { TrancheRow } from './utils/mockData';
 import { getRatingsClassname } from './utils/helpers';
 import { ROW_HEIGHT_PX, TRANCHES_COLS } from './utils/constants';
-import {
-    DEAL_ID_KEY,
-    DEAL_NAME_KEY,
-    TRANCHE_ID_KEY,
-    TRANCHE_NAME_KEY,
-} from '../../constants';
-import {
-    useGetWidgetValue,
-    useSetWidgetValue,
-} from '../../../state/Widgets/hooks';
+import { DEAL_ID_KEY, DEAL_NAME_KEY, TRANCHE_ID_KEY, TRANCHE_NAME_KEY } from '../../constants';
+import { useGetWidgetValue, useSetWidgetValue } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
 import styles from './TranchesWidget.module.scss';
 
@@ -45,9 +37,7 @@ export function ScTranchesWidget({
     const channelId = widgetInstance?.config?.params?.channel;
     const { themeName } = useTheme();
 
-    const isWealthTheme =
-        themeName === 'wealthLight' ||
-        themeName === 'wealthDark';
+    const isWealthTheme = themeName === 'wealthLight' || themeName === 'wealthDark';
 
     const isWealthLight = themeName === 'wealthLight';
     const isWealthDark = themeName === 'wealthDark';
@@ -78,22 +68,15 @@ export function ScTranchesWidget({
     const response = result as TranchesResult | undefined;
 
     const tranches: TrancheRow[] | null =
-        response && Array.isArray(response.tranches)
-            ? response.tranches
-            : null;
+        response && Array.isArray(response.tranches) ? response.tranches : null;
 
-    const loadedDealName: string | null = response?.dealName
-        ? String(response.dealName)
-        : null;
+    const loadedDealName: string | null = response?.dealName ? String(response.dealName) : null;
 
-    const bloombergDealName: string | undefined =
-        response?.bloombergDealName
-            ? String(response.bloombergDealName)
-            : undefined;
+    const bloombergDealName: string | undefined = response?.bloombergDealName
+        ? String(response.bloombergDealName)
+        : undefined;
 
-    const displayDealName =
-        bloombergDealName ??
-        (dealName as string | undefined);
+    const displayDealName = bloombergDealName ?? (dealName as string | undefined);
 
     const dealMatches =
         Boolean(dealName) &&
@@ -122,6 +105,7 @@ export function ScTranchesWidget({
             channelId,
             value: null,
             activeTab,
+            widgetId: widgetInstance.id,
         });
 
         setWidgetValueToChannel({
@@ -129,22 +113,16 @@ export function ScTranchesWidget({
             channelId,
             value: null,
             activeTab,
+            widgetId: widgetInstance.id,
         });
-    }, [
-        dealId,
-        setWidgetValueToChannel,
-        channelId,
-        activeTab,
-    ]);
+    }, [dealId, channelId, activeTab]);
 
     // Name-driven selection and auto-scroll. The selection is applied only
     // when the loaded tranche list belongs to the active deal.
     React.useEffect(() => {
         if (!tranches || !dealMatches) return;
 
-        const selectedName = trancheName
-            ? String(trancheName)
-            : '';
+        const selectedName = trancheName ? String(trancheName) : '';
 
         if (!selectedName) {
             setSelectedId(null);
@@ -152,17 +130,13 @@ export function ScTranchesWidget({
         }
 
         const target = normName(selectedName);
-        const row = tranches.find(
-            (tranche) => normName(tranche.name) === target,
-        );
+        const row = tranches.find((tranche) => normName(tranche.name) === target);
 
         if (row) {
             setSelectedId(row.id);
 
             setTimeout(() => {
-                const element = scrollRef.current?.querySelector(
-                    `[data-tranche-id="${row.id}"]`,
-                );
+                const element = scrollRef.current?.querySelector(`[data-tranche-id="${row.id}"]`);
 
                 element?.scrollIntoView({
                     block: 'nearest',
@@ -177,16 +151,10 @@ export function ScTranchesWidget({
                 channelId,
                 value: null,
                 activeTab,
+                widgetId: widgetInstance.id,
             });
         }
-    }, [
-        trancheName,
-        tranches,
-        dealMatches,
-        setWidgetValueToChannel,
-        channelId,
-        activeTab,
-    ]);
+    }, [trancheName, tranches, dealMatches, channelId, activeTab]);
 
     // Legacy id-driven selection and auto-scroll.
     React.useEffect(() => {
@@ -195,9 +163,7 @@ export function ScTranchesWidget({
         setSelectedId(trancheId as string);
 
         setTimeout(() => {
-            const element = scrollRef.current?.querySelector(
-                `[data-tranche-id="${trancheId}"]`,
-            );
+            const element = scrollRef.current?.querySelector(`[data-tranche-id="${trancheId}"]`);
 
             element?.scrollIntoView({
                 block: 'nearest',
@@ -206,10 +172,7 @@ export function ScTranchesWidget({
         }, 50);
     }, [trancheId, selectedId]);
 
-    const ratingAgency =
-        tranches && tranches.length > 0
-            ? tranches[0].ratingAgency
-            : 'unknown';
+    const ratingAgency = tranches && tranches.length > 0 ? tranches[0].ratingAgency : 'unknown';
 
     const handleSelect = (trancheRow: TrancheRow) => {
         setSelectedId(trancheRow.id);
@@ -219,6 +182,7 @@ export function ScTranchesWidget({
             channelId,
             value: trancheRow.id,
             activeTab,
+            widgetId: widgetInstance.id,
         });
 
         setWidgetValueToChannel({
@@ -226,6 +190,7 @@ export function ScTranchesWidget({
             channelId,
             value: trancheRow.name,
             activeTab,
+            widgetId: widgetInstance.id,
         });
     };
 
@@ -251,9 +216,7 @@ export function ScTranchesWidget({
         return (
             <>
                 <span>{match[1]}</span>
-                <span className={styles.headerColumnSubText}>
-                    {match[2].trim()}
-                </span>
+                <span className={styles.headerColumnSubText}>{match[2].trim()}</span>
             </>
         );
     };
@@ -269,54 +232,33 @@ export function ScTranchesWidget({
     return (
         <WidgetCardShell>
             <div
-                className={clsx(
-                    styles.mainContainer,
-                    {
-                        [styles.wealth]: isWealthTheme,
-                        [styles.wealthLight]: isWealthLight,
-                        [styles.wealthDark]: isWealthDark,
-                    },
-                )}
+                className={clsx(styles.mainContainer, {
+                    [styles.wealth]: isWealthTheme,
+                    [styles.wealthLight]: isWealthLight,
+                    [styles.wealthDark]: isWealthDark,
+                })}
             >
                 <div className={styles.headerContainer}>
                     <div className={styles.headerTitleContainer}>
-                        <TableOutlined
-                            className={styles.headerTitleIcon}
-                        />
+                        <TableOutlined className={styles.headerTitleIcon} />
 
-                        <span className={styles.headerTitleText}>
-                            All tranches
-                        </span>
+                        <span className={styles.headerTitleText}>All tranches</span>
 
-                        {tranches && (
-                            <div className={styles.counterBadge}>
-                                {tranches.length}
-                            </div>
-                        )}
+                        {tranches && <div className={styles.counterBadge}>{tranches.length}</div>}
 
                         {displayDealName && (
-                            <span className={styles.dealName}>
-                                {displayDealName.toUpperCase()}
-                            </span>
+                            <span className={styles.dealName}>{displayDealName.toUpperCase()}</span>
                         )}
                     </div>
                 </div>
 
                 {!tranches && (
                     <div className={styles.loadingContainer}>
-                        <div
-                            className={
-                                styles.loadingInnerContainer
-                            }
-                        >
-                            <TableOutlined
-                                className={styles.loadingIcon}
-                            />
+                        <div className={styles.loadingInnerContainer}>
+                            <TableOutlined className={styles.loadingIcon} />
                         </div>
 
-                        <span className={styles.loadingText}>
-                            Load a deal to view tranches
-                        </span>
+                        <span className={styles.loadingText}>Load a deal to view tranches</span>
                     </div>
                 )}
 
@@ -327,8 +269,7 @@ export function ScTranchesWidget({
                                 <div
                                     key={column.label}
                                     className={clsx({
-                                        [styles.stickyFirstCol]:
-                                            columnIndex === 0,
+                                        [styles.stickyFirstCol]: columnIndex === 0,
                                     })}
                                     style={{
                                         width: column.width,
@@ -337,40 +278,30 @@ export function ScTranchesWidget({
                                         textAlign: column.align,
                                     }}
                                 >
-                                    <span
-                                        className={
-                                            styles.headerColumnText
-                                        }
-                                    >
+                                    <span className={styles.headerColumnText}>
                                         {renderHeaderLabel(
                                             column.render
                                                 ? column.render({
                                                       ratingAgency,
                                                   })
-                                                : column.label,
+                                                : column.label
                                         )}
                                     </span>
                                 </div>
                             ))}
                         </div>
 
-                        <div
-                            ref={scrollRef}
-                            className={styles.tranchesTableBody}
-                        >
+                        <div ref={scrollRef} className={styles.tranchesTableBody}>
                             {tranches.map((tranche) => (
                                 <div
                                     key={tranche.id}
                                     data-tranche-id={tranche.id}
                                     onClick={() => handleSelect(tranche)}
                                     style={{ height: ROW_HEIGHT_PX }}
-                                    className={clsx(
-                                        styles.tranchesTableRow,
-                                        {
-                                            [styles.tranchesTableRowSelected]:
-                                                tranche.id === selectedId,
-                                        },
-                                    )}
+                                    className={clsx(styles.tranchesTableRow, {
+                                        [styles.tranchesTableRowSelected]:
+                                            tranche.id === selectedId,
+                                    })}
                                 >
                                     <div
                                         className={styles.stickyFirstCol}
@@ -381,14 +312,10 @@ export function ScTranchesWidget({
                                         }}
                                     >
                                         <span
-                                            className={clsx(
-                                                styles.trancheColumnValue,
-                                                {
-                                                    [styles.trancheColumnValueSelected]:
-                                                        tranche.id ===
-                                                        selectedId,
-                                                },
-                                            )}
+                                            className={clsx(styles.trancheColumnValue, {
+                                                [styles.trancheColumnValueSelected]:
+                                                    tranche.id === selectedId,
+                                            })}
                                         >
                                             {tranche.name}
                                         </span>
@@ -401,11 +328,7 @@ export function ScTranchesWidget({
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <span
-                                            className={
-                                                styles.defaultColValue
-                                            }
-                                        >
+                                        <span className={styles.defaultColValue}>
                                             {tranche.cusip}
                                         </span>
                                     </div>
@@ -418,11 +341,7 @@ export function ScTranchesWidget({
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <span
-                                            className={
-                                                styles.couponColValue
-                                            }
-                                        >
+                                        <span className={styles.couponColValue}>
                                             {tranche.coupon.toFixed(4)}
                                         </span>
                                     </div>
@@ -435,19 +354,12 @@ export function ScTranchesWidget({
                                         }}
                                     >
                                         <span
-                                            className={clsx(
-                                                styles.typeColValue,
-                                                {
-                                                    [styles.typeColValueMEZ]:
-                                                        tranche.type.startsWith(
-                                                            'MEZ',
-                                                        ),
-                                                    [styles.typeColValueJUN]:
-                                                        tranche.type.startsWith(
-                                                            'JUN',
-                                                        ),
-                                                },
-                                            )}
+                                            className={clsx(styles.typeColValue, {
+                                                [styles.typeColValueMEZ]:
+                                                    tranche.type.startsWith('MEZ'),
+                                                [styles.typeColValueJUN]:
+                                                    tranche.type.startsWith('JUN'),
+                                            })}
                                         >
                                             {tranche.type}
                                         </span>
@@ -461,11 +373,7 @@ export function ScTranchesWidget({
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <span
-                                            className={
-                                                styles.currencyColValue
-                                            }
-                                        >
+                                        <span className={styles.currencyColValue}>
                                             {tranche.currency}
                                         </span>
                                     </div>
@@ -478,14 +386,8 @@ export function ScTranchesWidget({
                                             paddingRight: 4,
                                         }}
                                     >
-                                        <span
-                                            className={
-                                                styles.defaultColValue
-                                            }
-                                        >
-                                            {formatNumber(
-                                                tranche.origBalance,
-                                            )}
+                                        <span className={styles.defaultColValue}>
+                                            {formatNumber(tranche.origBalance)}
                                         </span>
                                     </div>
 
@@ -498,18 +400,12 @@ export function ScTranchesWidget({
                                         }}
                                     >
                                         <span
-                                            className={clsx(
-                                                styles.zeroableColValue,
-                                                {
-                                                    [styles.zeroableColValueZero]:
-                                                        tranche.currBalance ===
-                                                        0,
-                                                },
-                                            )}
+                                            className={clsx(styles.zeroableColValue, {
+                                                [styles.zeroableColValueZero]:
+                                                    tranche.currBalance === 0,
+                                            })}
                                         >
-                                            {formatNumber(
-                                                tranche.currBalance,
-                                            )}
+                                            {formatNumber(tranche.currBalance)}
                                         </span>
                                     </div>
 
@@ -522,13 +418,9 @@ export function ScTranchesWidget({
                                         }}
                                     >
                                         <span
-                                            className={clsx(
-                                                styles.zeroableColValue,
-                                                {
-                                                    [styles.zeroableColValueZero]:
-                                                        tranche.factor === 0,
-                                                },
-                                            )}
+                                            className={clsx(styles.zeroableColValue, {
+                                                [styles.zeroableColValueZero]: tranche.factor === 0,
+                                            })}
                                         >
                                             {tranche.factor.toFixed(4)}
                                         </span>
@@ -544,11 +436,7 @@ export function ScTranchesWidget({
                                         <span
                                             className={clsx(
                                                 styles.ratingsColValue,
-                                                styles[
-                                                    getRatingsClassname(
-                                                        tranche.origRatings,
-                                                    )
-                                                ],
+                                                styles[getRatingsClassname(tranche.origRatings)]
                                             )}
                                         >
                                             {tranche.origRatings || 'NA'}
@@ -564,11 +452,7 @@ export function ScTranchesWidget({
                                         <span
                                             className={clsx(
                                                 styles.ratingsColValue,
-                                                styles[
-                                                    getRatingsClassname(
-                                                        tranche.currRatings,
-                                                    )
-                                                ],
+                                                styles[getRatingsClassname(tranche.currRatings)]
                                             )}
                                         >
                                             {tranche.currRatings || 'NA'}
@@ -585,10 +469,7 @@ export function ScTranchesWidget({
                         {tranches.length} tranches · scroll to view all ·{' '}
                         {selectedId
                             ? `selected: ${
-                                  tranches.find(
-                                      (tranche) =>
-                                          tranche.id === selectedId,
-                                  )?.name
+                                  tranches.find((tranche) => tranche.id === selectedId)?.name
                               }`
                             : 'no selection'}
                     </span>

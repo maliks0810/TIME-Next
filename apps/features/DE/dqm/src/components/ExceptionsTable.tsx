@@ -1,4 +1,13 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  cloneElement,
+  isValidElement,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { ExceptionRow } from "./types";
 import ColumnFilterHeader, { useColumnFilter } from "./ColumnFilter";
 import SortableTh, {
@@ -192,7 +201,43 @@ type ExceptionsTableProps = {
   // so both bulk panels share one selection.
   selectedIds?: Set<number>;
   onSelectedIdsChange?: (next: Set<number>) => void;
+  // Freezes the checkbox column: every box renders disabled and no
+  // toggle fires. Set by DqMonitorPage while Bulk Assign's Is Permanent
+  // is ticked, where the assignment is rule-wide by definition — every
+  // row is force-selected and the operator must not be able to imply a
+  // narrower scope by unticking one.
+  selectionLocked?: boolean;
+  // Restricts the grid to a fixed column set. undefined (the normal
+  // case) means "show every column this scope produces".
+  //
+  // Entries match either a static column key ("status", "openDate") or
+  // the RESULT_DATA column name behind an rd:* key ("ALADDIN_VALUE"
+  // matches "rd:ALADDIN_VALUE"), so callers can express the list the
+  // way an operator would name the columns. Applied to canonicalKeys,
+  // so a name absent from the current row set simply never appears
+  // rather than erroring.
+  allowedColumnKeys?: string[];
+  // Rule name -> RULE_DESCRIPTION lookup. When present, the RULE_NAME
+  // cell renders its description as an HTML title tooltip on hover —
+  // same behaviour as the LHS tree leaves. A missing / blank entry
+  // just leaves the cell tooltip-less.
+  ruleDescriptionByName?: Record<string, string>;
 };
+
+// Blank cells fold into a visible "(none)" sentinel for the column
+// filters, the way Excel surfaces "(Blanks)".
+//
+// The sentinel has to be applied on BOTH sides — building the option
+// list AND matching rows — or blank rows become unreachable: dropping
+// "" from the checkbox list while the row predicate still requires
+// membership means every blank row silently disappears the moment any
+// value in that column is ticked, with no checkbox able to bring it
+// back. Status, the date columns and Assign To already did this; rule
+// name, priority, asset id, ID_BB_GLOBAL and every RESULT_DATA column
+// did not.
+const BLANK_SENTINEL = "(none)";
+const blankKey = (v: string | null | undefined) =>
+  v && v.trim() !== "" ? v : BLANK_SENTINEL;
 
 function getActionClass(action: string): string {
   switch (action.toLowerCase()) {
@@ -389,6 +434,9 @@ export default function ExceptionsTable({
   selectionMode = false,
   selectedIds,
   onSelectedIdsChange,
+  selectionLocked = false,
+  allowedColumnKeys,
+  ruleDescriptionByName,
 }: ExceptionsTableProps) {
   const showStatusColumn =
     showResultDataColumns && Array.isArray(statusOptions);
@@ -424,22 +472,22 @@ export default function ExceptionsTable({
   // multi-select w/ search, applied in-memory.
   const allRuleNames = useMemo(
     () =>
-      Array.from(new Set(data.map((r) => r.ruleName).filter(Boolean))).sort(
-        (a, b) => a.localeCompare(b)
+      Array.from(new Set(data.map((r) => blankKey(r.ruleName)))).sort((a, b) =>
+        a.localeCompare(b)
       ),
     [data]
   );
   const allPriorities = useMemo(
     () =>
-      Array.from(new Set(data.map((r) => r.priority).filter(Boolean))).sort(
-        (a, b) => a.localeCompare(b)
+      Array.from(new Set(data.map((r) => blankKey(r.priority)))).sort((a, b) =>
+        a.localeCompare(b)
       ),
     [data]
   );
   const allAssetIds = useMemo(
     () =>
-      Array.from(new Set(data.map((r) => r.aladdin).filter(Boolean))).sort(
-        (a, b) => a.localeCompare(b)
+      Array.from(new Set(data.map((r) => blankKey(r.aladdin)))).sort((a, b) =>
+        a.localeCompare(b)
       ),
     [data]
   );
@@ -459,7 +507,7 @@ export default function ExceptionsTable({
   );
   const allIdBbGlobals = useMemo(
     () =>
-      Array.from(new Set(data.map((r) => r.idBbGlobal).filter(Boolean))).sort(
+      Array.from(new Set(data.map((r) => blankKey(r.idBbGlobal)))).sort(
         (a, b) => a.localeCompare(b)
       ),
     [data]
@@ -503,6 +551,16 @@ export default function ExceptionsTable({
       ),
     [data]
   );
+  // Comments is free-form so this list can be long; the popover's
+  // built-in search box handles that — typing narrows Excel-style, and
+  // the caller can then just hit OK for a wildcard "contains" filter.
+  const allComments = useMemo(
+    () =>
+      Array.from(new Set(data.map((r) => blankKey(r.comments)))).sort(
+        (a, b) => a.localeCompare(b)
+      ),
+    [data]
+  );
   const [ruleNameFilter, setRuleNameFilter] = useColumnFilter(allRuleNames);
   const [priorityFilter, setPriorityFilter] = useColumnFilter(allPriorities);
   const [assetIdFilter, setAssetIdFilter] = useColumnFilter(allAssetIds);
@@ -513,6 +571,7 @@ export default function ExceptionsTable({
     useColumnFilter(allSuppressDates);
   const [openDateFilter, setOpenDateFilter] = useColumnFilter(allOpenDates);
   const [closeDateFilter, setCloseDateFilter] = useColumnFilter(allCloseDates);
+  const [commentsFilter, setCommentsFilter] = useColumnFilter(allComments);
   const [openFilterId, setOpenFilterId] = useState<string | null>(null);
 
   // Per-RESULT_DATA-key filters keyed by the JSON key.
@@ -525,9 +584,10 @@ export default function ExceptionsTable({
     for (const k of extraKeys) {
       const set = new Set<string>();
       for (const row of data) {
-        const v = formatCell(row.resultData?.[k]);
-        if (v === "") continue;
-        set.add(v);
+        // A key missing from resultData formats to "" just as an empty
+        // value does, and both read as blank in the cell, so both fold
+        // into the one sentinel.
+        set.add(blankKey(formatCell(row.resultData?.[k])));
       }
       m[k] = Array.from(set).sort((a, b) => a.localeCompare(b));
     }
@@ -577,10 +637,16 @@ export default function ExceptionsTable({
   const visibleRows = useMemo(
     () =>
       data.filter((row) => {
-        if (ruleNameFilter && !ruleNameFilter.has(row.ruleName)) return false;
-        if (priorityFilter && !priorityFilter.has(row.priority)) return false;
-        if (assetIdFilter && !assetIdFilter.has(row.aladdin)) return false;
-        if (idBbGlobalFilter && !idBbGlobalFilter.has(row.idBbGlobal ?? ""))
+        if (ruleNameFilter && !ruleNameFilter.has(blankKey(row.ruleName)))
+          return false;
+        if (priorityFilter && !priorityFilter.has(blankKey(row.priority)))
+          return false;
+        if (assetIdFilter && !assetIdFilter.has(blankKey(row.aladdin)))
+          return false;
+        if (
+          idBbGlobalFilter &&
+          !idBbGlobalFilter.has(blankKey(row.idBbGlobal))
+        )
           return false;
         if (assignToFilter && !assignToFilter.has(assignToKey(row.assignTo)))
           return false;
@@ -595,9 +661,11 @@ export default function ExceptionsTable({
           return false;
         if (closeDateFilter && !closeDateFilter.has(dateKey(row.closeDate)))
           return false;
+        if (commentsFilter && !commentsFilter.has(blankKey(row.comments)))
+          return false;
         for (const [k, f] of Object.entries(resultDataFilters)) {
           if (!f) continue;
-          if (!f.has(formatCell(row.resultData?.[k]))) return false;
+          if (!f.has(blankKey(formatCell(row.resultData?.[k])))) return false;
         }
         return true;
       }),
@@ -612,6 +680,7 @@ export default function ExceptionsTable({
       suppressDateFilter,
       openDateFilter,
       closeDateFilter,
+      commentsFilter,
       resultDataFilters,
     ]
   );
@@ -782,7 +851,14 @@ export default function ExceptionsTable({
       keys.push("openDate");
       keys.push("closeDate");
     }
-    return keys;
+    if (!allowedColumnKeys) return keys;
+    // Match on the static key, or on the RESULT_DATA name behind an
+    // rd:* key. Order is canonical either way — the allow-list decides
+    // membership, never position.
+    const allowed = new Set(allowedColumnKeys);
+    return keys.filter((k) =>
+      allowed.has(k.startsWith("rd:") ? k.slice(3) : k)
+    );
   }, [
     showResultDataColumns,
     showStatusColumn,
@@ -792,6 +868,7 @@ export default function ExceptionsTable({
     showCommentsColumn,
     priorityRdKeys,
     showLifecycleColumns,
+    allowedColumnKeys,
   ]);
 
   // Drag-reordered column order. Starts from any persisted layout if the
@@ -1069,6 +1146,223 @@ export default function ExceptionsTable({
     });
   }, [visibleRows, sort]);
 
+  // Excel-style rectangular cell selection. Drag from any cell to any
+  // other cell (across rows AND columns) to select the rectangle
+  // between them; Shift+Click extends from the anchor; Ctrl/Cmd+C
+  // copies the selection to the clipboard as TSV (tabs between
+  // columns, newlines between rows — the format Excel and Google
+  // Sheets paste from); Escape clears. Every cell participates, but
+  // clicks that land inside form widgets (input/select/textarea/
+  // button) are ignored so editable cells keep their edit flow.
+  type CellPos = { rowId: number; column: string };
+  const [selAnchor, setSelAnchor] = useState<CellPos | null>(null);
+  const [selTarget, setSelTarget] = useState<CellPos | null>(null);
+  const draggingRef = useRef<boolean>(false);
+  // visibleKeys is computed lower in the render body (columnOrder minus
+  // hidden). Both the keyboard handler and colIndexMap need the current
+  // column order without pulling those into the effect's deps, so the
+  // render body sets this ref after every render.
+  const visibleKeysRef = useRef<string[]>([]);
+  const rowIndexMap = useMemo(() => {
+    const m = new Map<number, number>();
+    sortedRows.forEach((r, i) => m.set(r.exceptionId, i));
+    return m;
+  }, [sortedRows]);
+  // colIndexMap depends on visibleKeys, which is only computed lower.
+  // Rebuild it inside a ref that the render body refreshes; the
+  // membership test below (selectableCellAttrs) reads through the ref.
+  const colIndexMapRef = useRef<Map<string, number>>(new Map());
+  // Precomputed rectangle bounds — the render loop just does two Map
+  // lookups per cell against these to decide "am I selected".
+  const selBounds = useMemo(() => {
+    if (!selAnchor || !selTarget) return null;
+    const iRowA = rowIndexMap.get(selAnchor.rowId) ?? -1;
+    const iRowT = rowIndexMap.get(selTarget.rowId) ?? -1;
+    const iColA = colIndexMapRef.current.get(selAnchor.column) ?? -1;
+    const iColT = colIndexMapRef.current.get(selTarget.column) ?? -1;
+    if (iRowA < 0 || iRowT < 0 || iColA < 0 || iColT < 0) return null;
+    return {
+      rowLo: Math.min(iRowA, iRowT),
+      rowHi: Math.max(iRowA, iRowT),
+      colLo: Math.min(iColA, iColT),
+      colHi: Math.max(iColA, iColT),
+    };
+    // colIndexMapRef is a ref, so it's intentionally absent from the
+    // dep list — the rule already knows refs never trigger recomputes,
+    // so no disable directive is needed.
+  }, [selAnchor, selTarget, rowIndexMap]);
+  const startCellSelection = useCallback(
+    (row: ExceptionRow, column: string, shift: boolean) => {
+      const pos: CellPos = { rowId: row.exceptionId, column };
+      if (shift && selAnchor) {
+        setSelTarget(pos);
+      } else {
+        setSelAnchor(pos);
+        setSelTarget(pos);
+      }
+      draggingRef.current = true;
+    },
+    [selAnchor]
+  );
+  const extendCellSelection = useCallback(
+    (row: ExceptionRow, column: string) => {
+      if (!draggingRef.current) return;
+      if (!selAnchor) return;
+      setSelTarget({ rowId: row.exceptionId, column });
+    },
+    [selAnchor]
+  );
+  useEffect(() => {
+    const onUp = () => {
+      draggingRef.current = false;
+    };
+    window.addEventListener("mouseup", onUp);
+    return () => window.removeEventListener("mouseup", onUp);
+  }, []);
+  // Display value for a cell — mirrors what the grid renders (dates as
+  // MM/DD/YYYY, rd:* via formatCell, etc.) so what the operator sees is
+  // exactly what lands on the clipboard.
+  const cellDisplayValue = useCallback(
+    (row: ExceptionRow, column: string): string => {
+      if (column.startsWith("rd:")) {
+        return formatCell(row.resultData?.[column.slice(3)]);
+      }
+      switch (column) {
+        case "status":
+          return row.status ?? "";
+        case "comments":
+          return row.comments ?? "";
+        case "assignTo":
+          return row.assignTo ?? "";
+        case "priority":
+          return row.priority ?? "";
+        case "ruleName":
+          return row.ruleName ?? "";
+        case "issue":
+          return row.issue ?? "";
+        case "aladdin":
+          return row.aladdin ?? "";
+        case "idBbGlobal":
+          return row.idBbGlobal ?? "";
+        case "vendor":
+          return row.vendor ?? "";
+        case "action":
+          return row.action ?? "";
+        case "state":
+          return row.state ?? "";
+        case "dateTime":
+          return row.dateTime ?? "";
+        case "suppressDate":
+          return formatMdyDate(row.suppressDate ?? "");
+        case "openDate":
+          return formatMdyDate(row.openDate ?? "");
+        case "closeDate":
+          return formatMdyDate(row.closeDate ?? "");
+        default:
+          return "";
+      }
+    },
+    []
+  );
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (selAnchor || selTarget) {
+          setSelAnchor(null);
+          setSelTarget(null);
+        }
+        return;
+      }
+      if (!(e.ctrlKey || e.metaKey)) return;
+      if (e.key.toLowerCase() !== "c") return;
+      if (!selBounds) return;
+      const el = document.activeElement as HTMLElement | null;
+      const tag = el?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      const cols = visibleKeysRef.current;
+      const rowSlice = sortedRows.slice(selBounds.rowLo, selBounds.rowHi + 1);
+      const colSlice = cols.slice(selBounds.colLo, selBounds.colHi + 1);
+      const text = rowSlice
+        .map((r) => colSlice.map((c) => cellDisplayValue(r, c)).join("\t"))
+        .join("\n");
+      if (!text) return;
+      navigator.clipboard.writeText(text).catch(() => {});
+      e.preventDefault();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [selAnchor, selTarget, selBounds, sortedRows, cellDisplayValue]);
+  const isCellSelected = useCallback(
+    (row: ExceptionRow, column: string): boolean => {
+      if (!selBounds) return false;
+      const iRow = rowIndexMap.get(row.exceptionId) ?? -1;
+      const iCol = colIndexMapRef.current.get(column) ?? -1;
+      if (iRow < 0 || iCol < 0) return false;
+      return (
+        iRow >= selBounds.rowLo &&
+        iRow <= selBounds.rowHi &&
+        iCol >= selBounds.colLo &&
+        iCol <= selBounds.colHi
+      );
+    },
+    [selBounds, rowIndexMap]
+  );
+  // Wrapper that spreads range-selection handlers onto whatever <td>
+  // renderCell returned. Applied uniformly at the tr.map callsite so
+  // every cell — static or rd:*, editable widget or plain text —
+  // participates without each case block having to opt in.
+  const wrapCellForSelection = useCallback(
+    (
+      cell: React.ReactNode,
+      row: ExceptionRow,
+      column: string
+    ): React.ReactNode => {
+      if (!isValidElement(cell)) return cell;
+      const el = cell as React.ReactElement<
+        React.HTMLAttributes<HTMLTableCellElement>
+      >;
+      const {
+        className: existingClassName,
+        onMouseDown: existingMouseDown,
+        onMouseEnter: existingMouseEnter,
+      } = el.props;
+      const selected = isCellSelected(row, column);
+      const cls = (
+        (existingClassName ?? "") +
+        " dq-cell-selectable" +
+        (selected ? " dq-cell-selected" : "")
+      ).trim();
+      return cloneElement(el, {
+        className: cls,
+        onMouseDown: (e: React.MouseEvent<HTMLTableCellElement>) => {
+          existingMouseDown?.(e);
+          if (e.defaultPrevented) return;
+          // Skip if the click landed on a form widget — its own
+          // focus / edit behaviour has to win. Clicks on the td's
+          // padding or the plain text still start a selection.
+          const t = e.target as HTMLElement;
+          const tag = t.tagName;
+          if (
+            tag === "INPUT" ||
+            tag === "SELECT" ||
+            tag === "TEXTAREA" ||
+            tag === "BUTTON" ||
+            tag === "OPTION"
+          )
+            return;
+          startCellSelection(row, column, e.shiftKey);
+        },
+        onMouseEnter: (e: React.MouseEvent<HTMLTableCellElement>) => {
+          existingMouseEnter?.(e);
+          if (e.defaultPrevented) return;
+          if (e.buttons !== 1) return;
+          extendCellSelection(row, column);
+        },
+      });
+    },
+    [isCellSelected, startCellSelection, extendCellSelection]
+  );
+
   // ---- Bulk-selection column -------------------------------------
   // "Select All" deliberately spans every row the grid is currently
   // showing (sortedRows — i.e. after the column filters), NOT just the
@@ -1088,7 +1382,7 @@ export default function ExceptionsTable({
 
   const toggleAllSelected = useCallback(
     (checked: boolean) => {
-      if (!onSelectedIdsChange) return;
+      if (!onSelectedIdsChange || selectionLocked) return;
       const next = new Set(selectedIds ?? []);
       for (const r of sortedRows) {
         if (checked) next.add(r.exceptionId);
@@ -1096,18 +1390,18 @@ export default function ExceptionsTable({
       }
       onSelectedIdsChange(next);
     },
-    [onSelectedIdsChange, selectedIds, sortedRows]
+    [onSelectedIdsChange, selectedIds, sortedRows, selectionLocked]
   );
 
   const toggleRowSelected = useCallback(
     (exceptionId: number, checked: boolean) => {
-      if (!onSelectedIdsChange) return;
+      if (!onSelectedIdsChange || selectionLocked) return;
       const next = new Set(selectedIds ?? []);
       if (checked) next.add(exceptionId);
       else next.delete(exceptionId);
       onSelectedIdsChange(next);
     },
-    [onSelectedIdsChange, selectedIds]
+    [onSelectedIdsChange, selectedIds, selectionLocked]
   );
 
   // Row-mount virtualization for the tbody. Without this every
@@ -1543,7 +1837,14 @@ export default function ExceptionsTable({
       case "comments":
         return (
           <SortableTh key={key} {...commonThProps("comments")}>
-            Comments
+            <ColumnFilterHeader
+              label="Comments"
+              allValues={allComments}
+              filter={commentsFilter}
+              onChange={setCommentsFilter}
+              isOpen={openFilterId === "comments"}
+              onToggle={(open) => setOpenFilterId(open ? "comments" : null)}
+            />
           </SortableTh>
         );
       case "dateTime":
@@ -1665,8 +1966,21 @@ export default function ExceptionsTable({
       const tdCls = ("dq-td-rd" + tdPinnedClass(key)).trim();
       const innerCls =
         "dq-td-rd-inner" + (w ? " dq-td-rd-inner-wrap" : "");
+      // RULE_NAME is hoisted into RESULT_DATA as rd:RULE_NAME on every
+      // Security-Master-family scope, so the visible RULE_NAME cell is
+      // this rd:* one, not the static "ruleName" case below. Attach
+      // the RULE_DESCRIPTION tooltip here so hover works. Look up by
+      // row.ruleName (EXCEPTION.RULE_NAME) — that's the key
+      // fetchRulesForGroup populates the map with.
+      const desc =
+        k === "RULE_NAME" ? ruleDescriptionByName?.[row.ruleName] : undefined;
       return (
-        <td key={key} className={tdCls} style={tdPinnedStyle(key)}>
+        <td
+          key={key}
+          className={tdCls}
+          style={tdPinnedStyle(key)}
+          title={desc && desc.trim() !== "" ? desc : undefined}
+        >
           <div
             className={innerCls}
             style={w ? { maxWidth: w } : undefined}
@@ -1851,16 +2165,19 @@ export default function ExceptionsTable({
             {row.priority}
           </td>
         );
-      case "ruleName":
+      case "ruleName": {
+        const desc = ruleDescriptionByName?.[row.ruleName];
         return (
           <td
             key={key}
             className={tdPinnedClass("ruleName").trim()}
             style={tdPinnedStyle("ruleName")}
+            title={desc && desc.trim() !== "" ? desc : undefined}
           >
             {row.ruleName}
           </td>
         );
+      }
       case "issue":
         return (
           <td
@@ -1937,6 +2254,17 @@ export default function ExceptionsTable({
   };
 
   const visibleKeys = columnOrder.filter((k) => !isHidden(k));
+  // Sync the range-selection refs with the current column order so
+  // the keyboard / mouse handlers upstream see the same visibleKeys
+  // the JSX renders. Rebuilt in-render (before the map callsite that
+  // uses them) — refs never trigger re-renders, so this is cheap and
+  // avoids the effect-timing gap a useEffect would introduce.
+  visibleKeysRef.current = visibleKeys;
+  {
+    const nextMap = new Map<string, number>();
+    visibleKeys.forEach((k, i) => nextMap.set(k, i));
+    colIndexMapRef.current = nextMap;
+  }
 
   // Spacer rows must span the checkbox column too, or the virtualized
   // padding <tr>s come up one cell short and the browser collapses the
@@ -1983,6 +2311,7 @@ export default function ExceptionsTable({
                       type="checkbox"
                       className="dq-select-box"
                       checked={allSelected}
+                      disabled={selectionLocked}
                       ref={(el) => {
                         // Partial selection shows the dash rather than
                         // a tick — indeterminate is DOM-only state with
@@ -2102,6 +2431,7 @@ export default function ExceptionsTable({
                         type="checkbox"
                         className="dq-select-box"
                         checked={selectedIds?.has(row.exceptionId) ?? false}
+                        disabled={selectionLocked}
                         onChange={(e) =>
                           toggleRowSelected(row.exceptionId, e.target.checked)
                         }
@@ -2109,7 +2439,9 @@ export default function ExceptionsTable({
                       />
                     </td>
                   )}
-                  {visibleKeys.map((k) => renderCell(k, row))}
+                  {visibleKeys.map((k) =>
+                    wrapCellForSelection(renderCell(k, row), row, k)
+                  )}
                 </tr>
               );
             })}

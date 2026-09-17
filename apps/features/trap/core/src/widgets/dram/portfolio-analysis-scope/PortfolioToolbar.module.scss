@@ -1,0 +1,59 @@
+.toolbarContainer {
+  .toolbarRow {
+    display: flex;
+    gap: 4px;
+    height: 32px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .filterBar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .filterCountStyle {
+      font-size: 9px;
+      font-weight: 700;
+      min-width: 15px;
+      height: 15px;
+      padding: 0 4px;
+      display: inline-grid;
+      place-items: center;
+      background: #2f6bff;
+      color: #fff;
+      border-radius: 8px;
+    }
+
+    .ant-btn {
+      padding: 0;
+      font-weight: 500;
+    }
+  }
+
+  .filterPanel {
+    margin-top: 4px;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--ant-color-bg-container);
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: 6px;
+    box-shadow: 0 2px 8px var(--ant-color-border-secondary);
+    max-height: 150px;
+    overflow-y: scroll;
+    position: absolute;
+    top: 215px;
+    width: 75%;
+    z-index: 1000;
+  }
+
+  .checkboxGroup {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    row-gap: 8px;
+    column-gap: 4px;
+  }
+}

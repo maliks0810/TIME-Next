@@ -257,7 +257,7 @@ const asOfLabel = formatDateOnly(
             <div>
               <Title level={3} style={{ margin: 0, color: "#17365d" }}>
                 {data?.title ??
-                  "Daily Flash Rankings \u2013 Top 10 Funds By Fund Size"}
+                  "Daily Flash Rankings \u2013 Funds By Fund Size"}
               </Title>
               <Text
                 strong

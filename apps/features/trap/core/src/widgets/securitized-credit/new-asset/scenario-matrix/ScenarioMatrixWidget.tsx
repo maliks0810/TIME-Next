@@ -15,15 +15,17 @@ import { DEAL_NAME_KEY, TRANCHE_ID_KEY, TRANCHE_NAME_KEY } from '../../../consta
 import styles from './ScenarioMatrixWidget.module.scss';
 import {
     CF_DUAL_PANE_MIN,
+    SCENARIO_MATRIX_UPDATE_TIMESTAMP,
     SCENARIO_SELECTED_RESULT_ID,
     SCENARIO_SELECTED_SUMMARY,
+    SELECTED_SCENARIO_CASHFLOWS,
 } from './constants';
 import { EMPTY_STATE, matrixReducer } from './state';
 import type { CashFlowView } from './types';
 import { deriveRunState } from './selectors';
 import { usePager } from './hooks/usePager';
 import { useMatrixEngine, type MatrixExecute } from './hooks/useMatrixEngine';
-import { buildScenarioSummary } from './utils/scenarioSummary';
+import { buildScenarioSummary, ScenarioSummary } from './utils/scenarioSummary';
 import { exportCashflowXlsx } from './utils/exportCashflow';
 import MatrixHeader from './components/MatrixHeader';
 import MatrixTable from './components/MatrixTable';
@@ -110,25 +112,6 @@ export default function ScenarioMatrixWidget(props: WidgetComponentProps) {
     const selScenario = state.scenarios.find((s) => s.key === state.sel) ?? null;
     const [cfView, setCfView] = React.useState<CashFlowView>(initialView);
 
-    // ── Emit selected scenario for downstream (staging) ──
-    // ── Emit selected scenario only on send to staging trigger, if it would be required for some scenario - should be discussed first to not break existing behavior ──
-    // React.useEffect(() => {
-    //     if (mode === 'preview' || !selScenario?.resultId) return;
-    //     const summary = buildScenarioSummary(selScenario, trancheName, state.rows, state.unit);
-    //     setValue({
-    //         channelId,
-    //         key: SCENARIO_SELECTED_RESULT_ID,
-    //         value: selScenario.resultId,
-    //         activeTab,
-    //     });
-    //     setValue({
-    //         channelId,
-    //         key: SCENARIO_SELECTED_SUMMARY,
-    //         value: JSON.stringify(summary),
-    //         activeTab,
-    //     });
-    // }, [state.sel, state.scenarios]);
-
     const onExport = React.useCallback(() => {
         if (!selScenario) return;
         void exportCashflowXlsx({
@@ -141,8 +124,8 @@ export default function ScenarioMatrixWidget(props: WidgetComponentProps) {
         });
     }, [selScenario, dealName, trancheName, state.rows, state.unit, exportFileName]);
 
-    const onSend = React.useCallback(() => {
-        if (mode === 'preview' || !selScenario?.resultId) return;
+    const onSendAssumptions = React.useCallback(() => {
+        if (mode === 'preview' || !selScenario?.name) return;
         const summary = buildScenarioSummary(selScenario, trancheName, state.rows, state.unit);
         setValue({
             channelId,
@@ -150,8 +133,46 @@ export default function ScenarioMatrixWidget(props: WidgetComponentProps) {
             value: selScenario.resultId,
             activeTab,
         });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setValue({ channelId, key: SCENARIO_SELECTED_SUMMARY, value: summary as any, activeTab });
+        setValue({
+            channelId,
+            key: SCENARIO_SELECTED_SUMMARY,
+            value: summary as ScenarioSummary,
+            activeTab,
+        });
+        setValue({
+            channelId,
+            key: SCENARIO_MATRIX_UPDATE_TIMESTAMP,
+            value: Date.now(),
+            activeTab,
+        });
+    }, [selScenario, trancheName, state.rows, state.unit, channelId, activeTab, mode]);
+
+    const onSendCashFlows = React.useCallback(() => {
+        if (mode === 'preview' || !selScenario?.resultId) return;
+        setValue({
+            channelId,
+            key: SCENARIO_SELECTED_RESULT_ID,
+            value: selScenario.resultId,
+            activeTab,
+        });
+        setValue({
+            channelId,
+            key: SELECTED_SCENARIO_CASHFLOWS,
+            value: {
+                cashflow: selScenario?.cashflow,
+                scenario: selScenario.name,
+                color: selScenario.color,
+                tranche: trancheName,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+            activeTab,
+        });
+        setValue({
+            channelId,
+            key: SCENARIO_MATRIX_UPDATE_TIMESTAMP,
+            value: Date.now(),
+            activeTab,
+        });
     }, [selScenario, trancheName, state.rows, state.unit, channelId, activeTab, mode]);
 
     // ── Render ──
@@ -264,7 +285,8 @@ export default function ScenarioMatrixWidget(props: WidgetComponentProps) {
                             view={cfView}
                             onView={setCfView}
                             onExport={onExport}
-                            onSend={onSend}
+                            onSendAssumptions={onSendAssumptions}
+                            onSendCashFlows={onSendCashFlows}
                             canSend={!!selScenario?.cashflow}
                             dualPane={widthPx >= CF_DUAL_PANE_MIN}
                         />

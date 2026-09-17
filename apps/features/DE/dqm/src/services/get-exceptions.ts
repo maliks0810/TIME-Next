@@ -1,7 +1,7 @@
 import type { ExceptionRow } from "../components/types";
 
 const DATA_QUALITY_SERVICE_URL =
-    import.meta.env.VITE_DATA_QUALITY_SERVICE_URL ?? "http://127.0.0.1:8100"; 
+  import.meta.env.VITE_DATA_QUALITY_SERVICE_URL ?? "http://127.0.0.1:8100";
 const EXCEPTIONS_ENDPOINT = `${DATA_QUALITY_SERVICE_URL}/de/securities/rules/v1/api/getExceptions`;
 
 type ApiException = {
@@ -116,7 +116,15 @@ export async function fetchExceptions(
   // pass the top of the LHS Exception-date dropdown (histDates[0])
   // so the live grid stays correct on holidays / delayed ETL days
   // when EXCEPTION.EXCEPTION_DATE hasn't caught up to today.
-  exceptionDate?: string
+  exceptionDate?: string,
+  // SECURITY_GROUP filter. Selects a dedicated server-side query that
+  // joins DIM_SECURITY on ASSET_ID = ALADDIN_ID, rather than adding a
+  // predicate to the default one. Empty means no filter.
+  //
+  // Unlike every other filter here, "All" is NOT a sentinel: a security
+  // group genuinely named 'All' has to stay filterable, and the SP
+  // matches only on NULL / '' for this parameter.
+  securityGroup?: string
 ): Promise<ExceptionRow[]> {
   const params = new URLSearchParams();
   if (assetId) params.set("asset_id", assetId);
@@ -126,6 +134,7 @@ export async function fetchExceptions(
   if (ruleCatalog && ruleCatalog !== "All") params.set("rule_catalog", ruleCatalog);
   if (ruleName && ruleName !== "All") params.set("rule_name", ruleName);
   if (ruleGroup && ruleGroup !== "All") params.set("rule_group", ruleGroup);
+  if (securityGroup) params.set("security_group", securityGroup);
   if (exceptionState && exceptionState !== "All")
     params.set("exception_state", exceptionState);
   if (assignTo && assignTo !== "All") params.set("assign_to", assignTo);

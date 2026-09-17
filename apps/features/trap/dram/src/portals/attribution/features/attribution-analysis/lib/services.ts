@@ -116,8 +116,12 @@ export type OptionsResponse = {
     AllocEffect: number;
     SelectEffect: number;
     InterEffect: number;
-    [key: string]: string | number | null; // dynamic GICSx
-  }
+    Select_InterEffect: number;
+    [key: string]: string | number | null;
+    Hierarchy_level: number;
+    Hierarchy: string;
+}
+
  export interface AnalyticsApiGrid {
   title: string;
   rows: AnalyticResultRow[];
@@ -183,5 +187,9 @@ export const api = {
     (`/api/attr-dispersion/`),
 runDailySecurityGrainAnalysis: (port: string, breakdown: string, startDate: string, endDate: string, periodList: string,benchmarkCode:string): Promise<AnalyticsResponse> =>
     req<AnalyticsResponse>
-  (`/api/att-eq-mtd/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}&period_list=${periodList}&bm_code=${benchmarkCode}`),
+      (`/api/att-eq-mtd/?port=${port}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}&period_list=${periodList}&bm_code=${benchmarkCode}`),
+runDiagnosticsMonthlyAttributionAnalysis: (port: string,frequency: string, breakdown: string, startDate: string, endDate: string, periodList: string,benchmarkCode:string): Promise<AnalyticsResponse> =>
+    req<AnalyticsResponse>
+  (`/api/attribution/diagnostics/?portfolioNumber=${port}&frequency=${frequency}&grouping=${breakdown}&start_date=${startDate}&end_date=${endDate}&period_list=${periodList}&bm_code=${benchmarkCode}`),
+
 };

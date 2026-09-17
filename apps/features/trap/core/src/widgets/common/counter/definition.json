@@ -25,7 +25,8 @@
         "filter.servicer",
         "filter.new_used",
         "filter.vehicle_type",
-        "filter.zero_balance_reason"
+        "filter.zero_balance_reason",
+        "naic.portfolio.report"
     ],
     "emitsKeys": null,
     "configSchema": {
@@ -56,7 +57,12 @@
                 "default": "deal.name",
                 "description": "Which channel value selects the KPI universe.",
                 "title": "Context Key",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                    "",
+                    "deal.name",
+                    "naic.portfolio.report"
+                ]
             },
             "customColor": {
                 "category": "Colors",
@@ -110,7 +116,11 @@
                     "wa fico",
                     "wa value / loan",
                     "wa conventional ltv",
-                    "wac"
+                    "wac",
+                    "Total Securities",
+                    "Successfully Mapped",
+                    "Errors",
+                    "Total Portfolio RBC Charge"
                 ],
                 "options": [
                     {
@@ -154,9 +164,20 @@
                             "current balance",
                             "loan count",
                             "wa fico",
-                            "wa value / loan",
                             "wa conventional ltv",
                             "wac"
+                        ]
+                    },
+                    {
+                        "condition": {
+                            "key": "schemaKey",
+                            "value": "naic.portfolio.status"
+                        },
+                        "options": [
+                            "Total Securities",
+                            "Successfully Mapped",
+                            "Errors",
+                            "Total Portfolio RBC Charge"
                         ]
                     }
                 ],
@@ -187,7 +208,8 @@
                 "enum": [
                     "arc.status.query",
                     "econ.indicators.heatmap",
-                    "tape.kpi"
+                    "tape.kpi",
+                    "naic.portfolio.status"
                 ],
                 "title": "Schema Key",
                 "type": "string"

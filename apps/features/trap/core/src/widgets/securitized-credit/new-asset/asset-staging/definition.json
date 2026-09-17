@@ -9,8 +9,8 @@
     "listensToKeys": [
         "deal.id",
         "deal.name",
-        "asset.staged.trancheId",
-        "asset.staged.trancheName",
+        "tranche.id",
+        "tranche.name",
         "analysis.sessionId",
         "scenario.selectedResultId",
         "scenario.selectedSummary",

@@ -2,30 +2,17 @@ import React from 'react';
 import clsx from 'clsx';
 import { BankOutlined } from '@ant-design/icons';
 import WidgetCardShell from '../../../components/widget-shell/WidgetCardShell';
-import {
-    useWidgetSize,
-    WidgetSizeBands,
-} from '../../../components/layout/useWidgetSize';
+import { useWidgetSize, WidgetSizeBands } from '../../../components/layout/useWidgetSize';
 import type { WidgetComponentProps } from '../../../types/widget';
 import { useTheme } from '../../../theme/ThemeContext';
 import type { SearchResult, RecentSearch } from './types';
 import { SearchInput } from './components/SearchInput';
-import {
-    IdentityBadge,
-    IdentifierLine,
-} from './components/SecurityInfo';
+import { IdentityBadge, IdentifierLine } from './components/SecurityInfo';
 import { RecentSearches } from './components/RecentSearches';
 import { planSecurityLookup } from './components/planLayout';
 import { useRecentSearches } from './hooks/useRecentSearches';
-import {
-    DEAL_NAME_KEY,
-    IS_ASSET_NEW_KEY,
-    TRANCHE_NAME_KEY,
-} from '../../constants';
-import {
-    useSetWidgetValue,
-    useGetWidgetValue,
-} from '../../../state/Widgets/hooks';
+import { DEAL_NAME_KEY, IS_ASSET_NEW_KEY, TRANCHE_NAME_KEY } from '../../constants';
+import { useSetWidgetValue, useGetWidgetValue } from '../../../state/Widgets/hooks';
 import { useGetActiveTab } from '../../../state/Tabs/hooks';
 import styles from './SecurityLookupWidget.module.scss';
 
@@ -43,9 +30,7 @@ export default function SecurityLookupWidget({
     const { ref, cols, heightPx } = useWidgetSize(SL_BANDS);
     const { themeName } = useTheme();
 
-    const isWealthTheme =
-        themeName === 'wealthLight' ||
-        themeName === 'wealthDark';
+    const isWealthTheme = themeName === 'wealthLight' || themeName === 'wealthDark';
     const isWealthLight = themeName === 'wealthLight';
     const isWealthDark = themeName === 'wealthDark';
 
@@ -60,9 +45,7 @@ export default function SecurityLookupWidget({
     // this widget's stale rendered result until a fresh lookup occurs.
     const [dismissed, setDismissed] = React.useState(false);
 
-    const security = dismissed
-        ? null
-        : ((result as unknown as SearchResult | undefined) ?? null);
+    const security = dismissed ? null : ((result as unknown as SearchResult | undefined) ?? null);
 
     // Track the deal most recently emitted by this widget so its own channel
     // update can be distinguished from a deal published by another widget.
@@ -90,6 +73,7 @@ export default function SecurityLookupWidget({
                 value: dealName,
                 activeTab,
                 channelId,
+                widgetId: widgetInstance.id,
             });
 
             setWidgetValueToChannel({
@@ -97,6 +81,7 @@ export default function SecurityLookupWidget({
                 value: 'true',
                 activeTab,
                 channelId,
+                widgetId: widgetInstance.id,
             });
 
             const tranche = context?.tranche;
@@ -107,6 +92,7 @@ export default function SecurityLookupWidget({
                     value: tranche,
                     activeTab,
                     channelId,
+                    widgetId: widgetInstance.id,
                 });
             } else {
                 setWidgetValueToChannel({
@@ -114,10 +100,11 @@ export default function SecurityLookupWidget({
                     value: null,
                     activeTab,
                     channelId,
+                    widgetId: widgetInstance.id,
                 });
             }
         },
-        [setWidgetValueToChannel, activeTab, channelId],
+        [activeTab, channelId]
     );
 
     const handleExecute = React.useCallback(() => {
@@ -176,7 +163,7 @@ export default function SecurityLookupWidget({
             emitFromContext(recent.context);
             execute?.({ identifier: recent.name });
         },
-        [execute, emitFromContext],
+        [execute, emitFromContext]
     );
 
     const plan = planSecurityLookup(cols, heightPx);
@@ -205,16 +192,12 @@ export default function SecurityLookupWidget({
             {plan.showTitle && (
                 <div className={styles.title}>
                     <BankOutlined className={styles.titleIcon} />
-                    <span className={styles.titleText}>
-                        Security Lookup
-                    </span>
+                    <span className={styles.titleText}>Security Lookup</span>
                 </div>
             )}
 
             <div className={styles.inputRow}>
-                <div className={styles.inputWrap}>
-                    {inputElement}
-                </div>
+                <div className={styles.inputWrap}>{inputElement}</div>
 
                 {security && (
                     <div className={styles.identityWrap}>
@@ -223,14 +206,10 @@ export default function SecurityLookupWidget({
                 )}
             </div>
 
-            {security && plan.showIds && (
-                <IdentifierLine security={security} showMore />
-            )}
+            {security && plan.showIds && <IdentifierLine security={security} showMore />}
 
             {plan.recent === 'two' && (
-                <div className={styles.recentStacked}>
-                    {recentElement('two')}
-                </div>
+                <div className={styles.recentStacked}>{recentElement('two')}</div>
             )}
         </div>
     );
@@ -247,14 +226,10 @@ export default function SecurityLookupWidget({
             >
                 {plan.split ? (
                     <div className={styles.twoPane}>
-                        <div className={styles.leftHalf}>
-                            {mainColumn}
-                        </div>
+                        <div className={styles.leftHalf}>{mainColumn}</div>
 
                         <div className={styles.recentPane}>
-                            {recentElement(
-                                plan.recent === 'multi' ? 'multi' : 'one',
-                            )}
+                            {recentElement(plan.recent === 'multi' ? 'multi' : 'one')}
                         </div>
                     </div>
                 ) : (

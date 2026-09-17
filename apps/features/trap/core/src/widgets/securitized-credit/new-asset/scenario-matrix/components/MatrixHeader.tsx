@@ -12,7 +12,7 @@ export type PagerInfo = {
 };
 
 export type TrancheControl = {
-    options: Array<{ id: string; name: string }>;
+    options: Array<{ id: string; name: string , disabled: boolean;}>;
     currentId?: string;
     onChange: (id: string) => void;
 };
@@ -77,7 +77,7 @@ export default function MatrixHeader({
                     >
                         {!tranche.currentId && <option value="">Select…</option>}
                         {tranche.options.map((o) => (
-                            <option key={o.id} value={o.id}>
+                            <option key={o.id} value={o.id} disabled={o.disabled}>
                                 {o.name}
                             </option>
                         ))}

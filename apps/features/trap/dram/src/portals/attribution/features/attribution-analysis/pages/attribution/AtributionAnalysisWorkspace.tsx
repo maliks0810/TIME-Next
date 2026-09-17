@@ -231,7 +231,7 @@ const EMPTY_CONFIG: GridConfigResponse = {
       group: "",
     },
   ],
-  periods: [[]],
+  periods: [],
   metrics: [],
   holidays: new Set(new Set<string>())
 };
@@ -247,13 +247,19 @@ const toRowId = (
 
 const extractRowsByPeriod = (resp: ResponseWithPeriodGrids): PeriodGridMap => {
   const grids = Array.isArray(resp.data?.grids) ? resp.data.grids : [];
+
   return grids.reduce<PeriodGridMap>((acc, grid, gridIndex) => {
     const period = String(grid.title ?? `grid_${gridIndex}`);
     const rows = Array.isArray(grid.rows) ? grid.rows : [];
+
     acc[period] = rows.map((row, idx) => ({
       id: toRowId(period, idx, row),
       ...row,
+      Select_InterEffect:
+        (Number(row.SelectEffect) || 0) +
+        (Number(row.InterEffect) || 0),
     })) as AnalyticResultRow[];
+
     return acc;
   }, {});
 };
@@ -855,15 +861,20 @@ const executeAttribAnalysis = async (
       : input.breakdownModeId === "GICS" ? "GICS1"
       : input.breakdownModeId === "Mag_7" ? encodeURIComponent("Mag 7")
       : input.breakdownModeId === "Russell_Style" ? encodeURIComponent("Russell Style")
-       : encodeURIComponent(input.breakdownModeId);
-      const resp = (input.breakdownModeId === 'MktCap' ||
+              : encodeURIComponent(input.breakdownModeId);
+      console.log(input.breakdownModeId);
+      console.log(input.frequencyMode);
+      const resp =
+        (input.breakdownModeId === 'MktCap' ||
       input.breakdownModeId === 'PEfwd' ||input.breakdownModeId == "GICS1")  && input.frequencyMode === "daily" && input.assetClass === "EQ" ?
       (await api.runDailySecurityGrainAnalysis(input.portfolio,inputGrouping,input.startDate,input.endDate,input.periodIdsCsv,input.benchmark)) :
       input.frequencyMode === "daily" && input.assetClass === "EQ" ? (await api.runDailySecurityGrainAnalysis(
         input.portfolio,inputGrouping,input.startDate,input.endDate,input.periodIdsCsv,input.benchmark)) :
         input.frequencyMode === "monthly" && input.assetClass === "EQ" ?  (await api.runSecurityGrainAnalysis(
           input.assetClass, input.portfolio, input.frequencyMode, inputGrouping, input.startDate,input.endDate,input.periodIdsCsv,input.benchmark))
-        :  (await api.runSecurityGrainAnalysis(
+            : input.breakdownModeId === "Type 2" && input.frequencyMode === "monthly" ? (await api.runDiagnosticsMonthlyAttributionAnalysis(
+        input.portfolio,input.frequencyMode, inputGrouping, input.startDate, input.endDate, input.periodIdsCsv, input.benchmark)) :
+              (await api.runSecurityGrainAnalysis(
         input.assetClass, input.portfolio,input.frequencyMode,inputGrouping,input.startDate, input.endDate,input.periodIdsCsv,input.benchmark
       )) as ResponseWithPeriodGrids;
 

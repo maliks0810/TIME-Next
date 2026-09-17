@@ -1,28 +1,13 @@
-import axios from "axios";
-import type { SnapshotBookPdfRequest } from "./types";
+import { buildDram2UrlNonAttribution } from "../api/services";
+import { downloadExport } from "../api/download";
 
-const api = axios.create({ baseURL: "/api" });
+export async function exportSnapshotBookPdf(): Promise<void> {
 
-function filenameFromDisposition(value: string | undefined): string | null {
-  const match = value?.match(/filename="?([^";]+)"?/i);
-  return match?.[1] ?? null;
-}
-
-export async function exportSnapshotBookPdf(request: SnapshotBookPdfRequest): Promise<void> {
-  const response = await api.post<Blob>(
-    "/performance/snapshot-book/export/pdf/",
-    request,
-    { responseType: "blob" },
+  const exportUrl = buildDram2UrlNonAttribution(
+          `/api/performance/snapshot-book/export/pdf/?include_funds=true&include_ucits_usd=true&include_ucits_eur=true&include_strategy=true`
+        );
+        await downloadExport(
+          exportUrl,
+          `Daily Flash_Performance Snapshot.pdf`
   );
-  const filename =
-    filenameFromDisposition(response.headers["content-disposition"] as string | undefined) ??
-    `TCW_Daily_Performance_Snapshot_Book_${request.asOfDate.replaceAll("-", "")}.pdf`;
-  const url = URL.createObjectURL(response.data);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = filename;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(url);
 }

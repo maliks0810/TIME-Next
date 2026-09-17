@@ -202,20 +202,6 @@
 .pagerWrap.noMore .pagerMore {
     display: none;
 }
-.iconBtn {
-    appearance: none;
-    border: 1px solid var(--tile-border);
-    background: var(--surface);
-    color: var(--ink-2);
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 12px;
-    line-height: 1;
-    padding: 4px 7px;
-}
-.iconBtn:hover {
-    border-color: var(--tile-border-hover);
-}
 
 /* ── Matrix ── */
 .mxWrap {
@@ -900,6 +886,15 @@
 /* Alt-row shading for the cash-flow schedule (data rows only). */
 .sched tbody tr:nth-child(even) {
     background: var(--zebra);
+}
+
+.schedTotal td {
+    font-weight: 700;
+    color: var(--ink);
+    border-bottom: 2px solid var(--sep);
+    background: var(--panel-bg);
+    position: sticky;
+    top: 18px; /* sits just under the sticky header row */
 }
 
 /* ── Audit drawer ── */
