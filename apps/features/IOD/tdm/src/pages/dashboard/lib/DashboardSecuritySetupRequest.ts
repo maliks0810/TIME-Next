@@ -36,6 +36,7 @@ export interface IDashboardSecuritySetupRequest {
     securityRequestArcFields: IDashboardSecuritySetupRequestArcFields;
     securityRequestDocuments: IDashboardSecuritySetupRequestAttachment[];
     noteInstructions: string;
+    arcAnalyticsRequestedDates: Date[];
 }
 
 export interface IDashboardDeleteSecuritySetupRequest{

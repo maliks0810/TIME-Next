@@ -7,7 +7,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { INormalizedReferenceData, ReferenceDataFieldKey } from '../lib/types/referenceDataTypes';
 import { SelectFormField } from '../../../common/components/SelectFormField';
 import { isNullOrEmpty } from '../../../utils/StringHelper';
-import { useIdentifierFields } from '../../../stores/selectors/securitySetupSelectors';
+import { useIdentifierFields, useFieldEditPermissions } from '../../../stores/selectors/securitySetupSelectors';
 import { useSecuritySetupStore } from '../../../stores/useSecuritySetupStore';
 import { ISecurityAttachmentData } from '../lib/types/securitySetupTypes';
 
@@ -48,6 +48,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
 
   const isReadOnly = formValues.isReadOnly;
   const isUserReadOnly = formValues.isUserReadOnly;
+  const canEditField = useFieldEditPermissions();
   const isUploadingFile = formValues.isUploadingFile;
   const fileUploadError = formValues.fileUploadError;
   const pendingUploadFiles = formValues.pendingUploadFiles;
@@ -278,7 +279,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                   ...(value === 'Not Required' ? { euSecuritizationTipEuId: undefined } : {})
                 })}
                 referenceData={referenceData}
-                disabled={isReadOnly || isUserReadOnly || formValues.isEuSecuritizationRequired === false}
+                disabled={isReadOnly || isUserReadOnly || formValues.isEuSecuritizationRequired === false || !canEditField('edit_field_after_request_submitted_eu_securitization_status')}
                 fullWidth={false}
                 className='field-input-half'
               />
@@ -292,7 +293,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                 onChange={handleTextChange('euSecuritizationTipEuId')}
                 placeholder="Sample_TIP_ID"
                 variant="outlined"
-                disabled={isReadOnly || isUserReadOnly || formValues.isEuSecuritizationRequired === false || formValues.euSecuritizationStatus === 'Not Required'}
+                disabled={isReadOnly || isUserReadOnly || formValues.isEuSecuritizationRequired === false || formValues.euSecuritizationStatus === 'Not Required' || !canEditField('edit_field_after_request_submitted_eu_securitization_tip_eu_id')}
               />
             </div>
 
@@ -304,7 +305,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                 value={formValues.erisaStatus}
                 onChange={(value) => updateIdentifierFields({ erisaStatus: value })}
                 referenceData={referenceData}
-                disabled={isReadOnly || isUserReadOnly}
+                disabled={isReadOnly || isUserReadOnly || !canEditField('edit_field_after_request_submitted_erisa_status')}
                 fullWidth={false}
                 className='field-input-half'
               />
@@ -353,7 +354,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
             onChange={handleTextChange('aladdinCdiId')}
             placeholder="BDL123456"
             variant="outlined"
-            disabled={isReadOnly || isUserReadOnly || effectiveNewIssue.toLowerCase() === 'no'}
+            disabled={isReadOnly || isUserReadOnly || effectiveNewIssue.toLowerCase() === 'no' || !canEditField('edit_field_after_request_submitted_aladdin_cdi_id')}
           />
         </div>
 
@@ -406,7 +407,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
                 })
               }}
               referenceData={referenceData}
-              disabled={isReadOnly || isUserReadOnly}
+              disabled={isReadOnly || isUserReadOnly || !canEditField('edit_field_after_request_submitted_identifier')}
               fullWidth={false}
               className='field-input-half'
               errorText={selectFieldErrors[ReferenceDataFieldKey.Identifier] ?? null}
@@ -420,7 +421,7 @@ export const EnterIdentifierPage: React.FC<EnterIdentifierPageProps> = ({
               onChange={handleTextChange('identifierValue')}
               placeholder={handleIdentifierPlaceholder(formValues.identifierType)}
               variant="outlined"
-              disabled={isReadOnly || isUserReadOnly}
+              disabled={isReadOnly || isUserReadOnly || !canEditField('edit_field_after_request_submitted_identifier')}
               slotProps={{ htmlInput: { maxLength: identityMaxLenght } }}
             />
           </div>

@@ -53,7 +53,8 @@ const INITIAL_STATE: SecuritySetupState = {
   fileUploadError: null,
   
   dmAnalystName: null,
-  dmAnalystEmail: null
+  dmAnalystEmail: null,
+  securitySetupStatusId: null,
 }
 
 const computeCompletedSteps = (
@@ -141,6 +142,7 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
         completedSteps,
         dmAnalystName: initialData.dmAnalystName ?? undefined,
         dmAnalystEmail: initialData.dmAnalystEmail ?? undefined,
+        securitySetupStatusId: initialData.securitySetupStatusId ?? undefined
       })
      },
 
@@ -184,6 +186,8 @@ export const useSecuritySetupStore = create<SecuritySetupState & SecuritySetupAc
     setReadOnly: (flag: boolean) => set({ isReadOnly: flag }),
 
     setUserReadOnly: (flag: boolean) => set({ isUserReadOnly: flag }),
+
+    setSecuritySetupStatusId: (id: number | null) => set({ securitySetupStatusId: id }),
 
     setPendingFiles: (files: File[] | undefined) => set({ pendingUploadFiles: files }),
 
