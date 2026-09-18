@@ -1,5 +1,3 @@
-// Currently Not deploying this functionality to production. Skip code review
-
 export type ViewMode = 'security' | 'breakdown';
 
 export type RowType = | 'security' | 'breakdown' | 'total';

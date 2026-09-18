@@ -118,15 +118,10 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
 
     const properties = widgetDefinition?.configSchema?.properties ?? {};
 
-    const {
-        text,
-        position,
-        suffix,
-        prefix,
-        emptyText,
-        textColor,
-        themeMode,
-    } = useMemo(() => getWidgetValues(config, properties), [config, properties]);
+    const { text, position, suffix, prefix, emptyText, textColor, themeMode } = useMemo(
+        () => getWidgetValues(config, properties),
+        [config, properties]
+    );
 
     const handleClick = () => {
         if (isTapeKpi) return;
@@ -190,11 +185,7 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
     }, [result]);
 
     const hasDisplayData =
-        !loading &&
-        content !== emptyText &&
-        content !== '-' &&
-        content !== '—' &&
-        content !== '';
+        !loading && content !== emptyText && content !== '-' && content !== '—' && content !== '';
 
     const customTextColor = useMemo(
         () => (themeMode === 'theme' ? {} : { color: textColor }),
@@ -216,8 +207,7 @@ export const CounterTileWidget = (props: WidgetComponentProps) => {
                     <Typography.Title
                         level={5}
                         className={clsx(widgetStyles.titlePosition, styles.cardTitle, {
-                            [styles.activeTile]:
-                                !isTapeKpi && metricValue === counterTileValue,
+                            [styles.activeTile]: !isTapeKpi && metricValue === counterTileValue,
                         })}
                         style={customTextColor}
                     >

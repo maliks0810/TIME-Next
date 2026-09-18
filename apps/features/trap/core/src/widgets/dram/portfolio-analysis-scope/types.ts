@@ -8,6 +8,9 @@ export interface PACWidgetEmitValues {
   benchmarkName: string;
   secondaryBenchmarkCode: string;
   secondaryBenchmarkname: string;
+  compareVsCode: string;
+  compareVsName: string;
+  comparePortfolio: string;
   startDate: string;
   endDate: string;
   assetClass: string;

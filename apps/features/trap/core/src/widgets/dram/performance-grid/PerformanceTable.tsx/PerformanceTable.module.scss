@@ -1,5 +1,3 @@
-// Currently Not deploying this functionality to production. Skip code review
-
 .performanceTable {
   width: 100%;
   min-width: 0;
@@ -57,10 +55,6 @@
     background: #fff;
   }
 
-  // :global(.dx-treelist-content) {
-  //   overflow-x: auto;
-  // }
-
   // Tree indentation
   :global(.dx-treelist-icon-container) {
     padding-right: 5px;
@@ -77,15 +71,8 @@
     border-bottom: 1px solid #e8e8e8;
   }
 
-  // Row styles
-  // .performanceRow {
-  //   :global(td) {
-  //     transition: background-color 0.15s ease;
-  //   }
-  // }
-
   // Parent / Breakdown rows
-  .performanceRowBreakdown {
+  .performanceRowParent {
     :global(td) {
       font-weight: 600 !important;
       background: #fbfcfd;

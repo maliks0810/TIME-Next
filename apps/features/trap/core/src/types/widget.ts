@@ -86,6 +86,7 @@ export type WidgetComponentProps = {
         params?: Record<string, string>
     ) => void;
     subscribe?: () => void;
+    defaultValue?: any;
 };
 
 export type WidgetRegistryEntry = {

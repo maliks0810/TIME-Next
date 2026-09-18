@@ -30,26 +30,6 @@
         "type": "string",
         "category": "Interactions"
       },
-      "schemaKey": {
-        "description": "Performance Grid data resolved by GraphQL",
-        "enum": [
-          "performance.attribution"
-        ],
-        "title": "Schema Key",
-        "type": "string",
-        "category": "System Parameters"
-      },
-      "operation": {
-        "description": "Operation",
-        "enum": [
-          "breakdown",
-          "periods",
-          "attribution"
-        ],
-        "title": "Operation",
-        "type": "string",
-        "category": "System Parameters"
-      },
       "listensToKeys": {
         "enum": [
           "pacInputs"
@@ -59,9 +39,7 @@
         "category": "Interactions"
       }
     },
-    "required": [
-      "schemaKey", "operation"
-    ],
+    "required": [],
     "type": "object"
   },
   "uiHints": {
@@ -75,12 +53,12 @@
         "resizable": true,
         "width": {
           "default": 8,
-          "min": 1,
+          "min": 6,
           "max": 12
         },
        "height": {
-          "default": 600,
-          "min": 600,
+          "default": 800,
+          "min": 800,
           "max": 1000,
           "step": 10
         }

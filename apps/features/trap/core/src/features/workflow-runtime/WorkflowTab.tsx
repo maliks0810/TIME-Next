@@ -10,7 +10,11 @@ export default function WorkflowTab(props: WorkflowTabProps) {
     }
     return (
         <div style={{ width: '100%' }}>
-            <RuntimeCanvas layout={layoutFromCompiled} runtimeItems={runtimeItems} />
+            <RuntimeCanvas
+                layout={layoutFromCompiled}
+                runtimeItems={runtimeItems}
+                templateId={props.templateId}
+            />
         </div>
     );
 }
