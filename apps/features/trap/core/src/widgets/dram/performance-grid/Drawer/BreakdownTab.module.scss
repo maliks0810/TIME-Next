@@ -1,0 +1,103 @@
+.cfg-pad {
+    flex: 1;
+    overflow: auto;
+    padding: 18px 20px;
+}
+.cfg-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+.cfg-breakdown {
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+}
+@media (max-width: 780px) {
+    .cfg-cols,
+    .cfg-breakdown {
+        grid-template-columns: 1fr;
+    }
+}
+.cfg-hint {
+    font-size: 11px;
+    color: var(--ant-color-tertiary);
+    margin: -2px 0 10px;
+}
+.lvlcard {
+    cursor: pointer;
+    user-select: none;
+}
+.cfg-editor {
+    border: 1px solid var(--ant-color-border-secondary);
+    border-radius: 12px;
+    padding: 15px 16px;
+    background: var(--ant-color-fill-quaternary);
+}
+.cfg-editor-h {
+    font-size: 11.5px;
+    color: var(--ant-color-text-secondary);
+    margin-bottom: 13px;
+    padding-bottom: 11px;
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+}
+
+/* ===================== Breakdown: flat (no grouping) state ===================== */
+.flat-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 10px;
+    padding: 9px 11px;
+    border-radius: 9px;
+    background: var(--ant-color-fill-quaternary);
+    font-size: 12px;
+    color: var(--ant-color-text-secondary);
+}
+.flat-note .flat-tag {
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ant-color-primary);
+    background: var(--ant-color-primary-bg);
+    padding: 3px 8px;
+    border-radius: 20px;
+}
+.cfg-editor-empty {
+    display: flex;
+    flex-direction: column;
+}
+.flat-empty {
+    margin: 8px 0 0;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--ant-color-tertiary);
+}
+.flat-empty b {
+    color: var(--ant-color-text-secondary);
+}
+
+.addband {
+    width: 100%;
+    height: 30px;
+    border: 1px dashed var(--ant-color-border-secondary);
+    background: transparent;
+    color: var(ant-color-primary);
+    border-radius: 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    margin-top: 2px;
+}
+.addband:hover {
+    background: var(ant-color-primary-bg);
+    border-color: var(--ant-color-primary);
+}
+/* "+ Add …" buttons: drop the dashed outline — accent text at rest, fill on hover */
+.addband {
+    border: none;
+    background: transparent;
+    color: var(--ant-color-primary);
+}
+.addband:hover {
+    background: var(--ant-color-primary-bg);
+}

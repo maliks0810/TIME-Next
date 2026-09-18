@@ -1,0 +1,98 @@
+/* level cards: filled + borderless at rest; border + lift on hover; accent when editing.
+   Depth comes from fill contrast (panel-2 card on white cfg-pad), not outlines. */
+.lvlcard {
+    border-color: transparent;
+    border-radius: 11px;
+    background: var(--ant-color-fill-quaternary);
+    transition:
+        border-color 0.15s,
+        background 0.15s,
+        box-shadow 0.15s;
+}
+.lvlcard-lh {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 11px;
+    background: var(--ant-color-fill-quaternary);
+    cursor: pointer;
+}
+.lvlcard:hover {
+    border-color: var(--ant-color-border-secondary);
+    background: var(--ant-color-bg-container);
+    box-shadow: 0 2px 10px rgba(16, 26, 45, 0.06);
+}
+.editing {
+    border-color: transparent;
+    background: var(--ant-color-bg-container);
+    box-shadow:
+        inset 3px 0 0 var(--ant-color-primary),
+        0 2px 10px rgba(16, 26, 45, 0.06);
+}
+.editing .lt {
+    color: var(--ink);
+}
+.dragging {
+    opacity: 1;
+    z-index: 10;
+    border-color: var(--ant-color-primary);
+    box-shadow: 0 6px 20px rgba(16, 26, 45, 0.22);
+}
+
+/* ===================== Breakdown: prominent drag handle ===================== */
+.lvlcard .lh .grip {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 26px;
+    margin-left: -2px;
+    border-radius: 6px;
+    color: var(--ant-color-tertiary);
+    font-size: 14px;
+    letter-spacing: 0;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    transition:
+        background 0.12s,
+        color 0.12s;
+}
+.lvlcard .lh .grip:hover {
+    background: var(--chip);
+    color: var(--ink);
+}
+.lvlcard .lh .grip:active {
+    cursor: grabbing;
+    background: var(--ant-color-primary-bg);
+    color: var(--ant-color-primary);
+}
+.acts {
+    margin-left: auto;
+    display: flex;
+    gap: 3px;
+}
+.acts button {
+    border: none;
+    background: transparent;
+    color: var(--ant-color-tertiary);
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+.lvlcard .lh .acts button:hover {
+    background: var(--ant-color-border-secondary);
+    color: var(--ink);
+}
+.ix {
+    width: 19px;
+    height: 19px;
+    border-radius: 5px;
+    background: var(--ant-color-primary-bg);
+    color: var(--ant-color-primary);
+    font-size: 10px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+}

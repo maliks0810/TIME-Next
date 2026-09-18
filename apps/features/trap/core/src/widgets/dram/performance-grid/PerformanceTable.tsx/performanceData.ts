@@ -1,5 +1,3 @@
-// Currently Not deploying this functionality to production. Skip code review
-
 import type { PerformanceRow } from './types';
 
 const createMetrics = (seed: number) : Record<string, number> => ({

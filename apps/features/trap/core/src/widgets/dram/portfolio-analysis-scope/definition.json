@@ -56,8 +56,8 @@
       "sizing": {
         "resizable": true,
         "width": {
-          "default": 8,
-          "min": 1,
+          "default": 10,
+          "min": 6,
           "max": 12
         },
        "height": {

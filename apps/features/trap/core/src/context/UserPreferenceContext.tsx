@@ -27,13 +27,18 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
     const login = useGetUserLogin();
 
-    const updateWidgetValue = (workflow: string, widget: string, payload: unknown) => {
+    const updateWidgetValue = (workflow: string, widget: string, payload: any) => {
+        const current: Record<string, any> = widgetsProfile?.[workflow] || {};
         upsertPreference({
             application: APPLICATION_KEYS.WIDGETS,
             profile: {
                 ...widgetsProfile,
                 [workflow]: {
-                    [widget]: payload,
+                    ...current,
+                    [widget]: {
+                        ...(current?.[widget] || {}),
+                        ...payload,
+                    },
                 },
             },
         });

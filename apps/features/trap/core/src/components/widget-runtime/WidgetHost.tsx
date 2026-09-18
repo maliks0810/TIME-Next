@@ -51,6 +51,7 @@ export default function WidgetHost(props: {
     widgetDefinition: any;
     mode: WidgetRenderMode;
     uiActions?: Record<string, (...args: any[]) => any>;
+    defaultValue?: any;
 }) {
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState<string | undefined>(undefined);
@@ -207,6 +208,7 @@ export default function WidgetHost(props: {
                 }
 
                 setResult(response?.result ?? {});
+                return response?.result;
             } catch (executionError: any) {
                 if (
                     controller.signal.aborted ||
@@ -251,13 +253,6 @@ export default function WidgetHost(props: {
         return dispose;
     }, [widgetDefinitionId, variantId, params, props.mode]);
 
-    // Subscription example, full integration requires work from Domain API
-    // useEffect(() => {
-    //     const dispose = subscribe?.();
-
-    //     return dispose;
-    // }, []);
-
     React.useEffect(() => {
         return () => {
             abortControllerRef.current?.abort();
@@ -277,6 +272,7 @@ export default function WidgetHost(props: {
             uiActions={props.uiActions}
             execute={execute}
             subscribe={subscribe}
+            defaultValue={props.defaultValue}
         />
     );
 }

@@ -1,11 +1,13 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import React from 'react';
+import React, { useMemo } from 'react';
 import CanvasContainer from '../../../components/layout/CanvasContainer';
 import WidgetHost from '../../../components/widget-runtime/WidgetHost';
 import { applySizing } from '../../../components/layout/sizing';
+import { useUserProfile } from '../../../context/UserPreferenceContext';
 
 type RuntimeCanvasProps = {
     layout: any[];
+    templateId: string;
     runtimeItems: Array<{ item: any; widgetInstance: any; widgetDefinition: any }>;
 };
 
@@ -15,6 +17,12 @@ export default function RuntimeCanvas(props: RuntimeCanvasProps) {
     React.useEffect(() => {
         if (props.layout.length !== 0) setIsInitialLoading(false);
     }, [props.layout]);
+
+    const { widgetsProfile } = useUserProfile();
+    const widgetsDefaultValue: Record<string, any> = useMemo(
+        () => widgetsProfile?.[props.templateId] || {},
+        [props.templateId, widgetsProfile]
+    );
 
     const { widgetsById, widgetDefById } = React.useMemo(() => {
         const wById: Record<string, any> = {};
@@ -51,6 +59,7 @@ export default function RuntimeCanvas(props: RuntimeCanvasProps) {
                         widgetInstance={widgetInstance}
                         widgetDefinition={widgetDefinition}
                         mode="workflow"
+                        defaultValue={widgetsDefaultValue?.[widgetInstance.id]}
                     />
                 </div>
             ))}

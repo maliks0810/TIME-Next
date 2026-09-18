@@ -1,35 +1,38 @@
-// Currently Not deploying this functionality to production. Skip code review
-
 .performanceToolbar {
-  display: flex;
-  justify-content: space-between;
-  
-  .rightSection {
     display: flex;
-    gap: 4px;
-  }
+    justify-content: space-between;
 
-  .tag {
-    // background: var(--ant-color-bg-container);
-    border: 1px solid var(--ant-color-border-secondary);
-    // box-shadow: 0 2px 8px var(--ant-color-border-secondary);
-
-    border-radius: 7px;
-    padding: 4px 9px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-
-    .pbadge {
-      background: #eaf1ff;
-      color: #2f6bff;
-      border: none;
-      border-radius: 6px;
-      padding: 2px 7px;
-      font-weight: 700;
-      font-size: 11px;
-      margin-right: 4px;
+    .leftSection {
+        display: flex;
+        gap: 4px;
     }
-  }
+
+    .rightSection {
+        display: flex;
+        gap: 4px;
+    }
+
+    .tag {
+        // background: var(--ant-color-bg-container);
+        border: 1px solid var(--ant-color-border-secondary);
+        // box-shadow: 0 2px 8px var(--ant-color-border-secondary);
+
+        border-radius: 7px;
+        padding: 4px 9px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+
+        .pbadge {
+            background: #eaf1ff;
+            color: #2f6bff;
+            border: none;
+            border-radius: 6px;
+            padding: 2px 7px;
+            font-weight: 700;
+            font-size: 11px;
+            margin-right: 4px;
+        }
+    }
 }
