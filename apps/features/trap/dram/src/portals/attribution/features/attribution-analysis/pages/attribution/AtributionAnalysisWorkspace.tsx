@@ -859,7 +859,7 @@ const executeAttribAnalysis = async (
 
       const inputGrouping = input.breakdownModeId === "Type_2" ? encodeURIComponent("Type 2")
       : input.breakdownModeId === "GICS" ? "GICS1"
-      : input.breakdownModeId === "Mag_7" ? encodeURIComponent("Mag 7")
+      : input.breakdownModeId === "Mag_7" || input.breakdownModeId === "Mag7" ? encodeURIComponent("Mag7")
       : input.breakdownModeId === "Russell_Style" ? encodeURIComponent("Russell Style")
               : encodeURIComponent(input.breakdownModeId);
       console.log(input.breakdownModeId);
@@ -872,9 +872,7 @@ const executeAttribAnalysis = async (
         input.portfolio,inputGrouping,input.startDate,input.endDate,input.periodIdsCsv,input.benchmark)) :
         input.frequencyMode === "monthly" && input.assetClass === "EQ" ?  (await api.runSecurityGrainAnalysis(
           input.assetClass, input.portfolio, input.frequencyMode, inputGrouping, input.startDate,input.endDate,input.periodIdsCsv,input.benchmark))
-            : input.breakdownModeId === "Type 2" && input.frequencyMode === "monthly" ? (await api.runDiagnosticsMonthlyAttributionAnalysis(
-        input.portfolio,input.frequencyMode, inputGrouping, input.startDate, input.endDate, input.periodIdsCsv, input.benchmark)) :
-              (await api.runSecurityGrainAnalysis(
+            : (await api.runSecurityGrainAnalysis(
         input.assetClass, input.portfolio,input.frequencyMode,inputGrouping,input.startDate, input.endDate,input.periodIdsCsv,input.benchmark
       )) as ResponseWithPeriodGrids;
 
